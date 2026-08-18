@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terra Galega · Restaurante Gallego en Bogotá</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-terra: #b2571f;
+        --color-gold: #d99a21;
+        --color-burgundy: #8a2222;
+        --color-cream: #f5f2eb;
+        --color-forest: #556141;
+        --color-charcoal: #2c2c2c;
+        --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+        --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+      }
+    </style>
+
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body class="min-h-screen bg-cream font-sans text-charcoal">
+    <nav
+      id="navbar"
+      class="fixed top-0 inset-x-0 z-50 border-b w-full"
+      style="
+        background-color: rgba(44, 44, 44, 0.97);
+        border-color: rgba(255, 255, 255, 0.08);
+      ">
+      <div
+        class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
+        style="grid-template-columns: 1fr auto 1fr">
+        <div class="flex items-center justify-evenly w-full">
+          <button
+            class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+            data-scroll="nosotros">
+            NOSOTROS
+          </button>
+          <button
+            class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+            data-scroll="menu">
+            MENÚ
+          </button>
+          <button
+            class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+            data-scroll="contacto">
+            CONTACTO
+          </button>
+        </div>
+
+        <div class="flex justify-center px-10">
+          <button
+            data-scroll="hero"
+            class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300">
+            <span
+              class="font-terra text-[24px] leading-[0.6] text-[#f5f2eb] font-normal"
+              >Terra</span
+            >
+            <span
+              class="font-galega text-[21px] tracking-[0.05em] uppercase text-[#f5f2eb] -mt-1.5"
+              >Galega</span
+            >
+          </button>
+        </div>
+
+        <div class="flex items-center justify-evenly w-full">
+          <button
+            class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+            data-modal="login">
+            INICIAR SESIÓN
+          </button>
+          <button
+            class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+            data-modal="signup">
+            REGISTRARSE
+          </button>
+          <button
+            class="nav-link relative flex items-center justify-center"
+            data-modal="cart"
+            aria-label="Carrito">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span
+              id="cart-count-desktop"
+              class="hidden-modal absolute -top-1.5 -right-2 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
+              >0</span
+            >
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="flex md:hidden items-center justify-between px-5 h-16 relative">
+        <button
+          data-scroll="hero"
+          class="flex flex-col items-center justify-center drop-shadow-md z-10">
+          <span class="font-terra text-[24px] leading-[0.6] text-[#f5f2eb]"
+            >Terra</span
+          >
+          <span
+            class="font-galega text-[22px] tracking-[0.05em] uppercase text-[#f5f2eb] -mt-1"
+            >Galega</span
+          >
+        </button>
+
+        <div class="flex items-center gap-4">
+          <button
+            class="relative p-2 text-[#f5f2eb]"
+            data-modal="cart"
+            aria-label="Carrito">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span
+              id="cart-count-mobile"
+              class="hidden-modal absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
+              >0</span
+            >
+          </button>
+          <button id="nav-toggle" class="p-1 text-[#f5f2eb]" aria-label="Menú">
+            <svg
+              id="icon-open"
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg
+              id="icon-close"
+              class="w-6 h-6 hidden-modal"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="mobile-menu"
+        class="hidden-modal md:hidden px-6 py-4 flex flex-col gap-4 border-t"
+        style="
+          background-color: #2c2c2ce6;
+          border-color: rgba(255, 255, 255, 0.08);
+        ">
+        <button
+          class="text-left text-xs font-medium tracking-[0.18em] py-2"
+          style="color: rgba(245, 242, 235, 0.72)"
+          data-scroll="nosotros">
+          NOSOTROS
+        </button>
+        <button
+          class="text-left text-xs font-medium tracking-[0.18em] py-2"
+          style="color: rgba(245, 242, 235, 0.72)"
+          data-scroll="menu">
+          MENÚ
+        </button>
+        <button
+          class="text-left text-xs font-medium tracking-[0.18em] py-2"
+          style="color: rgba(245, 242, 235, 0.72)"
+          data-scroll="contacto">
+          CONTACTO
+        </button>
+        <div
+          class="flex gap-3 pt-4 pb-2 border-t mt-2"
+          style="border-color: rgba(255, 255, 255, 0.08)">
+          <button
+            class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded"
+            style="color: #f5f2eb; border: 1px solid rgba(245, 242, 235, 0.25)"
+            data-modal="login">
+            INICIAR SESIÓN
+          </button>
+          <button
+            class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra"
+            data-modal="signup">
+            REGISTRARSE
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <section
+      id="hero"
+      class="relative h-screen flex items-center justify-center overflow-hidden">
+      <img
+        src="https://images.unsplash.com/photo-1691089667845-841645e16c43?w=1600&h=900&fit=crop&auto=format"
+        alt="Interior elegante del restaurante Terra Galega"
+        class="absolute inset-0 w-full h-full object-cover" />
+      <div
+        class="absolute inset-0"
+        style="
+          background: linear-gradient(
+            to bottom,
+            rgba(44, 44, 44, 0.55) 0%,
+            rgba(44, 44, 44, 0.45) 50%,
+            rgba(44, 44, 44, 0.75) 100%
+          );
+        "></div>
+
+      <div
+        class="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center -mt-20">
+        <p
+          class="text-sm font-medium tracking-[0.35em] uppercase mb-2"
+          style="color: #d99a21">
+          Restaurante Gallego · Bogotá
+        </p>
+
+        <img
+          src="../assets/logo-hero.svg"
+          alt="Terra Galega"
+          class="mx-auto w-72 md:w-[420px] lg:w-[500px] -mb-30 object-contain drop-shadow-2xl" />
+
+        <p
+          class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
+          style="color: rgba(245, 242, 235, 0.8)">
+          Tradición culinaria gallega en el corazón de Bogotá. Mariscos frescos,
+          carnes seleccionadas y los auténticos sabores del noroeste de España.
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <button
+            class="px-8 py-3.5 text-white font-medium rounded tracking-wide btn-terra"
+            data-scroll="menu">
+            Explorar Menú
+          </button>
+          <button
+            class="px-8 py-3.5 font-medium rounded tracking-wide outline-btn"
+            data-scroll="nosotros">
+            Nuestra Historia
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        style="color: rgba(245, 242, 235, 0.45)">
+        <span class="text-xs tracking-widest uppercase">Descubrir</span>
+        <svg
+          class="w-4 h-4 animate-bounce"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </section>
+
+    <section id="nosotros" class="py-24 bg-cream">
+      <div
+        class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <div class="order-2 md:order-1">
+          <p
+            class="text-sm font-medium tracking-[0.25em] uppercase mb-4"
+            style="color: #b2571f">
+            Nuestra Historia
+          </p>
+          <h2
+            class="font-serif text-4xl md:text-5xl text-charcoal font-semibold mb-6 leading-tight">
+            Un pedazo de Galicia<br />en cada plato
+          </h2>
+          <div class="w-12 h-px mb-8" style="background-color: #d99a21"></div>
+          <p class="leading-relaxed mb-5" style="color: rgba(44, 44, 44, 0.68)">
+            Terra Galega nació del amor por la gastronomía gallega y el deseo de
+            compartirla con el mundo. Desde 2018, nuestro restaurante ha sido el
+            refugio de quienes buscan los auténticos sabores del noroeste
+            español: pulpo fresco, empanadas artesanales y el inconfundible
+            carácter de la cocina marinera.
+          </p>
+          <p
+            class="leading-relaxed mb-10"
+            style="color: rgba(44, 44, 44, 0.68)">
+            Nuestros ingredientes viajan directamente desde la costa gallega.
+            Trabajamos con productores locales que comparten nuestra pasión por
+            la calidad y la tradición. Cada plato se prepara con el respeto que
+            merecen siglos de cultura culinaria.
+          </p>
+          <div
+            class="grid grid-cols-3 gap-6 pt-6 border-t"
+            style="border-color: rgba(44, 44, 44, 0.1)">
+            <div class="text-center">
+              <p
+                class="font-serif text-3xl font-bold mb-1"
+                style="color: #b2571f">
+                6+
+              </p>
+              <p
+                class="text-xs leading-snug"
+                style="color: rgba(44, 44, 44, 0.55)">
+                Años de trayectoria
+              </p>
+            </div>
+            <div class="text-center">
+              <p
+                class="font-serif text-3xl font-bold mb-1"
+                style="color: #b2571f">
+                150+
+              </p>
+              <p
+                class="text-xs leading-snug"
+                style="color: rgba(44, 44, 44, 0.55)">
+                Platos al día
+              </p>
+            </div>
+            <div class="text-center">
+              <p
+                class="font-serif text-3xl font-bold mb-1"
+                style="color: #b2571f">
+                4.9★
+              </p>
+              <p
+                class="text-xs leading-snug"
+                style="color: rgba(44, 44, 44, 0.55)">
+                Valoración promedio
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-1 md:order-2 relative">
+          <img
+            src="https://images.unsplash.com/photo-1712630514718-3830cc6c0d0a?w=640&h=800&fit=crop&auto=format"
+            alt="Plato gallego elaborado con esmero"
+            class="w-full object-cover"
+            style="height: 520px; border-radius: 2px" />
+          <div
+            class="absolute -bottom-5 -left-5 w-28 h-28 hidden md:flex flex-col items-center justify-center p-3 text-center"
+            style="background-color: #556141; border-radius: 2px">
+            <p class="text-xs font-medium leading-snug" style="color: #f5f2eb">
+              Cocina<br />Artesanal<br />Gallega
+            </p>
+          </div>
+          <div
+            class="absolute -top-5 -right-5 w-20 h-20 hidden md:block"
+            style="
+              border: 2px solid rgba(217, 154, 33, 0.35);
+              border-radius: 2px;
+            "></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16" style="background-color: #556141">
+      <div
+        class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div class="flex items-start gap-5">
+          <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
+            <svg
+              class="w-7 h-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M21 12c0 1.657-4.03 3-9 3S3 13.657 3 12m18 0c0-1.657-4.03-3-9-3S3 10.343 3 12m18 0v6c0 1.657-4.03 3-9 3S3 19.657 3 18v-6M3 6c0-1.657 4.03-3 9-3s9 1.343 9 3v6" />
+            </svg>
+          </div>
+          <div>
+            <h3
+              class="font-serif font-semibold text-lg mb-2"
+              style="color: #f5f2eb">
+              Mariscos de Temporada
+            </h3>
+            <p
+              class="text-sm leading-relaxed"
+              style="color: rgba(245, 242, 235, 0.6)">
+              Ingredientes frescos traídos desde el Mar Cantábrico cada semana,
+              respetando la temporada.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-start gap-5">
+          <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
+            <svg
+              class="w-7 h-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <h3
+              class="font-serif font-semibold text-lg mb-2"
+              style="color: #f5f2eb">
+              Vinos Gallegos D.O.
+            </h3>
+            <p
+              class="text-sm leading-relaxed"
+              style="color: rgba(245, 242, 235, 0.6)">
+              Selección exclusiva de Albariños Rías Baixas y tintos Ribeiro con
+              denominación de origen.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-start gap-5">
+          <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
+            <svg
+              class="w-7 h-7"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3
+              class="font-serif font-semibold text-lg mb-2"
+              style="color: #f5f2eb">
+              Domicilio Rápido
+            </h3>
+            <p
+              class="text-sm leading-relaxed"
+              style="color: rgba(245, 242, 235, 0.6)">
+              Pedidos en línea con entrega a domicilio en toda Bogotá. Pago
+              contra entrega o datafono.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="menu" class="py-24 bg-cream">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-14">
+          <p
+            class="text-sm font-medium tracking-[0.25em] uppercase mb-3"
+            style="color: #b2571f">
+            Lo que ofrecemos
+          </p>
+          <h2
+            class="font-serif text-4xl md:text-5xl text-charcoal font-semibold mb-4">
+            Nuestro Menú
+          </h2>
+          <div
+            class="w-12 h-px mx-auto"
+            style="background-color: #d99a21"></div>
+        </div>
+
+        <div
+          class="flex flex-wrap justify-center gap-2 mb-12"
+          id="category-tabs">
+          <button
+            class="cat-btn active px-6 py-2 text-sm font-medium rounded-full"
+            data-category="Todos">
+            Todos
+          </button>
+          <button
+            class="cat-btn px-6 py-2 text-sm font-medium rounded-full"
+            data-category="Entradas">
+            Entradas
+          </button>
+          <button
+            class="cat-btn px-6 py-2 text-sm font-medium rounded-full"
+            data-category="Mariscos">
+            Mariscos
+          </button>
+          <button
+            class="cat-btn px-6 py-2 text-sm font-medium rounded-full"
+            data-category="Carnes">
+            Carnes
+          </button>
+          <button
+            class="cat-btn px-6 py-2 text-sm font-medium rounded-full"
+            data-category="Postres">
+            Postres
+          </button>
+        </div>
+
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+          id="menu-grid"></div>
+      </div>
+    </section>
+
+    <section class="py-24" style="background-color: #ede9e0">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-14">
+          <p
+            class="text-sm font-medium tracking-[0.25em] uppercase mb-3"
+            style="color: #b2571f">
+            Opiniones
+          </p>
+          <h2
+            class="font-serif text-4xl md:text-5xl text-charcoal font-semibold mb-4">
+            Lo que dicen nuestros clientes
+          </h2>
+          <div
+            class="w-12 h-px mx-auto"
+            style="background-color: #d99a21"></div>
+        </div>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-3 gap-8"
+          id="testimonials-grid"></div>
+      </div>
+    </section>
+
+    <section id="contacto" class="py-24 bg-cream">
+      <div
+        class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <p
+            class="text-sm font-medium tracking-[0.25em] uppercase mb-4"
+            style="color: #b2571f">
+            Encuéntranos
+          </p>
+          <h2
+            class="font-serif text-4xl md:text-5xl text-charcoal font-semibold mb-6 leading-tight">
+            Visítanos en<br />Bogotá
+          </h2>
+          <div class="w-12 h-px mb-8" style="background-color: #d99a21"></div>
+
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <div style="color: #b2571f">
+                <svg
+                  class="w-5 h-5 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <p
+                  class="text-xs font-medium uppercase tracking-wider mb-0.5"
+                  style="color: rgba(44, 44, 44, 0.45)">
+                  Dirección
+                </p>
+                <p class="text-sm text-charcoal">
+                  Calle 93 #15-47, Zona Rosa, Bogotá
+                </p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div style="color: #b2571f">
+                <svg
+                  class="w-5 h-5 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+              </div>
+              <div>
+                <p
+                  class="text-xs font-medium uppercase tracking-wider mb-0.5"
+                  style="color: rgba(44, 44, 44, 0.45)">
+                  Teléfono
+                </p>
+                <p class="text-sm text-charcoal">+57 601 456 7890</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div style="color: #b2571f">
+                <svg
+                  class="w-5 h-5 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p
+                  class="text-xs font-medium uppercase tracking-wider mb-0.5"
+                  style="color: rgba(44, 44, 44, 0.45)">
+                  Correo
+                </p>
+                <p class="text-sm text-charcoal">contacto@terragalega.co</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div style="color: #b2571f">
+                <svg
+                  class="w-5 h-5 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p
+                  class="text-xs font-medium uppercase tracking-wider mb-0.5"
+                  style="color: rgba(44, 44, 44, 0.45)">
+                  Horario
+                </p>
+                <p class="text-sm text-charcoal">
+                  Lun – Sáb: 12:00 – 22:00 · Dom: 12:00 – 20:00
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-10 flex gap-3">
+            <button
+              class="px-6 py-3 text-white text-sm font-medium rounded btn-terra"
+              data-modal="signup">
+              Crear cuenta
+            </button>
+            <button
+              class="px-6 py-3 text-sm font-medium rounded"
+              style="color: #b2571f; border: 1px solid rgba(178, 87, 31, 0.4)"
+              data-scroll="menu">
+              Ver menú
+            </button>
+          </div>
+        </div>
+
+        <div class="relative">
+          <img
+            src="https://images.unsplash.com/photo-1636405189493-181ecf851006?w=700&h=520&fit=crop&auto=format"
+            alt="Ambiente interior de Terra Galega"
+            class="w-full object-cover"
+            style="height: 460px; border-radius: 2px" />
+          <div
+            class="absolute inset-0"
+            style="
+              box-shadow: inset 0 0 0 1px rgba(217, 154, 33, 0.2);
+              border-radius: 2px;
+            "></div>
+        </div>
+      </div>
+    </section>
+
+    <footer
+      style="background-color: #2c2c2c; color: #f5f2eb"
+      class="pt-16 pb-8">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
+          <div class="md:col-span-5">
+            <img
+              src="../assets/logo-alt.svg"
+              alt="Terra Galega"
+              class="h-14 w-auto object-contain mb-5" />
+            <p
+              class="text-sm leading-relaxed max-w-sm"
+              style="color: rgba(245, 242, 235, 0.45)">
+              Restaurante gallego en Bogotá. Tradición, sabor y autenticidad en
+              cada plato desde 2018. Cocina marinera gallega con ingredientes
+              frescos de temporada.
+            </p>
+          </div>
+          <div class="md:col-span-3">
+            <h4
+              class="text-xs font-medium tracking-widest uppercase mb-5"
+              style="color: rgba(245, 242, 235, 0.35)">
+              Navegación
+            </h4>
+            <ul class="space-y-3">
+              <li>
+                <button class="footer-link text-sm" data-scroll="hero">
+                  Inicio
+                </button>
+              </li>
+              <li>
+                <button class="footer-link text-sm" data-scroll="nosotros">
+                  Nosotros
+                </button>
+              </li>
+              <li>
+                <button class="footer-link text-sm" data-scroll="menu">
+                  Menú
+                </button>
+              </li>
+              <li>
+                <button class="footer-link text-sm" data-scroll="contacto">
+                  Contacto
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div class="md:col-span-4">
+            <h4
+              class="text-xs font-medium tracking-widest uppercase mb-5"
+              style="color: rgba(245, 242, 235, 0.35)">
+              Mi cuenta
+            </h4>
+            <ul class="space-y-3">
+              <li>
+                <button class="footer-link text-sm" data-modal="login">
+                  Iniciar sesión
+                </button>
+              </li>
+              <li>
+                <button class="footer-link text-sm" data-modal="signup">
+                  Registrarse
+                </button>
+              </li>
+              <li>
+                <button class="footer-link text-sm" data-modal="cart">
+                  Mi carrito
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-3"
+          style="border-color: rgba(255, 255, 255, 0.08)">
+          <p class="text-xs" style="color: rgba(245, 242, 235, 0.3)">
+            © 2026 Terra Galega. Todos los derechos reservados.
+          </p>
+          <p class="text-xs" style="color: rgba(245, 242, 235, 0.3)">
+            Bogotá, Colombia · Sabores del noroeste de España
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <div
+      id="modal-product"
+      class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background-color: rgba(44, 44, 44, 0.65)">
+      <div
+        class="bg-cream w-full max-w-lg overflow-hidden shadow-2xl relative"
+        style="border-radius: 2px">
+        <button
+          class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+          style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb"
+          data-close="product">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <div class="relative h-56">
+          <img
+            id="product-image"
+            src=""
+            alt=""
+            class="w-full h-full object-cover" />
+        </div>
+        <div class="p-6">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <h3
+              id="product-name"
+              class="font-serif text-2xl font-semibold text-charcoal"></h3>
+            <span
+              id="product-price"
+              class="font-bold text-xl flex-shrink-0"
+              style="color: #b2571f"></span>
+          </div>
+          <p
+            id="product-description"
+            class="text-sm leading-relaxed mb-5"
+            style="color: rgba(44, 44, 44, 0.62)"></p>
+
+          <div id="product-additionals-wrap" class="mb-5">
+            <p
+              class="text-xs font-medium uppercase tracking-wider mb-3"
+              style="color: rgba(44, 44, 44, 0.45)">
+              Adicionales
+            </p>
+            <div id="product-additionals" class="space-y-2.5"></div>
+          </div>
+
+          <div class="flex items-center gap-4 mb-5">
+            <p
+              class="text-xs font-medium uppercase tracking-wider"
+              style="color: rgba(44, 44, 44, 0.45)">
+              Cantidad
+            </p>
+            <div class="flex items-center gap-3">
+              <button
+                id="qty-minus"
+                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+                −
+              </button>
+              <span
+                id="qty-value"
+                class="w-6 text-center font-semibold text-charcoal"
+                >1</span
+              >
+              <button
+                id="qty-plus"
+                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+                +
+              </button>
+            </div>
+          </div>
+
+          <button
+            id="add-to-cart-btn"
+            class="w-full py-3 text-white font-medium rounded btn-terra">
+            Agregar al carrito
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="modal-cart"
+      class="hidden-modal fixed inset-0 z-50 flex items-end md:items-center justify-center"
+      style="background-color: rgba(44, 44, 44, 0.65)">
+      <div
+        class="bg-cream w-full md:max-w-lg shadow-2xl flex flex-col"
+        style="max-height: 82vh; border-radius: 2px 2px 0 0">
+        <div
+          class="p-6 border-b flex items-center justify-between"
+          style="border-color: rgba(44, 44, 44, 0.1)">
+          <h2 class="font-serif text-2xl font-semibold text-charcoal">
+            Mi Carrito
+          </h2>
+          <button data-close="cart" style="color: rgba(44, 44, 44, 0.35)">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6">
+          <div
+            id="cart-empty"
+            class="text-center py-14"
+            style="color: rgba(44, 44, 44, 0.35)">
+            <svg
+              class="w-12 h-12 mx-auto mb-4 opacity-40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <p class="text-sm">Tu carrito está vacío</p>
+            <button
+              id="cart-explore-menu"
+              class="mt-4 text-sm underline underline-offset-2"
+              style="color: #b2571f">
+              Explorar el menú
+            </button>
+          </div>
+          <div id="cart-items" class="space-y-3"></div>
+        </div>
+
+        <div
+          id="cart-footer"
+          class="hidden-modal p-6 border-t"
+          style="border-color: rgba(44, 44, 44, 0.1)">
+          <div class="flex justify-between items-center mb-4">
+            <span class="font-medium text-charcoal">Total del pedido</span>
+            <span
+              id="cart-total"
+              class="font-bold text-xl"
+              style="color: #b2571f"></span>
+          </div>
+          <button
+            id="cart-checkout"
+            class="w-full py-3 text-white font-medium rounded btn-terra">
+            Confirmar pedido
+          </button>
+          <p
+            class="text-center text-xs mt-3"
+            style="color: rgba(44, 44, 44, 0.4)">
+            Pago contra entrega o con datafono en tu domicilio
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="modal-login"
+      class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background-color: rgba(44, 44, 44, 0.65)">
+      <div
+        class="bg-cream w-full max-w-sm shadow-2xl relative p-8"
+        style="border-radius: 2px">
+        <button
+          data-close="login"
+          class="absolute top-4 right-4"
+          style="color: rgba(44, 44, 44, 0.3)">
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <h2 class="font-serif text-2xl font-semibold text-charcoal mb-1">
+          Iniciar sesión
+        </h2>
+        <p class="text-sm mb-7" style="color: rgba(44, 44, 44, 0.5)">
+          Accede a tu cuenta en Terra Galega
+        </p>
+
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label
+              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.5)"
+              >Correo electrónico</label
+            >
+            <input
+              type="email"
+              id="login-email"
+              placeholder="correo@ejemplo.com"
+              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.5)"
+              >Contraseña</label
+            >
+            <input
+              type="password"
+              id="login-password"
+              placeholder="••••••••"
+              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
+          </div>
+          <p
+            id="login-error"
+            class="hidden-modal text-xs"
+            style="color: #8a2222"></p>
+          <button
+            type="submit"
+            class="w-full py-2.5 text-white text-sm font-medium rounded btn-terra">
+            Iniciar sesión
+          </button>
+        </form>
+
+        <p
+          class="text-center text-sm mt-5"
+          style="color: rgba(44, 44, 44, 0.5)">
+          ¿No tienes cuenta?
+          <button
+            data-modal="signup"
+            class="font-medium"
+            style="color: #b2571f">
+            Regístrate
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <div
+      id="modal-signup"
+      class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
+      style="background-color: rgba(44, 44, 44, 0.65)">
+      <div
+        class="bg-cream w-full max-w-sm shadow-2xl relative p-8 my-4"
+        style="border-radius: 2px">
+        <button
+          data-close="signup"
+          class="absolute top-4 right-4"
+          style="color: rgba(44, 44, 44, 0.3)">
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <h2 class="font-serif text-2xl font-semibold text-charcoal mb-1">
+          Crear cuenta
+        </h2>
+        <p class="text-sm mb-7" style="color: rgba(44, 44, 44, 0.5)">
+          Únete a la familia Terra Galega
+        </p>
+
+        <form id="signup-form" class="space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label
+                class="block text-xs font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.5)"
+                >Nombre</label
+              >
+              <input
+                type="text"
+                id="signup-name"
+                placeholder="Juan"
+                class="input-field w-full px-3 py-2.5 text-charcoal text-sm" />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.5)"
+                >Apellido</label
+              >
+              <input
+                type="text"
+                id="signup-lastname"
+                placeholder="García"
+                class="input-field w-full px-3 py-2.5 text-charcoal text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.5)"
+              >Correo electrónico</label
+            >
+            <input
+              type="email"
+              id="signup-email"
+              placeholder="correo@ejemplo.com"
+              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.5)"
+              >Contraseña</label
+            >
+            <input
+              type="password"
+              id="signup-password"
+              placeholder="••••••••"
+              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.5)"
+              >Teléfono</label
+            >
+            <input
+              type="tel"
+              id="signup-phone"
+              placeholder="+57 300 000 0000"
+              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
+          </div>
+          <div>
+            <label
+              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.5)"
+              >Dirección de entrega</label
+            >
+            <input
+              type="text"
+              id="signup-address"
+              placeholder="Calle 93 #15-47, Bogotá"
+              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
+          </div>
+
+          <p
+            id="signup-error"
+            class="hidden-modal text-xs"
+            style="color: #8a2222"></p>
+          <button
+            type="submit"
+            class="w-full py-2.5 text-white text-sm font-medium rounded btn-terra">
+            Crear cuenta
+          </button>
+        </form>
+
+        <p
+          class="text-center text-sm mt-5"
+          style="color: rgba(44, 44, 44, 0.5)">
+          ¿Ya tienes cuenta?
+          <button data-modal="login" class="font-medium" style="color: #b2571f">
+            Inicia sesión
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <script src="../js/script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background-color: #f5f2eb;
+  color: #2c2c2c;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b2571f transparent;
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.font-terra {
+  font-family: "Pinyon Script", cursive;
+}
+.font-galega {
+  font-family: "Droid Serif", serif;
+}
+.hidden-modal {
+  display: none !important;
+}
+.nav-link {
+  color: rgba(245, 242, 235, 0.72);
+  transition: color 0.2s;
+}
+.nav-link:hover {
+  color: #f5f2eb;
+}
+.footer-link {
+  color: rgba(245, 242, 235, 0.55);
+  transition: color 0.2s;
+}
+.footer-link:hover {
+  color: #d99a21;
+}
+.cat-btn {
+  background-color: transparent;
+  color: rgba(44, 44, 44, 0.65);
+  border: 1px solid rgba(44, 44, 44, 0.2);
+}
+.cat-btn:hover {
+  border-color: #b2571f;
+  color: #b2571f;
+}
+.cat-btn.active {
+  background-color: #b2571f;
+  color: #fff;
+  border: 1px solid #b2571f;
+}
+.btn-terra {
+  background-color: #b2571f;
+  transition: background-color 0.2s;
+}
+.btn-terra:hover {
+  background-color: #8a2222;
+}
+.outline-btn {
+  color: #f5f2eb;
+  border: 1px solid rgba(245, 242, 235, 0.45);
+  transition: all 0.2s;
+}
+.outline-btn:hover {
+  border-color: #d99a21;
+  color: #d99a21;
+}
+.qty-btn {
+  border: 1px solid rgba(44, 44, 44, 0.2);
+  color: #2c2c2c;
+  transition: all 0.2s;
+}
+.qty-btn:hover {
+  border-color: #b2571f;
+  color: #b2571f;
+}
+.input-field {
+  border: 1px solid rgba(44, 44, 44, 0.2);
+  border-radius: 2px;
+  background-color: #fff;
+  transition: border-color 0.2s;
+}
+.input-field:focus {
+  border-color: #b2571f;
+  outline: none;
+}
