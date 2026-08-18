@@ -18,12 +18,12 @@
         --font-serif: "Playfair Display", ui-serif, Georgia, serif;
       }
     </style>
-
     <link rel="stylesheet" href="../css/styles.css" />
   </head>
-  
   <body class="min-h-screen bg-cream font-sans text-charcoal">
+    <!--header con la barra de navegación -->
     <header>
+      <!-- Barra de navegación fija en la parte superior de la página -->
       <nav
         id="navbar"
         class="fixed top-0 inset-x-0 z-50 border-b w-full"
@@ -31,10 +31,12 @@
           background-color: rgba(44, 44, 44, 0.97);
           border-color: rgba(255, 255, 255, 0.08);
         ">
+        <!-- Barra de navegación para pantallas medianas y grandes -->
         <div
           class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
           style="grid-template-columns: 1fr auto 1fr">
           <div class="flex items-center justify-evenly w-full">
+            <!-- Botones de navegación para secciones de la página -->
             <button
               class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
               data-scroll="nosotros">
@@ -51,7 +53,7 @@
               CONTACTO
             </button>
           </div>
-
+          <!-- Logo dell restaurante en el centro de la barra de navegación -->
           <div class="flex justify-center px-10">
             <button
               data-scroll="hero"
@@ -66,7 +68,7 @@
               >
             </button>
           </div>
-
+          <!-- Botones de inicio de sesión, registro y carrito de compras -->
           <div class="flex items-center justify-evenly w-full">
             <button
               class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
@@ -102,7 +104,7 @@
             </button>
           </div>
         </div>
-
+        <!-- Barra de navegación para pantallas pequeñas -->
         <div
           class="flex md:hidden items-center justify-between px-5 h-16 relative">
           <button
@@ -168,7 +170,7 @@
             </button>
           </div>
         </div>
-
+        <!-- Menú desplegable para pantallas pequeñas -->
         <div
           id="mobile-menu"
           class="hidden-modal md:hidden px-6 py-4 flex flex-col gap-4 border-t"
@@ -212,8 +214,9 @@
         </div>
       </nav>
     </header>
-    
+    <!-- Contenido principal de la página -->
     <main>
+      <!-- Sección con la imagen principal de fondo y texto centrado -->
       <section
         id="hero"
         class="relative h-screen flex items-center justify-center overflow-hidden">
@@ -221,6 +224,7 @@
           src="https://images.unsplash.com/photo-1691089667845-841645e16c43?w=1600&h=900&fit=crop&auto=format"
           alt="Interior elegante del restaurante Terra Galega"
           class="absolute inset-0 w-full h-full object-cover" />
+        <!-- Capa de degradado para mejorar la legibilidad del texto sobre la imagen -->
         <div
           class="absolute inset-0"
           style="
@@ -231,7 +235,7 @@
               rgba(44, 44, 44, 0.75) 100%
             );
           "></div>
-
+        <!-- Contenedor del contenido centrado sobre la imagen de fondo -->
         <div
           class="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center -mt-20">
           <p
@@ -239,7 +243,7 @@
             style="color: #d99a21">
             Restaurante Gallego · Bogotá
           </p>
-
+          <!-- Logo del restaurante con sombra y tamaño adaptable según el tamaño de la pantalla -->
           <img
             src="../assets/logo-hero.svg"
             alt="Terra Galega"
@@ -251,6 +255,7 @@
             Tradición culinaria gallega en el corazón de Bogotá. Mariscos frescos,
             carnes seleccionadas y los auténticos sabores del noroeste de España.
           </p>
+          <!-- Botones de acción-->
           <div class="flex flex-wrap items-center justify-center gap-4">
             <button
               class="px-8 py-3.5 text-white font-medium rounded tracking-wide btn-terra"
@@ -264,7 +269,7 @@
             </button>
           </div>
         </div>
-
+        <!-- Indicador de desplazamiento hacia abajo con animación de rebote -->
         <div
           class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           style="color: rgba(245, 242, 235, 0.45)">
@@ -282,10 +287,12 @@
           </svg>
         </div>
       </section>
-
+      <!-- Sección "Nosotros" con información sobre la historia del restaurante -->
       <section id="nosotros" class="py-24 bg-cream">
+        <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
         <div
           class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+          <!--Contenido.. Texto-->
           <div class="order-2 md:order-1">
             <p
               class="text-sm font-medium tracking-[0.25em] uppercase mb-4"
@@ -312,6 +319,8 @@
               la calidad y la tradición. Cada plato se prepara con el respeto que
               merecen siglos de cultura culinaria.
             </p>
+            <!-- Estadísticas del restaurante -->
+            
             <div
               class="grid grid-cols-3 gap-6 pt-6 border-t"
               style="border-color: rgba(44, 44, 44, 0.1)">
@@ -352,14 +361,16 @@
                 </p>
               </div>
             </div>
-          </div>
 
+          </div>
+          <!-- Imagen representativa del restaurante con elementos decorativos -->
           <div class="order-1 md:order-2 relative">
             <img
               src="https://images.unsplash.com/photo-1712630514718-3830cc6c0d0a?w=640&h=800&fit=crop&auto=format"
               alt="Plato gallego elaborado con esmero"
               class="w-full object-cover"
               style="height: 520px; border-radius: 2px" />
+              <!-- Elementos decorativos superpuestos a la imagen para resaltar la identidad del restaurante(Cuadrito verde) -->
             <div
               class="absolute -bottom-5 -left-5 w-28 h-28 hidden md:flex flex-col items-center justify-center p-3 text-center"
               style="background-color: #556141; border-radius: 2px">
@@ -377,10 +388,13 @@
         </div>
       </section>
 
+      <!--seccion de informacion adicional-->
       <section class="py-16" style="background-color: #556141">
         <div
           class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+          <!--Contenedor del primer elemento -->
           <div class="flex items-start gap-5">
+            <!-- Icono de mariscos con estilo SVG -->
             <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
               <svg
                 class="w-7 h-7"
@@ -408,8 +422,10 @@
               </p>
             </div>
           </div>
+          <!--Contenedor del segundo elemento -->
           <div class="flex items-start gap-5">
             <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
+              <!-- Icono de vinos con estilo SVG -->
               <svg
                 class="w-7 h-7"
                 fill="none"
@@ -438,6 +454,7 @@
           </div>
           <div class="flex items-start gap-5">
             <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
+              <!--imagen de los domicilios rápidos-->
               <svg
                 class="w-7 h-7"
                 fill="none"
@@ -466,9 +483,11 @@
           </div>
         </div>
       </section>
-
+      <!--Seccion del menú-->
       <section id="menu" class="py-24 bg-cream">
+        <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
         <div class="max-w-7xl mx-auto px-6">
+          <!-- Título de la sección con estilo centrado y decorativo -->
           <div class="text-center mb-14">
             <p
               class="text-sm font-medium tracking-[0.25em] uppercase mb-3"
@@ -483,7 +502,7 @@
               class="w-12 h-px mx-auto"
               style="background-color: #d99a21"></div>
           </div>
-
+          <!-- Botones de categoría para filtrar el menú (todos, Entradas, Mariscos, Carnes, Postres)-->
           <div
             class="flex flex-wrap justify-center gap-2 mb-12"
             id="category-tabs">
@@ -513,14 +532,18 @@
               Postres
             </button>
           </div>
-
+          <!-- Contenedor de la cuadrícula del menú donde se mostrarán los elementos del menú filtrados -->
+          <!--Se llena con el contenido del menú (en el script)-->
           <div
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
             id="menu-grid"></div>
         </div>
       </section>
 
+
+      <!--Seccion de testimonios-->
       <section class="py-24" style="background-color: #ede9e0">
+        <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
         <div class="max-w-7xl mx-auto px-6">
           <div class="text-center mb-14">
             <p
@@ -536,16 +559,20 @@
               class="w-12 h-px mx-auto"
               style="background-color: #d99a21"></div>
           </div>
-
+          <!-- Contenedor de la cuadrícula de testimonios donde se mostrarán los testimonios de los clientes -->
+          <!--Se llena con el contenido de los testimonios (en el script)-->
           <div
             class="grid grid-cols-1 md:grid-cols-3 gap-8"
             id="testimonials-grid"></div>
         </div>
       </section>
 
+      <!--Seccion de contacto-->
       <section id="contacto" class="py-24 bg-cream">
+        <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
         <div
           class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+          <!-- Contenedor para los datos de contacto -->
           <div>
             <p
               class="text-sm font-medium tracking-[0.25em] uppercase mb-4"
@@ -557,8 +584,9 @@
               Visítanos en<br />Bogotá
             </h2>
             <div class="w-12 h-px mb-8" style="background-color: #d99a21"></div>
-
+            <!-- Contenedor para la información de contacto con iconos representativos -->
             <div class="space-y-6">
+              <!-- Dirección del restaurante con icono de ubicación -->
               <div class="flex items-start gap-4">
                 <div style="color: #b2571f">
                   <svg
@@ -578,6 +606,7 @@
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
+                <!-- Contenedor para la dirección del restaurante -->
                 <div>
                   <p
                     class="text-xs font-medium uppercase tracking-wider mb-0.5"
@@ -589,6 +618,7 @@
                   </p>
                 </div>
               </div>
+              <!-- Teléfono del restaurante con icono de teléfono -->
               <div class="flex items-start gap-4">
                 <div style="color: #b2571f">
                   <svg
@@ -603,6 +633,7 @@
                       d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </div>
+                <!-- Contenedor para el número de teléfono del restaurante -->
                 <div>
                   <p
                     class="text-xs font-medium uppercase tracking-wider mb-0.5"
@@ -612,6 +643,7 @@
                   <p class="text-sm text-charcoal">+57 601 456 7890</p>
                 </div>
               </div>
+              <!-- Correo electrónico del restaurante con icono de correo -->
               <div class="flex items-start gap-4">
                 <div style="color: #b2571f">
                   <svg
@@ -626,6 +658,7 @@
                       d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
+                <!-- Contenedor para el correo electrónico del restaurante -->
                 <div>
                   <p
                     class="text-xs font-medium uppercase tracking-wider mb-0.5"
@@ -635,6 +668,8 @@
                   <p class="text-sm text-charcoal">contacto@terragalega.co</p>
                 </div>
               </div>
+
+              <!-- Horario del restaurante con icono de reloj -->
               <div class="flex items-start gap-4">
                 <div style="color: #b2571f">
                   <svg
@@ -649,6 +684,7 @@
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
+                <!--horario del restaurante con icono de reloj -->
                 <div>
                   <p
                     class="text-xs font-medium uppercase tracking-wider mb-0.5"
@@ -661,7 +697,7 @@
                 </div>
               </div>
             </div>
-
+            <!-- Botones de acción para crear cuenta y ver menú -->
             <div class="mt-10 flex gap-3">
               <button
                 class="px-6 py-3 text-white text-sm font-medium rounded btn-terra"
@@ -676,7 +712,7 @@
               </button>
             </div>
           </div>
-
+          <!-- Contenedor para la imagen representativa del restaurante -->
           <div class="relative">
             <img
               src="https://images.unsplash.com/photo-1636405189493-181ecf851006?w=700&h=520&fit=crop&auto=format"
@@ -693,11 +729,18 @@
         </div>
       </section>
     </main>
+
+    <!-- Pie de página con información del restaurante, navegación y enlaces a la cuenta -->
     <footer
       style="background-color: #2c2c2c; color: #f5f2eb"
       class="pt-16 pb-8">
+      <!-- Contenedor principal del pie de página con un diseño de cuadrícula para organizar el contenido -->
       <div class="max-w-7xl mx-auto px-6">
+       
+        <!-- Contenedor de la cuadrícula del pie de página con tres columnas para el logo, navegación y enlaces a la cuenta -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
+
+          <!-- Contenedor para el logo y la descripción del restaurante -->
           <div class="md:col-span-5">
             <img
               src="../assets/logo-alt.svg"
@@ -711,12 +754,14 @@
               frescos de temporada.
             </p>
           </div>
+          <!--contenedor de navegación con botones para ir-->
           <div class="md:col-span-3">
             <h4
               class="text-xs font-medium tracking-widest uppercase mb-5"
               style="color: rgba(245, 242, 235, 0.35)">
               Navegación
             </h4>
+            <!--lista de enlaces de navegación-->
             <ul class="space-y-3">
               <li>
                 <button class="footer-link text-sm" data-scroll="hero">
@@ -740,12 +785,15 @@
               </li>
             </ul>
           </div>
+
+          <!-- Contenedor para los enlaces relacionados con la cuenta del usuario -->
           <div class="md:col-span-4">
             <h4
               class="text-xs font-medium tracking-widest uppercase mb-5"
               style="color: rgba(245, 242, 235, 0.35)">
               Mi cuenta
             </h4>
+            <!-- Lista de enlaces para iniciar sesión, registrarse y ver el carrito -->
             <ul class="space-y-3">
               <li>
                 <button class="footer-link text-sm" data-modal="login">
@@ -765,7 +813,7 @@
             </ul>
           </div>
         </div>
-
+        <!-- Contenedor para la información de derechos de autor y ubicación del restaurante -->
         <div
           class="pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-3"
           style="border-color: rgba(255, 255, 255, 0.08)">
@@ -779,13 +827,18 @@
       </div>
     </footer>
 
+    <!-- Modales para mostrar información adicional, carrito de compras y productos -->
+
+    <!--Modal de producto-->
     <div
       id="modal-product"
       class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
       style="background-color: rgba(44, 44, 44, 0.65)">
+      <!-- Contenido del modal de producto -->
       <div
         class="bg-cream w-full max-w-lg overflow-hidden shadow-2xl relative"
         style="border-radius: 2px">
+        <!-- Botón para cerrar el modal -->
         <button
           class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
           style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb"
@@ -802,6 +855,7 @@
               d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
+        <!-- Imagen del producto -->
         <div class="relative h-56">
           <img
             id="product-image"
@@ -809,6 +863,7 @@
             alt=""
             class="w-full h-full object-cover" />
         </div>
+        <!-- Contenido del modal (data)-->
         <div class="p-6">
           <div class="flex items-start justify-between gap-4 mb-3">
             <h3
@@ -823,7 +878,8 @@
             id="product-description"
             class="text-sm leading-relaxed mb-5"
             style="color: rgba(44, 44, 44, 0.62)"></p>
-
+          
+          <!-- Contenedor para los aditionales del producto -->
           <div id="product-additionals-wrap" class="mb-5">
             <p
               class="text-xs font-medium uppercase tracking-wider mb-3"
@@ -832,7 +888,7 @@
             </p>
             <div id="product-additionals" class="space-y-2.5"></div>
           </div>
-
+          <!-- Contenedor para la cantidad del producto -->
           <div class="flex items-center gap-4 mb-5">
             <p
               class="text-xs font-medium uppercase tracking-wider"
@@ -840,6 +896,7 @@
               Cantidad
             </p>
             <div class="flex items-center gap-3">
+              <!-- Botón para restar cantidad -->
               <button
                 id="qty-minus"
                 class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
@@ -850,6 +907,7 @@
                 class="w-6 text-center font-semibold text-charcoal"
                 >1</span
               >
+              <!-- Botón para sumar cantidad -->
               <button
                 id="qty-plus"
                 class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
@@ -857,7 +915,7 @@
               </button>
             </div>
           </div>
-
+          <!-- Botón para agregar al carrito -->
           <button
             id="add-to-cart-btn"
             class="w-full py-3 text-white font-medium rounded btn-terra">
@@ -867,20 +925,24 @@
       </div>
     </div>
 
+    <!--Modal de carrito-->
     <div
       id="modal-cart"
       class="hidden-modal fixed inset-0 z-50 flex items-end md:items-center justify-center"
       style="background-color: rgba(44, 44, 44, 0.65)">
+      <!--contenido del modal-->
       <div
         class="bg-cream w-full md:max-w-lg shadow-2xl flex flex-col"
         style="max-height: 82vh; border-radius: 2px 2px 0 0">
+        <!-- Encabezado del modal con título y botón de cierre -->
         <div
           class="p-6 border-b flex items-center justify-between"
           style="border-color: rgba(44, 44, 44, 0.1)">
           <h2 class="font-serif text-2xl font-semibold text-charcoal">
             Mi Carrito
           </h2>
-          <button data-close="cart" style="color: rgba(44, 44, 44, 0.35)">
+          <!-- Botón de cierre "X"-->
+          <button data-close="cart" style="color: rgba(23, 227, 47, 0.35)">
             <svg
               class="w-5 h-5"
               fill="none"
@@ -895,7 +957,9 @@
           </button>
         </div>
 
+        <!-- Contenido del carrito -->
         <div class="flex-1 overflow-y-auto p-6">
+          <!-- Contenedor para mostrar un mensaje cuando el carrito está vacío -->
           <div
             id="cart-empty"
             class="text-center py-14"
@@ -919,13 +983,17 @@
               Explorar el menú
             </button>
           </div>
+          <!-- Contenedor para los elementos del carrito -->
+          <!--Se añaden en el DOM dinámicamente con el script-->
           <div id="cart-items" class="space-y-3"></div>
         </div>
 
+        <!-- Pie del modal con el total del pedido y botón de confirmación -->
         <div
           id="cart-footer"
           class="hidden-modal p-6 border-t"
           style="border-color: rgba(44, 44, 44, 0.1)">
+          <!-- Total del pedido -->
           <div class="flex justify-between items-center mb-4">
             <span class="font-medium text-charcoal">Total del pedido</span>
             <span
@@ -933,6 +1001,7 @@
               class="font-bold text-xl"
               style="color: #b2571f"></span>
           </div>
+          <!-- Botón para confirmar el pedido -->
           <button
             id="cart-checkout"
             class="w-full py-3 text-white font-medium rounded btn-terra">
@@ -947,13 +1016,17 @@
       </div>
     </div>
 
+
+    <!--Modal de login y registro-->
     <div
       id="modal-login"
       class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
       style="background-color: rgba(44, 44, 44, 0.65)">
+      <!-- Contenido del modal de inicio de sesión -->
       <div
         class="bg-cream w-full max-w-sm shadow-2xl relative p-8"
         style="border-radius: 2px">
+        <!-- Botón de cierre "X"-->
         <button
           data-close="login"
           class="absolute top-4 right-4"
@@ -977,8 +1050,9 @@
         <p class="text-sm mb-7" style="color: rgba(44, 44, 44, 0.5)">
           Accede a tu cuenta en Terra Galega
         </p>
-
+        <!-- Formulario de inicio de sesión -->
         <form id="login-form" class="space-y-4">
+          <!-- Contenedor para el campo de correo electrónico -->
           <div>
             <label
               class="block text-xs font-medium uppercase tracking-wider mb-1.5"
@@ -991,6 +1065,7 @@
               placeholder="correo@ejemplo.com"
               class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
           </div>
+          <!-- Contenedor para el campo de contraseña -->
           <div>
             <label
               class="block text-xs font-medium uppercase tracking-wider mb-1.5"
@@ -1007,13 +1082,14 @@
             id="login-error"
             class="hidden-modal text-xs"
             style="color: #8a2222"></p>
+          <!-- Botón para enviar el formulario de inicio de sesión -->
           <button
             type="submit"
             class="w-full py-2.5 text-white text-sm font-medium rounded btn-terra">
             Iniciar sesión
           </button>
         </form>
-
+        <!-- Enlace para registrarse -->
         <p
           class="text-center text-sm mt-5"
           style="color: rgba(44, 44, 44, 0.5)">
@@ -1028,13 +1104,16 @@
       </div>
     </div>
     
+    <!-- Modal de registro -->
     <div
       id="modal-signup"
       class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
       style="background-color: rgba(44, 44, 44, 0.65)">
+      <!--Contenido del modal de registro-->
       <div
         class="bg-cream w-full max-w-sm shadow-2xl relative p-8 my-4"
         style="border-radius: 2px">
+        <!-- Botón de cierre "X"-->
         <button
           data-close="signup"
           class="absolute top-4 right-4"
@@ -1059,8 +1138,11 @@
           Únete a la familia Terra Galega
         </p>
 
+        <!--Formulario para registrarse-->
         <form id="signup-form" class="space-y-4">
+          <!-- Contenedor para los campos de nombre y apellido en una cuadrícula de dos columnas -->
           <div class="grid grid-cols-2 gap-3">
+            <!--Contenedor para el campo de nombre-->
             <div>
               <label
                 class="block text-xs font-medium uppercase tracking-wider mb-1.5"
@@ -1073,6 +1155,7 @@
                 placeholder="Juan"
                 class="input-field w-full px-3 py-2.5 text-charcoal text-sm" />
             </div>
+            <!--Contenedor para el campo de apellido-->
             <div>
               <label
                 class="block text-xs font-medium uppercase tracking-wider mb-1.5"
@@ -1086,7 +1169,7 @@
                 class="input-field w-full px-3 py-2.5 text-charcoal text-sm" />
             </div>
           </div>
-
+          <!--Contenedor para el campo de correo electrónico-->
           <div>
             <label
               class="block text-xs font-medium uppercase tracking-wider mb-1.5"
@@ -1099,6 +1182,7 @@
               placeholder="correo@ejemplo.com"
               class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
           </div>
+          <!--Contenedor para el campo de contraseña-->
           <div>
             <label
               class="block text-xs font-medium uppercase tracking-wider mb-1.5"
@@ -1111,6 +1195,7 @@
               placeholder="••••••••"
               class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
           </div>
+          <!--Contenedor para el campo de teléfono-->
           <div>
             <label
               class="block text-xs font-medium uppercase tracking-wider mb-1.5"
@@ -1123,6 +1208,7 @@
               placeholder="+57 300 000 0000"
               class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
           </div>
+          <!--Contenedor para el campo de dirección de entrega-->
           <div>
             <label
               class="block text-xs font-medium uppercase tracking-wider mb-1.5"
@@ -1135,18 +1221,19 @@
               placeholder="Calle 93 #15-47, Bogotá"
               class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
           </div>
-
+          <!-- Contenedor para mostrar mensajes de error durante el registro -->
           <p
             id="signup-error"
             class="hidden-modal text-xs"
             style="color: #8a2222"></p>
+          <!-- botón de envío -->
           <button
             type="submit"
             class="w-full py-2.5 text-white text-sm font-medium rounded btn-terra">
             Crear cuenta
           </button>
         </form>
-
+        <!-- Enlace para iniciar sesión -->
         <p
           class="text-center text-sm mt-5"
           style="color: rgba(44, 44, 44, 0.5)">
