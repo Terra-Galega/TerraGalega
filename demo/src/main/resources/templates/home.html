@@ -1,13 +1,12 @@
 <!doctype html>
-<html lang="es">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Terra Galega · Restaurante Gallego en Bogotá</title>
-
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
-      @theme {
+       @theme {
         --color-terra: #b2571f;
         --color-gold: #d99a21;
         --color-burgundy: #8a2222;
@@ -18,7 +17,7 @@
         --font-serif: "Playfair Display", ui-serif, Georgia, serif;
       }
     </style>
-    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
   </head>
   <body class="min-h-screen bg-cream font-sans text-charcoal">
     <!--header con la barra de navegación -->
@@ -245,7 +244,7 @@
           </p>
           <!-- Logo del restaurante con sombra y tamaño adaptable según el tamaño de la pantalla -->
           <img
-            src="../assets/logo-hero.svg"
+            th:src="@{/assets/logo-hero.svg}"
             alt="Terra Galega"
             class="mx-auto w-72 md:w-[420px] lg:w-[500px] -mb-30 object-contain drop-shadow-2xl" />
 
@@ -532,11 +531,27 @@
               Postres
             </button>
           </div>
+          
           <!-- Contenedor de la cuadrícula del menú donde se mostrarán los elementos del menú filtrados -->
-          <!--Se llena con el contenido del menú (en el script)-->
-          <div
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-            id="menu-grid"></div>
+          <!-- Se llena con el contenido del menú directamente desde Spring Boot -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="menu-grid">
+            <div th:each="product : ${products}" 
+                 class="menu-item bg-white shadow-sm overflow-hidden transition-all duration-300" 
+                 th:data-category="${product.category}" 
+                 style="border-radius: 2px;">
+              <div class="relative h-48 cursor-pointer group" th:onclick="'openProductById(' + ${product.id} + ')'">
+                <img th:src="${product.imageUrl}" th:alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              </div>
+              <div class="p-5">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-serif text-xl font-semibold text-charcoal" th:text="${product.name}"></h3>
+                  <span class="font-bold text-lg" style="color: #b2571f" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                </div>
+                <p class="text-sm leading-relaxed mb-4" style="color: rgba(44,44,44,0.68)" th:text="${product.description}"></p>
+              </div>
+            </div>
+          </div>
+          
         </div>
       </section>
 
@@ -743,7 +758,7 @@
           <!-- Contenedor para el logo y la descripción del restaurante -->
           <div class="md:col-span-5">
             <img
-              src="../assets/logo-alt.svg"
+              th:src="@{/assets/logo-alt.svg}"
               alt="Terra Galega"
               class="h-14 w-auto object-contain mb-5" />
             <p
@@ -1244,7 +1259,8 @@
         </p>
       </div>
     </div>
-
-    <script src="../js/script.js"></script>
+    <!--Arreglo que contiene los productos del menú y se comparte al js-->
+    <script th:inline="javascript">const menuProducts = /*[[${products}]]*/ [];</script>
+    <script th:src="@{/js/script.js}"></script>
   </body>
 </html>
