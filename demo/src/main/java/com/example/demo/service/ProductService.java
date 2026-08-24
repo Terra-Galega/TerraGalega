@@ -6,4 +6,6 @@ import java.util.Collection;
 public interface ProductService {
     Collection<Product> getAllProducts();
     Product getProductById(Integer id);
+    //Devuelve los productos marcados como populares, usados en "Favoritos de la casa" (home)
+    Collection<Product> getPopularProducts();
 }
