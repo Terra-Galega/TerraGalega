@@ -23,4 +23,30 @@ public class HomeController {
         model.addAttribute("popularProducts", productService.getPopularProducts());
         return "home"; 
     }
+
+    // http://localhost:8080/menu
+    @GetMapping("/menu")
+    public String menu(Model model) {
+        // Carga todos los productos para la carta completa y para el modal de producto
+        model.addAttribute("products", productService.getAllProducts());
+        return "menu";
+    }
+
+    // http://localhost:8080/nosotros
+    @GetMapping("/nosotros")
+    public String nosotros() {
+        return "nosotros";
+    }
+
+    // http://localhost:8080/contacto
+    @GetMapping("/contacto")
+    public String contacto() {
+        return "contacto";
+    }
+
+    // http://localhost:8080/login
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
 }
