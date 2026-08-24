@@ -225,9 +225,10 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <div
               th:each="product : ${popularProducts}"
+              th:attr="data-href=@{/productDetail/{id}(id=${product.id})}"
               class="rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
               style="box-shadow: 0 4px 24px rgba(44, 44, 44, 0.06)"
-              th:onclick="'openProductById(' + ${product.id} + ')'">
+              onclick="window.location.href=this.dataset.href">
               <div class="relative h-48 overflow-hidden">
                 <img
                   th:src="${product.imageUrl}"
