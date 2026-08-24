@@ -19,5 +19,6 @@ public class Product {
     private String imageUrl;
     private List<AddOn> additionals;
     private Boolean Active;
+    private Boolean popular; //Indica si el producto aparece en "Favoritos de la casa" (home)
 
 }

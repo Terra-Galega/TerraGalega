@@ -32,26 +32,29 @@ function openProductById(id) {
 }
 
 /* Maneja el cambio de categoría al hacer clic en los botones de categoría */
-categoryTabs.querySelectorAll(".cat-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    /* Actualiza la categoría actual eliminando la clase "active" de 
-    todos los botones y agregando la clase a aquel que fue CLICK */
-    currentCategory = btn.dataset.category;
-    categoryTabs
-      .querySelectorAll(".cat-btn")
-      .forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    
-    /* Filtra los elementos del DOM renderizados por Thymeleaf según la nueva categoría */
-    document.querySelectorAll('.menu-item').forEach(item => {
-      if (currentCategory === 'Todos' || item.dataset.category === currentCategory) {
-        item.style.display = 'block';
-      } else {
-        item.style.display = 'none';
-      }
+/* Se protege con un if porque no todas las páginas tienen la grilla completa del menú (p. ej. el home solo muestra "Favoritos") */
+if (categoryTabs) {
+  categoryTabs.querySelectorAll(".cat-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      /* Actualiza la categoría actual eliminando la clase "active" de 
+      todos los botones y agregando la clase a aquel que fue CLICK */
+      currentCategory = btn.dataset.category;
+      categoryTabs
+        .querySelectorAll(".cat-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      /* Filtra los elementos del DOM renderizados por Thymeleaf según la nueva categoría */
+      document.querySelectorAll('.menu-item').forEach(item => {
+        if (currentCategory === 'Todos' || item.dataset.category === currentCategory) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
     });
   });
-});
+}
 
 /* Maneja el scroll suave al hacer clic en los enlaces de navegación */
 document.querySelectorAll("[data-scroll]").forEach((el) => {

@@ -17,8 +17,10 @@ public class HomeController {
     // http://localhost:8080/home
     @GetMapping({"/", "/home"})
     public String home(Model model) {
-        // Cargar los productos desde el servicio a la vista
+        // Cargar todos los productos (se usan como catálogo en memoria para el modal de producto)
         model.addAttribute("products", productService.getAllProducts());
+        // Cargar solo los productos populares para la sección "Favoritos de la casa"
+        model.addAttribute("popularProducts", productService.getPopularProducts());
         return "home"; 
     }
 }

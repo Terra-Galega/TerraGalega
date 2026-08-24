@@ -28,6 +28,7 @@ public class ProductRepository {
                 new AddOn(1, "Salsa picante", "Adicional para Pulpo a la Gallega", 3000.0, true),
                 new AddOn(2, "Pan de maíz", "Adicional para Pulpo a la Gallega", 4000.0, true)
             ),
+            true,
             true
         ));
 
@@ -43,7 +44,8 @@ public class ProductRepository {
                 new AddOn(3, "Salsa brava", "Adicional para Croquetas", 2500.0, true),
                 new AddOn(4, "Alioli casero", "Adicional para Croquetas", 2000.0, true)
             ),
-            true
+            true,
+            false
         ));
 
         // 3. Empanada Gallega
@@ -57,7 +59,8 @@ public class ProductRepository {
             List.of(
                 new AddOn(5, "Ensalada verde", "Adicional para Empanada", 5000.0, true)
             ),
-            true
+            true,
+            false
         ));
 
         // 4. Gambas a la Plancha
@@ -72,6 +75,7 @@ public class ProductRepository {
                 new AddOn(6, "Extra ajo", "Adicional para Gambas", 2000.0, true),
                 new AddOn(7, "Salsa de limón", "Adicional para Gambas", 3000.0, true)
             ),
+            true,
             true
         ));
 
@@ -87,7 +91,8 @@ public class ProductRepository {
                 new AddOn(8, "Pan rústico", "Adicional para Mariscos", 4000.0, true),
                 new AddOn(9, "Ensalada del mar", "Adicional para Mariscos", 8000.0, true)
             ),
-            true
+            true,
+            false
         ));
 
         // 6. Paella de Mariscos
@@ -102,6 +107,7 @@ public class ProductRepository {
                 new AddOn(10, "Alioli casero", "Adicional para Paella", 3000.0, true),
                 new AddOn(11, "Limón extra", "Adicional para Paella", 1000.0, true)
             ),
+            true,
             true
         ));
 
@@ -117,7 +123,8 @@ public class ProductRepository {
                 new AddOn(12, "Pan de millo", "Adicional para Lacón", 3500.0, true),
                 new AddOn(13, "Cachelos", "Adicional para Lacón", 6000.0, true)
             ),
-            true
+            true,
+            false
         ));
 
         // 8. Solomillo a la Brasa
@@ -132,7 +139,8 @@ public class ProductRepository {
                 new AddOn(14, "Patatas bravas", "Adicional para Solomillo", 7000.0, true),
                 new AddOn(15, "Pimientos asados", "Adicional para Solomillo", 5000.0, true)
             ),
-            true
+            true,
+            false
         ));
 
         // 9. Tarta de Santiago
@@ -147,7 +155,8 @@ public class ProductRepository {
                 new AddOn(16, "Nata montada", "Adicional para Tarta de Santiago", 3000.0, true),
                 new AddOn(17, "Helado de vainilla", "Adicional para Tarta de Santiago", 4000.0, true)
             ),
-            true
+            true,
+            false
         ));
 
         // 10. Filloas con Crema
@@ -162,7 +171,8 @@ public class ProductRepository {
                 new AddOn(18, "Chocolate caliente", "Adicional para Filloas", 3500.0, true),
                 new AddOn(19, "Frutos rojos extra", "Adicional para Filloas", 4000.0, true)
             ),
-            true
+            true,
+            false
         ));
     }
 
