@@ -185,4 +185,47 @@ public class ProductRepository {
     public Product findById(Integer id) {
         return productMap.get(id);
     }
+
+    //Calcula el siguiente id disponible (el mayor id actual + 1)
+    private Integer nextId() {
+        return productMap.keySet().stream().max(Integer::compareTo).orElse(0) + 1;
+    }
+
+    //Guarda un producto nuevo (le asigna id, lo marca activo por defecto) y lo devuelve
+    public Product save(Product product) {
+        product.setId(nextId());
+        if (product.getActive() == null) {
+            product.setActive(true);
+        }
+        productMap.put(product.getId(), product);
+        return product;
+    }
+
+    //Actualiza los datos editables de un producto existente sin perder su id ni su estado activo/inactivo
+    public Product update(Integer id, Product product) {
+        Product existing = productMap.get(id);
+        if (existing == null) {
+            return null;
+        }
+        product.setId(id);
+        product.setActive(existing.getActive());
+        productMap.put(id, product);
+        return product;
+    }
+
+    //Elimina un producto por su id
+    public void deleteById(Integer id) {
+        productMap.remove(id);
+    }
+
+    //Activa/desactiva un producto (equivalente a "toggleAvailability" del front original)
+    public Product toggleActive(Integer id) {
+        Product product = productMap.get(id);
+        if (product == null) {
+            return null;
+        }
+        boolean current = Boolean.TRUE.equals(product.getActive());
+        product.setActive(!current);
+        return product;
+    }
 }

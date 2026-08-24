@@ -33,15 +33,15 @@ public class HomeController {
     }
 
     // http://localhost:8080/nosotros
-    @GetMapping("/nosotros")
-    public String nosotros() {
-        return "nosotros";
+    @GetMapping("/aboutUs")
+    public String aboutUs() {
+        return "aboutUs";
     }
 
     // http://localhost:8080/contacto
-    @GetMapping("/contacto")
-    public String contacto() {
-        return "contacto";
+    @GetMapping("/contact")
+    public String contact() {
+        return "contact";
     }
 
     // http://localhost:8080/login

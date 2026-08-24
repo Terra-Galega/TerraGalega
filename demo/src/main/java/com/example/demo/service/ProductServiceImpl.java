@@ -29,4 +29,24 @@ public class ProductServiceImpl implements ProductService {
         //Filtra los productos activos marcados como populares (usa Boolean.TRUE.equals para evitar NullPointerException)
         return repository.findAll().stream().filter(p -> Boolean.TRUE.equals(p.getPopular())).collect(Collectors.toList());
     }
+
+    @Override
+    public Product addProduct(Product product) {
+        return repository.save(product);
+    }
+
+    @Override
+    public Product updateProduct(Integer id, Product product) {
+        return repository.update(id, product);
+    }
+
+    @Override
+    public void deleteProduct(Integer id) {
+        repository.deleteById(id);
+    }
+
+    @Override
+    public Product toggleProductActive(Integer id) {
+        return repository.toggleActive(id);
+    }
 }

@@ -1,0 +1,384 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de administración · Terra Galega</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+       @theme {
+        --color-terra: #b2571f;
+        --color-gold: #d99a21;
+        --color-burgundy: #8a2222;
+        --color-cream: #f5f2eb;
+        --color-forest: #556141;
+        --color-charcoal: #2c2c2c;
+        --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+        --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+      }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  </head>
+  <!-- El acceso se protege en el cliente: admin.js redirige a /login si
+  no hay una sesión de administrador guardada en localStorage -->
+  <body class="font-sans text-charcoal" style="background-color: #ece9e1">
+    <div class="min-h-screen flex">
+      <!-- ── Sidebar ── -->
+      <aside
+        class="w-60 flex-shrink-0 flex flex-col py-7 px-4"
+        style="
+          background-color: rgba(44, 44, 44, 0.97);
+          backdrop-filter: blur(24px);
+          border-right: 1px solid rgba(255, 255, 255, 0.05);
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          z-index: 20;
+        ">
+        <!-- Logo -->
+        <div class="px-3 mb-10 flex flex-col items-start">
+          <a th:href="@{/home}" class="flex flex-col items-start leading-none select-none">
+            <span class="font-terra text-2xl leading-[0.6]" style="color: #f5f2eb">Terra</span>
+            <span class="font-galega text-sm tracking-[0.22em] uppercase font-semibold -mt-1" style="color: #f5f2eb">Galega</span>
+          </a>
+          <p class="text-[10px] tracking-widest uppercase mt-2" style="color: rgba(245, 242, 235, 0.25)">
+            Panel admin
+          </p>
+        </div>
+
+        <!-- Pestañas -->
+        <nav class="flex flex-col gap-1 flex-1">
+          <button
+            type="button"
+            class="admin-tab-btn active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+            data-admin-tab="productos">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z"/><path d="M16 3H8a1 1 0 00-1 1v3h10V4a1 1 0 00-1-1z"/></svg>
+            Productos
+          </button>
+          <button
+            type="button"
+            class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+            data-admin-tab="pedidos">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            Domicilios
+          </button>
+          <button
+            type="button"
+            class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+            data-admin-tab="usuarios">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            Usuarios
+          </button>
+        </nav>
+
+        <!-- Usuario / cerrar sesión -->
+        <div class="px-4 py-4 rounded-xl mt-4" style="background-color: rgba(255, 255, 255, 0.04)">
+          <p id="admin-user-name" class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.6)">Administrador</p>
+          <p class="text-[11px] mb-3" style="color: rgba(245, 242, 235, 0.28)">Administrador</p>
+          <button
+            id="admin-logout"
+            type="button"
+            class="flex items-center gap-2 text-[12px] font-medium"
+            style="color: rgba(138, 34, 34, 0.75)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+            Cerrar sesión
+          </button>
+        </div>
+      </aside>
+
+      <!-- ── Contenido principal ── -->
+      <div class="flex-1 flex flex-col" style="margin-left: 240px">
+        <!-- Barra superior -->
+        <div
+          class="h-[60px] flex items-center justify-between px-8 border-b flex-shrink-0"
+          style="
+            background-color: rgba(245, 242, 235, 0.85);
+            backdrop-filter: blur(16px);
+            border-color: rgba(44, 44, 44, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+          ">
+          <h1 id="admin-title" class="font-serif text-xl font-semibold text-charcoal">Productos</h1>
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="absolute left-3 top-1/2 -translate-y-1/2" style="color: rgba(44,44,44,0.35)"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input
+                id="admin-search"
+                type="text"
+                placeholder="Buscar…"
+                class="pl-9 pr-4 py-2 rounded-full text-sm outline-none w-48"
+                style="background-color: rgba(44, 44, 44, 0.07); border: 1px solid rgba(44, 44, 44, 0.1); color: #2c2c2c" />
+            </div>
+            <button
+              id="admin-add-btn"
+              type="button"
+              class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white"
+              style="background: linear-gradient(135deg, #b2571f, #8a2222); box-shadow: 0 2px 12px rgba(178, 87, 31, 0.3)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Añadir producto
+            </button>
+          </div>
+        </div>
+
+        <!-- Contenido de las pestañas -->
+        <div class="flex-1 p-8">
+          <!-- ── PRODUCTOS (tabla real) ── -->
+          <div id="admin-panel-product" class="admin-panel">
+            <div class="rounded-2xl overflow-hidden" style="background-color: rgba(255, 255, 255, 0.6); box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05)">
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm" style="border-collapse: collapse">
+                  <thead>
+                    <tr style="background-color: rgba(44, 44, 44, 0.04)">
+                      <th class="text-left font-medium uppercase tracking-wider py-3 px-5" style="font-size: 11px; color: rgba(44, 44, 44, 0.45)">Comida</th>
+                      <th class="text-left font-medium uppercase tracking-wider py-3 px-5" style="font-size: 11px; color: rgba(44, 44, 44, 0.45)">Categoría</th>
+                      <th class="text-left font-medium uppercase tracking-wider py-3 px-5" style="font-size: 11px; color: rgba(44, 44, 44, 0.45)">Precio</th>
+                      <th class="text-left font-medium uppercase tracking-wider py-3 px-5" style="font-size: 11px; color: rgba(44, 44, 44, 0.45)">Estado</th>
+                      <th class="text-left font-medium uppercase tracking-wider py-3 px-5" style="font-size: 11px; color: rgba(44, 44, 44, 0.45)">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      th:each="product : ${products}"
+                      class="admin-product-row"
+                      th:classappend="${product.active != null and !product.active} ? ' admin-row-inactive' : ''"
+                      th:attr="data-name=${product.name}"
+                      style="border-top: 1px solid rgba(44, 44, 44, 0.06)">
+                      <!-- Comida: imagen + nombre + estrella si es popular -->
+                      <td class="py-3 px-5">
+                        <div class="flex items-center gap-4">
+                          <img th:src="${product.imageUrl}" th:alt="${product.name}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                          <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                              <p class="font-semibold text-charcoal truncate" th:text="${product.name}"></p>
+                              <svg th:if="${product.popular}" width="13" height="13" viewBox="0 0 20 20" fill="#d99a21"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                            </div>
+                            <p class="line-clamp-2 mt-0.5" style="font-size: 12px; color: rgba(44, 44, 44, 0.45); max-width: 320px" th:text="${product.description}"></p>
+                          </div>
+                        </div>
+                      </td>
+                      <!-- Categoría -->
+                      <td class="py-3 px-5">
+                        <span
+                          class="text-[11px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+                          style="background-color: rgba(178, 87, 31, 0.09); color: #b2571f"
+                          th:text="${product.category}"></span>
+                      </td>
+                      <!-- Precio -->
+                      <td class="py-3 px-5 font-bold whitespace-nowrap" style="color: #b2571f" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></td>
+                      <!-- Estado (activar/desactivar) -->
+                      <td class="py-3 px-5">
+                        <form method="post" th:action="@{/admin/products/{id}/toggle(id=${product.id})}">
+                          <button
+                            type="submit"
+                            class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap"
+                            th:style="${product.active != null and !product.active} ? 'background-color: rgba(44,44,44,0.06); color: rgba(44,44,44,0.4)' : 'background-color: rgba(85,97,65,0.1); color:#556141'">
+                            <span th:text="${product.active != null and !product.active} ? 'Inactivo' : 'Activo'"></span>
+                          </button>
+                        </form>
+                      </td>
+                      <!-- Acciones -->
+                      <td class="py-3 px-5">
+                        <div class="flex items-center gap-2">
+                          <button
+                            type="button"
+                            class="admin-edit-btn w-9 h-9 rounded-xl flex items-center justify-center"
+                            style="color: rgba(44, 44, 44, 0.4)"
+                            th:attr="data-id=${product.id}"
+                            title="Editar">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <form method="post" th:action="@{/admin/products/{id}/delete(id=${product.id})}" onsubmit="return confirm('¿Eliminar este producto de la carta?');">
+                            <button type="submit" class="w-9 h-9 rounded-xl flex items-center justify-center" style="color: rgba(44, 44, 44, 0.3)" title="Eliminar">
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <p id="admin-products-empty" class="hidden-modal py-16 text-center" style="color: rgba(44, 44, 44, 0.35)">
+              No se encontraron productos
+            </p>
+          </div>
+
+          <!-- ── DOMICILIOS (contenido de ejemplo, no persiste en el backend) ── -->
+          <div id="admin-panel-pedidos" class="admin-panel hidden-modal">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div class="rounded-2xl p-6 flex flex-col gap-4" style="background-color: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.55)">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-mono" style="font-size: 12px; color: rgba(44,44,44,0.4)">#002</span>
+                      <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full" style="background-color: rgba(37,99,235,0.08); color:#2563eb">En camino</span>
+                    </div>
+                    <h3 class="font-semibold text-charcoal">Carlos Rodríguez</h3>
+                    <p class="mt-0.5" style="font-size: 12px; color: rgba(44,44,44,0.45)">11:32 PM</p>
+                  </div>
+                  <span class="font-bold text-lg" style="color:#b2571f">$75.000</span>
+                </div>
+                <p style="font-size: 12px; color: rgba(44,44,44,0.55)">Calle 72 #8-24, Bogotá</p>
+              </div>
+              <div class="rounded-2xl p-6 flex flex-col gap-4" style="background-color: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.55)">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-mono" style="font-size: 12px; color: rgba(44,44,44,0.4)">#003</span>
+                      <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full" style="background-color: rgba(178,87,31,0.1); color:#b2571f">En preparación</span>
+                    </div>
+                    <h3 class="font-semibold text-charcoal">Lucía Martínez</h3>
+                    <p class="mt-0.5" style="font-size: 12px; color: rgba(44,44,44,0.45)">11:15 PM</p>
+                  </div>
+                  <span class="font-bold text-lg" style="color:#b2571f">$63.400</span>
+                </div>
+                <p style="font-size: 12px; color: rgba(44,44,44,0.55)">Av. El Dorado #93-40, Bogotá</p>
+              </div>
+              <div class="rounded-2xl p-6 flex flex-col gap-4" style="background-color: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.55)">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-mono" style="font-size: 12px; color: rgba(44,44,44,0.4)">#004</span>
+                      <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full" style="background-color: rgba(217,154,33,0.12); color:#a07010">Recibido</span>
+                    </div>
+                    <h3 class="font-semibold text-charcoal">Diego Sánchez</h3>
+                    <p class="mt-0.5" style="font-size: 12px; color: rgba(44,44,44,0.45)">11:48 PM</p>
+                  </div>
+                  <span class="font-bold text-lg" style="color:#b2571f">$120.000</span>
+                </div>
+                <p style="font-size: 12px; color: rgba(44,44,44,0.55)">Cra 15 #85-17, Bogotá</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── USUARIOS (contenido de ejemplo) ── -->
+          <div id="admin-panel-usuarios" class="admin-panel hidden-modal space-y-3">
+            <div class="flex items-center gap-5 px-6 py-4 rounded-2xl" style="background-color: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.55)">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-white text-sm" style="background-color: #556141">M</div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-charcoal text-sm">María García</p>
+                <p class="truncate" style="font-size: 12px; color: rgba(44,44,44,0.45)">cliente@terra.com</p>
+              </div>
+              <div class="flex items-center gap-6 flex-shrink-0">
+                <div class="text-center">
+                  <p class="font-bold text-lg" style="color:#b2571f">12</p>
+                  <p class="uppercase tracking-wide" style="font-size:10px; color: rgba(44,44,44,0.35)">pedidos</p>
+                </div>
+                <span class="text-[11px] font-medium px-3 py-1 rounded-full" style="background-color: rgba(44,44,44,0.07); color: rgba(44,44,44,0.55)">Cliente</span>
+                <p style="font-size: 11px; color: rgba(44,44,44,0.35)">desde Ene 2025</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-5 px-6 py-4 rounded-2xl" style="background-color: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.55)">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-white text-sm" style="background-color: #556141">C</div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-charcoal text-sm">Carlos Rodríguez</p>
+                <p class="truncate" style="font-size: 12px; color: rgba(44,44,44,0.45)">carlos@terra.com</p>
+              </div>
+              <div class="flex items-center gap-6 flex-shrink-0">
+                <div class="text-center">
+                  <p class="font-bold text-lg" style="color:#b2571f">8</p>
+                  <p class="uppercase tracking-wide" style="font-size:10px; color: rgba(44,44,44,0.35)">pedidos</p>
+                </div>
+                <span class="text-[11px] font-medium px-3 py-1 rounded-full" style="background-color: rgba(44,44,44,0.07); color: rgba(44,44,44,0.55)">Cliente</span>
+                <p style="font-size: 11px; color: rgba(44,44,44,0.35)">desde Mar 2025</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-5 px-6 py-4 rounded-2xl" style="background-color: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.55)">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-white text-sm" style="background: linear-gradient(135deg,#b2571f,#8a2222)">A</div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-charcoal text-sm">Administrador</p>
+                <p class="truncate" style="font-size: 12px; color: rgba(44,44,44,0.45)">admin@terra.com</p>
+              </div>
+              <div class="flex items-center gap-6 flex-shrink-0">
+                <div class="text-center">
+                  <p class="font-bold text-lg" style="color:#b2571f">0</p>
+                  <p class="uppercase tracking-wide" style="font-size:10px; color: rgba(44,44,44,0.35)">pedidos</p>
+                </div>
+                <span class="text-[11px] font-medium px-3 py-1 rounded-full" style="background-color: rgba(138,34,34,0.08); color:#8a2222">Admin</span>
+                <p style="font-size: 11px; color: rgba(44,44,44,0.35)">desde Ene 2024</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Modal: añadir/editar producto ── -->
+    <div id="admin-product-modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(44, 44, 44, 0.55)">
+      <div class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative">
+        <div class="flex items-center justify-between mb-7">
+          <h2 id="admin-modal-title" class="font-serif text-2xl font-semibold text-charcoal">Añadir producto</h2>
+          <button type="button" id="admin-modal-close" class="w-9 h-9 rounded-full flex items-center justify-center" style="background-color: rgba(44,44,44,0.06); color: rgba(44,44,44,0.6)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <form id="admin-product-form" method="post" th:action="@{/admin/products}" class="space-y-4">
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5" style="color: rgba(44,44,44,0.4)">Nombre</label>
+            <input type="text" name="name" id="admin-f-name" required placeholder="Nombre del plato" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5" style="color: rgba(44,44,44,0.4)">Precio (COP)</label>
+              <input type="number" name="price" id="admin-f-price" required placeholder="38900" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5" style="color: rgba(44,44,44,0.4)">Categoría</label>
+              <select name="category" id="admin-f-category" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal">
+                <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5" style="color: rgba(44,44,44,0.4)">Descripción</label>
+            <textarea name="description" id="admin-f-description" rows="3" placeholder="Descripción del plato…" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5" style="color: rgba(44,44,44,0.4)">URL de imagen</label>
+            <input type="url" name="imageUrl" id="admin-f-image" required placeholder="https://images.unsplash.com/…" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+            <img id="admin-f-image-preview" src="" alt="preview" class="hidden-modal mt-2 w-full h-28 object-cover rounded-xl" />
+          </div>
+
+          <!-- Adicionales -->
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-2" style="color: rgba(44,44,44,0.4)">Adicionales</label>
+            <div id="admin-additionals-list" class="space-y-2 mb-3"></div>
+            <div class="flex gap-2">
+              <input type="text" id="admin-add-name" placeholder="Nombre adicional" class="input-field flex-1 px-3 py-2.5 rounded-xl text-sm" />
+              <input type="number" id="admin-add-price" placeholder="Precio" class="input-field w-28 px-3 py-2.5 rounded-xl text-sm" />
+              <button type="button" id="admin-add-additional-btn" class="px-3 py-2 rounded-xl text-white text-sm" style="background-color:#556141">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Popular -->
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" name="popular" id="admin-f-popular" value="true" class="w-4 h-4" />
+            <span class="text-sm" style="color: rgba(44,44,44,0.7)">Marcar como popular</span>
+          </label>
+
+          <div class="flex gap-3 pt-2">
+            <button type="button" id="admin-modal-cancel" class="flex-1 py-3 rounded-xl text-sm font-medium" style="color: rgba(44,44,44,0.6); border: 1px solid rgba(44,44,44,0.12)">Cancelar</button>
+            <button type="submit" class="flex-1 py-3 rounded-xl text-sm font-medium text-white" style="background: linear-gradient(135deg, #b2571f, #8a2222); box-shadow: 0 4px 16px rgba(178,87,31,0.3)">
+              <span id="admin-modal-submit-label">Añadir producto</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Productos completos (incluye adicionales) para poblar el formulario de edición.
+    Esta página no carga script.js (es exclusivo del sitio público con navbar/carrito);
+    toda su lógica vive en admin.js -->
+    <script th:inline="javascript">const adminProducts = /*[[${products}]]*/ [];</script>
+    <script th:src="@{/js/admin.js}"></script>
+  </body>
+</html>
