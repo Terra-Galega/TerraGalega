@@ -6,7 +6,7 @@
     <title>Menú · Terra Galega</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
-       @theme {
+      @theme {
         --color-terra: #b2571f;
         --color-gold: #d99a21;
         --color-burgundy: #8a2222;
@@ -141,7 +141,10 @@
                 >0</span
               >
             </button>
-            <button id="nav-toggle" class="p-1 text-[#f5f2eb]" aria-label="Menú">
+            <button
+              id="nav-toggle"
+              class="p-1 text-[#f5f2eb]"
+              aria-label="Menú">
               <svg
                 id="icon-open"
                 class="w-6 h-6"
@@ -201,7 +204,10 @@
             <a
               th:href="@{/login}"
               class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded text-center"
-              style="color: #f5f2eb; border: 1px solid rgba(245, 242, 235, 0.25)">
+              style="
+                color: #f5f2eb;
+                border: 1px solid rgba(245, 242, 235, 0.25);
+              ">
               INICIAR SESIÓN
             </a>
             <a
@@ -216,9 +222,12 @@
     <!-- Contenido principal de la página -->
     <main class="min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8">
       <!-- Encabezado de la página con título y buscador -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+      <div
+        class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
         <div>
-          <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">
+          <p
+            class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
+            style="color: #b2571f">
             Lo que ofrecemos
           </p>
           <h1 class="font-serif text-5xl font-bold text-charcoal">
@@ -249,44 +258,106 @@
 
       <!-- Pestañas de categorías (reutiliza la lógica de filtrado ya existente en script.js) -->
       <div id="category-tabs" class="flex gap-2.5 mb-12 overflow-x-auto pb-1">
-        <button class="cat-btn active whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium" data-category="Todos">Todos</button>
-        <button class="cat-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium" data-category="Entradas">Entradas</button>
-        <button class="cat-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium" data-category="Mariscos">Mariscos</button>
-        <button class="cat-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium" data-category="Carnes">Carnes</button>
-        <button class="cat-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium" data-category="Postres">Postres</button>
+        <button
+          class="cat-btn active whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+          data-category="Todos">
+          Todos
+        </button>
+        <button
+          class="cat-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+          data-category="Entradas">
+          Entradas
+        </button>
+        <button
+          class="cat-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+          data-category="Mariscos">
+          Mariscos
+        </button>
+        <button
+          class="cat-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+          data-category="Carnes">
+          Carnes
+        </button>
+        <button
+          class="cat-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+          data-category="Postres">
+          Postres
+        </button>
       </div>
 
       <!-- Grilla con todos los productos del menú (${products}, viene del ProductService) -->
-      <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
-        <div th:each="product : ${products}"
-             class="menu-item glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col"
-             th:attr="data-category=${product.category},data-name=${product.name}"
-             th:onclick="'openProductById(' + ${product.id} + ')'">
+      <div
+        id="menu-grid"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+        <div
+          th:each="product : ${products}"
+          class="menu-item glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col"
+          th:attr="data-category=${product.category},data-name=${product.name}"
+          th:onclick="'openProductById(' + ${product.id} + ')'">
           <div class="relative h-56 overflow-hidden">
-            <img th:src="${product.imageUrl}" th:alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            <img
+              th:src="${product.imageUrl}"
+              th:alt="${product.name}"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
             <!-- Insignia "Popular" solo si el producto está marcado como tal -->
-            <span th:if="${product.popular}"
-                  class="absolute top-3 left-3 flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider"
-                  style="background-color: rgba(245, 242, 235, 0.88); backdrop-filter: blur(12px); color: #b2571f;">
-              <svg class="w-3 h-3" style="fill: #d99a21" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <span
+              th:if="${product.popular}"
+              class="absolute top-3 left-3 flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider"
+              style="
+                background-color: rgba(245, 242, 235, 0.88);
+                backdrop-filter: blur(12px);
+                color: #b2571f;
+              ">
+              <svg class="w-3 h-3" style="fill: #d99a21" viewBox="0 0 20 20">
+                <path
+                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
               Popular
             </span>
-            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-medium"
-                  style="background-color: rgba(44, 44, 44, 0.65); backdrop-filter: blur(8px); color: #f5f2eb;"
-                  th:text="${product.category}"></span>
+            <span
+              class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-medium"
+              style="
+                background-color: rgba(44, 44, 44, 0.65);
+                backdrop-filter: blur(8px);
+                color: #f5f2eb;
+              "
+              th:text="${product.category}"></span>
           </div>
           <div class="p-6 flex flex-col flex-grow">
-            <h3 class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-2" th:text="${product.name}"></h3>
-            <p class="text-sm leading-relaxed line-clamp-2 mb-5 flex-grow" style="color: rgba(44,44,44,0.55)" th:text="${product.description}"></p>
+            <h3
+              class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-2"
+              th:text="${product.name}"></h3>
+            <p
+              class="text-sm leading-relaxed line-clamp-2 mb-5 flex-grow"
+              style="color: rgba(44, 44, 44, 0.55)"
+              th:text="${product.description}"></p>
             <!-- Cantidad de adicionales disponibles, solo si el producto tiene alguno -->
-            <p th:if="${not #lists.isEmpty(product.additionals)}" class="text-[11px] mb-4" style="color: rgba(44,44,44,0.35)">
+            <p
+              th:if="${not #lists.isEmpty(product.additionals)}"
+              class="text-[11px] mb-4"
+              style="color: rgba(44, 44, 44, 0.35)">
               <span th:text="${product.additionals.size()}"></span>
-              <span th:text="${product.additionals.size() > 1 ? 'adicionales disponibles' : 'adicional disponible'}"></span>
+              <span
+                th:text="${product.additionals.size() > 1 ? 'adicionales disponibles' : 'adicional disponible'}"></span>
             </p>
             <div class="flex items-center justify-between mt-auto">
-              <span class="font-bold text-lg" style="color: #b2571f" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
-              <span class="menu-plus-btn w-10 h-10 rounded-full flex items-center justify-center">
-                <svg class="w-[17px] h-[17px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+              <span
+                class="font-bold text-lg"
+                style="color: #b2571f"
+                th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
+              <span
+                class="menu-plus-btn w-10 h-10 rounded-full flex items-center justify-center">
+                <svg
+                  class="w-[17px] h-[17px]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4" />
+                </svg>
               </span>
             </div>
           </div>
@@ -294,9 +365,15 @@
       </div>
 
       <!-- Mensaje para cuando el buscador o los filtros no encuentran resultados -->
-      <div id="menu-empty" class="hidden-modal col-span-full py-24 text-center" style="color: rgba(44,44,44,0.35)">
+      <div
+        id="menu-empty"
+        class="hidden-modal col-span-full py-24 text-center"
+        style="color: rgba(44, 44, 44, 0.35)">
         <p class="text-lg mb-2">No se encontraron platos</p>
-        <button id="menu-reset" class="text-sm font-medium hover:underline" style="color: #b2571f">
+        <button
+          id="menu-reset"
+          class="text-sm font-medium hover:underline"
+          style="color: #b2571f">
           Ver todos los platos
         </button>
       </div>
@@ -307,10 +384,8 @@
       class="pt-16 pb-8">
       <!-- Contenedor principal del pie de página con un diseño de cuadrícula para organizar el contenido -->
       <div class="max-w-7xl mx-auto px-6">
-       
         <!-- Contenedor de la cuadrícula del pie de página con tres columnas para el logo, navegación y enlaces a la cuenta -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
-
           <!-- Contenedor para el logo y la descripción del restaurante -->
           <div class="md:col-span-5">
             <img
@@ -335,9 +410,7 @@
             <!--lista de enlaces de navegación-->
             <ul class="space-y-3">
               <li>
-                <a class="footer-link text-sm" th:href="@{/home}">
-                  Inicio
-                </a>
+                <a class="footer-link text-sm" th:href="@{/home}"> Inicio </a>
               </li>
               <li>
                 <a class="footer-link text-sm" th:href="@{/aboutUs}">
@@ -345,9 +418,7 @@
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/menu}">
-                  Menú
-                </a>
+                <a class="footer-link text-sm" th:href="@{/menu}"> Menú </a>
               </li>
               <li>
                 <a class="footer-link text-sm" th:href="@{/contact}">
@@ -372,7 +443,9 @@
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/login(tab='register')}">
+                <a
+                  class="footer-link text-sm"
+                  th:href="@{/login(tab='register')}">
                   Registrarse
                 </a>
               </li>
@@ -449,7 +522,7 @@
             id="product-description"
             class="text-sm leading-relaxed mb-5"
             style="color: rgba(44, 44, 44, 0.62)"></p>
-          
+
           <!-- Contenedor para los aditionales del producto -->
           <div id="product-additionals-wrap" class="mb-5">
             <p
@@ -588,7 +661,9 @@
       </div>
     </div>
     <!--Arreglo que contiene los productos del menú y se comparte al js-->
-    <script th:inline="javascript">const menuProducts = /*[[${products}]]*/ [];</script>
+    <script th:inline="javascript">
+      const menuProducts = /*[[${products}]]*/ [];
+    </script>
     <script th:src="@{/js/script.js}"></script>
   </body>
 </html>
