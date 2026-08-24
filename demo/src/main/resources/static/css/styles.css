@@ -232,3 +232,37 @@ body {
 .demo-login-btn:hover {
   background-color: rgba(255, 255, 255, 0.6);
 }
+
+/*
+-------------------------------
+  PANEL DE ADMINISTRACIÓN (/admin)
+--------------------------------
+*/
+/* Pestaña del sidebar (Productos / Domicilios / Usuarios) */
+.admin-tab-btn {
+  color: rgba(245, 242, 235, 0.4);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.admin-tab-btn:hover {
+  color: rgba(245, 242, 235, 0.75);
+}
+
+/* Pestaña activa: mismo estilo terracota que el resto del sitio */
+.admin-tab-btn.active {
+  background-color: rgba(178, 87, 31, 0.15);
+  color: #d99a21;
+  border: 1px solid rgba(178, 87, 31, 0.2);
+}
+
+/* Fila de producto desactivado en la tabla del panel: se atenúa visualmente */
+.admin-row-inactive {
+  opacity: 0.55;
+}
+
+/* Fila de un adicional dentro del modal de producto (panel admin) */
+.admin-additional-row {
+  background-color: rgba(178, 87, 31, 0.06);
+  border: 1px solid rgba(178, 87, 31, 0.12);
+}

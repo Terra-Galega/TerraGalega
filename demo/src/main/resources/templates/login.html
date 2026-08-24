@@ -37,7 +37,7 @@
           <div class="flex items-center justify-evenly w-full">
             <!-- Enlaces de navegación a las páginas del sitio -->
             <a
-              th:href="@{/nosotros}"
+              th:href="@{/aboutUs}"
               class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               NOSOTROS
             </a>
@@ -47,7 +47,7 @@
               MENÚ
             </a>
             <a
-              th:href="@{/contacto}"
+              th:href="@{/contact}"
               class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               CONTACTO
             </a>
@@ -75,7 +75,7 @@
               INICIAR SESIÓN
             </a>
             <a
-              th:href="@{/login}"
+              th:href="@{/login(tab='register')}"
               class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               REGISTRARSE
             </a>
@@ -180,7 +180,7 @@
           <a
             class="text-left text-xs font-medium tracking-[0.18em] py-2"
             style="color: rgba(245, 242, 235, 0.72)"
-            th:href="@{/nosotros}">
+            th:href="@{/aboutUs}">
             NOSOTROS
           </a>
           <a
@@ -192,7 +192,7 @@
           <a
             class="text-left text-xs font-medium tracking-[0.18em] py-2"
             style="color: rgba(245, 242, 235, 0.72)"
-            th:href="@{/contacto}">
+            th:href="@{/contact}">
             CONTACTO
           </a>
           <div
@@ -205,7 +205,7 @@
               INICIAR SESIÓN
             </a>
             <a
-              th:href="@{/login}"
+              th:href="@{/login(tab='register')}"
               class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center">
               REGISTRARSE
             </a>
@@ -419,7 +419,7 @@
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/nosotros}">
+                <a class="footer-link text-sm" th:href="@{/aboutUs}">
                   Nosotros
                 </a>
               </li>
@@ -429,7 +429,7 @@
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/contacto}">
+                <a class="footer-link text-sm" th:href="@{/contact}">
                   Contacto
                 </a>
               </li>
@@ -451,7 +451,7 @@
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/login}">
+                <a class="footer-link text-sm" th:href="@{/login(tab='register')}">
                   Registrarse
                 </a>
               </li>

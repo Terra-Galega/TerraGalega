@@ -351,19 +351,47 @@ const signupForm = document.getElementById("signup-form");
 /* Pestañas "Iniciar sesión" / "Registrarse" */
 const authTabs = document.getElementById("auth-tabs");
 const authSubtitle = document.getElementById("auth-subtitle");
+
+/* Cambia a la pestaña indicada ("login" | "signup") */
+function setAuthTab(tab) {
+  if (!authTabs || !loginForm || !signupForm) return;
+  const btn = authTabs.querySelector(`[data-tab="${tab}"]`);
+  if (!btn) return;
+  authTabs.querySelectorAll(".auth-tab").forEach((b) => b.classList.remove("active"));
+  btn.classList.add("active");
+  const isLogin = tab === "login";
+  loginForm.classList.toggle("hidden-modal", !isLogin);
+  signupForm.classList.toggle("hidden-modal", isLogin);
+  if (authSubtitle) {
+    authSubtitle.textContent = isLogin ? "Bienvenido de vuelta" : "Únete a nosotros";
+  }
+}
+
 if (authTabs && loginForm && signupForm) {
   authTabs.querySelectorAll(".auth-tab").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      authTabs.querySelectorAll(".auth-tab").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      const isLogin = btn.dataset.tab === "login";
-      loginForm.classList.toggle("hidden-modal", !isLogin);
-      signupForm.classList.toggle("hidden-modal", isLogin);
-      if (authSubtitle) {
-        authSubtitle.textContent = isLogin ? "Bienvenido de vuelta" : "Únete a nosotros";
-      }
-    });
+    btn.addEventListener("click", () => setAuthTab(btn.dataset.tab));
   });
+
+  /* Si se llega desde el navbar con "Registrarse" (@{/login(tab='register')}),
+  abre directamente la pestaña de registro en lugar de la de inicio de sesión */
+  const requestedTab = new URLSearchParams(window.location.search).get("tab");
+  if (requestedTab === "register") {
+    setAuthTab("signup");
+  }
+}
+
+/* Usuarios de prueba (mismos datos que se muestran en los accesos rápidos)
+usados para reconocer el rol de la persona que inicia sesión y decidir
+a dónde redirigirla (cliente -> inicio, admin -> panel de administración) */
+const DEMO_USERS = {
+  "admin@terra.com": { password: "admin123", name: "Administrador", role: "admin" },
+  "cliente@terra.com": { password: "cliente123", name: "María García", role: "cliente" },
+};
+
+/* Guarda la sesión activa en el navegador (localStorage) para que la
+página /admin pueda comprobar si quien la visita inició sesión como admin */
+function setSession(session) {
+  localStorage.setItem("terraGalegaUser", JSON.stringify(session));
 }
 
 /* Accesos de prueba: solo rellenan el formulario, no autentican contra un backend real */
@@ -389,12 +417,30 @@ if (loginForm) {
       errorEl.classList.remove("hidden-modal");
       return;
     }
-    /* Si la validación es exitosa, oculta el mensaje de error, muestra un mensaje de bienvenida 
-    y regresa al inicio */
+
+    /* Comprueba si el correo/contraseña corresponden a uno de los usuarios de
+    prueba para saber si quien inicia sesión es un administrador */
+    const demoUser = DEMO_USERS[email.toLowerCase()];
+    if (demoUser && demoUser.password !== password) {
+      errorEl.textContent = "Contraseña incorrecta.";
+      errorEl.classList.remove("hidden-modal");
+      return;
+    }
+
+    /* Si la validación es exitosa, oculta el mensaje de error, guarda la sesión 
+    y redirige según el rol: administradores al panel /admin, clientes al inicio */
     errorEl.classList.add("hidden-modal");
-    alert("Bienvenido de nuevo a Terra Galega");
+    const session = demoUser
+      ? { name: demoUser.name, email, role: demoUser.role }
+      : { name: email.split("@")[0], email, role: "cliente" };
+    setSession(session);
     loginForm.reset();
-    window.location.href = "/";
+    if (session.role === "admin") {
+      window.location.href = "/admin";
+    } else {
+      alert("Bienvenido de nuevo a Terra Galega");
+      window.location.href = "/";
+    }
   });
 }
 /* Agrega un event listener al formulario de registro para manejar la validación y el envío de datos */
@@ -416,9 +462,10 @@ if (signupForm) {
       errorEl.classList.remove("hidden-modal");
       return;
     }
-    /* Si la validación es exitosa, oculta el mensaje de error, muestra un mensaje de bienvenida
-    y regresa al inicio */
+    /* Si la validación es exitosa, oculta el mensaje de error, guarda la sesión
+    (rol "cliente"), muestra un mensaje de bienvenida y regresa al inicio */
     errorEl.classList.add("hidden-modal");
+    setSession({ name, email, role: "cliente" });
     alert(
       `Bienvenido a Terra Galega, ${name}. Tu cuenta fue creada exitosamente.`,
     );
