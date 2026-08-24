@@ -33,9 +33,9 @@ if (adminLogoutBtn) {
 
 /* ─── Pestañas del sidebar (Productos / Domicilios / Usuarios) ─── */
 const ADMIN_TAB_TITLES = {
-  productos: "Productos",
-  pedidos: "Domicilios en curso",
-  usuarios: "Usuarios",
+  products: "Productos",
+  orders: "Domicilios en curso",
+  users: "Usuarios",
 };
 const adminTabBtns = document.querySelectorAll(".admin-tab-btn");
 const adminTitle = document.getElementById("admin-title");
@@ -52,7 +52,7 @@ adminTabBtns.forEach((btn) => {
     document.getElementById(`admin-panel-${tab}`)?.classList.remove("hidden-modal");
     if (adminTitle) adminTitle.textContent = ADMIN_TAB_TITLES[tab] || tab;
     /* El botón "Añadir producto" solo tiene sentido en la pestaña de productos */
-    if (adminAddBtn) adminAddBtn.classList.toggle("hidden-modal", tab !== "productos");
+    if (adminAddBtn) adminAddBtn.classList.toggle("hidden-modal", tab !== "products");
   });
 });
 
