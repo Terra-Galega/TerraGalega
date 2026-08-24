@@ -227,7 +227,7 @@
               th:each="product : ${popularProducts}"
               class="rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
               style="box-shadow: 0 4px 24px rgba(44, 44, 44, 0.06)"
-              th:onclick="'abrirProductoPorId(' + ${product.id} + ')'">
+              th:onclick="'openProductById(' + ${product.id} + ')'">
               <div class="relative h-48 overflow-hidden">
                 <img
                   th:src="${product.imageUrl}"
@@ -403,7 +403,7 @@
           <!--Se llena con el contenido de los testimonios (en el script)-->
           <div
             class="grid grid-cols-1 md:grid-cols-3 gap-8"
-            id="cuadricula-testimonios"></div>
+            id="testimonials-grid"></div>
         </div>
       </section>
 
@@ -532,7 +532,7 @@
 
     <!--Modal de producto-->
     <div
-      id="modal-producto"
+      id="modal-product"
       class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
       style="background-color: rgba(44, 44, 44, 0.65)">
       <!-- Contenido del modal de producto -->
@@ -541,7 +541,7 @@
         style="border-radius: 2px">
         <!-- Botón para cerrar el modal -->
         <button
-          class="cerrar-modal absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+          class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
           style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb"
           data-close="product">
           <svg
@@ -559,7 +559,7 @@
         <!-- Imagen del producto -->
         <div class="relative h-56">
           <img
-            id="producto-imagen"
+            id="product-image"
             src=""
             alt=""
             class="w-full h-full object-cover" />
@@ -568,26 +568,26 @@
         <div class="p-6">
           <div class="flex items-start justify-between gap-4 mb-3">
             <h3
-              id="producto-nombre"
+              id="product-name"
               class="font-serif text-2xl font-semibold text-charcoal"></h3>
             <span
-              id="producto-precio"
+              id="product-price"
               class="font-bold text-xl flex-shrink-0"
               style="color: #b2571f"></span>
           </div>
           <p
-            id="producto-descripcion"
+            id="product-description"
             class="text-sm leading-relaxed mb-5"
             style="color: rgba(44, 44, 44, 0.62)"></p>
 
           <!-- Contenedor para los aditionales del producto -->
-          <div id="producto-adicionales-wrap" class="mb-5">
+          <div id="product-additionals-wrap" class="mb-5">
             <p
               class="text-xs font-medium uppercase tracking-wider mb-3"
               style="color: rgba(44, 44, 44, 0.45)">
               Adicionales
             </p>
-            <div id="producto-adicionales" class="space-y-2.5"></div>
+            <div id="product-additionals" class="space-y-2.5"></div>
           </div>
           <!-- Contenedor para la cantidad del producto -->
           <div class="flex items-center gap-4 mb-5">
@@ -599,26 +599,26 @@
             <div class="flex items-center gap-3">
               <!-- Botón para restar cantidad -->
               <button
-                id="cantidad-menos"
-                class="cuantity-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+                id="qty-minus"
+                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
                 −
               </button>
               <span
-                id="cantidad-valor"
+                id="qty-value"
                 class="w-6 text-center font-semibold text-charcoal"
                 >1</span
               >
               <!-- Botón para sumar cantidad -->
               <button
-                id="cantidad-mas"
-                class="cuantity-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+                id="qty-plus"
+                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
                 +
               </button>
             </div>
           </div>
           <!-- Botón para agregar al carrito -->
           <button
-            id="btn-agregar-carrito"
+            id="add-to-cart-btn"
             class="w-full py-3 text-white font-medium rounded btn-terra">
             Agregar al carrito
           </button>
@@ -628,7 +628,7 @@
 
     <!--Modal de carrito-->
     <div
-      id="modal-carrito"
+      id="modal-cart"
       class="hidden-modal fixed inset-0 z-50 flex items-end md:items-center justify-center"
       style="background-color: rgba(44, 44, 44, 0.65)">
       <!--contenido del modal-->
@@ -643,7 +643,7 @@
             Mi Carrito
           </h2>
           <!-- Botón de cierre "X"-->
-          <button data-close="cart" style="color: rgba(23, 227, 47, 0.35)">
+          <button data-close="cart" style="color: rgba(44, 44, 44, 0.35)">
             <svg
               class="w-5 h-5"
               fill="none"
@@ -662,7 +662,7 @@
         <div class="flex-1 overflow-y-auto p-6">
           <!-- Contenedor para mostrar un mensaje cuando el carrito está vacío -->
           <div
-            id="carrito-vacio"
+            id="cart-empty"
             class="text-center py-14"
             style="color: rgba(44, 44, 44, 0.35)">
             <svg
@@ -678,7 +678,7 @@
             </svg>
             <p class="text-sm">Tu carrito está vacío</p>
             <button
-              id="carrito-explorar-menu"
+              id="cart-explore-menu"
               class="mt-4 text-sm underline underline-offset-2"
               style="color: #b2571f">
               Explorar el menú
@@ -686,25 +686,25 @@
           </div>
           <!-- Contenedor para los elementos del carrito -->
           <!--Se añaden en el DOM dinámicamente con el script-->
-          <div id="carrito-items" class="space-y-3"></div>
+          <div id="cart-items" class="space-y-3"></div>
         </div>
 
         <!-- Pie del modal con el total del pedido y botón de confirmación -->
         <div
-          id="carrito-pie"
+          id="cart-footer"
           class="hidden-modal p-6 border-t"
           style="border-color: rgba(44, 44, 44, 0.1)">
           <!-- Total del pedido -->
           <div class="flex justify-between items-center mb-4">
             <span class="font-medium text-charcoal">Total del pedido</span>
             <span
-              id="carrito-total"
+              id="cart-total"
               class="font-bold text-xl"
               style="color: #b2571f"></span>
           </div>
           <!-- Botón para confirmar el pedido: lleva a la página de inicio de sesión -->
           <button
-            id="carrito-finalizar"
+            id="cart-checkout"
             th:attr="data-href=@{/login}"
             class="w-full py-3 text-white font-medium rounded btn-terra">
             Confirmar pedido
@@ -719,7 +719,7 @@
     </div>
     <!--Arreglo que contiene los productos del menú y se comparte al js-->
     <script th:inline="javascript">
-      const productosMenu = /*[[${products}]]*/ [];
+      const menuProducts = /*[[${products}]]*/ [];
     </script>
     <script th:src="@{/js/script.js}"></script>
   </body>

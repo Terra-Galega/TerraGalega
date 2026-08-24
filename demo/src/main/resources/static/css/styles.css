@@ -68,7 +68,7 @@ body {
 /* Estado "fija": vidrio esmerilado claro, igual que el resto del sitio.
    Se activa con JS al hacer scroll en /home, y está siempre activa en las
    demás páginas (que no tienen imagen de fondo detrás de la barra) */
-.nav-bar .nav-bar--stayed {
+.nav-bar.nav-bar--stayed {
   background-color: rgba(245, 242, 235, 0.75);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -77,11 +77,11 @@ body {
 }
 
 /* Menú desplegable de pantallas pequeñas: mismo criterio que la barra */
-#menu-movil {
+#mobile-menu {
   background-color: rgba(44, 44, 44, 0.97);
   border-color: rgba(255, 255, 255, 0.08);
 }
-.nav-bar.nav-bar--stayed #menu-movil {
+.nav-bar.nav-bar--stayed #mobile-menu {
   background-color: rgba(245, 242, 235, 0.98);
   border-color: rgba(44, 44, 44, 0.08);
 }
@@ -96,19 +96,19 @@ body {
   color: #f5f2eb;
 }
 .nav-bar.nav-bar--stayed .link-nav,
-#menu-movil .link-nav {
+#mobile-menu .link-nav {
   color: rgba(44, 44, 44, 0.62);
 }
 .nav-bar.nav-bar--stayed .link-nav:hover,
-#menu-movil .link-nav:hover {
+#mobile-menu .link-nav:hover {
   color: #2c2c2c;
 }
 /* El menú móvil desplegable siempre es oscuro por dentro, así que sus
    enlaces se mantienen claros aunque la barra ya esté "fija" */
-#menu-movil .link-nav {
+#mobile-menu .link-nav {
   color: rgba(245, 242, 235, 0.78) !important;
 }
-#menu-movil .link-nav:hover {
+#mobile-menu .link-nav:hover {
   color: #f5f2eb !important;
 }
 
@@ -167,13 +167,13 @@ body {
 }
 
 /* Botón "+" de cada tarjeta del menú: se llena con el degradado terracota al pasar el cursor */
-.btn-mas-menu {
+.menu-plus-btn {
   background-color: rgba(44, 44, 44, 0.07);
   color: rgba(44, 44, 44, 0.4);
   transition: all 0.3s;
 }
 
-.group:hover .btn-mas-menu {
+.group:hover .menu-plus-btn {
   background: linear-gradient(135deg, #b2571f, #8a2222);
   color: #f5f2eb;
 }
@@ -206,13 +206,13 @@ body {
 }
 
 /* Botones para selectores de cantidad (+ / -) */
-.cuantity-btn {
+.qty-btn {
   border: 1px solid rgba(44, 44, 44, 0.2);
   color: #2c2c2c;
   transition: all 0.2s;
 }
 /*cambio de color al pasar el cursor*/
-.cuantity-btn:hover {
+.qty-btn:hover {
   border-color: #b2571f;
   color: #b2571f;
 }
@@ -223,22 +223,26 @@ body {
 --------------------------------
 */
 /* Pestaña inactiva (Iniciar sesión / Registrarse) */
-.session-tab {
+.auth-tab {
   color: rgba(44, 44, 44, 0.45);
 }
 
 /* Pestaña activa: fondo blanco elevado, igual que en el Figma */
-.session-tab.active {
+.auth-tab.active {
   background-color: #fff;
   color: #2c2c2c;
   box-shadow: 0 2px 12px rgba(44, 44, 44, 0.1);
 }
 
 /* Botones de accesos de prueba (rellenan el formulario de login) */
-.access-demo-btn {
+.demo-login-btn {
   transition: background-color 0.2s;
+  color: rgba(245, 242, 235, 0.4);
 }
 
-.access-demo-btn:hover {
+.demo-login-btn:hover {
   background-color: rgba(255, 255, 255, 0.6);
 }
+
+.admin-tab-btn { color: rgba(245, 242, 235, 0.4); }
+.admin-tab-btn.active { color: #f5f2eb; background-color: rgb(217, 154, 33); }

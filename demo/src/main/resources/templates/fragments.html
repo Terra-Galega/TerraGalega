@@ -16,7 +16,7 @@
       <nav
         id="nav-bar"
         th:attr="data-inicio=${inicio}"
-        class="fixed top-0 inset-x-0 z-50 w-full">
+        class="nav-bar fixed top-0 inset-x-0 z-50 w-full">
         <!-- Barra de navegación para pantallas medianas y grandes -->
         <div
           class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
@@ -83,7 +83,7 @@
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               <span
-                id="carrito-contador-escritorio"
+                id="cart-count-desktop"
                 class="hidden-modal absolute -top-1.5 -right-2 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
                 >0</span
               >
@@ -123,17 +123,17 @@
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               <span
-                id="carrito-contador-movil"
+                id="cart-count-mobile"
                 class="hidden-modal absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
                 >0</span
               >
             </button>
             <button
-              id="boton-menu-movil"
+              id="mobile-menu-btn"
               class="link-nav p-1"
               aria-label="Menú">
               <svg
-                id="icono-abrir"
+                id="icon-open"
                 class="w-6 h-6"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -145,7 +145,7 @@
                   d="M4 6h16M4 12h16M4 18h16" />
               </svg>
               <svg
-                id="icono-cerrar"
+                id="icon-close"
                 class="w-6 h-6 hidden-modal"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -161,7 +161,7 @@
         </div>
         <!-- Menú desplegable para pantallas pequeñas -->
         <div
-          id="menu-movil"
+          id="mobile-menu"
           class="hidden-modal md:hidden px-6 py-4 flex flex-col gap-4 border-t">
           <a
             class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2"
@@ -232,18 +232,18 @@
             <!--lista de enlaces de navegación-->
             <ul class="space-y-3">
               <li>
-                <a class=".link-footer text-sm" th:href="@{/home}"> Inicio </a>
+                <a class="link-footer text-sm" th:href="@{/home}"> Inicio </a>
               </li>
               <li>
-                <a class=".link-footer text-sm" th:href="@{/aboutUs}">
+                <a class="link-footer text-sm" th:href="@{/aboutUs}">
                   Nosotros
                 </a>
               </li>
               <li>
-                <a class=".link-footer text-sm" th:href="@{/menu}"> Menú </a>
+                <a class="link-footer text-sm" th:href="@{/menu}"> Menú </a>
               </li>
               <li>
-                <a class=".link-footer text-sm" th:href="@{/contact}">
+                <a class="link-footer text-sm" th:href="@{/contact}">
                   Contacto
                 </a>
               </li>
@@ -260,19 +260,19 @@
             <!-- Lista de enlaces para iniciar sesión, registrarse y ver el carrito -->
             <ul class="space-y-3">
               <li>
-                <a class=".link-footer text-sm" th:href="@{/login}">
+                <a class="link-footer text-sm" th:href="@{/login}">
                   Iniciar sesión
                 </a>
               </li>
               <li>
                 <a
-                  class=".link-footer text-sm"
+                  class="link-footer text-sm"
                   th:href="@{/login(tab='register')}">
                   Registrarse
                 </a>
               </li>
               <li>
-                <button class=".link-footer text-sm" data-modal="cart">
+                <button class="link-footer text-sm" data-modal="cart">
                   Mi carrito
                 </button>
               </li>
