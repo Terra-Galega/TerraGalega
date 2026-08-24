@@ -6,7 +6,7 @@
     <title>Contacto · Terra Galega</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
-       @theme {
+      @theme {
         --color-terra: #b2571f;
         --color-gold: #d99a21;
         --color-burgundy: #8a2222;
@@ -27,7 +27,7 @@
         id="navbar"
         class="fixed top-0 inset-x-0 z-50 border-b w-full"
         style="
-          background-color: rgba(44, 44, 44, 0.97);
+          background-color: rgba(76, 75, 75, 0.97);
           border-color: rgba(255, 255, 255, 0.08);
         ">
         <!-- Barra de navegación para pantallas medianas y grandes -->
@@ -47,7 +47,7 @@
               MENÚ
             </a>
             <a
-              th:href="@{/contacto}"
+              th:href="@{/contact}"
               class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               CONTACTO
             </a>
@@ -141,7 +141,10 @@
                 >0</span
               >
             </button>
-            <button id="nav-toggle" class="p-1 text-[#f5f2eb]" aria-label="Menú">
+            <button
+              id="nav-toggle"
+              class="p-1 text-[#f5f2eb]"
+              aria-label="Menú">
               <svg
                 id="icon-open"
                 class="w-6 h-6"
@@ -192,7 +195,7 @@
           <a
             class="text-left text-xs font-medium tracking-[0.18em] py-2"
             style="color: rgba(245, 242, 235, 0.72)"
-            th:href="@{/contacto}">
+            th:href="@{/contact}">
             CONTACTO
           </a>
           <div
@@ -201,7 +204,10 @@
             <a
               th:href="@{/login}"
               class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded text-center"
-              style="color: #f5f2eb; border: 1px solid rgba(245, 242, 235, 0.25)">
+              style="
+                color: #f5f2eb;
+                border: 1px solid rgba(245, 242, 235, 0.25);
+              ">
               INICIAR SESIÓN
             </a>
             <a
@@ -216,52 +222,125 @@
     <!-- Contenido principal de la página -->
     <main class="min-h-screen pt-32 pb-28 max-w-6xl mx-auto px-6">
       <div class="text-center mb-16">
-        <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-3" style="color: #b2571f">
+        <p
+          class="text-[12px] font-medium tracking-[0.3em] uppercase mb-3"
+          style="color: #b2571f">
           Encuéntranos
         </p>
         <h1 class="font-serif text-4xl md:text-5xl font-bold text-charcoal">
           Visítanos en Bogotá
         </h1>
-        <div class="w-10 h-0.5 mx-auto mt-5" style="background-color: #d99a21"></div>
+        <div
+          class="w-10 h-0.5 mx-auto mt-5"
+          style="background-color: #d99a21"></div>
       </div>
 
       <div class="grid md:grid-cols-2 gap-10 items-start">
         <!-- Tarjetas con información de contacto -->
         <div class="space-y-5">
           <div class="glass-card rounded-2xl p-6 flex items-start gap-5">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.657 16.657 13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0Z"/><circle cx="12" cy="11" r="3"/></svg>
+            <div
+              class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8">
+                <path
+                  d="M17.657 16.657 13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0Z" />
+                <circle cx="12" cy="11" r="3" />
+              </svg>
             </div>
             <div>
-              <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44,44,44,0.38)">Dirección</p>
-              <p class="text-sm font-medium text-charcoal leading-snug">Calle 93 #15-47, Zona Rosa, Bogotá</p>
+              <p
+                class="text-[11px] font-medium uppercase tracking-widest mb-1"
+                style="color: rgba(44, 44, 44, 0.38)">
+                Dirección
+              </p>
+              <p class="text-sm font-medium text-charcoal leading-snug">
+                Calle 93 #15-47, Zona Rosa, Bogotá
+              </p>
             </div>
           </div>
           <div class="glass-card rounded-2xl p-6 flex items-start gap-5">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5Z"/></svg>
+            <div
+              class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8">
+                <path
+                  d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5Z" />
+              </svg>
             </div>
             <div>
-              <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44,44,44,0.38)">Teléfono</p>
-              <p class="text-sm font-medium text-charcoal leading-snug">+57 601 456 7890</p>
+              <p
+                class="text-[11px] font-medium uppercase tracking-widest mb-1"
+                style="color: rgba(44, 44, 44, 0.38)">
+                Teléfono
+              </p>
+              <p class="text-sm font-medium text-charcoal leading-snug">
+                +57 601 456 7890
+              </p>
             </div>
           </div>
           <div class="glass-card rounded-2xl p-6 flex items-start gap-5">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            <div
+              class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
             </div>
             <div>
-              <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44,44,44,0.38)">Correo</p>
-              <p class="text-sm font-medium text-charcoal leading-snug">contacto@terragalega.co</p>
+              <p
+                class="text-[11px] font-medium uppercase tracking-widest mb-1"
+                style="color: rgba(44, 44, 44, 0.38)">
+                Correo
+              </p>
+              <p class="text-sm font-medium text-charcoal leading-snug">
+                contacto@terragalega.co
+              </p>
             </div>
           </div>
           <div class="glass-card rounded-2xl p-6 flex items-start gap-5">
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <div
+              class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
             </div>
             <div>
-              <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44,44,44,0.38)">Horario</p>
-              <p class="text-sm font-medium text-charcoal leading-snug">Lun – Sáb: 12:00 – 22:00 · Dom: 12:00 – 20:00</p>
+              <p
+                class="text-[11px] font-medium uppercase tracking-widest mb-1"
+                style="color: rgba(44, 44, 44, 0.38)">
+                Horario
+              </p>
+              <p class="text-sm font-medium text-charcoal leading-snug">
+                Lun – Sáb: 12:00 – 22:00 · Dom: 12:00 – 20:00
+              </p>
             </div>
           </div>
         </div>
@@ -273,19 +352,48 @@
           </h2>
           <form id="contact-form" class="space-y-4">
             <div>
-              <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5" style="color: rgba(44,44,44,0.4)">Nombre</label>
-              <input type="text" id="contact-name" placeholder="Tu nombre" class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl" />
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+                >Nombre</label
+              >
+              <input
+                type="text"
+                id="contact-name"
+                placeholder="Tu nombre"
+                class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl" />
             </div>
             <div>
-              <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5" style="color: rgba(44,44,44,0.4)">Correo</label>
-              <input type="email" id="contact-email" placeholder="correo@ejemplo.com" class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl" />
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+                >Correo</label
+              >
+              <input
+                type="email"
+                id="contact-email"
+                placeholder="correo@ejemplo.com"
+                class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl" />
             </div>
             <div>
-              <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5" style="color: rgba(44,44,44,0.4)">Mensaje</label>
-              <textarea id="contact-message" rows="4" placeholder="¿En qué podemos ayudarte?" class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl resize-none"></textarea>
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+                >Mensaje</label
+              >
+              <textarea
+                id="contact-message"
+                rows="4"
+                placeholder="¿En qué podemos ayudarte?"
+                class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl resize-none"></textarea>
             </div>
-            <p id="contact-error" class="hidden-modal text-xs" style="color: #8a2222"></p>
-            <button type="submit" class="w-full py-3.5 text-white font-medium rounded-xl btn-terra">
+            <p
+              id="contact-error"
+              class="hidden-modal text-xs"
+              style="color: #8a2222"></p>
+            <button
+              type="submit"
+              class="w-full py-3.5 text-white font-medium rounded-xl btn-terra">
               Enviar mensaje
             </button>
           </form>
@@ -298,10 +406,8 @@
       class="pt-16 pb-8">
       <!-- Contenedor principal del pie de página con un diseño de cuadrícula para organizar el contenido -->
       <div class="max-w-7xl mx-auto px-6">
-       
         <!-- Contenedor de la cuadrícula del pie de página con tres columnas para el logo, navegación y enlaces a la cuenta -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
-
           <!-- Contenedor para el logo y la descripción del restaurante -->
           <div class="md:col-span-5">
             <img
@@ -326,9 +432,7 @@
             <!--lista de enlaces de navegación-->
             <ul class="space-y-3">
               <li>
-                <a class="footer-link text-sm" th:href="@{/home}">
-                  Inicio
-                </a>
+                <a class="footer-link text-sm" th:href="@{/home}"> Inicio </a>
               </li>
               <li>
                 <a class="footer-link text-sm" th:href="@{/aboutUs}">
@@ -336,12 +440,10 @@
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/menu}">
-                  Menú
-                </a>
+                <a class="footer-link text-sm" th:href="@{/menu}"> Menú </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/contacto}">
+                <a class="footer-link text-sm" th:href="@{/contact}">
                   Contacto
                 </a>
               </li>
@@ -363,7 +465,9 @@
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/login(tab='register')}">
+                <a
+                  class="footer-link text-sm"
+                  th:href="@{/login(tab='register')}">
                   Registrarse
                 </a>
               </li>
@@ -440,7 +544,7 @@
             id="product-description"
             class="text-sm leading-relaxed mb-5"
             style="color: rgba(44, 44, 44, 0.62)"></p>
-          
+
           <!-- Contenedor para los aditionales del producto -->
           <div id="product-additionals-wrap" class="mb-5">
             <p
@@ -579,7 +683,9 @@
       </div>
     </div>
     <!--Arreglo que contiene los productos del menú y se comparte al js-->
-    <script th:inline="javascript">const menuProducts = /*[[${products}]]*/ [];</script>
+    <script th:inline="javascript">
+      const menuProducts = /*[[${products}]]*/ [];
+    </script>
     <script th:src="@{/js/script.js}"></script>
   </body>
 </html>

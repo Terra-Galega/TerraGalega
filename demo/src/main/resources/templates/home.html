@@ -6,7 +6,7 @@
     <title>Terra Galega · Restaurante Gallego en Bogotá</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style type="text/tailwindcss">
-       @theme {
+      @theme {
         --color-terra: #b2571f;
         --color-gold: #d99a21;
         --color-burgundy: #8a2222;
@@ -24,12 +24,9 @@
     <header>
       <!-- Barra de navegación fija en la parte superior de la página -->
       <nav
-        id="navbar"
-        class="fixed top-0 inset-x-0 z-50 border-b w-full"
-        style="
-          background-color: rgba(44, 44, 44, 0.97);
-          border-color: rgba(255, 255, 255, 0.08);
-        ">
+        id="barra-navegacion"
+        data-inicio="true"
+        class="fixed top-0 inset-x-0 z-50 w-full">
         <!-- Barra de navegación para pantallas medianas y grandes -->
         <div
           class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
@@ -38,17 +35,17 @@
             <!-- Enlaces de navegación a las páginas del sitio -->
             <a
               th:href="@{/aboutUs}"
-              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
+              class="enlace-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               NOSOTROS
             </a>
             <a
               th:href="@{/menu}"
-              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
+              class="enlace-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               MENÚ
             </a>
             <a
               th:href="@{/contact}"
-              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
+              class="enlace-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               CONTACTO
             </a>
           </div>
@@ -58,11 +55,11 @@
               th:href="@{/home}"
               class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300">
               <span
-                class="font-terra text-[24px] leading-[0.6] text-[#f5f2eb] font-normal"
+                class="logo-terra font-terra text-[24px] leading-[0.6] font-normal"
                 >Terra</span
               >
               <span
-                class="font-galega text-[21px] tracking-[0.05em] uppercase text-[#f5f2eb] -mt-1.5"
+                class="logo-galega font-galega text-[21px] tracking-[0.05em] uppercase -mt-1.5"
                 >Galega</span
               >
             </a>
@@ -71,16 +68,16 @@
           <div class="flex items-center justify-evenly w-full">
             <a
               th:href="@{/login}"
-              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
+              class="enlace-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               INICIAR SESIÓN
             </a>
             <a
               th:href="@{/login(tab='register')}"
-              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
+              class="enlace-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               REGISTRARSE
             </a>
             <button
-              class="nav-link relative flex items-center justify-center"
+              class="enlace-nav relative flex items-center justify-center"
               data-modal="cart"
               aria-label="Carrito">
               <svg
@@ -96,7 +93,7 @@
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               <span
-                id="cart-count-desktop"
+                id="carrito-contador-escritorio"
                 class="hidden-modal absolute -top-1.5 -right-2 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
                 >0</span
               >
@@ -109,18 +106,18 @@
           <button
             data-scroll="hero"
             class="flex flex-col items-center justify-center drop-shadow-md z-10">
-            <span class="font-terra text-[24px] leading-[0.6] text-[#f5f2eb]"
+            <span class="logo-terra font-terra text-[24px] leading-[0.6]"
               >Terra</span
             >
             <span
-              class="font-galega text-[22px] tracking-[0.05em] uppercase text-[#f5f2eb] -mt-1"
+              class="logo-galega font-galega text-[22px] tracking-[0.05em] uppercase -mt-1"
               >Galega</span
             >
           </button>
 
           <div class="flex items-center gap-4">
             <button
-              class="relative p-2 text-[#f5f2eb]"
+              class="enlace-nav relative p-2"
               data-modal="cart"
               aria-label="Carrito">
               <svg
@@ -136,14 +133,17 @@
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               <span
-                id="cart-count-mobile"
+                id="carrito-contador-movil"
                 class="hidden-modal absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
                 >0</span
               >
             </button>
-            <button id="nav-toggle" class="p-1 text-[#f5f2eb]" aria-label="Menú">
+            <button
+              id="boton-menu-movil"
+              class="enlace-nav p-1"
+              aria-label="Menú">
               <svg
-                id="icon-open"
+                id="icono-abrir"
                 class="w-6 h-6"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -155,7 +155,7 @@
                   d="M4 6h16M4 12h16M4 18h16" />
               </svg>
               <svg
-                id="icon-close"
+                id="icono-cerrar"
                 class="w-6 h-6 hidden-modal"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -171,27 +171,20 @@
         </div>
         <!-- Menú desplegable para pantallas pequeñas -->
         <div
-          id="mobile-menu"
-          class="hidden-modal md:hidden px-6 py-4 flex flex-col gap-4 border-t"
-          style="
-            background-color: #2c2c2ce6;
-            border-color: rgba(255, 255, 255, 0.08);
-          ">
+          id="menu-movil"
+          class="hidden-modal md:hidden px-6 py-4 flex flex-col gap-4 border-t">
           <a
-            class="text-left text-xs font-medium tracking-[0.18em] py-2"
-            style="color: rgba(245, 242, 235, 0.72)"
+            class="enlace-nav text-left text-xs font-medium tracking-[0.18em] py-2"
             th:href="@{/aboutUs}">
             NOSOTROS
           </a>
           <a
-            class="text-left text-xs font-medium tracking-[0.18em] py-2"
-            style="color: rgba(245, 242, 235, 0.72)"
+            class="enlace-nav text-left text-xs font-medium tracking-[0.18em] py-2"
             th:href="@{/menu}">
             MENÚ
           </a>
           <a
-            class="text-left text-xs font-medium tracking-[0.18em] py-2"
-            style="color: rgba(245, 242, 235, 0.72)"
+            class="enlace-nav text-left text-xs font-medium tracking-[0.18em] py-2"
             th:href="@{/contact}">
             CONTACTO
           </a>
@@ -200,7 +193,10 @@
             style="border-color: rgba(255, 255, 255, 0.08)">
             <a
               class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded text-center"
-              style="color: #f5f2eb; border: 1px solid rgba(245, 242, 235, 0.25)"
+              style="
+                color: #f5f2eb;
+                border: 1px solid rgba(245, 242, 235, 0.25);
+              "
               th:href="@{/login}">
               INICIAR SESIÓN
             </a>
@@ -251,21 +247,30 @@
           <p
             class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
             style="color: rgba(245, 242, 235, 0.8)">
-            Tradición culinaria gallega en el corazón de Bogotá. Mariscos frescos,
-            carnes seleccionadas y los auténticos sabores del noroeste de España.
+            Tradición culinaria gallega en el corazón de Bogotá. Mariscos
+            frescos, carnes seleccionadas y los auténticos sabores del noroeste
+            de España.
           </p>
           <!-- Botones de acción: enlazan a las páginas de carta e historia -->
           <div class="flex flex-wrap items-center justify-center gap-4">
             <a
               th:href="@{/menu}"
               class="px-8 py-3.5 rounded-full font-medium text-charcoal transition-all duration-300 hover:scale-105"
-              style="background-color: rgba(245, 242, 235, 0.92); backdrop-filter: blur(16px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);">
+              style="
+                background-color: rgba(245, 242, 235, 0.92);
+                backdrop-filter: blur(16px);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+              ">
               Explorar Menú
             </a>
             <a
               th:href="@{/aboutUs}"
               class="px-8 py-3.5 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
-              style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.25);">
+              style="
+                background-color: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+              ">
               Nuestra Historia
             </a>
           </div>
@@ -317,8 +322,8 @@
               <p
                 class="text-sm leading-relaxed"
                 style="color: rgba(245, 242, 235, 0.6)">
-                Ingredientes frescos traídos desde el Mar Cantábrico cada semana,
-                respetando la temporada.
+                Ingredientes frescos traídos desde el Mar Cantábrico cada
+                semana, respetando la temporada.
               </p>
             </div>
           </div>
@@ -347,8 +352,8 @@
               <p
                 class="text-sm leading-relaxed"
                 style="color: rgba(245, 242, 235, 0.6)">
-                Selección exclusiva de Albariños Rías Baixas y tintos Ribeiro con
-                denominación de origen.
+                Selección exclusiva de Albariños Rías Baixas y tintos Ribeiro
+                con denominación de origen.
               </p>
             </div>
           </div>
@@ -405,20 +410,35 @@
 
           <!-- Grilla con los productos marcados como populares (${popularProducts}, viene del ProductService) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div th:each="product : ${popularProducts}"
-                 class="rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
-                 style="box-shadow: 0 4px 24px rgba(44, 44, 44, 0.06);"
-                 th:onclick="'openProductById(' + ${product.id} + ')'">
+            <div
+              th:each="product : ${popularProducts}"
+              class="rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+              style="box-shadow: 0 4px 24px rgba(44, 44, 44, 0.06)"
+              th:onclick="'abrirProductoPorId(' + ${product.id} + ')'">
               <div class="relative h-48 overflow-hidden">
-                <img th:src="${product.imageUrl}" th:alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <img
+                  th:src="${product.imageUrl}"
+                  th:alt="${product.name}"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div class="p-6">
-                <span class="text-[11px] font-medium tracking-widest uppercase" style="color: rgba(178, 87, 31, 0.7)" th:text="${product.category}"></span>
+                <span
+                  class="text-[11px] font-medium tracking-widest uppercase"
+                  style="color: rgba(178, 87, 31, 0.7)"
+                  th:text="${product.category}"></span>
                 <div class="flex justify-between items-start gap-3 mt-1 mb-2">
-                  <h3 class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors" th:text="${product.name}"></h3>
-                  <span class="font-bold text-lg flex-shrink-0" style="color: #b2571f" th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                  <h3
+                    class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors"
+                    th:text="${product.name}"></h3>
+                  <span
+                    class="font-bold text-lg flex-shrink-0"
+                    style="color: #b2571f"
+                    th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
                 </div>
-                <p class="text-sm leading-relaxed line-clamp-2" style="color: rgba(44,44,44,0.68)" th:text="${product.description}"></p>
+                <p
+                  class="text-sm leading-relaxed line-clamp-2"
+                  style="color: rgba(44, 44, 44, 0.68)"
+                  th:text="${product.description}"></p>
               </div>
             </div>
           </div>
@@ -428,7 +448,10 @@
             <a
               th:href="@{/menu}"
               class="inline-block px-10 py-4 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
-              style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%); box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);">
+              style="
+                background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+                box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
+              ">
               Ver carta completa
             </a>
           </div>
@@ -452,18 +475,20 @@
               Un pedazo de Galicia<br />en cada plato
             </h2>
             <div class="w-12 h-px mb-8" style="background-color: #d99a21"></div>
-            <p class="leading-relaxed mb-5" style="color: rgba(245, 242, 235, 0.6)">
-              Terra Galega nació del amor por la gastronomía gallega. Desde 2018,
-              somos el refugio de quienes buscan los auténticos sabores del
-              noroeste español: pulpo fresco, empanadas artesanales y el
+            <p
+              class="leading-relaxed mb-5"
+              style="color: rgba(245, 242, 235, 0.6)">
+              Terra Galega nació del amor por la gastronomía gallega. Desde
+              2018, somos el refugio de quienes buscan los auténticos sabores
+              del noroeste español: pulpo fresco, empanadas artesanales y el
               inconfundible carácter de la cocina marinera.
             </p>
             <p
               class="leading-relaxed mb-10"
               style="color: rgba(245, 242, 235, 0.6)">
               Nuestros ingredientes viajan directamente desde la costa gallega.
-              Trabajamos con productores locales que comparten nuestra pasión por
-              la calidad y la tradición.
+              Trabajamos con productores locales que comparten nuestra pasión
+              por la calidad y la tradición.
             </p>
             <!-- Enlace a la página completa de la historia (/nosotros, se construye en un próximo paso) -->
             <a
@@ -471,7 +496,15 @@
               class="font-medium flex items-center gap-2 hover:gap-3 transition-all w-fit"
               style="color: #d99a21">
               Conocer más
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </a>
           </div>
           <!-- Imagen representativa del restaurante con elementos decorativos -->
@@ -481,22 +514,53 @@
               alt="Plato gallego elaborado con esmero"
               class="w-full object-cover rounded-2xl"
               style="height: 500px" />
-              <!-- Tarjeta de estadísticas superpuesta con estilo vidrio esmerilado -->
+            <!-- Tarjeta de estadísticas superpuesta con estilo vidrio esmerilado -->
             <div
               class="absolute -bottom-6 -left-6 rounded-2xl p-5 hidden md:block"
-              style="background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07), 0 1px 4px rgba(44, 44, 44, 0.04);">
+              style="
+                background-color: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(20px) saturate(160%);
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                box-shadow:
+                  0 4px 24px rgba(44, 44, 44, 0.07),
+                  0 1px 4px rgba(44, 44, 44, 0.04);
+              ">
               <div class="flex gap-6">
                 <div class="text-center">
-                  <p class="font-serif font-bold text-2xl" style="color: #b2571f">6+</p>
-                  <p class="text-[11px] mt-0.5" style="color: rgba(44, 44, 44, 0.45)">Años</p>
+                  <p
+                    class="font-serif font-bold text-2xl"
+                    style="color: #b2571f">
+                    6+
+                  </p>
+                  <p
+                    class="text-[11px] mt-0.5"
+                    style="color: rgba(44, 44, 44, 0.45)">
+                    Años
+                  </p>
                 </div>
                 <div class="text-center">
-                  <p class="font-serif font-bold text-2xl" style="color: #b2571f">150+</p>
-                  <p class="text-[11px] mt-0.5" style="color: rgba(44, 44, 44, 0.45)">Platos/día</p>
+                  <p
+                    class="font-serif font-bold text-2xl"
+                    style="color: #b2571f">
+                    150+
+                  </p>
+                  <p
+                    class="text-[11px] mt-0.5"
+                    style="color: rgba(44, 44, 44, 0.45)">
+                    Platos/día
+                  </p>
                 </div>
                 <div class="text-center">
-                  <p class="font-serif font-bold text-2xl" style="color: #b2571f">4.9★</p>
-                  <p class="text-[11px] mt-0.5" style="color: rgba(44, 44, 44, 0.45)">Valoración</p>
+                  <p
+                    class="font-serif font-bold text-2xl"
+                    style="color: #b2571f">
+                    4.9★
+                  </p>
+                  <p
+                    class="text-[11px] mt-0.5"
+                    style="color: rgba(44, 44, 44, 0.45)">
+                    Valoración
+                  </p>
                 </div>
               </div>
             </div>
@@ -526,7 +590,7 @@
           <!--Se llena con el contenido de los testimonios (en el script)-->
           <div
             class="grid grid-cols-1 md:grid-cols-3 gap-8"
-            id="testimonials-grid"></div>
+            id="cuadricula-testimonios"></div>
         </div>
       </section>
 
@@ -534,42 +598,115 @@
       <section class="py-20 max-w-7xl mx-auto px-6">
         <div class="grid md:grid-cols-3 gap-8">
           <!-- Dirección -->
-          <div class="rounded-2xl p-7 flex items-start gap-5"
-               style="background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.657 16.657 13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0Z"/><circle cx="12" cy="11" r="3"/></svg>
+          <div
+            class="rounded-2xl p-7 flex items-start gap-5"
+            style="
+              background-color: rgba(255, 255, 255, 0.7);
+              backdrop-filter: blur(20px) saturate(160%);
+              border: 1px solid rgba(255, 255, 255, 0.6);
+              box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);
+            ">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8">
+                <path
+                  d="M17.657 16.657 13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0Z" />
+                <circle cx="12" cy="11" r="3" />
+              </svg>
             </div>
             <div>
-              <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44, 44, 44, 0.4)">Dirección</p>
-              <p class="text-sm font-medium text-charcoal leading-snug">Calle 93 #15-47, Zona Rosa, Bogotá</p>
+              <p
+                class="text-[11px] font-medium uppercase tracking-widest mb-1"
+                style="color: rgba(44, 44, 44, 0.4)">
+                Dirección
+              </p>
+              <p class="text-sm font-medium text-charcoal leading-snug">
+                Calle 93 #15-47, Zona Rosa, Bogotá
+              </p>
             </div>
           </div>
           <!-- Horario -->
-          <div class="rounded-2xl p-7 flex items-start gap-5"
-               style="background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <div
+            class="rounded-2xl p-7 flex items-start gap-5"
+            style="
+              background-color: rgba(255, 255, 255, 0.7);
+              backdrop-filter: blur(20px) saturate(160%);
+              border: 1px solid rgba(255, 255, 255, 0.6);
+              box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);
+            ">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
             </div>
             <div>
-              <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44, 44, 44, 0.4)">Horario</p>
-              <p class="text-sm font-medium text-charcoal leading-snug">Lun – Sáb: 12:00 – 22:00 · Dom: 12:00 – 20:00</p>
+              <p
+                class="text-[11px] font-medium uppercase tracking-widest mb-1"
+                style="color: rgba(44, 44, 44, 0.4)">
+                Horario
+              </p>
+              <p class="text-sm font-medium text-charcoal leading-snug">
+                Lun – Sáb: 12:00 – 22:00 · Dom: 12:00 – 20:00
+              </p>
             </div>
           </div>
           <!-- Reservas / Teléfono -->
-          <div class="rounded-2xl p-7 flex items-start gap-5"
-               style="background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px) saturate(160%); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5Z"/></svg>
+          <div
+            class="rounded-2xl p-7 flex items-start gap-5"
+            style="
+              background-color: rgba(255, 255, 255, 0.7);
+              backdrop-filter: blur(20px) saturate(160%);
+              border: 1px solid rgba(255, 255, 255, 0.6);
+              box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);
+            ">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8">
+                <path
+                  d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5Z" />
+              </svg>
             </div>
             <div>
-              <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44, 44, 44, 0.4)">Reservas</p>
-              <p class="text-sm font-medium text-charcoal leading-snug">+57 601 456 7890</p>
+              <p
+                class="text-[11px] font-medium uppercase tracking-widest mb-1"
+                style="color: rgba(44, 44, 44, 0.4)">
+                Reservas
+              </p>
+              <p class="text-sm font-medium text-charcoal leading-snug">
+                +57 601 456 7890
+              </p>
             </div>
           </div>
         </div>
         <!-- Enlace a la página completa de contacto (/contacto, se construye en un próximo paso) -->
         <div class="text-center mt-12">
-          <a th:href="@{/contact}" class="text-sm font-medium" style="color: #b2571f">
+          <a
+            th:href="@{/contact}"
+            class="text-sm font-medium"
+            style="color: #b2571f">
             Ver información de contacto completa →
           </a>
         </div>
@@ -581,10 +718,8 @@
       class="pt-16 pb-8">
       <!-- Contenedor principal del pie de página con un diseño de cuadrícula para organizar el contenido -->
       <div class="max-w-7xl mx-auto px-6">
-       
         <!-- Contenedor de la cuadrícula del pie de página con tres columnas para el logo, navegación y enlaces a la cuenta -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
-
           <!-- Contenedor para el logo y la descripción del restaurante -->
           <div class="md:col-span-5">
             <img
@@ -609,22 +744,18 @@
             <!--lista de enlaces de navegación-->
             <ul class="space-y-3">
               <li>
-                <a class="footer-link text-sm" th:href="@{/home}">
-                  Inicio
-                </a>
+                <a class="enlace-pie text-sm" th:href="@{/home}"> Inicio </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/aboutUs}">
+                <a class="enlace-pie text-sm" th:href="@{/aboutUs}">
                   Nosotros
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/menu}">
-                  Menú
-                </a>
+                <a class="enlace-pie text-sm" th:href="@{/menu}"> Menú </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/contact}">
+                <a class="enlace-pie text-sm" th:href="@{/contact}">
                   Contacto
                 </a>
               </li>
@@ -641,17 +772,19 @@
             <!-- Lista de enlaces para iniciar sesión, registrarse y ver el carrito -->
             <ul class="space-y-3">
               <li>
-                <a class="footer-link text-sm" th:href="@{/login}">
+                <a class="enlace-pie text-sm" th:href="@{/login}">
                   Iniciar sesión
                 </a>
               </li>
               <li>
-                <a class="footer-link text-sm" th:href="@{/login(tab='register')}">
+                <a
+                  class="enlace-pie text-sm"
+                  th:href="@{/login(tab='register')}">
                   Registrarse
                 </a>
               </li>
               <li>
-                <button class="footer-link text-sm" data-modal="cart">
+                <button class="enlace-pie text-sm" data-modal="cart">
                   Mi carrito
                 </button>
               </li>
@@ -676,7 +809,7 @@
 
     <!--Modal de producto-->
     <div
-      id="modal-product"
+      id="modal-producto"
       class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
       style="background-color: rgba(44, 44, 44, 0.65)">
       <!-- Contenido del modal de producto -->
@@ -685,7 +818,7 @@
         style="border-radius: 2px">
         <!-- Botón para cerrar el modal -->
         <button
-          class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+          class="cerrar-modal absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
           style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb"
           data-close="product">
           <svg
@@ -703,7 +836,7 @@
         <!-- Imagen del producto -->
         <div class="relative h-56">
           <img
-            id="product-image"
+            id="producto-imagen"
             src=""
             alt=""
             class="w-full h-full object-cover" />
@@ -712,26 +845,26 @@
         <div class="p-6">
           <div class="flex items-start justify-between gap-4 mb-3">
             <h3
-              id="product-name"
+              id="producto-nombre"
               class="font-serif text-2xl font-semibold text-charcoal"></h3>
             <span
-              id="product-price"
+              id="producto-precio"
               class="font-bold text-xl flex-shrink-0"
               style="color: #b2571f"></span>
           </div>
           <p
-            id="product-description"
+            id="producto-descripcion"
             class="text-sm leading-relaxed mb-5"
             style="color: rgba(44, 44, 44, 0.62)"></p>
-          
+
           <!-- Contenedor para los aditionales del producto -->
-          <div id="product-additionals-wrap" class="mb-5">
+          <div id="producto-adicionales-wrap" class="mb-5">
             <p
               class="text-xs font-medium uppercase tracking-wider mb-3"
               style="color: rgba(44, 44, 44, 0.45)">
               Adicionales
             </p>
-            <div id="product-additionals" class="space-y-2.5"></div>
+            <div id="producto-adicionales" class="space-y-2.5"></div>
           </div>
           <!-- Contenedor para la cantidad del producto -->
           <div class="flex items-center gap-4 mb-5">
@@ -743,26 +876,26 @@
             <div class="flex items-center gap-3">
               <!-- Botón para restar cantidad -->
               <button
-                id="qty-minus"
-                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+                id="cantidad-menos"
+                class="btn-cantidad w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
                 −
               </button>
               <span
-                id="qty-value"
+                id="cantidad-valor"
                 class="w-6 text-center font-semibold text-charcoal"
                 >1</span
               >
               <!-- Botón para sumar cantidad -->
               <button
-                id="qty-plus"
-                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+                id="cantidad-mas"
+                class="btn-cantidad w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
                 +
               </button>
             </div>
           </div>
           <!-- Botón para agregar al carrito -->
           <button
-            id="add-to-cart-btn"
+            id="btn-agregar-carrito"
             class="w-full py-3 text-white font-medium rounded btn-terra">
             Agregar al carrito
           </button>
@@ -772,7 +905,7 @@
 
     <!--Modal de carrito-->
     <div
-      id="modal-cart"
+      id="modal-carrito"
       class="hidden-modal fixed inset-0 z-50 flex items-end md:items-center justify-center"
       style="background-color: rgba(44, 44, 44, 0.65)">
       <!--contenido del modal-->
@@ -806,7 +939,7 @@
         <div class="flex-1 overflow-y-auto p-6">
           <!-- Contenedor para mostrar un mensaje cuando el carrito está vacío -->
           <div
-            id="cart-empty"
+            id="carrito-vacio"
             class="text-center py-14"
             style="color: rgba(44, 44, 44, 0.35)">
             <svg
@@ -822,7 +955,7 @@
             </svg>
             <p class="text-sm">Tu carrito está vacío</p>
             <button
-              id="cart-explore-menu"
+              id="carrito-explorar-menu"
               class="mt-4 text-sm underline underline-offset-2"
               style="color: #b2571f">
               Explorar el menú
@@ -830,25 +963,25 @@
           </div>
           <!-- Contenedor para los elementos del carrito -->
           <!--Se añaden en el DOM dinámicamente con el script-->
-          <div id="cart-items" class="space-y-3"></div>
+          <div id="carrito-items" class="space-y-3"></div>
         </div>
 
         <!-- Pie del modal con el total del pedido y botón de confirmación -->
         <div
-          id="cart-footer"
+          id="carrito-pie"
           class="hidden-modal p-6 border-t"
           style="border-color: rgba(44, 44, 44, 0.1)">
           <!-- Total del pedido -->
           <div class="flex justify-between items-center mb-4">
             <span class="font-medium text-charcoal">Total del pedido</span>
             <span
-              id="cart-total"
+              id="carrito-total"
               class="font-bold text-xl"
               style="color: #b2571f"></span>
           </div>
           <!-- Botón para confirmar el pedido: lleva a la página de inicio de sesión -->
           <button
-            id="cart-checkout"
+            id="carrito-finalizar"
             th:attr="data-href=@{/login}"
             class="w-full py-3 text-white font-medium rounded btn-terra">
             Confirmar pedido
@@ -862,7 +995,9 @@
       </div>
     </div>
     <!--Arreglo que contiene los productos del menú y se comparte al js-->
-    <script th:inline="javascript">const menuProducts = /*[[${products}]]*/ [];</script>
+    <script th:inline="javascript">
+      const productosMenu = /*[[${products}]]*/ [];
+    </script>
     <script th:src="@{/js/script.js}"></script>
   </body>
 </html>

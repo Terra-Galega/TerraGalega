@@ -6,93 +6,126 @@ const fmt = (price) =>
     maximumFractionDigits: 0,
   }).format(price);
 
+/* ─── Barra de navegación (según el Figma) ───
+En /home la barra empieza transparente sobre la imagen del hero y se vuelve
+"fija" (vidrio esmerilado claro) al hacer scroll. En el resto de páginas
+(que no tienen imagen detrás) se queda siempre en el estado "fija" desde
+que carga la página. El estado se controla agregando/quitando la clase
+"barra-navegacion--fija", que ya trae todos los estilos definidos en
+styles.css. */
+(function initBarraNavegacion() {
+  const barraNavegacion = document.getElementById("barra-navegacion");
+  if (!barraNavegacion) return;
+  const esInicio = barraNavegacion.dataset.inicio === "true";
+
+  function actualizarBarraNavegacion() {
+    const fija = !esInicio || window.scrollY > 20;
+    barraNavegacion.classList.toggle("barra-navegacion--fija", fija);
+  }
+
+  if (esInicio) {
+    window.addEventListener("scroll", actualizarBarraNavegacion, {
+      passive: true,
+    });
+  }
+  actualizarBarraNavegacion();
+})();
 
 /*Variables para gestionar el carrito de compras */
 let cart = [];
-let currentCategory = "Todos";
-let selectedItem = null;
+let categoriaActual = "Todos";
+let itemSeleccionado = null;
 let qty = 1;
-let selectedAdds = [];
+let adicionalesSeleccionados = [];
 /* Elementos del DOM para gestionar el carrito */
-const menuGrid = document.getElementById("menu-grid");
-const categoryTabs = document.getElementById("category-tabs");
-const cartCountDesktop = document.getElementById("cart-count-desktop");
-const cartCountMobile = document.getElementById("cart-count-mobile");
-const navToggle = document.getElementById("nav-toggle");
-const mobileMenu = document.getElementById("mobile-menu");
-const iconOpen = document.getElementById("icon-open");
-const iconClose = document.getElementById("icon-close");
+const cuadriculaMenu = document.getElementById("cuadricula-menu");
+const pestanasCategoria = document.getElementById("pestanas-categoria");
+const carritoContadorEscritorio = document.getElementById(
+  "carrito-contador-escritorio",
+);
+const carritoContadorMovil = document.getElementById("carrito-contador-movil");
+const botonMenuMovil = document.getElementById("boton-menu-movil");
+const menuMovil = document.getElementById("menu-movil");
+const iconoAbrir = document.getElementById("icono-abrir");
+const iconoCerrar = document.getElementById("icono-cerrar");
 
 /* Función para abrir el modal de un producto específico mediante su ID enviado desde Thymeleaf */
-function openProductById(id) {
-  const item = menuProducts.find(p => p.id === id);
+function abrirProductoPorId(id) {
+  const item = productosMenu.find((p) => p.id === id);
   if (item) {
-    openProduct(item);
+    abrirProducto(item);
   }
 }
 
 /* Elementos del DOM de la página /menu (buscador y estado vacío) */
-const menuSearchInput = document.getElementById("menu-search");
-const menuEmptyEl = document.getElementById("menu-empty");
-const menuResetBtn = document.getElementById("menu-reset");
-let currentSearch = "";
+const buscadorMenuInput = document.getElementById("buscador-menu");
+const menuVacioEl = document.getElementById("menu-vacio");
+const botonReiniciarMenu = document.getElementById("reiniciar-menu");
+let busquedaActual = "";
 
 /* Filtra los elementos del DOM renderizados por Thymeleaf según la categoría
 y el texto de búsqueda actuales, y muestra el mensaje de "sin resultados" si aplica */
-function filterMenuItems() {
-  const items = document.querySelectorAll('.menu-item');
+function filtrarItemsMenu() {
+  const items = document.querySelectorAll(".item-menu");
   let visibleCount = 0;
-  items.forEach(item => {
-    const matchesCategory = currentCategory === 'Todos' || item.dataset.category === currentCategory;
-    const matchesSearch = item.dataset.name.toLowerCase().includes(currentSearch.toLowerCase());
+  items.forEach((item) => {
+    const matchesCategory =
+      categoriaActual === "Todos" || item.dataset.category === categoriaActual;
+    const matchesSearch = item.dataset.name
+      .toLowerCase()
+      .includes(busquedaActual.toLowerCase());
     if (matchesCategory && matchesSearch) {
-      item.style.display = 'block';
+      item.style.display = "block";
       visibleCount++;
     } else {
-      item.style.display = 'none';
+      item.style.display = "none";
     }
   });
-  if (menuEmptyEl) {
-    menuEmptyEl.classList.toggle("hidden-modal", visibleCount !== 0);
+  if (menuVacioEl) {
+    menuVacioEl.classList.toggle("hidden-modal", visibleCount !== 0);
   }
 }
 
 /* Maneja el cambio de categoría al hacer clic en los botones de categoría */
 /* Se protege con un if porque no todas las páginas tienen la grilla completa del menú (p. ej. el home solo muestra "Favoritos") */
-if (categoryTabs) {
-  categoryTabs.querySelectorAll(".cat-btn").forEach((btn) => {
+if (pestanasCategoria) {
+  pestanasCategoria.querySelectorAll(".btn-categoria").forEach((btn) => {
     btn.addEventListener("click", () => {
       /* Actualiza la categoría actual eliminando la clase "active" de 
       todos los botones y agregando la clase a aquel que fue CLICK */
-      currentCategory = btn.dataset.category;
-      categoryTabs
-        .querySelectorAll(".cat-btn")
+      categoriaActual = btn.dataset.category;
+      pestanasCategoria
+        .querySelectorAll(".btn-categoria")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      filterMenuItems();
+      filtrarItemsMenu();
     });
   });
 }
 
 /* Maneja la búsqueda de platos por nombre en la página /menu */
-if (menuSearchInput) {
-  menuSearchInput.addEventListener("input", () => {
-    currentSearch = menuSearchInput.value.trim();
-    filterMenuItems();
+if (buscadorMenuInput) {
+  buscadorMenuInput.addEventListener("input", () => {
+    busquedaActual = buscadorMenuInput.value.trim();
+    filtrarItemsMenu();
   });
 }
 
 /* Botón para limpiar la búsqueda y la categoría cuando no hay resultados */
-if (menuResetBtn) {
-  menuResetBtn.addEventListener("click", () => {
-    currentSearch = "";
-    if (menuSearchInput) menuSearchInput.value = "";
-    currentCategory = "Todos";
-    if (categoryTabs) {
-      categoryTabs.querySelectorAll(".cat-btn").forEach((b) => b.classList.remove("active"));
-      categoryTabs.querySelector('[data-category="Todos"]')?.classList.add("active");
+if (botonReiniciarMenu) {
+  botonReiniciarMenu.addEventListener("click", () => {
+    busquedaActual = "";
+    if (buscadorMenuInput) buscadorMenuInput.value = "";
+    categoriaActual = "Todos";
+    if (pestanasCategoria) {
+      pestanasCategoria
+        .querySelectorAll(".btn-categoria")
+        .forEach((b) => b.classList.remove("active"));
+      pestanasCategoria
+        .querySelector('[data-category="Todos"]')
+        ?.classList.add("active");
     }
-    filterMenuItems();
+    filtrarItemsMenu();
   });
 }
 
@@ -103,180 +136,185 @@ document.querySelectorAll("[data-scroll]").forEach((el) => {
     /* Hace scroll suave hacia el elemento con el ID correspondiente */
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     /* Cierra el menú móvil si está abierto */
-    closeMobileMenu();
+    cerrarMenuMovil();
   });
 });
 
 /* Maneja la apertura y cierre del menú móvil al hacer clic en el botón de navegación */
-navToggle.addEventListener("click", () => {
-  const isOpen = !mobileMenu.classList.contains("hidden-modal");
+botonMenuMovil.addEventListener("click", () => {
+  const isOpen = !menuMovil.classList.contains("hidden-modal");
   /* Si el menú móvil está abierto, lo cierra; de lo contrario, lo abre y ajusta los íconos */
   if (isOpen) {
-    closeMobileMenu();
+    cerrarMenuMovil();
   } else {
     /* Abre el menú móvil y ajusta los íconos */
-    mobileMenu.classList.remove("hidden-modal");
-    iconOpen.classList.add("hidden-modal");
-    iconClose.classList.remove("hidden-modal");
+    menuMovil.classList.remove("hidden-modal");
+    iconoAbrir.classList.add("hidden-modal");
+    iconoCerrar.classList.remove("hidden-modal");
   }
 });
 /* Función para cerrar el menú móvil y ajustar los íconos */
-function closeMobileMenu() {
-  mobileMenu.classList.add("hidden-modal");
-  iconOpen.classList.remove("hidden-modal");
-  iconClose.classList.add("hidden-modal");
+function cerrarMenuMovil() {
+  menuMovil.classList.add("hidden-modal");
+  iconoAbrir.classList.remove("hidden-modal");
+  iconoCerrar.classList.add("hidden-modal");
 }
 /* Maneja la apertura y cierre de los modales (cart, product) */
 /* Los modales de login/signup pasaron a ser la página /login, igual que en el Figma */
-/*modals=div que se esconden a menos que se abran con un click */
-const modals = {
-  cart: document.getElementById("modal-cart"),
-  product: document.getElementById("modal-product"),
+/*modales=div que se esconden a menos que se abran con un click */
+const modales = {
+  cart: document.getElementById("modal-carrito"),
+  product: document.getElementById("modal-producto"),
 };
 /* Función para abrir un modal */
-function openModal(name) {
-  closeAllModals();
-  modals[name]?.classList.remove("hidden-modal");
+function abrirModal(name) {
+  cerrarTodosModales();
+  modales[name]?.classList.remove("hidden-modal");
 }
 /* Función para cerrar todos los modales */
-function closeAllModals() {
-  Object.values(modals).forEach((m) => m?.classList.add("hidden-modal"));
+function cerrarTodosModales() {
+  Object.values(modales).forEach((m) => m?.classList.add("hidden-modal"));
 }
 /* Agrega event listeners a los elementos con el atributo data-modal 
 para abrir el modal correspondiente al hacer clic */
 document.querySelectorAll("[data-modal]").forEach((el) => {
   el.addEventListener("click", () => {
     /* Abre el modal correspondiente al valor del atributo data-modal */
-    openModal(el.dataset.modal);
+    abrirModal(el.dataset.modal);
     /* Cierra el menú móvil si está abierto */
-    closeMobileMenu();
+    cerrarMenuMovil();
   });
 });
 
 /* Agrega event listeners a los elementos con el atributo data-close
  para cerrar todos los modales al hacer clic */
- /* la x para cerrar la pestaña */
+/* la x para cerrar la pestaña */
 document.querySelectorAll("[data-close]").forEach((el) => {
-  el.addEventListener("click", () => closeAllModals());
+  el.addEventListener("click", () => cerrarTodosModales());
 });
 
 /* Agrega event listeners a los modales para cerrar el modal al 
 hacer clic fuera del contenido */
-Object.values(modals).forEach((modal) => {
+Object.values(modales).forEach((modal) => {
   modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeAllModals();
+    if (e.target === modal) cerrarTodosModales();
   });
 });
 
 /* Agrega un event listener al botón "Explorar Menú" en el 
 carrito para cerrar todos los modales y hacer scroll hacia la sección del menú */
-document.getElementById("cart-explore-menu").addEventListener("click", () => {
-  closeAllModals();
-  document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
-});
+document
+  .getElementById("carrito-explorar-menu")
+  .addEventListener("click", () => {
+    cerrarTodosModales();
+    document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
+  });
 
 /* Función para abrir el modal de un producto específico */
-function openProduct(item) {
-  selectedItem = item;
+function abrirProducto(item) {
+  itemSeleccionado = item;
   qty = 1;
-  selectedAdds = [];
-  renderProductModal();
-  openModal("product");
+  adicionalesSeleccionados = [];
+  renderizarModalProducto();
+  abrirModal("product");
 }
 /* Función para renderizar el contenido del modal de producto */
-function renderProductModal() {
-  if (!selectedItem) return;
+function renderizarModalProducto() {
+  if (!itemSeleccionado) return;
   /* Actualiza el contenido del modal con la información del producto seleccionado */
   /* Adaptado para consumir 'imageUrl' que proviene de Spring Boot */
-  document.getElementById("product-image").src = selectedItem.imageUrl;
-  document.getElementById("product-image").alt = selectedItem.name;
-  document.getElementById("product-name").textContent = selectedItem.name;
-  document.getElementById("product-price").textContent = fmt(
-    selectedItem.price,
+  document.getElementById("producto-imagen").src = itemSeleccionado.imageUrl;
+  document.getElementById("producto-imagen").alt = itemSeleccionado.name;
+  document.getElementById("producto-nombre").textContent =
+    itemSeleccionado.name;
+  document.getElementById("producto-precio").textContent = fmt(
+    itemSeleccionado.price,
   );
   /* Actualiza la descripción del producto y la cantidad seleccionada */
-  document.getElementById("product-description").textContent =
-    selectedItem.description;
-  document.getElementById("qty-value").textContent = qty;
-/* Actualiza la sección de adicionales del producto */
-  const addsWrap = document.getElementById("product-additionals-wrap");
-  const addsContainer = document.getElementById("product-additionals");
+  document.getElementById("producto-descripcion").textContent =
+    itemSeleccionado.description;
+  document.getElementById("cantidad-valor").textContent = qty;
+  /* Actualiza la sección de adicionales del producto */
+  const addsWrap = document.getElementById("producto-adicionales-wrap");
+  const addsContainer = document.getElementById("producto-adicionales");
   /* Si el producto no tiene adicionales, oculta la sección
   de lo contrario, muestra los adicionales disponibles */
-  if (selectedItem.additionals.length === 0) {
+  if (itemSeleccionado.additionals.length === 0) {
     addsWrap.classList.add("hidden-modal");
   } else {
     /* Muestra la sección de adicionales y genera los checkboxes para cada adicional */
     /* Adaptado para consumir 'add.name' de la entidad AddOn de Java */
     addsWrap.classList.remove("hidden-modal");
-    addsContainer.innerHTML = selectedItem.additionals
+    addsContainer.innerHTML = itemSeleccionado.additionals
       .map(
         (add, i) => `
       <label class="flex items-center gap-3 cursor-pointer select-none">
-        <input type="checkbox" data-add="${i}" ${selectedAdds.includes(add.name) ? "checked" : ""} style="accent-color:#b2571f; width:16px; height:16px; flex-shrink:0;" />
+        <input type="checkbox" data-add="${i}" ${adicionalesSeleccionados.includes(add.name) ? "checked" : ""} style="accent-color:#b2571f; width:16px; height:16px; flex-shrink:0;" />
         <span class="text-sm" style="color: rgba(44,44,44,0.7);">${add.name}</span>
       </label>
     `,
       )
       .join("");
-      /* Agrega event listeners a los checkboxes de adicionales para 
+    /* Agrega event listeners a los checkboxes de adicionales para 
       actualizar la lista de adicionales seleccionados */
     addsContainer.querySelectorAll("input[type=checkbox]").forEach((cb, i) => {
       cb.addEventListener("change", () => {
         /* Si el adicional ya está seleccionado, lo elimina de la lista
           de lo contrario, lo agrega a la lista */
-        const add = selectedItem.additionals[i];
-        if (selectedAdds.includes(add.name)) {
-          selectedAdds = selectedAdds.filter((a) => a !== add.name);
+        const add = itemSeleccionado.additionals[i];
+        if (adicionalesSeleccionados.includes(add.name)) {
+          adicionalesSeleccionados = adicionalesSeleccionados.filter(
+            (a) => a !== add.name,
+          );
         } else {
-          selectedAdds.push(add.name);
+          adicionalesSeleccionados.push(add.name);
         }
       });
     });
   }
-/* Actualiza el texto del botón "Agregar al carrito" 
+  /* Actualiza el texto del botón "Agregar al carrito" 
 con el precio total según la cantidad seleccionada */
-  document.getElementById("add-to-cart-btn").textContent =
-    `Agregar al carrito — ${fmt(selectedItem.price * qty)}`;
+  document.getElementById("btn-agregar-carrito").textContent =
+    `Agregar al carrito — ${fmt(itemSeleccionado.price * qty)}`;
 }
 
 /* Agrega event listeners a los botones de cantidad para aumentar o
  disminuir la cantidad seleccionada */
- /* Agrega event listener al botón de disminuir cantidad */
-document.getElementById("qty-minus").addEventListener("click", () => {
+/* Agrega event listener al botón de disminuir cantidad */
+document.getElementById("cantidad-menos").addEventListener("click", () => {
   qty = Math.max(1, qty - 1);
-  renderProductModal();
+  renderizarModalProducto();
 });
 /* Agrega event listener al botón de aumentar cantidad */
-document.getElementById("qty-plus").addEventListener("click", () => {
+document.getElementById("cantidad-mas").addEventListener("click", () => {
   qty = qty + 1;
-  renderProductModal();
+  renderizarModalProducto();
 });
 /* Agrega event listener al botón "Agregar al carrito" para agregar 
 el producto seleccionado al carrito */
-document.getElementById("add-to-cart-btn").addEventListener("click", () => {
-  if (!selectedItem) return;
+document.getElementById("btn-agregar-carrito").addEventListener("click", () => {
+  if (!itemSeleccionado) return;
   /* Verifica si el producto ya está en el carrito y actualiza la cantidad
   de lo contrario, agrega el producto al carrito */
-  const existing = cart.find((c) => c.id === selectedItem.id);
-  if (existing) {
-    existing.quantity += qty;
+  const existente = cart.find((c) => c.id === itemSeleccionado.id);
+  if (existente) {
+    existente.quantity += qty;
   } else {
     /* Agrega el producto seleccionado al carrito con la cantidad especificada */
-    cart.push({ ...selectedItem, quantity: qty });
+    cart.push({ ...itemSeleccionado, quantity: qty });
   }
   /* Renderiza el carrito actualizado y cierra todos los modales */
-  renderCart();
-  closeAllModals();
+  renderizarCarrito();
+  cerrarTodosModales();
 });
 
 /* Función para renderizar el contenido del carrito de compras 
 ACTUALIZAR CARRITO*/
-function renderCart() {
+function renderizarCarrito() {
   const count = cart.reduce((s, i) => s + i.quantity, 0);
   const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   /* Actualiza el contador de elementos en el carrito en la interfaz de usuario */
-  [cartCountDesktop, cartCountMobile].forEach((el) => {
+  [carritoContadorEscritorio, carritoContadorMovil].forEach((el) => {
     if (count > 0) {
       /* Si hay elementos en el carrito, muestra el contador y actualiza su contenido */
       el.textContent = count;
@@ -285,27 +323,27 @@ function renderCart() {
       el.classList.add("hidden-modal");
     }
   });
-/* Obtiene los elementos del DOM para mostrar los elementos del carrito, 
+  /* Obtiene los elementos del DOM para mostrar los elementos del carrito, 
 el mensaje de carrito vacío y el pie de página del carrito */
-  const cartItemsEl = document.getElementById("cart-items");
-  const cartEmptyEl = document.getElementById("cart-empty");
-  const cartFooterEl = document.getElementById("cart-footer");
+  const carritoItemsEl = document.getElementById("carrito-items");
+  const carritoVacioEl = document.getElementById("carrito-vacio");
+  const carritoPieEl = document.getElementById("carrito-pie");
   /* Si el carrito está vacío, muestra el mensaje de carrito vacío y oculta los
    elementos del carrito y el pie de página */
   if (cart.length === 0) {
-    cartEmptyEl.classList.remove("hidden-modal");
-    cartItemsEl.innerHTML = "";
-    cartFooterEl.classList.add("hidden-modal");
+    carritoVacioEl.classList.remove("hidden-modal");
+    carritoItemsEl.innerHTML = "";
+    carritoPieEl.classList.add("hidden-modal");
     return;
   }
   /* Si el carrito tiene elementos, oculta el mensaje de carrito vacío,
    muestra los elementos del carrito y el pie de página, y actualiza el total */
-  cartEmptyEl.classList.add("hidden-modal");
-  cartFooterEl.classList.remove("hidden-modal");
-  document.getElementById("cart-total").textContent = fmt(total);
+  carritoVacioEl.classList.add("hidden-modal");
+  carritoPieEl.classList.remove("hidden-modal");
+  document.getElementById("carrito-total").textContent = fmt(total);
   /* Genera el HTML para cada elemento del carrito y lo inserta en el contenedor */
   /* Adaptado para consumir 'imageUrl' que proviene de Spring Boot */
-  cartItemsEl.innerHTML = cart
+  carritoItemsEl.innerHTML = cart
     .map(
       (item) => `
     <div class="flex items-center gap-4 bg-white p-3" style="border-radius:2px;">
@@ -315,7 +353,7 @@ el mensaje de carrito vacío y el pie de página del carrito */
         <p class="text-sm font-bold" style="color:#b2571f;">${fmt(item.price)}</p>
         <p class="text-xs" style="color: rgba(44,44,44,0.4);">× ${item.quantity}</p>
       </div>
-      <button class="remove-item flex-shrink-0" style="color: rgba(44,44,44,0.3);" data-id="${item.id}" aria-label="Eliminar">
+      <button class="eliminar-item flex-shrink-0" style="color: rgba(44,44,44,0.3);" data-id="${item.id}" aria-label="Eliminar">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
@@ -324,92 +362,106 @@ el mensaje de carrito vacío y el pie de página del carrito */
   `,
     )
     .join("");
-    /* Agrega event listeners a los botones de eliminar elementos del carrito 
+  /* Agrega event listeners a los botones de eliminar elementos del carrito 
     para eliminar el elemento correspondiente al hacer clic */
-  cartItemsEl.querySelectorAll(".remove-item").forEach((btn) => {
+  carritoItemsEl.querySelectorAll(".eliminar-item").forEach((btn) => {
     btn.addEventListener("click", () => {
       cart = cart.filter((c) => c.id !== Number(btn.dataset.id));
-      renderCart();
+      renderizarCarrito();
     });
   });
 }
 /* Agrega un event listener al botón "Finalizar Compra" en el carrito
  para llevar a la página de inicio de sesión (@{/login}, vía data-href) */
-const cartCheckoutBtn = document.getElementById("cart-checkout");
-if (cartCheckoutBtn) {
-  cartCheckoutBtn.addEventListener("click", () => {
-    window.location.href = cartCheckoutBtn.dataset.href;
+const botonFinalizarCompra = document.getElementById("carrito-finalizar");
+if (botonFinalizarCompra) {
+  botonFinalizarCompra.addEventListener("click", () => {
+    window.location.href = botonFinalizarCompra.dataset.href;
   });
 }
 
 /* A partir de aquí: lógica exclusiva de la página /login (pestañas, accesos
 de prueba y envío de los formularios). Se protege todo con "if" porque
-login-form/signup-form solo existen en esa página. */
-const loginForm = document.getElementById("login-form");
-const signupForm = document.getElementById("signup-form");
+formulario-login/formulario-registro solo existen en esa página. */
+const formularioLogin = document.getElementById("formulario-login");
+const formularioRegistro = document.getElementById("formulario-registro");
 
 /* Pestañas "Iniciar sesión" / "Registrarse" */
-const authTabs = document.getElementById("auth-tabs");
-const authSubtitle = document.getElementById("auth-subtitle");
+const pestanasSesion = document.getElementById("pestanas-sesion");
+const subtituloSesion = document.getElementById("subtitulo-sesion");
 
 /* Cambia a la pestaña indicada ("login" | "signup") */
-function setAuthTab(tab) {
-  if (!authTabs || !loginForm || !signupForm) return;
-  const btn = authTabs.querySelector(`[data-tab="${tab}"]`);
+function establecerPestanaSesion(tab) {
+  if (!pestanasSesion || !formularioLogin || !formularioRegistro) return;
+  const btn = pestanasSesion.querySelector(`[data-tab="${tab}"]`);
   if (!btn) return;
-  authTabs.querySelectorAll(".auth-tab").forEach((b) => b.classList.remove("active"));
+  pestanasSesion
+    .querySelectorAll(".pestana-sesion")
+    .forEach((b) => b.classList.remove("active"));
   btn.classList.add("active");
   const isLogin = tab === "login";
-  loginForm.classList.toggle("hidden-modal", !isLogin);
-  signupForm.classList.toggle("hidden-modal", isLogin);
-  if (authSubtitle) {
-    authSubtitle.textContent = isLogin ? "Bienvenido de vuelta" : "Únete a nosotros";
+  formularioLogin.classList.toggle("hidden-modal", !isLogin);
+  formularioRegistro.classList.toggle("hidden-modal", isLogin);
+  if (subtituloSesion) {
+    subtituloSesion.textContent = isLogin
+      ? "Bienvenido de vuelta"
+      : "Únete a nosotros";
   }
 }
 
-if (authTabs && loginForm && signupForm) {
-  authTabs.querySelectorAll(".auth-tab").forEach((btn) => {
-    btn.addEventListener("click", () => setAuthTab(btn.dataset.tab));
+if (pestanasSesion && formularioLogin && formularioRegistro) {
+  pestanasSesion.querySelectorAll(".pestana-sesion").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      establecerPestanaSesion(btn.dataset.tab),
+    );
   });
 
-  /* Si se llega desde el navbar con "Registrarse" (@{/login(tab='register')}),
+  /* Si se llega desde el barra-navegacion con "Registrarse" (@{/login(tab='register')}),
   abre directamente la pestaña de registro en lugar de la de inicio de sesión */
   const requestedTab = new URLSearchParams(window.location.search).get("tab");
   if (requestedTab === "register") {
-    setAuthTab("signup");
+    establecerPestanaSesion("signup");
   }
 }
 
 /* Usuarios de prueba (mismos datos que se muestran en los accesos rápidos)
 usados para reconocer el rol de la persona que inicia sesión y decidir
 a dónde redirigirla (cliente -> inicio, admin -> panel de administración) */
-const DEMO_USERS = {
-  "admin@terra.com": { password: "admin123", name: "Administrador", role: "admin" },
-  "cliente@terra.com": { password: "cliente123", name: "María García", role: "cliente" },
+const USUARIOS_DEMO = {
+  "admin@terra.com": {
+    password: "admin123",
+    name: "Administrador",
+    role: "admin",
+  },
+  "cliente@terra.com": {
+    password: "cliente123",
+    name: "María García",
+    role: "cliente",
+  },
 };
 
 /* Guarda la sesión activa en el navegador (localStorage) para que la
 página /admin pueda comprobar si quien la visita inició sesión como admin */
-function setSession(session) {
-  localStorage.setItem("terraGalegaUser", JSON.stringify(session));
+function guardarSesion(sesion) {
+  localStorage.setItem("usuarioTerraGalega", JSON.stringify(sesion));
 }
 
 /* Accesos de prueba: solo rellenan el formulario, no autentican contra un backend real */
-document.querySelectorAll(".demo-login-btn").forEach((btn) => {
+document.querySelectorAll(".btn-acceso-demo").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.getElementById("login-email").value = btn.dataset.email;
-    document.getElementById("login-password").value = btn.dataset.password;
+    document.getElementById("login-correo").value = btn.dataset.email;
+    document.getElementById("login-contrasena").value = btn.dataset.password;
   });
 });
 
 /* Agrega event listeners a los formularios de inicio de sesión y registro 
 para manejar la validación y el envío de datos */
-if (loginForm) {
-  loginForm.addEventListener("submit", (e) => {
+if (formularioLogin) {
+  formularioLogin.addEventListener("submit", (e) => {
     e.preventDefault();
     /* Obtiene los valores de correo electrónico y contraseña del formulario de inicio de sesión */
-    const email = document.getElementById("login-email").value.trim();
-    const password = document.getElementById("login-password").value.trim();
+    const email = document.getElementById("login-correo").value.trim();
+    const password = document.getElementById("login-contrasena").value.trim();
     const errorEl = document.getElementById("login-error");
     /* Valida que ambos campos estén completos; si no, muestra un mensaje de error */
     if (!email || !password) {
@@ -420,8 +472,8 @@ if (loginForm) {
 
     /* Comprueba si el correo/contraseña corresponden a uno de los usuarios de
     prueba para saber si quien inicia sesión es un administrador */
-    const demoUser = DEMO_USERS[email.toLowerCase()];
-    if (demoUser && demoUser.password !== password) {
+    const usuarioDemo = USUARIOS_DEMO[email.toLowerCase()];
+    if (usuarioDemo && usuarioDemo.password !== password) {
       errorEl.textContent = "Contraseña incorrecta.";
       errorEl.classList.remove("hidden-modal");
       return;
@@ -430,12 +482,12 @@ if (loginForm) {
     /* Si la validación es exitosa, oculta el mensaje de error, guarda la sesión 
     y redirige según el rol: administradores al panel /admin, clientes al inicio */
     errorEl.classList.add("hidden-modal");
-    const session = demoUser
-      ? { name: demoUser.name, email, role: demoUser.role }
+    const sesion = usuarioDemo
+      ? { name: usuarioDemo.name, email, role: usuarioDemo.role }
       : { name: email.split("@")[0], email, role: "cliente" };
-    setSession(session);
-    loginForm.reset();
-    if (session.role === "admin") {
+    guardarSesion(sesion);
+    formularioLogin.reset();
+    if (sesion.role === "admin") {
       window.location.href = "/admin";
     } else {
       alert("Bienvenido de nuevo a Terra Galega");
@@ -444,18 +496,20 @@ if (loginForm) {
   });
 }
 /* Agrega un event listener al formulario de registro para manejar la validación y el envío de datos */
-if (signupForm) {
-  signupForm.addEventListener("submit", (e) => {
+if (formularioRegistro) {
+  formularioRegistro.addEventListener("submit", (e) => {
     e.preventDefault();
     /* Obtiene los valores de nombre, apellido, correo electrónico, contraseña,
      teléfono y dirección del formulario de registro */
-    const name = document.getElementById("signup-name").value.trim();
-    const lastName = document.getElementById("signup-lastname").value.trim();
-    const email = document.getElementById("signup-email").value.trim();
-    const password = document.getElementById("signup-password").value.trim();
-    const phone = document.getElementById("signup-phone").value.trim();
-    const address = document.getElementById("signup-address").value.trim();
-    const errorEl = document.getElementById("signup-error");
+    const name = document.getElementById("registro-nombre").value.trim();
+    const lastName = document.getElementById("registro-apellido").value.trim();
+    const email = document.getElementById("registro-correo").value.trim();
+    const password = document
+      .getElementById("registro-contrasena")
+      .value.trim();
+    const phone = document.getElementById("registro-telefono").value.trim();
+    const address = document.getElementById("registro-direccion").value.trim();
+    const errorEl = document.getElementById("registro-error");
     /* Valida que todos los campos estén completos; si no, muestra un mensaje de error */
     if (!name || !lastName || !email || !password || !phone || !address) {
       errorEl.textContent = "Por favor completa todos los campos.";
@@ -465,24 +519,24 @@ if (signupForm) {
     /* Si la validación es exitosa, oculta el mensaje de error, guarda la sesión
     (rol "cliente"), muestra un mensaje de bienvenida y regresa al inicio */
     errorEl.classList.add("hidden-modal");
-    setSession({ name, email, role: "cliente" });
+    guardarSesion({ name, email, role: "cliente" });
     alert(
       `Bienvenido a Terra Galega, ${name}. Tu cuenta fue creada exitosamente.`,
     );
-    signupForm.reset();
+    formularioRegistro.reset();
     window.location.href = "/";
   });
 }
 /* Agrega un event listener al formulario de contacto (página /contacto) para 
 manejar la validación y el envío de datos, igual que en login/registro */
-const contactForm = document.getElementById("contact-form");
-if (contactForm) {
-  contactForm.addEventListener("submit", (e) => {
+const formularioContacto = document.getElementById("formulario-contacto");
+if (formularioContacto) {
+  formularioContacto.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById("contact-name").value.trim();
-    const email = document.getElementById("contact-email").value.trim();
-    const message = document.getElementById("contact-message").value.trim();
-    const errorEl = document.getElementById("contact-error");
+    const name = document.getElementById("contacto-nombre").value.trim();
+    const email = document.getElementById("contacto-correo").value.trim();
+    const message = document.getElementById("contacto-mensaje").value.trim();
+    const errorEl = document.getElementById("contacto-error");
     /* Valida que todos los campos estén completos; si no, muestra un mensaje de error */
     if (!name || !email || !message) {
       errorEl.textContent = "Por favor completa todos los campos.";
@@ -490,13 +544,15 @@ if (contactForm) {
       return;
     }
     errorEl.classList.add("hidden-modal");
-    alert(`Gracias ${name}, hemos recibido tu mensaje. Te contactaremos pronto.`);
-    contactForm.reset();
+    alert(
+      `Gracias ${name}, hemos recibido tu mensaje. Te contactaremos pronto.`,
+    );
+    formularioContacto.reset();
   });
 }
 
 /* Renderiza los testimonios de clientes en la sección correspondiente */
-const TESTIMONIALS = [
+const TESTIMONIOS = [
   /* Cada testimonio contiene el nombre del cliente, su rol y el texto del testimonio */
   {
     name: "María García",
@@ -515,12 +571,12 @@ const TESTIMONIALS = [
   },
 ];
 /* Función para renderizar los testimonios en la sección de la página */
-function renderTestimonials() {
-  const grid = document.getElementById("testimonials-grid");
+function renderizarTestimonios() {
+  const grid = document.getElementById("cuadricula-testimonios");
   if (!grid) return;
   /* Genera el HTML para cada testimonio y lo inserta en el contenedor */
   const star = `<svg class="w-4 h-4" fill="#d99a21" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
-  grid.innerHTML = TESTIMONIALS.map(
+  grid.innerHTML = TESTIMONIOS.map(
     (t) => `
     <div class="bg-cream p-8 shadow-sm" style="border-radius:2px;">
       <div class="flex gap-1 mb-5">${star.repeat(5)}</div>
@@ -535,5 +591,5 @@ function renderTestimonials() {
 }
 
 /* Renderiza el carrito y los testimonios al cargar la página */
-renderCart();
-renderTestimonials();
+renderizarCarrito();
+renderizarTestimonios();
