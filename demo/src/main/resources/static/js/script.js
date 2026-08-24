@@ -632,6 +632,106 @@ function renderTestimonials() {
   ).join("");
 }
 
+/* A partir de aquí: lógica exclusiva de la página /menu/{id} (detalle de
+producto). Se protege todo con "if" porque estos elementos solo existen en
+productDetail.html. El producto llega desde Thymeleaf como "currentProduct"
+(th:inline="javascript" en la propia plantilla). */
+const detailAddBtn = document.getElementById("detail-add-btn");
+if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
+  let detailQty = 1;
+  let detailSelectedAdds = [];
+
+  const detailQtyValueEl = document.getElementById("detail-qty-value");
+  const detailQtyMinusBtn = document.getElementById("detail-qty-minus");
+  const detailQtyPlusBtn = document.getElementById("detail-qty-plus");
+  const detailTotalEl = document.getElementById("detail-total");
+  const detailAddOptions = document.querySelectorAll(".detail-add-option");
+
+  /* Calcula el total actual: precio base + adicionales seleccionados, por la cantidad */
+  function detailComputeTotal() {
+    const addsTotal = currentProduct.additionals
+      .filter((a) => detailSelectedAdds.includes(a.name))
+      .reduce((sum, a) => sum + a.price, 0);
+    return (currentProduct.price + addsTotal) * detailQty;
+  }
+
+  /* Repinta cantidad, total y el botón de "Añadir a la orden" */
+  function detailRender() {
+    if (detailQtyValueEl) detailQtyValueEl.textContent = detailQty;
+    const total = detailComputeTotal();
+    if (detailTotalEl) detailTotalEl.textContent = fmt(total);
+    detailAddBtn.textContent = `Añadir a la orden — ${fmt(total)}`;
+  }
+
+  /* Alterna el estilo (fondo/borde) de un adicional seleccionado, igual que en el mockup */
+  function detailStyleOption(label, selected) {
+    label.style.background = selected
+      ? "rgba(178,87,31,0.07)"
+      : "rgba(44,44,44,0.04)";
+    label.style.border = selected
+      ? "1px solid rgba(178,87,31,0.25)"
+      : "1px solid rgba(44,44,44,0.07)";
+  }
+
+  detailQtyMinusBtn?.addEventListener("click", () => {
+    detailQty = Math.max(1, detailQty - 1);
+    detailRender();
+  });
+  detailQtyPlusBtn?.addEventListener("click", () => {
+    detailQty += 1;
+    detailRender();
+  });
+
+  detailAddOptions.forEach((label) => {
+    const checkbox = label.querySelector("input[type=checkbox]");
+    const name = label.dataset.name;
+    checkbox?.addEventListener("change", () => {
+      if (detailSelectedAdds.includes(name)) {
+        detailSelectedAdds = detailSelectedAdds.filter((a) => a !== name);
+      } else {
+        detailSelectedAdds.push(name);
+      }
+      detailStyleOption(label, detailSelectedAdds.includes(name));
+      detailRender();
+    });
+  });
+
+  detailAddBtn.addEventListener("click", () => {
+    const addsTotal = currentProduct.additionals
+      .filter((a) => detailSelectedAdds.includes(a.name))
+      .reduce((sum, a) => sum + a.price, 0);
+    const unitPrice = currentProduct.price + addsTotal;
+    /* Se agrega al mismo carrito global que usa el modal de /menu, con la
+    misma forma de objeto que espera renderCart() */
+    const existing = cart.find((c) => c.id === currentProduct.id);
+    if (existing) {
+      existing.quantity += detailQty;
+    } else {
+      cart.push({
+        id: currentProduct.id,
+        name: currentProduct.name,
+        price: unitPrice,
+        imageUrl: currentProduct.imageUrl,
+        quantity: detailQty,
+      });
+    }
+    renderCart();
+
+    /* Feedback visual momentáneo en el botón, igual que en el mockup */
+    const originalText = detailAddBtn.textContent;
+    const originalBackground = detailAddBtn.style.background;
+    detailAddBtn.textContent = "¡Añadido a la orden!";
+    detailAddBtn.style.background =
+      "linear-gradient(135deg, #556141, #3d4730)";
+    setTimeout(() => {
+      detailAddBtn.style.background = originalBackground;
+      detailRender();
+    }, 2000);
+  });
+
+  detailRender();
+}
+
 /* Renderiza el carrito y los testimonios al cargar la página */
 renderCart();
 renderTestimonials();

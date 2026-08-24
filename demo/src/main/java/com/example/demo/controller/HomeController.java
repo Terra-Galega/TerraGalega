@@ -1,11 +1,13 @@
 package com.example.demo.controller;
 
+import com.example.demo.entities.Product;
 import com.example.demo.service.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class HomeController {
@@ -30,6 +32,20 @@ public class HomeController {
         // Carga todos los productos para la carta completa y para el modal de producto
         model.addAttribute("products", productService.getAllProducts());
         return "menu";
+    }
+
+    // http://localhost:8080/productDetail/{id}
+    @GetMapping("/productDetail/{id}")
+    public String productDetail(@PathVariable Integer id, Model model) {
+        // Busca el producto solicitado; si no existe, vuelve a la carta
+        Product product = productService.getProductById(id);
+        if (product == null) {
+            return "redirect:/menu";
+        }
+        model.addAttribute("product", product);
+        // Hasta 3 productos de la misma categoría para "También te puede gustar"
+        model.addAttribute("relatedProducts", productService.getRelatedProducts(id));
+        return "productDetail";
     }
 
     // http://localhost:8080/nosotros

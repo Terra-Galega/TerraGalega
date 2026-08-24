@@ -31,6 +31,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Collection<Product> getRelatedProducts(Integer id) {
+        Product product = repository.findById(id);
+        if (product == null) {
+            return java.util.List.of();
+        }
+        //Filtra los productos de la misma categoría (excluyendo el propio producto) y toma los primeros 3
+        return repository.findAll().stream()
+                .filter(p -> p.getCategory().equals(product.getCategory()) && !p.getId().equals(product.getId()))
+                .limit(3)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Product addProduct(Product product) {
         return repository.save(product);
     }

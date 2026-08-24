@@ -95,8 +95,8 @@
         <div
           th:each="product : ${products}"
           class="menu-item glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col"
-          th:attr="data-category=${product.category},data-name=${product.name}"
-          th:onclick="'openProductById(' + ${product.id} + ')'">
+          th:attr="data-category=${product.category},data-name=${product.name},data-href=@{/productDetail/{id}(id=${product.id})}"
+         onclick="window.location.href=this.dataset.href">
           <div class="relative h-56 overflow-hidden">
             <img
               th:src="${product.imageUrl}"
