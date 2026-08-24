@@ -6,21 +6,37 @@ const fmt = (price) =>
     maximumFractionDigits: 0,
   }).format(price);
 
+/* ─── Helper de compatibilidad ───
+Algunas páginas (home) usan ids en español (p. ej. "modal-producto") y
+otras (aboutUs, menu, contact, login) usan ids en inglés para el mismo
+elemento (p. ej. "modal-product"). En vez de duplicar el script por
+página, esta función recibe varios ids candidatos y devuelve el primer
+elemento que encuentre en el DOM (o null si ninguno existe). Así el
+mismo script.js funciona igual en todas las páginas sin importar qué
+convención de nombres use cada una. */
+function byId(...ids) {
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el) return el;
+  }
+  return null;
+}
+
 /* ─── Barra de navegación (según el Figma) ───
 En /home la barra empieza transparente sobre la imagen del hero y se vuelve
 "fija" (vidrio esmerilado claro) al hacer scroll. En el resto de páginas
 (que no tienen imagen detrás) se queda siempre en el estado "fija" desde
 que carga la página. El estado se controla agregando/quitando la clase
-"barra-navegacion--fija", que ya trae todos los estilos definidos en
+"nav-bar--fija", que ya trae todos los estilos definidos en
 styles.css. */
 (function initBarraNavegacion() {
-  const barraNavegacion = document.getElementById("barra-navegacion");
+  const barraNavegacion = document.getElementById("nav-bar");
   if (!barraNavegacion) return;
   const esInicio = barraNavegacion.dataset.inicio === "true";
 
   function actualizarBarraNavegacion() {
     const fija = !esInicio || window.scrollY > 20;
-    barraNavegacion.classList.toggle("barra-navegacion--fija", fija);
+    barraNavegacion.classList.toggle("nav-bar--stayed", fija);
   }
 
   if (esInicio) {
@@ -37,9 +53,13 @@ let categoriaActual = "Todos";
 let itemSeleccionado = null;
 let qty = 1;
 let adicionalesSeleccionados = [];
-/* Elementos del DOM para gestionar el carrito */
-const cuadriculaMenu = document.getElementById("cuadricula-menu");
-const pestanasCategoria = document.getElementById("pestanas-categoria");
+
+/* Elementos del DOM para gestionar el carrito y el filtro del menú.
+"menu-grid"/"category-tabs" son los ids reales que usa /menu; se dejan
+también los nombres en español como respaldo por si alguna página
+futura los reutiliza. */
+const cuadriculaMenu = byId("cuadricula-menu", "menu-grid");
+const pestanasCategoria = byId("pestanas-categoria", "category-tabs");
 const carritoContadorEscritorio = document.getElementById(
   "carrito-contador-escritorio",
 );
@@ -49,29 +69,44 @@ const menuMovil = document.getElementById("menu-movil");
 const iconoAbrir = document.getElementById("icono-abrir");
 const iconoCerrar = document.getElementById("icono-cerrar");
 
+/* Arreglo de productos que viene desde Thymeleaf. En home.html la variable
+inline se llama "productosMenu" y en aboutUs/menu/contact/login se llama
+"menuProducts". Se resuelve aquí una sola vez, cualquiera que exista. */
+const listaProductosMenu =
+  typeof productosMenu !== "undefined"
+    ? productosMenu
+    : typeof menuProducts !== "undefined"
+      ? menuProducts
+      : [];
+
 /* Función para abrir el modal de un producto específico mediante su ID enviado desde Thymeleaf */
 function abrirProductoPorId(id) {
-  const item = productosMenu.find((p) => p.id === id);
+  const item = listaProductosMenu.find((p) => p.id === id);
   if (item) {
     abrirProducto(item);
   }
 }
+/* En /menu el atributo onclick de cada tarjeta llama a "openProductById(id)"
+en vez de "abrirProductoPorId(id)"; se expone como alias global para que
+ambos nombres funcionen indistintamente. */
+window.openProductById = abrirProductoPorId;
 
 /* Elementos del DOM de la página /menu (buscador y estado vacío) */
-const buscadorMenuInput = document.getElementById("buscador-menu");
-const menuVacioEl = document.getElementById("menu-vacio");
-const botonReiniciarMenu = document.getElementById("reiniciar-menu");
+const buscadorMenuInput = byId("buscador-menu", "menu-search");
+const menuVacioEl = byId("menu-vacio", "menu-empty");
+const botonReiniciarMenu = byId("reiniciar-menu", "menu-reset");
 let busquedaActual = "";
 
 /* Filtra los elementos del DOM renderizados por Thymeleaf según la categoría
 y el texto de búsqueda actuales, y muestra el mensaje de "sin resultados" si aplica */
 function filtrarItemsMenu() {
-  const items = document.querySelectorAll(".item-menu");
+  /* "item-menu" es el nombre original; "menu-item" es el que usa /menu */
+  const items = document.querySelectorAll(".item-menu, .menu-item");
   let visibleCount = 0;
   items.forEach((item) => {
     const matchesCategory =
       categoriaActual === "Todos" || item.dataset.category === categoriaActual;
-    const matchesSearch = item.dataset.name
+    const matchesSearch = (item.dataset.name || "")
       .toLowerCase()
       .includes(busquedaActual.toLowerCase());
     if (matchesCategory && matchesSearch) {
@@ -89,18 +124,21 @@ function filtrarItemsMenu() {
 /* Maneja el cambio de categoría al hacer clic en los botones de categoría */
 /* Se protege con un if porque no todas las páginas tienen la grilla completa del menú (p. ej. el home solo muestra "Favoritos") */
 if (pestanasCategoria) {
-  pestanasCategoria.querySelectorAll(".btn-categoria").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      /* Actualiza la categoría actual eliminando la clase "active" de 
+  /* "btn-categoria" es el nombre original; "cat-btn" es el que usa /menu */
+  pestanasCategoria
+    .querySelectorAll(".category-btn, .cat-btn")
+    .forEach((btn) => {
+      btn.addEventListener("click", () => {
+        /* Actualiza la categoría actual eliminando la clase "active" de 
       todos los botones y agregando la clase a aquel que fue CLICK */
-      categoriaActual = btn.dataset.category;
-      pestanasCategoria
-        .querySelectorAll(".btn-categoria")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      filtrarItemsMenu();
+        categoriaActual = btn.dataset.category;
+        pestanasCategoria
+          .querySelectorAll(".category-btn, .cat-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        filtrarItemsMenu();
+      });
     });
-  });
 }
 
 /* Maneja la búsqueda de platos por nombre en la página /menu */
@@ -119,7 +157,7 @@ if (botonReiniciarMenu) {
     categoriaActual = "Todos";
     if (pestanasCategoria) {
       pestanasCategoria
-        .querySelectorAll(".btn-categoria")
+        .querySelectorAll(".category-btn, .cat-btn")
         .forEach((b) => b.classList.remove("active"));
       pestanasCategoria
         .querySelector('[data-category="Todos"]')
@@ -140,31 +178,38 @@ document.querySelectorAll("[data-scroll]").forEach((el) => {
   });
 });
 
-/* Maneja la apertura y cierre del menú móvil al hacer clic en el botón de navegación */
-botonMenuMovil.addEventListener("click", () => {
-  const isOpen = !menuMovil.classList.contains("hidden-modal");
-  /* Si el menú móvil está abierto, lo cierra; de lo contrario, lo abre y ajusta los íconos */
-  if (isOpen) {
-    cerrarMenuMovil();
-  } else {
-    /* Abre el menú móvil y ajusta los íconos */
-    menuMovil.classList.remove("hidden-modal");
-    iconoAbrir.classList.add("hidden-modal");
-    iconoCerrar.classList.remove("hidden-modal");
-  }
-});
+/* Maneja la apertura y cierre del menú móvil al hacer clic en el botón de navegación.
+Se protege con un "if" porque la barra de navegación (fragments.html) siempre
+debería traer estos elementos, pero así el resto del script no se rompe
+si alguna página llegara a no incluirla. */
+if (botonMenuMovil && menuMovil) {
+  botonMenuMovil.addEventListener("click", () => {
+    const isOpen = !menuMovil.classList.contains("hidden-modal");
+    /* Si el menú móvil está abierto, lo cierra; de lo contrario, lo abre y ajusta los íconos */
+    if (isOpen) {
+      cerrarMenuMovil();
+    } else {
+      /* Abre el menú móvil y ajusta los íconos */
+      menuMovil.classList.remove("hidden-modal");
+      iconoAbrir?.classList.add("hidden-modal");
+      iconoCerrar?.classList.remove("hidden-modal");
+    }
+  });
+}
 /* Función para cerrar el menú móvil y ajustar los íconos */
 function cerrarMenuMovil() {
-  menuMovil.classList.add("hidden-modal");
-  iconoAbrir.classList.remove("hidden-modal");
-  iconoCerrar.classList.add("hidden-modal");
+  menuMovil?.classList.add("hidden-modal");
+  iconoAbrir?.classList.remove("hidden-modal");
+  iconoCerrar?.classList.add("hidden-modal");
 }
 /* Maneja la apertura y cierre de los modales (cart, product) */
 /* Los modales de login/signup pasaron a ser la página /login, igual que en el Figma */
 /*modales=div que se esconden a menos que se abran con un click */
+/* "modal-carrito"/"modal-producto" son los ids originales (home);
+"modal-cart"/"modal-product" son los que usan aboutUs/menu/contact/login */
 const modales = {
-  cart: document.getElementById("modal-carrito"),
-  product: document.getElementById("modal-producto"),
+  cart: byId("modal-carrito", "modal-cart"),
+  product: byId("modal-producto", "modal-product"),
 };
 /* Función para abrir un modal */
 function abrirModal(name) {
@@ -194,21 +239,26 @@ document.querySelectorAll("[data-close]").forEach((el) => {
 });
 
 /* Agrega event listeners a los modales para cerrar el modal al 
-hacer clic fuera del contenido */
-Object.values(modales).forEach((modal) => {
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) cerrarTodosModales();
+hacer clic fuera del contenido. Se filtran los que no existan en la
+página actual (Object.values puede traer null si esa página usa el
+otro juego de ids). */
+Object.values(modales)
+  .filter(Boolean)
+  .forEach((modal) => {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) cerrarTodosModales();
+    });
   });
-});
 
 /* Agrega un event listener al botón "Explorar Menú" en el 
 carrito para cerrar todos los modales y hacer scroll hacia la sección del menú */
-document
-  .getElementById("carrito-explorar-menu")
-  .addEventListener("click", () => {
+byId("carrito-explorar-menu", "cart-explore-menu")?.addEventListener(
+  "click",
+  () => {
     cerrarTodosModales();
     document.getElementById("menu")?.scrollIntoView({ behavior: "smooth" });
-  });
+  },
+);
 
 /* Función para abrir el modal de un producto específico */
 function abrirProducto(item) {
@@ -218,95 +268,116 @@ function abrirProducto(item) {
   renderizarModalProducto();
   abrirModal("product");
 }
-/* Función para renderizar el contenido del modal de producto */
+/* Función para renderizar el contenido del modal de producto.
+Cada campo se busca con byId(...) probando primero el id en español
+(home) y luego el id en inglés (aboutUs/menu/contact/login), así que
+la misma función sirve para cualquiera de las dos plantillas. */
 function renderizarModalProducto() {
   if (!itemSeleccionado) return;
+
+  const imagenEl = byId("producto-imagen", "product-image");
+  const nombreEl = byId("producto-nombre", "product-name");
+  const precioEl = byId("producto-precio", "product-price");
+  const descripcionEl = byId("producto-descripcion", "product-description");
+  const cantidadValorEl = byId("cantidad-valor", "qty-value");
+  const addsWrap = byId(
+    "producto-adicionales-wrap",
+    "product-additionals-wrap",
+  );
+  const addsContainer = byId("producto-adicionales", "product-additionals");
+  const botonAgregarEl = byId("btn-agregar-carrito", "add-to-cart-btn");
+
   /* Actualiza el contenido del modal con la información del producto seleccionado */
   /* Adaptado para consumir 'imageUrl' que proviene de Spring Boot */
-  document.getElementById("producto-imagen").src = itemSeleccionado.imageUrl;
-  document.getElementById("producto-imagen").alt = itemSeleccionado.name;
-  document.getElementById("producto-nombre").textContent =
-    itemSeleccionado.name;
-  document.getElementById("producto-precio").textContent = fmt(
-    itemSeleccionado.price,
-  );
+  if (imagenEl) {
+    imagenEl.src = itemSeleccionado.imageUrl;
+    imagenEl.alt = itemSeleccionado.name;
+  }
+  if (nombreEl) nombreEl.textContent = itemSeleccionado.name;
+  if (precioEl) precioEl.textContent = fmt(itemSeleccionado.price);
   /* Actualiza la descripción del producto y la cantidad seleccionada */
-  document.getElementById("producto-descripcion").textContent =
-    itemSeleccionado.description;
-  document.getElementById("cantidad-valor").textContent = qty;
+  if (descripcionEl) descripcionEl.textContent = itemSeleccionado.description;
+  if (cantidadValorEl) cantidadValorEl.textContent = qty;
+
   /* Actualiza la sección de adicionales del producto */
-  const addsWrap = document.getElementById("producto-adicionales-wrap");
-  const addsContainer = document.getElementById("producto-adicionales");
-  /* Si el producto no tiene adicionales, oculta la sección
-  de lo contrario, muestra los adicionales disponibles */
-  if (itemSeleccionado.additionals.length === 0) {
-    addsWrap.classList.add("hidden-modal");
-  } else {
-    /* Muestra la sección de adicionales y genera los checkboxes para cada adicional */
-    /* Adaptado para consumir 'add.name' de la entidad AddOn de Java */
-    addsWrap.classList.remove("hidden-modal");
-    addsContainer.innerHTML = itemSeleccionado.additionals
-      .map(
-        (add, i) => `
-      <label class="flex items-center gap-3 cursor-pointer select-none">
-        <input type="checkbox" data-add="${i}" ${adicionalesSeleccionados.includes(add.name) ? "checked" : ""} style="accent-color:#b2571f; width:16px; height:16px; flex-shrink:0;" />
-        <span class="text-sm" style="color: rgba(44,44,44,0.7);">${add.name}</span>
-      </label>
-    `,
-      )
-      .join("");
-    /* Agrega event listeners a los checkboxes de adicionales para 
-      actualizar la lista de adicionales seleccionados */
-    addsContainer.querySelectorAll("input[type=checkbox]").forEach((cb, i) => {
-      cb.addEventListener("change", () => {
-        /* Si el adicional ya está seleccionado, lo elimina de la lista
-          de lo contrario, lo agrega a la lista */
-        const add = itemSeleccionado.additionals[i];
-        if (adicionalesSeleccionados.includes(add.name)) {
-          adicionalesSeleccionados = adicionalesSeleccionados.filter(
-            (a) => a !== add.name,
-          );
-        } else {
-          adicionalesSeleccionados.push(add.name);
-        }
-      });
-    });
+  if (addsWrap && addsContainer) {
+    /* Si el producto no tiene adicionales, oculta la sección
+    de lo contrario, muestra los adicionales disponibles */
+    if (itemSeleccionado.additionals.length === 0) {
+      addsWrap.classList.add("hidden-modal");
+    } else {
+      /* Muestra la sección de adicionales y genera los checkboxes para cada adicional */
+      /* Adaptado para consumir 'add.name' de la entidad AddOn de Java */
+      addsWrap.classList.remove("hidden-modal");
+      addsContainer.innerHTML = itemSeleccionado.additionals
+        .map(
+          (add, i) => `
+        <label class="flex items-center gap-3 cursor-pointer select-none">
+          <input type="checkbox" data-add="${i}" ${adicionalesSeleccionados.includes(add.name) ? "checked" : ""} style="accent-color:#b2571f; width:16px; height:16px; flex-shrink:0;" />
+          <span class="text-sm" style="color: rgba(44,44,44,0.7);">${add.name}</span>
+        </label>
+      `,
+        )
+        .join("");
+      /* Agrega event listeners a los checkboxes de adicionales para 
+        actualizar la lista de adicionales seleccionados */
+      addsContainer
+        .querySelectorAll("input[type=checkbox]")
+        .forEach((cb, i) => {
+          cb.addEventListener("change", () => {
+            /* Si el adicional ya está seleccionado, lo elimina de la lista
+            de lo contrario, lo agrega a la lista */
+            const add = itemSeleccionado.additionals[i];
+            if (adicionalesSeleccionados.includes(add.name)) {
+              adicionalesSeleccionados = adicionalesSeleccionados.filter(
+                (a) => a !== add.name,
+              );
+            } else {
+              adicionalesSeleccionados.push(add.name);
+            }
+          });
+        });
+    }
   }
   /* Actualiza el texto del botón "Agregar al carrito" 
 con el precio total según la cantidad seleccionada */
-  document.getElementById("btn-agregar-carrito").textContent =
-    `Agregar al carrito — ${fmt(itemSeleccionado.price * qty)}`;
+  if (botonAgregarEl) {
+    botonAgregarEl.textContent = `Agregar al carrito — ${fmt(itemSeleccionado.price * qty)}`;
+  }
 }
 
 /* Agrega event listeners a los botones de cantidad para aumentar o
  disminuir la cantidad seleccionada */
 /* Agrega event listener al botón de disminuir cantidad */
-document.getElementById("cantidad-menos").addEventListener("click", () => {
+byId("cantidad-menos", "qty-minus")?.addEventListener("click", () => {
   qty = Math.max(1, qty - 1);
   renderizarModalProducto();
 });
 /* Agrega event listener al botón de aumentar cantidad */
-document.getElementById("cantidad-mas").addEventListener("click", () => {
+byId("cantidad-mas", "qty-plus")?.addEventListener("click", () => {
   qty = qty + 1;
   renderizarModalProducto();
 });
 /* Agrega event listener al botón "Agregar al carrito" para agregar 
 el producto seleccionado al carrito */
-document.getElementById("btn-agregar-carrito").addEventListener("click", () => {
-  if (!itemSeleccionado) return;
-  /* Verifica si el producto ya está en el carrito y actualiza la cantidad
-  de lo contrario, agrega el producto al carrito */
-  const existente = cart.find((c) => c.id === itemSeleccionado.id);
-  if (existente) {
-    existente.quantity += qty;
-  } else {
-    /* Agrega el producto seleccionado al carrito con la cantidad especificada */
-    cart.push({ ...itemSeleccionado, quantity: qty });
-  }
-  /* Renderiza el carrito actualizado y cierra todos los modales */
-  renderizarCarrito();
-  cerrarTodosModales();
-});
+byId("btn-agregar-carrito", "add-to-cart-btn")?.addEventListener(
+  "click",
+  () => {
+    if (!itemSeleccionado) return;
+    /* Verifica si el producto ya está en el carrito y actualiza la cantidad
+    de lo contrario, agrega el producto al carrito */
+    const existente = cart.find((c) => c.id === itemSeleccionado.id);
+    if (existente) {
+      existente.quantity += qty;
+    } else {
+      /* Agrega el producto seleccionado al carrito con la cantidad especificada */
+      cart.push({ ...itemSeleccionado, quantity: qty });
+    }
+    /* Renderiza el carrito actualizado y cierra todos los modales */
+    renderizarCarrito();
+    cerrarTodosModales();
+  },
+);
 
 /* Función para renderizar el contenido del carrito de compras 
 ACTUALIZAR CARRITO*/
@@ -314,20 +385,24 @@ function renderizarCarrito() {
   const count = cart.reduce((s, i) => s + i.quantity, 0);
   const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   /* Actualiza el contador de elementos en el carrito en la interfaz de usuario */
-  [carritoContadorEscritorio, carritoContadorMovil].forEach((el) => {
-    if (count > 0) {
-      /* Si hay elementos en el carrito, muestra el contador y actualiza su contenido */
-      el.textContent = count;
-      el.classList.remove("hidden-modal");
-    } else {
-      el.classList.add("hidden-modal");
-    }
-  });
+  [carritoContadorEscritorio, carritoContadorMovil]
+    .filter(Boolean)
+    .forEach((el) => {
+      if (count > 0) {
+        /* Si hay elementos en el carrito, muestra el contador y actualiza su contenido */
+        el.textContent = count;
+        el.classList.remove("hidden-modal");
+      } else {
+        el.classList.add("hidden-modal");
+      }
+    });
   /* Obtiene los elementos del DOM para mostrar los elementos del carrito, 
 el mensaje de carrito vacío y el pie de página del carrito */
-  const carritoItemsEl = document.getElementById("carrito-items");
-  const carritoVacioEl = document.getElementById("carrito-vacio");
-  const carritoPieEl = document.getElementById("carrito-pie");
+  const carritoItemsEl = byId("carrito-items", "cart-items");
+  const carritoVacioEl = byId("carrito-vacio", "cart-empty");
+  const carritoPieEl = byId("carrito-pie", "cart-footer");
+  const carritoTotalEl = byId("carrito-total", "cart-total");
+  if (!carritoItemsEl || !carritoVacioEl || !carritoPieEl) return;
   /* Si el carrito está vacío, muestra el mensaje de carrito vacío y oculta los
    elementos del carrito y el pie de página */
   if (cart.length === 0) {
@@ -340,7 +415,7 @@ el mensaje de carrito vacío y el pie de página del carrito */
    muestra los elementos del carrito y el pie de página, y actualiza el total */
   carritoVacioEl.classList.add("hidden-modal");
   carritoPieEl.classList.remove("hidden-modal");
-  document.getElementById("carrito-total").textContent = fmt(total);
+  if (carritoTotalEl) carritoTotalEl.textContent = fmt(total);
   /* Genera el HTML para cada elemento del carrito y lo inserta en el contenedor */
   /* Adaptado para consumir 'imageUrl' que proviene de Spring Boot */
   carritoItemsEl.innerHTML = cart
@@ -373,7 +448,7 @@ el mensaje de carrito vacío y el pie de página del carrito */
 }
 /* Agrega un event listener al botón "Finalizar Compra" en el carrito
  para llevar a la página de inicio de sesión (@{/login}, vía data-href) */
-const botonFinalizarCompra = document.getElementById("carrito-finalizar");
+const botonFinalizarCompra = byId("carrito-finalizar", "cart-checkout");
 if (botonFinalizarCompra) {
   botonFinalizarCompra.addEventListener("click", () => {
     window.location.href = botonFinalizarCompra.dataset.href;
@@ -382,21 +457,34 @@ if (botonFinalizarCompra) {
 
 /* A partir de aquí: lógica exclusiva de la página /login (pestañas, accesos
 de prueba y envío de los formularios). Se protege todo con "if" porque
-formulario-login/formulario-registro solo existen en esa página. */
-const formularioLogin = document.getElementById("formulario-login");
-const formularioRegistro = document.getElementById("formulario-registro");
+formulario-login/formulario-registro solo existen en esa página.
+"formulario-login"/"formulario-registro" son los nombres originales;
+login.html en realidad usa "login-form"/"signup-form". */
+const formularioLogin = byId("formulario-login", "login-form");
+const formularioRegistro = byId("formulario-registro", "signup-form");
+
+/* Campos del formulario de inicio de sesión y registro (ambos juegos de ids) */
+const campoLoginCorreo = byId("login-correo", "login-email");
+const campoLoginContrasena = byId("login-contrasena", "login-password");
+const campoRegistroNombre = byId("registro-nombre", "signup-name");
+const campoRegistroApellido = byId("registro-apellido", "signup-lastname");
+const campoRegistroCorreo = byId("registro-correo", "signup-email");
+const campoRegistroContrasena = byId("registro-contrasena", "signup-password");
+const campoRegistroTelefono = byId("registro-telefono", "signup-phone");
+const campoRegistroDireccion = byId("registro-direccion", "signup-address");
 
 /* Pestañas "Iniciar sesión" / "Registrarse" */
-const pestanasSesion = document.getElementById("pestanas-sesion");
-const subtituloSesion = document.getElementById("subtitulo-sesion");
+const pestanasSesion = byId("pestanas-sesion", "auth-tabs");
+const subtituloSesion = byId("subtitulo-sesion", "auth-subtitle");
 
 /* Cambia a la pestaña indicada ("login" | "signup") */
 function establecerPestanaSesion(tab) {
   if (!pestanasSesion || !formularioLogin || !formularioRegistro) return;
   const btn = pestanasSesion.querySelector(`[data-tab="${tab}"]`);
   if (!btn) return;
+  /* "pestana-sesion" es el nombre original; "auth-tab" es el que usa login.html */
   pestanasSesion
-    .querySelectorAll(".pestana-sesion")
+    .querySelectorAll(".session-tab, .auth-tab")
     .forEach((b) => b.classList.remove("active"));
   btn.classList.add("active");
   const isLogin = tab === "login";
@@ -410,13 +498,13 @@ function establecerPestanaSesion(tab) {
 }
 
 if (pestanasSesion && formularioLogin && formularioRegistro) {
-  pestanasSesion.querySelectorAll(".pestana-sesion").forEach((btn) => {
+  pestanasSesion.querySelectorAll(".session-tab, .auth-tab").forEach((btn) => {
     btn.addEventListener("click", () =>
       establecerPestanaSesion(btn.dataset.tab),
     );
   });
 
-  /* Si se llega desde el barra-navegacion con "Registrarse" (@{/login(tab='register')}),
+  /* Si se llega desde el nav-bar con "Registrarse" (@{/login(tab='register')}),
   abre directamente la pestaña de registro en lugar de la de inicio de sesión */
   const requestedTab = new URLSearchParams(window.location.search).get("tab");
   if (requestedTab === "register") {
@@ -446,13 +534,17 @@ function guardarSesion(sesion) {
   localStorage.setItem("usuarioTerraGalega", JSON.stringify(sesion));
 }
 
-/* Accesos de prueba: solo rellenan el formulario, no autentican contra un backend real */
-document.querySelectorAll(".btn-acceso-demo").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.getElementById("login-correo").value = btn.dataset.email;
-    document.getElementById("login-contrasena").value = btn.dataset.password;
+/* Accesos de prueba: solo rellenan el formulario, no autentican contra un backend real.
+"btn-acceso-demo" es el nombre original; "demo-login-btn" es el que usa login.html */
+document
+  .querySelectorAll(".access-demo-btn, .demo-login-btn")
+  .forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (campoLoginCorreo) campoLoginCorreo.value = btn.dataset.email;
+      if (campoLoginContrasena)
+        campoLoginContrasena.value = btn.dataset.password;
+    });
   });
-});
 
 /* Agrega event listeners a los formularios de inicio de sesión y registro 
 para manejar la validación y el envío de datos */
@@ -460,13 +552,15 @@ if (formularioLogin) {
   formularioLogin.addEventListener("submit", (e) => {
     e.preventDefault();
     /* Obtiene los valores de correo electrónico y contraseña del formulario de inicio de sesión */
-    const email = document.getElementById("login-correo").value.trim();
-    const password = document.getElementById("login-contrasena").value.trim();
+    const email = (campoLoginCorreo?.value || "").trim();
+    const password = (campoLoginContrasena?.value || "").trim();
     const errorEl = document.getElementById("login-error");
     /* Valida que ambos campos estén completos; si no, muestra un mensaje de error */
     if (!email || !password) {
-      errorEl.textContent = "Por favor completa todos los campos.";
-      errorEl.classList.remove("hidden-modal");
+      if (errorEl) {
+        errorEl.textContent = "Por favor completa todos los campos.";
+        errorEl.classList.remove("hidden-modal");
+      }
       return;
     }
 
@@ -474,14 +568,16 @@ if (formularioLogin) {
     prueba para saber si quien inicia sesión es un administrador */
     const usuarioDemo = USUARIOS_DEMO[email.toLowerCase()];
     if (usuarioDemo && usuarioDemo.password !== password) {
-      errorEl.textContent = "Contraseña incorrecta.";
-      errorEl.classList.remove("hidden-modal");
+      if (errorEl) {
+        errorEl.textContent = "Contraseña incorrecta.";
+        errorEl.classList.remove("hidden-modal");
+      }
       return;
     }
 
     /* Si la validación es exitosa, oculta el mensaje de error, guarda la sesión 
     y redirige según el rol: administradores al panel /admin, clientes al inicio */
-    errorEl.classList.add("hidden-modal");
+    errorEl?.classList.add("hidden-modal");
     const sesion = usuarioDemo
       ? { name: usuarioDemo.name, email, role: usuarioDemo.role }
       : { name: email.split("@")[0], email, role: "cliente" };
@@ -501,24 +597,24 @@ if (formularioRegistro) {
     e.preventDefault();
     /* Obtiene los valores de nombre, apellido, correo electrónico, contraseña,
      teléfono y dirección del formulario de registro */
-    const name = document.getElementById("registro-nombre").value.trim();
-    const lastName = document.getElementById("registro-apellido").value.trim();
-    const email = document.getElementById("registro-correo").value.trim();
-    const password = document
-      .getElementById("registro-contrasena")
-      .value.trim();
-    const phone = document.getElementById("registro-telefono").value.trim();
-    const address = document.getElementById("registro-direccion").value.trim();
-    const errorEl = document.getElementById("registro-error");
+    const name = (campoRegistroNombre?.value || "").trim();
+    const lastName = (campoRegistroApellido?.value || "").trim();
+    const email = (campoRegistroCorreo?.value || "").trim();
+    const password = (campoRegistroContrasena?.value || "").trim();
+    const phone = (campoRegistroTelefono?.value || "").trim();
+    const address = (campoRegistroDireccion?.value || "").trim();
+    const errorEl = byId("registro-error", "signup-error");
     /* Valida que todos los campos estén completos; si no, muestra un mensaje de error */
     if (!name || !lastName || !email || !password || !phone || !address) {
-      errorEl.textContent = "Por favor completa todos los campos.";
-      errorEl.classList.remove("hidden-modal");
+      if (errorEl) {
+        errorEl.textContent = "Por favor completa todos los campos.";
+        errorEl.classList.remove("hidden-modal");
+      }
       return;
     }
     /* Si la validación es exitosa, oculta el mensaje de error, guarda la sesión
     (rol "cliente"), muestra un mensaje de bienvenida y regresa al inicio */
-    errorEl.classList.add("hidden-modal");
+    errorEl?.classList.add("hidden-modal");
     guardarSesion({ name, email, role: "cliente" });
     alert(
       `Bienvenido a Terra Galega, ${name}. Tu cuenta fue creada exitosamente.`,
@@ -528,22 +624,29 @@ if (formularioRegistro) {
   });
 }
 /* Agrega un event listener al formulario de contacto (página /contacto) para 
-manejar la validación y el envío de datos, igual que en login/registro */
-const formularioContacto = document.getElementById("formulario-contacto");
+manejar la validación y el envío de datos, igual que en login/registro.
+"formulario-contacto" es el nombre original; contact.html usa "contact-form" */
+const formularioContacto = byId("formulario-contacto", "contact-form");
 if (formularioContacto) {
   formularioContacto.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = document.getElementById("contacto-nombre").value.trim();
-    const email = document.getElementById("contacto-correo").value.trim();
-    const message = document.getElementById("contacto-mensaje").value.trim();
-    const errorEl = document.getElementById("contacto-error");
+    const name = (byId("contacto-nombre", "contact-name")?.value || "").trim();
+    const email = (
+      byId("contacto-correo", "contact-email")?.value || ""
+    ).trim();
+    const message = (
+      byId("contacto-mensaje", "contact-message")?.value || ""
+    ).trim();
+    const errorEl = byId("contacto-error", "contact-error");
     /* Valida que todos los campos estén completos; si no, muestra un mensaje de error */
     if (!name || !email || !message) {
-      errorEl.textContent = "Por favor completa todos los campos.";
-      errorEl.classList.remove("hidden-modal");
+      if (errorEl) {
+        errorEl.textContent = "Por favor completa todos los campos.";
+        errorEl.classList.remove("hidden-modal");
+      }
       return;
     }
-    errorEl.classList.add("hidden-modal");
+    errorEl?.classList.add("hidden-modal");
     alert(
       `Gracias ${name}, hemos recibido tu mensaje. Te contactaremos pronto.`,
     );

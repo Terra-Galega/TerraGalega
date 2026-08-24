@@ -56,7 +56,7 @@ body {
 ------------------------
 */
 /* Estado inicial: transparente sobre la imagen del hero (solo /home, antes de hacer scroll) */
-#barra-navegacion {
+.nav-bar {
   background-color: transparent;
   border-bottom: 1px solid transparent;
   transition:
@@ -68,7 +68,7 @@ body {
 /* Estado "fija": vidrio esmerilado claro, igual que el resto del sitio.
    Se activa con JS al hacer scroll en /home, y está siempre activa en las
    demás páginas (que no tienen imagen de fondo detrás de la barra) */
-#barra-navegacion.barra-navegacion--fija {
+.nav-bar .nav-bar--stayed {
   background-color: rgba(245, 242, 235, 0.75);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -81,60 +81,60 @@ body {
   background-color: rgba(44, 44, 44, 0.97);
   border-color: rgba(255, 255, 255, 0.08);
 }
-#barra-navegacion.barra-navegacion--fija #menu-movil {
+.nav-bar.nav-bar--stayed #menu-movil {
   background-color: rgba(245, 242, 235, 0.98);
   border-color: rgba(44, 44, 44, 0.08);
 }
 
 /* Enlaces del menú de navegación principal: claros sobre el hero, oscuros
    sobre la barra ya "fija" (vidrio claro) */
-.enlace-nav {
+.link-nav {
   color: rgba(245, 242, 235, 0.85);
   transition: color 0.2s;
 }
-.enlace-nav:hover {
+.link-nav:hover {
   color: #f5f2eb;
 }
-#barra-navegacion.barra-navegacion--fija .enlace-nav,
-#menu-movil .enlace-nav {
+.nav-bar.nav-bar--stayed .link-nav,
+#menu-movil .link-nav {
   color: rgba(44, 44, 44, 0.62);
 }
-#barra-navegacion.barra-navegacion--fija .enlace-nav:hover,
-#menu-movil .enlace-nav:hover {
+.nav-bar.nav-bar--stayed .link-nav:hover,
+#menu-movil .link-nav:hover {
   color: #2c2c2c;
 }
 /* El menú móvil desplegable siempre es oscuro por dentro, así que sus
    enlaces se mantienen claros aunque la barra ya esté "fija" */
-#menu-movil .enlace-nav {
+#menu-movil .link-nav {
   color: rgba(245, 242, 235, 0.78) !important;
 }
-#menu-movil .enlace-nav:hover {
+#menu-movil .link-nav:hover {
   color: #f5f2eb !important;
 }
 
 /* Logo "Terra Galega" del centro de la barra */
-#barra-navegacion .logo-terra {
+.nav-bar .logo-terra {
   color: #f5f2eb;
   transition: color 0.3s;
 }
-#barra-navegacion .logo-galega {
+.nav-bar .logo-galega {
   color: #f5f2eb;
   transition: color 0.3s;
 }
-#barra-navegacion.barra-navegacion--fija .logo-terra {
+.nav-bar.nav-bar--stayed .logo-terra {
   color: #b2571f;
 }
-#barra-navegacion.barra-navegacion--fija .logo-galega {
+.nav-bar.nav-bar--stayed .logo-galega {
   color: #2c2c2c;
 }
 
 /* Enlaces del pie de página (Footer) */
-.enlace-pie {
+.link-footer {
   color: rgba(245, 242, 235, 0.55);
   transition: color 0.2s;
 }
 
-.enlace-pie:hover {
+.link-footer:hover {
   color: #d99a21; /*tono dorado/amarillo al pasar el cursor */
 }
 /*
@@ -144,7 +144,7 @@ body {
 */
 
 /* Botón de categoría (estilo "pill" translúcido, igual que en el Figma) */
-.btn-categoria {
+.category-btn {
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   color: rgba(44, 44, 44, 0.6);
@@ -153,36 +153,17 @@ body {
 }
 
 /* Cambio de color al pasar el cursor*/
-.btn-categoria:hover {
+.category-btn:hover {
   border-color: #b2571f;
   color: #b2571f;
 }
 
 /* Estado activo del botón de categoría (categoría seleccionada): degradado terracota → burdeos */
-.btn-categoria.active {
+.category-btn.active {
   background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
   color: #fff;
   border: 1px solid transparent;
   box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
-}
-
-/*
--------------------------------
-  BUSCADOR DEL MENÚ (estilo vidrio esmerilado)
---------------------------------
-*/
-.buscador-cristal {
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(44, 44, 44, 0.12);
-  box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05);
-  transition: all 0.2s;
-}
-
-.buscador-cristal:focus {
-  outline: none;
-  border-color: rgba(178, 87, 31, 0.5);
-  box-shadow: 0 2px 20px rgba(178, 87, 31, 0.12);
 }
 
 /* Botón "+" de cada tarjeta del menú: se llena con el degradado terracota al pasar el cursor */
@@ -225,51 +206,15 @@ body {
 }
 
 /* Botones para selectores de cantidad (+ / -) */
-.btn-cantidad {
+.cuantity-btn {
   border: 1px solid rgba(44, 44, 44, 0.2);
   color: #2c2c2c;
   transition: all 0.2s;
 }
 /*cambio de color al pasar el cursor*/
-.btn-cantidad:hover {
+.cuantity-btn:hover {
   border-color: #b2571f;
   color: #b2571f;
-}
-
-/*
--------------------------------
-  FORMULARIOS E INPUTS
---------------------------------
-*/
-/* Campo de entrada de texto */
-.campo-entrada {
-  border: 1px solid rgba(44, 44, 44, 0.2);
-  border-radius: 2px;
-  background-color: #fff;
-  transition: border-color 0.2s;
-}
-
-/* Estado enfocado (Focus) del campo de entrada */
-.campo-entrada:focus {
-  border-color: #b2571f; /* Borde activo en tono terracota */
-  outline: none; /* Elimina el contorno azul por defecto del navegador */
-}
-
-/*
--------------------------------
-  TARJETAS (efecto vidrio esmerilado)
---------------------------------
-*/
-/* Misma tarjeta translúcida que ya se usaba en línea en home.html
-   (info de contacto, estadísticas de "Nuestra Historia"), convertida
-   en clase reutilizable para las páginas de menú, nosotros y contacto */
-.tarjeta-cristal {
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow:
-    0 4px 24px rgba(44, 44, 44, 0.07),
-    0 1px 4px rgba(44, 44, 44, 0.04);
 }
 
 /*
@@ -278,56 +223,22 @@ body {
 --------------------------------
 */
 /* Pestaña inactiva (Iniciar sesión / Registrarse) */
-.pestana-sesion {
+.session-tab {
   color: rgba(44, 44, 44, 0.45);
 }
 
 /* Pestaña activa: fondo blanco elevado, igual que en el Figma */
-.pestana-sesion.active {
+.session-tab.active {
   background-color: #fff;
   color: #2c2c2c;
   box-shadow: 0 2px 12px rgba(44, 44, 44, 0.1);
 }
 
 /* Botones de accesos de prueba (rellenan el formulario de login) */
-.btn-acceso-demo {
+.access-demo-btn {
   transition: background-color 0.2s;
 }
 
-.btn-acceso-demo:hover {
+.access-demo-btn:hover {
   background-color: rgba(255, 255, 255, 0.6);
-}
-
-/*
--------------------------------
-  PANEL DE ADMINISTRACIÓN (/admin)
---------------------------------
-*/
-/* Pestaña del sidebar (Productos / Domicilios / Usuarios) */
-.btn-pestana-admin {
-  color: rgba(245, 242, 235, 0.4);
-  border: 1px solid transparent;
-  transition: all 0.2s;
-}
-
-.btn-pestana-admin:hover {
-  color: rgba(245, 242, 235, 0.75);
-}
-
-/* Pestaña activa: mismo estilo terracota que el resto del sitio */
-.btn-pestana-admin.active {
-  background-color: rgba(178, 87, 31, 0.15);
-  color: #d99a21;
-  border: 1px solid rgba(178, 87, 31, 0.2);
-}
-
-/* Fila de producto desactivado en la tabla del panel: se atenúa visualmente */
-.fila-inactiva-admin {
-  opacity: 0.55;
-}
-
-/* Fila de un adicional dentro del modal de producto (panel admin) */
-.fila-adicional-admin {
-  background-color: rgba(178, 87, 31, 0.06);
-  border: 1px solid rgba(178, 87, 31, 0.12);
 }
