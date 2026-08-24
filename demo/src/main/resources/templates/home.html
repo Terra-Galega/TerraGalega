@@ -69,16 +69,16 @@
           </div>
           <!-- Botones de inicio de sesión, registro y carrito de compras -->
           <div class="flex items-center justify-evenly w-full">
-            <button
-              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
-              data-modal="login">
+            <a
+              th:href="@{/login}"
+              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               INICIAR SESIÓN
-            </button>
-            <button
-              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap"
-              data-modal="signup">
+            </a>
+            <a
+              th:href="@{/login}"
+              class="nav-link text-xs font-medium tracking-[0.18em] whitespace-nowrap">
               REGISTRARSE
-            </button>
+            </a>
             <button
               class="nav-link relative flex items-center justify-center"
               data-modal="cart"
@@ -198,17 +198,17 @@
           <div
             class="flex gap-3 pt-4 pb-2 border-t mt-2"
             style="border-color: rgba(255, 255, 255, 0.08)">
-            <button
-              class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded"
+            <a
+              class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded text-center"
               style="color: #f5f2eb; border: 1px solid rgba(245, 242, 235, 0.25)"
-              data-modal="login">
+              th:href="@{/login}">
               INICIAR SESIÓN
-            </button>
-            <button
-              class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra"
-              data-modal="signup">
+            </a>
+            <a
+              th:href="@{/login}"
+              class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center">
               REGISTRARSE
-            </button>
+            </a>
           </div>
         </div>
       </nav>
@@ -577,7 +577,6 @@
         </div>
       </section>
     </main>
-
     <!-- Pie de página con información del restaurante, navegación y enlaces a la cuenta -->
     <footer
       style="background-color: #2c2c2c; color: #f5f2eb"
@@ -644,14 +643,14 @@
             <!-- Lista de enlaces para iniciar sesión, registrarse y ver el carrito -->
             <ul class="space-y-3">
               <li>
-                <button class="footer-link text-sm" data-modal="login">
+                <a class="footer-link text-sm" th:href="@{/login}">
                   Iniciar sesión
-                </button>
+                </a>
               </li>
               <li>
-                <button class="footer-link text-sm" data-modal="signup">
+                <a class="footer-link text-sm" th:href="@{/login}">
                   Registrarse
-                </button>
+                </a>
               </li>
               <li>
                 <button class="footer-link text-sm" data-modal="cart">
@@ -849,9 +848,10 @@
               class="font-bold text-xl"
               style="color: #b2571f"></span>
           </div>
-          <!-- Botón para confirmar el pedido -->
+          <!-- Botón para confirmar el pedido: lleva a la página de inicio de sesión -->
           <button
             id="cart-checkout"
+            th:attr="data-href=@{/login}"
             class="w-full py-3 text-white font-medium rounded btn-terra">
             Confirmar pedido
           </button>
@@ -861,235 +861,6 @@
             Pago contra entrega o con datafono en tu domicilio
           </p>
         </div>
-      </div>
-    </div>
-
-
-    <!--Modal de login y registro-->
-    <div
-      id="modal-login"
-      class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
-      style="background-color: rgba(44, 44, 44, 0.65)">
-      <!-- Contenido del modal de inicio de sesión -->
-      <div
-        class="bg-cream w-full max-w-sm shadow-2xl relative p-8"
-        style="border-radius: 2px">
-        <!-- Botón de cierre "X"-->
-        <button
-          data-close="login"
-          class="absolute top-4 right-4"
-          style="color: rgba(44, 44, 44, 0.3)">
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        <h2 class="font-serif text-2xl font-semibold text-charcoal mb-1">
-          Iniciar sesión
-        </h2>
-        <p class="text-sm mb-7" style="color: rgba(44, 44, 44, 0.5)">
-          Accede a tu cuenta en Terra Galega
-        </p>
-        <!-- Formulario de inicio de sesión -->
-        <form id="login-form" class="space-y-4">
-          <!-- Contenedor para el campo de correo electrónico -->
-          <div>
-            <label
-              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
-              style="color: rgba(44, 44, 44, 0.5)"
-              >Correo electrónico</label
-            >
-            <input
-              type="email"
-              id="login-email"
-              placeholder="correo@ejemplo.com"
-              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
-          </div>
-          <!-- Contenedor para el campo de contraseña -->
-          <div>
-            <label
-              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
-              style="color: rgba(44, 44, 44, 0.5)"
-              >Contraseña</label
-            >
-            <input
-              type="password"
-              id="login-password"
-              placeholder="••••••••"
-              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
-          </div>
-          <p
-            id="login-error"
-            class="hidden-modal text-xs"
-            style="color: #8a2222"></p>
-          <!-- Botón para enviar el formulario de inicio de sesión -->
-          <button
-            type="submit"
-            class="w-full py-2.5 text-white text-sm font-medium rounded btn-terra">
-            Iniciar sesión
-          </button>
-        </form>
-        <!-- Enlace para registrarse -->
-        <p
-          class="text-center text-sm mt-5"
-          style="color: rgba(44, 44, 44, 0.5)">
-          ¿No tienes cuenta?
-          <button
-            data-modal="signup"
-            class="font-medium"
-            style="color: #b2571f">
-            Regístrate
-          </button>
-        </p>
-      </div>
-    </div>
-    
-    <!-- Modal de registro -->
-    <div
-      id="modal-signup"
-      class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
-      style="background-color: rgba(44, 44, 44, 0.65)">
-      <!--Contenido del modal de registro-->
-      <div
-        class="bg-cream w-full max-w-sm shadow-2xl relative p-8 my-4"
-        style="border-radius: 2px">
-        <!-- Botón de cierre "X"-->
-        <button
-          data-close="signup"
-          class="absolute top-4 right-4"
-          style="color: rgba(44, 44, 44, 0.3)">
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        <h2 class="font-serif text-2xl font-semibold text-charcoal mb-1">
-          Crear cuenta
-        </h2>
-        <p class="text-sm mb-7" style="color: rgba(44, 44, 44, 0.5)">
-          Únete a la familia Terra Galega
-        </p>
-
-        <!--Formulario para registrarse-->
-        <form id="signup-form" class="space-y-4">
-          <!-- Contenedor para los campos de nombre y apellido en una cuadrícula de dos columnas -->
-          <div class="grid grid-cols-2 gap-3">
-            <!--Contenedor para el campo de nombre-->
-            <div>
-              <label
-                class="block text-xs font-medium uppercase tracking-wider mb-1.5"
-                style="color: rgba(44, 44, 44, 0.5)"
-                >Nombre</label
-              >
-              <input
-                type="text"
-                id="signup-name"
-                placeholder="Juan"
-                class="input-field w-full px-3 py-2.5 text-charcoal text-sm" />
-            </div>
-            <!--Contenedor para el campo de apellido-->
-            <div>
-              <label
-                class="block text-xs font-medium uppercase tracking-wider mb-1.5"
-                style="color: rgba(44, 44, 44, 0.5)"
-                >Apellido</label
-              >
-              <input
-                type="text"
-                id="signup-lastname"
-                placeholder="García"
-                class="input-field w-full px-3 py-2.5 text-charcoal text-sm" />
-            </div>
-          </div>
-          <!--Contenedor para el campo de correo electrónico-->
-          <div>
-            <label
-              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
-              style="color: rgba(44, 44, 44, 0.5)"
-              >Correo electrónico</label
-            >
-            <input
-              type="email"
-              id="signup-email"
-              placeholder="correo@ejemplo.com"
-              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
-          </div>
-          <!--Contenedor para el campo de contraseña-->
-          <div>
-            <label
-              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
-              style="color: rgba(44, 44, 44, 0.5)"
-              >Contraseña</label
-            >
-            <input
-              type="password"
-              id="signup-password"
-              placeholder="••••••••"
-              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
-          </div>
-          <!--Contenedor para el campo de teléfono-->
-          <div>
-            <label
-              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
-              style="color: rgba(44, 44, 44, 0.5)"
-              >Teléfono</label
-            >
-            <input
-              type="tel"
-              id="signup-phone"
-              placeholder="+57 300 000 0000"
-              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
-          </div>
-          <!--Contenedor para el campo de dirección de entrega-->
-          <div>
-            <label
-              class="block text-xs font-medium uppercase tracking-wider mb-1.5"
-              style="color: rgba(44, 44, 44, 0.5)"
-              >Dirección de entrega</label
-            >
-            <input
-              type="text"
-              id="signup-address"
-              placeholder="Calle 93 #15-47, Bogotá"
-              class="input-field w-full px-4 py-2.5 text-charcoal text-sm" />
-          </div>
-          <!-- Contenedor para mostrar mensajes de error durante el registro -->
-          <p
-            id="signup-error"
-            class="hidden-modal text-xs"
-            style="color: #8a2222"></p>
-          <!-- botón de envío -->
-          <button
-            type="submit"
-            class="w-full py-2.5 text-white text-sm font-medium rounded btn-terra">
-            Crear cuenta
-          </button>
-        </form>
-        <!-- Enlace para iniciar sesión -->
-        <p
-          class="text-center text-sm mt-5"
-          style="color: rgba(44, 44, 44, 0.5)">
-          ¿Ya tienes cuenta?
-          <button data-modal="login" class="font-medium" style="color: #b2571f">
-            Inicia sesión
-          </button>
-        </p>
       </div>
     </div>
     <!--Arreglo que contiene los productos del menú y se comparte al js-->

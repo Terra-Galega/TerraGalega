@@ -31,6 +31,32 @@ function openProductById(id) {
   }
 }
 
+/* Elementos del DOM de la página /menu (buscador y estado vacío) */
+const menuSearchInput = document.getElementById("menu-search");
+const menuEmptyEl = document.getElementById("menu-empty");
+const menuResetBtn = document.getElementById("menu-reset");
+let currentSearch = "";
+
+/* Filtra los elementos del DOM renderizados por Thymeleaf según la categoría
+y el texto de búsqueda actuales, y muestra el mensaje de "sin resultados" si aplica */
+function filterMenuItems() {
+  const items = document.querySelectorAll('.menu-item');
+  let visibleCount = 0;
+  items.forEach(item => {
+    const matchesCategory = currentCategory === 'Todos' || item.dataset.category === currentCategory;
+    const matchesSearch = item.dataset.name.toLowerCase().includes(currentSearch.toLowerCase());
+    if (matchesCategory && matchesSearch) {
+      item.style.display = 'block';
+      visibleCount++;
+    } else {
+      item.style.display = 'none';
+    }
+  });
+  if (menuEmptyEl) {
+    menuEmptyEl.classList.toggle("hidden-modal", visibleCount !== 0);
+  }
+}
+
 /* Maneja el cambio de categoría al hacer clic en los botones de categoría */
 /* Se protege con un if porque no todas las páginas tienen la grilla completa del menú (p. ej. el home solo muestra "Favoritos") */
 if (categoryTabs) {
@@ -43,16 +69,30 @@ if (categoryTabs) {
         .querySelectorAll(".cat-btn")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-
-      /* Filtra los elementos del DOM renderizados por Thymeleaf según la nueva categoría */
-      document.querySelectorAll('.menu-item').forEach(item => {
-        if (currentCategory === 'Todos' || item.dataset.category === currentCategory) {
-          item.style.display = 'block';
-        } else {
-          item.style.display = 'none';
-        }
-      });
+      filterMenuItems();
     });
+  });
+}
+
+/* Maneja la búsqueda de platos por nombre en la página /menu */
+if (menuSearchInput) {
+  menuSearchInput.addEventListener("input", () => {
+    currentSearch = menuSearchInput.value.trim();
+    filterMenuItems();
+  });
+}
+
+/* Botón para limpiar la búsqueda y la categoría cuando no hay resultados */
+if (menuResetBtn) {
+  menuResetBtn.addEventListener("click", () => {
+    currentSearch = "";
+    if (menuSearchInput) menuSearchInput.value = "";
+    currentCategory = "Todos";
+    if (categoryTabs) {
+      categoryTabs.querySelectorAll(".cat-btn").forEach((b) => b.classList.remove("active"));
+      categoryTabs.querySelector('[data-category="Todos"]')?.classList.add("active");
+    }
+    filterMenuItems();
   });
 }
 
@@ -86,11 +126,10 @@ function closeMobileMenu() {
   iconOpen.classList.remove("hidden-modal");
   iconClose.classList.add("hidden-modal");
 }
-/* Maneja la apertura y cierre de los modales (login, signup, cart, product) */
+/* Maneja la apertura y cierre de los modales (cart, product) */
+/* Los modales de login/signup pasaron a ser la página /login, igual que en el Figma */
 /*modals=div que se esconden a menos que se abran con un click */
 const modals = {
-  login: document.getElementById("modal-login"),
-  signup: document.getElementById("modal-signup"),
   cart: document.getElementById("modal-cart"),
   product: document.getElementById("modal-product"),
 };
@@ -101,7 +140,7 @@ function openModal(name) {
 }
 /* Función para cerrar todos los modales */
 function closeAllModals() {
-  Object.values(modals).forEach((m) => m.classList.add("hidden-modal"));
+  Object.values(modals).forEach((m) => m?.classList.add("hidden-modal"));
 }
 /* Agrega event listeners a los elementos con el atributo data-modal 
 para abrir el modal correspondiente al hacer clic */
@@ -295,58 +334,120 @@ el mensaje de carrito vacío y el pie de página del carrito */
   });
 }
 /* Agrega un event listener al botón "Finalizar Compra" en el carrito
- para abrir el modal de inicio de sesión */
-document.getElementById("cart-checkout").addEventListener("click", () => {
-  openModal("login");
+ para llevar a la página de inicio de sesión (@{/login}, vía data-href) */
+const cartCheckoutBtn = document.getElementById("cart-checkout");
+if (cartCheckoutBtn) {
+  cartCheckoutBtn.addEventListener("click", () => {
+    window.location.href = cartCheckoutBtn.dataset.href;
+  });
+}
+
+/* A partir de aquí: lógica exclusiva de la página /login (pestañas, accesos
+de prueba y envío de los formularios). Se protege todo con "if" porque
+login-form/signup-form solo existen en esa página. */
+const loginForm = document.getElementById("login-form");
+const signupForm = document.getElementById("signup-form");
+
+/* Pestañas "Iniciar sesión" / "Registrarse" */
+const authTabs = document.getElementById("auth-tabs");
+const authSubtitle = document.getElementById("auth-subtitle");
+if (authTabs && loginForm && signupForm) {
+  authTabs.querySelectorAll(".auth-tab").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      authTabs.querySelectorAll(".auth-tab").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const isLogin = btn.dataset.tab === "login";
+      loginForm.classList.toggle("hidden-modal", !isLogin);
+      signupForm.classList.toggle("hidden-modal", isLogin);
+      if (authSubtitle) {
+        authSubtitle.textContent = isLogin ? "Bienvenido de vuelta" : "Únete a nosotros";
+      }
+    });
+  });
+}
+
+/* Accesos de prueba: solo rellenan el formulario, no autentican contra un backend real */
+document.querySelectorAll(".demo-login-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.getElementById("login-email").value = btn.dataset.email;
+    document.getElementById("login-password").value = btn.dataset.password;
+  });
 });
+
 /* Agrega event listeners a los formularios de inicio de sesión y registro 
 para manejar la validación y el envío de datos */
-document.getElementById("login-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  /* Obtiene los valores de correo electrónico y contraseña del formulario de inicio de sesión */
-  const email = document.getElementById("login-email").value.trim();
-  const password = document.getElementById("login-password").value.trim();
-  const errorEl = document.getElementById("login-error");
-  /* Valida que ambos campos estén completos; si no, muestra un mensaje de error */
-  if (!email || !password) {
-    errorEl.textContent = "Por favor completa todos los campos.";
-    errorEl.classList.remove("hidden-modal");
-    return;
-  }
-  /* Si la validación es exitosa, oculta el mensaje de error, muestra un mensaje de bienvenida, 
-  cierra todos los modales y reinicia el formulario de inicio de sesión */
-  errorEl.classList.add("hidden-modal");
-  alert("Bienvenido de nuevo a Terra Galega");
-  closeAllModals();
-  document.getElementById("login-form").reset();
-});
+if (loginForm) {
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    /* Obtiene los valores de correo electrónico y contraseña del formulario de inicio de sesión */
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value.trim();
+    const errorEl = document.getElementById("login-error");
+    /* Valida que ambos campos estén completos; si no, muestra un mensaje de error */
+    if (!email || !password) {
+      errorEl.textContent = "Por favor completa todos los campos.";
+      errorEl.classList.remove("hidden-modal");
+      return;
+    }
+    /* Si la validación es exitosa, oculta el mensaje de error, muestra un mensaje de bienvenida 
+    y regresa al inicio */
+    errorEl.classList.add("hidden-modal");
+    alert("Bienvenido de nuevo a Terra Galega");
+    loginForm.reset();
+    window.location.href = "/";
+  });
+}
 /* Agrega un event listener al formulario de registro para manejar la validación y el envío de datos */
-document.getElementById("signup-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  /* Obtiene los valores de nombre, apellido, correo electrónico, contraseña,
-   teléfono y dirección del formulario de registro */
-  const name = document.getElementById("signup-name").value.trim();
-  const lastName = document.getElementById("signup-lastname").value.trim();
-  const email = document.getElementById("signup-email").value.trim();
-  const password = document.getElementById("signup-password").value.trim();
-  const phone = document.getElementById("signup-phone").value.trim();
-  const address = document.getElementById("signup-address").value.trim();
-  const errorEl = document.getElementById("signup-error");
-  /* Valida que todos los campos estén completos; si no, muestra un mensaje de error */
-  if (!name || !lastName || !email || !password || !phone || !address) {
-    errorEl.textContent = "Por favor completa todos los campos.";
-    errorEl.classList.remove("hidden-modal");
-    return;
-  }
-  /* Si la validación es exitosa, oculta el mensaje de error, muestra un mensaje de bienvenida,
-  cierra todos los modales y reinicia el formulario de registro */
-  errorEl.classList.add("hidden-modal");
-  alert(
-    `Bienvenido a Terra Galega, ${name}. Tu cuenta fue creada exitosamente.`,
-  );
-  closeAllModals();
-  document.getElementById("signup-form").reset();
-});
+if (signupForm) {
+  signupForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    /* Obtiene los valores de nombre, apellido, correo electrónico, contraseña,
+     teléfono y dirección del formulario de registro */
+    const name = document.getElementById("signup-name").value.trim();
+    const lastName = document.getElementById("signup-lastname").value.trim();
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value.trim();
+    const phone = document.getElementById("signup-phone").value.trim();
+    const address = document.getElementById("signup-address").value.trim();
+    const errorEl = document.getElementById("signup-error");
+    /* Valida que todos los campos estén completos; si no, muestra un mensaje de error */
+    if (!name || !lastName || !email || !password || !phone || !address) {
+      errorEl.textContent = "Por favor completa todos los campos.";
+      errorEl.classList.remove("hidden-modal");
+      return;
+    }
+    /* Si la validación es exitosa, oculta el mensaje de error, muestra un mensaje de bienvenida
+    y regresa al inicio */
+    errorEl.classList.add("hidden-modal");
+    alert(
+      `Bienvenido a Terra Galega, ${name}. Tu cuenta fue creada exitosamente.`,
+    );
+    signupForm.reset();
+    window.location.href = "/";
+  });
+}
+/* Agrega un event listener al formulario de contacto (página /contacto) para 
+manejar la validación y el envío de datos, igual que en login/registro */
+const contactForm = document.getElementById("contact-form");
+if (contactForm) {
+  contactForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("contact-name").value.trim();
+    const email = document.getElementById("contact-email").value.trim();
+    const message = document.getElementById("contact-message").value.trim();
+    const errorEl = document.getElementById("contact-error");
+    /* Valida que todos los campos estén completos; si no, muestra un mensaje de error */
+    if (!name || !email || !message) {
+      errorEl.textContent = "Por favor completa todos los campos.";
+      errorEl.classList.remove("hidden-modal");
+      return;
+    }
+    errorEl.classList.add("hidden-modal");
+    alert(`Gracias ${name}, hemos recibido tu mensaje. Te contactaremos pronto.`);
+    contactForm.reset();
+  });
+}
+
 /* Renderiza los testimonios de clientes en la sección correspondiente */
 const TESTIMONIALS = [
   /* Cada testimonio contiene el nombre del cliente, su rol y el texto del testimonio */

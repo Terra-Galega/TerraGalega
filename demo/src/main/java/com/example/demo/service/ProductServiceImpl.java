@@ -27,8 +27,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Collection<Product> getPopularProducts() {
         //Filtra los productos activos marcados como populares (usa Boolean.TRUE.equals para evitar NullPointerException)
-        return repository.findAll().stream()
-                .filter(p -> Boolean.TRUE.equals(p.getPopular()))
-                .collect(Collectors.toList());
+        return repository.findAll().stream().filter(p -> Boolean.TRUE.equals(p.getPopular())).collect(Collectors.toList());
     }
 }
