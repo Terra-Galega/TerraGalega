@@ -200,97 +200,66 @@
       </nav>
     </header>
 
-    <footer
-      th:fragment="footer"
-      style="background-color: #2c2c2c; color: #f5f2eb"
-      class="pt-16 pb-8">
-      <!-- Contenedor principal del pie de página con un diseño de cuadrícula para organizar el contenido -->
-      <div class="max-w-7xl mx-auto px-6">
-        <!-- Contenedor de la cuadrícula del pie de página con tres columnas para el logo, navegación y enlaces a la cuenta -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
-          <!-- Contenedor para el logo y la descripción del restaurante -->
-          <div class="md:col-span-5">
-            <img
-              th:src="@{/assets/logo-alt.svg}"
-              alt="Terra Galega"
-              class="h-14 w-auto object-contain mb-5" />
-            <p
-              class="text-sm leading-relaxed max-w-sm"
-              style="color: rgba(245, 242, 235, 0.45)">
-              Restaurante gallego en Bogotá. Tradición, sabor y autenticidad en
-              cada plato desde 2018. Cocina marinera gallega con ingredientes
-              frescos de temporada.
-            </p>
-          </div>
-          <!--contenedor de navegación con botones para ir-->
-          <div class="md:col-span-3">
-            <h4
-              class="text-xs font-medium tracking-widest uppercase mb-5"
-              style="color: rgba(245, 242, 235, 0.35)">
-              Navegación
-            </h4>
-            <!--lista de enlaces de navegación-->
-            <ul class="space-y-3">
-              <li>
-                <a class="link-footer text-sm" th:href="@{/home}"> Inicio </a>
-              </li>
-              <li>
-                <a class="link-footer text-sm" th:href="@{/aboutUs}">
-                  Nosotros
-                </a>
-              </li>
-              <li>
-                <a class="link-footer text-sm" th:href="@{/menu}"> Menú </a>
-              </li>
-              <li>
-                <a class="link-footer text-sm" th:href="@{/contact}">
-                  Contacto
-                </a>
-              </li>
-            </ul>
-          </div>
+    <footer th:fragment="footer" class="bg-[#232323] text-[#f5f2eb] pt-16 pb-8 border-t border-[#ffffff10]">
+  <div class="max-w-7xl mx-auto px-6">
+    
+    <!-- Contenido principal del footer en columnas -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start pb-12">
+      
+      <!-- Columna 1: Logo y subtítulo (Ocupa 2 espacios en pantallas medianas/grandes) -->
+      <div class="md:col-span-2 flex flex-col items-start">
+        <!-- Logo alternativo o el mismo SVG del footer -->
+       <a th:href="@{/home}" class="inline-block mb-3">
+  <img th:src="@{/assets/logo-hero.svg}" alt="Terra Galega" class="w-32 md:w-40 lg:w-48 h-auto object-contain" />
+</a>
+        <p class="text-xs tracking-[0.25em] uppercase" style="color: rgba(245, 242, 235, 0.5);">
+          Bogotá, Colombia · Desde 2018
+        </p>
+      </div>
 
-          <!-- Contenedor para los enlaces relacionados con la cuenta del usuario -->
-          <div class="md:col-span-4">
-            <h4
-              class="text-xs font-medium tracking-widest uppercase mb-5"
-              style="color: rgba(245, 242, 235, 0.35)">
-              Mi cuenta
-            </h4>
-            <!-- Lista de enlaces para iniciar sesión, registrarse y ver el carrito -->
-            <ul class="space-y-3">
-              <li>
-                <a class="link-footer text-sm" th:href="@{/login}">
-                  Iniciar sesión
-                </a>
-              </li>
-              <li>
-                <a
-                  class="link-footer text-sm"
-                  th:href="@{/login(tab='register')}">
-                  Registrarse
-                </a>
-              </li>
-              <li>
-                <button class="link-footer text-sm" data-modal="cart">
-                  Mi carrito
-                </button>
-              </li>
-            </ul>
-          </div>
+      <!-- Columna 2: Dirección y Correo -->
+      <div class="space-y-6">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Dirección</p>
+          <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">Calle 93 #15-47, Zona Rosa, Bogotá</p>
         </div>
-        <!-- Contenedor para la información de derechos de autor y ubicación del restaurante -->
-        <div
-          class="pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-3"
-          style="border-color: rgba(255, 255, 255, 0.08)">
-          <p class="text-xs" style="color: rgba(245, 242, 235, 0.3)">
-            © 2026 Terra Galega. Todos los derechos reservados.
-          </p>
-          <p class="text-xs" style="color: rgba(245, 242, 235, 0.3)">
-            Bogotá, Colombia · Sabores del noroeste de España
-          </p>
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Correo</p>
+          <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">contacto@terragalega.co</p>
         </div>
       </div>
-    </footer>
+
+      <!-- Columna 3: Teléfono y Horario -->
+      <div class="space-y-6">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Teléfono</p>
+          <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">+57 601 456 7890</p>
+        </div>
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Horario</p>
+          <p class="text-sm font-medium leading-relaxed" style="color: rgba(245, 242, 235, 0.85);">Lun – Sáb 12:00–22:00 · Dom 12:00–20:00</p>
+        </div>
+      </div>
+
+      <!-- Columna 4: Redes sociales (Síguenos) -->
+      <div class="space-y-3">
+        <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Síguenos</p>
+        <ul class="space-y-2 text-sm font-medium">
+          <li><a href="https://instagram.com" target="_blank" class="transition-colors hover:text-white" style="color: rgba(245, 242, 235, 0.75);">Instagram</a></li>
+          <li><a href="https://facebook.com" target="_blank" class="transition-colors hover:text-white" style="color: rgba(245, 242, 235, 0.75);">Facebook</a></li>
+          <li><a href="https://tripadvisor.com" target="_blank" class="transition-colors hover:text-white" style="color: rgba(245, 242, 235, 0.75);">TripAdvisor</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Línea divisoria y Copyright inferior -->
+    <div class="pt-8 border-t flex flex-col sm:flex-row items-center justify-between text-xs gap-4" style="border-color: rgba(255, 255, 255, 0.08); color: rgba(245, 242, 235, 0.4);">
+      <p>© 2026 Terra Galega. Todos los derechos reservados.</p>
+      <p>Gastronomía gallega auténtica</p>
+    </div>
+
+  </div>
+</footer>
   </body>
 </html>
