@@ -26,8 +26,8 @@
     <main>
       <!-- Sección con la imagen principal de fondo y texto centrado -->
       <section
-        id="hero"
-        class="relative h-screen flex items-center justify-center overflow-hidden">
+  id="hero"
+  class="relative h-screen flex items-center justify-center overflow-hidden pt-24">
         <img
           src="https://images.unsplash.com/photo-1691089667845-841645e16c43?w=1600&h=900&fit=crop&auto=format"
           alt="Interior elegante del restaurante Terra Galega"
@@ -44,50 +44,51 @@
             );
           "></div>
         <!-- Contenedor del contenido centrado sobre la imagen de fondo -->
-        <div
-          class="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center -mt-20">
-          <p
-            class="text-sm font-medium tracking-[0.35em] uppercase mb-2"
-            style="color: #d99a21">
-            Restaurante Gallego · Bogotá
-          </p>
-          <!-- Logo del restaurante con sombra y tamaño adaptable según el tamaño de la pantalla -->
-          <img
-            th:src="@{/assets/logo-hero.svg}"
-            alt="Terra Galega"
-            class="mx-auto w-72 md:w-[420px] lg:w-[500px] -mb-30 object-contain drop-shadow-2xl" />
+        <div class="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center -mt-24 md:-mt-32">
+  
+  <!-- Texto superior -->
+  <p
+    class="text-sm font-medium tracking-[0.35em] uppercase"
+    style="color: #d99a21">
+    Restaurante Gallego · Bogotá
+  </p>
+  
+  <!-- Logo del restaurante -->
+ <img th:src="@{/assets/logo-hero.svg}" alt="Terra Galega" class="mx-auto w-72 md:w-[420px] lg:w-[500px] mt-6 mb-12 md:mt-8 md:mb-16 object-contain drop-shadow-2xl" />
 
-          <p
-            class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-            style="color: rgba(245, 242, 235, 0.8)">
-            Tradición culinaria gallega en el corazón de Bogotá. Mariscos
-            frescos, carnes seleccionadas y los auténticos sabores del noroeste
-            de España.
-          </p>
-          <!-- Botones de acción: enlazan a las páginas de carta e historia -->
-          <div class="flex flex-wrap items-center justify-center gap-4">
-            <a
-              th:href="@{/menu}"
-              class="px-8 py-3.5 rounded-full font-medium text-charcoal transition-all duration-300 hover:scale-105"
-              style="
-                background-color: rgba(245, 242, 235, 0.92);
-                backdrop-filter: blur(16px);
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-              ">
-              Explorar Menú
-            </a>
-            <a
-              th:href="@{/aboutUs}"
-              class="px-8 py-3.5 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
-              style="
-                background-color: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(16px);
-                border: 1px solid rgba(255, 255, 255, 0.25);
-              ">
-              Nuestra Historia
-            </a>
-          </div>
-        </div>
+  <!-- Texto descriptivo -->
+  <p
+    class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
+    style="color: rgba(245, 242, 235, 0.8)">
+    Tradición culinaria gallega en el corazón de Bogotá. Mariscos
+    frescos, carnes seleccionadas y los auténticos sabores del noroeste
+    de España.
+  </p>
+  
+  <!-- Botones de acción -->
+  <div class="flex flex-wrap items-center justify-center gap-4">
+    <a
+      th:href="@{/menu}"
+      class="px-8 py-3.5 rounded-full font-medium text-charcoal transition-all duration-300 hover:scale-105"
+      style="
+        background-color: rgba(245, 242, 235, 0.92);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+      ">
+      Explorar Menú
+    </a>
+    <a
+      th:href="@{/aboutUs}"
+      class="px-8 py-3.5 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
+      style="
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+      ">
+      Nuestra Historia
+    </a>
+  </div>
+</div>
         <!-- Indicador de desplazamiento hacia abajo con animación de rebote -->
         <div
           class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
@@ -201,7 +202,7 @@
           </div>
         </div>
       </section>
-      <!--Seccion de Favoritos de la casa (equivalente reducido a lo que hicieron los compañeros en index.html)-->
+      <!--Seccion de Favoritos de la casa -->
       <section id="menu" class="py-24 bg-cream">
         <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
         <div class="max-w-7xl mx-auto px-6">
