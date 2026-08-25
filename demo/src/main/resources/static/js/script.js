@@ -6,13 +6,7 @@ const fmt = (price) =>
     maximumFractionDigits: 0,
   }).format(price);
 
-/* ─── Barra de navegación (según el Figma) ───
-En /home la barra empieza transparente sobre la imagen del hero y se vuelve
-"fija" (vidrio esmerilado claro) al hacer scroll. En el resto de páginas
-(que no tienen imagen detrás) se queda siempre en el estado "fija" desde
-que carga la página. El estado se controla agregando/quitando la clase
-"nav-bar--stayed", que ya trae todos los estilos definidos en
-styles.css. */
+/* Barra de navegación */
 (function initNavBar() {
   const navBar = document.getElementById("nav-bar");
   if (!navBar) return;
@@ -141,10 +135,7 @@ document.querySelectorAll("[data-scroll]").forEach((el) => {
   });
 });
 
-/* Maneja la apertura y cierre del menú móvil al hacer clic en el botón de navegación.
-Se protege con un "if" porque la barra de navegación (fragments.html) siempre
-debería traer estos elementos, pero así el resto del script no se rompe
-si alguna página llegara a no incluirla. */
+
 if (mobileMenuBtn && mobileMenu) {
   mobileMenuBtn.addEventListener("click", () => {
     const isOpen = !mobileMenu.classList.contains("hidden-modal");
@@ -165,7 +156,7 @@ function closeMobileMenu() {
   iconOpen?.classList.remove("hidden-modal");
   iconClose?.classList.add("hidden-modal");
 }
-/* Maneja la apertura y cierre de los modales (cart, product) */
+/*apertura y cierre de los modales (cart, product) */
 /* Los modales de login/signup pasaron a ser la página /login, igual que en el Figma */
 /*modales=div que se esconden a menos que se abran con un click */
 const modals = {
@@ -200,9 +191,7 @@ document.querySelectorAll("[data-close]").forEach((el) => {
 });
 
 /* Agrega event listeners a los modales para cerrar el modal al 
-hacer clic fuera del contenido. Se filtran los que no existan en la
-página actual (Object.values puede traer null si esa página no incluye
-alguno de los dos modales). */
+hacer clic fuera del contenido. */
 Object.values(modals)
   .filter(Boolean)
   .forEach((modal) => {
@@ -300,8 +289,6 @@ con el precio total según la cantidad seleccionada */
   }
 }
 
-/* Agrega event listeners a los botones de cantidad para aumentar o
- disminuir la cantidad seleccionada */
 /* Agrega event listener al botón de disminuir cantidad */
 document.getElementById("qty-minus")?.addEventListener("click", () => {
   qty = Math.max(1, qty - 1);
@@ -403,9 +390,8 @@ if (cartCheckoutBtn) {
   });
 }
 
-/* A partir de aquí: lógica exclusiva de la página /login (pestañas, accesos
-de prueba y envío de los formularios). Se protege todo con "if" porque
-login-form/signup-form solo existen en esa página. */
+/*login (pestañas, accesos
+de prueba y envío de los formularios). */
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
 
@@ -455,9 +441,7 @@ if (authTabs && loginForm && signupForm) {
   }
 }
 
-/* Usuarios de prueba (mismos datos que se muestran en los accesos rápidos)
-usados para reconocer el rol de la persona que inicia sesión y decidir
-a dónde redirigirla (cliente -> inicio, admin -> panel de administración) */
+/* Usuarios de prueba */
 const DEMO_USERS = {
   "admin@terra.com": {
     password: "admin123",
@@ -472,8 +456,7 @@ const DEMO_USERS = {
 };
 
 /* Guarda la sesión activa en el navegador (localStorage) para que la
-página /admin pueda comprobar si quien la visita inició sesión como admin.
-La clave "terraGalegaUser" es la misma que usa admin.js para leerla. */
+página /admin pueda comprobar si quien la visita inició sesión como admin.*/
 function saveSession(session) {
   localStorage.setItem("terraGalegaUser", JSON.stringify(session));
 }
@@ -564,7 +547,7 @@ if (signupForm) {
   });
 }
 /* Agrega un event listener al formulario de contacto (página /contacto) para 
-manejar la validación y el envío de datos, igual que en login/registro. */
+manejar la validación y el envío de datos. */
 const contactForm = document.getElementById("contact-form");
 if (contactForm) {
   contactForm.addEventListener("submit", (e) => {
@@ -632,10 +615,7 @@ function renderTestimonials() {
   ).join("");
 }
 
-/* A partir de aquí: lógica exclusiva de la página /menu/{id} (detalle de
-producto). Se protege todo con "if" porque estos elementos solo existen en
-productDetail.html. El producto llega desde Thymeleaf como "currentProduct"
-(th:inline="javascript" en la propia plantilla). */
+/* prdocutDetail/{id} (detalle de producto).*/
 const detailAddBtn = document.getElementById("detail-add-btn");
 if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
   let detailQty = 1;
@@ -717,7 +697,7 @@ if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
     }
     renderCart();
 
-    /* Feedback visual momentáneo en el botón, igual que en el mockup */
+    
     const originalText = detailAddBtn.textContent;
     const originalBackground = detailAddBtn.style.background;
     detailAddBtn.textContent = "¡Añadido a la orden!";

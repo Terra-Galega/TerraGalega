@@ -15,8 +15,8 @@ public class HomeController {
     @Autowired
     private ProductService productService;
 
-    // http://localhost:8080/
-    // http://localhost:8080/home
+    // http://localhost:8090/
+    // http://localhost:8090/home
     @GetMapping({"/", "/home"})
     public String home(Model model) {
         // Cargar todos los productos (se usan como catálogo en memoria para el modal de producto)
@@ -26,7 +26,7 @@ public class HomeController {
         return "home"; 
     }
 
-    // http://localhost:8080/menu
+    // http://localhost:8090/menu
     @GetMapping("/menu")
     public String menu(Model model) {
         // Carga todos los productos para la carta completa y para el modal de producto
@@ -34,7 +34,7 @@ public class HomeController {
         return "menu";
     }
 
-    // http://localhost:8080/productDetail/{id}
+    // http://localhost:8090/productDetail/{id}
     @GetMapping("/productDetail/{id}")
     public String productDetail(@PathVariable Integer id, Model model) {
         // Busca el producto solicitado; si no existe, vuelve a la carta
@@ -48,19 +48,19 @@ public class HomeController {
         return "productDetail";
     }
 
-    // http://localhost:8080/nosotros
+    // http://localhost:8090/nosotros
     @GetMapping("/aboutUs")
     public String aboutUs() {
         return "aboutUs";
     }
 
-    // http://localhost:8080/contacto
+    // http://localhost:8090/contacto
     @GetMapping("/contact")
     public String contact() {
         return "contact";
     }
 
-    // http://localhost:8080/login
+    // http://localhost:8090/login
     @GetMapping("/login")
     public String login() {
         return "login";
