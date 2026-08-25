@@ -25,87 +25,71 @@
     <!-- Contenido principal de la página -->
     <main>
       <!-- Sección con la imagen principal de fondo y texto centrado -->
+      <!-- SECCIÓN HERO: Usamos min-h-screen y flex-col para que los elementos se apilen ordenadamente -->
       <section
-  id="hero"
-  class="relative h-screen flex items-center justify-center overflow-hidden pt-24">
+        id="hero"
+        class="relative min-h-screen flex flex-col overflow-hidden pt-28 pb-8">
+        
+        <!-- Imagen de fondo y degradado oscuro -->
         <img
           src="https://images.unsplash.com/photo-1691089667845-841645e16c43?w=1600&h=900&fit=crop&auto=format"
           alt="Interior elegante del restaurante Terra Galega"
           class="absolute inset-0 w-full h-full object-cover" />
-        <!-- Capa de degradado para mejorar la legibilidad del texto sobre la imagen -->
         <div
           class="absolute inset-0"
-          style="
-            background: linear-gradient(
-              to bottom,
-              rgba(44, 44, 44, 0.55) 0%,
-              rgba(44, 44, 44, 0.45) 50%,
-              rgba(44, 44, 44, 0.75) 100%
-            );
-          "></div>
-        <!-- Contenedor del contenido centrado sobre la imagen de fondo -->
-        <div class="relative z-10 text-center px-6 max-w-4xl mx-auto flex flex-col items-center -mt-24 md:-mt-32">
-  
-  <!-- Texto superior -->
-  <p
-    class="text-sm font-medium tracking-[0.35em] uppercase"
-    style="color: #d99a21">
-    Restaurante Gallego · Bogotá
-  </p>
-  
-  <!-- Logo del restaurante -->
- <img th:src="@{/assets/logo-hero.svg}" alt="Terra Galega" class="mx-auto w-72 md:w-[420px] lg:w-[500px] mt-6 mb-12 md:mt-8 md:mb-16 object-contain drop-shadow-2xl" />
+          style="background: linear-gradient(to bottom, rgba(44, 44, 44, 0.55) 0%, rgba(44, 44, 44, 0.45) 50%, rgba(44, 44, 44, 0.75) 100%);">
+        </div>
 
-  <!-- Texto descriptivo -->
-  <p
-    class="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-    style="color: rgba(245, 242, 235, 0.8)">
-    Tradición culinaria gallega en el corazón de Bogotá. Mariscos
-    frescos, carnes seleccionadas y los auténticos sabores del noroeste
-    de España.
-  </p>
-  
-  <!-- Botones de acción -->
-  <div class="flex flex-wrap items-center justify-center gap-4">
-    <a
-      th:href="@{/menu}"
-      class="px-8 py-3.5 rounded-full font-medium text-charcoal transition-all duration-300 hover:scale-105"
-      style="
-        background-color: rgba(245, 242, 235, 0.92);
-        backdrop-filter: blur(16px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-      ">
-      Explorar Menú
-    </a>
-    <a
-      th:href="@{/aboutUs}"
-      class="px-8 py-3.5 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
-      style="
-        background-color: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-      ">
-      Nuestra Historia
-    </a>
-  </div>
-</div>
-        <!-- Indicador de desplazamiento hacia abajo con animación de rebote -->
-        <div
-          class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          style="color: rgba(245, 242, 235, 0.45)">
+        <!-- 1. CONTENEDOR CENTRAL: Con 'flex-1' toma el espacio sobrante y se centra dinámicamente -->
+        <div class="relative z-10 flex-1 flex flex-col justify-center items-center text-center px-6 max-w-4xl mx-auto w-full">
+          
+          <!-- Texto superior -->
+          <p
+            class="text-xs md:text-sm font-medium tracking-[0.35em] uppercase"
+            style="color: #d99a21">
+            Restaurante Gallego · Bogotá
+          </p>
+          
+          <!-- Logo del restaurante (Márgenes ajustados para no saturar laptops) -->
+          <img
+            th:src="@{/assets/logo-hero.svg}"
+            alt="Terra Galega"
+            class="mx-auto w-72 md:w-[400px] lg:w-[480px] my-6 md:my-10 object-contain drop-shadow-2xl" />
+
+          <!-- Texto descriptivo -->
+          <p
+            class="text-base md:text-lg lg:text-xl max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"
+            style="color: rgba(245, 242, 235, 0.8)">
+            Tradición culinaria gallega en el corazón de Bogotá. Mariscos
+            frescos, carnes seleccionadas y los auténticos sabores del noroeste
+            de España.
+          </p>
+          
+          <!-- Botones de acción -->
+          <div class="flex flex-wrap items-center justify-center gap-4">
+            <a
+              th:href="@{/menu}"
+              class="px-8 py-3.5 rounded-full font-medium text-charcoal transition-all duration-300 hover:scale-105"
+              style="background-color: rgba(245, 242, 235, 0.92); backdrop-filter: blur(16px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);">
+              Explorar Menú
+            </a>
+            <a
+              th:href="@{/aboutUs}"
+              class="px-8 py-3.5 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
+              style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.25);">
+              Nuestra Historia
+            </a>
+          </div>
+        </div>
+
+        <!-- 2. INDICADOR DESCUBRIR: Ya no es absolute. Ahora fluye debajo de los botones de forma segura -->
+        <div class="relative z-10 flex flex-col items-center gap-2 mt-8" style="color: rgba(245, 242, 235, 0.45)">
           <span class="text-xs tracking-widest uppercase">Descubrir</span>
-          <svg
-            class="w-4 h-4 animate-bounce"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7" />
+          <svg class="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </div>
+        
       </section>
       <!--seccion de informacion adicional-->
       <section class="py-16" style="background-color: #556141">
