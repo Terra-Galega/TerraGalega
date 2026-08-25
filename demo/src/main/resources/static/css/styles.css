@@ -94,7 +94,6 @@ body {
   /* Un brillo de luz superior y un borde inferior muy suave */
   border-top: 1px solid rgba(255, 255, 255, 0.65);
   border-bottom: 1px solid rgba(44, 44, 44, 0.06);
-  /* Sombra difusa y elegante muy sutil */
   box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.04);
 }
 
@@ -180,7 +179,7 @@ body {
   color: #b2571f;
 }
 
-/* Estado activo del botón de categoría (categoría seleccionada): degradado terracota → burdeos */
+/* Estado activo del botón de categoría (categoría seleccionada): degradado terracota a burdeos */
 .category-btn.active {
   background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
   color: #fff;
@@ -188,7 +187,7 @@ body {
   box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
 }
 
-/* Botón "+" de cada tarjeta del menú: se llena con el degradado terracota al pasar el cursor */
+/* Botón de + de cada tarjeta del menú: se llena con el degradado terracota al pasar el cursor */
 .menu-plus-btn {
   background-color: rgba(44, 44, 44, 0.07);
   color: rgba(44, 44, 44, 0.4);
