@@ -32,7 +32,7 @@ public class AdminController {
     // Categorías disponibles para el formulario de productos (mismo listado que en el front original)
     private static final List<String> CATEGORIES = List.of("Entradas", "Mariscos", "Carnes", "Postres");
 
-    // http://localhost:8080/admin -> panel con la pestaña "Productos" (tabla)
+    // http://localhost:8090/admin -> panel con la pestaña "Productos" (tabla)
     @GetMapping
     public String admin(Model model) {
         model.addAttribute("products", productService.getAllProducts());
@@ -95,13 +95,7 @@ public class AdminController {
             @RequestParam(required = false) Boolean popular,
             @RequestParam(required = false) String[] additionalNames,
             @RequestParam(required = false) String[] additionalPrices) {
-        Product product = new Product(id,
-                name,
-                description,
-                price,
-                category,
-                imageUrl,
-                buildAdditionals(additionalNames, additionalPrices),
+        Product product = new Product(id,name,description,price,category,imageUrl,buildAdditionals(additionalNames, additionalPrices),
                 true,
                 popular != null && popular);
         productService.updateProduct(id, product);

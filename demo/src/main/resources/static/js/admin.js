@@ -1,12 +1,3 @@
-/* Lógica exclusiva de la página /admin: control de acceso, pestañas del
-sidebar, buscador de productos y el modal de añadir/editar producto.
-"adminProducts" viene inyectado desde admin.html (th:inline="javascript"),
-igual que "menuProducts" en las páginas públicas. */
-
-/* ─── Control de acceso ───
-Como el proyecto no usa Spring Security, la sesión se guarda en el navegador
-(localStorage) al iniciar sesión (ver script.js). Aquí solo comprobamos que
-exista una sesión con rol "admin"; si no, se redirige a /login. */
 (function guardAdminAccess() {
   let session = null;
   try {
