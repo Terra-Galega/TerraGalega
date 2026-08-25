@@ -23,8 +23,34 @@ const fmt = (price) =>
   updateNavBar();
 })();
 
+/* Persistencia del carrito en localStorage: así el carrito sobrevive a la
+navegación entre páginas (/menu, /productDetail/{id}, /home), ya que cada
+una de ellas recarga script.js desde cero y antes se perdía el estado. */
+const CART_STORAGE_KEY = "terraGalegaCart";
+
+/* Lee el carrito guardado en localStorage; si no existe o está corrupto, arranca vacío */
+function loadCart() {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/* Guarda el carrito actual en localStorage */
+function saveCart() {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  } catch {
+    /* Si localStorage no está disponible (modo privado, cuota llena, etc.)
+    el carrito sigue funcionando en memoria durante la sesión actual */
+  }
+}
+
 /* Variables para gestionar el carrito de compras */
-let cart = [];
+let cart = loadCart();
 let currentCategory = "Todos";
 let selectedItem = null;
 let qty = 1;
@@ -312,13 +338,18 @@ document.getElementById("add-to-cart-btn")?.addEventListener("click", () => {
     /* Agrega el producto seleccionado al carrito con la cantidad especificada */
     cart.push({ ...selectedItem, quantity: qty });
   }
-  /* Renderiza el carrito actualizado y cierra todos los modales */
+  /* Renderiza el carrito actualizado (esto también lo guarda en localStorage) y cierra todos los modales */
   renderCart();
   closeAllModals();
 });
 
 /* Función para renderizar el contenido del carrito de compras */
 function renderCart() {
+  /* Persiste el carrito en localStorage cada vez que se renderiza, es decir,
+  cada vez que cambia (agregar, quitar o actualizar cantidad), para que
+  sobreviva a la navegación entre páginas */
+  saveCart();
+
   const count = cart.reduce((s, i) => s + i.quantity, 0);
   const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   /* Actualiza el contador de elementos en el carrito en la interfaz de usuario */
