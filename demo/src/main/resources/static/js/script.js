@@ -486,97 +486,16 @@ const DEMO_USERS = {
   },
 };
 
-/* Guarda la sesión activa en el navegador (localStorage) para que la
-página /admin pueda comprobar si quien la visita inició sesión como admin.*/
-function saveSession(session) {
-  localStorage.setItem("terraGalegaUser", JSON.stringify(session));
-}
-
-/* Accesos de prueba: solo rellenan el formulario, no autentican contra un backend real. */
+/* Accesos de prueba: solo rellenan el formulario. La autenticación real ahora
+ocurre en el servidor (HomeController -> ClienteService -> ClienteRepository),
+así que login-form y signup-form ya NO se interceptan aquí: se envían como
+formularios normales por POST a /login y /registro respectivamente. */
 document.querySelectorAll(".demo-login-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (loginEmailInput) loginEmailInput.value = btn.dataset.email;
     if (loginPasswordInput) loginPasswordInput.value = btn.dataset.password;
   });
 });
-
-/* Agrega event listeners a los formularios de inicio de sesión y registro 
-para manejar la validación y el envío de datos */
-if (loginForm) {
-  loginForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    /* Obtiene los valores de correo electrónico y contraseña del formulario de inicio de sesión */
-    const email = (loginEmailInput?.value || "").trim();
-    const password = (loginPasswordInput?.value || "").trim();
-    const errorEl = document.getElementById("login-error");
-    /* Valida que ambos campos estén completos; si no, muestra un mensaje de error */
-    if (!email || !password) {
-      if (errorEl) {
-        errorEl.textContent = "Por favor completa todos los campos.";
-        errorEl.classList.remove("hidden-modal");
-      }
-      return;
-    }
-
-    /* Comprueba si el correo/contraseña corresponden a uno de los usuarios de
-    prueba para saber si quien inicia sesión es un administrador */
-    const demoUser = DEMO_USERS[email.toLowerCase()];
-    if (demoUser && demoUser.password !== password) {
-      if (errorEl) {
-        errorEl.textContent = "Contraseña incorrecta.";
-        errorEl.classList.remove("hidden-modal");
-      }
-      return;
-    }
-
-    /* Si la validación es exitosa, oculta el mensaje de error, guarda la sesión 
-    y redirige según el rol: administradores al panel /admin, clientes al inicio */
-    errorEl?.classList.add("hidden-modal");
-    const session = demoUser
-      ? { name: demoUser.name, email, role: demoUser.role }
-      : { name: email.split("@")[0], email, role: "cliente" };
-    saveSession(session);
-    loginForm.reset();
-    if (session.role === "admin") {
-      window.location.href = "/admin";
-    } else {
-      alert("Bienvenido de nuevo a Terra Galega");
-      window.location.href = "/";
-    }
-  });
-}
-/* Agrega un event listener al formulario de registro para manejar la validación y el envío de datos */
-if (signupForm) {
-  signupForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    /* Obtiene los valores de nombre, apellido, correo electrónico, contraseña,
-     teléfono y dirección del formulario de registro */
-    const name = (signupNameInput?.value || "").trim();
-    const lastName = (signupLastNameInput?.value || "").trim();
-    const email = (signupEmailInput?.value || "").trim();
-    const password = (signupPasswordInput?.value || "").trim();
-    const phone = (signupPhoneInput?.value || "").trim();
-    const address = (signupAddressInput?.value || "").trim();
-    const errorEl = document.getElementById("signup-error");
-    /* Valida que todos los campos estén completos; si no, muestra un mensaje de error */
-    if (!name || !lastName || !email || !password || !phone || !address) {
-      if (errorEl) {
-        errorEl.textContent = "Por favor completa todos los campos.";
-        errorEl.classList.remove("hidden-modal");
-      }
-      return;
-    }
-    /* Si la validación es exitosa, oculta el mensaje de error, guarda la sesión
-    (rol "cliente"), muestra un mensaje de bienvenida y regresa al inicio */
-    errorEl?.classList.add("hidden-modal");
-    saveSession({ name, email, role: "cliente" });
-    alert(
-      `Bienvenido a Terra Galega, ${name}. Tu cuenta fue creada exitosamente.`,
-    );
-    signupForm.reset();
-    window.location.href = "/";
-  });
-}
 /* Agrega un event listener al formulario de contacto (página /contacto) para 
 manejar la validación y el envío de datos. */
 const contactForm = document.getElementById("contact-form");

@@ -85,6 +85,12 @@
             style="color: rgba(44, 44, 44, 0.6)"
             th:text="${product.description}"></p>
 
+          <!-- Categoría (viene del repositorio de categorías quemado, CategoriaRepository) -->
+          <div th:if="${category != null}" class="mb-8 p-4 rounded-2xl" style="background: rgba(44, 44, 44, 0.04); border: 1px solid rgba(44, 44, 44, 0.07)">
+            <p class="text-[11px] font-medium tracking-widest uppercase mb-1" style="color: rgba(178, 87, 31, 0.8)" th:text="'Categoría: ' + ${category.name}"></p>
+            <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)" th:text="${category.description}"></p>
+          </div>
+
           <!-- Adicionales opcionales -->
           <div th:if="${not #lists.isEmpty(product.additionals)}" class="mb-8">
             <p

@@ -1,27 +1,3 @@
-(function guardAdminAccess() {
-  let session = null;
-  try {
-    session = JSON.parse(localStorage.getItem("terraGalegaUser"));
-  } catch (e) {
-    session = null;
-  }
-  if (!session || session.role !== "admin") {
-    window.location.href = "/login";
-    return;
-  }
-  const nameEl = document.getElementById("admin-user-name");
-  if (nameEl && session.name) nameEl.textContent = session.name;
-})();
-
-/* Cierra sesión: borra la sesión guardada y vuelve al inicio */
-const adminLogoutBtn = document.getElementById("admin-logout");
-if (adminLogoutBtn) {
-  adminLogoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("terraGalegaUser");
-    window.location.href = "/";
-  });
-}
-
 /* ─── Pestañas del sidebar (Productos / Domicilios / Usuarios) ─── */
 const ADMIN_TAB_TITLES = {
   products: "Productos",
