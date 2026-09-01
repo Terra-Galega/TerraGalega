@@ -3,79 +3,78 @@ package com.example.demo.controller;
 import com.example.demo.entities.Client;
 import com.example.demo.service.ClientService;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 /*
- * CRUD completo de Clientes. Usa Bootstrap 5 (a diferencia del resto del
- * sitio, que usa Tailwind) para cumplir el requisito de usar ambos frameworks.
+ * Controlador de Clientes: acá vive todo lo que un Client hace sobre SU
+ * PROPIA cuenta (editar sus datos, eliminarla). Requiere sesión activa
+ * (ver HomeController.SESSION_Client). El login/registro sigue en
+ * HomeController porque ahí es donde se maneja la sesión de entrada al sitio.
  */
 @Controller
 @RequestMapping("/clients")
 public class ClientController {
 
     @Autowired
-    private ClientService ClientService;
+    private ClientService clientService;
 
-    // http://localhost:8090/clients -> listado (Read)
-    @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("clients", ClientService.getAllClients());
-        return "list";
-    }
-
-    // http://localhost:8090/clients/new -> formulario de creación (Create)
-    @GetMapping("/new")
-    public String newForm(Model model) {
-        model.addAttribute("client", new Client());
-        model.addAttribute("isNew", true);
-        return "form";
-    }
-
-    // Guarda un cliente nuevo
-    @PostMapping
-    public String crear(@ModelAttribute Client Client) {
-        ClientService.addClient(Client);
-        return "redirect:/clients";
-    }
-
-    // http://localhost:8090/clients/{id}/edit -> formulario de edición (Update)
-    @GetMapping("/{id}/edit")
-    public String editForm(@PathVariable Integer id, Model model) {
-        Client Client = ClientService.getClientById(id);
-        if (Client == null) {
-            return "redirect:/clients";
+    // http://localhost:8090/clients/me/edit -> formulario para editar MI perfil
+    @GetMapping("/me/edit")
+    public String editMyAccountForm(Model model, HttpSession session) {
+        Client actual = (Client) session.getAttribute(HomeController.SESSION_Client);
+        if (actual == null) {
+            return "redirect:/login";
         }
-        model.addAttribute("client", Client);
-        model.addAttribute("isNew", false);
-        return "form";
+        model.addAttribute("client", actual);
+        return "account-edit";
     }
 
-    // Guarda los cambios de un cliente existente
-    @PostMapping("/{id}")
-    public String update(@PathVariable Integer id, @ModelAttribute Client Client) {
-        ClientService.updateClient(id, Client);
-        return "redirect:/clients";
-    }
+    // Guarda los cambios de MI perfil
+    @PostMapping("/me/edit")
+    public String updateMyAccount(@ModelAttribute Client formClient, Model model, HttpSession session) {
 
-    // Elimina un cliente (Delete)
-    @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Integer id) {
-        ClientService.deleteClient(id);
-        return "redirect:/clients";
-    }
-
-    // http://localhost:8090/clients/{id} -> ver el detalle de un cliente (Read
-    // individual)
-    @GetMapping("/{id}")
-    public String ver(@PathVariable Integer id, Model model) {
-        Client Client = ClientService.getClientById(id);
-        if (Client == null) {
-            return "redirect:/clients";
+        Client actual = (Client) session.getAttribute(HomeController.SESSION_Client);
+        if (actual == null) {
+            return "redirect:/login";
         }
-        model.addAttribute("client", Client);
-        return "detail";
+
+        // Evita que otro Client ya esté usando ese correo
+        boolean emailEnUso = clientService.getAllClients().stream()
+                .anyMatch(c -> !c.getId().equals(actual.getId()) && c.getEmail().equalsIgnoreCase(formClient.getEmail()));
+        if (emailEnUso) {
+            model.addAttribute("editError", "Ya existe otra cuenta con ese correo.");
+            model.addAttribute("client", actual);
+            return "account-edit";
+        }
+
+        // "id", "admin" y "active" NO se toman del formulario (ahí llegan en null
+        // porque el form no los manda): se fuerzan desde la sesión para que el
+        // propio Client no pueda auto-asignarse el rol de admin ni reactivarse.
+        formClient.setId(actual.getId());
+        formClient.setAdmin(actual.getAdmin());
+        formClient.setActive(actual.getActive());
+        if (formClient.getPassword() == null || formClient.getPassword().isBlank()) {
+            formClient.setPassword(actual.getPassword());
+        }
+
+        Client guardado = clientService.updateClient(actual.getId(), formClient);
+        session.setAttribute(HomeController.SESSION_Client, guardado);
+        return "redirect:/account";
+    }
+
+    // El propio Client elimina SU cuenta (no lo hace el admin)
+    @PostMapping("/me/delete")
+    public String deleteMyAccount(HttpSession session) {
+        Client actual = (Client) session.getAttribute(HomeController.SESSION_Client);
+        if (actual == null) {
+            return "redirect:/login";
+        }
+        clientService.deleteClient(actual.getId());
+        session.invalidate();
+        return "redirect:/home";
     }
 }
