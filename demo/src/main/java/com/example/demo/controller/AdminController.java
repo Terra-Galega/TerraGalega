@@ -4,6 +4,8 @@ import com.example.demo.entities.AddOn;
 import com.example.demo.entities.Client;
 import com.example.demo.entities.Product;
 import com.example.demo.service.ProductService;
+import com.example.demo.service.ClientService;
+
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ public class AdminController {
 
     @Autowired
     private ProductService productService;
+    @Autowired
+    private ClientService clientService;
 
     // Categorías disponibles para el formulario de productos (mismo listado que en
     // el front original)
@@ -47,6 +51,7 @@ public class AdminController {
         }
         Client Client = (Client) session.getAttribute(HomeController.SESSION_Client);
         model.addAttribute("products", productService.getAllProducts());
+        model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("categories", CATEGORIES);
         model.addAttribute("adminName", Client.getName());
         return "admin";

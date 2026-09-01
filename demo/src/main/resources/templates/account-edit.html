@@ -1,0 +1,149 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar perfil · Terra Galega</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-terra: #b2571f;
+        --color-gold: #d99a21;
+        --color-burgundy: #8a2222;
+        --color-cream: #f5f2eb;
+        --color-forest: #556141;
+        --color-charcoal: #2c2c2c;
+        --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+        --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+      }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  </head>
+  <body class="min-h-screen bg-cream font-sans text-charcoal">
+    <header th:replace="~{fragments :: navbar(false)}"></header>
+
+    <main class="min-h-screen flex items-center justify-center px-6 py-32">
+      <div class="w-full max-w-md mx-auto glass-card rounded-3xl p-8">
+        <p
+          class="text-[12px] tracking-widest uppercase mb-2"
+          style="color: rgba(44, 44, 44, 0.38)"
+        >
+          Mi cuenta
+        </p>
+        <h1 class="font-serif text-3xl font-semibold mb-6">Editar perfil</h1>
+
+        <form th:action="@{/account/edit}" method="post" class="space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+                >Nombre</label
+              >
+              <input
+                type="text"
+                name="name"
+                th:value="${client.name}"
+                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+                >Apellido</label
+              >
+              <input
+                type="text"
+                name="lastName"
+                th:value="${client.lastName}"
+                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)"
+              >Correo electrónico</label
+            >
+            <input
+              type="email"
+              name="email"
+              th:value="${client.email}"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)"
+              >Teléfono</label
+            >
+            <input
+              type="text"
+              name="phone"
+              th:value="${client.phone}"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)"
+              >Dirección de entrega</label
+            >
+            <input
+              type="text"
+              name="address"
+              th:value="${client.address}"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)"
+              >Nueva contraseña</label
+            >
+            <input
+              type="password"
+              name="password"
+              placeholder="Dejar en blanco para no cambiarla"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+            />
+          </div>
+
+          <p
+            th:if="${editError}"
+            th:text="${editError}"
+            class="text-xs"
+            style="color: #8a2222"
+          ></p>
+
+          <div class="flex flex-col gap-3 pt-2">
+            <button
+              type="submit"
+              class="w-full py-3 text-white font-medium rounded btn-terra"
+            >
+              Guardar cambios
+            </button>
+
+            <a
+              th:href="@{/account}"
+              class="w-full text-center py-3 rounded font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors"
+              >Cancelar</a
+            >
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer th:replace="~{fragments :: footer}"></footer>
+    <script th:src="@{/js/script.js}"></script>
+  </body>
+</html>
