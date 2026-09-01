@@ -56,17 +56,19 @@
         </div>
 
         <div class="flex flex-col gap-3">
-          <a
-            th:href="@{/menu}"
-            class="w-full text-center py-3 text-white font-medium rounded btn-terra"
-            >Ver la carta</a
-          >
+          <a th:href="@{/menu}" class="w-full text-center py-3 text-white font-medium rounded btn-terra">Ver la carta</a>
+
+          <a th:href="@{/account/edit}" class="w-full text-center py-3 rounded font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors">Editar perfil</a>
+
           <form th:action="@{/logout}" method="post">
-            <button
-              type="submit"
-              class="w-full py-3 rounded font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors"
-            >
+            <button type="submit" class="w-full py-3 rounded font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors">
               Cerrar sesión
+            </button>
+          </form>
+
+          <form th:action="@{/account/delete}" method="post" onsubmit="return confirm('¿Seguro que querés eliminar tu cuenta? Esta acción no se puede deshacer.');">
+            <button type="submit" class="w-full py-3 rounded font-medium text-sm" style="color: #8a2222; border: 1px solid rgba(138, 34, 34, 0.3)">
+              Eliminar mi cuenta
             </button>
           </form>
         </div>

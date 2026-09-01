@@ -565,19 +565,18 @@
               </div>
             </div>
           </div>
-
-          <!-- ── USUARIOS (contenido de ejemplo) ── -->
           <div
             id="admin-panel-users"
             class="admin-panel hidden-modal space-y-3"
           >
-            <a
-              th:href="@{/clients}"
-              class="inline-block mb-2 px-4 py-2 rounded-xl text-white text-sm font-medium btn-terra"
-            >
-              Ir al CRUD completo de clientes →
-            </a>
+            <!-- Mensaje si la lista de clientes está vacía -->
+            <p th:if="${#lists.isEmpty(clients)}" class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
+              No se encontraron usuarios registrados.
+            </p>
+
+            <!-- Iteración dinámica sobre la lista de clientes -->
             <div
+              th:each="client : ${clients}"
               class="flex items-center gap-5 px-6 py-4 rounded-2xl"
               style="
                 background-color: rgba(255, 255, 255, 0.72);
@@ -585,31 +584,24 @@
                 border: 1px solid rgba(255, 255, 255, 0.55);
               "
             >
+              <!-- Avatar generado con la primera letra del nombre -->
               <div
-                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-white text-sm"
+                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-white text-sm uppercase"
                 style="background-color: #556141"
+                th:text="${#strings.substring(client.name, 0, 1)}"
               >
-                M
               </div>
+              
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-charcoal text-sm">María García</p>
+                <p class="font-medium text-charcoal text-sm" th:text="${client.name}"></p>
                 <p
                   class="truncate"
                   style="font-size: 12px; color: rgba(44, 44, 44, 0.45)"
-                >
-                  cliente@terra.com
-                </p>
+                  th:text="${client.email}"
+                ></p>
               </div>
+              
               <div class="flex items-center gap-6 flex-shrink-0">
-                <div class="text-center">
-                  <p class="font-bold text-lg" style="color: #b2571f">12</p>
-                  <p
-                    class="uppercase tracking-wide"
-                    style="font-size: 10px; color: rgba(44, 44, 44, 0.35)"
-                  >
-                    pedidos
-                  </p>
-                </div>
                 <span
                   class="text-[11px] font-medium px-3 py-1 rounded-full"
                   style="
@@ -618,106 +610,13 @@
                   "
                   >Cliente</span
                 >
-                <p style="font-size: 11px; color: rgba(44, 44, 44, 0.35)">
-                  desde Ene 2025
+                <!-- Muestra el teléfono si lo tienes en tu entidad Client -->
+                <p 
+                  style="font-size: 11px; color: rgba(44, 44, 44, 0.35)" 
+                  th:text="${client.phone != null ? client.phone : 'Sin teléfono'}">
                 </p>
               </div>
             </div>
-            <div
-              class="flex items-center gap-5 px-6 py-4 rounded-2xl"
-              style="
-                background-color: rgba(255, 255, 255, 0.72);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.55);
-              "
-            >
-              <div
-                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-white text-sm"
-                style="background-color: #556141"
-              >
-                C
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="font-medium text-charcoal text-sm">
-                  Carlos Rodríguez
-                </p>
-                <p
-                  class="truncate"
-                  style="font-size: 12px; color: rgba(44, 44, 44, 0.45)"
-                >
-                  carlos@terra.com
-                </p>
-              </div>
-              <div class="flex items-center gap-6 flex-shrink-0">
-                <div class="text-center">
-                  <p class="font-bold text-lg" style="color: #b2571f">8</p>
-                  <p
-                    class="uppercase tracking-wide"
-                    style="font-size: 10px; color: rgba(44, 44, 44, 0.35)"
-                  >
-                    pedidos
-                  </p>
-                </div>
-                <span
-                  class="text-[11px] font-medium px-3 py-1 rounded-full"
-                  style="
-                    background-color: rgba(44, 44, 44, 0.07);
-                    color: rgba(44, 44, 44, 0.55);
-                  "
-                  >Cliente</span
-                >
-                <p style="font-size: 11px; color: rgba(44, 44, 44, 0.35)">
-                  desde Mar 2025
-                </p>
-              </div>
-            </div>
-            <div
-              class="flex items-center gap-5 px-6 py-4 rounded-2xl"
-              style="
-                background-color: rgba(255, 255, 255, 0.72);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.55);
-              "
-            >
-              <div
-                class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-white text-sm"
-                style="background: linear-gradient(135deg, #b2571f, #8a2222)"
-              >
-                A
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="font-medium text-charcoal text-sm">Administrador</p>
-                <p
-                  class="truncate"
-                  style="font-size: 12px; color: rgba(44, 44, 44, 0.45)"
-                >
-                  admin@terra.com
-                </p>
-              </div>
-              <div class="flex items-center gap-6 flex-shrink-0">
-                <div class="text-center">
-                  <p class="font-bold text-lg" style="color: #b2571f">0</p>
-                  <p
-                    class="uppercase tracking-wide"
-                    style="font-size: 10px; color: rgba(44, 44, 44, 0.35)"
-                  >
-                    pedidos
-                  </p>
-                </div>
-                <span
-                  class="text-[11px] font-medium px-3 py-1 rounded-full"
-                  style="
-                    background-color: rgba(138, 34, 34, 0.08);
-                    color: #8a2222;
-                  "
-                  >Admin</span
-                >
-                <p style="font-size: 11px; color: rgba(44, 44, 44, 0.35)">
-                  desde Ene 2024
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
