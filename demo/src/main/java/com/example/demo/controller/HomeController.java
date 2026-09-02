@@ -78,7 +78,9 @@ public class HomeController {
     }
 
     // http://localhost:8090/login
-    @GetMapping("/login")
+
+
+   @GetMapping("/login")
     public String login(Model model, HttpSession session) {
         Client Client = (Client) session.getAttribute(SESSION_Client);
         if (Client != null) {
@@ -99,8 +101,9 @@ public class HomeController {
         session.setAttribute(SESSION_Client, Client);
         if (Boolean.TRUE.equals(Client.getAdmin())) {
             return "redirect:/admin";
+        }else{
+            return"redirect:/home";
         }
-        return "redirect:/account";
     }
 
     // Procesa el formulario de registro

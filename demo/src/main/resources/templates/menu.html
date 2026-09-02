@@ -1,12 +1,13 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Menú · Terra Galega</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-      @theme {
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menú · Terra Galega</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
         --color-terra: #b2571f;
         --color-gold: #d99a21;
         --color-burgundy: #8a2222;
@@ -17,409 +18,188 @@
         --font-serif: "Playfair Display", ui-serif, Georgia, serif;
       }
     </style>
-    <link rel="stylesheet" th:href="@{/css/styles.css}" />
-  </head>
-  <body class="min-h-screen bg-cream font-sans text-charcoal">
-    <!--header con la barra de navegación -->
-    <header th:replace="~{fragments :: navbar(false)}"></header>
-    <!-- Contenido principal de la página -->
-    <main class="min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8">
-      <!-- Encabezado de la página con título y buscador -->
-      <div
-        class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14"
-      >
-        <div>
-          <p
-            class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
-            style="color: #b2571f"
-          >
-            Lo que ofrecemos
-          </p>
-          <h1 class="font-serif text-5xl font-bold text-charcoal">
-            Nuestra Carta
-          </h1>
-        </div>
-        <!-- Buscador de platos por nombre -->
-        <div class="relative w-full md:w-72">
-          <svg
-            class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4"
-            style="color: rgba(44, 44, 44, 0.35)"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"
-            />
-          </svg>
-          <input
-            type="text"
-            id="menu-search"
-            placeholder="Buscar platos…"
-            class="search-glass w-full pl-11 pr-5 py-3 rounded-full text-sm text-charcoal"
-          />
-        </div>
-      </div>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
 
-      <!-- Pestañas de categorías (reutiliza la lógica de filtrado ya existente en script.js) -->
-      <div id="category-tabs" class="flex gap-2.5 mb-12 overflow-x-auto pb-1">
-        <button
-          class="category-btn active whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
-          data-category="Todos"
-        >
-          Todos
-        </button>
-        <button
-          class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
-          data-category="Entradas"
-        >
-          Entradas
-        </button>
-        <button
-          class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
-          data-category="Mariscos"
-        >
-          Mariscos
-        </button>
-        <button
-          class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
-          data-category="Carnes"
-        >
-          Carnes
-        </button>
-        <button
-          class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
-          data-category="Postres"
-        >
-          Postres
-        </button>
+<body class="min-h-screen bg-cream font-sans text-charcoal">
+  <!--header con la barra de navegación -->
+  <header th:replace="~{fragments :: navbar(false)}"></header>
+  <!-- Contenido principal de la página -->
+  <main class="min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8">
+    <!-- Encabezado de la página con título y buscador -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+      <div>
+        <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">
+          Lo que ofrecemos
+        </p>
+        <h1 class="font-serif text-5xl font-bold text-charcoal">
+          Nuestra Carta
+        </h1>
       </div>
+      <!-- Buscador de platos por nombre -->
+      <div class="relative w-full md:w-72">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style="color: rgba(44, 44, 44, 0.35)" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+        <input type="text" id="menu-search" placeholder="Buscar platos…"
+          class="search-glass w-full pl-11 pr-5 py-3 rounded-full text-sm text-charcoal" />
+      </div>
+    </div>
 
-      <!-- Grilla con todos los productos del menú (${products}, viene del ProductService) -->
-      <div
-        id="menu-grid"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7"
-      >
-        <div
-          th:each="product : ${products}"
-          class="menu-item glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col"
-          th:attr="data-category=${product.category},data-name=${product.name},data-href=@{/productDetail/{id}(id=${product.id})}"
-          onclick="window.location.href = this.dataset.href"
-        >
-          <div class="relative h-56 overflow-hidden">
-            <img
-              th:src="${product.imageUrl}"
-              th:alt="${product.name}"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-            <!-- Insignia "Popular" solo si el producto está marcado como tal -->
-            <span
-              th:if="${product.popular}"
-              class="absolute top-3 left-3 flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider"
-              style="
+    <!-- Pestañas de categorías (reutiliza la lógica de filtrado ya existente en script.js) -->
+    <div id="category-tabs" class="flex gap-2.5 mb-12 overflow-x-auto pb-1">
+      <button class="category-btn active whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+        data-category="Todos">
+        Todos
+      </button>
+      <button class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+        data-category="Entradas">
+        Entradas
+      </button>
+      <button class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+        data-category="Mariscos">
+        Mariscos
+      </button>
+      <button class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+        data-category="Carnes">
+        Carnes
+      </button>
+      <button class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+        data-category="Postres">
+        Postres
+      </button>
+    </div>
+
+    <!-- Grilla con todos los productos del menú (${products}, viene del ProductService) -->
+    <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+      <div th:each="product : ${products}"
+        class="menu-item glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col"
+        th:attr="data-category=${product.category},data-name=${product.name},data-href=@{/productDetail/{id}(id=${product.id})}"
+        onclick="window.location.href = this.dataset.href">
+        <div class="relative h-56 overflow-hidden">
+          <img th:src="${product.imageUrl}" th:alt="${product.name}"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          <!-- Insignia "Popular" solo si el producto está marcado como tal -->
+          <span th:if="${product.popular}"
+            class="absolute top-3 left-3 flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider"
+            style="
                 background-color: rgba(245, 242, 235, 0.88);
                 backdrop-filter: blur(12px);
                 color: #b2571f;
-              "
-            >
-              <svg class="w-3 h-3" style="fill: #d99a21" viewBox="0 0 20 20">
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-              Popular
-            </span>
-            <span
-              class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-medium"
-              style="
+              ">
+            <svg class="w-3 h-3" style="fill: #d99a21" viewBox="0 0 20 20">
+              <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            Popular
+          </span>
+          <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-medium" style="
                 background-color: rgba(44, 44, 44, 0.65);
                 backdrop-filter: blur(8px);
                 color: #f5f2eb;
-              "
-              th:text="${product.category}"
-            ></span>
-          </div>
-          <div class="p-6 flex flex-col flex-grow">
-            <h3
-              class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-2"
-              th:text="${product.name}"
-            ></h3>
-            <p
-              class="text-sm leading-relaxed line-clamp-2 mb-5 flex-grow"
-              style="color: rgba(44, 44, 44, 0.55)"
-              th:text="${product.description}"
-            ></p>
-            <!-- Cantidad de adicionales disponibles, solo si el producto tiene alguno -->
-            <div class="flex items-center justify-between mt-auto">
-              <span
-                class="font-bold text-lg"
-                style="color: #b2571f"
-                th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"
-              ></span>
-              <span
-                class="menu-plus-btn w-10 h-10 rounded-full flex items-center justify-center"
-              >
-                <svg
-                  class="w-[17px] h-[17px]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </span>
-            </div>
-          </div>
+              " th:text="${product.category}"></span>
         </div>
-      </div>
-
-      <!-- Mensaje para cuando el buscador o los filtros no encuentran resultados -->
-      <div
-        id="menu-empty"
-        class="hidden-modal col-span-full py-24 text-center"
-        style="color: rgba(44, 44, 44, 0.35)"
-      >
-        <p class="text-lg mb-2">No se encontraron platos</p>
-        <button
-          id="menu-reset"
-          class="text-sm font-medium hover:underline"
-          style="color: #b2571f"
-        >
-          Ver todos los platos
-        </button>
-      </div>
-    </main>
-    <!-- Pie de página con información del restaurante, navegación y enlaces a la cuenta -->
-    <footer th:replace="~{fragments :: footer}"></footer>
-
-    <!-- Modales para mostrar información adicional, carrito de compras y productos -->
-
-    <!--Modal de producto -->
-    <div
-      id="modal-product"
-      class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
-      style="background-color: rgba(44, 44, 44, 0.65)"
-    >
-      <!-- Contenido del modal de producto -->
-      <div
-        class="bg-cream w-full max-w-lg overflow-hidden shadow-2xl relative"
-        style="border-radius: 2px"
-      >
-        <!-- Botón para cerrar el modal -->
-        <button
-          class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
-          style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb"
-          data-close="product"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <!-- Imagen del producto -->
-        <div class="relative h-56">
-          <img
-            id="product-image"
-            src=""
-            alt=""
-            class="w-full h-full object-cover"
-          />
-        </div>
-        <!-- Contenido del modal (data)  -->
-        <div class="p-6">
-          <div class="flex items-start justify-between gap-4 mb-3">
-            <h3
-              id="product-name"
-              class="font-serif text-2xl font-semibold text-charcoal"
-            ></h3>
-            <span
-              id="product-price"
-              class="font-bold text-xl flex-shrink-0"
-              style="color: #b2571f"
-            ></span>
+        <div class="p-6 flex flex-col flex-grow">
+          <h3
+            class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-2"
+            th:text="${product.name}"></h3>
+          <p class="text-sm leading-relaxed line-clamp-2 mb-5 flex-grow" style="color: rgba(44, 44, 44, 0.55)"
+            th:text="${product.description}"></p>
+          <!-- Cantidad de adicionales disponibles, solo si el producto tiene alguno -->
+          <div class="flex items-center justify-between mt-auto">
+            <span class="font-bold text-lg" style="color: #b2571f"
+              th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
+            <span class="menu-plus-btn w-10 h-10 rounded-full flex items-center justify-center">
+              <svg class="w-[17px] h-[17px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </span>
           </div>
-          <p
-            id="product-description"
-            class="text-sm leading-relaxed mb-5"
-            style="color: rgba(44, 44, 44, 0.62)"
-          ></p>
-
-          <!-- Contenedor para los aditionales del producto -->
-          <div id="product-additionals-wrap" class="mb-5">
-            <p
-              class="text-xs font-medium uppercase tracking-wider mb-3"
-              style="color: rgba(44, 44, 44, 0.45)"
-            >
-              Adicionales
-            </p>
-            <div id="product-additionals" class="space-y-2.5"></div>
-          </div>
-          <!-- Contenedor para la cantidad del producto -->
-          <div class="flex items-center gap-4 mb-5">
-            <p
-              class="text-xs font-medium uppercase tracking-wider"
-              style="color: rgba(44, 44, 44, 0.45)"
-            >
-              Cantidad
-            </p>
-            <div class="flex items-center gap-3">
-              <!-- Botón para restar cantidad -->
-              <button
-                id="qty-minus"
-                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light"
-              >
-                −
-              </button>
-              <span
-                id="qty-value"
-                class="w-6 text-center font-semibold text-charcoal"
-                >1</span
-              >
-              <!-- Botón para sumar cantidad -->
-              <button
-                id="qty-plus"
-                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light"
-              >
-                +
-              </button>
-            </div>
-          </div>
-          <!-- Botón para agregar al carrito -->
-          <button
-            id="add-to-cart-btn"
-            class="w-full py-3 text-white font-medium rounded btn-terra"
-          >
-            Agregar al carrito
-          </button>
         </div>
       </div>
     </div>
 
-    <!--Modal de carrito-->
-    <div
-      id="modal-cart"
-      class="hidden-modal fixed inset-0 z-50 flex items-end md:items-center justify-center"
-      style="background-color: rgba(44, 44, 44, 0.65)"
-    >
-      <!--contenido del modal -->
-      <div
-        class="bg-cream w-full md:max-w-lg shadow-2xl flex flex-col"
-        style="max-height: 82vh; border-radius: 2px 2px 0 0"
-      >
-        <!-- Encabezado del modal con título y botón de cierre -->
-        <div
-          class="p-6 border-b flex items-center justify-between"
-          style="border-color: rgba(44, 44, 44, 0.1)"
-        >
-          <h2 class="font-serif text-2xl font-semibold text-charcoal">
-            Mi Carrito
-          </h2>
-          <!-- Botón de cierre "X"-->
-          <button data-close="cart" style="color: rgba(23, 227, 47, 0.35)">
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+    <!-- Mensaje para cuando el buscador o los filtros no encuentran resultados -->
+    <div id="menu-empty" class="hidden-modal col-span-full py-24 text-center" style="color: rgba(44, 44, 44, 0.35)">
+      <p class="text-lg mb-2">No se encontraron platos</p>
+      <button id="menu-reset" class="text-sm font-medium hover:underline" style="color: #b2571f">
+        Ver todos los platos
+      </button>
+    </div>
+  </main>
+  <!-- Pie de página con información del restaurante, navegación y enlaces a la cuenta -->
+  <footer th:replace="~{fragments :: footer}"></footer>
 
-        <!-- Contenido del carrito -->
-        <div class="flex-1 overflow-y-auto p-6">
-          <!-- Contenedor para mostrar un mensaje cuando el carrito está vacío -->
-          <div
-            id="cart-empty"
-            class="text-center py-14"
-            style="color: rgba(44, 44, 44, 0.35)"
-          >
-            <svg
-              class="w-12 h-12 mx-auto mb-4 opacity-40"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <p class="text-sm">Tu carrito está vacío</p>
-            <button
-              id="cart-explore-menu"
-              class="mt-4 text-sm underline underline-offset-2"
-              style="color: #b2571f"
-            >
-              Explorar el menú
+  <!-- Modales para mostrar información adicional, carrito de compras y productos -->
+
+  <!--Modal de producto -->
+  <div id="modal-product" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
+    style="background-color: rgba(44, 44, 44, 0.65)">
+    <!-- Contenido del modal de producto -->
+    <div class="bg-cream w-full max-w-lg overflow-hidden shadow-2xl relative" style="border-radius: 2px">
+      <!-- Botón para cerrar el modal -->
+      <button class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+        style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb" data-close="product">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <!-- Imagen del producto -->
+      <div class="relative h-56">
+        <img id="product-image" src="" alt="" class="w-full h-full object-cover" />
+      </div>
+      <!-- Contenido del modal (data)  -->
+      <div class="p-6">
+        <div class="flex items-start justify-between gap-4 mb-3">
+          <h3 id="product-name" class="font-serif text-2xl font-semibold text-charcoal"></h3>
+          <span id="product-price" class="font-bold text-xl flex-shrink-0" style="color: #b2571f"></span>
+        </div>
+        <p id="product-description" class="text-sm leading-relaxed mb-5" style="color: rgba(44, 44, 44, 0.62)"></p>
+
+        <!-- Contenedor para los aditionales del producto -->
+        <div id="product-additionals-wrap" class="mb-5">
+          <p class="text-xs font-medium uppercase tracking-wider mb-3" style="color: rgba(44, 44, 44, 0.45)">
+            Adicionales
+          </p>
+          <div id="product-additionals" class="space-y-2.5"></div>
+        </div>
+        <!-- Contenedor para la cantidad del producto -->
+        <div class="flex items-center gap-4 mb-5">
+          <p class="text-xs font-medium uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">
+            Cantidad
+          </p>
+          <div class="flex items-center gap-3">
+            <!-- Botón para restar cantidad -->
+            <button id="qty-minus"
+              class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+              −
+            </button>
+            <span id="qty-value" class="w-6 text-center font-semibold text-charcoal">1</span>
+            <!-- Botón para sumar cantidad -->
+            <button id="qty-plus"
+              class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+              +
             </button>
           </div>
-          <!-- Contenedor para los elementos del carrito -->
-          <!--Se añaden en el DOM dinámicamente con el script-->
-          <div id="cart-items" class="space-y-3"></div>
         </div>
-
-        <!-- Pie del modal con el total del pedido y botón de confirmación -->
-        <div
-          id="cart-footer"
-          class="hidden-modal p-6 border-t"
-          style="border-color: rgba(44, 44, 44, 0.1)"
-        >
-          <!-- Total del pedido -->
-          <div class="flex justify-between items-center mb-4">
-            <span class="font-medium text-charcoal">Total del pedido</span>
-            <span
-              id="cart-total"
-              class="font-bold text-xl"
-              style="color: #b2571f"
-            ></span>
-          </div>
-          <!-- Botón para confirmar el pedido: lleva a la página de inicio de sesión -->
-          <button
-            id="cart-checkout"
-            th:attr="data-href=@{/login}"
-            class="w-full py-3 text-white font-medium rounded btn-terra"
-          >
-            Confirmar pedido
-          </button>
-          <p
-            class="text-center text-xs mt-3"
-            style="color: rgba(44, 44, 44, 0.4)"
-          >
-            Pago contra entrega o con datafono en tu domicilio
-          </p>
-        </div>
+        <!-- Botón para agregar al carrito -->
+        <button id="add-to-cart-btn" class="w-full py-3 text-white font-medium rounded btn-terra">
+          Agregar al carrito
+        </button>
       </div>
     </div>
-    <!-- Arreglo que contiene los productos del menú y se comparte al js  -->
-    <script th:inline="javascript">
-      const menuProducts = /*[[${products}]]*/ [];
-    </script>
-    <script th:src="@{/js/script.js}"></script>
-  </body>
+  </div>
+
+  <!-- Modal de carrito -->
+  <div th:replace="~{fragments :: modal-cart}"></div>
+
+  <!-- Arreglo que contiene los productos del menú y se comparte al js  -->
+  <script th:inline="javascript">
+    const menuProducts = /*[[${products}]]*/[];
+  </script>
+  <script th:src="@{/js/script.js}"></script>
+</body>
+
 </html>
