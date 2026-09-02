@@ -1,310 +1,265 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-  <head>
-    <meta charset="UTF-8" />
-  </head>
-  <body>
-    <!--
+
+<head>
+  <meta charset="UTF-8" />
+</head>
+
+<body>
+  <!--
       Fragmentos reutilizables de barra de navegación y pie de página,
       tomados tal cual del diseño de /home. Se llaman desde el resto de
       páginas con th:replace, como si fueran una "función" que recibe
       el parámetro inicio para saber si debe comportarse como en /home
       (transparente sobre el hero) o como en el resto de páginas (fija).
     -->
-    <header th:fragment="navbar(inicio)">
-      <!-- Barra de navegación fija en la parte superior de la página -->
-      <nav
-        id="nav-bar"
-        th:attr="data-inicio=${inicio}"
-        class="nav-bar fixed top-0 inset-x-0 z-50 w-full">
-        <!-- Barra de navegación para pantallas medianas y grandes -->
-        <div
-          class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
-          style="grid-template-columns: 1fr auto 1fr">
-          <div class="flex items-center justify-evenly w-full">
-            <!-- Enlaces de navegación a las páginas del sitio -->
-            <a
-              th:href="@{/aboutUs}"
-              class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
-              NOSOTROS
-            </a>
-            <a
-              th:href="@{/menu}"
-              class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
-              MENÚ
-            </a>
-            <a
-              th:href="@{/contact}"
-              class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
-              CONTACTO
-            </a>
-          </div>
-          <!-- Logo dell restaurante en el centro de la barra de navegación -->
-          <div class="flex justify-center px-10">
-            <a
-              th:href="@{/home}"
-              class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300">
-              <span
-                class="logo-terra font-terra text-[24px] leading-[0.6] font-normal"
-                >Terra</span
-              >
-              <span
-                class="logo-galega font-galega text-[21px] tracking-[0.05em] uppercase -mt-1.5"
-                >Galega</span
-              >
-            </a>
-          </div>
-          <!-- Botones de inicio de sesión, registro y carrito de compras -->
-          <div class="flex items-center justify-evenly w-full">
-            <a
-              th:href="@{/login}"
-              class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
-              INICIAR SESIÓN
-            </a>
-            <a
-              th:href="@{/login(tab='register')}"
-              class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
-              REGISTRARSE
-            </a>
-            <button
-              class="link-nav relative flex items-center justify-center"
-              data-modal="cart"
-              aria-label="Carrito">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <span
-                id="cart-count-desktop"
-                class="hidden-modal absolute -top-1.5 -right-2 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
-                >0</span
-              >
-            </button>
-          </div>
-        </div>
-        <!-- Barra de navegación para pantallas pequeñas -->
-        <div
-          class="flex md:hidden items-center justify-between px-5 h-16 relative">
-          <button
-            data-scroll="hero"
-            class="flex flex-col items-center justify-center drop-shadow-md z-10">
-            <span class="logo-terra font-terra text-[24px] leading-[0.6]"
-              >Terra</span
-            >
-            <span
-              class="logo-galega font-galega text-[22px] tracking-[0.05em] uppercase -mt-1"
-              >Galega</span
-            >
-          </button>
+  <header th:fragment="navbar(inicio)">
+    <!-- Barra de navegación fija en la parte superior de la página -->
+    <nav id="nav-bar" th:attr="data-inicio=${inicio}" class="nav-bar fixed top-0 inset-x-0 z-50 w-full">
 
-          <div class="flex items-center gap-4">
-            <button
-              class="link-nav relative p-2"
-              data-modal="cart"
-              aria-label="Carrito">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <span
-                id="cart-count-mobile"
-                class="hidden-modal absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
-                >0</span
-              >
-            </button>
-            <button
-              id="mobile-menu-btn"
-              class="link-nav p-1"
-              aria-label="Menú">
-              <svg
-                id="icon-open"
-                class="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-              <svg
-                id="icon-close"
-                class="w-6 h-6 hidden-modal"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <!-- Menú desplegable para pantallas pequeñas -->
-        <div
-          id="mobile-menu"
-          class="hidden-modal md:hidden px-6 py-4 flex flex-col gap-4 border-t">
-          <a
-            class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2"
-            th:href="@{/aboutUs}">
+      <!-- Barra de navegación para pantallas medianas y grandes -->
+      <div class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
+        style="grid-template-columns: 1fr auto 1fr">
+
+        <div class="flex items-center justify-evenly w-full">
+          <a th:href="@{/aboutUs}" class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
             NOSOTROS
           </a>
-          <a
-            class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2"
-            th:href="@{/menu}">
+          <a th:href="@{/menu}" class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
             MENÚ
           </a>
-          <a
-            class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2"
-            th:href="@{/contact}">
+          <a th:href="@{/contact}" class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
             CONTACTO
           </a>
-          <div
-            class="flex gap-3 pt-4 pb-2 border-t mt-2"
-            style="border-color: rgba(255, 255, 255, 0.08)">
-            <a
-              class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded text-center"
-              style="
-                color: #f5f2eb;
-                border: 1px solid rgba(245, 242, 235, 0.25);
-              "
-              th:href="@{/login}">
-              INICIAR SESIÓN
-            </a>
-            <a
-              th:href="@{/login(tab='register')}"
-              class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center">
-              REGISTRARSE
-            </a>
+        </div>
+
+        <div class="flex justify-center px-10">
+          <a th:href="@{/home}"
+            class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300">
+            <span class="logo-terra font-terra text-[24px] leading-[0.6] font-normal">Terra</span>
+            <span class="logo-galega font-galega text-[21px] tracking-[0.05em] uppercase -mt-1.5">Galega</span>
+          </a>
+        </div>
+
+        <!-- Columna derecha: 3 elementos sueltos, igual que la izquierda, para que justify-evenly reparta el mismo ritmo -->
+        <div class="flex items-center justify-evenly w-full">
+          <a th:if="${loggedClient == null}" th:href="@{/login}"
+            class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
+            INICIAR SESIÓN
+          </a>
+          <a th:if="${loggedClient == null}" th:href="@{/login(tab='register')}"
+            class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
+            REGISTRARSE
+          </a>
+
+          <a th:if="${loggedClient != null}" th:href="@{/account}"
+            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
+            th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
+          <form th:if="${loggedClient != null}" th:action="@{/logout}" method="post" class="contents">
+            <button type="submit"
+              class="link-nav text-xs font-medium tracking-[0.18em] leading-none text-red-400 hover:text-red-300 bg-transparent border-0 p-0 m-0 cursor-pointer whitespace-nowrap">
+              SALIR
+            </button>
+          </form>
+
+          <button class="link-nav relative flex items-center justify-center" data-modal="cart" aria-label="Carrito">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span id="cart-count-desktop"
+              class="hidden-modal absolute -top-1.5 -right-2 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MOVIL BETA xd -->
+      <div class="flex md:hidden items-center justify-between px-5 h-16 relative">
+        <button data-scroll="hero" class="flex flex-col items-center justify-center drop-shadow-md z-10">
+          <span class="logo-terra font-terra text-[24px] leading-[0.6]">Terra</span>
+          <span class="logo-galega font-galega text-[22px] tracking-[0.05em] uppercase -mt-1">Galega</span>
+        </button>
+
+        <div class="flex items-center gap-4">
+          <button class="link-nav relative p-2" data-modal="cart" aria-label="Carrito">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span id="cart-count-mobile"
+              class="hidden-modal absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium">0</span>
+          </button>
+          <button id="mobile-menu-btn" class="link-nav p-1" aria-label="Menú">
+            <svg id="icon-open" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="icon-close" class="w-6 h-6 hidden-modal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="user-profile-mobile" th:if="${loggedClient != null}"
+        class="flex md:hidden flex-col gap-3 pt-4 pb-2 border-t mt-2" style="border-color: rgba(255, 255, 255, 0.08)">
+        <a th:href="@{/account}" class="link-nav text-center text-xs font-medium tracking-[0.18em]"
+          th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
+        <form th:action="@{/logout}" method="post">
+          <button type="submit"
+            class="w-full py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded bg-red-800/80 hover:bg-red-700 text-center transition-colors border-0 cursor-pointer">
+            CERRAR SESIÓN
+          </button>
+        </form>
+      </div>
+
+      <!-- Menú desplegable para pantallas pequeñas -->
+      <div id="mobile-menu" class="hidden-modal md:hidden px-6 py-4 flex flex-col gap-4 border-t">
+        <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2" th:href="@{/aboutUs}">
+          NOSOTROS
+        </a>
+        <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2" th:href="@{/menu}">
+          MENÚ
+        </a>
+        <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2" th:href="@{/contact}">
+          CONTACTO
+        </a>
+        <div th:if="${loggedClient == null}" class="flex gap-3 pt-4 pb-2 border-t mt-2"
+          style="border-color: rgba(255, 255, 255, 0.08)">
+          <a class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded text-center" style="
+        color: #f5f2eb;
+        border: 1px solid rgba(245, 242, 235, 0.25);
+      " th:href="@{/login}">
+            INICIAR SESIÓN
+          </a>
+          <a th:href="@{/login(tab='register')}"
+            class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center">
+            REGISTRARSE
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <footer th:fragment="footer" class="bg-[#232323] text-[#f5f2eb] pt-16 pb-8 border-t border-[#ffffff10]">
+    <div class="max-w-7xl mx-auto px-6">
+
+      <!-- Contenido principal del footer en columnas -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start pb-12">
+
+        <!-- Columna 1: Logo y subtítulo (Ocupa 2 espacios en pantallas medianas/grandes) -->
+        <div class="md:col-span-2 flex flex-col items-start">
+
+          <!-- Logo -->
+          <a th:href="@{/home}" class="inline-block mb-3 mx-auto md:mx-0 md:translate-x-3">
+            <img th:src="@{/assets/logo-hero.svg}" alt="Terra Galega"
+              class="w-32 md:w-40 lg:w-48 h-auto object-contain" />
+          </a>
+          <!-- Subtítulo -->
+          <p class="text-xs tracking-[0.25em] uppercase ml-4 md:ml-8 mt-1" style="color: rgba(245, 242, 235, 0.5);">
+            Bogotá, Colombia · Desde 2018
+          </p>
+
+        </div>
+
+        <!-- Columna 2: Dirección y Correo -->
+        <div class="space-y-6">
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Dirección
+            </p>
+            <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">Calle 93 #15-47, Zona Rosa, Bogotá
+            </p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Correo</p>
+            <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">contacto@terragalega.co</p>
           </div>
         </div>
-      </nav>
-    </header>
 
-    <footer th:fragment="footer" class="bg-[#232323] text-[#f5f2eb] pt-16 pb-8 border-t border-[#ffffff10]">
-  <div class="max-w-7xl mx-auto px-6">
-    
-    <!-- Contenido principal del footer en columnas -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start pb-12">
-      
-      <!-- Columna 1: Logo y subtítulo (Ocupa 2 espacios en pantallas medianas/grandes) -->
-      <div class="md:col-span-2 flex flex-col items-start">
-        
-        <!-- Logo -->
-        <a th:href="@{/home}" class="inline-block mb-3 mx-auto md:mx-0 md:translate-x-3">
-          <img th:src="@{/assets/logo-hero.svg}" alt="Terra Galega" class="w-32 md:w-40 lg:w-48 h-auto object-contain" />
-        </a>
-        <!-- Subtítulo -->
-        <p class="text-xs tracking-[0.25em] uppercase ml-4 md:ml-8 mt-1" style="color: rgba(245, 242, 235, 0.5);">
-          Bogotá, Colombia · Desde 2018
-        </p>
-        
+        <!-- Columna 3: Teléfono y Horario -->
+        <div class="space-y-6">
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Teléfono
+            </p>
+            <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">+57 601 456 7890</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Horario
+            </p>
+            <p class="text-sm font-medium leading-relaxed" style="color: rgba(245, 242, 235, 0.85);">Lun – Sáb
+              12:00–22:00 · Dom 12:00–20:00</p>
+          </div>
+        </div>
+
+        <!-- Columna 4: Redes sociales (Síguenos) -->
+        <div class="space-y-3">
+          <p class="text-[10px] uppercase tracking-[0.2em] mb-2.5" style="color: rgba(245, 242, 235, 0.4);">Síguenos</p>
+          <ul class="space-y-3 text-sm font-medium">
+
+            <!-- Instagram -->
+            <li>
+              <a href="https://instagram.com" target="_blank"
+                class="group inline-flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 hover:text-white"
+                style="color: rgba(245, 242, 235, 0.75);">
+
+                <!-- Logo Instagram -->
+                <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                Instagram
+              </a>
+            </li>
+
+            <!-- Facebook -->
+            <li>
+              <a href="https://facebook.com" target="_blank"
+                class="group inline-flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 hover:text-white"
+                style="color: rgba(245, 242, 235, 0.75);">
+
+                <!-- Logo Facebook -->
+                <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24"
+                  fill="currentColor">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                Facebook
+              </a>
+            </li>
+
+            <!-- WhatsApp -->
+            <li>
+              <a href="https://whatsapp.com" target="_blank"
+                class="group inline-flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 hover:text-white"
+                style="color: rgba(245, 242, 235, 0.75);">
+
+                <!-- Logo WhatsApp -->
+                <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24"
+                  fill="currentColor">
+                  <path
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                </svg>
+                WhatsApp
+              </a>
+            </li>
+
+          </ul>
+        </div>
+
       </div>
 
-      <!-- Columna 2: Dirección y Correo -->
-      <div class="space-y-6">
-        <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Dirección</p>
-          <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">Calle 93 #15-47, Zona Rosa, Bogotá</p>
-        </div>
-        <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Correo</p>
-          <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">contacto@terragalega.co</p>
-        </div>
-      </div>
-
-      <!-- Columna 3: Teléfono y Horario -->
-      <div class="space-y-6">
-        <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Teléfono</p>
-          <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.85);">+57 601 456 7890</p>
-        </div>
-        <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] mb-1.5" style="color: rgba(245, 242, 235, 0.4);">Horario</p>
-          <p class="text-sm font-medium leading-relaxed" style="color: rgba(245, 242, 235, 0.85);">Lun – Sáb 12:00–22:00 · Dom 12:00–20:00</p>
-        </div>
-      </div>
-
-      <!-- Columna 4: Redes sociales (Síguenos) -->
-      <div class="space-y-3">
-        <p class="text-[10px] uppercase tracking-[0.2em] mb-2.5" style="color: rgba(245, 242, 235, 0.4);">Síguenos</p>
-        <ul class="space-y-3 text-sm font-medium">
-
-          <!-- Instagram -->
-          <li>
-            <a href="https://instagram.com" target="_blank" 
-               class="group inline-flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 hover:text-white" 
-               style="color: rgba(245, 242, 235, 0.75);">
-
-              <!-- Logo Instagram -->
-              <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-              </svg>
-              Instagram
-            </a>
-          </li>
-
-          <!-- Facebook -->
-          <li>
-            <a href="https://facebook.com" target="_blank" 
-               class="group inline-flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 hover:text-white" 
-               style="color: rgba(245, 242, 235, 0.75);">
-
-              <!-- Logo Facebook -->
-              <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-              Facebook
-            </a>
-          </li>
-
-          <!-- WhatsApp -->
-          <li>
-            <a href="https://whatsapp.com" target="_blank" 
-               class="group inline-flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 hover:text-white" 
-               style="color: rgba(245, 242, 235, 0.75);">
-
-              <!-- Logo WhatsApp -->
-              <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
-              </svg>
-              WhatsApp
-            </a>
-          </li>
-
-        </ul>
+      <!-- Línea divisoria y Copyright inferior -->
+      <div class="pt-8 border-t flex flex-col sm:flex-row items-center justify-between text-xs gap-4"
+        style="border-color: rgba(255, 255, 255, 0.08); color: rgba(245, 242, 235, 0.4);">
+        <p>© 2026 Terra Galega. Todos los derechos reservados.</p>
+        <p>Gastronomía gallega auténtica</p>
       </div>
 
     </div>
+  </footer>
+</body>
 
-    <!-- Línea divisoria y Copyright inferior -->
-    <div class="pt-8 border-t flex flex-col sm:flex-row items-center justify-between text-xs gap-4" style="border-color: rgba(255, 255, 255, 0.08); color: rgba(245, 242, 235, 0.4);">
-      <p>© 2026 Terra Galega. Todos los derechos reservados.</p>
-      <p>Gastronomía gallega auténtica</p>
-    </div>
-
-  </div>
-</footer>
-  </body>
 </html>
