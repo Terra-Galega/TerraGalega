@@ -187,97 +187,9 @@
       </div>
     </div>
 
-    <!--Modal de carrito-->
-    <div
-      id="modal-cart"
-      class="hidden-modal fixed inset-0 z-50 flex items-end md:items-center justify-center"
-      style="background-color: rgba(44, 44, 44, 0.65)">
-      <!--contenido del modal-->
-      <div
-        class="bg-cream w-full md:max-w-lg shadow-2xl flex flex-col"
-        style="max-height: 82vh; border-radius: 2px 2px 0 0">
-        <!-- Encabezado del modal con título y botón de cierre -->
-        <div
-          class="p-6 border-b flex items-center justify-between"
-          style="border-color: rgba(44, 44, 44, 0.1)">
-          <h2 class="font-serif text-2xl font-semibold text-charcoal">
-            Mi Carrito
-          </h2>
-          <!-- Botón de cierre "X"-->
-          <button data-close="cart" style="color: rgba(23, 227, 47, 0.35)">
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+  <!-- Modal de carrito -->
+<div th:replace="~{fragments :: modal-cart}"></div>
 
-        <!-- Contenido del carrito -->
-        <div class="flex-1 overflow-y-auto p-6">
-          <!-- Contenedor para mostrar un mensaje cuando el carrito está vacío -->
-          <div
-            id="cart-empty"
-            class="text-center py-14"
-            style="color: rgba(44, 44, 44, 0.35)">
-            <svg
-              class="w-12 h-12 mx-auto mb-4 opacity-40"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <p class="text-sm">Tu carrito está vacío</p>
-            <button
-              id="cart-explore-menu"
-              class="mt-4 text-sm underline underline-offset-2"
-              style="color: #b2571f">
-              Explorar el menú
-            </button>
-          </div>
-          <!-- Contenedor para los elementos del carrito -->
-          <!--Se añaden en el DOM dinámicamente con el script-->
-          <div id="cart-items" class="space-y-3"></div>
-        </div>
-
-        <!-- Pie del modal con el total del pedido y botón de confirmación -->
-        <div
-          id="cart-footer"
-          class="hidden-modal p-6 border-t"
-          style="border-color: rgba(44, 44, 44, 0.1)">
-          <!-- Total del pedido -->
-          <div class="flex justify-between items-center mb-4">
-            <span class="font-medium text-charcoal">Total del pedido</span>
-            <span
-              id="cart-total"
-              class="font-bold text-xl"
-              style="color: #b2571f"></span>
-          </div>
-          <!-- Botón para confirmar el pedido: lleva a la página de inicio de sesión -->
-          <button
-            id="cart-checkout"
-            th:attr="data-href=@{/login}"
-            class="w-full py-3 text-white font-medium rounded btn-terra">
-            Confirmar pedido
-          </button>
-          <p
-            class="text-center text-xs mt-3"
-            style="color: rgba(44, 44, 44, 0.4)">
-            Pago contra entrega o con datafono en tu domicilio
-          </p>
-        </div>
-      </div>
-    </div>
     <!--Arreglo que contiene los productos del menú y se comparte al js-->
     <script th:inline="javascript">const menuProducts = /*[[${products}]]*/ [];</script>
     <script th:src="@{/js/script.js}"></script>

@@ -1,12 +1,13 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Terra Galega · Restaurante Gallego en Bogotá</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-      @theme {
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terra Galega · Restaurante Gallego en Bogotá</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
         --color-terra: #b2571f;
         --color-gold: #d99a21;
         --color-burgundy: #8a2222;
@@ -17,306 +18,222 @@
         --font-serif: "Playfair Display", ui-serif, Georgia, serif;
       }
     </style>
-    <link rel="stylesheet" th:href="@{/css/styles.css}" />
-  </head>
-  <body class="min-h-screen bg-cream font-sans text-charcoal">
-    <!--header con la barra de navegación -->
-    <header th:replace="~{fragments :: navbar(true)}"></header>
-    <!-- Contenido principal de la página -->
-    <main>
-      <!-- Sección con la imagen principal de fondo y texto centrado -->
-      <!-- SECCIÓN HERO: Usamos min-h-screen y flex-col para que los elementos se apilen ordenadamente -->
-      <section
-        id="hero"
-        class="relative min-h-screen flex flex-col overflow-hidden pt-28 pb-8">
-        
-        <!-- Imagen de fondo y degradado oscuro -->
-        <img
-          src="https://images.unsplash.com/photo-1691089667845-841645e16c43?w=1600&h=900&fit=crop&auto=format"
-          alt="Interior elegante del restaurante Terra Galega"
-          class="absolute inset-0 w-full h-full object-cover" />
-        <div
-          class="absolute inset-0"
-          style="background: linear-gradient(to bottom, rgba(44, 44, 44, 0.55) 0%, rgba(44, 44, 44, 0.45) 50%, rgba(44, 44, 44, 0.75) 100%);">
-        </div>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
 
-        <!-- 1. CONTENEDOR CENTRAL: Con 'flex-1' toma el espacio sobrante y se centra dinámicamente -->
-        <div class="relative z-10 flex-1 flex flex-col justify-center items-center text-center px-6 max-w-4xl mx-auto w-full">
-          
-          <!-- Texto superior -->
-          <p
-            class="text-xs md:text-sm font-medium tracking-[0.35em] uppercase"
-            style="color: #d99a21">
-            Restaurante Gallego · Bogotá
-          </p>
-          
-          <!-- Logo del restaurante -->
-          <img
-            th:src="@{/assets/logo-hero.svg}"
-            alt="Terra Galega"
-            class="mx-auto w-72 md:w-[400px] lg:w-[480px] my-6 md:my-10 object-contain drop-shadow-2xl" />
+<body class="min-h-screen bg-cream font-sans text-charcoal">
+  <!--header con la barra de navegación -->
+  <header th:replace="~{fragments :: navbar(true)}"></header>
+  <!-- Contenido principal de la página -->
+  <main>
+    <!-- Sección con la imagen principal de fondo y texto centrado -->
+    <!-- SECCIÓN HERO: Usamos min-h-screen y flex-col para que los elementos se apilen ordenadamente -->
+    <section id="hero" class="relative min-h-screen flex flex-col overflow-hidden pt-28 pb-8">
 
-          <!-- Texto descriptivo -->
-          <p
-            class="text-base md:text-lg lg:text-xl max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"
-            style="color: rgba(245, 242, 235, 0.8)">
-            Tradición culinaria gallega en el corazón de Bogotá. Mariscos
-            frescos, carnes seleccionadas y los auténticos sabores del noroeste
-            de España.
-          </p>
-          
-          <!-- Botones de acción -->
-          <div class="flex flex-wrap items-center justify-center gap-4">
-            <a
-              th:href="@{/menu}"
-              class="px-8 py-3.5 rounded-full font-medium text-charcoal transition-all duration-300 hover:scale-105"
-              style="background-color: rgba(245, 242, 235, 0.92); backdrop-filter: blur(16px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);">
-              Explorar Menú
-            </a>
-            <a
-              th:href="@{/aboutUs}"
-              class="px-8 py-3.5 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
-              style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.25);">
-              Nuestra Historia
-            </a>
-          </div>
-        </div>
+      <!-- Imagen de fondo y degradado oscuro -->
+      <img src="https://images.unsplash.com/photo-1691089667845-841645e16c43?w=1600&h=900&fit=crop&auto=format"
+        alt="Interior elegante del restaurante Terra Galega" class="absolute inset-0 w-full h-full object-cover" />
+      <div class="absolute inset-0"
+        style="background: linear-gradient(to bottom, rgba(44, 44, 44, 0.55) 0%, rgba(44, 44, 44, 0.45) 50%, rgba(44, 44, 44, 0.75) 100%);">
+      </div>
 
-        <!-- 2. INDICADOR DESCUBRIR -->
-        <div class="relative z-10 flex flex-col items-center gap-2 mt-8" style="color: rgba(245, 242, 235, 0.45)">
-          <span class="text-xs tracking-widest uppercase">Descubrir</span>
-          <svg class="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
+      <!-- 1. CONTENEDOR CENTRAL: Con 'flex-1' toma el espacio sobrante y se centra dinámicamente -->
+      <div
+        class="relative z-10 flex-1 flex flex-col justify-center items-center text-center px-6 max-w-4xl mx-auto w-full">
+
+        <!-- Texto superior -->
+        <p class="text-xs md:text-sm font-medium tracking-[0.35em] uppercase" style="color: #d99a21">
+          Restaurante Gallego · Bogotá
+        </p>
+
+        <!-- Logo del restaurante -->
+        <img th:src="@{/assets/logo-hero.svg}" alt="Terra Galega"
+          class="mx-auto w-72 md:w-[400px] lg:w-[480px] my-6 md:my-10 object-contain drop-shadow-2xl" />
+
+        <!-- Texto descriptivo -->
+        <p class="text-base md:text-lg lg:text-xl max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"
+          style="color: rgba(245, 242, 235, 0.8)">
+          Tradición culinaria gallega en el corazón de Bogotá. Mariscos
+          frescos, carnes seleccionadas y los auténticos sabores del noroeste
+          de España.
+        </p>
+
+        <!-- Botones de acción -->
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <a th:href="@{/menu}"
+            class="px-8 py-3.5 rounded-full font-medium text-charcoal transition-all duration-300 hover:scale-105"
+            style="background-color: rgba(245, 242, 235, 0.92); backdrop-filter: blur(16px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);">
+            Explorar Menú
+          </a>
+          <a th:href="@{/aboutUs}"
+            class="px-8 py-3.5 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
+            style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.25);">
+            Nuestra Historia
+          </a>
         </div>
-        
-      </section>
-      <!--seccion de informacion adicional-->
-      <section class="py-16" style="background-color: #556141">
-        <div
-          class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-          <!--Contenedor del primer elemento -->
-          <div class="flex items-start gap-5">
-            <!-- Icono de mariscos con estilo SVG -->
-            <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
-              <svg
-                class="w-7 h-7"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M21 12c0 1.657-4.03 3-9 3S3 13.657 3 12m18 0c0-1.657-4.03-3-9-3S3 10.343 3 12m18 0v6c0 1.657-4.03 3-9 3S3 19.657 3 18v-6M3 6c0-1.657 4.03-3 9-3s9 1.343 9 3v6" />
-              </svg>
-            </div>
-            <div>
-              <h3
-                class="font-serif font-semibold text-lg mb-2"
-                style="color: #f5f2eb">
-                Mariscos de Temporada
-              </h3>
-              <p
-                class="text-sm leading-relaxed"
-                style="color: rgba(245, 242, 235, 0.6)">
-                Ingredientes frescos traídos desde el Mar Cantábrico cada
-                semana, respetando la temporada.
-              </p>
-            </div>
+      </div>
+
+      <!-- 2. INDICADOR DESCUBRIR -->
+      <div class="relative z-10 flex flex-col items-center gap-2 mt-8" style="color: rgba(245, 242, 235, 0.45)">
+        <span class="text-xs tracking-widest uppercase">Descubrir</span>
+        <svg class="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+
+    </section>
+    <!--seccion de informacion adicional-->
+    <section class="py-16" style="background-color: #556141">
+      <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+        <!--Contenedor del primer elemento -->
+        <div class="flex items-start gap-5">
+          <!-- Icono de mariscos con estilo SVG -->
+          <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M21 12c0 1.657-4.03 3-9 3S3 13.657 3 12m18 0c0-1.657-4.03-3-9-3S3 10.343 3 12m18 0v6c0 1.657-4.03 3-9 3S3 19.657 3 18v-6M3 6c0-1.657 4.03-3 9-3s9 1.343 9 3v6" />
+            </svg>
           </div>
-          <!--Contenedor del segundo elemento -->
-          <div class="flex items-start gap-5">
-            <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
-              <!-- Icono de vinos con estilo SVG -->
-              <svg
-                class="w-7 h-7"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <div>
-              <h3
-                class="font-serif font-semibold text-lg mb-2"
-                style="color: #f5f2eb">
-                Vinos Gallegos D.O.
-              </h3>
-              <p
-                class="text-sm leading-relaxed"
-                style="color: rgba(245, 242, 235, 0.6)">
-                Selección exclusiva de Albariños Rías Baixas y tintos Ribeiro
-                con denominación de origen.
-              </p>
-            </div>
-          </div>
-          <div class="flex items-start gap-5">
-            <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
-              <!--imagen de los domicilios rápidos-->
-              <svg
-                class="w-7 h-7"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3
-                class="font-serif font-semibold text-lg mb-2"
-                style="color: #f5f2eb">
-                Domicilio Rápido
-              </h3>
-              <p
-                class="text-sm leading-relaxed"
-                style="color: rgba(245, 242, 235, 0.6)">
-                Pedidos en línea con entrega a domicilio en toda Bogotá. Pago
-                contra entrega o datafono.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!--Seccion de Favoritos de la casa -->
-      <section id="menu" class="py-24 bg-cream">
-        <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
-        <div class="max-w-7xl mx-auto px-6">
-          <!-- Título de la sección con estilo centrado y decorativo -->
-          <div class="text-center mb-14">
-            <p
-              class="text-sm font-medium tracking-[0.25em] uppercase mb-3"
-              style="color: #b2571f">
-              Más solicitados
+          <div>
+            <h3 class="font-serif font-semibold text-lg mb-2" style="color: #f5f2eb">
+              Mariscos de Temporada
+            </h3>
+            <p class="text-sm leading-relaxed" style="color: rgba(245, 242, 235, 0.6)">
+              Ingredientes frescos traídos desde el Mar Cantábrico cada
+              semana, respetando la temporada.
             </p>
-            <h2
-              class="font-serif text-4xl md:text-5xl text-charcoal font-semibold mb-4">
-              Favoritos de la casa
-            </h2>
-            <div
-              class="w-12 h-px mx-auto"
-              style="background-color: #d99a21"></div>
           </div>
+        </div>
+        <!--Contenedor del segundo elemento -->
+        <div class="flex items-start gap-5">
+          <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
+            <!-- Icono de vinos con estilo SVG -->
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-serif font-semibold text-lg mb-2" style="color: #f5f2eb">
+              Vinos Gallegos D.O.
+            </h3>
+            <p class="text-sm leading-relaxed" style="color: rgba(245, 242, 235, 0.6)">
+              Selección exclusiva de Albariños Rías Baixas y tintos Ribeiro
+              con denominación de origen.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-start gap-5">
+          <div class="flex-shrink-0 mt-0.5" style="color: #d99a21">
+            <!--imagen de los domicilios rápidos-->
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-serif font-semibold text-lg mb-2" style="color: #f5f2eb">
+              Domicilio Rápido
+            </h3>
+            <p class="text-sm leading-relaxed" style="color: rgba(245, 242, 235, 0.6)">
+              Pedidos en línea con entrega a domicilio en toda Bogotá. Pago
+              contra entrega o datafono.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!--Seccion de Favoritos de la casa -->
+    <section id="menu" class="py-24 bg-cream">
+      <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
+      <div class="max-w-7xl mx-auto px-6">
+        <!-- Título de la sección con estilo centrado y decorativo -->
+        <div class="text-center mb-14">
+          <p class="text-sm font-medium tracking-[0.25em] uppercase mb-3" style="color: #b2571f">
+            Más solicitados
+          </p>
+          <h2 class="font-serif text-4xl md:text-5xl text-charcoal font-semibold mb-4">
+            Favoritos de la casa
+          </h2>
+          <div class="w-12 h-px mx-auto" style="background-color: #d99a21"></div>
+        </div>
 
-          <!-- Grilla con los productos marcados como populares (${popularProducts}, viene del ProductService) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div
-              th:each="product : ${popularProducts}"
-              th:attr="data-href=@{/productDetail/{id}(id=${product.id})}"
-              class="rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
-              style="box-shadow: 0 4px 24px rgba(44, 44, 44, 0.06)"
-              onclick="window.location.href=this.dataset.href">
-              <div class="relative h-48 overflow-hidden">
-                <img
-                  th:src="${product.imageUrl}"
-                  th:alt="${product.name}"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+        <!-- Grilla con los productos marcados como populares (${popularProducts}, viene del ProductService) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div th:each="product : ${popularProducts}" th:attr="data-href=@{/productDetail/{id}(id=${product.id})}"
+            class="rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+            style="box-shadow: 0 4px 24px rgba(44, 44, 44, 0.06)" onclick="window.location.href=this.dataset.href">
+            <div class="relative h-48 overflow-hidden">
+              <img th:src="${product.imageUrl}" th:alt="${product.name}"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+            </div>
+            <div class="p-6">
+              <span class="text-[11px] font-medium tracking-widest uppercase" style="color: rgba(178, 87, 31, 0.7)"
+                th:text="${product.category}"></span>
+              <div class="flex justify-between items-start gap-3 mt-1 mb-2">
+                <h3 class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors"
+                  th:text="${product.name}"></h3>
+                <span class="font-bold text-lg flex-shrink-0" style="color: #b2571f"
+                  th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
               </div>
-              <div class="p-6">
-                <span
-                  class="text-[11px] font-medium tracking-widest uppercase"
-                  style="color: rgba(178, 87, 31, 0.7)"
-                  th:text="${product.category}"></span>
-                <div class="flex justify-between items-start gap-3 mt-1 mb-2">
-                  <h3
-                    class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors"
-                    th:text="${product.name}"></h3>
-                  <span
-                    class="font-bold text-lg flex-shrink-0"
-                    style="color: #b2571f"
-                    th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
-                </div>
-                <p
-                  class="text-sm leading-relaxed line-clamp-2"
-                  style="color: rgba(44, 44, 44, 0.68)"
-                  th:text="${product.description}"></p>
-              </div>
+              <p class="text-sm leading-relaxed line-clamp-2" style="color: rgba(44, 44, 44, 0.68)"
+                th:text="${product.description}"></p>
             </div>
           </div>
+        </div>
 
-          <!-- Botón para ver la carta completa (página /menu, se construye en el siguiente paso) -->
-          <div class="text-center mt-14">
-            <a
-              th:href="@{/menu}"
-              class="inline-block px-10 py-4 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
-              style="
+        <!-- Botón para ver la carta completa (página /menu, se construye en el siguiente paso) -->
+        <div class="text-center mt-14">
+          <a th:href="@{/menu}"
+            class="inline-block px-10 py-4 rounded-full font-medium text-cream transition-all duration-300 hover:scale-105"
+            style="
                 background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
                 box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
               ">
-              Ver carta completa
-            </a>
-          </div>
+            Ver carta completa
+          </a>
         </div>
-      </section>
-      <!-- Franja resumida de "Nosotros" (versión corta, la historia completa vive en la página /nosotros) -->
-      <section class="py-24" style="background-color: #2c2c2c">
-        <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
-        <div
-          class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-          <!--Contenido.. Texto-->
-          <div>
-            <p
-              class="text-sm font-medium tracking-[0.25em] uppercase mb-4"
-              style="color: #d99a21">
-              Nuestra Historia
-            </p>
-            <h2
-              class="font-serif text-4xl md:text-5xl font-semibold mb-6 leading-tight"
-              style="color: #f5f2eb">
-              Un pedazo de Galicia<br />en cada plato
-            </h2>
-            <div class="w-12 h-px mb-8" style="background-color: #d99a21"></div>
-            <p
-              class="leading-relaxed mb-5"
-              style="color: rgba(245, 242, 235, 0.6)">
-              Terra Galega nació del amor por la gastronomía gallega. Desde
-              2018, somos el refugio de quienes buscan los auténticos sabores
-              del noroeste español: pulpo fresco, empanadas artesanales y el
-              inconfundible carácter de la cocina marinera.
-            </p>
-            <p
-              class="leading-relaxed mb-10"
-              style="color: rgba(245, 242, 235, 0.6)">
-              Nuestros ingredientes viajan directamente desde la costa gallega.
-              Trabajamos con productores locales que comparten nuestra pasión
-              por la calidad y la tradición.
-            </p>
-            <!-- Enlace a la página completa de la historia -->
-            <a
-              th:href="@{/aboutUs}"
-              class="font-medium flex items-center gap-2 hover:gap-3 transition-all w-fit"
-              style="color: #d99a21">
-              Conocer más
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2">
-                <path d="m9 18 6-6-6-6" />
-              </svg>
-            </a>
-          </div>
-          <!-- Imagen representativa del restaurante con elementos decorativos -->
-          <div class="relative">
-            <img
-              src="https://images.unsplash.com/photo-1712630514718-3830cc6c0d0a?w=640&h=800&fit=crop&auto=format"
-              alt="Plato gallego elaborado con esmero"
-              class="w-full object-cover rounded-2xl"
-              style="height: 500px" />
-            <!-- Tarjeta de estadísticas superpuesta con estilo vidrio esmerilado -->
-            <div
-              class="absolute -bottom-6 -left-6 rounded-2xl p-5 hidden md:block"
-              style="
+      </div>
+    </section>
+    <!-- Franja resumida de "Nosotros" (versión corta, la historia completa vive en la página /nosotros) -->
+    <section class="py-24" style="background-color: #2c2c2c">
+      <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
+      <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <!--Contenido.. Texto-->
+        <div>
+          <p class="text-sm font-medium tracking-[0.25em] uppercase mb-4" style="color: #d99a21">
+            Nuestra Historia
+          </p>
+          <h2 class="font-serif text-4xl md:text-5xl font-semibold mb-6 leading-tight" style="color: #f5f2eb">
+            Un pedazo de Galicia<br />en cada plato
+          </h2>
+          <div class="w-12 h-px mb-8" style="background-color: #d99a21"></div>
+          <p class="leading-relaxed mb-5" style="color: rgba(245, 242, 235, 0.6)">
+            Terra Galega nació del amor por la gastronomía gallega. Desde
+            2018, somos el refugio de quienes buscan los auténticos sabores
+            del noroeste español: pulpo fresco, empanadas artesanales y el
+            inconfundible carácter de la cocina marinera.
+          </p>
+          <p class="leading-relaxed mb-10" style="color: rgba(245, 242, 235, 0.6)">
+            Nuestros ingredientes viajan directamente desde la costa gallega.
+            Trabajamos con productores locales que comparten nuestra pasión
+            por la calidad y la tradición.
+          </p>
+          <!-- Enlace a la página completa de la historia -->
+          <a th:href="@{/aboutUs}" class="font-medium flex items-center gap-2 hover:gap-3 transition-all w-fit"
+            style="color: #d99a21">
+            Conocer más
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </a>
+        </div>
+        <!-- Imagen representativa del restaurante con elementos decorativos -->
+        <div class="relative">
+          <img src="https://images.unsplash.com/photo-1712630514718-3830cc6c0d0a?w=640&h=800&fit=crop&auto=format"
+            alt="Plato gallego elaborado con esmero" class="w-full object-cover rounded-2xl" style="height: 500px" />
+          <!-- Tarjeta de estadísticas superpuesta con estilo vidrio esmerilado -->
+          <div class="absolute -bottom-6 -left-6 rounded-2xl p-5 hidden md:block" style="
                 background-color: rgba(255, 255, 255, 0.7);
                 backdrop-filter: blur(20px) saturate(160%);
                 border: 1px solid rgba(255, 255, 255, 0.6);
@@ -324,389 +241,208 @@
                   0 4px 24px rgba(44, 44, 44, 0.07),
                   0 1px 4px rgba(44, 44, 44, 0.04);
               ">
-              <div class="flex gap-6">
-                <div class="text-center">
-                  <p
-                    class="font-serif font-bold text-2xl"
-                    style="color: #b2571f">
-                    6+
-                  </p>
-                  <p
-                    class="text-[11px] mt-0.5"
-                    style="color: rgba(44, 44, 44, 0.45)">
-                    Años
-                  </p>
-                </div>
-                <div class="text-center">
-                  <p
-                    class="font-serif font-bold text-2xl"
-                    style="color: #b2571f">
-                    150+
-                  </p>
-                  <p
-                    class="text-[11px] mt-0.5"
-                    style="color: rgba(44, 44, 44, 0.45)">
-                    Platos/día
-                  </p>
-                </div>
-                <div class="text-center">
-                  <p
-                    class="font-serif font-bold text-2xl"
-                    style="color: #b2571f">
-                    4.9★
-                  </p>
-                  <p
-                    class="text-[11px] mt-0.5"
-                    style="color: rgba(44, 44, 44, 0.45)">
-                    Valoración
-                  </p>
-                </div>
+            <div class="flex gap-6">
+              <div class="text-center">
+                <p class="font-serif font-bold text-2xl" style="color: #b2571f">
+                  6+
+                </p>
+                <p class="text-[11px] mt-0.5" style="color: rgba(44, 44, 44, 0.45)">
+                  Años
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="font-serif font-bold text-2xl" style="color: #b2571f">
+                  150+
+                </p>
+                <p class="text-[11px] mt-0.5" style="color: rgba(44, 44, 44, 0.45)">
+                  Platos/día
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="font-serif font-bold text-2xl" style="color: #b2571f">
+                  4.9★
+                </p>
+                <p class="text-[11px] mt-0.5" style="color: rgba(44, 44, 44, 0.45)">
+                  Valoración
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!--Seccion de testimonios-->
-      <section class="py-24" style="background-color: #ede9e0">
-        <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
-        <div class="max-w-7xl mx-auto px-6">
-          <div class="text-center mb-14">
-            <p
-              class="text-sm font-medium tracking-[0.25em] uppercase mb-3"
-              style="color: #b2571f">
-              Opiniones
-            </p>
-            <h2
-              class="font-serif text-4xl md:text-5xl text-charcoal font-semibold mb-4">
-              Lo que dicen nuestros clientes
-            </h2>
-            <div
-              class="w-12 h-px mx-auto"
-              style="background-color: #d99a21"></div>
-          </div>
-          <!-- Contenedor de la cuadrícula de testimonios donde se mostrarán los testimonios de los clientes -->
-          <!--Se llena con el contenido de los testimonios (en el script)-->
-          <div
-            class="grid grid-cols-1 md:grid-cols-3 gap-8"
-            id="testimonials-grid"></div>
+    <!--Seccion de testimonios-->
+    <section class="py-24" style="background-color: #ede9e0">
+      <!-- Contenedor principal con un diseño de cuadrícula para organizar el contenido -->
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-14">
+          <p class="text-sm font-medium tracking-[0.25em] uppercase mb-3" style="color: #b2571f">
+            Opiniones
+          </p>
+          <h2 class="font-serif text-4xl md:text-5xl text-charcoal font-semibold mb-4">
+            Lo que dicen nuestros clientes
+          </h2>
+          <div class="w-12 h-px mx-auto" style="background-color: #d99a21"></div>
         </div>
-      </section>
+        <!-- Contenedor de la cuadrícula de testimonios donde se mostrarán los testimonios de los clientes -->
+        <!--Se llena con el contenido de los testimonios (en el script)-->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="testimonials-grid"></div>
+      </div>
+    </section>
 
-      <!--Franja resumida de contacto (la info completa y el formulario viven en la página /contacto)-->
-      <section class="py-20 max-w-7xl mx-auto px-6">
-        <div class="grid md:grid-cols-3 gap-8">
-          <!-- Dirección -->
-          <div
-            class="rounded-2xl p-7 flex items-start gap-5"
-            style="
+    <!--Franja resumida de contacto (la info completa y el formulario viven en la página /contacto)-->
+    <section class="py-20 max-w-7xl mx-auto px-6">
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Dirección -->
+        <div class="rounded-2xl p-7 flex items-start gap-5" style="
               background-color: rgba(255, 255, 255, 0.7);
               backdrop-filter: blur(20px) saturate(160%);
               border: 1px solid rgba(255, 255, 255, 0.6);
               box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);
             ">
-            <div
-              class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8">
-                <path
-                  d="M17.657 16.657 13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0Z" />
-                <circle cx="12" cy="11" r="3" />
-              </svg>
-            </div>
-            <div>
-              <p
-                class="text-[11px] font-medium uppercase tracking-widest mb-1"
-                style="color: rgba(44, 44, 44, 0.4)">
-                Dirección
-              </p>
-              <p class="text-sm font-medium text-charcoal leading-snug">
-                Calle 93 #15-47, Zona Rosa, Bogotá
-              </p>
-            </div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M17.657 16.657 13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0Z" />
+              <circle cx="12" cy="11" r="3" />
+            </svg>
           </div>
-          <!-- Horario -->
-          <div
-            class="rounded-2xl p-7 flex items-start gap-5"
-            style="
+          <div>
+            <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44, 44, 44, 0.4)">
+              Dirección
+            </p>
+            <p class="text-sm font-medium text-charcoal leading-snug">
+              Calle 93 #15-47, Zona Rosa, Bogotá
+            </p>
+          </div>
+        </div>
+        <!-- Horario -->
+        <div class="rounded-2xl p-7 flex items-start gap-5" style="
               background-color: rgba(255, 255, 255, 0.7);
               backdrop-filter: blur(20px) saturate(160%);
               border: 1px solid rgba(255, 255, 255, 0.6);
               box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);
             ">
-            <div
-              class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 6v6l4 2" />
-              </svg>
-            </div>
-            <div>
-              <p
-                class="text-[11px] font-medium uppercase tracking-widest mb-1"
-                style="color: rgba(44, 44, 44, 0.4)">
-                Horario
-              </p>
-              <p class="text-sm font-medium text-charcoal leading-snug">
-                Lun – Sáb: 12:00 – 22:00 · Dom: 12:00 – 20:00
-              </p>
-            </div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
           </div>
-          <!-- Reservas / Teléfono -->
-          <div
-            class="rounded-2xl p-7 flex items-start gap-5"
-            style="
+          <div>
+            <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44, 44, 44, 0.4)">
+              Horario
+            </p>
+            <p class="text-sm font-medium text-charcoal leading-snug">
+              Lun – Sáb: 12:00 – 22:00 · Dom: 12:00 – 20:00
+            </p>
+          </div>
+        </div>
+        <!-- Reservas / Teléfono -->
+        <div class="rounded-2xl p-7 flex items-start gap-5" style="
               background-color: rgba(255, 255, 255, 0.7);
               backdrop-filter: blur(20px) saturate(160%);
               border: 1px solid rgba(255, 255, 255, 0.6);
               box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);
             ">
-            <div
-              class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8">
-                <path
-                  d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5Z" />
-              </svg>
-            </div>
-            <div>
-              <p
-                class="text-[11px] font-medium uppercase tracking-widest mb-1"
-                style="color: rgba(44, 44, 44, 0.4)">
-                Reservas
-              </p>
-              <p class="text-sm font-medium text-charcoal leading-snug">
-                +57 601 456 7890
-              </p>
-            </div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+            style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path
+                d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5Z" />
+            </svg>
           </div>
-        </div>
-        <!-- Enlace a la página completa de contacto -->
-        <div class="text-center mt-12">
-          <a
-            th:href="@{/contact}"
-            class="text-sm font-medium"
-            style="color: #b2571f">
-            Ver información de contacto completa →
-          </a>
-        </div>
-      </section>
-    </main>
-    <!-- Pie de página con información del restaurante, navegación y enlaces a la cuenta -->
-    <footer th:replace="~{fragments :: footer}"></footer>
-
-    <!-- Modales para mostrar información adicional, carrito de compras y productos -->
-
-    <!--Modal de producto-->
-    <div
-      id="modal-product"
-      class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
-      style="background-color: rgba(44, 44, 44, 0.65)">
-      <!-- Contenido del modal de producto -->
-      <div
-        class="bg-cream w-full max-w-lg overflow-hidden shadow-2xl relative"
-        style="border-radius: 2px">
-        <!-- Botón para cerrar el modal -->
-        <button
-          class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
-          style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb"
-          data-close="product">
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        <!-- Imagen del producto -->
-        <div class="relative h-56">
-          <img
-            id="product-image"
-            src=""
-            alt=""
-            class="w-full h-full object-cover" />
-        </div>
-        <!-- Contenido del modal (data)-->
-        <div class="p-6">
-          <div class="flex items-start justify-between gap-4 mb-3">
-            <h3
-              id="product-name"
-              class="font-serif text-2xl font-semibold text-charcoal"></h3>
-            <span
-              id="product-price"
-              class="font-bold text-xl flex-shrink-0"
-              style="color: #b2571f"></span>
-          </div>
-          <p
-            id="product-description"
-            class="text-sm leading-relaxed mb-5"
-            style="color: rgba(44, 44, 44, 0.62)"></p>
-
-          <!-- Contenedor para los aditionales del producto -->
-          <div id="product-additionals-wrap" class="mb-5">
-            <p
-              class="text-xs font-medium uppercase tracking-wider mb-3"
-              style="color: rgba(44, 44, 44, 0.45)">
-              Adicionales
+          <div>
+            <p class="text-[11px] font-medium uppercase tracking-widest mb-1" style="color: rgba(44, 44, 44, 0.4)">
+              Reservas
             </p>
-            <div id="product-additionals" class="space-y-2.5"></div>
-          </div>
-          <!-- Contenedor para la cantidad del producto -->
-          <div class="flex items-center gap-4 mb-5">
-            <p
-              class="text-xs font-medium uppercase tracking-wider"
-              style="color: rgba(44, 44, 44, 0.45)">
-              Cantidad
+            <p class="text-sm font-medium text-charcoal leading-snug">
+              +57 601 456 7890
             </p>
-            <div class="flex items-center gap-3">
-              <!-- Botón para restar cantidad -->
-              <button
-                id="qty-minus"
-                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
-                −
-              </button>
-              <span
-                id="qty-value"
-                class="w-6 text-center font-semibold text-charcoal"
-                >1</span
-              >
-              <!-- Botón para sumar cantidad -->
-              <button
-                id="qty-plus"
-                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
-                +
-              </button>
-            </div>
           </div>
-          <!-- Botón para agregar al carrito -->
-          <button
-            id="add-to-cart-btn"
-            class="w-full py-3 text-white font-medium rounded btn-terra">
-            Agregar al carrito
-          </button>
         </div>
       </div>
-    </div>
+      <!-- Enlace a la página completa de contacto -->
+      <div class="text-center mt-12">
+        <a th:href="@{/contact}" class="text-sm font-medium" style="color: #b2571f">
+          Ver información de contacto completa →
+        </a>
+      </div>
+    </section>
+  </main>
+  <!-- Pie de página con información del restaurante, navegación y enlaces a la cuenta -->
+  <footer th:replace="~{fragments :: footer}"></footer>
 
-    <!--Modal de carrito-->
-    <div
-      id="modal-cart"
-      class="hidden-modal fixed inset-0 z-50 flex items-end md:items-center justify-center"
-      style="background-color: rgba(44, 44, 44, 0.65)">
-      <!--contenido del modal-->
-      <div
-        class="bg-cream w-full md:max-w-lg shadow-2xl flex flex-col"
-        style="max-height: 82vh; border-radius: 2px 2px 0 0">
-        <!-- Encabezado del modal con título y botón de cierre -->
-        <div
-          class="p-6 border-b flex items-center justify-between"
-          style="border-color: rgba(44, 44, 44, 0.1)">
-          <h2 class="font-serif text-2xl font-semibold text-charcoal">
-            Mi Carrito
-          </h2>
-          <!-- Botón de cierre "X"-->
-          <button data-close="cart" style="color: rgba(44, 44, 44, 0.35)">
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+  <!-- Modales para mostrar información adicional, carrito de compras y productos -->
+
+  <!--Modal de producto-->
+  <div id="modal-product" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
+    style="background-color: rgba(44, 44, 44, 0.65)">
+    <!-- Contenido del modal de producto -->
+    <div class="bg-cream w-full max-w-lg overflow-hidden shadow-2xl relative" style="border-radius: 2px">
+      <!-- Botón para cerrar el modal -->
+      <button class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+        style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb" data-close="product">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <!-- Imagen del producto -->
+      <div class="relative h-56">
+        <img id="product-image" src="" alt="" class="w-full h-full object-cover" />
+      </div>
+      <!-- Contenido del modal (data)-->
+      <div class="p-6">
+        <div class="flex items-start justify-between gap-4 mb-3">
+          <h3 id="product-name" class="font-serif text-2xl font-semibold text-charcoal"></h3>
+          <span id="product-price" class="font-bold text-xl flex-shrink-0" style="color: #b2571f"></span>
         </div>
+        <p id="product-description" class="text-sm leading-relaxed mb-5" style="color: rgba(44, 44, 44, 0.62)"></p>
 
-        <!-- Contenido del carrito -->
-        <div class="flex-1 overflow-y-auto p-6">
-          <!-- Contenedor para mostrar un mensaje cuando el carrito está vacío -->
-          <div
-            id="cart-empty"
-            class="text-center py-14"
-            style="color: rgba(44, 44, 44, 0.35)">
-            <svg
-              class="w-12 h-12 mx-auto mb-4 opacity-40"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <p class="text-sm">Tu carrito está vacío</p>
-            <button
-              id="cart-explore-menu"
-              class="mt-4 text-sm underline underline-offset-2"
-              style="color: #b2571f">
-              Explorar el menú
+        <!-- Contenedor para los aditionales del producto -->
+        <div id="product-additionals-wrap" class="mb-5">
+          <p class="text-xs font-medium uppercase tracking-wider mb-3" style="color: rgba(44, 44, 44, 0.45)">
+            Adicionales
+          </p>
+          <div id="product-additionals" class="space-y-2.5"></div>
+        </div>
+        <!-- Contenedor para la cantidad del producto -->
+        <div class="flex items-center gap-4 mb-5">
+          <p class="text-xs font-medium uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">
+            Cantidad
+          </p>
+          <div class="flex items-center gap-3">
+            <!-- Botón para restar cantidad -->
+            <button id="qty-minus"
+              class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+              −
+            </button>
+            <span id="qty-value" class="w-6 text-center font-semibold text-charcoal">1</span>
+            <!-- Botón para sumar cantidad -->
+            <button id="qty-plus"
+              class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+              +
             </button>
           </div>
-          <!-- Contenedor para los elementos del carrito -->
-          <!--Se añaden en el DOM dinámicamente con el script-->
-          <div id="cart-items" class="space-y-3"></div>
         </div>
-
-        <!-- Pie del modal con el total del pedido y botón de confirmación -->
-        <div
-          id="cart-footer"
-          class="hidden-modal p-6 border-t"
-          style="border-color: rgba(44, 44, 44, 0.1)">
-          <!-- Total del pedido -->
-          <div class="flex justify-between items-center mb-4">
-            <span class="font-medium text-charcoal">Total del pedido</span>
-            <span
-              id="cart-total"
-              class="font-bold text-xl"
-              style="color: #b2571f"></span>
-          </div>
-          <!-- Botón para confirmar el pedido: lleva a la página de inicio de sesión -->
-          <button
-            id="cart-checkout"
-            th:attr="data-href=@{/login}"
-            class="w-full py-3 text-white font-medium rounded btn-terra">
-            Confirmar pedido
-          </button>
-          <p
-            class="text-center text-xs mt-3"
-            style="color: rgba(44, 44, 44, 0.4)">
-            Pago contra entrega o con datafono en tu domicilio
-          </p>
-        </div>
+        <!-- Botón para agregar al carrito -->
+        <button id="add-to-cart-btn" class="w-full py-3 text-white font-medium rounded btn-terra">
+          Agregar al carrito
+        </button>
       </div>
     </div>
-    <!--Arreglo que contiene los productos del menú y se comparte al js-->
-    <script th:inline="javascript">
-      const menuProducts = /*[[${products}]]*/ [];
-    </script>
-    <script th:src="@{/js/script.js}"></script>
-  </body>
+  </div>
+
+  <!-- Modal de carrito -->
+  <div th:replace="~{fragments :: modal-cart}"></div>
+
+  <!--Arreglo que contiene los productos del menú y se comparte al js-->
+  <script th:inline="javascript">
+    const menuProducts = /*[[${products}]]*/[];
+  </script>
+  <script th:src="@{/js/script.js}"></script>
+</body>
+
 </html>

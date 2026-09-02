@@ -1,12 +1,13 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar sesión · Terra Galega</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-      @theme {
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar sesión · Terra Galega</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
         --color-terra: #b2571f;
         --color-gold: #d99a21;
         --color-burgundy: #8a2222;
@@ -17,512 +18,231 @@
         --font-serif: "Playfair Display", ui-serif, Georgia, serif;
       }
     </style>
-    <link rel="stylesheet" th:href="@{/css/styles.css}" />
-  </head>
-  <body class="min-h-screen bg-cream font-sans text-charcoal">
-    <!-- hheader con la barra de navegación -->
-    <header th:replace="~{fragments :: navbar(false)}"></header>
-    <!-- Contenido principal de la página -->
-    <main class="min-h-screen flex items-center justify-center px-6 py-32">
-      <div class="w-full max-w-md mx-auto">
-        <!-- Encabezado con el logo de la marca -->
-        <div class="text-center mb-10 flex flex-col items-center">
-          <span class="flex flex-col items-center leading-none select-none">
-            <span
-              class="font-terra text-4xl leading-[0.6]"
-              style="color: #b2571f"
-              >Terra</span
-            >
-            <span
-              class="font-galega text-xl tracking-[0.22em] uppercase font-semibold text-charcoal -mt-1"
-              >Galega</span
-            >
-          </span>
-          <p
-            id="auth-subtitle"
-            class="text-[12px] tracking-widest uppercase mt-4"
-            style="color: rgba(44, 44, 44, 0.38)"
-          >
-            Bienvenido de vuelta
-          </p>
-        </div>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
 
-        <!-- Selector de pestañas: Iniciar sesión / Registrarse -->
-        <div
-          id="auth-tabs"
-          class="flex rounded-2xl p-1 mb-8"
-          style="background-color: rgba(44, 44, 44, 0.06)"
-        >
-          <button
-            type="button"
-            id="tab-login-btn"
-            class="auth-tab active flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
-            data-tab="login"
-          >
+<body class="min-h-screen bg-cream font-sans text-charcoal">
+  <!-- hheader con la barra de navegación -->
+  <header th:replace="~{fragments :: navbar(false)}"></header>
+  <!-- Contenido principal de la página -->
+  <main class="min-h-screen flex items-center justify-center px-6 py-32">
+    <div class="w-full max-w-md mx-auto">
+      <!-- Encabezado con el logo de la marca -->
+      <div class="text-center mb-10 flex flex-col items-center">
+        <span class="flex flex-col items-center leading-none select-none">
+          <span class="font-terra text-4xl leading-[0.6]" style="color: #b2571f">Terra</span>
+          <span class="font-galega text-xl tracking-[0.22em] uppercase font-semibold text-charcoal -mt-1">Galega</span>
+        </span>
+        <p id="auth-subtitle" class="text-[12px] tracking-widest uppercase mt-4" style="color: rgba(44, 44, 44, 0.38)">
+          Bienvenido de vuelta
+        </p>
+      </div>
+
+      <!-- Selector de pestañas: Iniciar sesión / Registrarse -->
+      <div id="auth-tabs" class="flex rounded-2xl p-1 mb-8" style="background-color: rgba(44, 44, 44, 0.06)">
+        <button type="button" id="tab-login-btn"
+          class="auth-tab active flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
+          data-tab="login">
+          Iniciar sesión
+        </button>
+        <button type="button" id="tab-signup-btn"
+          class="auth-tab flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300" data-tab="signup">
+          Registrarse
+        </button>
+      </div>
+
+      <!-- Formularios -->
+      <div class="glass-card rounded-3xl p-8">
+        <!-- Formulario de inicio de sesión: hace un POST real a /login, autenticado
+          contra ClienteRepository (no localStorage) -->
+        <form id="login-form" th:action="@{/login}" method="post" class="space-y-4">
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)">
+              Correo electrónico
+            </label>
+            <input type="email" id="login-email" name="email" th:value="${emailIngresado}"
+              placeholder="correo@ejemplo.com" class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)">
+              Contraseña
+            </label>
+            <input type="password" id="login-password" name="password" placeholder="••••••••"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          </div>
+          <p th:if="${loginError}" th:text="${loginError}" class="text-xs" style="color: #8a2222"></p>
+          <button type="submit" class="w-full py-3.5 rounded-xl font-medium text-white mt-2 btn-terra" style="
+                background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+                box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
+              ">
             Iniciar sesión
           </button>
-          <button
-            type="button"
-            id="tab-signup-btn"
-            class="auth-tab flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
-            data-tab="signup"
-          >
-            Registrarse
-          </button>
-        </div>
 
-        <!-- Formularios -->
-        <div class="glass-card rounded-3xl p-8">
-          <!-- Formulario de inicio de sesión: hace un POST real a /login, autenticado
-          contra ClienteRepository (no localStorage) -->
-          <form
-            id="login-form"
-            th:action="@{/login}"
-            method="post"
-            class="space-y-4"
-          >
-            <div>
-              <label
-                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                style="color: rgba(44, 44, 44, 0.4)"
-              >
-                Correo electrónico
-              </label>
-              <input
-                type="email"
-                id="login-email"
-                name="email"
-                th:value="${emailIngresado}"
-                placeholder="correo@ejemplo.com"
-                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                style="color: rgba(44, 44, 44, 0.4)"
-              >
-                Contraseña
-              </label>
-              <input
-                type="password"
-                id="login-password"
-                name="password"
-                placeholder="••••••••"
-                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-              />
-            </div>
-            <p
-              th:if="${loginError}"
-              th:text="${loginError}"
-              class="text-xs"
-              style="color: #8a2222"
-            ></p>
-            <button
-              type="submit"
-              class="w-full py-3.5 rounded-xl font-medium text-white mt-2 btn-terra"
-              style="
-                background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
-                box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
-              "
-            >
-              Iniciar sesión
-            </button>
+          <!-- Separador -->
+          <div class="flex items-center gap-3 py-1">
+            <div class="flex-1 h-px" style="background-color: rgba(44, 44, 44, 0.08)"></div>
+            <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.3)">Accesos de prueba</span>
+            <div class="flex-1 h-px" style="background-color: rgba(44, 44, 44, 0.08)"></div>
+          </div>
 
-            <!-- Separador -->
-            <div class="flex items-center gap-3 py-1">
-              <div
-                class="flex-1 h-px"
-                style="background-color: rgba(44, 44, 44, 0.08)"
-              ></div>
-              <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.3)"
-                >Accesos de prueba</span
-              >
-              <div
-                class="flex-1 h-px"
-                style="background-color: rgba(44, 44, 44, 0.08)"
-              ></div>
-            </div>
-
-            <!-- Accesos de prueba: rellenan el formulario, no autentican contra un backend real -->
-            <div
-              class="rounded-xl p-4 space-y-2"
-              style="
+          <!-- Accesos de prueba: rellenan el formulario, no autentican contra un backend real -->
+          <div class="rounded-xl p-4 space-y-2" style="
                 background-color: rgba(44, 44, 44, 0.04);
                 border: 1px solid rgba(44, 44, 44, 0.07);
-              "
-            >
-              <button
-                type="button"
-                class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
-                style="color: rgba(44, 44, 44, 0.6)"
-                data-email="cliente@terra.com"
-                data-password="cliente123"
-              >
-                <span class="font-semibold text-charcoal"
-                  >Cliente de prueba:</span
-                >
-                cliente@terra.com
-              </button>
-              <button
-                type="button"
-                class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
-                style="color: rgba(44, 44, 44, 0.6)"
-                data-email="admin@terra.com"
-                data-password="admin123"
-              >
-                <span class="font-semibold text-charcoal"
-                  >Admin de prueba:</span
-                >
-                admin@terra.com
-              </button>
-            </div>
-          </form>
+              ">
+            <button type="button"
+              class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
+              style="color: rgba(44, 44, 44, 0.6)" data-email="cliente@terra.com" data-password="cliente123">
+              <span class="font-semibold text-charcoal">Cliente de prueba:</span>
+              cliente@terra.com
+            </button>
+            <button type="button"
+              class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
+              style="color: rgba(44, 44, 44, 0.6)" data-email="admin@terra.com" data-password="admin123">
+              <span class="font-semibold text-charcoal">Admin de prueba:</span>
+              admin@terra.com
+            </button>
+          </div>
+        </form>
 
-          <!-- Formulario de registro: POST real a /registro, crea un Cliente en
+        <!-- Formulario de registro: POST real a /registro, crea un Cliente en
           ClienteRepository y lo deja logueado -->
-          <form
-            id="signup-form"
-            th:action="@{/registro}"
-            method="post"
-            th:classappend="${signupError} ? '' : 'hidden-modal'"
-            class="space-y-4"
-          >
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label
-                  class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                  style="color: rgba(44, 44, 44, 0.4)"
-                >
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  id="signup-name"
-                  name="name"
-                  placeholder="Juan"
-                  class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-                />
-              </div>
-              <div>
-                <label
-                  class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                  style="color: rgba(44, 44, 44, 0.4)"
-                >
-                  Apellido
-                </label>
-                <input
-                  type="text"
-                  id="signup-lastname"
-                  name="lastName"
-                  placeholder="García"
-                  class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-                />
-              </div>
+        <form id="signup-form" th:action="@{/registro}" method="post"
+          th:classappend="${signupError} ? '' : 'hidden-modal'" class="space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)">
+                Nombre
+              </label>
+              <input type="text" id="signup-name" name="name" placeholder="Juan"
+                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
             </div>
             <div>
-              <label
-                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                style="color: rgba(44, 44, 44, 0.4)"
-              >
-                Correo electrónico
+              <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)">
+                Apellido
               </label>
-              <input
-                type="email"
-                id="signup-email"
-                name="email"
-                placeholder="correo@ejemplo.com"
-                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-              />
+              <input type="text" id="signup-lastname" name="lastName" placeholder="García"
+                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
             </div>
-            <div>
-              <label
-                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                style="color: rgba(44, 44, 44, 0.4)"
-              >
-                Contraseña
-              </label>
-              <input
-                type="password"
-                id="signup-password"
-                name="password"
-                placeholder="••••••••"
-                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                style="color: rgba(44, 44, 44, 0.4)"
-              >
-                Teléfono
-              </label>
-              <input
-                type="tel"
-                id="signup-phone"
-                name="phone"
-                placeholder="+57 300 000 0000"
-                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-                style="color: rgba(44, 44, 44, 0.4)"
-              >
-                Dirección de entrega
-              </label>
-              <input
-                type="text"
-                id="signup-address"
-                name="address"
-                placeholder="Calle 93 #15-47"
-                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-              />
-            </div>
-            <p
-              th:if="${signupError}"
-              th:text="${signupError}"
-              class="text-xs"
-              style="color: #8a2222"
-            ></p>
-            <button
-              type="submit"
-              class="w-full py-3.5 rounded-xl font-medium text-white mt-2"
-              style="
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)">
+              Correo electrónico
+            </label>
+            <input type="email" id="signup-email" name="email" placeholder="correo@ejemplo.com"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)">
+              Contraseña
+            </label>
+            <input type="password" id="signup-password" name="password" placeholder="••••••••"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)">
+              Teléfono
+            </label>
+            <input type="tel" id="signup-phone" name="phone" placeholder="+57 300 000 0000"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+              style="color: rgba(44, 44, 44, 0.4)">
+              Dirección de entrega
+            </label>
+            <input type="text" id="signup-address" name="address" placeholder="Calle 93 #15-47"
+              class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          </div>
+          <p th:if="${signupError}" th:text="${signupError}" class="text-xs" style="color: #8a2222"></p>
+          <button type="submit" class="w-full py-3.5 rounded-xl font-medium text-white mt-2" style="
                 background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
                 box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
-              "
-            >
-              Crear cuenta
-            </button>
-          </form>
-        </div>
-      </div>
-    </main>
-    <!-- Pie de página con información del restaurante, navegación y enlaces a la cuenta -->
-    <footer th:replace="~{fragments :: footer}"></footer>
-
-    <!-- Modales para mostrar información adicional, carrito de compras y productos -->
-
-    <!--Modal de producto -->
-    <div
-      id="modal-product"
-      class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
-      style="background-color: rgba(44, 44, 44, 0.65)"
-    >
-      <!-- Contenido del modal de producto -->
-      <div
-        class="bg-cream w-full max-w-lg overflow-hidden shadow-2xl relative"
-        style="border-radius: 2px"
-      >
-        <!-- Botón para cerrar el modal -->
-        <button
-          class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
-          style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb"
-          data-close="product"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <!-- Imagen del producto -->
-        <div class="relative h-56">
-          <img
-            id="product-image"
-            src=""
-            alt=""
-            class="w-full h-full object-cover"
-          />
-        </div>
-        <!-- Contenido del modal (data) -->
-        <div class="p-6">
-          <div class="flex items-start justify-between gap-4 mb-3">
-            <h3
-              id="product-name"
-              class="font-serif text-2xl font-semibold text-charcoal"
-            ></h3>
-            <span
-              id="product-price"
-              class="font-bold text-xl flex-shrink-0"
-              style="color: #b2571f"
-            ></span>
-          </div>
-          <p
-            id="product-description"
-            class="text-sm leading-relaxed mb-5"
-            style="color: rgba(44, 44, 44, 0.62)"
-          ></p>
-
-          <!-- Contenedor para los aditionales del producto -->
-          <div id="product-additionals-wrap" class="mb-5">
-            <p
-              class="text-xs font-medium uppercase tracking-wider mb-3"
-              style="color: rgba(44, 44, 44, 0.45)"
-            >
-              Adicionales
-            </p>
-            <div id="product-additionals" class="space-y-2.5"></div>
-          </div>
-          <!-- Contenedor para la cantidad del producto -->
-          <div class="flex items-center gap-4 mb-5">
-            <p
-              class="text-xs font-medium uppercase tracking-wider"
-              style="color: rgba(44, 44, 44, 0.45)"
-            >
-              Cantidad
-            </p>
-            <div class="flex items-center gap-3">
-              <!-- Botón para restar cantidad -->
-              <button
-                id="qty-minus"
-                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light"
-              >
-                −
-              </button>
-              <span
-                id="qty-value"
-                class="w-6 text-center font-semibold text-charcoal"
-                >1</span
-              >
-              <!-- Botón para sumar cantidad -->
-              <button
-                id="qty-plus"
-                class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light"
-              >
-                +
-              </button>
-            </div>
-          </div>
-          <!-- Botón para agregar al carrito -->
-          <button
-            id="add-to-cart-btn"
-            class="w-full py-3 text-white font-medium rounded btn-terra"
-          >
-            Agregar al carrito
+              ">
+            Crear cuenta
           </button>
-        </div>
+        </form>
       </div>
     </div>
+  </main>
+  <!-- Pie de página con información del restaurante, navegación y enlaces a la cuenta -->
+  <footer th:replace="~{fragments :: footer}"></footer>
 
-    <!--Modal de carrito -->
-    <div
-      id="modal-cart"
-      class="hidden-modal fixed inset-0 z-50 flex items-end md:items-center justify-center"
-      style="background-color: rgba(44, 44, 44, 0.65)"
-    >
-      <!--contenido del modal -->
-      <div
-        class="bg-cream w-full md:max-w-lg shadow-2xl flex flex-col"
-        style="max-height: 82vh; border-radius: 2px 2px 0 0"
-      >
-        <!-- Encabezado del modal con título y botón de cierre -->
-        <div
-          class="p-6 border-b flex items-center justify-between"
-          style="border-color: rgba(44, 44, 44, 0.1)"
-        >
-          <h2 class="font-serif text-2xl font-semibold text-charcoal">
-            Mi Carrito
-          </h2>
-          <!-- Botón de cierre "X" -->
-          <button data-close="cart" style="color: rgba(23, 227, 47, 0.35)">
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+  <!-- Modales para mostrar información adicional, carrito de compras y productos -->
+
+  <!--Modal de producto -->
+  <div id="modal-product" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center p-4"
+    style="background-color: rgba(44, 44, 44, 0.65)">
+    <!-- Contenido del modal de producto -->
+    <div class="bg-cream w-full max-w-lg overflow-hidden shadow-2xl relative" style="border-radius: 2px">
+      <!-- Botón para cerrar el modal -->
+      <button class="modal-close absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+        style="background-color: rgba(44, 44, 44, 0.7); color: #f5f2eb" data-close="product">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <!-- Imagen del producto -->
+      <div class="relative h-56">
+        <img id="product-image" src="" alt="" class="w-full h-full object-cover" />
+      </div>
+      <!-- Contenido del modal (data) -->
+      <div class="p-6">
+        <div class="flex items-start justify-between gap-4 mb-3">
+          <h3 id="product-name" class="font-serif text-2xl font-semibold text-charcoal"></h3>
+          <span id="product-price" class="font-bold text-xl flex-shrink-0" style="color: #b2571f"></span>
         </div>
+        <p id="product-description" class="text-sm leading-relaxed mb-5" style="color: rgba(44, 44, 44, 0.62)"></p>
 
-        <!-- Contenido del carrito -->
-        <div class="flex-1 overflow-y-auto p-6">
-          <!-- Contenedor para mostrar un mensaje cuando el carrito está vacío -->
-          <div
-            id="cart-empty"
-            class="text-center py-14"
-            style="color: rgba(44, 44, 44, 0.35)"
-          >
-            <svg
-              class="w-12 h-12 mx-auto mb-4 opacity-40"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <p class="text-sm">Tu carrito está vacío</p>
-            <button
-              id="cart-explore-menu"
-              class="mt-4 text-sm underline underline-offset-2"
-              style="color: #b2571f"
-            >
-              Explorar el menú
-            </button>
-          </div>
-          <!-- Contenedor para los elementos del carrito -->
-          <!--Se añaden en el DOM dinámicamente con el script -->
-          <div id="cart-items" class="space-y-3"></div>
-        </div>
-
-        <!-- Pie del modal con el total del pedido y botón de confirmación -->
-        <div
-          id="cart-footer"
-          class="hidden-modal p-6 border-t"
-          style="border-color: rgba(44, 44, 44, 0.1)"
-        >
-          <!-- Total del pedido -->
-          <div class="flex justify-between items-center mb-4">
-            <span class="font-medium text-charcoal">Total del pedido</span>
-            <span
-              id="cart-total"
-              class="font-bold text-xl"
-              style="color: #b2571f"
-            ></span>
-          </div>
-          <!-- Botón para confirmar el pedido: lleva a la página de inicio de sesión -->
-          <button
-            id="cart-checkout"
-            th:attr="data-href=@{/login}"
-            class="w-full py-3 text-white font-medium rounded btn-terra"
-          >
-            Confirmar pedido
-          </button>
-          <p
-            class="text-center text-xs mt-3"
-            style="color: rgba(44, 44, 44, 0.4)"
-          >
-            Pago contra entrega o con datafono en tu domicilio
+        <!-- Contenedor para los aditionales del producto -->
+        <div id="product-additionals-wrap" class="mb-5">
+          <p class="text-xs font-medium uppercase tracking-wider mb-3" style="color: rgba(44, 44, 44, 0.45)">
+            Adicionales
           </p>
+          <div id="product-additionals" class="space-y-2.5"></div>
         </div>
+        <!-- Contenedor para la cantidad del producto -->
+        <div class="flex items-center gap-4 mb-5">
+          <p class="text-xs font-medium uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">
+            Cantidad
+          </p>
+          <div class="flex items-center gap-3">
+            <!-- Botón para restar cantidad -->
+            <button id="qty-minus"
+              class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+              −
+            </button>
+            <span id="qty-value" class="w-6 text-center font-semibold text-charcoal">1</span>
+            <!-- Botón para sumar cantidad -->
+            <button id="qty-plus"
+              class="qty-btn w-8 h-8 rounded-full flex items-center justify-center text-lg font-light">
+              +
+            </button>
+          </div>
+        </div>
+        <!-- Botón para agregar al carrito -->
+        <button id="add-to-cart-btn" class="w-full py-3 text-white font-medium rounded btn-terra">
+          Agregar al carrito
+        </button>
       </div>
     </div>
-    <!--Arreglo que contiene los productos del menú y se comparte al js-->
-    <script th:inline="javascript">
-      const menuProducts = /*[[${products}]]*/ [];
-    </script>
-    <script th:src="@{/js/script.js}"></script>
-  </body>
+  </div>
+
+  <!-- Modal de carrito -->
+  <div th:replace="~{fragments :: modal-cart}"></div>
+
+  <!--Arreglo que contiene los productos del menú y se comparte al js-->
+  <script th:inline="javascript">
+    const menuProducts = /*[[${products}]]*/[];
+  </script>
+  <script th:src="@{/js/script.js}"></script>
+</body>
+
 </html>
