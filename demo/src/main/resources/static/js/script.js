@@ -562,7 +562,7 @@ if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
 
   /* Calcula el total actual: precio base + adicionales seleccionados, por la cantidad */
   function detailComputeTotal() {
-    const addsTotal = currentProduct.additionals
+    const addsTotal = currentAddons
       .filter((a) => detailSelectedAdds.includes(a.name))
       .reduce((sum, a) => sum + a.price, 0);
     return (currentProduct.price + addsTotal) * detailQty;
@@ -610,7 +610,7 @@ if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
   });
 
   detailAddBtn.addEventListener("click", () => {
-    const addsTotal = currentProduct.additionals
+    const addsTotal = currentAddons
       .filter((a) => detailSelectedAdds.includes(a.name))
       .reduce((sum, a) => sum + a.price, 0);
     const unitPrice = currentProduct.price + addsTotal;
