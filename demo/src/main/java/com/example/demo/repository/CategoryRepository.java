@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import com.example.demo.entities.Category;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,13 +16,20 @@ public class CategoryRepository {
     // DB quemada
     public CategoryRepository() {
         categoryMap.put(1, new Category(1, "Entradas",
-                "Pequeños platos gallegos pensados para abrir el apetito antes del plato principal."));
+                "Pequeños platos gallegos pensados para abrir el apetito antes del plato principal.",
+                new ArrayList<>()));
+
         categoryMap.put(2, new Category(2, "Mariscos",
-                "Lo mejor de la costa gallega: mariscos frescos preparados con recetas tradicionales."));
+                "Lo mejor de la costa gallega: mariscos frescos preparados con recetas tradicionales.",
+                new ArrayList<>()));
+
         categoryMap.put(3, new Category(3, "Carnes",
-                "Cortes a la brasa y guisos tradicionales de la cocina gallega."));
+                "Cortes a la brasa y guisos tradicionales de la cocina gallega.",
+                new ArrayList<>()));
+
         categoryMap.put(4, new Category(4, "Postres",
-                "Dulces clásicos de Galicia para cerrar la comida con sabor a tierra."));
+                "Dulces clásicos de Galicia para cerrar la comida con sabor a tierra.",
+                new ArrayList<>()));
     }
 
     // Devuelve todas las categorías
