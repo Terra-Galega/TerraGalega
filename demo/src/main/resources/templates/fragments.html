@@ -52,7 +52,7 @@
             REGISTRARSE
           </a>
 
-          <a th:if="${loggedClient != null}" th:href="@{/account}" /*method="post"*/
+          <a th:if="${loggedClient != null}" th:href="@{/account}" /*method="post" */
             class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
             th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
           <form th:if="${loggedClient != null}" th:action="@{/logout}" method="post" class="contents">
@@ -102,7 +102,7 @@
         </div>
       </div>
 
-      <div id="user-profile-mobile" th:if="${loggedClient != null}" /*method="post"*/
+      <div id="user-profile-mobile" th:if="${loggedClient != null}" /*method="post" */
         class="flex md:hidden flex-col gap-3 pt-4 pb-2 border-t mt-2" style="border-color: rgba(255, 255, 255, 0.08)">
         <a th:href="@{/account}" class="link-nav text-center text-xs font-medium tracking-[0.18em]"
           th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
@@ -154,7 +154,7 @@
         <h2 class="font-serif text-2xl font-semibold text-charcoal">
           Mi Carrito
         </h2>
-        
+
         <!-- Botón de cierre "X"-->
         <button data-close="cart" style="color: rgba(23, 227, 47, 0.35)">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +173,7 @@
           </svg>
           <p class="text-sm">Tu carrito está vacío</p>
           <button id="cart-explore-menu" class="mt-4 text-sm underline underline-offset-2" style="color: #b2571f">
-            Explorar el menú
+            <a th:href="@{/menu}">Explorar el menú</a>
           </button>
         </div>
         <!-- Contenedor para los elementos del carrito -->
