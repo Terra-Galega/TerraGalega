@@ -60,6 +60,7 @@ public class HomeController {
         model.addAttribute("product", product);
         model.addAttribute("relatedProducts", productService.getRelatedProducts(id));
         // Categoría completa
+        model.addAttribute("addons", categoryService.getAddonsByCategory(product.getCategory()));
         model.addAttribute("category", categoryService.getCategoryByName(product.getCategory()));
         return "productDetail";
     }

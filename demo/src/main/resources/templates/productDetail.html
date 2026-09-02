@@ -92,7 +92,7 @@
           </div>
 
           <!-- Adicionales opcionales -->
-          <div th:if="${not #lists.isEmpty(product.additionals)}" class="mb-8">
+          <div th:if="${not #lists.isEmpty(addons)}" class="mb-8">
             <p
               class="text-[11px] font-medium tracking-widest uppercase mb-4"
               style="color: rgba(44, 44, 44, 0.35)">
@@ -100,7 +100,7 @@
             </p>
             <div class="space-y-3">
               <label
-                th:each="add : ${product.additionals}"
+                th:each="add : ${addons}"
                 th:attr="data-name=${add.name}"
                 class="detail-add-option flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all duration-200"
                 style="
