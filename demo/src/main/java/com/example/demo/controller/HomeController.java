@@ -28,16 +28,13 @@ public class HomeController {
     @Autowired
     private ClientService clientService;
 
-    // Nombre de la clave usada en sesión para guardar al cliente logueado
-    // Nombre de la clave usada en sesión para guardar al Client logueado
     public static final String SESSION_Client = "ClientLogueado";
 
     // http://localhost:8090/
     // http://localhost:8090/home
     @GetMapping({ "/", "/home" })
     public String home(Model model) {
-        // Cargar todos los productos (se usan como catálogo en memoria para el modal de
-        // producto)
+        // Cargar todos los productos
         model.addAttribute("products", productService.getAllProducts());
         // Cargar solo los productos populares para la sección "Favoritos de la casa"
         model.addAttribute("popularProducts", productService.getPopularProducts());
@@ -55,16 +52,14 @@ public class HomeController {
     // http://localhost:8090/productDetail/{id}
     @GetMapping("/productDetail/{id}")
     public String productDetail(@PathVariable Integer id, Model model) {
-        // Busca el producto solicitado; si no existe, vuelve a la carta
+        // Busca el producto solicitado y si no existe vuelve a la carta
         Product product = productService.getProductById(id);
         if (product == null) {
             return "redirect:/menu";
         }
         model.addAttribute("product", product);
-        // Hasta 3 productos de la misma categoría para "También te puede gustar"
         model.addAttribute("relatedProducts", productService.getRelatedProducts(id));
-        // Categoría completa (repositorio quemado de categorías) para mostrar su
-        // descripción
+        // Categoría completa
         model.addAttribute("category", categoryService.getCategoryByName(product.getCategory()));
         return "productDetail";
     }
@@ -107,8 +102,8 @@ public class HomeController {
         return "redirect:/account";
     }
 
-    // Procesa el formulario de registro (pestaña "Registrarse" de /login):
-    // crea un Client real en ClientRepository y lo deja logueado
+    // Procesa el formulario de registro
+    // crea un Cliente real en ClientRepository y lo deja logueado
     @PostMapping("/registro")
     public String registro(@ModelAttribute Client Client, Model model, HttpSession session) {
         if (clientService.getAllClients().stream()
@@ -121,15 +116,14 @@ public class HomeController {
         return "redirect:/account";
     }
 
-    // Cierra la sesión del Client
+    // Cierra la sesión del Cliente
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.removeAttribute(SESSION_Client);
         return "redirect:/home";
     }
 
-    // http://localhost:8090/account -> página simple con los datos del Client
-    // logueado
+    // http://localhost:8090/account
     @GetMapping("/account")
     public String account(Model model, HttpSession session) {
         Client Client = (Client) session.getAttribute(SESSION_Client);
@@ -139,5 +133,5 @@ public class HomeController {
         model.addAttribute("client", Client);
         return "account";
     }
-   
+
 }

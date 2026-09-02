@@ -23,9 +23,7 @@ const fmt = (price) =>
   updateNavBar();
 })();
 
-/* Persistencia del carrito en localStorage: así el carrito sobrevive a la
-navegación entre páginas (/menu, /productDetail/{id}, /home), ya que cada
-una de ellas recarga script.js desde cero y antes se perdía el estado. */
+
 const CART_STORAGE_KEY = "terraGalegaCart";
 
 /* Lee el carrito guardado en localStorage; si no existe o está corrupto, arranca vacío */
@@ -112,8 +110,6 @@ function filterMenuItems() {
 if (categoryTabs) {
   categoryTabs.querySelectorAll(".category-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      /* Actualiza la categoría actual eliminando la clase "active" de 
-      todos los botones y agregando la clase a aquel que fue CLICK */
       currentCategory = btn.dataset.category;
       categoryTabs
         .querySelectorAll(".category-btn")
@@ -182,9 +178,7 @@ function closeMobileMenu() {
   iconOpen?.classList.remove("hidden-modal");
   iconClose?.classList.add("hidden-modal");
 }
-/*apertura y cierre de los modales (cart, product) */
-/* Los modales de login/signup pasaron a ser la página /login, igual que en el Figma */
-/*modales=div que se esconden a menos que se abran con un click */
+
 const modals = {
   cart: document.getElementById("modal-cart"),
   product: document.getElementById("modal-product"),
@@ -209,9 +203,7 @@ document.querySelectorAll("[data-modal]").forEach((el) => {
   });
 });
 
-/* Agrega event listeners a los elementos con el atributo data-close
- para cerrar todos los modales al hacer clic */
-/* la x para cerrar la pestaña */
+
 document.querySelectorAll("[data-close]").forEach((el) => {
   el.addEventListener("click", () => closeAllModals());
 });
@@ -345,9 +337,6 @@ document.getElementById("add-to-cart-btn")?.addEventListener("click", () => {
 
 /* Función para renderizar el contenido del carrito de compras */
 function renderCart() {
-  /* Persiste el carrito en localStorage cada vez que se renderiza, es decir,
-  cada vez que cambia (agregar, quitar o actualizar cantidad), para que
-  sobreviva a la navegación entre páginas */
   saveCart();
 
   const count = cart.reduce((s, i) => s + i.quantity, 0);
@@ -383,7 +372,6 @@ el mensaje de carrito vacío y el pie de página del carrito */
   cartFooterEl.classList.remove("hidden-modal");
   if (cartTotalEl) cartTotalEl.textContent = fmt(total);
   /* Genera el HTML para cada elemento del carrito y lo inserta en el contenedor */
-  /* Adaptado para consumir 'imageUrl' que proviene de Spring Boot */
   cartItemsEl.innerHTML = cart
     .map(
       (item) => `
@@ -436,11 +424,11 @@ const signupPasswordInput = document.getElementById("signup-password");
 const signupPhoneInput = document.getElementById("signup-phone");
 const signupAddressInput = document.getElementById("signup-address");
 
-/* Pestañas "Iniciar sesión" / "Registrarse" */
+/* Pestañas "Iniciar sesión" "Registrarse" */
 const authTabs = document.getElementById("auth-tabs");
 const authSubtitle = document.getElementById("auth-subtitle");
 
-/* Cambia a la pestaña indicada ("login" | "signup") */
+/* Cambia a la pestaña indicada ("login"  "signup") */
 function setAuthTab(tab) {
   if (!authTabs || !loginForm || !signupForm) return;
   const btn = authTabs.querySelector(`[data-tab="${tab}"]`);
@@ -464,8 +452,7 @@ if (authTabs && loginForm && signupForm) {
     btn.addEventListener("click", () => setAuthTab(btn.dataset.tab));
   });
 
-  /* Si se llega desde el nav-bar con "Registrarse" (@{/login(tab='register')}),
-  abre directamente la pestaña de registro en lugar de la de inicio de sesión */
+ 
   const requestedTab = new URLSearchParams(window.location.search).get("tab");
   if (requestedTab === "register") {
     setAuthTab("signup");
@@ -486,18 +473,14 @@ const DEMO_USERS = {
   },
 };
 
-/* Accesos de prueba: solo rellenan el formulario. La autenticación real ahora
-ocurre en el servidor (HomeController -> ClienteService -> ClienteRepository),
-así que login-form y signup-form ya NO se interceptan aquí: se envían como
-formularios normales por POST a /login y /registro respectivamente. */
+
 document.querySelectorAll(".demo-login-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     if (loginEmailInput) loginEmailInput.value = btn.dataset.email;
     if (loginPasswordInput) loginPasswordInput.value = btn.dataset.password;
   });
 });
-/* Agrega un event listener al formulario de contacto (página /contacto) para 
-manejar la validación y el envío de datos. */
+
 const contactForm = document.getElementById("contact-form");
 if (contactForm) {
   contactForm.addEventListener("submit", (e) => {

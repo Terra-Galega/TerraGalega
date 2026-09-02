@@ -9,12 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-/*
- * Controlador de Clientes: acá vive todo lo que un Client hace sobre SU
- * PROPIA cuenta (editar sus datos, eliminarla). Requiere sesión activa
- * (ver HomeController.SESSION_Client). El login/registro sigue en
- * HomeController porque ahí es donde se maneja la sesión de entrada al sitio.
- */
 @Controller
 @RequestMapping("/clients")
 public class ClientController {
@@ -22,7 +16,7 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
-    // http://localhost:8090/clients/me/edit -> formulario para editar MI perfil
+    // http://localhost:8090/clients/me/edit
     @GetMapping("/me/edit")
     public String editMyAccountForm(Model model, HttpSession session) {
         Client actual = (Client) session.getAttribute(HomeController.SESSION_Client);
@@ -33,7 +27,7 @@ public class ClientController {
         return "account-edit";
     }
 
-    // Guarda los cambios de MI perfil
+    // Guarda los cambios del perfil
     @PostMapping("/me/edit")
     public String updateMyAccount(@ModelAttribute Client formClient, Model model, HttpSession session) {
 
@@ -42,18 +36,15 @@ public class ClientController {
             return "redirect:/login";
         }
 
-        // Evita que otro Client ya esté usando ese correo
         boolean emailEnUso = clientService.getAllClients().stream()
-                .anyMatch(c -> !c.getId().equals(actual.getId()) && c.getEmail().equalsIgnoreCase(formClient.getEmail()));
+                .anyMatch(
+                        c -> !c.getId().equals(actual.getId()) && c.getEmail().equalsIgnoreCase(formClient.getEmail()));
         if (emailEnUso) {
             model.addAttribute("editError", "Ya existe otra cuenta con ese correo.");
             model.addAttribute("client", actual);
             return "account-edit";
         }
 
-        // "id", "admin" y "active" NO se toman del formulario (ahí llegan en null
-        // porque el form no los manda): se fuerzan desde la sesión para que el
-        // propio Client no pueda auto-asignarse el rol de admin ni reactivarse.
         formClient.setId(actual.getId());
         formClient.setAdmin(actual.getAdmin());
         formClient.setActive(actual.getActive());
@@ -66,7 +57,6 @@ public class ClientController {
         return "redirect:/account";
     }
 
-    // El propio Client elimina SU cuenta (no lo hace el admin)
     @PostMapping("/me/delete")
     public String deleteMyAccount(HttpSession session) {
         Client actual = (Client) session.getAttribute(HomeController.SESSION_Client);

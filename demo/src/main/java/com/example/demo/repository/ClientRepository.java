@@ -44,7 +44,7 @@ public class ClientRepository {
                 .orElse(null);
     }
 
-    // Calcula el siguiente id disponible (el mayor id actual + 1)
+    // Calcula el siguiente id disponible (el mayor id actual mas 1)
     private Integer nextId() {
         return ClientMap.keySet().stream().max(Integer::compareTo).orElse(0) + 1;
     }

@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 //Constructores, getters y setters generados automáticamente por Lombok
-// (Constructor vacío tambien)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

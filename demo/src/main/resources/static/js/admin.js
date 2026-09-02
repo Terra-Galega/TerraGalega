@@ -18,12 +18,11 @@ adminTabBtns.forEach((btn) => {
     });
     document.getElementById(`admin-panel-${tab}`)?.classList.remove("hidden-modal");
     if (adminTitle) adminTitle.textContent = ADMIN_TAB_TITLES[tab] || tab;
-    /* El botón "Añadir producto" solo tiene sentido en la pestaña de productos */
     if (adminAddBtn) adminAddBtn.classList.toggle("hidden-modal", tab !== "products");
   });
 });
 
-/* ─── Buscador de productos (filtra las filas de la tabla) ─── */
+/* Buscador de productos */
 const adminSearch = document.getElementById("admin-search");
 const adminProductsEmpty = document.getElementById("admin-products-empty");
 if (adminSearch) {
@@ -42,7 +41,7 @@ if (adminSearch) {
   });
 }
 
-/* ─── Modal de producto (añadir / editar) ─── */
+/* ─── Modal de producto (añadir  editar) ─── */
 const productModal = document.getElementById("admin-product-modal");
 const productForm = document.getElementById("admin-product-form");
 const modalTitle = document.getElementById("admin-modal-title");

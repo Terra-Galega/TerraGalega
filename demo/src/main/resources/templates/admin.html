@@ -659,7 +659,7 @@
           </button>
         </div>
 
-        <form
+<form
           id="admin-product-form"
           method="post"
           th:action="@{/admin/products}"
@@ -754,46 +754,8 @@
             />
           </div>
 
-          <!-- Adicionales -->
-          <div>
-            <label
-              class="block text-[11px] font-medium uppercase tracking-wider mb-2"
-              style="color: rgba(44, 44, 44, 0.4)"
-              >Adicionales</label
-            >
-            <div id="admin-additionals-list" class="space-y-2 mb-3"></div>
-            <div class="flex gap-2">
-              <input
-                type="text"
-                id="admin-add-name"
-                placeholder="Nombre adicional"
-                class="input-field flex-1 px-3 py-2.5 rounded-xl text-sm"
-              />
-              <input
-                type="number"
-                id="admin-add-price"
-                placeholder="Precio"
-                class="input-field w-28 px-3 py-2.5 rounded-xl text-sm"
-              />
-              <button
-                type="button"
-                id="admin-add-additional-btn"
-                class="px-3 py-2 rounded-xl text-white text-sm"
-                style="background-color: #556141"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </button>
-            </div>
-          </div>
+          <!-- NOTA: Se eliminó la sección de "Adicionales" de este modal de productos, 
+               ya que ahora la lógica de adicionales corresponde a las Categorías. -->
 
           <!-- Popular -->
           <label class="flex items-center gap-3 cursor-pointer">
