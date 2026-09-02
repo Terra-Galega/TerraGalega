@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
-    
+
     @Autowired
     private ProductRepository repository;
 
@@ -26,8 +26,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Collection<Product> getPopularProducts() {
-        //Filtra los productos activos marcados como populares (usa Boolean.TRUE.equals para evitar NullPointerException)
-        return repository.findAll().stream().filter(p -> Boolean.TRUE.equals(p.getPopular())).collect(Collectors.toList());
+        // Filtra los productos activos marcados como populares
+        return repository.findAll().stream().filter(p -> Boolean.TRUE.equals(p.getPopular()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -36,7 +37,8 @@ public class ProductServiceImpl implements ProductService {
         if (product == null) {
             return java.util.List.of();
         }
-        //Filtra los productos de la misma categoría (excluyendo el propio producto) y toma los primeros 3
+        // Filtra los productos de la misma categoría (excluyendo el propio producto) y
+        // toma los primeros 3
         return repository.findAll().stream()
                 .filter(p -> p.getCategory().equals(product.getCategory()) && !p.getId().equals(product.getId()))
                 .limit(3)
