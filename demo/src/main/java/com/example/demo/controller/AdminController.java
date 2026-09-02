@@ -49,42 +49,6 @@ public class AdminController {
         return "admin";
     }
 
-    // Función buildAdditionals reubicada en AdminController
-    private List<AddOn> buildAdditionals(String[] additionalNames, String[] additionalPrices) {
-        List<AddOn> additionals = new ArrayList<>();
-        if (additionalNames == null) {
-            return additionals;
-        }
-        for (int i = 0; i < additionalNames.length; i++) {
-            String name = additionalNames[i];
-            String priceStr = (additionalPrices != null && i < additionalPrices.length) ? additionalPrices[i] : null;
-
-            if (name == null || name.isBlank() || priceStr == null || priceStr.isBlank()) {
-                continue;
-            }
-            additionals.add(new AddOn(i + 1, name.trim(), "Adicional", Double.valueOf(priceStr), true));
-        }
-        return additionals;
-    }
-
-    // Endpoint para guardar categoría con sus adicionales desde la administración
-    @PostMapping("/categories")
-    public String addCategory(
-            HttpSession session,
-            @ModelAttribute Category category,
-            @RequestParam(required = false) String[] additionalNames,
-            @RequestParam(required = false) String[] additionalPrices) {
-
-        if (!isAdmin(session)) {
-            return "redirect:/login";
-        }
-
-        category.setAdditionals(buildAdditionals(additionalNames, additionalPrices));
-
-        // categoryService.save(category);
-        return "redirect:/admin";
-    }
-
     // Añade un producto nuevo usando @ModelAttribute
     @PostMapping("/products")
     public String addProduct(
