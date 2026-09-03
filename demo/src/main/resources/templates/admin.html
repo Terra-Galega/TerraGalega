@@ -349,7 +349,7 @@
                       <td class="py-3 px-5">
                         <form
                           method="post"
-                          th:action="@{/admin/products/{id}/toggle(id=${product.id})}"
+                          th:action="@{/admin/{adminId}/products/{productId}/toggle(adminId=${adminId}, productId=${product.id})}"
                         >
                           <button
                             type="submit"
@@ -390,7 +390,7 @@
                           </button>
                           <form
                             method="post"
-                            th:action="@{/admin/products/{id}/delete(id=${product.id})}"
+                            th:action="@{/admin/{adminId}/products/{productId}/delete(adminId=${adminId}, productId=${product.id})}"
                             onsubmit="
                               return confirm(
                                 '¿Eliminar este producto de la carta?',
@@ -659,12 +659,12 @@
           </button>
         </div>
 
-<form
-          id="admin-product-form"
-          method="post"
-          th:action="@{/admin/products}"
-          class="space-y-4"
-        >
+          <form
+              id="admin-product-form"
+              method="post"
+              th:action="@{/admin/{id}/products(id=${adminId})}"
+              class="space-y-4"
+          >
           <div>
             <label
               class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
@@ -803,6 +803,7 @@
     toda su lógica vive en admin.js -->
     <script th:inline="javascript">
       const adminProducts = /*[[${products}]]*/ [];
+      const adminId = /*[[${adminId}]]*/ null;
     </script>
     <script th:src="@{/js/admin.js}"></script>
   </body>

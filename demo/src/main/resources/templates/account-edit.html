@@ -31,7 +31,7 @@
       </p>
       <h1 class="font-serif text-3xl font-semibold mb-6">Editar perfil</h1>
 
-      <form th:action="@{/clients/me/edit}" method="post" class="space-y-4">
+      <form th:action="@{/clients/{id}(id=${client.id})}" method="post" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
@@ -85,8 +85,10 @@
             Guardar cambios
           </button>
 
-          <a th:href="@{/account}"
-            class="w-full text-center py-3 rounded-xl font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors">Cancelar</a>
+          <a th:href="@{/account/{id}(id=${client.id})}"
+            class="w-full text-center py-3 rounded-xl font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors">
+            Cancelar
+          </a>
         </div>
       </form>
     </div>

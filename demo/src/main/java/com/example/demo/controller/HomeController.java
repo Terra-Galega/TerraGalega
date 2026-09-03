@@ -19,123 +19,148 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class HomeController {
 
-    @Autowired
-    private ProductService productService;
+@Autowired
+private ProductService productService;
 
-    @Autowired
-    private CategoryService categoryService;
+@Autowired
+private CategoryService categoryService;
 
-    @Autowired
-    private ClientService clientService;
+@Autowired
+private ClientService clientService;
 
-    public static final String SESSION_Client = "ClientLogueado";
+public static final String SESSION_Client = "ClientLogueado";
 
-    // http://localhost:8090/
-    // http://localhost:8090/home
-    @GetMapping({ "/", "/home" })
-    public String home(Model model) {
-        // Cargar todos los productos
-        model.addAttribute("products", productService.getAllProducts());
-        // Cargar solo los productos populares para la sección "Favoritos de la casa"
-        model.addAttribute("popularProducts", productService.getPopularProducts());
-        return "home";
+// http://localhost:8090/
+// http://localhost:8090/home
+@GetMapping({ "/", "/home" })
+public String home(Model model) {
+    // Cargar todos los productos
+    model.addAttribute("products", productService.getAllProducts());
+    // Cargar solo los productos populares para la sección "Favoritos de la casa"
+    model.addAttribute("popularProducts", productService.getPopularProducts());
+    return "home";
+}
+
+// http://localhost:8090/menu
+@GetMapping("/menu")
+public String menu(Model model) {
+    // Carga todos los productos para la carta completa y para el modal de producto
+    model.addAttribute("products", productService.getAllProducts());
+    return "menu";
+}
+
+
+// http://localhost:8090/nosotros
+@GetMapping("/aboutUs")
+public String aboutUs() {
+    return "aboutUs";
+}
+
+// http://localhost:8090/contacto
+@GetMapping("/contact")
+public String contact() {
+    return "contact";
+}
+
+
+
+
+// http://localhost:8090/productDetail/{id}
+@GetMapping("/productDetail/{id}")
+public String productDetail(@PathVariable Integer id, Model model) {
+
+    // Busca el producto solicitado y si no existe vuelve a la carta
+    Product product;
+
+    try {
+        product = productService.getProductById(id);
+    } catch (Exception e) {
+        return "redirect:/menu";
     }
+    
+    model.addAttribute("product", product);
+    model.addAttribute("relatedProducts", productService.getRelatedProducts(id));
+    // Categoría completa
+    model.addAttribute("addons", categoryService.getAddonsByCategory(product.getCategory()));
+    model.addAttribute("category", categoryService.getCategoryByName(product.getCategory()));
+    return "productDetail";
+}
 
-    // http://localhost:8090/menu
-    @GetMapping("/menu")
-    public String menu(Model model) {
-        // Carga todos los productos para la carta completa y para el modal de producto
-        model.addAttribute("products", productService.getAllProducts());
-        return "menu";
+
+
+// http://localhost:8090/login
+@GetMapping("/login")
+public String login(Model model, HttpSession session) {
+    Client Client = (Client) session.getAttribute(SESSION_Client);
+
+    if (Client != null) {
+        return Boolean.TRUE.equals(Client.getAdmin()) 
+            ? "redirect:/admin/" + Client.getId() 
+            : "redirect:/account/" + Client.getId();
     }
+    return "login";
+}
 
-    // http://localhost:8090/productDetail/{id}
-    @GetMapping("/productDetail/{id}")
-    public String productDetail(@PathVariable Integer id, Model model) {
-        // Busca el producto solicitado y si no existe vuelve a la carta
-        Product product = productService.getProductById(id);
-        if (product == null) {
-            return "redirect:/menu";
-        }
-        model.addAttribute("product", product);
-        model.addAttribute("relatedProducts", productService.getRelatedProducts(id));
-        // Categoría completa
-        model.addAttribute("addons", categoryService.getAddonsByCategory(product.getCategory()));
-        model.addAttribute("category", categoryService.getCategoryByName(product.getCategory()));
-        return "productDetail";
+
+
+
+
+@PostMapping("/login")
+public String doLogin(@RequestParam String email, @RequestParam String password,
+        Model model, HttpSession session) {
+    Client Client = clientService.login(email, password);
+    if (Client == null) {
+        model.addAttribute("loginError", "Correo o contraseña incorrectos.");
+        model.addAttribute("emailIngresado", email);
+        return "login";
     }
-
-    // http://localhost:8090/nosotros
-    @GetMapping("/aboutUs")
-    public String aboutUs() {
-        return "aboutUs";
+    session.setAttribute(SESSION_Client, Client);
+    if (Boolean.TRUE.equals(Client.getAdmin())) {
+        return "redirect:/admin/" + Client.getId();
+    }else{
+        return "redirect:/account/" + Client.getId();
     }
+}
 
-    // http://localhost:8090/contacto
-    @GetMapping("/contact")
-    public String contact() {
-        return "contact";
-    }
-
-    // http://localhost:8090/login
+// Procesa el formulario de registro
+// crea un Cliente real en ClientRepository y lo deja logueado
 
 
-   @GetMapping("/login")
-    public String login(Model model, HttpSession session) {
-        Client Client = (Client) session.getAttribute(SESSION_Client);
-        if (Client != null) {
-            return Boolean.TRUE.equals(Client.getAdmin()) ? "redirect:/admin" : "redirect:/account";
-        }
+// Cierra la sesión del Cliente
+@PostMapping("/logout")
+public String logout(HttpSession session) {
+    session.removeAttribute(SESSION_Client);
+    return "redirect:/home";
+}
+
+@PostMapping("/registro")
+public String registro(@ModelAttribute Client Client, Model model, HttpSession session) {        
+    if (clientService.getAllClients().stream()
+        .anyMatch(c -> c.getEmail().equalsIgnoreCase(Client.getEmail()))) {
+        model.addAttribute("signupError", "Ya existe una account con ese correo.");
         return "login";
     }
 
-    @PostMapping("/login")
-    public String doLogin(@RequestParam String email, @RequestParam String password,
-            Model model, HttpSession session) {
-        Client Client = clientService.login(email, password);
-        if (Client == null) {
-            model.addAttribute("loginError", "Correo o contraseña incorrectos.");
-            model.addAttribute("emailIngresado", email);
-            return "login";
-        }
-        session.setAttribute(SESSION_Client, Client);
-        if (Boolean.TRUE.equals(Client.getAdmin())) {
-            return "redirect:/admin";
-        }else{
-            return"redirect:/home";
-        }
+    Client creado = clientService.addClient(Client);
+    session.setAttribute(SESSION_Client, creado);
+    return "redirect:/account/" + creado.getId();
+}
+
+
+
+// http://localhost:8090/account
+@GetMapping("/account/{id}")
+public String account(@PathVariable Integer id, Model model) {
+    Client Client;
+
+    try {
+        Client = clientService.getClientById(id);
+    } catch (Exception e) {
+        return "redirect:/login";
     }
 
-    // Procesa el formulario de registro
-    // crea un Cliente real en ClientRepository y lo deja logueado
-    @PostMapping("/registro")
-    public String registro(@ModelAttribute Client Client, Model model, HttpSession session) {
-        if (clientService.getAllClients().stream()
-                .anyMatch(c -> c.getEmail().equalsIgnoreCase(Client.getEmail()))) {
-            model.addAttribute("signupError", "Ya existe una account con ese correo.");
-            return "login";
-        }
-        Client creado = clientService.addClient(Client);
-        session.setAttribute(SESSION_Client, creado);
-        return "redirect:/account";
-    }
-
-    // Cierra la sesión del Cliente
-    @PostMapping("/logout")
-    public String logout(HttpSession session) {
-        session.removeAttribute(SESSION_Client);
-        return "redirect:/home";
-    }
-
-    // http://localhost:8090/account
-    @GetMapping("/account")
-    public String account(Model model, HttpSession session) {
-        Client Client = (Client) session.getAttribute(SESSION_Client);
-        if (Client == null) {
-            return "redirect:/login";
-        }
-        model.addAttribute("client", Client);
-        return "account";
-    }
+    model.addAttribute("client", Client);
+    return "account";
+}
 
 }
