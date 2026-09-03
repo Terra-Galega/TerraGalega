@@ -113,7 +113,7 @@ function closeModal() {
 /* Abre el modal en modo "Añadir producto" (formulario vacío) */
 function openAddModal() {
   productForm.reset();
-  productForm.setAttribute("action", "/admin/products");
+  productForm.setAttribute("action", `/admin/products/${id}/update`);
   modalTitle.textContent = "Añadir producto";
   modalSubmitLabel.textContent = "Añadir producto";
   currentAdditionals = [];
@@ -127,7 +127,7 @@ function openEditModal(id) {
   const product = adminProducts.find((p) => p.id === id);
   if (!product) return;
   productForm.reset();
-  productForm.setAttribute("action", `/admin/products/${id}/update`);
+  productForm.setAttribute("action", `/admin/${adminId}/products/${id}/update`);
   modalTitle.textContent = "Editar producto";
   modalSubmitLabel.textContent = "Guardar cambios";
 

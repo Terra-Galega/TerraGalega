@@ -20,7 +20,13 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Client getClientById(Integer id) {
-        return repository.findById(id);
+        Client cliente = repository.findById(id);
+
+        if (cliente == null) {
+            throw new RuntimeException("El cliente no existe");
+        }
+
+        return cliente;
     }
 
     @Override
@@ -29,8 +35,35 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client updateClient(Integer id, Client Client) {
-        return repository.update(id, Client);
+    public Client updateClient(Integer id, Client client) {
+
+        Client actual = repository.findById(id);
+
+        if (actual == null) {
+            throw new IllegalArgumentException("El cliente no existe.");
+        }
+
+        Client clienteConEmail = repository.findByEmail(client.getEmail());
+
+        if (clienteConEmail != null
+                && !clienteConEmail.getId().equals(id)) {
+
+            throw new IllegalArgumentException(
+                    "Ya existe otra cuenta con ese correo."
+            );
+        }
+
+        client.setId(actual.getId());
+        client.setAdmin(actual.getAdmin());
+        client.setActive(actual.getActive());
+
+        if (client.getPassword() == null
+                || client.getPassword().isBlank()) {
+
+            client.setPassword(actual.getPassword());
+        }
+
+        return repository.update(id, client);
     }
 
     @Override
@@ -40,10 +73,17 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Client login(String email, String password) {
-        Client Client = repository.findByEmail(email);
-        if (Client != null && Client.getPassword().equals(password)) {
-            return Client;
+
+        Client client = repository.findByEmail(email);
+
+        if (client == null) {
+            throw new IllegalArgumentException("El correo no está registrado.");
         }
-        return null;
+
+        if (!client.getPassword().equals(password)) {
+            throw new IllegalArgumentException("La contraseña es incorrecta.");
+        }
+
+        return client;
     }
 }

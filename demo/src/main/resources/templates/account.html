@@ -56,25 +56,26 @@
                 box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
               ">Ver la carta</a>
 
-        <a th:href="@{/clients/me/edit}"
-          class="w-full text-center py-3 rounded-xl font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors">Editar
-          perfil</a>
+        <a th:href="@{/clients/{id}/edit(id=${client.id})}"
+    class="w-full text-center py-3 rounded-xl font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors">
+    Editar perfil
+  </a>
 
-        <form th:action="@{/logout}" method="post">
-          <button type="submit"
-            class="w-full py-3 rounded-xl font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors">
-            Cerrar sesión
-          </button>
-        </form>
+  <form th:action="@{/logout}" method="post">
+    <button type="submit"
+      class="w-full py-3 rounded-xl font-medium border border-charcoal/15 hover:bg-charcoal/5 transition-colors">
+      Cerrar sesión
+    </button>
+  </form>
 
-        <form th:action="@{/clients/me/delete}" method="post"
-          onsubmit="return confirm('¿Seguro que querés eliminar tu cuenta? Esta acción no se puede deshacer.');">
-          <button type="submit"
-            class="w-full py-3 rounded-xl font-medium transition-all duration-300 border border-burgundy/30 text-burgundy hover:bg-burgundy hover:text-white shadow-sm">
-            Eliminar mi cuenta
-          </button>
-        </form>
-      </div>
+  <form th:action="@{/clients/{id}/delete(id=${client.id})}" method="post"
+    onsubmit="return confirm('¿Seguro que querés eliminar tu cuenta? Esta acción no se puede deshacer.');">
+    <button type="submit"
+      class="w-full py-3 rounded-xl font-medium transition-all duration-300 border border-burgundy/30 text-burgundy hover:bg-burgundy hover:text-white shadow-sm">
+      Eliminar mi cuenta
+    </button>
+  </form>
+</div>
     </div>
   </main>
 

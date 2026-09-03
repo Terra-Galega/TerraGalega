@@ -21,7 +21,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProductById(Integer id) {
-        return repository.findById(id);
+
+        Product product = repository.findById(id);
+
+        if (product == null) {
+            throw new RuntimeException("El producto no existe");
+        }
+
+        return product;
     }
 
     @Override
