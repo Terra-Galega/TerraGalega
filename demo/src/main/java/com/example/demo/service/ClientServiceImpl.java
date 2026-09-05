@@ -49,8 +49,7 @@ public class ClientServiceImpl implements ClientService {
                 && !clienteConEmail.getId().equals(id)) {
 
             throw new IllegalArgumentException(
-                    "Ya existe otra cuenta con ese correo."
-            );
+                    "Ya existe otra cuenta con ese correo.");
         }
 
         client.setId(actual.getId());
@@ -72,18 +71,8 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client login(String email, String password) {
-
-        Client client = repository.findByEmail(email);
-
-        if (client == null) {
-            throw new IllegalArgumentException("El correo no está registrado.");
-        }
-
-        if (!client.getPassword().equals(password)) {
-            throw new IllegalArgumentException("La contraseña es incorrecta.");
-        }
-
-        return client;
+    public Client findByEmail(String email) {
+        return repository.findByEmail(email);
     }
+
 }

@@ -20,94 +20,55 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
 
-@Autowired
-private ProductService productService;
+    @Autowired
+    private ProductService productService;
 
-@Autowired
-private ClientService clientService;
+    @Autowired
+    private ClientService clientService;
 
-// Categorías disponibles para el formulario de productos
-private static final List<String> CATEGORIES = List.of("Entradas", "Mariscos", "Carnes", "Postres");
+    // Revisa que en la sesión haya un Client logueado con admin = true
 
-// Revisa que en la sesión haya un Client logueado con admin = true
-private boolean isAdmin(Integer id) {
-    Client client = clientService.getClientById(id);
-    return client != null && Boolean.TRUE.equals(client.getAdmin());
-}
+    // Añade un producto nuevo usando @ModelAttribute
+    @PostMapping("/{id}/products")
+    public String addProduct(
+            @PathVariable Integer id,
+            @ModelAttribute Product product) {
 
-// http://localhost:8090/admin
-@GetMapping("/{id}")
-public String admin(@PathVariable Integer id, Model model) {
-    if (!isAdmin(id)) {
-        return "redirect:/login";
+        // El objeto 'product' ya viene completamente poblado desde el formulario HTML
+        productService.addProduct(product);
+        return "redirect:/admin/" + id;
     }
 
-    Client Client = clientService.getClientById(id);
-    model.addAttribute("products", productService.getAllProducts());
-    model.addAttribute("categories", CATEGORIES);
-    model.addAttribute("adminName", Client.getName());
-    model.addAttribute("adminId", Client.getId());
-    return "admin";
-}
+    // Guarda los cambios de un producto existente usando @ModelAttribute
+    @PostMapping("/{id}/products/{productId}/update")
+    public String updateProduct(
+            @PathVariable Integer id,
+            @PathVariable Integer productId,
+            @ModelAttribute Product product) {
 
-// Añade un producto nuevo usando @ModelAttribute
-@PostMapping("/{id}/products")
-public String addProduct(
-        @PathVariable Integer id,
-        @ModelAttribute Product product) {
+        // Aseguramos que el ID de la URL quede asignado al objeto
+        product.setId(productId);
 
-    if (!isAdmin(id)) {
-        return "redirect:/login";
+        productService.updateProduct(productId, product);
+        return "redirect:/admin/" + id;
     }
 
-    // El objeto 'product' ya viene completamente poblado desde el formulario HTML
-    productService.addProduct(product);
-    return "redirect:/admin/" + id;
-}
+    // Elimina un producto de la carta
+    @PostMapping("/{id}/products/{productId}/delete")
+    public String deleteProduct(
+            @PathVariable Integer id,
+            @PathVariable Integer productId) {
 
-// Guarda los cambios de un producto existente usando @ModelAttribute
-@PostMapping("/{id}/products/{productId}/update")
-public String updateProduct(
-        @PathVariable Integer id,
-        @PathVariable Integer productId,
-        @ModelAttribute Product product) {
-
-    if (!isAdmin(id)) {
-        return "redirect:/login";
+        productService.deleteProduct(productId);
+        return "redirect:/admin/" + id;
     }
 
-    // Aseguramos que el ID de la URL quede asignado al objeto
-    product.setId(productId);
-
-    productService.updateProduct(productId, product);
-    return "redirect:/admin/" + id;
-}
-
-// Elimina un producto de la carta
-@PostMapping("/{id}/products/{productId}/delete")
-public String deleteProduct(
-        @PathVariable Integer id,
-        @PathVariable Integer productId) {
-
-    if (!isAdmin(id)) {
-        return "redirect:/login";
+    // Activa/desactiva un producto
+    @PostMapping("/{id}/products/{productId}/toggle")
+    public String toggleProduct(
+            @PathVariable Integer id,
+            @PathVariable Integer productId) {
+        productService.toggleProductActive(productId);
+        return "redirect:/admin/" + id;
     }
-
-    productService.deleteProduct(productId);
-    return "redirect:/admin/" + id;
-}
-
-// Activa/desactiva un producto
-@PostMapping("/{id}/products/{productId}/toggle")
-public String toggleProduct(
-        @PathVariable Integer id,
-        @PathVariable Integer productId) {
-
-    if (!isAdmin(id)) {
-        return "redirect:/login";
-    }
-
-    productService.toggleProductActive(productId);
-    return "redirect:/admin/" + id;
-}
 }
