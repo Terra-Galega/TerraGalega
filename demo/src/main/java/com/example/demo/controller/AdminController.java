@@ -23,11 +23,6 @@ public class AdminController {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private ClientService clientService;
-
-    // Revisa que en la sesión haya un Client logueado con admin = true
-
     // Añade un producto nuevo usando @ModelAttribute
     @PostMapping("/{id}/products")
     public String addProduct(

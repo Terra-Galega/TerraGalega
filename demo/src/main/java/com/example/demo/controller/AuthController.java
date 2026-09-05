@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
-@RequestMapping({ "/login", "/registro" })
+@RequestMapping("/login")
 public class AuthController {
+
+    @Autowired
+    private AuthService authService;
 
     @Autowired
     private ClientService clientService;
@@ -30,9 +33,6 @@ public class AuthController {
 
     @Autowired
     private CategoryService categoryService;
-
-    @Autowired
-    private AuthService authService;
 
     public static final String SESSION_Client = "ClientLogueado";
 
