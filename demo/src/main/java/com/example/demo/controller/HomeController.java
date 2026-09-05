@@ -1,20 +1,14 @@
 package com.example.demo.controller;
 
-import com.example.demo.entities.Client;
 import com.example.demo.entities.Product;
 import com.example.demo.service.CategoryService;
-import com.example.demo.service.ClientService;
 import com.example.demo.service.ProductService;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HomeController {
@@ -24,9 +18,6 @@ public class HomeController {
 
     @Autowired
     private CategoryService categoryService;
-
-    @Autowired
-    private ClientService clientService;
 
     public static final String SESSION_Client = "ClientLogueado";
 
