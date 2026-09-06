@@ -287,11 +287,26 @@
     <!-- Pie de página -->
     <footer th:replace="~{fragments :: footer}"></footer>
 
-    <!--Producto actual, se comparte al js para calcular cantidad/adicionales/total-->
     <script th:inline="javascript">
-      const currentProduct = /*[[${product}]]*/ null;
-      const currentAddons = /*[[${addons}]]*/ [];
+      const currentProduct = {
+        id: /*[[${product.id}]]*/ 0,
+        name: /*[[${product.name}]]*/ "",
+        price: /*[[${product.price}]]*/ 0,
+        imageUrl: /*[[${product.imageUrl}]]*/ "",
+        description: /*[[${product.description}]]*/ "",
+      };
+
+      const currentAddons = [
+        /*[# th:each="add : ${addons}"]*/
+        {
+          id: /*[[${add.id}]]*/ 0,
+          name: /*[[${add.name}]]*/ "",
+          price: /*[[${add.price}]]*/ 0,
+        },
+        /*[/]*/
+      ];
     </script>
+
     <script th:src="@{/js/script.js}"></script>
   </body>
 </html>

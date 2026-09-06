@@ -723,7 +723,13 @@
 
     <!--Arreglo que contiene los productos del menú y se comparte al js-->
     <script th:inline="javascript">
-      const menuProducts = /*[[${products}]]*/ [];
+      const currentProduct = {
+        id: /*[[${product.id}]]*/ 0,
+        name: /*[[${product.name}]]*/ "",
+        price: /*[[${product.price}]]*/ 0,
+        imageUrl: /*[[${product.imageUrl}]]*/ "",
+        description: /*[[${product.description}]]*/ "",
+      };
     </script>
     <script th:src="@{/js/script.js}"></script>
   </body>
