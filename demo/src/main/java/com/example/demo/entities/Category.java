@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = { "product", "additionals" })
 @AllArgsConstructor
 @Entity
 @NoArgsConstructor
