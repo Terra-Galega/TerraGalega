@@ -316,10 +316,6 @@
     <!-- Modal de carrito -->
     <div th:replace="~{fragments :: modal-cart}"></div>
 
-    <!-- Arreglo que contiene los productos del menú y se comparte al js  -->
-    <script th:inline="javascript">
-      const menuProducts = /*[[${products}]]*/ [];
-    </script>
     <script th:src="@{/js/script.js}"></script>
   </body>
 </html>
