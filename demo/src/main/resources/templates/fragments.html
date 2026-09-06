@@ -52,7 +52,7 @@
             REGISTRARSE
           </a>
 
-          <a th:if="${loggedClient != null}" th:href="@{/account}" /*method="post" */
+          <a th:if="${loggedClient != null}" th:href="@{/account/{id}(id=${loggedClient.id})}"
             class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
             th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
           <form th:if="${loggedClient != null}" th:action="@{/logout}" method="post" class="contents">
