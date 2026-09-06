@@ -3,6 +3,8 @@ package com.example.demo.controller;
 import com.example.demo.entities.Client;
 import com.example.demo.service.ClientService;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +16,8 @@ public class ClientController {
 
     @Autowired
     private ClientService clientService;
+
+    public static final String SESSION_Client = "ClientLogueado";
 
     // http://localhost:8090/clients/{id}/edit
     @GetMapping("/{id}/edit")
@@ -31,7 +35,6 @@ public class ClientController {
             return "redirect:/login";
         }
     }
-
 
     // Guarda los cambios del perfil
     @PostMapping("/{id}")
@@ -56,18 +59,19 @@ public class ClientController {
         }
     }
 
-
     @PostMapping("/{id}/delete")
     public String deleteMyAccount(
-            @PathVariable Integer id) {
+            @PathVariable Integer id,
+            HttpSession session) {
 
         try {
             clientService.deleteClient(id);
-
+            session.removeAttribute(SESSION_Client);
             return "redirect:/home";
 
         } catch (RuntimeException e) {
             return "redirect:/login";
         }
+
     }
 }

@@ -18,7 +18,14 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @NoArgsConstructor
 @SuperBuilder
-public class Client extends User {
-    @Column(unique = true, nullable = false, length = 25)
+public class DeliveryPerson extends User {
+
+    @Column(unique = true, nullable = false, length = 30)
+    private String identification;
+    @Column(nullable = false, unique = true, length = 25)
     private String phone;
+    @Column(nullable = false)
+    private Boolean available;
+    @Column(nullable = false)
+    private Boolean active;
 }

@@ -22,7 +22,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category getCategoryById(Integer id) {
-        return repository.findById(id);
+        return repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No se encuentran categorias con este id."));
     }
 
     @Override
@@ -32,6 +33,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<AddOn> getAddonsByCategory(String categoryName) {
-        return repository.getAddonsByCategory(categoryName);
+
+        Category category = repository.findByName(categoryName);
+
+        return category.getAdditionals();
     }
 }

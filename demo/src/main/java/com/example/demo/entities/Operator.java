@@ -18,7 +18,10 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @NoArgsConstructor
 @SuperBuilder
-public class Client extends User {
-    @Column(unique = true, nullable = false, length = 25)
-    private String phone;
+public class Operator extends User {
+
+    @Column(unique = true, nullable = false, length = 100)
+    private String username;
+    @Column(nullable = false)
+    private Boolean active;
 }

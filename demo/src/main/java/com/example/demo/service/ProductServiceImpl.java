@@ -22,7 +22,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product getProductById(Integer id) {
 
-        Product product = repository.findById(id);
+        Product product = repository.findById(id).orElseThrow();
 
         if (product == null) {
             throw new RuntimeException("El producto no existe");
@@ -33,14 +33,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Collection<Product> getPopularProducts() {
-        // Filtra los productos activos marcados como populares
-        return repository.findAll().stream().filter(p -> Boolean.TRUE.equals(p.getPopular()))
-                .collect(Collectors.toList());
+        return repository.findByPopularTrue();
     }
 
     @Override
     public Collection<Product> getRelatedProducts(Integer id) {
-        Product product = repository.findById(id);
+        Product product = repository.findById(id).orElseThrow();
         if (product == null) {
             return java.util.List.of();
         }
@@ -59,7 +57,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(Integer id, Product product) {
-        return repository.update(id, product);
+
+        Product existingProduct = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        product.setId(id);
+
+        return repository.save(product);
     }
 
     @Override
@@ -69,6 +73,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product toggleProductActive(Integer id) {
-        return repository.toggleActive(id);
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        product.setActive(!product.getActive());
+
+        return repository.save(product);
     }
 }

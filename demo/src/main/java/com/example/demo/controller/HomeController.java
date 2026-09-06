@@ -19,8 +19,6 @@ public class HomeController {
     @Autowired
     private CategoryService categoryService;
 
-    public static final String SESSION_Client = "ClientLogueado";
-
     // http://localhost:8090/
     // http://localhost:8090/home
     @GetMapping({ "/", "/home" })
@@ -68,8 +66,8 @@ public class HomeController {
         model.addAttribute("product", product);
         model.addAttribute("relatedProducts", productService.getRelatedProducts(id));
         // Categoría completa
-        model.addAttribute("addons", categoryService.getAddonsByCategory(product.getCategory()));
-        model.addAttribute("category", categoryService.getCategoryByName(product.getCategory()));
+        model.addAttribute("addons", categoryService.getAddonsByCategory(product.getCategory().getName()));
+        model.addAttribute("category", categoryService.getCategoryByName(product.getCategory().getName()));
         return "productDetail";
     }
 
