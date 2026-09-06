@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entities.Product;
+import com.example.demo.errors.ProductNotFoundException;
 import com.example.demo.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product getProductById(Integer id) {
 
-        Product product = repository.findById(id).orElseThrow();
-
-        if (product == null) {
-            throw new RuntimeException("El producto no existe");
-        }
+        Product product = repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
 
         return product;
     }
@@ -59,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
     public Product updateProduct(Integer id, Product product) {
 
         Product existingProduct = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setId(id);
 
@@ -74,7 +71,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product toggleProductActive(Integer id) {
         Product product = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setActive(!product.getActive());
 

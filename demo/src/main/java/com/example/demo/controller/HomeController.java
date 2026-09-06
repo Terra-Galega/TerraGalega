@@ -57,11 +57,7 @@ public class HomeController {
         // Busca el producto solicitado y si no existe vuelve a la carta
         Product product;
 
-        try {
-            product = productService.getProductById(id);
-        } catch (Exception e) {
-            return "redirect:/menu";
-        }
+        product = productService.getProductById(id);
 
         model.addAttribute("product", product);
         model.addAttribute("relatedProducts", productService.getRelatedProducts(id));
