@@ -20,7 +20,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Client getClientById(Integer id) {
-        Client cliente = repository.findById(id);
+        Client cliente = repository.findById(id).orElseThrow();
 
         if (cliente == null) {
             throw new RuntimeException("El cliente no existe");
@@ -37,24 +37,19 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Client updateClient(Integer id, Client client) {
 
-        Client actual = repository.findById(id);
+        Client actual = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("El cliente no existe."));
 
-        if (actual == null) {
-            throw new IllegalArgumentException("El cliente no existe.");
-        }
+        Client emailClient = repository.findByEmail(client.getEmail());
 
-        Client clienteConEmail = repository.findByEmail(client.getEmail());
-
-        if (clienteConEmail != null
-                && !clienteConEmail.getId().equals(id)) {
+        if (emailClient != null
+                && !emailClient.getId().equals(id)) {
 
             throw new IllegalArgumentException(
                     "Ya existe otra cuenta con ese correo.");
         }
 
         client.setId(actual.getId());
-        client.setAdmin(actual.getAdmin());
-        client.setActive(actual.getActive());
 
         if (client.getPassword() == null
                 || client.getPassword().isBlank()) {
@@ -62,7 +57,7 @@ public class ClientServiceImpl implements ClientService {
             client.setPassword(actual.getPassword());
         }
 
-        return repository.update(id, client);
+        return repository.save(client);
     }
 
     @Override

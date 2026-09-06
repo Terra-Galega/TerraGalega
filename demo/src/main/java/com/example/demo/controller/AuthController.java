@@ -8,6 +8,8 @@ import com.example.demo.service.CategoryService;
 import com.example.demo.service.ClientService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.AuthService;
+import com.example.demo.service.UserService;
+import com.example.demo.entities.User;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
-@RequestMapping("/login")
 public class AuthController {
 
     @Autowired
@@ -34,15 +35,18 @@ public class AuthController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private UserService userService;
+
     public static final String SESSION_Client = "ClientLogueado";
 
     private boolean isAdmin(Integer id) {
-        Client client = clientService.getClientById(id);
-        return client != null && Boolean.TRUE.equals(client.getAdmin());
+        User user = userService.getUserById(id);
+        return user != null && user.isAdministrador();
     }
 
     // http://localhost:8090/admin
-    @GetMapping("/{id}")
+    @GetMapping("/admin/{id}")
     public String admin(@PathVariable Integer id, Model model) {
         if (!isAdmin(id)) {
             return "redirect:/login";
@@ -59,12 +63,15 @@ public class AuthController {
     // http://localhost:8090/login
     @GetMapping("/login")
     public String login(Model model, HttpSession session) {
-        Client Client = (Client) session.getAttribute(SESSION_Client);
+        User user = (User) session.getAttribute(SESSION_Client);
 
-        if (Client != null) {
-            return Boolean.TRUE.equals(Client.getAdmin())
-                    ? "redirect:/admin/" + Client.getId()
-                    : "redirect:/account/" + Client.getId();
+        if (user != null) {
+
+            if (isAdmin(user.getId())) {
+                return "redirect:/admin/" + user.getId();
+            } else {
+                return "redirect:/account/" + user.getId();
+            }
         }
         return "login";
     }
@@ -72,17 +79,18 @@ public class AuthController {
     @PostMapping("/login")
     public String doLogin(@RequestParam String email, @RequestParam String password,
             Model model, HttpSession session) {
-        Client client = authService.login(email, password);
-        if (client == null) {
+        User user = authService.login(email, password);
+
+        if (user == null) {
             model.addAttribute("loginError", "Correo o contraseña incorrectos.");
             model.addAttribute("emailIngresado", email);
             return "login";
         }
-        session.setAttribute(SESSION_Client, client);
-        if (Boolean.TRUE.equals(client.getAdmin())) {
-            return "redirect:/admin/" + client.getId();
+        session.setAttribute(SESSION_Client, user);
+        if (isAdmin(user.getId())) {
+            return "redirect:/admin/" + user.getId();
         } else {
-            return "redirect:/account/" + client.getId();
+            return "redirect:/account/" + user.getId();
         }
     }
 

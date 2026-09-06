@@ -1,21 +1,24 @@
 package com.example.demo.entities;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
-public class Client {
-    private Integer id;
-    private String name;
-    private String lastName;
-    private String email;
-    private String password;
+@Entity
+@NoArgsConstructor
+@SuperBuilder
+public class Client extends User {
+    @Column(unique = true, nullable = false, length = 25)
     private String phone;
-    private String address;
-    private Boolean active;
-    private Boolean admin;
-
 }
