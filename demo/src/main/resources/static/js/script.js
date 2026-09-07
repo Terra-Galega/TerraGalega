@@ -424,6 +424,28 @@ const signupPasswordInput = document.getElementById("signup-password");
 const signupPhoneInput = document.getElementById("signup-phone");
 const signupAddressInput = document.getElementById("signup-address");
 
+//Botón de "ver/ocultar contraseña" — sirve para login y registro a la vez
+//porque busca por clase, no por id
+document.querySelectorAll(".toggle-password").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const input = btn.previousElementSibling;
+    const eyeOpen = btn.querySelector(".eye-open");
+    const eyeClosed = btn.querySelector(".eye-closed");
+    if (!input || !eyeOpen || !eyeClosed) return;
+
+    const isHidden = input.type === "password";
+    input.type = isHidden ? "text" : "password";
+
+    eyeOpen.classList.toggle("hidden", isHidden);
+    eyeClosed.classList.toggle("hidden", !isHidden);
+
+    btn.setAttribute(
+      "aria-label",
+      isHidden ? "Ocultar contraseña" : "Mostrar contraseña",
+    );
+  });
+});
+
 /* Pestañas "Iniciar sesión" "Registrarse" */
 const authTabs = document.getElementById("auth-tabs");
 const authSubtitle = document.getElementById("auth-subtitle");
@@ -452,7 +474,7 @@ if (authTabs && loginForm && signupForm) {
     btn.addEventListener("click", () => setAuthTab(btn.dataset.tab));
   });
 
- 
+
   const requestedTab = new URLSearchParams(window.location.search).get("tab");
   if (requestedTab === "register") {
     setAuthTab("signup");
@@ -630,7 +652,7 @@ if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
     }
     renderCart();
 
-    
+
     const originalText = detailAddBtn.textContent;
     const originalBackground = detailAddBtn.style.background;
     detailAddBtn.textContent = "¡Añadido a la orden!";
