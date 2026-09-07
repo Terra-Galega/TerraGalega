@@ -14,10 +14,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class AuthController {
@@ -46,8 +44,14 @@ public class AuthController {
 
     // http://localhost:8090/admin
     @GetMapping("/admin/{id}")
-    public String admin(@PathVariable Integer id, Model model) {
+    public String admin(@PathVariable Integer id, Model model, HttpSession session) {
+
         if (!isAdmin(id)) {
+
+            // cliente que intenta entrar a /admin/<su-propio-id> (su id
+            // es válido, pero no tiene rol admin) queda deslogueado,
+            // igual que cuando alguien toca el id de otra persona
+            session.invalidate();
             return "redirect:/login";
         }
 
