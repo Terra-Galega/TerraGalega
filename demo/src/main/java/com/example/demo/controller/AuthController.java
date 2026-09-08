@@ -55,11 +55,11 @@ public class AuthController {
             return "redirect:/login";
         }
 
-        Client Client = clientService.getClientById(id);
+        User admin = userService.getUserById(id);
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("categories", categoryService.getAllCategorys());
-        model.addAttribute("adminName", Client.getName());
-        model.addAttribute("adminId", Client.getId());
+        model.addAttribute("adminName", admin.getName());
+        model.addAttribute("adminId", admin.getId());
         return "admin";
     }
 

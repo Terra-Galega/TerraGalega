@@ -19,6 +19,7 @@ public class GlobalModelAdvice {
 
     @ModelAttribute("loggedClient")
     public Client addLoggedClientToModel(HttpSession session) {
-        return (Client) session.getAttribute(AuthController.SESSION_Client);
+         Object logged = session.getAttribute(AuthController.SESSION_Client);
+        return (logged instanceof Client) ? (Client) logged : null;
     }
 }
