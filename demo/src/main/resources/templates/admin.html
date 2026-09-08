@@ -40,7 +40,6 @@
         <!-- Logo -->
         <div class="px-3 mb-10 flex flex-col items-start">
           <a
-            th:href="@{/home}"
             class="flex flex-col items-start leading-none select-none"
           >
             <span
@@ -336,7 +335,7 @@
                             background-color: rgba(178, 87, 31, 0.09);
                             color: #b2571f;
                           "
-                          th:text="${product.category}"
+                          th:text="${product.category.name}"
                         ></span>
                       </td>
                       <!-- Precio -->
