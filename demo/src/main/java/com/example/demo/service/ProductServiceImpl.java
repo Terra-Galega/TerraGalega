@@ -19,6 +19,10 @@ public class ProductServiceImpl implements ProductService {
     public Collection<Product> getAllProducts() {
         return repository.findAll();
     }
+    @Override
+    public Collection<Product> getAllProductsActive() {
+        return repository.findByActiveTrue();
+    }
 
     @Override
     public Product getProductById(Integer id) {
@@ -29,8 +33,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Collection<Product> getPopularProducts() {
-        return repository.findByPopularTrue();
+    public Collection<Product> getPopularProductsActive() {
+        return repository.findByPopularTrueAndActiveTrue();
     }
 
     @Override
