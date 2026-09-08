@@ -1,12 +1,71 @@
 <!doctype html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Error · Terra Galega</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      @theme {
+        --color-terra: #b2571f;
+        --color-gold: #d99a21;
+        --color-burgundy: #8a2222;
+        --color-cream: #f5f2eb;
+        --color-forest: #556141;
+        --color-charcoal: #2c2c2c;
+        --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+        --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+      }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
   </head>
-  <body>
-    <h1>Error</h1>
-    <h2 th:text="${message}"></h2>
+
+  <body class="min-h-screen bg-cream font-sans text-charcoal">
+    <header th:replace="~{fragments :: navbar(false)}"></header>
+
+    <main class="min-h-screen flex items-center justify-center px-6 py-32">
+      <div class="w-full max-w-md mx-auto text-center">
+        <div class="glass-card rounded-3xl p-10">
+          <div
+            class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center"
+            style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%); box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);"
+          >
+            <svg class="w-8 h-8 text-cream" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+
+          <p class="text-[12px] tracking-widest uppercase mb-3" style="color: rgba(44, 44, 44, 0.38)">
+            Algo salió mal
+          </p>
+
+          <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
+            Error
+          </h1>
+
+          <p
+            th:text="${message} ?: 'Ha ocurrido un error inesperado. Por favor intenta de nuevo.'"
+            class="text-sm leading-relaxed mb-8"
+            style="color: rgba(44, 44, 44, 0.62)"
+          ></p>
+
+          <a th:href="@{/home}" class="block w-full py-3.5 rounded-xl font-medium text-white btn-terra"
+            style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%); box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);">
+            Volver al inicio
+          </a>
+
+          <a th:href="@{/menu}"
+            class="inline-flex items-center gap-2 text-[13px] font-medium text-charcoal/45 hover:text-charcoal mt-5 transition-colors group">
+            <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m0 0l7 7m-7-7l7-7" />
+            </svg>
+            Ver la carta
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer th:replace="~{fragments :: footer}"></footer>
   </body>
 </html>
