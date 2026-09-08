@@ -9,6 +9,8 @@ import lombok.ToString;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,5 +41,6 @@ public class Category {
     @Builder.Default
     private List<AddOn> additionals = new ArrayList<>();
     @OneToMany(mappedBy = "category")
+    @JsonIgnore
     private List<Product> product = new ArrayList<>();
 }

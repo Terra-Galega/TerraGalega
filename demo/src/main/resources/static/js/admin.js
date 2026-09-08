@@ -113,7 +113,7 @@ function closeModal() {
 /* Abre el modal en modo "Añadir producto" (formulario vacío) */
 function openAddModal() {
   productForm.reset();
-  productForm.setAttribute("action", `/admin/products/${id}/update`);
+  productForm.setAttribute("action", `/admin/${adminId}/products`);
   modalTitle.textContent = "Añadir producto";
   modalSubmitLabel.textContent = "Añadir producto";
   currentAdditionals = [];
@@ -126,14 +126,14 @@ function openAddModal() {
 function openEditModal(id) {
   const product = adminProducts.find((p) => p.id === id);
   if (!product) return;
-  productForm.reset();
+  productForm.reset(); 
   productForm.setAttribute("action", `/admin/${adminId}/products/${id}/update`);
   modalTitle.textContent = "Editar producto";
   modalSubmitLabel.textContent = "Guardar cambios";
 
   document.getElementById("admin-f-name").value = product.name || "";
   document.getElementById("admin-f-price").value = product.price || "";
-  document.getElementById("admin-f-category").value = product.category || "";
+  document.getElementById("admin-f-category").value = product.category?.id || "";
   document.getElementById("admin-f-description").value = product.description || "";
   document.getElementById("admin-f-image").value = product.imageUrl || "";
   document.getElementById("admin-f-popular").checked = !!product.popular;

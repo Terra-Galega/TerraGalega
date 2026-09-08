@@ -53,6 +53,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product addProduct(Product product) {
+
+        if (product.getActive() == null) {
+            product.setActive(true);
+        }
+        if (product.getPopular() == null) {
+            product.setPopular(false);
+        }
         return repository.save(product);
     }
 
@@ -61,7 +68,11 @@ public class ProductServiceImpl implements ProductService {
 
         Product existingProduct = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
-
+        
+        product.setActive(existingProduct.getActive());
+        if (product.getPopular() == null) {
+            product.setPopular(false);
+        }
         product.setId(id);
 
         return repository.save(product);
