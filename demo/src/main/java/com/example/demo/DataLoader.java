@@ -389,7 +389,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .description("Churros españoles crujientes acompañados de una taza de chocolate caliente y espeso.")
                                                 .price(18000.0)
                                                 .category(categoryRepository.findByName("Postres"))
-                                                .imageUrl("https://images.unsplash.com/photo-1624371414361-e670edf4898b?w=480&h=360&fit=crop&auto=format")
+                                                .imageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMJ9oVeHSfDgM20Wc3XicFz0Yqca2n_4T_GcchHVU5qQ&s=10")
                                                 .active(true).popular(true).build());
 
                 productRepository.save(

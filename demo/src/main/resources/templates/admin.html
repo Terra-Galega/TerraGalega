@@ -709,8 +709,8 @@
               >
                 <option
                   th:each="c : ${categories}"
-                  th:value="${c}"
-                  th:text="${c}"
+                  th:value="${c.id}"
+                  th:text="${c.name}"
                 ></option>
               </select>
             </div>

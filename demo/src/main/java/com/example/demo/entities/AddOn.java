@@ -1,4 +1,6 @@
 package com.example.demo.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,5 +38,6 @@ public class AddOn {
     private Boolean Active;
     @JoinColumn
     @ManyToOne
+    @JsonIgnore 
     private Category category;
 }
