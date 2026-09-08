@@ -123,7 +123,7 @@
 
         <!-- Formulario de registro: POST real a /registro, crea un Cliente en
           ClienteRepository y lo deja logueado -->
-        <form id="signup-form" th:action="@{/registro}" method="post"
+        <form id="signup-form" th:action="@{/register}" method="post"
           th:classappend="${signupError} ? '' : 'hidden-modal'" class="space-y-4">
           <div class="grid grid-cols-2 gap-3">
             <div>

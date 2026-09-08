@@ -107,12 +107,12 @@ public class AuthController {
         return "redirect:/home";
     }
 
-    @PostMapping("/registro")
-    public String registro(@ModelAttribute Client Client, Model model, HttpSession session) {
+    @PostMapping("/register")
+    public String register(@ModelAttribute Client Client, Model model, HttpSession session) {
         if (clientService.getAllClients().stream()
                 .anyMatch(c -> c.getEmail().equalsIgnoreCase(Client.getEmail()))) {
             model.addAttribute("signupError", "Ya existe una cuenta con ese correo.");
-            return "login";
+            return "error";
         }
 
         Client creado = clientService.addClient(Client);
