@@ -24,9 +24,9 @@ public class HomeController {
     @GetMapping({ "/", "/home" })
     public String home(Model model) {
         // Cargar todos los productos
-        model.addAttribute("products", productService.getAllProducts());
+        model.addAttribute("products", productService.getAllProductsActive());
         // Cargar solo los productos populares para la sección "Favoritos de la casa"
-        model.addAttribute("popularProducts", productService.getPopularProducts());
+        model.addAttribute("popularProducts", productService.getPopularProductsActive());
         return "home";
     }
 
@@ -34,7 +34,7 @@ public class HomeController {
     @GetMapping("/menu")
     public String menu(Model model) {
         // Carga todos los productos para la carta completa y para el modal de producto
-        model.addAttribute("products", productService.getAllProducts());
+        model.addAttribute("products", productService.getAllProductsActive());
         return "menu";
     }
 
