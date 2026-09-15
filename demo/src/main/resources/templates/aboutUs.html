@@ -46,12 +46,12 @@
           <!-- Texto de la historia del restaurante -->
           <div>
             <div class="w-10 h-0.5 mb-6" style="background-color: #d99a21"></div>
-            <p class="leading-relaxed mb-5" style="color: rgba(44,44,44,0.65)">
+            <p class="leading-relaxed mb-5 text-justify" style="color: rgba(44,44,44,0.75)">
               Terra Galega nació del amor por la gastronomía gallega y el deseo de
               compartirla con el mundo. Desde 2018, nuestro restaurante ha sido el
               refugio de quienes buscan los auténticos sabores del noroeste español.
             </p>
-            <p class="leading-relaxed" style="color: rgba(44,44,44,0.65)">
+            <p class="leading-relaxed text-justify" style="color: rgba(44,44,44,0.75)">
               Nuestros ingredientes viajan directamente desde la costa gallega.
               Trabajamos con productores locales que comparten nuestra pasión por la
               calidad y la tradición. Cada plato se prepara con el respeto que merecen
@@ -62,27 +62,96 @@
           <div class="grid grid-cols-3 gap-5">
             <div class="glass-card rounded-2xl p-5 text-center">
               <p class="font-serif font-bold text-2xl mb-1" style="color: #b2571f">6+</p>
-              <p class="text-[11px] leading-snug" style="color: rgba(44,44,44,0.45)">Años de trayectoria</p>
+              <p class="text-[11px] leading-snug" style="color: rgba(44,44,44,0.55)">Años de trayectoria</p>
             </div>
             <div class="glass-card rounded-2xl p-5 text-center">
               <p class="font-serif font-bold text-2xl mb-1" style="color: #b2571f">150+</p>
-              <p class="text-[11px] leading-snug" style="color: rgba(44,44,44,0.45)">Platos al día</p>
+              <p class="text-[11px] leading-snug" style="color: rgba(44,44,44,0.55)">Platos al día</p>
             </div>
             <div class="glass-card rounded-2xl p-5 text-center">
               <p class="font-serif font-bold text-2xl mb-1" style="color: #b2571f">4.9★</p>
-              <p class="text-[11px] leading-snug" style="color: rgba(44,44,44,0.45)">Valoración promedio</p>
+              <p class="text-[11px] leading-snug" style="color: rgba(44,44,44,0.55)">Valoración promedio</p>
             </div>
           </div>
         </div>
+        <!-- Frase Destacada con Imagen-->
+        <div class="relative mt-16 mb-24 rounded-3xl overflow-hidden shadow-2xl mx-auto">
+          
+          <img
+            src="https://images.unsplash.com/photo-1773122150546-94699cfc8f23?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Ambiente Terra Galega"
+            class="absolute inset-0 w-full h-full object-cover"
+          />
+          <div class="absolute inset-0" style="background-color: rgba(44, 44, 44, 0.75)"></div>
 
-        <!-- Llamado a la acción hacia el menú completo -->
-        <div class="text-center">
-          <a
-            th:href="@{/menu}"
-            class="inline-block px-10 py-4 rounded-full font-medium text-white transition-all duration-300 hover:scale-105"
-            style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%); box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);">
-            Ver nuestra carta
-          </a>
+          <div class="relative z-10 py-16 px-8 text-center max-w-3xl mx-auto">
+            <!-- Icono de comillas doradas -->
+            <svg class="w-10 h-10 mx-auto mb-6 opacity-90" style="color: #d99a21" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+            </svg>
+            <p class="font-serif italic text-2xl md:text-3xl leading-relaxed text-white">
+              "Nuestra mayor tradición no es solo conservar las recetas, sino mantener viva la pasión con la que se sirven."
+            </p>
+          </div>          
+        </div>
+
+        <!-- Sección de ubicación con mapa -->
+        <div class="grid md:grid-cols-2 gap-12 items-center mb-10">
+          
+          <!-- Columna Izquierda -->
+          <div>
+            <div class="w-10 h-0.5 mb-6" style="background-color: #d99a21"></div>
+            <h2 class="font-serif text-3xl md:text-4xl font-bold mb-6 text-charcoal">
+              Dónde nos ubicamos
+            </h2>
+            <p class="leading-relaxed mb-8" style="color: rgba(44,44,44,0.75)">
+              Ven a visitarnos y disfruta de nuestra gastronomía gallega. Te esperamos con los brazos abiertos, listos para brindarte una experiencia inolvidable.
+            </p>
+            
+            <div class="space-y-4 mb-10">
+              <div class="flex items-start gap-4">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style="background-color: rgba(109, 178, 31, 0.1); color: #556141">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M17.657 16.657 13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0Z" />
+                  <circle cx="12" cy="11" r="3" />
+                </svg>
+              </div>
+                <p style="color: rgba(44,44,44,0.75)">
+                  <strong class="text-charcoal block mb-1">Dirección</strong>
+                  Av. El Dorado # 69-04, Bogotá, Colombia <!-- Cambia esto por tu dirección real -->
+                </p>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style="background-color: rgba(109, 178, 31, 0.1); color: #556141">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path
+                      d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5Z" />
+                  </svg>
+                </div>
+                <p style="color: rgba(44,44,44,0.75)">
+                  <strong class="text-charcoal block mb-1">Teléfono</strong>
+                  +57 300 123 4567 <!-- Cambia esto por tu teléfono real -->
+                </p>
+              </div>
+            </div>
+            <div>
+              <a
+                th:href="@{/menu}"
+                class="inline-block px-10 py-4 rounded-full font-medium text-white transition-all duration-300 hover:scale-105"
+                style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%); box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);">
+                Ver nuestra carta
+              </a>
+            </div>
+          </div>
+
+          <div class="glass-card p-2 md:p-3 rounded-2xl w-full">
+            <div class="relative w-full aspect-square rounded-xl overflow-hidden border border-black/5">
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3692.7843048189684!2d-74.05482151150028!3d4.676878070701616!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9a92bc5d5f05%3A0x6f031d8201a7f827!2sCl.%2093%20%2315-47%2C%20Bogot%C3%A1!5e0!3m2!1ses-419!2sco!4v1789465880652!5m2!1ses-419!2sco%22" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+          </div>
+          
         </div>
       </div>
     </main>
