@@ -137,6 +137,12 @@ function openEditModal(id) {
   document.getElementById("admin-f-description").value = product.description || "";
   document.getElementById("admin-f-image").value = product.imageUrl || "";
   document.getElementById("admin-f-popular").checked = !!product.popular;
+  document.getElementById("admin-f-vegetarian").checked = !!product.vegetarian;
+  document.getElementById("admin-f-spicy-mild").checked = !!product.spicyMild;
+  document.getElementById("admin-f-spicy-hot").checked = !!product.spicyHot;
+  document.getElementById("admin-f-contains-nuts").checked = !!product.containsNuts;
+  document.getElementById("admin-f-contains-seafood").checked = !!product.containsSeafood;
+  document.getElementById("admin-f-contains-gluten").checked = !!product.containsGluten;
 
   if (product.imageUrl) {
     imagePreview.src = product.imageUrl;

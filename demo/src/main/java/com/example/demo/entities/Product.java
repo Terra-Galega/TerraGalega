@@ -41,4 +41,16 @@ public class Product {
     private Boolean active;
     @Column(nullable = false)
     private Boolean popular;
+    @Column(nullable = false)
+    private boolean vegetarian;
+    @Column(nullable = false)
+    private boolean spicyMild;
+    @Column(nullable = false)
+    private boolean spicyHot;
+    @Column(nullable = false)
+    private boolean containsNuts;
+    @Column(nullable = false)
+    private boolean containsSeafood;
+    @Column(nullable = false)
+    private boolean containsGluten;
 }

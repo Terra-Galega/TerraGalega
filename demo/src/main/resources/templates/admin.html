@@ -758,18 +758,99 @@
                ya que ahora la lógica de adicionales corresponde a las Categorías. -->
 
           <!-- Popular -->
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              name="popular"
-              id="admin-f-popular"
-              value="true"
-              class="w-4 h-4"
-            />
-            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)"
-              >Marcar como popular</span
+          <div>
+            <label
+              class="block text-[11px] font-medium uppercase tracking-wider mb-2"
+              style="color: rgba(44, 44, 44, 0.4)"
+              >Características</label
             >
-          </label>
+            <div class="grid grid-cols-2 gap-y-2 gap-x-3">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="popular"
+                  id="admin-f-popular"
+                  value="true"
+                  class="w-4 h-4"
+                />
+                <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)"
+                  >Popular</span
+                >
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="vegetarian"
+                  id="admin-f-vegetarian"
+                  value="true"
+                  class="w-4 h-4"
+                />
+                <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)"
+                  >Vegetariano</span
+                >
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="spicyMild"
+                  id="admin-f-spicy-mild"
+                  value="true"
+                  class="w-4 h-4"
+                />
+                <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)"
+                  >Picante ligero</span
+                >
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="spicyHot"
+                  id="admin-f-spicy-hot"
+                  value="true"
+                  class="w-4 h-4"
+                />
+                <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)"
+                  >Picante intenso</span
+                >
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="containsNuts"
+                  id="admin-f-contains-nuts"
+                  value="true"
+                  class="w-4 h-4"
+                />
+                <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)"
+                  >Contiene nueces</span
+                >
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="containsSeafood"
+                  id="admin-f-contains-seafood"
+                  value="true"
+                  class="w-4 h-4"
+                />
+                <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)"
+                  >Mariscos</span
+                >
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="containsGluten"
+                  id="admin-f-contains-gluten"
+                  value="true"
+                  class="w-4 h-4"
+                />
+                <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)"
+                  >Contiene gluten</span
+                >
+              </label>
+            </div>
+          </div>
 
           <div class="flex gap-3 pt-2">
             <button
