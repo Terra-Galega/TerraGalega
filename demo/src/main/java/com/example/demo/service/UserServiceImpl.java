@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.entities.User;
 import com.example.demo.repository.UserRepository;
@@ -15,11 +16,13 @@ public class UserServiceImpl implements UserService {
     private UserRepository repository;
 
     @Override
+    @Transactional 
     public Collection<User> getAllUsers() {
         return repository.findAll();
     }
 
     @Override
+    @Transactional
     public User getUserById(Integer id) {
 
         User user = repository.findById(id)
@@ -33,6 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User findByEmail(String email) {
         User user = repository.findByEmail(email);
 
