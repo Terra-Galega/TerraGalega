@@ -36,41 +36,51 @@ public class DataLoader implements CommandLineRunner {
 
                 clientRepository.save(
                                 Client.builder().name("Juan").lastName("García").email("cliente@terra.com")
-                                                .password("cliente123").phone("+57 300 000 0000").build());
+                                                .password("cliente123").phone("+57 300 000 0000")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("Marta").lastName("Souto").email("marta.souto@terra.com")
-                                                .password("marta123").phone("+57 310 555 1122").build());
+                                                .password("marta123").phone("+57 310 555 1122")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("Diego").lastName("Pardo").email("diego.pardo@terra.com")
-                                                .password("diego123").phone("+57 320 444 9988").build());
+                                                .password("diego123").phone("+57 320 444 9988")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("María").lastName("López").email("maria.lopez@terra.com")
-                                                .password("maria123").phone("+57 310 123 4567").build());
+                                                .password("maria123").phone("+57 310 123 4567")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("Carlos").lastName("Rodríguez")
                                                 .email("carlos.rodriguez@terra.com")
-                                                .password("carlos123").phone("+57 315 987 6543").build());
+                                                .password("carlos123").phone("+57 315 987 6543")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("Andrés").lastName("Martínez").email("andres.martinez@terra.com")
-                                                .password("andres123").phone("+57 301 222 3344").build());
+                                                .password("andres123").phone("+57 301 222 3344")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("Laura").lastName("Ramírez").email("laura.ramirez@terra.com")
-                                                .password("laura123").phone("+57 311 666 7788").build());
+                                                .password("laura123").phone("+57 311 666 7788")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("Sebastián").lastName("Torres")
                                                 .email("sebastian.torres@terra.com")
-                                                .password("sebastian123").phone("+57 322 111 2233").build());
+                                                .password("sebastian123").phone("+57 322 111 2233")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("Camila").lastName("Moreno").email("camila.moreno@terra.com")
-                                                .password("camila123").phone("+57 300 888 4455").build());
+                                                .password("camila123").phone("+57 300 888 4455")
+                                                .role(Role.CLIENT).build());
                 clientRepository.save(
                                 Client.builder().name("Felipe").lastName("Castro").email("felipe.castro@terra.com")
-                                                .password("felipe123").phone("+57 316 333 5566").build());
+                                                .password("felipe123").phone("+57 316 333 5566")
+                                                .role(Role.CLIENT).build());
 
                 // admin
                 adminRepository.save(
                                 Admin.builder().name("Carlos").lastName("Martínez").email("admin@terra.com")
-                                                .password("admin123").build());
+                                                .password("admin123").role(Role.ADMIN).build());
 
                 // AddOns
                 addonRepository.save(AddOn.builder().name("Ensalada verde")
