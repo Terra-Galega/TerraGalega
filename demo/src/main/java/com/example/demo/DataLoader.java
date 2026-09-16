@@ -134,7 +134,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(18000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1601050690597-df0568f70950?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Patatas Bravas")
@@ -142,7 +142,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(16000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1598679253544-2c97992403ea?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(true).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Gambas al Ajillo")
@@ -150,7 +150,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(32000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1559339352-11d035aa65de?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(true).spicyHot(true).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Calamares a la Romana")
@@ -158,7 +158,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(28000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(true).build());
 
                 productRepository.save(
                                 Product.builder().name("Pulpo a la Brasa")
@@ -166,7 +166,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(42000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Arroz Negro")
@@ -174,7 +174,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(48000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Fideuá Valenciana")
@@ -182,7 +182,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(52000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(true).build());
 
                 productRepository.save(
                                 Product.builder().name("Bacalao al Pil Pil")
@@ -190,7 +190,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(46000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(true).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Merluza a la Vasca")
@@ -198,7 +198,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(44000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Dorada al Horno")
@@ -206,7 +206,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(39000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Cochinillo Segoviano")
@@ -214,7 +214,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(68000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1544025162-d76694265947?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Cordero Asado")
@@ -222,7 +222,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(62000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1544025162-d76694265947?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Carrilleras de Cerdo")
@@ -230,7 +230,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(48000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1544025162-d76694265947?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Chorizo a la Sidra")
@@ -238,7 +238,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(22000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Fabada Asturiana")
@@ -246,7 +246,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(38000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1547592180-85f173990554?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Callos a la Madrileña")
@@ -254,7 +254,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(36000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1547592180-85f173990554?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Rabo de Toro")
@@ -262,7 +262,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(58000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1544025162-d76694265947?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Pollo al Ajillo")
@@ -270,7 +270,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(32000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Secreto Ibérico")
@@ -278,7 +278,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(55000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1544025162-d76694265947?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Migas Extremeñas")
@@ -286,7 +286,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(28000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1547592180-85f173990554?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(true).build());
 
                 productRepository.save(
                                 Product.builder().name("Gazpacho Andaluz")
@@ -294,7 +294,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(15000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1599021456807-25db0f974333?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Salmorejo Cordobés")
@@ -302,7 +302,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(17000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1599021456807-25db0f974333?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(true).build());
 
                 productRepository.save(
                                 Product.builder().name("Pimientos del Piquillo Rellenos")
@@ -310,7 +310,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(26000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1547592180-85f173990554?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Berenjenas con Miel")
@@ -318,7 +318,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(19000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1547592180-85f173990554?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Ensaladilla Rusa")
@@ -326,7 +326,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(18000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1540420773420-3366772f4999?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Boquerones en Vinagre")
@@ -334,7 +334,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(21000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Pisto Manchego")
@@ -342,7 +342,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(22000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1547592180-85f173990554?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Huevos Rotos con Jamón")
@@ -350,7 +350,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(29000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1525351484163-7529414344d8?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Bocadillo de Calamares")
@@ -358,7 +358,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(23000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(true).containsGluten(true).build());
 
                 productRepository.save(
                                 Product.builder().name("Cachopo Asturiano")
@@ -366,7 +366,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(52000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://images.unsplash.com/photo-1544025162-d76694265947?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(true).build());
 
                 productRepository.save(
                                 Product.builder().name("Crema Catalana")
@@ -374,7 +374,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(16000.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://images.unsplash.com/photo-1488477181946-6428a0291777?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Arroz con Leche")
@@ -382,7 +382,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(14000.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://images.unsplash.com/photo-1488477181946-6428a0291777?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Churros con Chocolate")
@@ -390,7 +390,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(18000.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMJ9oVeHSfDgM20Wc3XicFz0Yqca2n_4T_GcchHVU5qQ&s=10")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(true).build());
 
                 productRepository.save(
                                 Product.builder().name("Torrijas")
@@ -398,7 +398,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(15000.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://images.unsplash.com/photo-1488477181946-6428a0291777?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(true).build());
 
                 productRepository.save(
                                 Product.builder().name("Tarta de Queso Vasca")
@@ -406,7 +406,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(19000.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Flan de Huevo")
@@ -414,7 +414,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(14000.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://images.unsplash.com/photo-1488477181946-6428a0291777?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Sangría Española")
@@ -422,7 +422,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(18000.0)
                                                 .category(categoryRepository.findByName("Bebidas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Horchata de Chufa")
@@ -430,7 +430,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(12000.0)
                                                 .category(categoryRepository.findByName("Bebidas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1544145945-f90425340c7e?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Tinto de Verano")
@@ -438,7 +438,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(14000.0)
                                                 .category(categoryRepository.findByName("Bebidas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(false).build());
+                                                .active(true).popular(false).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Café Cortado")
@@ -446,6 +446,6 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(8000.0)
                                                 .category(categoryRepository.findByName("Bebidas"))
                                                 .imageUrl("https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=480&h=360&fit=crop&auto=format")
-                                                .active(true).popular(true).build());
+                                                .active(true).popular(true).vegetarian(true).spicyMild(false).spicyHot(false).containsNuts(false).containsSeafood(false).containsGluten(false).build());
         }
 }

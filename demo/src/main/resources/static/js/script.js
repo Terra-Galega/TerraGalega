@@ -57,6 +57,7 @@ function saveCart() {
 /* Variables para gestionar el carrito de compras */
 let cart = loadCart();
 let currentCategory = "Todos";
+let activeFeatureFilters = [];
 let selectedItem = null;
 let qty = 1;
 let selectedAdditionals = [];
@@ -103,7 +104,10 @@ function filterMenuItems() {
     const matchesSearch = (item.dataset.name || "")
       .toLowerCase()
       .includes(currentSearch.toLowerCase());
-    if (matchesCategory && matchesSearch) {
+    const matchesFeatures = activeFeatureFilters.every(
+      (feature) => item.dataset[feature] === "true",
+    );
+    if (matchesCategory && matchesSearch && matchesFeatures) {
       item.style.display = "block";
       visibleCount++;
     } else {
@@ -152,6 +156,63 @@ if (menuResetBtn) {
         .querySelector('[data-category="Todos"]')
         ?.classList.add("active");
     }
+    activeFeatureFilters = [];
+    featureFilterCheckboxes.forEach((cb) => (cb.checked = false));
+    updateFeatureFilterBtnState();
+    filterMenuItems();
+  });
+}
+
+/* Panel desplegable "Filtrar por" (características: vegetariano, picante, etc.) */
+const featureFilterBtn = document.getElementById("feature-filter-btn");
+const featureFilterPanel = document.getElementById("feature-filter-panel");
+const featureFilterApplyBtn = document.getElementById("feature-filter-apply");
+const featureFilterClearBtn = document.getElementById("feature-filter-clear");
+const featureFilterCheckboxes = document.querySelectorAll(
+  ".feature-filter-checkbox",
+);
+
+function updateFeatureFilterBtnState() {
+  featureFilterBtn?.classList.toggle(
+    "active",
+    activeFeatureFilters.length > 0,
+  );
+}
+
+function closeFeatureFilterPanel() {
+  featureFilterPanel?.classList.add("hidden-modal");
+  featureFilterBtn?.setAttribute("aria-expanded", "false");
+}
+
+if (featureFilterBtn && featureFilterPanel) {
+  featureFilterBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = !featureFilterPanel.classList.contains("hidden-modal");
+    featureFilterPanel.classList.toggle("hidden-modal", isOpen);
+    featureFilterBtn.setAttribute("aria-expanded", String(!isOpen));
+  });
+
+  featureFilterPanel.addEventListener("click", (e) => e.stopPropagation());
+
+  document.addEventListener("click", closeFeatureFilterPanel);
+}
+
+if (featureFilterApplyBtn) {
+  featureFilterApplyBtn.addEventListener("click", () => {
+    activeFeatureFilters = Array.from(featureFilterCheckboxes)
+      .filter((cb) => cb.checked)
+      .map((cb) => cb.dataset.feature);
+    updateFeatureFilterBtnState();
+    closeFeatureFilterPanel();
+    filterMenuItems();
+  });
+}
+if (featureFilterClearBtn) {
+  featureFilterClearBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    featureFilterCheckboxes.forEach((cb) => (cb.checked = false));
+    activeFeatureFilters = [];
+    updateFeatureFilterBtnState();
     filterMenuItems();
   });
 }

@@ -84,7 +84,7 @@ body {
 }
 
 /* Estado "fija": vidrio esmerilado claro, igual que el resto del sitio.
-   Se activa con JS al hacer scroll en /home, y está siempre activa en las
+  Se activa con JS al hacer scroll en /home, y está siempre activa en las
    demás páginas (que no tienen imagen de fondo detrás de la barra) */
 .nav-bar.nav-bar--stayed {
 background-color: rgba(206, 206, 206, 0.505);
@@ -209,6 +209,68 @@ background-color: rgba(206, 206, 206, 0.505);
 }
 /*
 -------------------------------
+  CARACTERÍSTICAS DEL PLATO (vegetariano, picante, etc.)
+--------------------------------
+*/
+
+/* Insignia pequeña usada en /menu y en el detalle del producto para mostrar
+   una característica (vegetariano, picante, contiene nueces...). Se usa el
+   color forest para diferenciarlas claramente de los tonos terra/burgundy
+   ya usados en precios, botones y la insignia de "Popular" */
+.feature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: rgba(85, 97, 65, 0.1);
+  color: #556141;
+  font-weight: 600;
+}
+
+/* Botón 🔎 que abre el panel de filtro por características, junto a las
+   pestañas de categoría. El ícono usa currentColor, así que basta con
+   cambiar "color" para teñirlo */
+.feature-filter-btn {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(44, 44, 44, 0.1);
+  position: relative;
+  transition: all 0.2s;
+}
+
+.feature-filter-btn:hover {
+  border-color: #b2571f;
+  color: #b2571f;
+}
+
+/* Estado activo (hay al menos un filtro de características aplicado):
+   mismo degradado terracota-burdeos que .category-btn.active, para que
+   se lea como "selección activa" igual que las pestañas de categoría */
+.feature-filter-btn.active {
+  background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+  color: #fff;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
+}
+
+/* Panel desplegable "Filtrar por" */
+.feature-filter-panel {
+  width: 260px;
+  background: rgba(245, 242, 235, 0.98);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 12px 32px rgba(44, 44, 44, 0.14),
+    0 2px 8px rgba(44, 44, 44, 0.06);
+}
+
+/* Casillas del panel: color forest al marcarlas para mantener la identidad
+   visual de "característica" (distinto del terra/burgundy de acciones y precios) */
+.feature-filter-option input[type="checkbox"] {
+  accent-color: #556141;
+}
+/*
+-------------------------------
   BOTONES GENERALES Y ACCIONES
 --------------------------------
 */
@@ -297,4 +359,4 @@ background-color: rgba(206, 206, 206, 0.505);
 .admin-logout-btn:hover {
   color: #f5f2eb;
   background-color: rgba(105, 47, 47, 0.18);
-} 
+}
