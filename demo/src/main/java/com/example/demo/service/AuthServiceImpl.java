@@ -2,32 +2,27 @@ package com.example.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.demo.entities.Client;
-import com.example.demo.entities.User;
-import com.example.demo.service.UserService;
+import com.example.demo.entities.UserRole;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
     @Autowired
-    
-    private UserService userService;
-
-    private User user;
+    private UserRoleService userRoleService;
 
     @Override
-    public User login(String email, String password) {
+    public UserRole login(String email, String password) {
 
-        user = userService.findByEmail(email);
+        UserRole userRole = userRoleService.findByEmail(email);
 
-        if (user == null) {
+        if (userRole == null) {
             throw new IllegalArgumentException("El correo no está registrado.");
         }
 
-        if (!user   .getPassword().equals(password)) {
+        if (!userRole.getPassword().equals(password)) {
             throw new IllegalArgumentException("La contraseña es incorrecta.");
         }
 
-        return user;
+        return userRole;
     }
 }

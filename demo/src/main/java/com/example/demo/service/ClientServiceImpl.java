@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entities.Client;
+import com.example.demo.entities.UserRole;
 import com.example.demo.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,13 @@ public class ClientServiceImpl implements ClientService {
     private ClientRepository repository;
 
     @Override
-    @Transactional 
+    @Transactional
     public Collection<Client> getAllClients() {
         return repository.findAll();
     }
 
     @Override
-    @Transactional 
+    @Transactional
     public Client getClientById(Integer id) {
         Client cliente = repository.findById(id).orElseThrow();
 
@@ -34,18 +35,23 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
-    public Client addClient(Client Client) {
-        return repository.save(Client);
+    public Client addClient(Client client) {
+        // Gracias a cascade = CascadeType.ALL y @MapsId en Client.userRole,
+        // guardar el Client también inserta su UserRole asociado y hace que
+        // Client.id tome el mismo valor autogenerado que UserRole.id.
+        return repository.save(client);
     }
 
     @Override
     @Transactional
     public Client updateClient(Integer id, Client client) {
 
-        Client actual = repository.findById(id)
+        Client current = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("El cliente no existe."));
 
-        Client emailClient = repository.findByEmail(client.getEmail());
+        UserRole newData = client.getUserRole();
+
+        Client emailClient = repository.findByUserRoleEmail(newData.getEmail());
 
         if (emailClient != null
                 && !emailClient.getId().equals(id)) {
@@ -54,15 +60,22 @@ public class ClientServiceImpl implements ClientService {
                     "Ya existe otra cuenta con ese correo.");
         }
 
-        client.setId(actual.getId());
+        // modificamos la entidad administrada (current) en vez de guardar el objeto
+        // "client" recién construido, para no pelear con @MapsId al reasignar ids
+        UserRole currentRole = current.getUserRole();
+        currentRole.setName(newData.getName());
+        currentRole.setLastName(newData.getLastName());
+        currentRole.setEmail(newData.getEmail());
 
-        if (client.getPassword() == null
-                || client.getPassword().isBlank()) {
+        if (newData.getPassword() != null
+                && !newData.getPassword().isBlank()) {
 
-            client.setPassword(actual.getPassword());
+            currentRole.setPassword(newData.getPassword());
         }
 
-        return repository.save(client);
+        current.setPhone(client.getPhone());
+
+        return repository.save(current);
     }
 
     @Override
@@ -74,7 +87,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public Client findByEmail(String email) {
-        return repository.findByEmail(email);
+        return repository.findByUserRoleEmail(email);
     }
 
 }

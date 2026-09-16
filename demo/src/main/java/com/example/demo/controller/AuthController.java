@@ -4,12 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import com.example.demo.entities.Client;
+import com.example.demo.entities.UserRole;
+import com.example.demo.entities.Role;
 import com.example.demo.service.CategoryService;
 import com.example.demo.service.ClientService;
 import com.example.demo.service.ProductService;
+import com.example.demo.service.UserRoleService;
 import com.example.demo.service.AuthService;
-import com.example.demo.service.UserService;
-import com.example.demo.entities.User;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,17 +33,17 @@ public class AuthController {
     @Autowired
     private CategoryService categoryService;
 
-    @Autowired
-    private UserService userService;
+     @Autowired
+    private UserRoleService userRoleService;
 
     public static final String SESSION_Client = "ClientLogueado";
 
     private boolean isAdmin(Integer id) {
-        User user = userService.getUserById(id);
-        return user != null && user.isAdministrador();
+         UserRole userRole = userRoleService.getUserRoleById(id);
+        return userRole != null && userRole.getRole() == Role.ADMIN;
     }
 
-    // http://localhost:8090/admin
+    // http://localhost:8080/admin
     @GetMapping("/admin/{id}")
     public String admin(@PathVariable Integer id, Model model, HttpSession session) {
 
@@ -55,7 +56,7 @@ public class AuthController {
             return "redirect:/login";
         }
 
-        User admin = userService.getUserById(id);
+        UserRole admin = userRoleService.getUserRoleById(id);
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("categories", categoryService.getAllCategorys());
         model.addAttribute("adminName", admin.getName());
@@ -63,17 +64,17 @@ public class AuthController {
         return "admin";
     }
 
-    // http://localhost:8090/login
+    // http://localhost:8080/login
     @GetMapping("/login")
     public String login(Model model, HttpSession session) {
-        User user = (User) session.getAttribute(SESSION_Client);
+        UserRole userRole = (UserRole) session.getAttribute(SESSION_Client);
 
-        if (user != null) {
+        if (userRole != null) {
 
-            if (isAdmin(user.getId())) {
-                return "redirect:/admin/" + user.getId();
+            if (isAdmin(userRole.getId())) {
+                return "redirect:/admin/" + userRole.getId();
             } else {
-                return "redirect:/account/" + user.getId();
+                return "redirect:/account/" + userRole.getId();
             }
         }
         return "login";
@@ -82,23 +83,22 @@ public class AuthController {
     @PostMapping("/login")
     public String doLogin(@RequestParam String email, @RequestParam String password,
             Model model, HttpSession session) {
-        User user = authService.login(email, password);
+        UserRole userRole = authService.login(email, password);
 
-        if (user == null) {
+        if (userRole == null) {
             model.addAttribute("loginError", "Correo o contraseña incorrectos.");
             model.addAttribute("emailIngresado", email);
             return "login";
         }
-        session.setAttribute(SESSION_Client, user);
-        if (isAdmin(user.getId())) {
-            return "redirect:/admin/" + user.getId();
+        session.setAttribute(SESSION_Client, userRole);
+        if (isAdmin(userRole.getId())) {
+            return "redirect:/admin/" + userRole.getId();
         } else {
-            return "redirect:/account/" + user.getId();
+            return "redirect:/account/" + userRole.getId();
         }
     }
 
-    // Procesa el formulario de registro
-    // crea un Cliente real en ClientRepository y lo deja logueado
+
 
     // Cierra la sesión del Cliente
     @PostMapping("/logout")
@@ -107,20 +107,43 @@ public class AuthController {
         return "redirect:/home";
     }
 
+    // Procesa el formulario de registro
+    // crea un Cliente real en ClientRepository y lo deja logueado
     @PostMapping("/register")
-    public String register(@ModelAttribute Client Client, Model model, HttpSession session) {
+    public String register(
+        @RequestParam String name,
+        @RequestParam String lastName,
+        @RequestParam String email,
+        @RequestParam String password,
+        @RequestParam String phone,
+        Model model,
+        HttpSession session) {
+        
         if (clientService.getAllClients().stream()
-                .anyMatch(c -> c.getEmail().equalsIgnoreCase(Client.getEmail()))) {
+                .anyMatch(c -> c.getUserRole().getEmail().equalsIgnoreCase(email))) {
             model.addAttribute("signupError", "Ya existe una cuenta con ese correo.");
             return "error";
         }
 
-        Client creado = clientService.addClient(Client);
-        session.setAttribute(SESSION_Client, creado);
-        return "redirect:/account/" + creado.getId();
+        UserRole userRole = UserRole.builder()
+                .name(name)
+                .lastName(lastName)
+                .email(email)
+                .password(password)
+                .role(Role.CLIENT)
+                .build();
+
+        Client client = Client.builder()
+                .userRole(userRole)
+                .phone(phone)
+                .build();
+        
+        Client created = clientService.addClient(client);
+        session.setAttribute(SESSION_Client, created.getUserRole());
+        return "redirect:/account/" + created.getId();
     }
 
-    // http://localhost:8090/account
+    // http://localhost:8080/account
     @GetMapping("/account/{id}")
     public String account(@PathVariable Integer id, Model model) {
         Client Client;
