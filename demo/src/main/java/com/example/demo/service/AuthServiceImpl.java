@@ -20,24 +20,25 @@ public class AuthServiceImpl implements AuthService {
 
         // Como ya no existe una tabla única de usuarios, probamos el correo
         // contra cada tabla (clients, admins) hasta encontrar coincidencia.
+        //
+        // Devuelve null (no lanza excepción) cuando el correo no existe o la
+        // contraseña no coincide: AuthController.doLogin() espera null para
+        // mostrar "Correo o contraseña incorrectos." en el propio formulario.
+        // Si esto lanzara, la excepción quedaría sin capturar (no está en
+        // GlobalExceptionHandler) y el login fallido terminaría en la
+        // página blanca de error de Spring en vez de en el mensaje del form.
         Client client = clientService.findByEmail(email);
 
         if (client != null) {
-            if (!client.getPassword().equals(password)) {
-                throw new IllegalArgumentException("La contraseña es incorrecta.");
-            }
-            return client;
+            return client.getPassword().equals(password) ? client : null;
         }
 
         Admin admin = adminService.findByEmail(email);
 
         if (admin != null) {
-            if (!admin.getPassword().equals(password)) {
-                throw new IllegalArgumentException("La contraseña es incorrecta.");
-            }
-            return admin;
+            return admin.getPassword().equals(password) ? admin : null;
         }
 
-        throw new IllegalArgumentException("El correo no está registrado.");
+        return null;
     }
 }

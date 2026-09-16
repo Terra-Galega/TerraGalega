@@ -68,6 +68,9 @@ public class AuthController {
         model.addAttribute("categories", categoryService.getAllCategorys());
         model.addAttribute("adminName", admin.getName());
         model.addAttribute("adminId", admin.getId());
+        // admin.html itera "clients" en la pestaña Usuarios (#lists.isEmpty(clients));
+        // sin esta línea ese atributo no existe en el modelo.
+        model.addAttribute("clients", clientService.getAllClients());
         return "admin";
     }
 

@@ -101,7 +101,7 @@
 
       <div id="user-profile-mobile" th:if="${loggedClient != null}" /*method="post" */
         class="flex md:hidden flex-col gap-3 pt-4 pb-2 border-t mt-2" style="border-color: rgba(255, 255, 255, 0.08)">
-        <a th:href="@{/account}" class="link-nav text-center text-xs font-medium tracking-[0.18em]"
+        <a th:href="@{/account/{id}(id=${loggedClient.id})}" class="link-nav text-center text-xs font-medium tracking-[0.18em]"
           th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
         <form th:action="@{/logout}" method="post">
           <button type="submit"
