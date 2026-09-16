@@ -13,13 +13,16 @@ public class GlobalModelAdvice {
     /*
      * Se ejecuta antes de cada handler y agrega el Client de la sesión
      * (o null) a TODAS las vistas, con una clave que no choca con el
-     * 
+     *
      * @ModelAttribute Client de registro()/updateMyAccount().
+     *
+     * En sesión puede haber un Client o un Admin (ver AuthController); acá
+     * solo nos interesa el caso Client
      */
 
     @ModelAttribute("loggedClient")
     public Client addLoggedClientToModel(HttpSession session) {
-         Object logged = session.getAttribute(AuthController.SESSION_Client);
-        return (logged instanceof Client) ? (Client) logged : null;
+        Object logged = session.getAttribute(AuthController.SESSION_Client);
+        return (logged instanceof Client client) ? client : null;
     }
 }

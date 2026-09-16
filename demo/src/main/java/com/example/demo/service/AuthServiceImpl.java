@@ -1,33 +1,43 @@
 package com.example.demo.service;
 
+import com.example.demo.entities.Admin;
+import com.example.demo.entities.Client;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.demo.entities.Client;
-import com.example.demo.entities.User;
-import com.example.demo.service.UserService;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
     @Autowired
-    
-    private UserService userService;
+    private ClientService clientService;
 
-    private User user;
+    @Autowired
+    private AdminService adminService;
 
     @Override
-    public User login(String email, String password) {
+    public Object login(String email, String password) {
 
-        user = userService.findByEmail(email);
+        // Como ya no existe una tabla única de usuarios, probamos el correo
+        // contra cada tabla (clients, admins) hasta encontrar coincidencia.
+        Client client = clientService.findByEmail(email);
 
-        if (user == null) {
-            throw new IllegalArgumentException("El correo no está registrado.");
+        if (client != null) {
+            if (!client.getPassword().equals(password)) {
+                throw new IllegalArgumentException("La contraseña es incorrecta.");
+            }
+            return client;
         }
 
-        if (!user   .getPassword().equals(password)) {
-            throw new IllegalArgumentException("La contraseña es incorrecta.");
+        Admin admin = adminService.findByEmail(email);
+
+        if (admin != null) {
+            if (!admin.getPassword().equals(password)) {
+                throw new IllegalArgumentException("La contraseña es incorrecta.");
+            }
+            return admin;
         }
 
-        return user;
+        throw new IllegalArgumentException("El correo no está registrado.");
     }
 }

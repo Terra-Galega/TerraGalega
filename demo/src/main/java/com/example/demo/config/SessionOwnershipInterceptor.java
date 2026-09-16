@@ -1,7 +1,9 @@
 package com.example.demo.config;
 
 import com.example.demo.controller.AuthController;
-import com.example.demo.entities.User;
+import com.example.demo.controller.AuthController;
+import com.example.demo.entities.Admin;
+import com.example.demo.entities.Client;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,14 +45,19 @@ public class SessionOwnershipInterceptor implements HandlerInterceptor {
         // una sesión nueva si el usuario no tiene una
         HttpSession session = request.getSession(false);
 
-        User loggedUser = (session != null)
-                ? (User) session.getAttribute(AuthController.SESSION_Client)
+         Object logged = (session != null)
+                ? session.getAttribute(AuthController.SESSION_Client)
                 : null;
 
-        // Comprueba que exista un usuario logueado y que el ID de la URL
-        // sea el mismo que el ID de dicho usuario
+        Integer loggedId = null;
 
-        boolean idIsntMine = loggedUser == null || !urlId.equals(loggedUser.getId());
+        if (logged instanceof Client client) {
+            loggedId = client.getId();
+        } else if (logged instanceof Admin admin) {
+            loggedId = admin.getId();
+        }
+
+        boolean idIsntMine = loggedId == null || !urlId.equals(loggedId);
 
         // Si el usuario no tiene permiso, se elimina su sesión,
         // se redirige al login y se detiene la petición
