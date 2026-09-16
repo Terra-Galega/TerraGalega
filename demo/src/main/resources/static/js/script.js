@@ -22,7 +22,14 @@ const fmt = (price) =>
   }
   updateNavBar();
 })();
+(function markActiveNavLink() {
+  const currentPath = window.location.pathname;
 
+  document.querySelectorAll(".link-nav[href]").forEach((link) => {
+    const linkPath = new URL(link.href, window.location.origin).pathname;
+    link.classList.toggle("active", linkPath === currentPath);
+  });
+})();
 
 const CART_STORAGE_KEY = "terraGalegaCart";
 
@@ -89,7 +96,10 @@ function filterMenuItems() {
   let visibleCount = 0;
   items.forEach((item) => {
     const matchesCategory =
-      currentCategory === "Todos" || item.dataset.category === currentCategory;
+      currentCategory === "Todos" ||
+      (currentCategory === "Popular"
+        ? item.dataset.popular === "true"
+        : item.dataset.category === currentCategory);
     const matchesSearch = (item.dataset.name || "")
       .toLowerCase()
       .includes(currentSearch.toLowerCase());

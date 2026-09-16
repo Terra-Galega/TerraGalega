@@ -87,10 +87,10 @@ body {
    Se activa con JS al hacer scroll en /home, y está siempre activa en las
    demás páginas (que no tienen imagen de fondo detrás de la barra) */
 .nav-bar.nav-bar--stayed {
-  background-color: rgba(245, 242, 235, 0.55);
+  background-color: rgba(245, 242, 235, 0.85);
   /* Blur más profundo y saturación elevada */
-  backdrop-filter: blur(35px) saturate(210%);
-  -webkit-backdrop-filter: blur(35px) saturate(210%);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
   /* Un brillo de luz superior y un borde inferior muy suave */
   border-top: 1px solid rgba(255, 255, 255, 0.65);
   border-bottom: 1px solid rgba(44, 44, 44, 0.06);
@@ -112,6 +112,15 @@ body {
 .link-nav {
   color: rgba(245, 242, 235, 0.85);
   transition: color 0.2s;
+}
+.link-nav.active,
+#mobile-menu .link-nav.active,
+.nav-bar.nav-bar--stayed .link-nav.active {
+  color: #556141 !important;
+  text-decoration: underline;
+  text-decoration-color: #556141;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
 }
 .link-nav:hover {
   color: #f5f2eb;
@@ -265,5 +274,27 @@ body {
   background-color: rgba(255, 255, 255, 0.6);
 }
 
-.admin-tab-btn { color: rgba(245, 242, 235, 0.4); }
-.admin-tab-btn.active { color: #f5f2eb; background-color: rgb(217, 154, 33); }
+.admin-tab-btn { 
+  color: rgba(245, 242, 235, 0.6);
+  transition: all 0.2s ease;
+}
+.admin-tab-btn:hover {
+  color: #f5f2eb;
+  background-color: rgba(85, 97, 65, 0.4);
+}
+
+.admin-tab-btn.active { 
+  color: #f5f2eb; 
+  background-color: #556141; 
+  box-shadow: 0 4px 12px rgba(85, 97, 65, 0.3);
+}
+/* Estilo y hover para el botón de cerrar sesión del Admin */
+.admin-logout-btn {
+  color: rgba(245, 242, 235, 0.6);
+  transition: all 0.2s ease;
+}
+
+.admin-logout-btn:hover {
+  color: #f5f2eb;
+  background-color: rgba(105, 47, 47, 0.18);
+} 
