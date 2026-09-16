@@ -56,6 +56,10 @@ public class ClientServiceImpl implements ClientService {
 
         client.setId(actual.getId());
 
+        // El formulario de edición no envía "role", así que lo preservamos
+        // igual que se preserva la contraseña cuando viene vacía.
+        client.setRole(actual.getRole());
+
         if (client.getPassword() == null
                 || client.getPassword().isBlank()) {
 

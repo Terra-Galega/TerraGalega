@@ -3,13 +3,14 @@ package com.example.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import com.example.demo.entities.Admin;
 import com.example.demo.entities.Client;
+import com.example.demo.entities.Role;
+import com.example.demo.service.AdminService;
 import com.example.demo.service.CategoryService;
 import com.example.demo.service.ClientService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.AuthService;
-import com.example.demo.service.UserService;
-import com.example.demo.entities.User;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,16 +34,23 @@ public class AuthController {
     private CategoryService categoryService;
 
     @Autowired
-    private UserService userService;
+    private AdminService adminService;
 
+    // En sesión se guarda directamente el Client o el Admin que inició
+    // sesión (no hay clase intermedia). Quien lo lee usa instanceof.
     public static final String SESSION_Client = "ClientLogueado";
 
+    // Client y Admin ya no comparten tabla ni clase: "es admin" se resuelve
+    // preguntando directamente a la tabla admins por ese id.
     private boolean isAdmin(Integer id) {
-        User user = userService.getUserById(id);
-        return user != null && user.isAdministrador();
+        try {
+            return adminService.getAdminById(id) != null;
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
-    // http://localhost:8090/admin
+    // http://localhost:8080/admin
     @GetMapping("/admin/{id}")
     public String admin(@PathVariable Integer id, Model model, HttpSession session) {
 
@@ -55,7 +63,7 @@ public class AuthController {
             return "redirect:/login";
         }
 
-        User admin = userService.getUserById(id);
+        Admin admin = adminService.getAdminById(id);
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("categories", categoryService.getAllCategorys());
         model.addAttribute("adminName", admin.getName());
@@ -63,42 +71,42 @@ public class AuthController {
         return "admin";
     }
 
-    // http://localhost:8090/login
+    // http://localhost:8080/login
     @GetMapping("/login")
     public String login(Model model, HttpSession session) {
-        User user = (User) session.getAttribute(SESSION_Client);
+        Object logged = session.getAttribute(SESSION_Client);
 
-        if (user != null) {
-
-            if (isAdmin(user.getId())) {
-                return "redirect:/admin/" + user.getId();
-            } else {
-                return "redirect:/account/" + user.getId();
-            }
+        if (logged instanceof Client client) {
+            return "redirect:/account/" + client.getId();
         }
+
+        if (logged instanceof Admin admin) {
+            return "redirect:/admin/" + admin.getId();
+        }
+
         return "login";
     }
 
     @PostMapping("/login")
     public String doLogin(@RequestParam String email, @RequestParam String password,
             Model model, HttpSession session) {
-        User user = authService.login(email, password);
+        Object logged = authService.login(email, password);
 
-        if (user == null) {
+        if (logged == null) {
             model.addAttribute("loginError", "Correo o contraseña incorrectos.");
             model.addAttribute("emailIngresado", email);
             return "login";
         }
-        session.setAttribute(SESSION_Client, user);
-        if (isAdmin(user.getId())) {
-            return "redirect:/admin/" + user.getId();
-        } else {
-            return "redirect:/account/" + user.getId();
-        }
-    }
 
-    // Procesa el formulario de registro
-    // crea un Cliente real en ClientRepository y lo deja logueado
+        session.setAttribute(SESSION_Client, logged);
+
+        if (logged instanceof Admin admin) {
+            return "redirect:/admin/" + admin.getId();
+        }
+
+        Client client = (Client) logged;
+        return "redirect:/account/" + client.getId();
+    }
 
     // Cierra la sesión del Cliente
     @PostMapping("/logout")
@@ -107,6 +115,8 @@ public class AuthController {
         return "redirect:/home";
     }
 
+    // Procesa el formulario de registro
+    // crea un Cliente real en ClientRepository y lo deja logueado
     @PostMapping("/register")
     public String register(@ModelAttribute Client Client, Model model, HttpSession session) {
         if (clientService.getAllClients().stream()
@@ -115,12 +125,15 @@ public class AuthController {
             return "error";
         }
 
+        // El formulario no manda "role": todo el que se registra por acá es Cliente.
+        Client.setRole(Role.CLIENT);
+
         Client creado = clientService.addClient(Client);
         session.setAttribute(SESSION_Client, creado);
         return "redirect:/account/" + creado.getId();
     }
 
-    // http://localhost:8090/account
+    // http://localhost:8080/account
     @GetMapping("/account/{id}")
     public String account(@PathVariable Integer id, Model model) {
         Client Client;

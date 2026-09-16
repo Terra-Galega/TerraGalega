@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.entities.Product;
 import com.example.demo.service.ProductService;
-import com.example.demo.entities.User;
+import com.example.demo.entities.Admin;
+import com.example.demo.entities.Product;
+import com.example.demo.service.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,12 +24,12 @@ public class AdminController {
 
     // Verificamos si el usuario logueado es administrador desde la sesión. Si no lo
     // es, se invalida la sesión y se redirige al login.
-    private boolean isntAdmin(HttpSession session) {
-        User loggedUser = (session != null)
-                ? (User) session.getAttribute(AuthController.SESSION_Client)
+     private boolean isntAdmin(HttpSession session) {
+        Object logged = (session != null)
+                ? session.getAttribute(AuthController.SESSION_Client)
                 : null;
 
-        return loggedUser == null || !loggedUser.isAdministrador();
+        return !(logged instanceof Admin);
     }
 
     // Añade un producto nuevo usando @ModelAttribute
