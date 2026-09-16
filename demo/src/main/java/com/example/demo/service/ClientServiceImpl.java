@@ -4,6 +4,7 @@ import com.example.demo.entities.Client;
 import com.example.demo.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -14,11 +15,13 @@ public class ClientServiceImpl implements ClientService {
     private ClientRepository repository;
 
     @Override
+    @Transactional 
     public Collection<Client> getAllClients() {
         return repository.findAll();
     }
 
     @Override
+    @Transactional 
     public Client getClientById(Integer id) {
         Client cliente = repository.findById(id).orElseThrow();
 
@@ -30,11 +33,13 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public Client addClient(Client Client) {
         return repository.save(Client);
     }
 
     @Override
+    @Transactional
     public Client updateClient(Integer id, Client client) {
 
         Client actual = repository.findById(id)
@@ -61,11 +66,13 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
     public void deleteClient(Integer id) {
         repository.deleteById(id);
     }
 
     @Override
+    @Transactional
     public Client findByEmail(String email) {
         return repository.findByEmail(email);
     }

@@ -4,6 +4,7 @@ import com.example.demo.entities.Product;
 import com.example.demo.errors.ProductNotFoundException;
 import com.example.demo.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -16,15 +17,18 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository repository;
 
     @Override
+    @Transactional
     public Collection<Product> getAllProducts() {
         return repository.findAll();
     }
     @Override
+    @Transactional
     public Collection<Product> getAllProductsActive() {
         return repository.findByActiveTrue();
     }
 
     @Override
+    @Transactional
     public Product getProductById(Integer id) {
 
         Product product = repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
@@ -33,11 +37,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public Collection<Product> getPopularProductsActive() {
         return repository.findByPopularTrueAndActiveTrue();
     }
 
     @Override
+    @Transactional
     public Collection<Product> getRelatedProducts(Integer id) {
         Product product = repository.findById(id).orElseThrow();
         if (product == null) {
@@ -52,6 +58,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public Product addProduct(Product product) {
 
         if (product.getActive() == null) {
@@ -64,6 +71,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public Product updateProduct(Integer id, Product product) {
 
         Product existingProduct = repository.findById(id)
@@ -79,11 +87,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Integer id) {
         repository.deleteById(id);
     }
 
     @Override
+    @Transactional
     public Product toggleProductActive(Integer id) {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));

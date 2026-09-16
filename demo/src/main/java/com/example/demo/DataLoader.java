@@ -12,7 +12,6 @@ import java.util.Random;
 import jakarta.transaction.Transactional;
 
 @Component
-@Transactional
 public class DataLoader implements CommandLineRunner {
 
         @Autowired
@@ -31,6 +30,7 @@ public class DataLoader implements CommandLineRunner {
         private AddOnRepository addonRepository;
 
         @Override
+        @Transactional 
         public void run(String... args) throws Exception {
                 Random random = new Random(42);
 
