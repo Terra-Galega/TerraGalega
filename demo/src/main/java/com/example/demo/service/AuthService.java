@@ -1,9 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.entities.User;
+import com.example.demo.entities.UserRole;
 
 public interface AuthService {
 
-    User login(String email, String password);
+    UserRole login(String email, String password);
 
 }
