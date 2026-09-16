@@ -41,26 +41,23 @@
           </a>
         </div>
 
-        <!-- Columna derecha: 3 elementos sueltos, igual que la izquierda, para que justify-evenly reparta el mismo ritmo -->
+         <!-- Columna derecha: pedidos - sesión - carrito -->
         <div class="flex items-center justify-evenly w-full">
+
+          <!-- PEDIDOS si no hay sesión, MIS PEDIDOS si la hay -->
+          <a th:href="@{/orders}"
+            class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+            th:text="${loggedClient == null} ? 'PEDIDOS' : 'MIS PEDIDOS'">
+          </a>
+
+          <!-- Último elemento de texto: iniciar sesión, o el nombre del cliente -->
           <a th:if="${loggedClient == null}" th:href="@{/login}"
             class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
             INICIAR SESIÓN
           </a>
-          <a th:if="${loggedClient == null}" th:href="@{/login(tab='register')}"
-            class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
-            REGISTRARSE
-          </a>
-
           <a th:if="${loggedClient != null}" th:href="@{/account/{id}(id=${loggedClient.id})}"
             class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
             th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
-          <form th:if="${loggedClient != null}" th:action="@{/logout}" method="post" class="contents">
-            <button type="submit"
-              class="link-nav text-xs font-medium tracking-[0.18em] leading-none text-red-400 hover:text-red-300 bg-transparent border-0 p-0 m-0 cursor-pointer whitespace-nowrap">
-              SALIR
-            </button>
-          </form>
 
           <button class="link-nav relative flex items-center justify-center" data-modal="cart" aria-label="Carrito">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
@@ -125,17 +122,14 @@
         <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2" th:href="@{/contact}">
           CONTACTO
         </a>
-        <div th:if="${loggedClient == null}" class="flex gap-3 pt-4 pb-2 border-t mt-2"
+                <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2" th:href="@{/orders}"
+          th:text="${loggedClient == null} ? 'PEDIDOS' : 'MIS PEDIDOS'">
+        </a>
+        <div th:if="${loggedClient == null}" class="flex pt-4 pb-2 border-t mt-2"
           style="border-color: rgba(255, 255, 255, 0.08)">
-          <a class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest rounded text-center" style="
-        color: #f5f2eb;
-        border: 1px solid rgba(245, 242, 235, 0.25);
-      " th:href="@{/login}">
+          <a class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center"
+            th:href="@{/login}">
             INICIAR SESIÓN
-          </a>
-          <a th:href="@{/login(tab='register')}"
-            class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center">
-            REGISTRARSE
           </a>
         </div>
       </div>
