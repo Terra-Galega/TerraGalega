@@ -75,6 +75,11 @@
         </button>
         <button
           class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+          data-category="Popular"
+        >
+          Popular
+        <button
+          class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
           data-category="Entradas"
         >
           Entradas
@@ -107,7 +112,7 @@
         <div
           th:each="product : ${products}"
           class="menu-item glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col"
-          th:attr="data-category=${product.getCategory().getName()},data-name=${product.name},data-href=@{/productDetail/{id}(id=${product.id})}"
+          th:attr="data-category=${product.getCategory().getName()},data-name=${product.name},data-popular=${product.popular},data-href=@{/productDetail/{id}(id=${product.id})}"
           onclick="window.location.href = this.dataset.href"
         >
           <div class="relative h-56 overflow-hidden">
@@ -150,7 +155,7 @@
             ></h3>
             <p
               class="text-sm leading-relaxed line-clamp-2 mb-5 flex-grow"
-              style="color: rgba(44, 44, 44, 0.55)"
+              style="color: rgba(44, 44, 44, 0.75)"
               th:text="${product.description}"
             ></p>
             <!-- Cantidad de adicionales disponibles, solo si el producto tiene alguno -->
