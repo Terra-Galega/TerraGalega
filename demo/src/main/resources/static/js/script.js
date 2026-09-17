@@ -819,33 +819,33 @@ function checkoutPage() {
     payBtn.disabled = true;
     payBtn.textContent = "Procesando pago...";
 
-    /* Pequeño delay artificial para que se sienta como una pasarela real xd */
-    setTimeout(() => {
-      fetch("/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, items }),
-      })
-        .then(async (res) => {
-          if (res.status === 401) {
-            window.location.href = "/login?redirect=checkout";
-            return;
-          }
-          if (!res.ok) {
-            const data = await res.json().catch(() => ({}));
-            throw new Error(data.message || "No se pudo procesar el pago.");
-          }
-          cart = [];
-          saveCart();
-          window.location.href = "/orders?paid=true";
-        })
-        .catch((err) => {
-          errorEl.textContent = err.message;
-          errorEl.classList.remove("hidden-modal");
-          payBtn.disabled = false;
-          payBtn.textContent = "Pagar";
+      /* Formulario clásico . El navegador hace un POST normal a /checkout */
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "/checkout";
+      form.style.display = "none";
+      const addHiddenField = (name, value) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
+
+      addHiddenField("address", address);
+      items.forEach((item, i) => {
+        addHiddenField(`items[${i}].productId`, item.productId);
+        addHiddenField(`items[${i}].quantity`, item.quantity);
+        item.addOnIds.forEach((addOnId, j) => {
+          addHiddenField(`items[${i}].addOnIds[${j}]`, addOnId);
         });
-    }, 900);
+      });
+
+      /* El carrito NO se limpia aquí: si el pago falla, /checkout nos
+        devuelve a esta misma página y el carrito debe seguir intacto.
+        Se limpia en /orders al confirmar ?paid=true */
+      document.body.appendChild(form);
+      form.submit();
   });
 }
 
