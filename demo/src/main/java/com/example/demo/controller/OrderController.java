@@ -14,21 +14,21 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // http://localhost:8080/orders
-    // Requiere sesión de cliente, igual que /account. Muestra los pedidos
-    // ya guardados (client, items con producto/cantidad/adicionales, total,
-    // estado) más recientes primero.
-
     @GetMapping("/orders")
     public String orders(Model model, HttpSession session) {
         Object logged = session.getAttribute(AuthController.SESSION_Client);
 
-        if (!(logged instanceof Client client)) {
-            return "redirect:/login";
+        // Si es un cliente válido, pasamos su información y sus pedidos
+        if (logged instanceof Client client) {
+            model.addAttribute("client", client);
+            model.addAttribute("orders", orderService.getOrdersByClientId(client.getId()));
+        } else {
+            // Si no hay sesión, mandamos el client como nulo explícitamente
+            // para que Thymeleaf muestre los pasos de iniciar sesión y pedir
+            model.addAttribute("client", null);
         }
 
-        model.addAttribute("client", client);
-        model.addAttribute("orders", orderService.getOrdersByClientId(client.getId()));
+        // Siempre retornamos la misma vista, el HTML decidirá qué mostrar
         return "orders";
     }
 }
