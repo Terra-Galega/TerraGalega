@@ -10,7 +10,7 @@ const fmt = (price) =>
 (function initNavBar() {
   const navBar = document.getElementById("nav-bar");
   if (!navBar) return;
-  const isHome = navBar.dataset.inicio === "true";
+  const isHome = navBar.dataset.isHome === "true";
 
   function updateNavBar() {
     const stayed = !isHome || window.scrollY > 20;
@@ -703,12 +703,14 @@ if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
   });
 
   detailAddBtn.addEventListener("click", () => {
-    const addsTotal = currentAddons
-      .filter((a) => detailSelectedAdds.includes(a.name))
-      .reduce((sum, a) => sum + a.price, 0);
+    const selectedAddOns = currentAddons.filter((a) =>
+      detailSelectedAdds.includes(a.name),
+    );
+    const addsTotal = selectedAddOns.reduce((sum, a) => sum + a.price, 0); // Suma de precios de adicionales seleccionados
     const unitPrice = currentProduct.price + addsTotal;
     /* Se agrega al mismo carrito global que usa el modal de /menu, con la
-    misma forma de objeto que espera renderCart() */
+    misma forma de objeto que espera renderCart(), más "addOns" para que
+    /checkout sepa qué adicionales debe incluir en el pedido */
     const existing = cart.find((c) => c.id === currentProduct.id);
     if (existing) {
       existing.quantity += detailQty;
@@ -719,6 +721,7 @@ if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
         price: unitPrice,
         imageUrl: currentProduct.imageUrl,
         quantity: detailQty,
+        addOns: selectedAddOns.map((a) => ({ id: a.id, name: a.name, price: a.price })),
       });
     }
     renderCart();
@@ -737,6 +740,115 @@ if (detailAddBtn && typeof currentProduct !== "undefined" && currentProduct) {
 
   detailRender();
 }
+function checkoutPage() {
+  const emptyEl = document.getElementById("checkout-empty");
+  const contentEl = document.getElementById("checkout-content");
+  const itemsEl = document.getElementById("checkout-items");
+  const totalEl = document.getElementById("checkout-total");
+  const addressInput = document.getElementById("checkout-address");
+  const addressError = document.getElementById("checkout-address-error");
+  const payBtn = document.getElementById("checkout-pay-btn");
+  const errorEl = document.getElementById("checkout-error");
+
+  /* "cart" y "fmt" vienen de script.js, cargado justo antes que este bloque */
+  if (!cart || cart.length === 0) {
+    emptyEl.classList.remove("hidden-modal");
+    contentEl.classList.add("hidden-modal");
+    return;
+  }
+
+  let total = 0;
+  itemsEl.innerHTML = cart.map((item) => {
+    total += item.price * item.quantity;
+    const addOnsLabel = (item.addOns || []).map((a) => a.name).join(", ");
+    return `
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="font-medium text-charcoal text-sm">${item.quantity}× ${item.name}</p>
+              ${addOnsLabel ? `<p class="text-xs mt-0.5" style="color: rgba(44,44,44,0.5)">+ ${addOnsLabel}</p>` : ""}
+            </div>
+            <span class="font-semibold text-sm flex-shrink-0" style="color: rgba(44,44,44,0.8)">${fmt(item.price * item.quantity)}</span>
+          </div>
+        `;
+  }).join("");
+  totalEl.textContent = fmt(total);
+
+  payBtn.addEventListener("click", () => {
+    errorEl.classList.add("hidden-modal");
+    addressError.classList.add("hidden-modal");
+
+    const address = addressInput.value.trim();
+    const cardNumber = document.getElementById("card-number").value.replace(/\s/g, "");
+    const cardExpiry = document.getElementById("card-expiry").value.trim();
+    const cardCvv = document.getElementById("card-cvv").value.trim();
+    const cardName = document.getElementById("card-name").value.trim();
+
+    if (!address) {
+      addressError.classList.remove("hidden-modal");
+      return;
+    }
+
+    /* Validaciones básicas de la "tarjeta", solo para que la simulación se sienta real */
+    if (!cardName || cardNumber.length < 13 || !/^\d{2}\/\d{2}$/.test(cardExpiry) || cardCvv.length < 3) {
+      errorEl.textContent = "Revisa los datos de la tarjeta.";
+      errorEl.classList.remove("hidden-modal");
+      return;
+    }
+
+    const items = cart.map((item) => ({
+      productId: item.id,
+      quantity: item.quantity,
+      addOnIds: (item.addOns || []).map((a) => a.id),
+    }));
+
+    const cancelBtn = document.getElementById("cancel-checkout-btn");
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", () => {
+
+        const confirmCancel = confirm(
+          "¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará."
+        );
+
+        if (confirmCancel) {
+          window.location.href = "/menu";
+        }
+      });
+    }
+
+    payBtn.disabled = true;
+    payBtn.textContent = "Procesando pago...";
+
+    /* Pequeño delay artificial para que se sienta como una pasarela real xd */
+    setTimeout(() => {
+      fetch("/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, items }),
+      })
+        .then(async (res) => {
+          if (res.status === 401) {
+            window.location.href = "/login?redirect=checkout";
+            return;
+          }
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.message || "No se pudo procesar el pago.");
+          }
+          cart = [];
+          saveCart();
+          window.location.href = "/orders?paid=true";
+        })
+        .catch((err) => {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove("hidden-modal");
+          payBtn.disabled = false;
+          payBtn.textContent = "Pagar";
+        });
+    }, 900);
+  });
+}
+
 
 /* Renderiza el carrito y los testimonios al cargar la página */
 renderCart();

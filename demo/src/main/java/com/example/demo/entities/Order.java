@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,6 +30,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -36,7 +38,7 @@ public class Order {
     @Column(unique = true, nullable = false)
     private Integer id;
 
-    // ERD: user_id. Solo los clientes hacen pedidos y el ERD no tiene relación
+    //Solo los clientes hacen pedidos y  no tiene relación
     // directa entre Order y Admin/Operator/DeliveryPerson, así que se asume que
     // "user" = "client" en la tabla Order.
     @ManyToOne
@@ -50,7 +52,7 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    // ERD: nullable — se llena cuando el domiciliario marca el pedido como
+    // nullable — se llena cuando el domiciliario marca el pedido como
     // entregado. Todavía no hay pantalla que lo setee, queda listo para cuando
     // exista
     @Column(nullable = true)
@@ -78,7 +80,12 @@ public class Order {
     // si cambia un detalle
     public Double getTotal() {
         return details.stream()
-                .mapToDouble(d -> d.getUnitPrice() * d.getQuantity())
+                .mapToDouble(d -> {
+                    double addOnsPrice = d.getAddOns().stream()
+                            .mapToDouble(AddOn::getPrice)
+                            .sum();
+                    return (d.getUnitPrice() + addOnsPrice) * d.getQuantity();
+                })
                 .sum();
     }
 }

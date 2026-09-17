@@ -38,7 +38,7 @@ public class AuthController {
 
     // En sesión se guarda directamente el Client o el Admin que inició
     // sesión (no hay clase intermedia). Quien lo lee usa instanceof.
-    public static final String SESSION_Client = "ClientLogueado";
+    public static final String SESSION_Client = "loggedInClient";
 
     // Client y Admin ya no comparten tabla ni clase: "es admin" se resuelve
     // preguntando directamente a la tabla admins por ese id.
@@ -74,10 +74,13 @@ public class AuthController {
 
     // http://localhost:8080/login
     @GetMapping("/login")
-    public String login(Model model, HttpSession session) {
+    public String login(@RequestParam(required = false) String redirect, Model model, HttpSession session) {
         Object logged = session.getAttribute(SESSION_Client);
 
         if (logged instanceof Client client) {
+            if ("checkout".equals(redirect)) {
+                return "redirect:/checkout";
+            }
             return "redirect:/account/" + client.getId();
         }
 
@@ -90,7 +93,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public String doLogin(@RequestParam String email, @RequestParam String password,
+            @RequestParam(required = false) String redirect,
             Model model, HttpSession session) {
+
         Object logged = authService.login(email, password);
 
         if (logged == null) {
@@ -106,6 +111,9 @@ public class AuthController {
         }
 
         if (logged instanceof Client client) {
+            if ("checkout".equals(redirect)) {
+                return "redirect:/checkout";
+            }
             return "redirect:/account/" + client.getId();
         }
 
@@ -122,36 +130,41 @@ public class AuthController {
     // Procesa el formulario de registro
     // crea un Cliente real en ClientRepository y lo deja logueado
     @PostMapping("/register")
-    public String register(@ModelAttribute Client Client, Model model, HttpSession session) {
+    public String register(@ModelAttribute Client client, @RequestParam(required = false) String redirect,
+            Model model, HttpSession session) {
 
-        boolean emailInUse = clientService.findByEmail(Client.getEmail()) != null
-                || adminService.findByEmail(Client.getEmail()) != null;
+        boolean emailInUse = clientService.findByEmail(client.getEmail()) != null
+                || adminService.findByEmail(client.getEmail()) != null;
 
         if (emailInUse) {
             model.addAttribute("signupError", "Ya existe una cuenta con ese correo.");
             return "login";
         }
 
-        // El formulario no manda "role": todo el que se registra por acá es Cliente
-        Client.setRole(Role.CLIENT);
+        client.setRole(Role.CLIENT);
 
-        Client creado = clientService.addClient(Client);
-        session.setAttribute(SESSION_Client, creado);
-        return "redirect:/account/" + creado.getId();
+        Client created = clientService.addClient(client);
+        session.setAttribute(SESSION_Client, created);
+
+        if ("checkout".equals(redirect)) {
+            return "redirect:/checkout";
+        }
+        return "redirect:/account/" + created.getId();
     }
+
 
     // http://localhost:8080/account
     @GetMapping("/account/{id}")
     public String account(@PathVariable Integer id, Model model) {
-        Client Client;
+        Client client;
 
         try {
-            Client = clientService.getClientById(id);
+            client = clientService.getClientById(id);
         } catch (Exception e) {
             return "redirect:/login";
         }
 
-        model.addAttribute("client", Client);
+        model.addAttribute("client", client);
         return "/account";
     }
 

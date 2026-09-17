@@ -27,13 +27,13 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public Client getClientById(Integer id) {
-        Client cliente = repository.findById(id).orElseThrow();
+        Client client = repository.findById(id).orElseThrow();
 
-        if (cliente == null) {
+        if (client == null) {
             throw new RuntimeException("El cliente no existe");
         }
 
-        return cliente;
+        return client;
     }
 
     @Override

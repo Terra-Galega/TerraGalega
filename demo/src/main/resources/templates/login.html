@@ -37,12 +37,12 @@
       <!-- Selector de pestañas: Iniciar sesión / Registrarse -->
       <div id="auth-tabs" class="flex rounded-2xl p-1 mb-8" style="background-color: rgba(44, 44, 44, 0.06)">
         <button type="button" id="tab-login-btn"
-          class="auth-tab active flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
+          class="auth-tab active flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
           data-tab="login">
           Iniciar sesión
         </button>
         <button type="button" id="tab-signup-btn"
-          class="auth-tab flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-300" data-tab="signup">
+          class="auth-tab flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300" data-tab="signup">
           Registrarse
         </button>
       </div>
@@ -51,13 +51,16 @@
       <div class="glass-card rounded-3xl p-8">
         <!-- Formulario de inicio de sesión: hace un POST real a /login, autenticado
           contra ClienteRepository (no localStorage) -->
-        <form id="login-form" th:action="@{/login}" method="post" class="space-y-4">
+        <form id="login-form"
+          th:with="redirectParam=${param.redirect != null and not #lists.isEmpty(param.redirect)} ? ${param.redirect[0]} : null"
+          th:action="${redirectParam != null} ? @{/login(redirect=${redirectParam})} : @{/login}" method="post"
+          class="space-y-4">
           <div>
             <label class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
               style="color: rgba(44, 44, 44, 0.4)">
               Correo electrónico
             </label>
-            <input type="email" id="login-email" name="email" th:value="${emailIngresado}"
+            <input type="email" id="login-email" name="email" th:value="${enteredEmail}"
               placeholder="correo@ejemplo.com" class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
           </div>
           <div>
@@ -123,7 +126,9 @@
 
         <!-- Formulario de registro: POST real a /registro, crea un Cliente en
           ClienteRepository y lo deja logueado -->
-        <form id="signup-form" th:action="@{/register}" method="post"
+        <form id="signup-form"
+          th:with="redirectParam=${param.redirect != null and not #lists.isEmpty(param.redirect)} ? ${param.redirect[0]} : null"
+          th:action="${redirectParam != null} ? @{/register(redirect=${redirectParam})} : @{/register}" method="post"
           th:classappend="${signupError} ? '' : 'hidden-modal'" class="space-y-4">
           <div class="grid grid-cols-2 gap-3">
             <div>

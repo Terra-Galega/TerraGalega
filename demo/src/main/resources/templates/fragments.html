@@ -13,9 +13,9 @@
       el parámetro inicio para saber si debe comportarse como en /home
       (transparente sobre el hero) o como en el resto de páginas (fija).
     -->
-  <header th:fragment="navbar(inicio)">
+  <header th:fragment="navbar(isHome)">
     <!-- Barra de navegación fija en la parte superior de la página -->
-    <nav id="nav-bar" th:attr="data-inicio=${inicio}" class="nav-bar fixed top-0 inset-x-0 z-50 w-full">
+    <nav id="nav-bar" th:attr="data-is-home=${isHome}" class="nav-bar fixed top-0 inset-x-0 z-50 w-full">
 
       <!-- Barra de navegación para pantallas medianas y grandes -->
       <div class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
@@ -184,23 +184,24 @@
         </div>
         <!-- Contenedor para los elementos del carrito -->
         <!--Se añaden en el DOM dinámicamente con el script-->
-        <div id="cart-items" class="space-y-3"></div>
+        <div id="cart-items" class="space-y-3 rounded-full"></div>
       </div>
 
       <!-- Pie del modal con el total del pedido y botón de confirmación -->
       <div id="cart-footer" class="hidden-modal p-6 border-t" style="border-color: rgba(44, 44, 44, 0.1)">
         <!-- Total del pedido -->
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-4 rounded-full p-4">
           <span class="font-medium text-charcoal">Total del pedido</span>
           <span id="cart-total" class="font-bold text-xl" style="color: #b2571f"></span>
         </div>
         <!-- Botón para confirmar el pedido: lleva a la página de inicio de sesión -->
-        <button id="cart-checkout" th:attr="data-href=@{/login}"
-          class="w-full py-3 text-white font-medium rounded-2xl btn-terra">
+        <button id="cart-checkout"
+          th:attr="data-href=${loggedClient != null and !isLoggedAdmin} ? @{/checkout} : @{/login(redirect='checkout')}"
+          class="w-full py-3 text-white font-medium rounded-full btn-terra">
           Confirmar pedido
         </button>
         <p class="text-center text-xs mt-3" style="color: rgba(44, 44, 44, 0.4)">
-          Pago contra entrega o con datafono en tu domicilio
+          Al confirmar el pedido, te llevaremos a la pasarela de pago.
         </p>
       </div>
     </div>

@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.CheckoutRequestDTO;
 import com.example.demo.entities.Order;
+import com.example.demo.entities.Client;
 
 import java.util.List;
 
@@ -11,5 +13,7 @@ public interface OrderService {
     Order getOrderById(Integer id);
 
     Order createOrder(Order order);
+
+    Order checkout(Client client, CheckoutRequestDTO request);
 
 }
