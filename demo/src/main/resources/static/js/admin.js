@@ -16,9 +16,12 @@ adminTabBtns.forEach((btn) => {
     document.querySelectorAll(".admin-panel").forEach((panel) => {
       panel.classList.add("hidden-modal");
     });
-    document.getElementById(`admin-panel-${tab}`)?.classList.remove("hidden-modal");
+    document
+      .getElementById(`admin-panel-${tab}`)
+      ?.classList.remove("hidden-modal");
     if (adminTitle) adminTitle.textContent = ADMIN_TAB_TITLES[tab] || tab;
-    if (adminAddBtn) adminAddBtn.classList.toggle("hidden-modal", tab !== "products");
+    if (adminAddBtn)
+      adminAddBtn.classList.toggle("hidden-modal", tab !== "products");
   });
 });
 
@@ -50,6 +53,16 @@ const additionalsList = document.getElementById("admin-additionals-list");
 const imageInput = document.getElementById("admin-f-image");
 const imagePreview = document.getElementById("admin-f-image-preview");
 
+const spicyMildInput = document.getElementById("admin-f-spicy-mild");
+const spicyHotInput = document.getElementById("admin-f-spicy-hot");
+
+function updateSpicyOptions() {
+  if (!spicyMildInput || !spicyHotInput) return;
+
+  spicyHotInput.disabled = spicyMildInput.checked;
+  spicyMildInput.disabled = spicyHotInput.checked;
+}
+
 /* Guarda temporalmente los adicionales del producto que se está creando/editando */
 let currentAdditionals = [];
 
@@ -58,7 +71,8 @@ function renderAdditionals() {
   additionalsList.innerHTML = "";
   currentAdditionals.forEach((add, i) => {
     const row = document.createElement("div");
-    row.className = "admin-additional-row flex items-center justify-between px-3 py-2 rounded-lg";
+    row.className =
+      "admin-additional-row flex items-center justify-between px-3 py-2 rounded-lg";
     row.innerHTML = `
       <span class="text-sm" style="color: rgba(44,44,44,0.7)">${add.name} — +$${Number(add.price).toLocaleString("es-CO")}</span>
       <input type="hidden" name="additionalNames" value="${add.name}" />
@@ -67,12 +81,14 @@ function renderAdditionals() {
     `;
     additionalsList.appendChild(row);
   });
-  additionalsList.querySelectorAll(".admin-remove-additional").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      currentAdditionals.splice(Number(btn.dataset.index), 1);
-      renderAdditionals();
+  additionalsList
+    .querySelectorAll(".admin-remove-additional")
+    .forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentAdditionals.splice(Number(btn.dataset.index), 1);
+        renderAdditionals();
+      });
     });
-  });
 }
 
 const addAdditionalBtn = document.getElementById("admin-add-additional-btn");
@@ -113,6 +129,10 @@ function closeModal() {
 /* Abre el modal en modo "Añadir producto" (formulario vacío) */
 function openAddModal() {
   productForm.reset();
+
+  spicyMildInput.disabled = false;
+  spicyHotInput.disabled = false;
+
   productForm.setAttribute("action", `/admin/${adminId}/products`);
   modalTitle.textContent = "Añadir producto";
   modalSubmitLabel.textContent = "Añadir producto";
@@ -121,6 +141,7 @@ function openAddModal() {
   imagePreview.classList.add("hidden-modal");
   openModal();
 }
+
 
 /* Abre el modal en modo "Editar producto", precargando los datos del producto */
 function openEditModal(id) {
@@ -133,16 +154,22 @@ function openEditModal(id) {
 
   document.getElementById("admin-f-name").value = product.name || "";
   document.getElementById("admin-f-price").value = product.price || "";
-  document.getElementById("admin-f-category").value = product.category?.id || "";
-  document.getElementById("admin-f-description").value = product.description || "";
+  document.getElementById("admin-f-category").value =
+    product.category?.id || "";
+  document.getElementById("admin-f-description").value =
+    product.description || "";
   document.getElementById("admin-f-image").value = product.imageUrl || "";
   document.getElementById("admin-f-popular").checked = !!product.popular;
   document.getElementById("admin-f-vegetarian").checked = !!product.vegetarian;
   document.getElementById("admin-f-spicy-mild").checked = !!product.spicyMild;
   document.getElementById("admin-f-spicy-hot").checked = !!product.spicyHot;
-  document.getElementById("admin-f-contains-nuts").checked = !!product.containsNuts;
-  document.getElementById("admin-f-contains-seafood").checked = !!product.containsSeafood;
-  document.getElementById("admin-f-contains-gluten").checked = !!product.containsGluten;
+  updateSpicyOptions();
+  document.getElementById("admin-f-contains-nuts").checked =
+    !!product.containsNuts;
+  document.getElementById("admin-f-contains-seafood").checked =
+    !!product.containsSeafood;
+  document.getElementById("admin-f-contains-gluten").checked =
+    !!product.containsGluten;
 
   if (product.imageUrl) {
     imagePreview.src = product.imageUrl;
@@ -151,9 +178,17 @@ function openEditModal(id) {
     imagePreview.classList.add("hidden-modal");
   }
 
-  currentAdditionals = (product.additionals || []).map((a) => ({ name: a.name, price: a.price }));
+  currentAdditionals = (product.additionals || []).map((a) => ({
+    name: a.name,
+    price: a.price,
+  }));
   renderAdditionals();
   openModal();
+}
+
+if (spicyMildInput && spicyHotInput) {
+  spicyMildInput.addEventListener("change", updateSpicyOptions);
+  spicyHotInput.addEventListener("change", updateSpicyOptions);
 }
 
 if (adminAddBtn) adminAddBtn.addEventListener("click", openAddModal);
