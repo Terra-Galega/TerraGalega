@@ -123,7 +123,7 @@ public class AuthController {
     // crea un Cliente real en ClientRepository y lo deja logueado
     @PostMapping("/register")
     public String register(@ModelAttribute Client Client, Model model, HttpSession session) {
-      
+
         boolean emailInUse = clientService.findByEmail(Client.getEmail()) != null
                 || adminService.findByEmail(Client.getEmail()) != null;
 

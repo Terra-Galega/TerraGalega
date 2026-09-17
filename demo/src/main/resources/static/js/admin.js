@@ -126,7 +126,7 @@ function openAddModal() {
 function openEditModal(id) {
   const product = adminProducts.find((p) => p.id === id);
   if (!product) return;
-  productForm.reset(); 
+  productForm.reset();
   productForm.setAttribute("action", `/admin/${adminId}/products/${id}/update`);
   modalTitle.textContent = "Editar producto";
   modalSubmitLabel.textContent = "Guardar cambios";

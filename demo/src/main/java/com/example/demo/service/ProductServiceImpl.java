@@ -21,6 +21,7 @@ public class ProductServiceImpl implements ProductService {
     public Collection<Product> getAllProducts() {
         return repository.findAll();
     }
+
     @Override
     @Transactional
     public Collection<Product> getAllProductsActive() {
@@ -76,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product existingProduct = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
-        
+
         product.setActive(existingProduct.getActive());
         if (product.getPopular() == null) {
             product.setPopular(false);

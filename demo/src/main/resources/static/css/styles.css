@@ -6,6 +6,7 @@
 html {
   scroll-behavior: smooth;
 }
+
 /*color de la pagina y el texto*/
 body {
   background-color: #f5f2eb;
@@ -25,6 +26,7 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
 /*
 -----------------------
      TIPOGRAFÍAS 
@@ -39,6 +41,7 @@ body {
 .font-galega {
   font-family: "Droid Serif", serif;
 }
+
 /*
 -----------------------
      TARJETAS DE VIDRIO (glass-card)
@@ -87,7 +90,7 @@ body {
   Se activa con JS al hacer scroll en /home, y está siempre activa en las
    demás páginas (que no tienen imagen de fondo detrás de la barra) */
 .nav-bar.nav-bar--stayed {
-background-color: rgba(206, 206, 206, 0.505);
+  background-color: rgba(206, 206, 206, 0.505);
   backdrop-filter: blur(35px) saturate(180%);
   -webkit-backdrop-filter: blur(35px) saturate(180%);
   border-top: 1px solid rgba(255, 255, 255, 0.9);
@@ -102,6 +105,7 @@ background-color: rgba(206, 206, 206, 0.505);
   background-color: rgba(44, 44, 44, 0.97);
   border-color: rgba(255, 255, 255, 0.08);
 }
+
 .nav-bar.nav-bar--stayed #mobile-menu {
   background-color: rgba(245, 242, 235, 0.98);
   border-color: rgba(44, 44, 44, 0.08);
@@ -113,6 +117,7 @@ background-color: rgba(206, 206, 206, 0.505);
   color: rgba(245, 242, 235, 0.85);
   transition: color 0.2s;
 }
+
 .link-nav.active,
 #mobile-menu .link-nav.active,
 .nav-bar.nav-bar--stayed .link-nav.active {
@@ -122,22 +127,27 @@ background-color: rgba(206, 206, 206, 0.505);
   text-underline-offset: 6px;
   text-decoration-thickness: 2px;
 }
+
 .link-nav:hover {
   color: #f5f2eb;
 }
+
 .nav-bar.nav-bar--stayed .link-nav,
 #mobile-menu .link-nav {
   color: rgba(44, 44, 44, 0.62);
 }
+
 .nav-bar.nav-bar--stayed .link-nav:hover,
 #mobile-menu .link-nav:hover {
   color: #2c2c2c;
 }
+
 /* El menú móvil desplegable siempre es oscuro por dentro, así que sus
    enlaces se mantienen claros aunque la barra ya esté "fija" */
 #mobile-menu .link-nav {
   color: rgba(245, 242, 235, 0.78) !important;
 }
+
 #mobile-menu .link-nav:hover {
   color: #f5f2eb !important;
 }
@@ -147,13 +157,16 @@ background-color: rgba(206, 206, 206, 0.505);
   color: #f5f2eb;
   transition: color 0.3s;
 }
+
 .nav-bar .logo-galega {
   color: #f5f2eb;
   transition: color 0.3s;
 }
+
 .nav-bar.nav-bar--stayed .logo-terra {
   color: #b2571f;
 }
+
 .nav-bar.nav-bar--stayed .logo-galega {
   color: #2c2c2c;
 }
@@ -165,8 +178,10 @@ background-color: rgba(206, 206, 206, 0.505);
 }
 
 .link-footer:hover {
-  color: #d99a21; /*tono dorado/amarillo al pasar el cursor */
+  color: #d99a21;
+  /*tono dorado/amarillo al pasar el cursor */
 }
+
 /*
 -----------------------
   BOTONES DE CATEGORÍAS
@@ -207,6 +222,7 @@ background-color: rgba(206, 206, 206, 0.505);
   background: linear-gradient(135deg, #b2571f, #8a2222);
   color: #f5f2eb;
 }
+
 /*
 -------------------------------
   CARACTERÍSTICAS DEL PLATO (vegetariano, picante, etc.)
@@ -269,6 +285,7 @@ background-color: rgba(206, 206, 206, 0.505);
 .feature-filter-option input[type="checkbox"] {
   accent-color: #556141;
 }
+
 /*
 -------------------------------
   BOTONES GENERALES Y ACCIONES
@@ -282,7 +299,8 @@ background-color: rgba(206, 206, 206, 0.505);
 }
 
 .btn-terra:hover {
-  background-color: #8a2222; /* Cambia a un rojo más oscuro al interactuar */
+  background-color: #8a2222;
+  /* Cambia a un rojo más oscuro al interactuar */
 }
 
 /* Botón transparente con borde*/
@@ -303,6 +321,7 @@ background-color: rgba(206, 206, 206, 0.505);
   color: #2c2c2c;
   transition: all 0.2s;
 }
+
 /*cambio de color al pasar el cursor*/
 .qty-btn:hover {
   border-color: #b2571f;
@@ -336,20 +355,22 @@ background-color: rgba(206, 206, 206, 0.505);
   background-color: rgba(255, 255, 255, 0.6);
 }
 
-.admin-tab-btn { 
+.admin-tab-btn {
   color: rgba(245, 242, 235, 0.6);
   transition: all 0.2s ease;
 }
+
 .admin-tab-btn:hover {
   color: #f5f2eb;
   background-color: rgba(85, 97, 65, 0.4);
 }
 
-.admin-tab-btn.active { 
-  color: #f5f2eb; 
-  background-color: #556141; 
+.admin-tab-btn.active {
+  color: #f5f2eb;
+  background-color: #556141;
   box-shadow: 0 4px 12px rgba(85, 97, 65, 0.3);
 }
+
 /* Estilo y hover para el botón de cerrar sesión del Admin */
 .admin-logout-btn {
   color: rgba(245, 242, 235, 0.6);

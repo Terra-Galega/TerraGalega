@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entities.Client;
+import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,17 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private ClientRepository repository;
 
+    @Autowired
+    private AdminRepository adminRepository;
+
     @Override
-    @Transactional 
+    @Transactional
     public Collection<Client> getAllClients() {
         return repository.findAll();
     }
 
     @Override
-    @Transactional 
+    @Transactional
     public Client getClientById(Integer id) {
         Client cliente = repository.findById(id).orElseThrow();
 
@@ -50,6 +54,11 @@ public class ClientServiceImpl implements ClientService {
         if (emailClient != null
                 && !emailClient.getId().equals(id)) {
 
+            throw new IllegalArgumentException(
+                    "Ya existe otra cuenta con ese correo.");
+        }
+
+        if (adminRepository.findByEmail(client.getEmail()) != null) {
             throw new IllegalArgumentException(
                     "Ya existe otra cuenta con ese correo.");
         }

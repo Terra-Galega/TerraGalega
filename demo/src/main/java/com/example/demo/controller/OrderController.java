@@ -17,7 +17,8 @@ public class OrderController {
     // http://localhost:8080/orders
     // Requiere sesión de cliente, igual que /account. Muestra los pedidos
     // ya guardados (client, items con producto/cantidad/adicionales, total,
-    // estado) más recientes primero
+    // estado) más recientes primero.
+
     @GetMapping("/orders")
     public String orders(Model model, HttpSession session) {
         Object logged = session.getAttribute(AuthController.SESSION_Client);

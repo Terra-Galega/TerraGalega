@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import jakarta.servlet.http.HttpSession;
 
-
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
@@ -24,7 +23,7 @@ public class AdminController {
 
     // Verificamos si el usuario logueado es administrador desde la sesión. Si no lo
     // es, se invalida la sesión y se redirige al login.
-     private boolean isntAdmin(HttpSession session) {
+    private boolean isntAdmin(HttpSession session) {
         Object logged = (session != null)
                 ? session.getAttribute(AuthController.SESSION_Client)
                 : null;
