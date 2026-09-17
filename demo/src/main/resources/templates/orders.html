@@ -232,6 +232,11 @@
     if (new URLSearchParams(window.location.search).get("paid") === "true") {
       document.getElementById("paid-banner")?.classList.remove("hidden-modal");
       window.history.replaceState({}, "", window.location.pathname);
+      /* El carrito solo se vacía cuando /checkout confirmó el pago
+         redirigiendo hasta acá con ?paid=true (nunca antes, por si el
+         pago falla y el usuario vuelve a /checkout con el carrito intacto) */
+      cart = [];
+      saveCart();
     }
   </script>
 
