@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public String handlerRuntime(RuntimeException e, Model model) {
+        e.printStackTrace();
         model.addAttribute("message", "Ha ocurrido un error inesperado. Por favor intenta de nuevo.");
         return "error";
     }
