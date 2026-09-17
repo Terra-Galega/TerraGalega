@@ -1,0 +1,71 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis pedidos · Terra Galega</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body class="min-h-screen bg-cream font-sans text-charcoal">
+
+  <header th:replace="~{fragments :: navbar(false)}"></header>
+
+  <main class="max-w-3xl mx-auto px-6 pt-32 pb-24">
+    <h1 class="font-serif text-3xl font-semibold mb-2">Mis pedidos</h1>
+    <p class="text-sm mb-8" style="color: rgba(44,44,44,.6)"
+      th:text="${client.name} + ' ' + ${client.lastName} + ' · ' + ${client.email}"></p>
+
+    <div th:if="${#lists.isEmpty(orders)}" class="text-center py-20" style="color: rgba(44,44,44,.6)">
+      <p class="text-md">Todavía no tienes pedidos.</p>
+      <a th:href="@{/menu}" class="inline-block mt-4 text-sm underline underline-offset-2" style="color:#b2571f">
+        Ver el menú
+      </a>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(orders)}" id="orders-list" class="space-y-4">
+      <div th:each="pedido : ${orders}" class="glass-card rounded-2xl p-6" style="border: 1px solid rgba(44,44,44,.08)">
+
+        <!-- Encabezado: número, fecha y estado del pedido -->
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="font-medium text-charcoal" th:text="'Pedido #' + ${pedido.id}"></p>
+            <p class="text-xs" style="color: rgba(44,44,44,.5)"
+              th:text="${#temporals.format(pedido.createdAt, 'dd MMM yyyy, HH:mm')}"></p>
+          </div>
+          <span class="text-xs font-medium uppercase tracking-wider px-3 py-1 rounded-full"
+            style="background: rgba(85,97,65,.12); color: #556141"
+            th:text="${pedido.status}"></span>
+        </div>
+
+        <!-- Platos, cantidad y adicionales de cada uno -->
+        <div class="space-y-3 mb-4">
+          <div th:each="item : ${pedido.items}" class="flex justify-between items-start text-sm">
+            <div>
+              <p class="font-medium" th:text="${item.quantity} + 'x ' + ${item.product.name}"></p>
+              <p th:unless="${#lists.isEmpty(item.addOns)}" class="text-xs mt-0.5" style="color: rgba(44,44,44,.55)">
+                Adicionales:
+                <span th:each="addon, iter : ${item.addOns}">
+                  <span th:text="${addon.name}"></span><span th:unless="${iter.last}">, </span>
+                </span>
+              </p>
+            </div>
+            <span th:text="'$' + ${#numbers.formatDecimal(item.unitPrice * item.quantity, 1, 2)}"></span>
+          </div>
+        </div>
+
+        <!-- Dirección de entrega, si se capturó -->
+        <p th:if="${pedido.deliveryAddress != null}" class="text-xs mb-3" style="color: rgba(44,44,44,.55)"
+          th:text="'Entrega en: ' + ${pedido.deliveryAddress}"></p>
+
+        <div class="flex justify-between items-center pt-3 border-t" style="border-color: rgba(44,44,44,.1)">
+          <span class="font-medium">Total</span>
+          <span class="font-bold" style="color:#b2571f" th:text="'$' + ${#numbers.formatDecimal(pedido.total, 1, 2)}"></span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

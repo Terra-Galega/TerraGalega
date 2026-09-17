@@ -56,7 +56,7 @@ public class AuthController {
 
         if (!isAdmin(id)) {
 
-            // cliente que intenta entrar a /admin/<su-propio-id> (su id
+            // cliente que intenta entrar a /admin/<su propio id> (su id
             // es válido, pero no tiene rol admin) queda deslogueado,
             // igual que cuando alguien toca el id de otra persona
             session.invalidate();
@@ -68,8 +68,6 @@ public class AuthController {
         model.addAttribute("categories", categoryService.getAllCategorys());
         model.addAttribute("adminName", admin.getName());
         model.addAttribute("adminId", admin.getId());
-        // admin.html itera "clients" en la pestaña Usuarios (#lists.isEmpty(clients));
-        // sin esta línea ese atributo no existe en el modelo.
         model.addAttribute("clients", clientService.getAllClients());
         return "admin";
     }
@@ -107,8 +105,11 @@ public class AuthController {
             return "redirect:/admin/" + admin.getId();
         }
 
-        Client client = (Client) logged;
-        return "redirect:/account/" + client.getId();
+        if (logged instanceof Client client) {
+            return "redirect:/account/" + client.getId();
+        }
+
+        return "redirect:/home";
     }
 
     // Cierra la sesión del Cliente
@@ -122,13 +123,16 @@ public class AuthController {
     // crea un Cliente real en ClientRepository y lo deja logueado
     @PostMapping("/register")
     public String register(@ModelAttribute Client Client, Model model, HttpSession session) {
-        if (clientService.getAllClients().stream()
-                .anyMatch(c -> c.getEmail().equalsIgnoreCase(Client.getEmail()))) {
+      
+        boolean emailInUse = clientService.findByEmail(Client.getEmail()) != null
+                || adminService.findByEmail(Client.getEmail()) != null;
+
+        if (emailInUse) {
             model.addAttribute("signupError", "Ya existe una cuenta con ese correo.");
-            return "error";
+            return "login";
         }
 
-        // El formulario no manda "role": todo el que se registra por acá es Cliente.
+        // El formulario no manda "role": todo el que se registra por acá es Cliente
         Client.setRole(Role.CLIENT);
 
         Client creado = clientService.addClient(Client);

@@ -55,9 +55,16 @@
             class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap">
             INICIAR SESIÓN
           </a>
-          <a th:if="${loggedClient != null}" th:href="@{/account/{id}(id=${loggedClient.id})}"
+          <a th:if="${loggedClient != null and (isLoggedAdmin or loggedClient instanceof T(com.example.demo.entities.Client))}"
+            th:href="${isLoggedAdmin} ? @{/admin/{id}(id=${loggedClient.id})} : @{/account/{id}(id=${loggedClient.id})}"
             class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
             th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
+          <!-- Operator/DeliveryPerson: ya pueden autenticarse, pero todavía no
+               tienen su propia vista de cuenta, así que se muestra el nombre
+               sin link en vez de apuntar a una ruta que no existe. -->
+          <span th:if="${loggedClient != null and not isLoggedAdmin and not (loggedClient instanceof T(com.example.demo.entities.Client))}"
+            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
+            th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></span>
 
           <button class="link-nav relative flex items-center justify-center" data-modal="cart" aria-label="Carrito">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
@@ -101,8 +108,13 @@
 
       <div id="user-profile-mobile" th:if="${loggedClient != null}" /*method="post" */
         class="flex md:hidden flex-col gap-3 pt-4 pb-2 border-t mt-2" style="border-color: rgba(255, 255, 255, 0.08)">
-        <a th:href="@{/account/{id}(id=${loggedClient.id})}" class="link-nav text-center text-xs font-medium tracking-[0.18em]"
+        <a th:if="${isLoggedAdmin or loggedClient instanceof T(com.example.demo.entities.Client)}"
+          th:href="${isLoggedAdmin} ? @{/admin/{id}(id=${loggedClient.id})} : @{/account/{id}(id=${loggedClient.id})}"
+          class="link-nav text-center text-xs font-medium tracking-[0.18em]"
           th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></a>
+        <span th:if="${not isLoggedAdmin and not (loggedClient instanceof T(com.example.demo.entities.Client))}"
+          class="link-nav text-center text-xs font-medium tracking-[0.18em]"
+          th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></span>
         <form th:action="@{/logout}" method="post">
           <button type="submit"
             class="w-full py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded bg-red-800/80 hover:bg-red-700 text-center transition-colors border-0 cursor-pointer">

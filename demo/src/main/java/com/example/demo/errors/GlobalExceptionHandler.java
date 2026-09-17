@@ -14,4 +14,16 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String handlerIllegalArgument(IllegalArgumentException e, Model model) {
+        model.addAttribute("message", e.getMessage());
+        return "error";
+    }
+    
+    @ExceptionHandler(RuntimeException.class)
+    public String handlerRuntime(RuntimeException e, Model model) {
+        model.addAttribute("message", "Ha ocurrido un error inesperado. Por favor intenta de nuevo.");
+        return "error";
+    }
+
 }
