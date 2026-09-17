@@ -1,7 +1,5 @@
 package com.example.demo.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,29 +14,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-//Constructores, getters y setters generados automáticamente por Lombok
 @Getter
 @Setter
-@ToString
+@ToString(exclude = { "orderDetail" })
 @AllArgsConstructor
-@Entity
 @NoArgsConstructor
 @Builder
-public class AddOn {
+@Entity
+public class OrderDetailAddOn {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true, nullable = false, length = 10)
+    @Column(unique = true, nullable = false)
     private Integer id;
-    @Column(nullable = false, length = 120)
-    private String name;
-    @Column(nullable = true, length = 255)
-    private String description;
-    @Column(nullable = false, length = 255)
-    private Double price;
-    @Column(nullable = false)
-    private Boolean Active;
-    @JoinColumn
+
     @ManyToOne
-    @JsonIgnore
-    private Category category;
+    @JoinColumn(name = "order_detail_id", nullable = false)
+    private OrderDetail orderDetail;
+
+    @ManyToOne
+    @JoinColumn(name = "add_on_id", nullable = false)
+    private AddOn addOn;
 }

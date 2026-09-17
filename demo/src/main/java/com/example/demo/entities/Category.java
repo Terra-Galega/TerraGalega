@@ -28,18 +28,23 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @Builder
 public class Category {
+    
     @Id
     @Column(unique = true, nullable = false, length = 10)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @Column(unique = true, nullable = false, length = 70)
     private String name;
+
     @Column(nullable = true, length = 255)
     private String description;
+
     @Column(nullable = false)
     @OneToMany(mappedBy = "category")
     @Builder.Default
     private List<AddOn> additionals = new ArrayList<>();
+
     @OneToMany(mappedBy = "category")
     @JsonIgnore
     private List<Product> product = new ArrayList<>();

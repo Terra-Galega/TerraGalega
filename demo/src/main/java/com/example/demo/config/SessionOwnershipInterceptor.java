@@ -45,7 +45,7 @@ public class SessionOwnershipInterceptor implements HandlerInterceptor {
         // una sesión nueva si el usuario no tiene una
         HttpSession session = request.getSession(false);
 
-         Object logged = (session != null)
+        Object logged = (session != null)
                 ? session.getAttribute(AuthController.SESSION_Client)
                 : null;
 

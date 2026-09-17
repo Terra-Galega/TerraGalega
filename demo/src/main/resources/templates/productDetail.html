@@ -1,14 +1,15 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${product.name + ' · Terra Galega'}">
-      Producto · Terra Galega
-    </title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-      @theme {
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${product.name + ' · Terra Galega'}">
+    Producto · Terra Galega
+  </title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
         --color-terra: #b2571f;
         --color-gold: #d99a21;
         --color-burgundy: #8a2222;
@@ -19,465 +20,247 @@
         --font-serif: "Playfair Display", ui-serif, Georgia, serif;
       }
     </style>
-    <link rel="stylesheet" th:href="@{/css/styles.css}" />
-  </head>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
 
-  <body class="min-h-screen bg-cream font-sans text-charcoal">
-    <!--header con la barra de navegación -->
-    <header th:replace="~{fragments :: navbar(false)}"></header>
+<body class="min-h-screen bg-cream font-sans text-charcoal">
+  <!--header con la barra de navegación -->
+  <header th:replace="~{fragments :: navbar(false)}"></header>
 
-    <!-- Contenido principal de la página -->
-    <main class="min-h-screen pt-32 pb-28 max-w-6xl mx-auto px-6 md:px-8">
-      <!-- Volver a la carta -->
-      <a
-        th:href="@{/menu}"
-        class="inline-flex items-center gap-2 text-[13px] font-medium text-charcoal/45 hover:text-charcoal mb-10 transition-colors group"
-      >
-        <svg
-          class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 12H5m0 0l7 7m-7-7l7-7"
-          />
-        </svg>
-        Volver a la carta
-      </a>
+  <!-- Contenido principal de la página -->
+  <main class="min-h-screen pt-32 pb-28 max-w-6xl mx-auto px-6 md:px-8">
+    <!-- Volver a la carta -->
+    <a th:href="@{/menu}"
+      class="inline-flex items-center gap-2 text-[13px] font-medium text-charcoal/45 hover:text-charcoal mb-10 transition-colors group">
+      <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m0 0l7 7m-7-7l7-7" />
+      </svg>
+      Volver a la carta
+    </a>
 
-      <!-- Tarjeta principal: imagen + información del producto -->
-      <div
-        class="glass-card rounded-3xl overflow-hidden p-6 md:p-10 flex flex-col md:flex-row gap-10 md:gap-14 mb-16"
-      >
-        <!-- Imagen -->
-        <div class="w-full md:w-[45%] flex-shrink-0">
-          <img
-            th:src="${product.imageUrl}"
-            th:alt="${product.name}"
-            class="w-full object-cover rounded-2xl"
-            style="height: 460px"
-          />
-        </div>
-
-        <!-- Información -->
-        <div class="flex flex-col flex-1 md:py-2">
-          <div class="flex items-center gap-3 mb-1">
-            <span
-              class="text-[11px] font-medium tracking-[0.25em] uppercase"
-              style="color: rgba(178, 87, 31, 0.7)"
-              th:text="${product.getCategory().getName()}"
-            ></span>
-            <span
-              th:if="${product.popular}"
-              class="flex items-center gap-1 text-[11px] font-medium"
-              style="color: #d99a21"
-            >
-              <svg class="w-3 h-3" style="fill: #d99a21" viewBox="0 0 20 20">
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-              Popular
-            </span>
-          </div>
-
-          <h1
-            class="font-serif text-4xl md:text-5xl font-bold text-charcoal leading-tight mb-4"
-            th:text="${product.name}"
-          ></h1>
-
-          <div class="w-10 h-0.5 mb-6" style="background-color: #d99a21"></div>
-
-          <p
-            class="leading-relaxed mb-6 text-[15px]"
-            style="color: rgba(44, 44, 44, 0.6)"
-            th:text="${product.description}"
-          ></p>
-
-          <!-- Chips de características (vegetariano, picante, etc.), solo si el plato tiene alguna -->
-          <div
-            class="flex flex-wrap gap-2 mb-8"
-            th:if="${product.vegetarian or product.spicyMild or product.spicyHot or product.containsNuts or product.containsSeafood or product.containsGluten}"
-          >
-            <span
-              th:if="${product.vegetarian}"
-              class="feature-chip text-[12px] px-3 py-1.5 rounded-full"
-            >
-              <svg class="w-3.5 h-3.5" viewBox="0 0 512 512" style="fill: #556141">
-                <path
-                  d="M389.053,126.3A302.909,302.909,0,0,0,280.012,18.15L272,13.516l-8.012,4.634A301.084,301.084,0,0,0,113.4,279.042c0,3.445.06,6.944.177,10.4,1.592,46.856,19.511,86.283,51.82,114.018,24.724,21.225,56.438,34.182,90.607,37.273V496h32V240H256V408.528c-54.064-6.263-107.873-44.455-110.444-120.174-.106-3.095-.16-6.228-.16-9.312A270.286,270.286,0,0,1,272,50.673,270.286,270.286,0,0,1,398.6,279.042c0,3.084-.054,6.217-.16,9.313-2.056,60.573-36.907,97.127-78.444,112.536v33.867a156.188,156.188,0,0,0,58.607-31.3c32.309-27.735,50.228-67.162,51.82-114.017.117-3.456.177-6.955.177-10.4A300.948,300.948,0,0,0,389.053,126.3Z"
-                />
-              </svg>
-              Vegetariano</span
-            >
-            <span
-              th:if="${product.spicyMild}"
-              class="feature-chip text-[12px] px-3 py-1.5 rounded-full"
-            >
-              <svg
-                class="w-3.5 h-3.5"
-                viewBox="0 0 32 32"
-                fill="none"
-                style="color: #556141"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M19,8.1c0-2,1.1-3.8,2.8-5.1"
-                />
-                <path
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.1,12v2.7c0,5.1-2.3,9.9-6.1,13L7.3,29l4.1-1.5C17.7,25.2,22,19,22,12v0c0-2-1.6-3.6-3.5-3.6h0 C16.6,8.4,15.1,10,15.1,12z"
-                />
-                <path
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M22,13L22,13c-2.3-0.7-4.7-0.7-7,0l0,0"
-                />
-              </svg>
-              Picante ligero</span
-            >
-            <span
-              th:if="${product.spicyHot}"
-              class="feature-chip text-[12px] px-3 py-1.5 rounded-full"
-            >
-              <span class="flex items-center">
-                <svg
-                  class="w-3.5 h-3.5"
-                  viewBox="0 0 32 32"
-                  fill="none"
-                  style="color: #556141"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M19,8.1c0-2,1.1-3.8,2.8-5.1"
-                  />
-                  <path
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.1,12v2.7c0,5.1-2.3,9.9-6.1,13L7.3,29l4.1-1.5C17.7,25.2,22,19,22,12v0c0-2-1.6-3.6-3.5-3.6h0 C16.6,8.4,15.1,10,15.1,12z"
-                  />
-                  <path
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M22,13L22,13c-2.3-0.7-4.7-0.7-7,0l0,0"
-                  />
-                </svg>
-                <svg
-                  class="w-3.5 h-3.5 -ml-1.5"
-                  viewBox="0 0 32 32"
-                  fill="none"
-                  style="color: #556141"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M19,8.1c0-2,1.1-3.8,2.8-5.1"
-                  />
-                  <path
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.1,12v2.7c0,5.1-2.3,9.9-6.1,13L7.3,29l4.1-1.5C17.7,25.2,22,19,22,12v0c0-2-1.6-3.6-3.5-3.6h0 C16.6,8.4,15.1,10,15.1,12z"
-                  />
-                  <path
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M22,13L22,13c-2.3-0.7-4.7-0.7-7,0l0,0"
-                  />
-                </svg>
-              </span>
-              Picante intenso</span
-            >
-            <span
-              th:if="${product.containsNuts}"
-              class="feature-chip text-[12px] px-3 py-1.5 rounded-full"
-            >
-              <svg
-                class="w-3.5 h-3.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                style="color: #556141"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="square"
-                  d="M12,21 C16,19.6666667 18,17.4411765 18,14.3235294 L18,12 L18,12 L6,12 L6,14.3235294 L6,14.3235294 C6,17.4411765 8,19.6666667 12,21 Z M7.5,7 L10.2747211,6.20722253 C10.7040227,6.08456495 11,5.69217895 11,5.24569859 L11,4 L13,4 L12.5575036,4.88499271 C12.3105144,5.3789712 12.5107387,5.97964425 13.0047172,6.22663349 C13.0699767,6.25926325 13.1386113,6.28465283 13.2093952,6.3023488 L16,7 C18.1421954,7.53554885 19.4700868,9.65673819 19.0450148,11.7991358 L19,12 L5,12 L4.882843,11.531372 C4.39057566,9.56230266 5.54842347,7.55759329 7.5,7 Z"
-                />
-              </svg>
-              Contiene nueces</span
-            >
-            <span
-              th:if="${product.containsSeafood}"
-              class="feature-chip text-[12px] px-3 py-1.5 rounded-full"
-            >
-              <svg class="w-3.5 h-3.5" viewBox="0 0 512 512" style="fill: #556141">
-                <path
-                  d="M450.334,169.808c-37.45-36.212-88.036-60.312-142.052-67.679c-16.517-2.28-33.366-3.381-50.303-3.411 c-33.878,0.03-68.038,4.512-100.348,13.516l-0.108,0.03c0,0-33.81,9.822-68.594,20.045c-7.572,2.232-15.149,4.463-22.476,6.626 c-0.044,0-0.088-0.039-0.137-0.068v-0.02c-7.416-1.968-14.174-7.552-16.45-13.429c-1.569-3.8-2.451-8.166-2.451-12.785 c0.02-8.216,2.739-17.112,9.078-25.045c6.358-7.922,16.405-15.124,31.885-19.45c20.65-5.789,64.375-11.285,105.226-17.98 c20.518-3.372,40.456-7.084,57.154-11.528c16.78-4.697,30.03-9.073,39.306-17.843c4.44-4.396,4.484-11.548,0.088-15.982 c-4.415-4.414-11.572-4.463-15.986-0.049c-2.344,2.768-13.912,8.147-29.24,12.016c-23.1,6.188-55.161,11.265-85.506,15.855 c-30.453,4.638-58.982,8.742-77.092,13.74c-19.388,5.36-33.961,15.125-43.502,27.11C29.26,85.426,24.802,99.38,24.802,112.634 c0,7.464,1.413,14.734,4.151,21.381c2.188,5.213,5.496,9.54,9.254,13.36c-6.027,1.813-11.373,3.44-15.416,4.707 c-2.251,0.702-4.127,1.296-5.628,1.803l-3.757,1.354c-3.532,1.52-6.621,3.771-9.097,6.821c-2.431,3.041-4.307,7.114-4.307,11.899 c-0.064,4.746,2.164,9.676,5.5,12.96c3.358,3.362,7.509,5.476,12.279,6.958c0.994,0.292,4.57,1.618,9.316,3.45 c16.849,6.509,50.903,20.133,85.594,32.197c17.361,6.003,34.873,11.636,50.703,15.806c15.879,4.181,29.79,6.977,41.23,7.026 l5.058-0.224h0.044c34.292-3.333,40.943-5.545,72.697-8.761c2.851-0.292,5.652-0.428,8.415-0.428 c25.833,0,49.221,12.084,66.509,31.456c17.268,19.315,27.938,45.753,27.91,73.029c-0.107,27.841-13.575,48.909-35.257,64.366 c-20.98,14.821-49.733,23.144-78.51,23.612l-112.622-67.952c-3.977-2.388-9.034-2.096-12.698,0.702 c-3.688,2.836-5.277,7.65-3.996,12.103l29.434,102.487c1.063,3.664,3.864,6.558,7.509,7.689 c0.551,0.108,63.951,20.006,124.569,20.094c2.85,0,5.701-0.049,8.502-0.127C422.093,506.816,512,420.934,512,310.232 C512.019,254.715,487.774,205.981,450.334,169.808z M223.594,478.38c-11.26-2.407-20.781-4.814-27.427-6.607 c-1.964-0.526-3.114-0.857-4.551-1.276l-19.762-68.79l86.656,52.243l5.784,31.272C249.607,483.39,235.585,480.914,223.594,478.38z M290.839,220.334c-3.533,0-7.114,0.176-10.71,0.556c-32.859,3.333-39.31,5.515-72.565,8.721h0.044l-2.983,0.127 c-8.658,0.069-24.337-3.02-42.001-8.039c-26.632-7.484-58.479-18.984-84.844-28.992c-13.185-5.009-25.02-9.648-34.253-13.244 c-6.514-2.543-11.016-4.268-14.661-5.593c0.77-0.244,1.325-0.419,2.162-0.683c16.187-5.008,49.466-14.841,78.593-23.387 c29.152-8.547,54.148-15.806,54.216-15.806c30.141-8.4,62.319-12.659,94.141-12.639c15.918-0.02,31.778,1.043,47.259,3.157 c11.24,1.53,22.3,3.957,33.146,7.046l-25.176,91.27C305.962,221.26,298.522,220.334,290.839,220.334z M374.246,259.334 c-11.022-12.366-24.47-22.432-39.555-29.303l25.172-91.319c28.221,11.002,53.928,27.168,74.753,47.35 c12.99,12.59,24.031,26.702,32.792,42.049l-80.473,48.403C383.114,270.463,378.972,264.635,374.246,259.334z M311.464,487.784 c-2.564,0.088-5.17,0.137-7.777,0.137c-5.296,0-10.666-0.312-16.031-0.624l-5.564-30.006c29.346-2.192,58.036-10.934,80.907-27.012 c16.08-11.197,29.235-26.301,37.06-44.496l53.743,29.722C421.41,458.034,369.919,485.777,311.464,487.784z M406.462,363.497 c0.857-5.213,1.432-10.534,1.413-16.069c-0.029-17.785-3.908-34.946-10.535-50.771l79.85-48.033 c7.728,19.1,12.191,39.682,12.191,61.607c0,31.652-8.391,60.993-22.969,86.39L406.462,363.497z"
-                />
-                <path
-                  d="M147.988,261.088c-4.108-4.697-11.236-5.184-15.943-1.052l-53.792,47.058 c-4.707,4.102-5.19,11.236-1.063,15.942c4.107,4.707,11.241,5.165,15.943,1.063l53.797-47.058 C151.632,272.928,152.119,265.795,147.988,261.088z"
-                />
-                <path
-                  d="M157.509,331.807l53.836-47.087c4.707-4.102,5.189-11.236,1.062-15.943c-4.108-4.706-11.24-5.184-15.947-1.082 l-53.836,47.088c-4.707,4.122-5.19,11.255-1.063,15.962C145.668,335.442,152.802,335.929,157.509,331.807z"
-                />
-                <path
-                  d="M231.326,326.672l54.811-45.87c4.795-4.024,5.432-11.148,1.437-15.942c-4.02-4.795-11.152-5.409-15.942-1.413 l-54.835,45.86c-4.771,4.024-5.408,11.138-1.413,15.952C219.403,330.024,226.536,330.667,231.326,326.672z"
-                />
-                <path
-                  d="M132.522,151.613c-9.516,0-17.248,7.709-17.248,17.248c0,9.512,7.732,17.268,17.248,17.268 c9.541,0,17.268-7.756,17.268-17.268C149.79,159.322,142.063,151.613,132.522,151.613z"
-                />
-              </svg>
-              Mariscos</span
-            >
-            <span
-              th:if="${product.containsGluten}"
-              class="feature-chip text-[12px] px-3 py-1.5 rounded-full"
-            >
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" style="fill: #556141">
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M13 3C13 2.44772 12.5523 2 12 2C11.4477 2 11 2.44772 11 3V6.52779C10.1738 5.78835 9.14157 5.27448 8 5.08296V5C8 4.44772 7.55228 4 7 4C6.44772 4 6 4.44772 6 5V7V10V12V13C6 15.973 8.16229 18.441 11 18.917V21C11 21.5523 11.4477 22 12 22C12.5523 22 13 21.5523 13 21V18.917C15.8377 18.441 18 15.973 18 13V12V10V7V5C18 4.44772 17.5523 4 17 4C16.4477 4 16 4.44772 16 5V5.08296C14.8584 5.27448 13.8262 5.78835 13 6.52779V3ZM16 10.083V7.12602C14.2748 7.57006 13 9.13616 13 11V11.5278C13.8262 10.7884 14.8584 10.2745 16 10.083ZM13 16V16.874C14.7252 16.4299 16 14.8638 16 13V12.126C14.2748 12.5701 13 14.1362 13 16ZM11 16.874V16C11 14.1362 9.72523 12.5701 8 12.126V13C8 14.8638 9.27477 16.4299 11 16.874ZM8 10.083C9.14157 10.2745 10.1738 10.7884 11 11.5278V11C11 9.13616 9.72523 7.57006 8 7.12602V10.083Z"
-                />
-              </svg>
-              Contiene gluten</span
-            >
-          </div>
-
-          <!-- Categoría (viene del repositorio de categorías quemado, CategoriaRepository) -->
-          <div
-            th:if="${category != null}"
-            class="mb-8 p-4 rounded-2xl"
-            style="
-              background: rgba(44, 44, 44, 0.04);
-              border: 1px solid rgba(44, 44, 44, 0.07);
-            "
-          >
-            <p
-              class="text-[11px] font-medium tracking-widest uppercase mb-1"
-              style="color: rgba(178, 87, 31, 0.8)"
-              th:text="'Categoría: ' + ${category.name}"
-            ></p>
-            <p
-              class="text-sm"
-              style="color: rgba(44, 44, 44, 0.6)"
-              th:text="${category.description}"
-            ></p>
-          </div>
-
-          <!-- Adicionales opcionales -->
-          <div th:if="${not #lists.isEmpty(addons)}" class="mb-8">
-            <p
-              class="text-[11px] font-medium tracking-widest uppercase mb-4"
-              style="color: rgba(44, 44, 44, 0.35)"
-            >
-              Adicionales opcionales
-            </p>
-            <div class="space-y-3">
-              <label
-                th:each="add : ${addons}"
-                th:attr="data-name=${add.name}"
-                class="detail-add-option flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all duration-200"
-                style="
-                  background: rgba(44, 44, 44, 0.04);
-                  border: 1px solid rgba(44, 44, 44, 0.07);
-                "
-              >
-                <div class="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    class="w-4 h-4 rounded"
-                    style="accent-color: #b2571f"
-                  />
-                  <span
-                    class="text-sm font-medium"
-                    style="color: rgba(44, 44, 44, 0.75)"
-                    th:text="${add.name}"
-                  ></span>
-                </div>
-                <span
-                  class="text-sm"
-                  style="color: rgba(44, 44, 44, 0.45)"
-                  th:text="${'+$' + #numbers.formatDecimal(add.price, 0, 'COMMA', 0, 'POINT')}"
-                ></span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Cantidad + total + botón -->
-          <div class="mt-auto">
-            <div class="flex items-center justify-between mb-6">
-              <!-- Selector de cantidad -->
-              <div
-                class="flex items-center rounded-full p-1"
-                style="background: rgba(44, 44, 44, 0.06)"
-              >
-                <button
-                  id="detail-qty-minus"
-                  type="button"
-                  class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white transition-colors"
-                  style="color: rgba(44, 44, 44, 0.6)"
-                >
-                  <svg
-                    class="w-[15px] h-[15px]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 12h14"
-                    />
-                  </svg>
-                </button>
-                <span
-                  id="detail-qty-value"
-                  class="w-12 text-center font-semibold text-charcoal"
-                  >1</span
-                >
-                <button
-                  id="detail-qty-plus"
-                  type="button"
-                  class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white transition-colors"
-                  style="color: rgba(44, 44, 44, 0.6)"
-                >
-                  <svg
-                    class="w-[15px] h-[15px]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </button>
-              </div>
-              <!-- Total dinámico (se actualiza con JS según cantidad y adicionales) -->
-              <span
-                id="detail-total"
-                class="font-serif text-3xl font-bold"
-                style="color: #b2571f"
-                th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"
-              ></span>
-            </div>
-
-            <!-- Botón para agregar a la orden -->
-            <button
-              id="detail-add-btn"
-              type="button"
-              class="w-full py-4 rounded-2xl font-medium text-white flex items-center justify-center gap-2.5 transition-all duration-300"
-              style="
-                background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
-                box-shadow: 0 4px 20px rgba(178, 87, 31, 0.35);
-              "
-              th:text="${'Añadir a la orden — $' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"
-            >
-              Añadir a la orden
-            </button>
-          </div>
-        </div>
+    <!-- Tarjeta principal: imagen + información del producto -->
+    <div class="glass-card rounded-3xl overflow-hidden p-6 md:p-10 flex flex-col md:flex-row gap-10 md:gap-14 mb-16">
+      <!-- Imagen -->
+      <div class="w-full md:w-[45%] flex-shrink-0">
+        <img th:src="${product.imageUrl}" th:alt="${product.name}" class="w-full object-cover rounded-2xl"
+          style="height: 460px" />
       </div>
 
-      <!-- También te puede gustar (lista) -->
-      <section th:if="${not #lists.isEmpty(relatedProducts)}">
-        <p
-          class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
-          style="color: rgba(178, 87, 31, 0.7)"
-        >
-          De la misma categoría
-        </p>
-        <h2 class="font-serif text-3xl font-semibold text-charcoal mb-8">
-          También te puede gustar
-        </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <a
-            th:each="rel : ${relatedProducts}"
-            th:href="@{/productDetail/{id}(id=${rel.id})}"
-            class="glass-card rounded-2xl overflow-hidden cursor-pointer group transition-all duration-400 hover:-translate-y-0.5 hover:shadow-lg block"
-          >
-            <div
-              class="h-40 overflow-hidden"
-              style="background-color: rgba(44, 44, 44, 0.05)"
-            >
-              <img
-                th:src="${rel.imageUrl}"
-                th:alt="${rel.name}"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-600"
-              />
-            </div>
-            <div class="p-5">
-              <h3
-                class="font-serif text-lg font-semibold text-charcoal group-hover:text-terra transition-colors mb-1"
-                th:text="${rel.name}"
-              ></h3>
-              <p
-                class="font-bold text-sm"
-                style="color: #b2571f"
-                th:text="${'$' + #numbers.formatDecimal(rel.price, 0, 'COMMA', 0, 'POINT')}"
-              ></p>
-            </div>
-          </a>
+      <!-- Información -->
+      <div class="flex flex-col flex-1 md:py-2">
+        <div class="flex items-center gap-3 mb-1">
+          <span class="text-[11px] font-medium tracking-[0.25em] uppercase" style="color: rgba(178, 87, 31, 0.7)"
+            th:text="${product.getCategory().getName()}"></span>
+          <span th:if="${product.popular}" class="flex items-center gap-1 text-[11px] font-medium"
+            style="color: #d99a21">
+            <svg class="w-3 h-3" style="fill: #d99a21" viewBox="0 0 20 20">
+              <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            Popular
+          </span>
         </div>
-      </section>
-    </main>
 
-    <!-- Modal de carrito -->
-    <div th:replace="~{fragments :: modal-cart}"></div>
+        <h1 class="font-serif text-4xl md:text-5xl font-bold text-charcoal leading-tight mb-4"
+          th:text="${product.name}"></h1>
 
-    <!-- Pie de página -->
-    <footer th:replace="~{fragments :: footer}"></footer>
+        <div class="w-10 h-0.5 mb-6" style="background-color: #d99a21"></div>
 
-    <script th:inline="javascript">
-      const currentProduct = {
-        id: /*[[${product.id}]]*/ 0,
-        name: /*[[${product.name}]]*/ "",
-        price: /*[[${product.price}]]*/ 0,
-        imageUrl: /*[[${product.imageUrl}]]*/ "",
-        description: /*[[${product.description}]]*/ "",
-      };
+        <p class="leading-relaxed mb-6 text-[15px]" style="color: rgba(44, 44, 44, 0.6)"
+          th:text="${product.description}"></p>
 
-      const currentAddons = [
-        /*[# th:each="add : ${addons}"]*/
-        {
-          id: /*[[${add.id}]]*/ 0,
-          name: /*[[${add.name}]]*/ "",
-          price: /*[[${add.price}]]*/ 0,
-        },
-        /*[/]*/
-      ];
-    </script>
+        <!-- Chips de características (vegetariano, picante, etc.), solo si el plato tiene alguna -->
+        <div class="flex flex-wrap gap-2 mb-8"
+          th:if="${product.vegetarian or product.spicyMild or product.spicyHot or product.containsNuts or product.containsSeafood or product.containsGluten}">
+          <span th:if="${product.vegetarian}" class="feature-chip text-[12px] px-3 py-1.5 rounded-full">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 512 512" style="fill: #556141">
+              <path
+                d="M389.053,126.3A302.909,302.909,0,0,0,280.012,18.15L272,13.516l-8.012,4.634A301.084,301.084,0,0,0,113.4,279.042c0,3.445.06,6.944.177,10.4,1.592,46.856,19.511,86.283,51.82,114.018,24.724,21.225,56.438,34.182,90.607,37.273V496h32V240H256V408.528c-54.064-6.263-107.873-44.455-110.444-120.174-.106-3.095-.16-6.228-.16-9.312A270.286,270.286,0,0,1,272,50.673,270.286,270.286,0,0,1,398.6,279.042c0,3.084-.054,6.217-.16,9.313-2.056,60.573-36.907,97.127-78.444,112.536v33.867a156.188,156.188,0,0,0,58.607-31.3c32.309-27.735,50.228-67.162,51.82-114.017.117-3.456.177-6.955.177-10.4A300.948,300.948,0,0,0,389.053,126.3Z" />
+            </svg>
+            Vegetariano</span>
+          <span th:if="${product.spicyMild}" class="feature-chip text-[12px] px-3 py-1.5 rounded-full">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 32 32" fill="none" style="color: #556141">
+              <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                d="M19,8.1c0-2,1.1-3.8,2.8-5.1" />
+              <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                d="M15.1,12v2.7c0,5.1-2.3,9.9-6.1,13L7.3,29l4.1-1.5C17.7,25.2,22,19,22,12v0c0-2-1.6-3.6-3.5-3.6h0 C16.6,8.4,15.1,10,15.1,12z" />
+              <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                d="M22,13L22,13c-2.3-0.7-4.7-0.7-7,0l0,0" />
+            </svg>
+            Picante ligero</span>
+          <span th:if="${product.spicyHot}" class="feature-chip text-[12px] px-3 py-1.5 rounded-full">
+            <span class="flex items-center">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 32 32" fill="none" style="color: #556141">
+                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  d="M19,8.1c0-2,1.1-3.8,2.8-5.1" />
+                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  d="M15.1,12v2.7c0,5.1-2.3,9.9-6.1,13L7.3,29l4.1-1.5C17.7,25.2,22,19,22,12v0c0-2-1.6-3.6-3.5-3.6h0 C16.6,8.4,15.1,10,15.1,12z" />
+                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  d="M22,13L22,13c-2.3-0.7-4.7-0.7-7,0l0,0" />
+              </svg>
+              <svg class="w-3.5 h-3.5 -ml-1.5" viewBox="0 0 32 32" fill="none" style="color: #556141">
+                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  d="M19,8.1c0-2,1.1-3.8,2.8-5.1" />
+                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  d="M15.1,12v2.7c0,5.1-2.3,9.9-6.1,13L7.3,29l4.1-1.5C17.7,25.2,22,19,22,12v0c0-2-1.6-3.6-3.5-3.6h0 C16.6,8.4,15.1,10,15.1,12z" />
+                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  d="M22,13L22,13c-2.3-0.7-4.7-0.7-7,0l0,0" />
+              </svg>
+            </span>
+            Picante intenso</span>
+          <span th:if="${product.containsNuts}" class="feature-chip text-[12px] px-3 py-1.5 rounded-full">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" style="color: #556141">
+              <path stroke="currentColor" stroke-width="1.5" stroke-linecap="square"
+                d="M12,21 C16,19.6666667 18,17.4411765 18,14.3235294 L18,12 L18,12 L6,12 L6,14.3235294 L6,14.3235294 C6,17.4411765 8,19.6666667 12,21 Z M7.5,7 L10.2747211,6.20722253 C10.7040227,6.08456495 11,5.69217895 11,5.24569859 L11,4 L13,4 L12.5575036,4.88499271 C12.3105144,5.3789712 12.5107387,5.97964425 13.0047172,6.22663349 C13.0699767,6.25926325 13.1386113,6.28465283 13.2093952,6.3023488 L16,7 C18.1421954,7.53554885 19.4700868,9.65673819 19.0450148,11.7991358 L19,12 L5,12 L4.882843,11.531372 C4.39057566,9.56230266 5.54842347,7.55759329 7.5,7 Z" />
+            </svg>
+            Contiene nueces</span>
+          <span th:if="${product.containsSeafood}" class="feature-chip text-[12px] px-3 py-1.5 rounded-full">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 512 512" style="fill: #556141">
+              <path
+                d="M450.334,169.808c-37.45-36.212-88.036-60.312-142.052-67.679c-16.517-2.28-33.366-3.381-50.303-3.411 c-33.878,0.03-68.038,4.512-100.348,13.516l-0.108,0.03c0,0-33.81,9.822-68.594,20.045c-7.572,2.232-15.149,4.463-22.476,6.626 c-0.044,0-0.088-0.039-0.137-0.068v-0.02c-7.416-1.968-14.174-7.552-16.45-13.429c-1.569-3.8-2.451-8.166-2.451-12.785 c0.02-8.216,2.739-17.112,9.078-25.045c6.358-7.922,16.405-15.124,31.885-19.45c20.65-5.789,64.375-11.285,105.226-17.98 c20.518-3.372,40.456-7.084,57.154-11.528c16.78-4.697,30.03-9.073,39.306-17.843c4.44-4.396,4.484-11.548,0.088-15.982 c-4.415-4.414-11.572-4.463-15.986-0.049c-2.344,2.768-13.912,8.147-29.24,12.016c-23.1,6.188-55.161,11.265-85.506,15.855 c-30.453,4.638-58.982,8.742-77.092,13.74c-19.388,5.36-33.961,15.125-43.502,27.11C29.26,85.426,24.802,99.38,24.802,112.634 c0,7.464,1.413,14.734,4.151,21.381c2.188,5.213,5.496,9.54,9.254,13.36c-6.027,1.813-11.373,3.44-15.416,4.707 c-2.251,0.702-4.127,1.296-5.628,1.803l-3.757,1.354c-3.532,1.52-6.621,3.771-9.097,6.821c-2.431,3.041-4.307,7.114-4.307,11.899 c-0.064,4.746,2.164,9.676,5.5,12.96c3.358,3.362,7.509,5.476,12.279,6.958c0.994,0.292,4.57,1.618,9.316,3.45 c16.849,6.509,50.903,20.133,85.594,32.197c17.361,6.003,34.873,11.636,50.703,15.806c15.879,4.181,29.79,6.977,41.23,7.026 l5.058-0.224h0.044c34.292-3.333,40.943-5.545,72.697-8.761c2.851-0.292,5.652-0.428,8.415-0.428 c25.833,0,49.221,12.084,66.509,31.456c17.268,19.315,27.938,45.753,27.91,73.029c-0.107,27.841-13.575,48.909-35.257,64.366 c-20.98,14.821-49.733,23.144-78.51,23.612l-112.622-67.952c-3.977-2.388-9.034-2.096-12.698,0.702 c-3.688,2.836-5.277,7.65-3.996,12.103l29.434,102.487c1.063,3.664,3.864,6.558,7.509,7.689 c0.551,0.108,63.951,20.006,124.569,20.094c2.85,0,5.701-0.049,8.502-0.127C422.093,506.816,512,420.934,512,310.232 C512.019,254.715,487.774,205.981,450.334,169.808z M223.594,478.38c-11.26-2.407-20.781-4.814-27.427-6.607 c-1.964-0.526-3.114-0.857-4.551-1.276l-19.762-68.79l86.656,52.243l5.784,31.272C249.607,483.39,235.585,480.914,223.594,478.38z M290.839,220.334c-3.533,0-7.114,0.176-10.71,0.556c-32.859,3.333-39.31,5.515-72.565,8.721h0.044l-2.983,0.127 c-8.658,0.069-24.337-3.02-42.001-8.039c-26.632-7.484-58.479-18.984-84.844-28.992c-13.185-5.009-25.02-9.648-34.253-13.244 c-6.514-2.543-11.016-4.268-14.661-5.593c0.77-0.244,1.325-0.419,2.162-0.683c16.187-5.008,49.466-14.841,78.593-23.387 c29.152-8.547,54.148-15.806,54.216-15.806c30.141-8.4,62.319-12.659,94.141-12.639c15.918-0.02,31.778,1.043,47.259,3.157 c11.24,1.53,22.3,3.957,33.146,7.046l-25.176,91.27C305.962,221.26,298.522,220.334,290.839,220.334z M374.246,259.334 c-11.022-12.366-24.47-22.432-39.555-29.303l25.172-91.319c28.221,11.002,53.928,27.168,74.753,47.35 c12.99,12.59,24.031,26.702,32.792,42.049l-80.473,48.403C383.114,270.463,378.972,264.635,374.246,259.334z M311.464,487.784 c-2.564,0.088-5.17,0.137-7.777,0.137c-5.296,0-10.666-0.312-16.031-0.624l-5.564-30.006c29.346-2.192,58.036-10.934,80.907-27.012 c16.08-11.197,29.235-26.301,37.06-44.496l53.743,29.722C421.41,458.034,369.919,485.777,311.464,487.784z M406.462,363.497 c0.857-5.213,1.432-10.534,1.413-16.069c-0.029-17.785-3.908-34.946-10.535-50.771l79.85-48.033 c7.728,19.1,12.191,39.682,12.191,61.607c0,31.652-8.391,60.993-22.969,86.39L406.462,363.497z" />
+              <path
+                d="M147.988,261.088c-4.108-4.697-11.236-5.184-15.943-1.052l-53.792,47.058 c-4.707,4.102-5.19,11.236-1.063,15.942c4.107,4.707,11.241,5.165,15.943,1.063l53.797-47.058 C151.632,272.928,152.119,265.795,147.988,261.088z" />
+              <path
+                d="M157.509,331.807l53.836-47.087c4.707-4.102,5.189-11.236,1.062-15.943c-4.108-4.706-11.24-5.184-15.947-1.082 l-53.836,47.088c-4.707,4.122-5.19,11.255-1.063,15.962C145.668,335.442,152.802,335.929,157.509,331.807z" />
+              <path
+                d="M231.326,326.672l54.811-45.87c4.795-4.024,5.432-11.148,1.437-15.942c-4.02-4.795-11.152-5.409-15.942-1.413 l-54.835,45.86c-4.771,4.024-5.408,11.138-1.413,15.952C219.403,330.024,226.536,330.667,231.326,326.672z" />
+              <path
+                d="M132.522,151.613c-9.516,0-17.248,7.709-17.248,17.248c0,9.512,7.732,17.268,17.248,17.268 c9.541,0,17.268-7.756,17.268-17.268C149.79,159.322,142.063,151.613,132.522,151.613z" />
+            </svg>
+            Mariscos</span>
+          <span th:if="${product.containsGluten}" class="feature-chip text-[12px] px-3 py-1.5 rounded-full">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" style="fill: #556141">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M13 3C13 2.44772 12.5523 2 12 2C11.4477 2 11 2.44772 11 3V6.52779C10.1738 5.78835 9.14157 5.27448 8 5.08296V5C8 4.44772 7.55228 4 7 4C6.44772 4 6 4.44772 6 5V7V10V12V13C6 15.973 8.16229 18.441 11 18.917V21C11 21.5523 11.4477 22 12 22C12.5523 22 13 21.5523 13 21V18.917C15.8377 18.441 18 15.973 18 13V12V10V7V5C18 4.44772 17.5523 4 17 4C16.4477 4 16 4.44772 16 5V5.08296C14.8584 5.27448 13.8262 5.78835 13 6.52779V3ZM16 10.083V7.12602C14.2748 7.57006 13 9.13616 13 11V11.5278C13.8262 10.7884 14.8584 10.2745 16 10.083ZM13 16V16.874C14.7252 16.4299 16 14.8638 16 13V12.126C14.2748 12.5701 13 14.1362 13 16ZM11 16.874V16C11 14.1362 9.72523 12.5701 8 12.126V13C8 14.8638 9.27477 16.4299 11 16.874ZM8 10.083C9.14157 10.2745 10.1738 10.7884 11 11.5278V11C11 9.13616 9.72523 7.57006 8 7.12602V10.083Z" />
+            </svg>
+            Contiene gluten</span>
+        </div>
 
-    <script th:src="@{/js/script.js}"></script>
-  </body>
+        <!-- Categoría (viene del repositorio de categorías quemado, CategoriaRepository) -->
+        <div th:if="${category != null}" class="mb-8 p-4 rounded-2xl" style="
+              background: rgba(44, 44, 44, 0.04);
+              border: 1px solid rgba(44, 44, 44, 0.07);
+            ">
+          <p class="text-[11px] font-medium tracking-widest uppercase mb-1" style="color: rgba(178, 87, 31, 0.8)"
+            th:text="'Categoría: ' + ${category.name}"></p>
+          <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)" th:text="${category.description}"></p>
+        </div>
+
+        <!-- Adicionales opcionales -->
+        <div th:if="${not #lists.isEmpty(addons)}" class="mb-8">
+          <p class="text-[11px] font-medium tracking-widest uppercase mb-4" style="color: rgba(44, 44, 44, 0.35)">
+            Adicionales opcionales
+          </p>
+          <div class="space-y-3">
+            <label th:each="add : ${addons}" th:attr="data-name=${add.name}"
+              class="detail-add-option flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all duration-200"
+              style="
+                  background: rgba(44, 44, 44, 0.04);
+                  border: 1px solid rgba(44, 44, 44, 0.07);
+                ">
+              <div class="flex items-center gap-3">
+                <input type="checkbox" class="w-4 h-4 rounded" style="accent-color: #b2571f" />
+                <span class="text-sm font-medium" style="color: rgba(44, 44, 44, 0.75)" th:text="${add.name}"></span>
+              </div>
+              <span class="text-sm" style="color: rgba(44, 44, 44, 0.45)"
+                th:text="${'+$' + #numbers.formatDecimal(add.price, 0, 'COMMA', 0, 'POINT')}"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Cantidad + total + botón -->
+        <div class="mt-auto">
+          <div class="flex items-center justify-between mb-6">
+            <!-- Selector de cantidad -->
+            <div class="flex items-center rounded-full p-1" style="background: rgba(44, 44, 44, 0.06)">
+              <button id="detail-qty-minus" type="button"
+                class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white transition-colors"
+                style="color: rgba(44, 44, 44, 0.6)">
+                <svg class="w-[15px] h-[15px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14" />
+                </svg>
+              </button>
+              <span id="detail-qty-value" class="w-12 text-center font-semibold text-charcoal">1</span>
+              <button id="detail-qty-plus" type="button"
+                class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white transition-colors"
+                style="color: rgba(44, 44, 44, 0.6)">
+                <svg class="w-[15px] h-[15px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
+            <!-- Total dinámico (se actualiza con JS según cantidad y adicionales) -->
+            <span id="detail-total" class="font-serif text-3xl font-bold" style="color: #b2571f"
+              th:text="${'$' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
+          </div>
+
+          <!-- Botón para agregar a la orden -->
+          <button id="detail-add-btn" type="button"
+            class="w-full py-4 rounded-2xl font-medium text-white flex items-center justify-center gap-2.5 transition-all duration-300"
+            style="
+                background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+                box-shadow: 0 4px 20px rgba(178, 87, 31, 0.35);
+              " th:text="${'Añadir a la orden — $' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">
+            Añadir a la orden
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- También te puede gustar (lista) -->
+    <section th:if="${not #lists.isEmpty(relatedProducts)}">
+      <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: rgba(178, 87, 31, 0.7)">
+        De la misma categoría
+      </p>
+      <h2 class="font-serif text-3xl font-semibold text-charcoal mb-8">
+        También te puede gustar
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <a th:each="rel : ${relatedProducts}" th:href="@{/productDetail/{id}(id=${rel.id})}"
+          class="glass-card rounded-2xl overflow-hidden cursor-pointer group transition-all duration-400 hover:-translate-y-0.5 hover:shadow-lg block">
+          <div class="h-40 overflow-hidden" style="background-color: rgba(44, 44, 44, 0.05)">
+            <img th:src="${rel.imageUrl}" th:alt="${rel.name}"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-600" />
+          </div>
+          <div class="p-5">
+            <h3 class="font-serif text-lg font-semibold text-charcoal group-hover:text-terra transition-colors mb-1"
+              th:text="${rel.name}"></h3>
+            <p class="font-bold text-sm" style="color: #b2571f"
+              th:text="${'$' + #numbers.formatDecimal(rel.price, 0, 'COMMA', 0, 'POINT')}"></p>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal de carrito -->
+  <div th:replace="~{fragments :: modal-cart}"></div>
+
+  <!-- Pie de página -->
+  <footer th:replace="~{fragments :: footer}"></footer>
+
+  <script th:inline="javascript">
+    const currentProduct = {
+      id: /*[[${product.id}]]*/ 0,
+      name: /*[[${product.name}]]*/ "",
+      price: /*[[${product.price}]]*/ 0,
+      imageUrl: /*[[${product.imageUrl}]]*/ "",
+      description: /*[[${product.description}]]*/ "",
+    };
+
+    const currentAddons = [
+      /*[# th:each="add : ${addons}"]*/
+      {
+        id: /*[[${add.id}]]*/ 0,
+        name: /*[[${add.name}]]*/ "",
+        price: /*[[${add.price}]]*/ 0,
+      },
+      /*[/]*/
+    ];
+  </script>
+
+  <script th:src="@{/js/script.js}"></script>
+</body>
+
 </html>

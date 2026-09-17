@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import com.example.demo.entities.Admin;
 import com.example.demo.entities.Client;
+import com.example.demo.entities.DeliveryPerson;
+import com.example.demo.entities.Operator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,15 +20,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Object login(String email, String password) {
 
-        // Como ya no existe una tabla única de usuarios, probamos el correo
-        // contra cada tabla (clients, admins) hasta encontrar coincidencia.
-        //
         // Devuelve null (no lanza excepción) cuando el correo no existe o la
         // contraseña no coincide: AuthController.doLogin() espera null para
         // mostrar "Correo o contraseña incorrectos." en el propio formulario.
-        // Si esto lanzara, la excepción quedaría sin capturar (no está en
-        // GlobalExceptionHandler) y el login fallido terminaría en la
-        // página blanca de error de Spring en vez de en el mensaje del form.
         Client client = clientService.findByEmail(email);
 
         if (client != null) {

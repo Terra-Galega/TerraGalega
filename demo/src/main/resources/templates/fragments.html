@@ -41,12 +41,11 @@
           </a>
         </div>
 
-         <!-- Columna derecha: pedidos - sesión - carrito -->
+        <!-- Columna derecha: pedidos - sesión - carrito -->
         <div class="flex items-center justify-evenly w-full">
 
           <!-- PEDIDOS si no hay sesión, MIS PEDIDOS si la hay -->
-          <a th:href="@{/orders}"
-            class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+          <a th:href="@{/orders}" class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap"
             th:text="${loggedClient == null} ? 'PEDIDOS' : 'MIS PEDIDOS'">
           </a>
 
@@ -62,7 +61,8 @@
           <!-- Operator/DeliveryPerson: ya pueden autenticarse, pero todavía no
                tienen su propia vista de cuenta, así que se muestra el nombre
                sin link en vez de apuntar a una ruta que no existe. -->
-          <span th:if="${loggedClient != null and not isLoggedAdmin and not (loggedClient instanceof T(com.example.demo.entities.Client))}"
+          <span
+            th:if="${loggedClient != null and not isLoggedAdmin and not (loggedClient instanceof T(com.example.demo.entities.Client))}"
             class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
             th:text="${#strings.toUpperCase(loggedClient.name)} + ' ' + ${#strings.toUpperCase(loggedClient.lastName)}"></span>
 
@@ -134,7 +134,7 @@
         <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2" th:href="@{/contact}">
           CONTACTO
         </a>
-                <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2" th:href="@{/orders}"
+        <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2" th:href="@{/orders}"
           th:text="${loggedClient == null} ? 'PEDIDOS' : 'MIS PEDIDOS'">
         </a>
         <div th:if="${loggedClient == null}" class="flex pt-4 pb-2 border-t mt-2"
