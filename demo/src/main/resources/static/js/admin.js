@@ -1,7 +1,7 @@
 /* ─── Pestañas del sidebar (Productos / Domicilios / Usuarios) ─── */
 const ADMIN_TAB_TITLES = {
   products: "Productos",
-  orders: "Domicilios en curso",
+  orders: "Ordenes",
   users: "Usuarios",
 };
 const adminTabBtns = document.querySelectorAll(".admin-tab-btn");

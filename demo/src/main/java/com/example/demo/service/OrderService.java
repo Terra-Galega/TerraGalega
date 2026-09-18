@@ -10,6 +10,8 @@ public interface OrderService {
 
     List<Order> getOrdersByClientId(Integer clientId);
 
+    List<Order> getAllOrders();
+
     Order getOrderById(Integer id);
 
     Order createOrder(Order order);
