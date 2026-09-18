@@ -300,8 +300,8 @@
                       </span>
                     </div>
 
-                    <h3 class="font-semibold text-charcoal" th:text="${order.client.name + ' ' + order.client.lastName}"></h3>
-
+                    <h3 class="font-semibold text-charcoal"
+                      th:text="${order.client != null ? (order.client.name + ' ' + order.client.lastName) : 'Cuenta eliminada'}"></h3>
                     <p class="mt-0.5" style="font-size: 12px; color: rgba(44, 44, 44, 0.45)"
                       th:text="${#temporals.format(order.createdAt, 'hh:mm a')}"></p>
                   </div>

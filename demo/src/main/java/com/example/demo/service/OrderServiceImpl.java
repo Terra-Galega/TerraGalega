@@ -45,6 +45,16 @@ public class OrderServiceImpl implements OrderService {
     
     @Override
     @Transactional
+    public void clearClientIdFromOrders(Integer clientId) {
+        List<Order> orders = repository.findByClientIdOrderByCreatedAtDesc(clientId);
+        for (Order order : orders) {
+            order.setClient(null);              
+        }
+        repository.saveAll(orders);
+    }
+
+    @Override
+    @Transactional
     public Order getOrderById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("El pedido no existe."));

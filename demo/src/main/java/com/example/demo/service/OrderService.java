@@ -12,6 +12,8 @@ public interface OrderService {
 
     List<Order> getAllOrders();
 
+    void clearClientIdFromOrders(Integer clientId);
+
     Order getOrderById(Integer id);
 
     Order createOrder(Order order);

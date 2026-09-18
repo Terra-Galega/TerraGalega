@@ -18,6 +18,9 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private AdminRepository adminRepository;
 
+    @Autowired 
+    private OrderService orderService;
+
     @Override
     @Transactional
     public Collection<Client> getAllClients() {
@@ -81,6 +84,8 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public void deleteClient(Integer id) {
+        // Antes de eliminar el cliente, limpiamos los id de los pedidos
+        orderService.clearClientIdFromOrders(id);
         repository.deleteById(id);
     }
 

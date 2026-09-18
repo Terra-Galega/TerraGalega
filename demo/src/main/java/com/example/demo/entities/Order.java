@@ -42,7 +42,7 @@ public class Order {
     // directa entre Order y Admin/Operator/DeliveryPerson, así que se asume que
     // "user" = "client" en la tabla Order.
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id", nullable = true)
     private Client client;
 
     @Enumerated(EnumType.STRING)
