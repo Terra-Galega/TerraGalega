@@ -72,7 +72,7 @@ public class ClientController {
 
         try {
             clientService.deleteClient(id);
-            session.removeAttribute(SESSION_Client);
+            session.invalidate();
             return "redirect:/home";
 
         } catch (RuntimeException e) {
