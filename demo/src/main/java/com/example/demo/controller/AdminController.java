@@ -30,24 +30,30 @@ public class AdminController {
     }
 
     // Añade un producto nuevo usando @ModelAttribute
-    @PostMapping("/{id}/products")
+    @PostMapping("/{adminId}/products")
     public String addProduct(
-            @PathVariable Integer id,
+            @PathVariable Integer adminId,
             @ModelAttribute Product product, HttpSession session) {
 
         if (isntAdmin(session)) {
             session.invalidate();
             return "redirect:/login";
         }
+
+        // Por seguridad, nunca confiamos en un id que pudiera venir pegado
+        // al producto (antes chocaba con el path variable del admin y
+        // terminaba pisando el producto id=1 en vez de crear uno nuevo).
+        product.setId(null);
+
         // El objeto 'product' ya viene completamente poblado desde el formulario HTML
         productService.addProduct(product);
-        return "redirect:/admin/" + id;
+        return "redirect:/admin/" + adminId;
     }
 
     // Guarda los cambios de un producto existente usando @ModelAttribute
-    @PostMapping("/{id}/products/{productId}/update")
+    @PostMapping("/{adminId}/products/{productId}/update")
     public String updateProduct(
-            @PathVariable Integer id,
+            @PathVariable Integer adminId,
             @PathVariable Integer productId,
             @ModelAttribute Product product, HttpSession session) {
 
@@ -60,13 +66,13 @@ public class AdminController {
         }
 
         productService.updateProduct(productId, product);
-        return "redirect:/admin/" + id;
+        return "redirect:/admin/" + adminId;
     }
 
     // Elimina un producto de la carta
-    @PostMapping("/{id}/products/{productId}/delete")
+    @PostMapping("/{adminId}/products/{productId}/delete")
     public String deleteProduct(
-            @PathVariable Integer id,
+            @PathVariable Integer adminId,
             @PathVariable Integer productId, HttpSession session) {
 
         if (isntAdmin(session)) {
@@ -75,13 +81,13 @@ public class AdminController {
         }
 
         productService.deleteProduct(productId);
-        return "redirect:/admin/" + id;
+        return "redirect:/admin/" + adminId;
     }
 
     // Activa/desactiva un producto
-    @PostMapping("/{id}/products/{productId}/toggle")
+    @PostMapping("/{adminId}/products/{productId}/toggle")
     public String toggleProduct(
-            @PathVariable Integer id,
+            @PathVariable Integer adminId,
             @PathVariable Integer productId, HttpSession session) {
 
         if (isntAdmin(session)) {
@@ -89,6 +95,6 @@ public class AdminController {
             return "redirect:/login";
         }
         productService.toggleProductActive(productId);
-        return "redirect:/admin/" + id;
+        return "redirect:/admin/" + adminId;
     }
 }
