@@ -11,6 +11,7 @@ import com.example.demo.service.CategoryService;
 import com.example.demo.service.ClientService;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.AuthService;
+import com.example.demo.service.OrderService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +36,9 @@ public class AuthController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private OrderService orderService;
 
     // En sesión se guarda directamente el Client o el Admin que inició
     // sesión (no hay clase intermedia). Quien lo lee usa instanceof.
@@ -69,6 +73,7 @@ public class AuthController {
         model.addAttribute("adminName", admin.getName());
         model.addAttribute("adminId", admin.getId());
         model.addAttribute("clients", clientService.getAllClients());
+        model.addAttribute("orders", orderService.getAllOrders());
         return "admin";
     }
 

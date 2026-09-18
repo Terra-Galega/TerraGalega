@@ -138,7 +138,7 @@
           </p>
           <h1 class="font-serif text-4xl md:text-5xl font-bold text-charcoal">Mis pedidos</h1>
           <p class="mt-3 text-[15px]" style="color: rgba(44, 44, 44, 0.7)"
-            th:text="'Hola ' + ${client.name} + ', esto es todo lo que has pedido en Terra Galega.'"></p>
+            th:text="'Hola ' + ${client.name} + ' ' + ${client.lastName} + ', esto es todo lo que has pedido en Terra Galega.'"></p>
         </div>
         <a th:href="@{/menu}"
           class="self-start px-8 py-3 rounded-full font-medium text-white whitespace-nowrap transition-all duration-300 hover:scale-105"
@@ -174,7 +174,15 @@
                 <span class="font-mono text-[13px] font-semibold" style="color: rgba(44, 44, 44, 0.55)"
                   th:text="'Pedido #' + ${order.id}"></span>
                 <span class="text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full"
-                  style="color: #556141; background-color: rgba(85,97,65,.12);" th:text="${order.status}"></span>
+                  style="color: #556141; background-color: rgba(85,97,65,.12);"
+                  th:switch="${order.status.name()}">
+                  <span th:case="'PENDING'">Pendiente</span>
+                  <span th:case="'IN_PROGRESS'">En preparación</span>
+                  <span th:case="'ON_THE_WAY'">En camino</span>
+                  <span th:case="'DELIVERED'">Entregado</span>
+                  <span th:case="'CANCELLED'">Cancelado</span>
+                  <span th:case="*" th:text="${order.status}"></span>
+                </span>
               </div>
               <p class="text-[14px]" style="color: rgba(44, 44, 44, 0.6)"
                 th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy, HH:mm')}"></p>

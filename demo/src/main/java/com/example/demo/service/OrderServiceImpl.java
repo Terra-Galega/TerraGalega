@@ -37,7 +37,12 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getOrdersByClientId(Integer clientId) {
         return repository.findByClientIdOrderByCreatedAtDesc(clientId);
     }
-
+    @Override 
+    @Transactional
+    public List<Order> getAllOrders() {
+        return repository.findAll();
+    }
+    
     @Override
     @Transactional
     public Order getOrderById(Integer id) {

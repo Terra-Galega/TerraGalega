@@ -66,7 +66,7 @@
             <path
               d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          Domicilios
+          Ordenes
         </button>
         <button type="button"
           class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
@@ -266,86 +266,52 @@
           </p>
         </div>
 
-        <!-- ── DOMICILIOS (contenido de ejemplo, no persiste en el backend) ── -->
+        <!-- ──Ordenes ── -->
         <div id="admin-panel-orders" class="admin-panel hidden-modal">
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            <div class="rounded-2xl p-6 flex flex-col gap-4" style="
-                  background-color: rgba(255, 255, 255, 0.72);
-                  backdrop-filter: blur(20px);
-                  border: 1px solid rgba(255, 255, 255, 0.55);
-                ">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-mono" style="font-size: 12px; color: rgba(44, 44, 44, 0.4)">#002</span>
-                    <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full" style="
-                          background-color: rgba(37, 99, 235, 0.08);
-                          color: #2563eb;
-                        ">En camino</span>
+             <div th:each="order : ${orders}"
+                class="rounded-2xl p-6 flex flex-col gap-4"
+                style="
+                    background-color: rgba(255, 255, 255, 0.72);                   
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.55);
+                  ">
+
+                <div class="flex items-start justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+
+                      <span class="font-mono" style="font-size: 12px; color: rgba(44, 44, 44, 0.4)"
+                            th:text="${'#' + #numbers.formatInteger(order.id, 3)}"></span>
+
+                      <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full"
+                            th:switch="${order.status.name()}"
+                            th:style="${order.status.name() == 'DELIVERED'} ?
+                                        'background-color: rgba(22,163,74,0.08); color:#16a34a;' :
+                                      (${order.status.name() == 'CANCELLED'} ?
+                                        'background-color: rgba(220,38,38,0.08); color:#dc2626;' :
+                                        'background-color: rgba(37,99,235,0.08); color:#2563eb;')">
+                        <span th:case="'PENDING'">Pendiente</span>
+                        <span th:case="'IN_PROGRESS'">En preparación</span>
+                        <span th:case="'ON_THE_WAY'">En camino</span>
+                        <span th:case="'DELIVERED'">Entregado</span>
+                        <span th:case="'CANCELLED'">Cancelado</span>
+                        <span th:case="*" th:text="${order.status}"></span>
+                      </span>
+                    </div>
+
+                    <h3 class="font-semibold text-charcoal" th:text="${order.client.name + ' ' + order.client.lastName}"></h3>
+
+                    <p class="mt-0.5" style="font-size: 12px; color: rgba(44, 44, 44, 0.45)"
+                      th:text="${#temporals.format(order.createdAt, 'hh:mm a')}"></p>
                   </div>
-                  <h3 class="font-semibold text-charcoal">
-                    Carlos Rodríguez
-                  </h3>
-                  <p class="mt-0.5" style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
-                    11:32 PM
-                  </p>
+
+                  <span class="font-bold text-lg" style="color: #b2571f"
+                        th:text="${'$' + #numbers.formatInteger(order.total, 0, 'POINT')}"></span>
                 </div>
-                <span class="font-bold text-lg" style="color: #b2571f">$75.000</span>
+
+                <p style="font-size: 12px; color: rgba(44, 44, 44, 0.55)" th:text="${order.address}"></p>
               </div>
-              <p style="font-size: 12px; color: rgba(44, 44, 44, 0.55)">
-                Calle 72 #8-24, Bogotá
-              </p>
-            </div>
-            <div class="rounded-2xl p-6 flex flex-col gap-4" style="
-                  background-color: rgba(255, 255, 255, 0.72);
-                  backdrop-filter: blur(20px);
-                  border: 1px solid rgba(255, 255, 255, 0.55);
-                ">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-mono" style="font-size: 12px; color: rgba(44, 44, 44, 0.4)">#003</span>
-                    <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full" style="
-                          background-color: rgba(178, 87, 31, 0.1);
-                          color: #b2571f;
-                        ">En preparación</span>
-                  </div>
-                  <h3 class="font-semibold text-charcoal">Lucía Martínez</h3>
-                  <p class="mt-0.5" style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
-                    11:15 PM
-                  </p>
-                </div>
-                <span class="font-bold text-lg" style="color: #b2571f">$63.400</span>
-              </div>
-              <p style="font-size: 12px; color: rgba(44, 44, 44, 0.55)">
-                Calle 93 #15-47, Zona Rosa, Bogotá
-              </p>
-            </div>
-            <div class="rounded-2xl p-6 flex flex-col gap-4" style="
-                  background-color: rgba(255, 255, 255, 0.72);
-                  backdrop-filter: blur(20px);
-                  border: 1px solid rgba(255, 255, 255, 0.55);
-                ">
-              <div class="flex items-start justify-between">
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-mono" style="font-size: 12px; color: rgba(44, 44, 44, 0.4)">#004</span>
-                    <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full" style="
-                          background-color: rgba(217, 154, 33, 0.12);
-                          color: #a07010;
-                        ">Recibido</span>
-                  </div>
-                  <h3 class="font-semibold text-charcoal">Diego Sánchez</h3>
-                  <p class="mt-0.5" style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
-                    11:48 PM
-                  </p>
-                </div>
-                <span class="font-bold text-lg" style="color: #b2571f">$120.000</span>
-              </div>
-              <p style="font-size: 12px; color: rgba(44, 44, 44, 0.55)">
-                Cra 15 #85-17, Bogotá
-              </p>
-            </div>
           </div>
         </div>
         <div id="admin-panel-users" class="admin-panel hidden-modal space-y-3">
