@@ -75,7 +75,7 @@ public class Order {
     @Builder.Default
     private List<OrderDetail> details = new ArrayList<>();
 
-    // No es columna (no está en el ERD): se calcula a partir de los
+    // No es columna, se calcula a partir de los
     // OrderDetail en vez de guardarse, para que nunca quede desactualizado
     // si cambia un detalle
     public Double getTotal() {

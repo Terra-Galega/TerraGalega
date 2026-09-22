@@ -43,9 +43,9 @@
     <!-- Tarjeta principal: imagen + información del producto -->
     <div class="glass-card rounded-3xl overflow-hidden p-6 md:p-10 flex flex-col md:flex-row gap-10 md:gap-14 mb-16">
       <!-- Imagen -->
-      <div class="w-full md:w-[45%] flex-shrink-0">
-        <img th:src="${product.imageUrl}" th:alt="${product.name}" class="w-full object-cover rounded-2xl"
-          style="height: 460px" />
+      <div class="w-full md:w-[45%] flex-shrink-0 md:min-h-[460px]">
+        <img th:src="${product.imageUrl}" th:alt="${product.name}"
+          class="w-full h-[460px] md:h-full object-cover rounded-2xl" />
       </div>
 
       <!-- Información -->

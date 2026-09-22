@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
+import com.example.demo.entities.OrderStatus;
 import com.example.demo.entities.Product;
 import com.example.demo.errors.ProductNotFoundException;
+import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository repository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Override
     @Transactional
@@ -90,6 +95,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void deleteProduct(Integer id) {
+        if (orderRepository.existsByDetailsProductIdAndStatusNot(id, OrderStatus.DELIVERED)) {
+            throw new IllegalArgumentException(
+                    "No se puede eliminar este producto porque está asociado a un pedido que aún no se ha entregado.");
+        }
         repository.deleteById(id);
     }
 
