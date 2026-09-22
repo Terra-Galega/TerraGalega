@@ -128,6 +128,23 @@ public class DataLoader implements CommandLineRunner {
                                 Admin.builder().name("Javier").lastName("Ortiz").email("javier.ortiz@terra.com")
                                                 .password("javier123").role(Role.ADMIN).build());
 
+                // AddOns
+                addonRepository.save(AddOn.builder().name("Ensalada verde")
+                                .description("Adicional para Empanada").price(5000.0).Active(true).build());
+                addonRepository.save(AddOn.builder().name("Extra ajo")
+                                .description("Adicional para mariscos").price(2000.0).Active(true).build());
+                addonRepository.save(AddOn.builder().name("Salsa de limón")
+                                .description("Adicional para mariscos").price(3000.0).Active(true).build());
+
+                addonRepository.save(AddOn.builder().name("Pan de millo")
+                                .description("Adicional para Lacón").price(3500.0).Active(true).build());
+                addonRepository.save(AddOn.builder().name("Cachelos")
+                                .description("Adicional para Lacón").price(6000.0).Active(true).build());
+
+                addonRepository.save(AddOn.builder().name("Nata montada")
+                                .description("Adicional para Tarta de Santiago").price(3000.0).Active(true).build());
+                addonRepository.save(AddOn.builder().name("Helado de vainilla")
+                                .description("Adicional para Tarta de Santiago").price(4000.0).Active(true).build());
 
                 // Categories
                 categoryRepository.save(Category.builder().name("Entradas")
