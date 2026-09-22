@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.controller.OrderController;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.entities.*;
@@ -7,12 +8,16 @@ import com.example.demo.repository.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import java.util.List;
 import java.util.Random;
+import java.time.LocalDateTime;
 
 import jakarta.transaction.Transactional;
 
 @Component
 public class DataLoader implements CommandLineRunner {
+
+        private final OrderController orderController;
 
         @Autowired
         private ClientRepository clientRepository;
@@ -28,6 +33,35 @@ public class DataLoader implements CommandLineRunner {
 
         @Autowired
         private AddOnRepository addonRepository;
+
+        @Autowired
+        private DeliveryPersonRepository deliveryPersonRepository;
+
+        @Autowired
+        private OperatorRepository operatorRepository;
+
+        @Autowired
+        private OrderRepository orderRepository;
+
+        DataLoader(OrderController orderController) {
+                this.orderController = orderController;
+        }
+
+        // --- Helpers para reutilizar los productos/addOns ya cargados arriba,
+        // en vez de duplicar su creación ---
+        private Product findProductByName(String name) {
+                return productRepository.findAll().stream()
+                                .filter(p -> p.getName().equals(name))
+                                .findFirst()
+                                .orElseThrow();
+        }
+
+        private AddOn findAddOnByName(String name) {
+                return addonRepository.findAll().stream()
+                                .filter(a -> a.getName().equals(name))
+                                .findFirst()
+                                .orElseThrow();
+        }
 
         @Override
         @Transactional
@@ -81,6 +115,18 @@ public class DataLoader implements CommandLineRunner {
                 adminRepository.save(
                                 Admin.builder().name("Carlos").lastName("Martínez").email("admin@terra.com")
                                                 .password("admin123").role(Role.ADMIN).build());
+                adminRepository.save(
+                                Admin.builder().name("Ana").lastName("Fernández").email("ana.fernandez@terra.com")
+                                                .password("ana123").role(Role.ADMIN).build());
+                adminRepository.save(
+                                Admin.builder().name("Roberto").lastName("Silva").email("roberto.silva@terra.com")
+                                                .password("roberto123").role(Role.ADMIN).build());
+                adminRepository.save(
+                                Admin.builder().name("Patricia").lastName("Gómez").email("patricia.gomez@terra.com")
+                                                .password("patricia123").role(Role.ADMIN).build());
+                adminRepository.save(
+                                Admin.builder().name("Javier").lastName("Ortiz").email("javier.ortiz@terra.com")
+                                                .password("javier123").role(Role.ADMIN).build());
 
                 // AddOns
                 addonRepository.save(AddOn.builder().name("Ensalada verde")
@@ -121,20 +167,64 @@ public class DataLoader implements CommandLineRunner {
                                                 "Mixología, vinos y bebidas premium seleccionadas para elevar tu experiencia gastronómica.")
                                 .build());
 
-                int addOnCuantity = (int) addonRepository.findAll().size();
+                // ==========================================
+                // CATEGORY LOOKUP (Using English variable names)
+                // ==========================================
+                Category starters = categoryRepository.findByName("Entradas");
+                Category seafood = categoryRepository.findByName("Mariscos");
+                Category meats = categoryRepository.findByName("Carnes");
+                Category desserts = categoryRepository.findByName("Postres");
+                Category beverages = categoryRepository.findByName("Bebidas");
 
-                for (Category c : categoryRepository.findAll()) {
+                // adicionales para entradas
+                addonRepository.save(AddOn.builder().name("Porción de Pan Rústico")
+                                .description("Pan gallego artesanal, ideal para acompañar tus entradas y mojar salsas.")
+                                .price(3500.0).Active(true).category(starters).build());
 
-                        int randomNum = random.nextInt(1, addOnCuantity + 1);
+                addonRepository.save(AddOn.builder().name("Extra Salsa Brava")
+                                .description("Una porción extra de nuestra salsa brava ligeramente picante.")
+                                .price(2500.0).Active(true).category(starters).build());
 
-                        AddOn randomAddOn = addonRepository
-                                        .findById(randomNum)
-                                        .orElseThrow();
+                addonRepository.save(AddOn.builder().name("Picos Camperos")
+                                .description("Palitos de pan crujientes típicos, perfectos para picar.")
+                                .price(2000.0).Active(true).category(starters).build());
 
-                        randomAddOn.setCategory(c);
+                // adicionales para mariscos
+                addonRepository.save(AddOn.builder().name("Ración de Cachelos")
+                                .description("Patatas cocidas con pimentón, el acompañante perfecto para el pulpo.")
+                                .price(6000.0).Active(true).category(seafood).build());
 
-                        addonRepository.save(randomAddOn);
-                }
+                addonRepository.save(AddOn.builder().name("Salsa de Limón y Perejil")
+                                .description("Toque cítrico y fresco extra para tus mariscos y pescados.")
+                                .price(3000.0).Active(true).category(seafood).build());
+
+                addonRepository.save(AddOn.builder().name("Mayonesa Casera Suave")
+                                .description("Nuestra mayonesa tradicional hecha en casa, sin ajo.")
+                                .price(2500.0).Active(true).category(seafood).build());
+
+                // adicionales para carnes
+                addonRepository.save(AddOn.builder().name("Ensalada Verde de Guarnición")
+                                .description("Fresca mezcla de lechugas para equilibrar tus carnes.")
+                                .price(5000.0).Active(true).category(meats).build());
+
+                addonRepository.save(AddOn.builder().name("Patatas Panaderas")
+                                .description("Patatas horneadas lentamente a fuego lento, ideales para carnes asadas.")
+                                .price(6000.0).Active(true).category(meats).build());
+
+                addonRepository.save(AddOn.builder().name("Puré de Patatas Trufado")
+                                .description("Cremoso puré de patata con un toque de aceite de trufa blanca.")
+                                .price(6500.0).Active(true).category(meats).build());
+
+                // adicionales para postres
+                addonRepository.save(AddOn.builder().name("Bola de Helado de Vainilla")
+                                .description("Combina perfecto con torrijas, tartas o postres calientes.")
+                                .price(4500.0).Active(true).category(desserts).build());
+
+                addonRepository.save(AddOn.builder().name("Nata Montada Extra")
+                                .description("Nata fresca montada al momento, ideal para acompañar dulces.")
+                                .price(3000.0).Active(true).category(desserts).build());
+
+
 
                 // Products
 
@@ -153,7 +243,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .description("Patatas crujientes acompañadas de salsa brava casera ligeramente picante.")
                                                 .price(16000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
-                                                .imageUrl("https://www.foxandbriar.com/wp-content/uploads/2016/03/patatas-bravas-4-of-10.jpg")
+                                                .imageUrl("https://www.deliciousmagazine.co.uk/wp-content/uploads/2018/09/patatas-bravas.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(true)
                                                 .spicyHot(false).containsNuts(false).containsSeafood(false)
                                                 .containsGluten(false).build());
@@ -537,5 +627,180 @@ public class DataLoader implements CommandLineRunner {
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
                                                 .spicyHot(false).containsNuts(false).containsSeafood(false)
                                                 .containsGluten(false).build());
+
+                // DeliveryPersons
+                DeliveryPerson deliveryPerson1 = deliveryPersonRepository.save(
+                                DeliveryPerson.builder().name("Pedro").lastName("Sánchez")
+                                                .email("pedro.sanchez@terra.com").password("pedro123")
+                                                .role(Role.DELIVERY_PERSON).identification("CC1001234567")
+                                                .phone("+57 301 500 1001").available(true).active(true).build());
+                DeliveryPerson deliveryPerson2 = deliveryPersonRepository.save(
+                                DeliveryPerson.builder().name("Luisa").lastName("Fernández")
+                                                .email("luisa.fernandez@terra.com").password("luisa123")
+                                                .role(Role.DELIVERY_PERSON).identification("CC1001234568")
+                                                .phone("+57 301 500 1002").available(true).active(true).build());
+                deliveryPersonRepository.save(
+                                DeliveryPerson.builder().name("Miguel Ángel").lastName("Ruiz")
+                                                .email("miguel.ruiz@terra.com").password("miguel123")
+                                                .role(Role.DELIVERY_PERSON).identification("CC1001234569")
+                                                .phone("+57 301 500 1003").available(false).active(true).build());
+                deliveryPersonRepository.save(
+                                DeliveryPerson.builder().name("Daniela").lastName("Vargas")
+                                                .email("daniela.vargas@terra.com").password("daniela123")
+                                                .role(Role.DELIVERY_PERSON).identification("CC1001234570")
+                                                .phone("+57 301 500 1004").available(true).active(true).build());
+                deliveryPersonRepository.save(
+                                DeliveryPerson.builder().name("Tomás").lastName("Herrera")
+                                                .email("tomas.herrera@terra.com").password("tomas123")
+                                                .role(Role.DELIVERY_PERSON).identification("CC1001234571")
+                                                .phone("+57 301 500 1005").available(true).active(false).build());
+
+                // Operators
+                Operator operator1 = operatorRepository.save(
+                                Operator.builder().name("Sofía").lastName("Jiménez")
+                                                .email("sofia.jimenez@terra.com").password("sofia123")
+                                                .role(Role.OPERATOR).username("sofiaj").active(true).build());
+                Operator operator2 = operatorRepository.save(
+                                Operator.builder().name("Mateo").lastName("Restrepo")
+                                                .email("mateo.restrepo@terra.com").password("mateo123")
+                                                .role(Role.OPERATOR).username("mateor").active(true).build());
+                Operator operator3 = operatorRepository.save(
+                                Operator.builder().name("Valentina").lastName("Cruz")
+                                                .email("valentina.cruz@terra.com").password("valentina123")
+                                                .role(Role.OPERATOR).username("valentinac").active(true).build());
+                Operator operator4 = operatorRepository.save(
+                                Operator.builder().name("Nicolás").lastName("Peña")
+                                                .email("nicolas.pena@terra.com").password("nicolas123")
+                                                .role(Role.OPERATOR).username("nicolasp").active(true).build());
+                Operator operator5 = operatorRepository.save(
+                                Operator.builder().name("Isabella").lastName("Mendoza")
+                                                .email("isabella.mendoza@terra.com").password("isabella123")
+                                                .role(Role.OPERATOR).username("isabellam").active(false).build());
+
+                // Orders (usando los clientes, productos, addOns, operadores y
+                // domiciliarios ya existentes)
+                Client client1 = clientRepository.findByEmail("cliente@terra.com");
+                Client client2 = clientRepository.findByEmail("marta.souto@terra.com");
+                Client client3 = clientRepository.findByEmail("diego.pardo@terra.com");
+                Client client4 = clientRepository.findByEmail("maria.lopez@terra.com");
+                Client client5 = clientRepository.findByEmail("carlos.rodriguez@terra.com");
+
+                // Pedido 1 - entregado
+                Product tortilla = findProductByName("Tortilla Española");
+                Product gambas = findProductByName("Gambas al Ajillo");
+                Order order1 = Order.builder()
+                                .client(client1)
+                                .status(OrderStatus.DELIVERED)
+                                .createdAt(LocalDateTime.of(2026, 1, 5, 12, 30))
+                                .deliveredAt(LocalDateTime.of(2026, 1, 5, 13, 15))
+                                .operator(operator1)
+                                .deliveryPerson(deliveryPerson1)
+                                .address("Calle 10 #5-20, Bogotá")
+                                .build();
+                OrderDetail order1Detail1 = OrderDetail.builder()
+                                .order(order1).product(tortilla).quantity(2)
+                                .unitPrice(tortilla.getPrice()).build();
+                OrderDetail order1Detail2 = OrderDetail.builder()
+                                .order(order1).product(gambas).quantity(1)
+                                .unitPrice(gambas.getPrice()).build();
+                order1Detail2.getOrderDetailAddOns().add(
+                                OrderDetailAddOn.builder().orderDetail(order1Detail2)
+                                                .addOn(findAddOnByName("Extra ajo")).build());
+                order1.getDetails().add(order1Detail1);
+                order1.getDetails().add(order1Detail2);
+                orderRepository.save(order1);
+
+                // Pedido 2 - en camino
+                Product pulpo = findProductByName("Pulpo a la Brasa");
+                Product sangria = findProductByName("Sangría Española");
+                Order order2 = Order.builder()
+                                .client(client2)
+                                .status(OrderStatus.ON_THE_WAY)
+                                .createdAt(LocalDateTime.of(2026, 1, 6, 18, 0))
+                                .operator(operator2)
+                                .deliveryPerson(deliveryPerson2)
+                                .address("Carrera 15 #45-10, Bogotá")
+                                .build();
+                OrderDetail order2Detail1 = OrderDetail.builder()
+                                .order(order2).product(pulpo).quantity(1)
+                                .unitPrice(pulpo.getPrice()).build();
+                OrderDetail order2Detail2 = OrderDetail.builder()
+                                .order(order2).product(sangria).quantity(2)
+                                .unitPrice(sangria.getPrice()).build();
+                order2Detail2.getOrderDetailAddOns().add(
+                                OrderDetailAddOn.builder().orderDetail(order2Detail2)
+                                                .addOn(findAddOnByName("Salsa de limón")).build());
+                order2.getDetails().add(order2Detail1);
+                order2.getDetails().add(order2Detail2);
+                orderRepository.save(order2);
+
+                // Pedido 3 - en preparación (sin domiciliario asignado aún)
+                Product cachopo = findProductByName("Cachopo Asturiano");
+                Product cremaCatalana = findProductByName("Crema Catalana");
+                Order order3 = Order.builder()
+                                .client(client3)
+                                .status(OrderStatus.PREPARING)
+                                .createdAt(LocalDateTime.of(2026, 1, 7, 19, 20))
+                                .operator(operator3)
+                                .address("Avenida 68 #20-33, Bogotá")
+                                .build();
+                OrderDetail order3Detail1 = OrderDetail.builder()
+                                .order(order3).product(cachopo).quantity(1)
+                                .unitPrice(cachopo.getPrice()).build();
+                OrderDetail order3Detail2 = OrderDetail.builder()
+                                .order(order3).product(cremaCatalana).quantity(2)
+                                .unitPrice(cremaCatalana.getPrice()).build();
+                order3Detail1.getOrderDetailAddOns().add(
+                                OrderDetailAddOn.builder().orderDetail(order3Detail1)
+                                                .addOn(findAddOnByName("Pan de millo")).build());
+                order3.getDetails().add(order3Detail1);
+                order3.getDetails().add(order3Detail2);
+                orderRepository.save(order3);
+
+                // Pedido 4 - confirmado (sin domiciliario asignado aún)
+                Product patatasBravas = findProductByName("Patatas Bravas");
+                Product cafeCortado = findProductByName("Café Cortado");
+                Order order4 = Order.builder()
+                                .client(client4)
+                                .status(OrderStatus.CONFIRMED)
+                                .createdAt(LocalDateTime.of(2026, 1, 8, 13, 5))
+                                .operator(operator4)
+                                .address("Calle 72 #10-34, Bogotá")
+                                .build();
+                OrderDetail order4Detail1 = OrderDetail.builder()
+                                .order(order4).product(patatasBravas).quantity(3)
+                                .unitPrice(patatasBravas.getPrice()).build();
+                OrderDetail order4Detail2 = OrderDetail.builder()
+                                .order(order4).product(cafeCortado).quantity(2)
+                                .unitPrice(cafeCortado.getPrice()).build();
+                order4Detail1.getOrderDetailAddOns().add(
+                                OrderDetailAddOn.builder().orderDetail(order4Detail1)
+                                                .addOn(findAddOnByName("Ensalada verde")).build());
+                order4.getDetails().add(order4Detail1);
+                order4.getDetails().add(order4Detail2);
+                orderRepository.save(order4);
+
+                // Pedido 5 - cancelado
+                Product churros = findProductByName("Churros con Chocolate");
+                Product horchata = findProductByName("Horchata de Chufa");
+                Order order5 = Order.builder()
+                                .client(client5)
+                                .status(OrderStatus.CANCELLED)
+                                .createdAt(LocalDateTime.of(2026, 1, 9, 20, 45))
+                                .operator(operator5)
+                                .address("Transversal 9 #100-2, Bogotá")
+                                .build();
+                OrderDetail order5Detail1 = OrderDetail.builder()
+                                .order(order5).product(churros).quantity(1)
+                                .unitPrice(churros.getPrice()).build();
+                OrderDetail order5Detail2 = OrderDetail.builder()
+                                .order(order5).product(horchata).quantity(1)
+                                .unitPrice(horchata.getPrice()).build();
+                order5Detail1.getOrderDetailAddOns().add(
+                                OrderDetailAddOn.builder().orderDetail(order5Detail1)
+                                                .addOn(findAddOnByName("Nata montada")).build());
+                order5.getDetails().add(order5Detail1);
+                order5.getDetails().add(order5Detail2);
+                orderRepository.save(order5);
         }
 }
