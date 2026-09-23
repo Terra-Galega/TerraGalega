@@ -99,6 +99,11 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException(
                     "No se puede eliminar este producto porque está asociado a un pedido que aún no se ha entregado.");
         }
+        if (orderRepository.existsByDetailsProductId(id)) {
+            throw new IllegalArgumentException(
+                    "No se puede eliminar este producto porque tiene pedidos asociados en el historial. Puedes desactivarlo.");
+        }
+
         repository.deleteById(id);
     }
 
