@@ -99,6 +99,12 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Producto no encontrado: " + item.getProductId()));
 
+            // El producto pudo desactivarse después de que el cliente lo guardara en su carrito 
+            if (!Boolean.TRUE.equals(product.getActive())) {
+                throw new IllegalArgumentException(
+                        "El producto \"" + product.getName() + "\" ya no está disponible.");
+            }
+
             OrderDetail detail = OrderDetail.builder()
                     .order(order)
                     .product(product)
@@ -113,6 +119,14 @@ public class OrderServiceImpl implements OrderService {
                     AddOn addOn = addOnRepository.findById(addOnId)
                             .orElseThrow(() -> new IllegalArgumentException(
                                     "Adicional no encontrado: " + addOnId));
+
+                    
+                    if (addOn.getCategory() == null
+                            || product.getCategory() == null
+                            || !addOn.getCategory().getId().equals(product.getCategory().getId())) {
+                        throw new IllegalArgumentException(
+                                "El adicional seleccionado no está disponible para este producto.");
+                    }
 
                     orderDetailAddOns.add(
                             OrderDetailAddOn.builder()

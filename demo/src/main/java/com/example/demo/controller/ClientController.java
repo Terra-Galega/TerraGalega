@@ -32,7 +32,7 @@ public class ClientController {
             model.addAttribute("client", actual);
             return "account-edit";
 
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             return "redirect:/login";
         }
     }
@@ -54,7 +54,7 @@ public class ClientController {
 
             return "redirect:/account/" + id;
 
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
 
             model.addAttribute("editError", e.getMessage());
 
@@ -75,7 +75,7 @@ public class ClientController {
             session.invalidate();
             return "redirect:/home";
 
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             return "redirect:/login";
         }
 

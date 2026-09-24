@@ -51,10 +51,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public Collection<Product> getRelatedProducts(Integer id) {
-        Product product = repository.findById(id).orElseThrow();
-        if (product == null) {
-            return java.util.List.of();
-        }
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
         // Filtra los productos de la misma categoría (excluyendo el propio producto) y
         // toma los primeros 3
         return repository.findAll().stream()
@@ -63,9 +61,21 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
     }
 
+    // Validaciones de negocio compartidas por addProduct() y updateProduct().
+    private void validateProduct(Product product) {
+        if (product.getName() == null || product.getName().isBlank()) {
+            throw new IllegalArgumentException("El nombre del producto no puede estar vacío.");
+        }
+        if (product.getPrice() == null || product.getPrice() <= 0) {
+            throw new IllegalArgumentException("El precio del producto debe ser mayor que cero.");
+        }
+    }
+
     @Override
     @Transactional
     public Product addProduct(Product product) {
+
+        validateProduct(product);
 
         if (product.getActive() == null) {
             product.setActive(true);
@@ -82,6 +92,8 @@ public class ProductServiceImpl implements ProductService {
 
         Product existingProduct = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
+
+        validateProduct(product);
 
         product.setActive(existingProduct.getActive());
         if (product.getPopular() == null) {
