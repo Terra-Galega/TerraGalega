@@ -30,13 +30,8 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public Client getClientById(Integer id) {
-        Client client = repository.findById(id).orElseThrow();
-
-        if (client == null) {
-            throw new RuntimeException("El cliente no existe");
-        }
-
-        return client;
+        return repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró el cliente solicitado."));
     }
 
     @Override
@@ -84,6 +79,9 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @Transactional
     public void deleteClient(Integer id) {
+        if (!repository.existsById(id)) {
+            throw new IllegalArgumentException("No se encontró el cliente que se desea eliminar.");
+        }
         // Antes de eliminar el cliente, limpiamos los id de los pedidos
         orderService.clearClientIdFromOrders(id);
         repository.deleteById(id);

@@ -49,7 +49,11 @@ public class AuthController {
     private boolean isAdmin(Integer id) {
         try {
             return adminService.getAdminById(id) != null;
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
+            // getAdminById lanza esto puntualmente cuando el id no
+            // corresponde a ningún admin: eso sí significa "no es admin".
+            // Cualquier otro RuntimeException (falla real de BD, etc.) se
+            // propaga en vez de disfrazarse de "no es admin".
             return false;
         }
     }
@@ -165,7 +169,9 @@ public class AuthController {
 
         try {
             client = clientService.getClientById(id);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            // El cliente no existe con ese id: sí corresponde mandarlo a
+            // login. Un error real de BD ya no queda escondido acá.
             return "redirect:/login";
         }
 

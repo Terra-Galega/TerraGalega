@@ -41,6 +41,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = repository.findByName(categoryName);
 
+        if (category == null) {
+            throw new IllegalArgumentException("No se encontró la categoría solicitada.");
+        }
+
         return category.getAdditionals();
     }
 }
