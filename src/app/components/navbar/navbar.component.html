@@ -1,0 +1,123 @@
+<header id="nav-bar" class="nav-bar" [class.nav-bar--stayed]="shouldStay">
+  <!-- NAVBAR DESKTOP -->
+  <div class="nav-container">
+    <!-- Logo -->
+    <a routerLink="/" class="nav-logo">
+      <span class="logo-terra">TERRA</span>
+      <span class="logo-galega">GALEGA</span>
+    </a>
+
+    <!-- Links principales -->
+    <nav class="nav-links">
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="link-nav"
+      >
+        NOSOTROS
+      </a>
+
+      <a routerLink="/menu" routerLinkActive="active" class="link-nav">
+        MENÚ
+      </a>
+
+      <a routerLink="/contacto" routerLinkActive="active" class="link-nav">
+        CONTACTO
+      </a>
+    </nav>
+
+    <!-- Acciones -->
+    <div class="nav-actions">
+      <!-- Pedidos -->
+      <a routerLink="/pedidos" class="link-nav">
+        {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
+      </a>
+
+      <!-- Usuario -->
+      @if (isLoggedIn) {
+        <button type="button" class="nav-user" (click)="toggleUserMenu()">
+          {{ username }}
+        </button>
+      } @else {
+        <a routerLink="/login" class="link-nav"> INICIAR SESIÓN </a>
+      }
+
+      <!-- Carrito -->
+      <button type="button" class="cart-button" (click)="openCart()">
+        <span class="cart-icon"> 🛒 </span>
+
+        @if (cartCount > 0) {
+          <span class="cart-count">
+            {{ cartCount }}
+          </span>
+        }
+      </button>
+    </div>
+
+    <!-- Botón menú móvil -->
+    <button
+      type="button"
+      class="mobile-menu-button"
+      (click)="toggleMobileMenu()"
+      aria-label="Abrir menú"
+    >
+      @if (!mobileMenuOpen) {
+        ☰
+      } @else {
+        ✕
+      }
+    </button>
+  </div>
+
+  <!-- MENÚ MÓVIL -->
+  @if (mobileMenuOpen) {
+    <div id="mobile-menu" class="mobile-menu">
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="link-nav"
+        (click)="closeMobileMenu()"
+      >
+        NOSOTROS
+      </a>
+
+      <a
+        routerLink="/menu"
+        routerLinkActive="active"
+        class="link-nav"
+        (click)="closeMobileMenu()"
+      >
+        MENÚ
+      </a>
+
+      <a
+        routerLink="/contacto"
+        routerLinkActive="active"
+        class="link-nav"
+        (click)="closeMobileMenu()"
+      >
+        CONTACTO
+      </a>
+
+      <a routerLink="/pedidos" class="link-nav" (click)="closeMobileMenu()">
+        {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
+      </a>
+
+      @if (isLoggedIn) {
+        <button
+          type="button"
+          class="link-nav mobile-user"
+          (click)="toggleUserMenu()"
+        >
+          {{ username }}
+        </button>
+      } @else {
+        <a routerLink="/login" class="link-nav" (click)="closeMobileMenu()">
+          INICIAR SESIÓN
+        </a>
+      }
+    </div>
+  }
+</header>
