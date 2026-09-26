@@ -9,6 +9,9 @@
         "@schematics/angular:component": {
           "style": "scss",
           "skipTests": true
+        },
+         "@schematics/angular:service": {
+          "skipTests": true
         }
       },
       "root": "",
@@ -101,6 +104,6 @@
     }
   },
   "cli": {
-    "analytics": "75ceb04c-7709-4ac5-b8b2-937e61eb031f"
+    "analytics": "3cd484a9-ac7a-43b8-bf14-d68c6738790a"
   }
 }

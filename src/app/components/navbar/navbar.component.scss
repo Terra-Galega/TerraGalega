@@ -1,0 +1,204 @@
+/* ============================================================
+   TIPOGRAFÍAS DEL LOGO
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
+
+
+.font-terra {
+  font-family: "Pinyon Script", cursive;
+}
+
+.font-galega {
+  font-family: "Droid Serif", serif;
+}
+
+
+/* ============================================================
+   BARRA DE NAVEGACIÓN
+   ============================================================ */
+
+/*
+ * Estado inicial:
+ * transparente sobre la imagen del hero.
+ *
+ * Este es el estado que tenía /home antes del scroll.
+ */
+
+.nav-bar {
+  background-color: transparent;
+
+  border-bottom: 1px solid transparent;
+
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+
+/*
+ * Estado "stayed":
+ * vidrio esmerilado claro.
+ *
+ * Se activa:
+ *
+ *  - en Home después de hacer scroll
+ *  - siempre en las demás páginas
+ */
+
+.nav-bar.nav-bar--stayed {
+  background-color: rgba(206, 206, 206, 0.505);
+
+  backdrop-filter: blur(35px) saturate(180%);
+  -webkit-backdrop-filter: blur(35px) saturate(180%);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.9);
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
+  border-right: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid rgba(75, 75, 75, 0.12);
+
+  box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08);
+}
+
+
+/* ============================================================
+   MENÚ MOBILE
+   ============================================================ */
+
+/*
+ * Menú móvil cuando la navbar todavía está sobre el hero.
+ */
+
+#mobile-menu {
+  background-color: rgba(44, 44, 44, 0.97);
+
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+
+/*
+ * Menú móvil cuando la navbar está en estado stayed.
+ */
+
+.nav-bar.nav-bar--stayed #mobile-menu {
+  background-color: rgba(245, 242, 235, 0.98);
+
+  border-color: rgba(44, 44, 44, 0.08);
+}
+
+
+/* ============================================================
+   ENLACES DE NAVEGACIÓN
+   ============================================================ */
+
+/*
+ * Estado normal:
+ * enlaces claros sobre el hero.
+ */
+
+.link-nav {
+  color: rgba(245, 242, 235, 0.85);
+
+  transition: color 0.2s;
+}
+
+
+/*
+ * Enlace activo.
+ */
+
+.link-nav.active,
+#mobile-menu .link-nav.active,
+.nav-bar.nav-bar--stayed .link-nav.active {
+  color: #556141 !important;
+
+  text-decoration: underline;
+  text-decoration-color: #556141;
+
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+}
+
+
+/*
+ * Hover sobre el hero.
+ */
+
+.link-nav:hover {
+  color: #f5f2eb;
+}
+
+
+/*
+ * Enlaces cuando la navbar está en modo stayed.
+ */
+
+.nav-bar.nav-bar--stayed .link-nav,
+#mobile-menu .link-nav {
+  color: rgba(44, 44, 44, 0.62);
+}
+
+
+/*
+ * Hover cuando la navbar está en modo stayed.
+ */
+
+.nav-bar.nav-bar--stayed .link-nav:hover,
+#mobile-menu .link-nav:hover {
+  color: #2c2c2c;
+}
+
+
+/*
+ * El menú móvil desplegado se mantiene oscuro
+ * aunque la navbar esté en modo stayed.
+ *
+ * Esta regla es importante para conservar
+ * exactamente el comportamiento original.
+ */
+
+#mobile-menu .link-nav {
+  color: rgba(245, 242, 235, 0.78) !important;
+}
+
+
+#mobile-menu .link-nav:hover {
+  color: #f5f2eb !important;
+}
+
+
+/* ============================================================
+   LOGO TERRA GALEGA
+   ============================================================ */
+
+/*
+ * Logo sobre el hero.
+ */
+
+.nav-bar .logo-terra {
+  color: #f5f2eb;
+
+  transition: color 0.3s;
+}
+
+
+.nav-bar .logo-galega {
+  color: #f5f2eb;
+
+  transition: color 0.3s;
+}
+
+
+/*
+ * Logo cuando la navbar está en modo stayed.
+ */
+
+.nav-bar.nav-bar--stayed .logo-terra {
+  color: #b2571f;
+}
+
+
+.nav-bar.nav-bar--stayed .logo-galega {
+  color: #2c2c2c;
+}
