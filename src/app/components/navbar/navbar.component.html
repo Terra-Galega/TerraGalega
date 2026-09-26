@@ -1,84 +1,26 @@
-<header id="nav-bar" class="nav-bar" [class.nav-bar--stayed]="shouldStay">
-  <!-- NAVBAR DESKTOP -->
-  <div class="nav-container">
-    <!-- Logo -->
-    <a routerLink="/" class="nav-logo">
-      <span class="logo-terra">TERRA</span>
-      <span class="logo-galega">GALEGA</span>
-    </a>
+<nav
+  id="nav-bar"
+  [attr.data-is-home]="isHome"
+  class="nav-bar fixed top-0 inset-x-0 z-50 w-full"
+>
+  <!-- ============================================================
+       DESKTOP
+       ============================================================ -->
 
-    <!-- Links principales -->
-    <nav class="nav-links">
+  <div
+    class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
+    style="grid-template-columns: 1fr auto 1fr"
+  >
+    <!-- ==========================================================
+         COLUMNA IZQUIERDA
+         ========================================================== -->
+
+    <div class="flex items-center justify-evenly w-full">
       <a
-        routerLink="/"
+        routerLink="/aboutUs"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="link-nav"
-      >
-        NOSOTROS
-      </a>
-
-      <a routerLink="/menu" routerLinkActive="active" class="link-nav">
-        MENÚ
-      </a>
-
-      <a routerLink="/contacto" routerLinkActive="active" class="link-nav">
-        CONTACTO
-      </a>
-    </nav>
-
-    <!-- Acciones -->
-    <div class="nav-actions">
-      <!-- Pedidos -->
-      <a routerLink="/pedidos" class="link-nav">
-        {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
-      </a>
-
-      <!-- Usuario -->
-      @if (isLoggedIn) {
-        <button type="button" class="nav-user" (click)="toggleUserMenu()">
-          {{ username }}
-        </button>
-      } @else {
-        <a routerLink="/login" class="link-nav"> INICIAR SESIÓN </a>
-      }
-
-      <!-- Carrito -->
-      <button type="button" class="cart-button" (click)="openCart()">
-        <span class="cart-icon"> 🛒 </span>
-
-        @if (cartCount > 0) {
-          <span class="cart-count">
-            {{ cartCount }}
-          </span>
-        }
-      </button>
-    </div>
-
-    <!-- Botón menú móvil -->
-    <button
-      type="button"
-      class="mobile-menu-button"
-      (click)="toggleMobileMenu()"
-      aria-label="Abrir menú"
-    >
-      @if (!mobileMenuOpen) {
-        ☰
-      } @else {
-        ✕
-      }
-    </button>
-  </div>
-
-  <!-- MENÚ MÓVIL -->
-  @if (mobileMenuOpen) {
-    <div id="mobile-menu" class="mobile-menu">
-      <a
-        routerLink="/"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="link-nav"
-        (click)="closeMobileMenu()"
+        class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap"
       >
         NOSOTROS
       </a>
@@ -86,38 +28,325 @@
       <a
         routerLink="/menu"
         routerLinkActive="active"
-        class="link-nav"
+        class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+      >
+        MENÚ
+      </a>
+
+      <a
+        routerLink="/contact"
+        routerLinkActive="active"
+        class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+      >
+        CONTACTO
+      </a>
+    </div>
+
+    <!-- ==========================================================
+         LOGO CENTRAL
+         ========================================================== -->
+
+    <div class="flex justify-center px-10">
+      <a
+        routerLink="/home"
+        class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300"
+      >
+        <span
+          class="logo-terra font-terra text-[24px] leading-[0.6] font-normal"
+        >
+          Terra
+        </span>
+
+        <span
+          class="logo-galega font-galega text-[21px] tracking-[0.05em] uppercase -mt-1.5"
+        >
+          Galega
+        </span>
+      </a>
+    </div>
+
+    <!-- ==========================================================
+         COLUMNA DERECHA
+         Pedidos - sesión - carrito
+         ========================================================== -->
+
+    <div class="flex items-center justify-evenly w-full">
+      <!-- PEDIDOS / MIS PEDIDOS -->
+
+      <a
+        routerLink="/orders"
+        routerLinkActive="active"
+        class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+      >
+        {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
+      </a>
+
+      <!-- ========================================================
+           USUARIO / LOGIN
+           ======================================================== -->
+
+      @if (!isLoggedIn) {
+        <a
+          routerLink="/login"
+          routerLinkActive="active"
+          class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap"
+        >
+          INICIAR SESIÓN
+        </a>
+      } @else {
+        @if (isLoggedAdmin || isClient) {
+          <a
+            [routerLink]="profileUrl"
+            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
+          >
+            {{ fullName }}
+          </a>
+        } @else {
+          <span
+            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
+          >
+            {{ fullName }}
+          </span>
+        }
+      }
+
+      <!-- ========================================================
+           CARRITO
+           ======================================================== -->
+
+      <button
+        type="button"
+        class="link-nav relative flex items-center justify-center"
+        aria-label="Carrito"
+        (click)="openCart()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+          />
+        </svg>
+
+        @if (cartCount > 0) {
+          <span
+            id="cart-count-desktop"
+            class="absolute -top-1.5 -right-2 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
+          >
+            {{ cartCount }}
+          </span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MOBILE
+       ============================================================ -->
+
+  <div class="flex md:hidden items-center justify-between px-5 h-16 relative">
+    <!-- LOGO -->
+
+    <button
+      type="button"
+      (click)="scrollToHero()"
+      class="flex flex-col items-center justify-center drop-shadow-md z-10"
+      aria-label="Ir al inicio"
+    >
+      <span class="logo-terra font-terra text-[24px] leading-[0.6]">
+        Terra
+      </span>
+
+      <span
+        class="logo-galega font-galega text-[22px] tracking-[0.05em] uppercase -mt-1"
+      >
+        Galega
+      </span>
+    </button>
+
+    <!-- CARRITO + HAMBURGUESA -->
+
+    <div class="flex items-center gap-4">
+      <!-- CARRITO -->
+
+      <button
+        type="button"
+        class="link-nav relative p-2"
+        aria-label="Carrito"
+        (click)="openCart()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+          />
+        </svg>
+
+        @if (cartCount > 0) {
+          <span
+            id="cart-count-mobile"
+            class="absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
+          >
+            {{ cartCount }}
+          </span>
+        }
+      </button>
+
+      <!-- BOTÓN HAMBURGUESA -->
+
+      <button
+        type="button"
+        class="link-nav p-1"
+        aria-label="Menú"
+        (click)="toggleMobileMenu()"
+      >
+        @if (!mobileMenuOpen) {
+          <svg
+            id="icon-open"
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        } @else {
+          <svg
+            id="icon-close"
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PERFIL MOBILE
+       ============================================================ -->
+
+  @if (isLoggedIn) {
+    <div
+      id="user-profile-mobile"
+      class="flex md:hidden flex-col gap-3 pt-4 pb-2 border-t mt-2"
+      style="border-color: rgba(255, 255, 255, 0.08)"
+    >
+      @if (isLoggedAdmin || isClient) {
+        <a
+          [routerLink]="profileUrl"
+          class="link-nav text-center text-xs font-medium tracking-[0.18em]"
+          (click)="closeMobileMenu()"
+        >
+          {{ fullName }}
+        </a>
+      } @else {
+        <span
+          class="link-nav text-center text-xs font-medium tracking-[0.18em]"
+        >
+          {{ fullName }}
+        </span>
+      }
+
+      <form action="/logout" method="post" (submit)="closeMobileMenu()">
+        <button
+          type="submit"
+          class="w-full py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded bg-red-800/80 hover:bg-red-700 text-center transition-colors border-0 cursor-pointer"
+        >
+          CERRAR SESIÓN
+        </button>
+      </form>
+    </div>
+  }
+
+  <!-- ============================================================
+       MENÚ MOBILE
+       ============================================================ -->
+
+  @if (mobileMenuOpen) {
+    <div
+      id="mobile-menu"
+      class="md:hidden px-6 py-4 flex flex-col gap-4 border-t"
+    >
+      <a
+        class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2"
+        routerLink="/aboutUs"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="closeMobileMenu()"
+      >
+        NOSOTROS
+      </a>
+
+      <a
+        class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2"
+        routerLink="/menu"
+        routerLinkActive="active"
         (click)="closeMobileMenu()"
       >
         MENÚ
       </a>
 
       <a
-        routerLink="/contacto"
+        class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2"
+        routerLink="/contact"
         routerLinkActive="active"
-        class="link-nav"
         (click)="closeMobileMenu()"
       >
         CONTACTO
       </a>
 
-      <a routerLink="/pedidos" class="link-nav" (click)="closeMobileMenu()">
+      <a
+        class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2"
+        routerLink="/orders"
+        routerLinkActive="active"
+        (click)="closeMobileMenu()"
+      >
         {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
       </a>
 
-      @if (isLoggedIn) {
-        <button
-          type="button"
-          class="link-nav mobile-user"
-          (click)="toggleUserMenu()"
+      @if (!isLoggedIn) {
+        <div
+          class="flex pt-4 pb-2 border-t mt-2"
+          style="border-color: rgba(255, 255, 255, 0.08)"
         >
-          {{ username }}
-        </button>
-      } @else {
-        <a routerLink="/login" class="link-nav" (click)="closeMobileMenu()">
-          INICIAR SESIÓN
-        </a>
+          <a
+            class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center"
+            routerLink="/login"
+            (click)="closeMobileMenu()"
+          >
+            INICIAR SESIÓN
+          </a>
+        </div>
       }
     </div>
   }
-</header>
+</nav>
