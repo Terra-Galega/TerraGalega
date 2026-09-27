@@ -1,29 +1,15 @@
 <app-navbar></app-navbar>
-<main
-  class="min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8"
->
+<main class="min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8">
   <!-- PRODUCTOSSSSS -->
-  <div
-    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-  >
-    @for (
-      product of filteredProducts;
-      track product.id
-    ) {
-      <app-product-card-menu
-        [product]="product"
-      ></app-product-card-menu>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    @for (product of filteredProducts; track product.id) {
+      <app-product-card-menu [product]="product"></app-product-card-menu>
     }
 
     <!-- SIN RESULTADOS -->
     @if (filteredProducts.length === 0) {
-      <div
-        class="col-span-full py-24 text-center"
-      >
-        <p
-          class="text-lg mb-2"
-          style="color: rgba(44, 44, 44, 0.35)"
-        >
+      <div class="col-span-full py-24 text-center">
+        <p class="text-lg mb-2" style="color: rgba(44, 44, 44, 0.35)">
           No se encontraron platos
         </p>
       </div>
