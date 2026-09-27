@@ -21,13 +21,16 @@ export class AdminProductsComponent {
 
   constructor(private productService: ProductService) {
     this.loadProducts();
+
+    this.productService.productsChanged.subscribe(() => {
+      this.loadProducts();
+    });
   }
 
   loadProducts() {
     this.products = this.productService.getProducts();
     this.filterProducts();
   }
-
   ngOnChanges() {
     this.filterProducts();
   }

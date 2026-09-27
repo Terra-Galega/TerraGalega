@@ -789,22 +789,17 @@ export class ProductService {
 
   createProduct(product: Product): void {
     this.productArray = [...this.productArray, product];
-    this.productsChanged.emit();
   }
 
   updateProduct(product: Product): void {
     this.productArray = this.productArray.map((p) =>
       p.id === product.id ? product : p,
     );
-
-    this.productsChanged.emit();
   }
 
   deleteProduct(id: number): void {
     this.productArray = this.productArray.filter(
       (product) => product.id !== id,
     );
-
-    this.productsChanged.emit();
   }
 }
