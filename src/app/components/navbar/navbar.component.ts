@@ -1,424 +1,164 @@
-import {
-  Component,
-  HostListener,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-
-import {
-  NavigationEnd,
-  Router,
-  RouterLink,
-  RouterLinkActive
-} from '@angular/router';
-
-import {
-  filter,
-  Subscription
-} from 'rxjs';
-
+import { Component, HostListener } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
-
   standalone: true,
-
-  imports: [
-    RouterLink,
-    RouterLinkActive
-  ],
-
+  imports: [],
   templateUrl: './navbar.component.html',
-
-  styleUrl: './navbar.component.scss'
+  styleUrl: './navbar.component.scss',
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent {
 
-  /* ============================================================
-     NAVEGACIÓN
-     ============================================================ */
+  // =========================
+  // MENÚ MOBILE
+  // =========================
 
-  /**
-   * Indica si estamos en la página Home.
-   *
-   * En develop esto venía de:
-   *
-   * th:fragment="navbar(isHome)"
-   *
-   * y posteriormente:
-   *
-   * data-is-home="true/false"
-   *
-   * En Angular lo calculamos a partir de la ruta actual.
-   */
-  isHome = false;
-
-
-  /**
-   * Indica si la navbar está en estado "stayed".
-   *
-   * En Home:
-   *
-   *   scroll <= 20  -> transparente
-   *   scroll > 20   -> glass
-   *
-   * En cualquier otra página:
-   *
-   *   -> glass siempre
-   */
-  navBarStayed = false;
-
-
-  /* ============================================================
-     MENÚ MOBILE
-     ============================================================ */
-
-  /**
-   * Estado del menú desplegable móvil.
-   *
-   * Antes se controlaba mediante:
-   *
-   * mobileMenu.classList
-   */
   mobileMenuOpen = false;
 
+  // =========================
+  // NAVBAR
+  // =========================
 
-  /* ============================================================
-     AUTENTICACIÓN
-     ============================================================ */
+  navBarStayed = false;
 
-  /**
-   * Estos valores son temporales.
-   *
-   * Después los conectaremos con AuthService.
-   */
+  // =========================
+  // AUTENTICACIÓN
+  // =========================
+
   isLoggedIn = false;
-
   isLoggedAdmin = false;
-
   isClient = false;
 
   username = '';
-
   userId: number | null = null;
 
+  // =========================
+  // CARRITO
+  // =========================
 
-  /* ============================================================
-     CARRITO
-     ============================================================ */
-
-  /**
-   * Temporalmente 0.
-   *
-   * Después vendrá de CartService.
-   */
   cartCount = 0;
 
+  constructor(private router: Router) {}
 
-  /* ============================================================
-     ROUTER
-     ============================================================ */
+  // =========================
+  // NAVEGACIÓN
+  // =========================
 
-  private routerSubscription?: Subscription;
-
-
-  constructor(
-    private readonly router: Router
-  ) {}
-
-
-  /* ============================================================
-     INIT
-     ============================================================ */
-
-  ngOnInit(): void {
-
-    /*
-     * Comprobamos la ruta inicial.
-     */
-    this.updateHomeState(this.router.url);
-
-
-    /*
-     * Detectamos los cambios de ruta.
-     *
-     * Esto sustituye la necesidad de:
-     *
-     * markActiveNavLink()
-     *
-     * porque routerLinkActive se encarga
-     * directamente de los enlaces activos.
-     */
-
-    this.routerSubscription = this.router.events
-      .pipe(
-        filter(
-          (event): event is NavigationEnd =>
-            event instanceof NavigationEnd
-        )
-      )
-      .subscribe((event) => {
-
-        this.updateHomeState(event.urlAfterRedirects);
-
-        /*
-         * Al cambiar de página cerramos el menú mobile.
-         */
-        this.closeMobileMenu();
-
-      });
-
-
-    /*
-     * Calculamos el estado inicial de la navbar.
-     */
-    this.updateNavBarState();
-
+  goToHome(): void {
+    this.router.navigate(['/home']);
+    this.navBarStayed = true;
+    this.closeMobileMenu();
   }
 
-
-  /* ============================================================
-     RUTA ACTUAL
-     ============================================================ */
-
-  private updateHomeState(url: string): void {
-
-    /*
-     * Eliminamos query params y fragmentos.
-     *
-     * Ejemplo:
-     *
-     * /home?foo=bar
-     *
-     * pasa a:
-     *
-     * /home
-     */
-
-    const cleanUrl = url.split('?')[0].split('#')[0];
-
-
-    this.isHome =
-      cleanUrl === '/home' ||
-      cleanUrl === '/';
-
-    /*
-     * Al entrar en otra página:
-     *
-     * la navbar debe estar directamente en modo stayed.
-     */
-
-    this.updateNavBarState();
-
+  goToAboutUs(): void {
+    this.router.navigate(['/aboutUs']);
+    this.navBarStayed = true;
+    this.closeMobileMenu();
   }
 
-
-  /* ============================================================
-     SCROLL
-     ============================================================ */
-
-  /**
-   * Equivalente Angular de:
-   *
-   * window.addEventListener("scroll", updateNavBar)
-   *
-   * que estaba en script.js.
-   */
-
-  @HostListener('window:scroll')
-  onWindowScroll(): void {
-
-    this.updateNavBarState();
-
+  goToMenu(): void {
+    this.router.navigate(['/menu']);
+    this.navBarStayed = true;
+    this.closeMobileMenu();
   }
 
+  goToContact(): void {
+    this.router.navigate(['/contact']);
+    this.navBarStayed = true;
+    this.closeMobileMenu();
+  }
 
-  /**
-   * Calcula si debemos aplicar:
-   *
-   * nav-bar--stayed
-   */
+  goToOrders(): void {
+    this.router.navigate(['/orders']);
+    this.navBarStayed = true;
+    this.closeMobileMenu();
+  }
 
-  private updateNavBarState(): void {
+  goToLogin(): void {
+    this.router.navigate(['/login']);
+    this.navBarStayed = true;
+    this.closeMobileMenu();
+  }
 
-    /*
-     * En páginas que no son Home:
-     *
-     * siempre stayed.
-     */
-
-    if (!this.isHome) {
-
-      this.navBarStayed = true;
-
+  goToProfile(): void {
+    if (this.userId === null) {
       return;
     }
 
+    if (this.isLoggedAdmin) {
+      this.router.navigate(['/admin', this.userId]);
+      this.navBarStayed = true;
+    } else {
+      this.router.navigate(['/account', this.userId]);
+      this.navBarStayed = true;
+    }
 
-    /*
-     * En Home:
-     *
-     * stayed únicamente después
-     * de 20px de scroll.
-     */
-
-    this.navBarStayed =
-      window.scrollY > 20;
-
+    this.closeMobileMenu();
   }
 
+  // =========================
+  // NAVBAR / SCROLL
+  // =========================
 
-  /* ============================================================
-     MENÚ MOBILE
-     ============================================================ */
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.updateNavbar();
+  }
 
-  /**
-   * Equivalente a:
-   *
-   * mobileMenuBtn.addEventListener(...)
-   */
+  private updateNavbar(): void {
+    const currentUrl = this.router.url.split('?')[0].split('#')[0];
+
+    const isHome =
+      currentUrl === '/home' ||
+      currentUrl === '/';
+
+    if (isHome) {
+      this.navBarStayed = window.scrollY > 20;
+    } else {
+      this.navBarStayed = true;
+    }
+  }
+
+  // =========================
+  // MENÚ MOBILE
+  // =========================
 
   toggleMobileMenu(): void {
-
-    this.mobileMenuOpen =
-      !this.mobileMenuOpen;
-
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
-
-
-  /**
-   * Equivalente a la función:
-   *
-   * closeMobileMenu()
-   *
-   * del script original.
-   */
 
   closeMobileMenu(): void {
-
     this.mobileMenuOpen = false;
-
   }
 
-
-  /* ============================================================
-     SCROLL AL HERO
-     ============================================================ */
-
-  /**
-   * En develop el logo mobile tenía:
-   *
-   * data-scroll="hero"
-   *
-   * y script.js hacía:
-   *
-   * document.getElementById(id)
-   *   ?.scrollIntoView({ behavior: "smooth" });
-   *
-   * Aquí hacemos exactamente lo mismo
-   * utilizando Angular/DOM.
-   */
+  // =========================
+  // HERO
+  // =========================
 
   scrollToHero(): void {
-
-    const hero =
-      document.getElementById('hero');
-
-    hero?.scrollIntoView({
+    document.getElementById('hero')?.scrollIntoView({
       behavior: 'smooth'
     });
 
     this.closeMobileMenu();
-
   }
 
-
-  /* ============================================================
-     CARRITO
-     ============================================================ */
-
-  /**
-   * Por ahora solamente cerramos el menú mobile.
-   *
-   * El modal del carrito NO pertenece al Navbar.
-   *
-   * Posteriormente este método se conectará
-   * con CartService / CartComponent.
-   */
+  // =========================
+  // CARRITO
+  // =========================
 
   openCart(): void {
-
     this.closeMobileMenu();
 
-    /*
-     * TODO:
-     *
-     * conectar con CartComponent / CartService.
-     */
-
     console.log('Abrir carrito');
-
   }
 
-
-  /* ============================================================
-     USUARIO
-     ============================================================ */
-
-  /**
-   * Ruta al perfil del usuario.
-   *
-   * En develop:
-   *
-   * Admin:
-   * /admin/{id}
-   *
-   * Cliente:
-   * /account/{id}
-   *
-   * Los demás roles no tenían enlace.
-   */
-
-  get profileUrl(): string {
-
-    if (this.userId === null) {
-
-      return '/';
-
-    }
-
-
-    if (this.isLoggedAdmin) {
-
-      return `/admin/${this.userId}`;
-
-    }
-
-
-    return `/account/${this.userId}`;
-
-  }
-
-
-  /**
-   * Nombre completo que se mostraba en develop.
-   */
+  // =========================
+  // USUARIO
+  // =========================
 
   get fullName(): string {
-
     return this.username.toUpperCase();
-
   }
-
-
-  /* ============================================================
-     DESTROY
-     ============================================================ */
-
-  ngOnDestroy(): void {
-
-    this.routerSubscription?.unsubscribe();
-
-  }
-
 }
