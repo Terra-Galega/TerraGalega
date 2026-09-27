@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, EventEmitter } from '@angular/core';
 import { Product } from '../models/product';
 import { CategoryService } from './category.service';
 
@@ -6,6 +6,7 @@ import { CategoryService } from './category.service';
   providedIn: 'root',
 })
 export class ProductService {
+  productsChanged = new EventEmitter<void>();
   constructor() {}
 
   getProducts() {
@@ -787,22 +788,23 @@ export class ProductService {
   ];
 
   createProduct(product: Product): void {
-    this.productArray.push(product);
+    this.productArray = [...this.productArray, product];
+    this.productsChanged.emit();
   }
 
   updateProduct(product: Product): void {
-    const index = this.productArray.findIndex((p) => p.id === product.id);
+    this.productArray = this.productArray.map((p) =>
+      p.id === product.id ? product : p,
+    );
 
-    if (index === -1) {
-      return;
-    }
-
-    this.productArray[index] = product;
+    this.productsChanged.emit();
   }
 
   deleteProduct(id: number): void {
     this.productArray = this.productArray.filter(
       (product) => product.id !== id,
     );
+
+    this.productsChanged.emit();
   }
 }

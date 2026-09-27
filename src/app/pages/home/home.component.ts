@@ -6,15 +6,30 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 import { TestimonialsComponent } from './components/testimonial/testimonial.component';
 import { ContactInfoComponent } from '../../components/contact-info/contact-info.component';
 
-
 @Component({
   selector: 'app-home',
-  imports: [NavbarComponent, FooterComponent, ProductCardComponent, TestimonialsComponent, ContactInfoComponent],
+  imports: [
+    NavbarComponent,
+    FooterComponent,
+    ProductCardComponent,
+    TestimonialsComponent,
+    ContactInfoComponent,
+  ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrl: './home.component.scss',
 })
 export class HomeComponent {
-
   private productService = inject(ProductService);
-  popularProducts = this.productService.getPopularProducts();
+
+  popularProducts = this.productService
+    .getPopularProducts()
+    .filter((product) => product.active);
+
+  constructor() {
+    this.productService.productsChanged.subscribe(() => {
+      this.popularProducts = this.productService
+        .getPopularProducts()
+        .filter((product) => product.active);
+    });
+  }
 }

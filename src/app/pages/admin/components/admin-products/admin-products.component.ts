@@ -41,13 +41,14 @@ export class AdminProductsComponent {
   }
 
   toggleProduct(product: Product) {
-    product.active = !product.active;
+    const updatedProduct: Product = {
+      ...product,
+      active: !product.active,
+    };
 
-    this.productService.updateProduct(product);
-
+    this.productService.updateProduct(updatedProduct);
     this.loadProducts();
   }
-
   removeProduct(product: Product) {
     const confirmed = window.confirm('¿Eliminar este producto de la carta?');
 
