@@ -1,4 +1,4 @@
-import { Injectable, inject, EventEmitter } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Product } from '../models/product';
 import { CategoryService } from './category.service';
 
@@ -6,7 +6,6 @@ import { CategoryService } from './category.service';
   providedIn: 'root',
 })
 export class ProductService {
-  productsChanged = new EventEmitter<void>();
   constructor() {}
 
   getProducts() {

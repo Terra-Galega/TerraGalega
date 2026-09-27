@@ -21,16 +21,13 @@ export class AdminProductsComponent {
 
   constructor(private productService: ProductService) {
     this.loadProducts();
-
-    this.productService.productsChanged.subscribe(() => {
-      this.loadProducts();
-    });
   }
 
   loadProducts() {
     this.products = this.productService.getProducts();
     this.filterProducts();
   }
+
   ngOnChanges() {
     this.filterProducts();
   }
@@ -50,8 +47,10 @@ export class AdminProductsComponent {
     };
 
     this.productService.updateProduct(updatedProduct);
+
     this.loadProducts();
   }
+
   removeProduct(product: Product) {
     const confirmed = window.confirm('¿Eliminar este producto de la carta?');
 
