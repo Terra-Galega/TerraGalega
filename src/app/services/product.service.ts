@@ -20,6 +20,11 @@ export class ProductService {
   getProductById(id: number) {
     return this.productArray.find((product) => product.id === id);
   }
+
+  getPopularProducts() {
+    return this.productArray.filter((product) => product.popular);
+ }
+
   private categoryService = inject(CategoryService);
   private productArray: Product[] = [
     
