@@ -6,7 +6,6 @@ import { CategoryService } from './category.service';
   providedIn: 'root',
 })
 export class ProductService {
-
   constructor() {}
 
   getProducts() {
@@ -23,11 +22,10 @@ export class ProductService {
 
   getPopularProducts() {
     return this.productArray.filter((product) => product.popular);
- }
+  }
 
   private categoryService = inject(CategoryService);
   private productArray: Product[] = [
-    
     {
       id: 1,
       name: 'Tortilla Española',
@@ -787,4 +785,24 @@ export class ProductService {
       containsGluten: false,
     },
   ];
+
+  createProduct(product: Product): void {
+    this.productArray.push(product);
+  }
+
+  updateProduct(product: Product): void {
+    const index = this.productArray.findIndex((p) => p.id === product.id);
+
+    if (index === -1) {
+      return;
+    }
+
+    this.productArray[index] = product;
+  }
+
+  deleteProduct(id: number): void {
+    this.productArray = this.productArray.filter(
+      (product) => product.id !== id,
+    );
+  }
 }

@@ -1,0 +1,165 @@
+<aside
+  class="w-60 flex-shrink-0 flex flex-col py-7 px-4"
+  style="
+    background-color: #2c2c2c;
+    backdrop-filter: blur(24px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+  "
+>
+  <!-- LOGO -->
+
+  <div class="px-3 mb-10 flex flex-col items-start">
+    <a class="flex flex-col items-start leading-none select-none">
+      <span class="font-terra text-2xl leading-[0.6]" style="color: #f5f2eb">
+        Terra
+      </span>
+
+      <span
+        class="font-galega text-sm tracking-[0.22em] uppercase font-semibold -mt-1"
+        style="color: #f5f2eb"
+      >
+        Galega
+      </span>
+    </a>
+
+    <p
+      class="text-[10px] tracking-widest uppercase mt-2"
+      style="color: rgba(245, 242, 235, 0.25)"
+    >
+      Panel admin
+    </p>
+  </div>
+
+  <!-- PESTAÑAS -->
+
+  <nav class="flex flex-col gap-1 flex-1">
+    <button
+      type="button"
+      (click)="changeTab('products')"
+      class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [style.background-color]="
+        activeTab === 'products' ? 'rgba(255,255,255,0.08)' : 'transparent'
+      "
+      [style.color]="
+        activeTab === 'products' ? '#f5f2eb' : 'rgba(245,242,235,0.55)'
+      "
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path
+          d="M20 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z"
+        />
+
+        <path d="M16 3H8a1 1 0 00-1 1v3h10V4a1 1 0 00-1-1z" />
+      </svg>
+
+      Productos
+    </button>
+
+    <button
+      type="button"
+      (click)="changeTab('orders')"
+      class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [style.background-color]="
+        activeTab === 'orders' ? 'rgba(255,255,255,0.08)' : 'transparent'
+      "
+      [style.color]="
+        activeTab === 'orders' ? '#f5f2eb' : 'rgba(245,242,235,0.55)'
+      "
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path
+          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+        />
+      </svg>
+
+      Ordenes
+    </button>
+
+    <button
+      type="button"
+      (click)="changeTab('users')"
+      class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [style.background-color]="
+        activeTab === 'users' ? 'rgba(255,255,255,0.08)' : 'transparent'
+      "
+      [style.color]="
+        activeTab === 'users' ? '#f5f2eb' : 'rgba(245,242,235,0.55)'
+      "
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+
+        <circle cx="9" cy="7" r="4" />
+
+        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+      </svg>
+
+      Usuarios
+    </button>
+  </nav>
+
+  <!-- USUARIO -->
+
+  <div
+    class="px-4 py-4 rounded-xl mt-4"
+    style="background-color: rgba(255, 255, 255, 0.04)"
+  >
+    <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.8)">
+      {{ adminName }}
+    </p>
+
+    <p class="text-[11px] mb-3" style="color: rgba(245, 242, 235, 0.4)">
+      Administrador
+    </p>
+
+    <button
+      type="button"
+      (click)="logout()"
+      class="flex items-center gap-2 px-4 py-1 text-[12px] font-medium rounded-xl"
+      style="color: #da5858"
+    >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+
+        <path d="M16 17l5-5-5-5" />
+
+        <path d="M21 12H9" />
+      </svg>
+
+      Cerrar sesión
+    </button>
+  </div>
+</aside>
