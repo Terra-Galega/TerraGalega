@@ -39,9 +39,16 @@ export class AdminComponent {
 
   searchTerm = '';
 
-  adminName = 'Administrador';
+  adminName = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    const admin = localStorage.getItem('currentAdmin');
+
+    if (admin) {
+      const currentAdmin = JSON.parse(admin);
+      this.adminName = `${currentAdmin.name} ${currentAdmin.lastName}`.trim();
+    }
+  }
 
   changeTab(tab: 'products' | 'orders' | 'users') {
     this.activeTab = tab;

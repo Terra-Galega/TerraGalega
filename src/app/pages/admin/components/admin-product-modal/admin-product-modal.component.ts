@@ -9,7 +9,8 @@ import {
 
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
-
+import { Category } from '../../../../models/category';
+import { CategoryService } from '../../../../services/category.service';
 @Component({
   selector: 'app-admin-product-modal',
   imports: [],
@@ -22,6 +23,7 @@ export class AdminProductModalComponent implements OnChanges {
   @Output() closed = new EventEmitter<void>();
 
   @Output() saved = new EventEmitter<void>();
+  categories: Category[] = [];
 
   name = '';
   description = '';
@@ -41,8 +43,12 @@ export class AdminProductModalComponent implements OnChanges {
   containsSeafood = false;
   containsGluten = false;
 
-  constructor(private productService: ProductService) {}
-
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService,
+  ) {
+    this.categories = this.categoryService.getCategories();
+  }
   ngOnChanges(changes: SimpleChanges) {
     if (!changes['product']) {
       return;
