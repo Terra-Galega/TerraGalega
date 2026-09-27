@@ -11,10 +11,9 @@ import { AdminService } from '../../services/admin.service';
   selector: 'app-login',
   imports: [NavbarComponent, FooterComponent],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-
   activeTab: 'login' | 'signup' = 'login';
 
   showLoginPassword = false;
@@ -22,17 +21,19 @@ export class LoginComponent {
 
   loginEmail = '';
   loginPassword = '';
+
   loginError = '';
+
+  signupError = '';
 
   constructor(
     private userService: UserService,
     private adminService: AdminService,
-    private router: Router
+    private router: Router,
   ) {}
 
   selectTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
-    this.loginError = '';
   }
 
   toggleLoginPassword() {
@@ -45,11 +46,13 @@ export class LoginComponent {
 
   setLoginEmail(event: Event) {
     const input = event.target as HTMLInputElement;
+
     this.loginEmail = input.value;
   }
 
   setLoginPassword(event: Event) {
     const input = event.target as HTMLInputElement;
+
     this.loginPassword = input.value;
   }
 
@@ -62,45 +65,29 @@ export class LoginComponent {
   login() {
     this.loginError = '';
 
-    // Primero buscamos entre los usuarios normales
-    const user = this.userService.login(
-      this.loginEmail,
-      this.loginPassword
-    );
+    // Primero comprobamos si es administrador
+    const admin = this.adminService.login(this.loginEmail, this.loginPassword);
 
-    if (user) {
-      localStorage.setItem(
-        'currentUser',
-        JSON.stringify(user)
-      );
+    if (admin) {
+      localStorage.setItem('currentAdmin', JSON.stringify(admin));
 
-      localStorage.setItem(
-        'userType',
-        'user'
-      );
+      localStorage.setItem('userType', 'admin');
 
-      this.router.navigate(['/']);
+      this.router.navigate(['/admin']);
+
       return;
     }
 
-    // Si no es usuario, buscamos entre administradores
-    const admin = this.adminService.login(
-      this.loginEmail,
-      this.loginPassword
-    );
+    // Si no es administrador, comprobamos usuario
+    const user = this.userService.login(this.loginEmail, this.loginPassword);
 
-    if (admin) {
-      localStorage.setItem(
-        'currentUser',
-        JSON.stringify(admin)
-      );
+    if (user) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
 
-      localStorage.setItem(
-        'userType',
-        'admin'
-      );
+      localStorage.setItem('userType', 'user');
 
-      this.router.navigate(['/admin']);
+      this.router.navigate(['/']);
+
       return;
     }
 

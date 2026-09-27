@@ -82,6 +82,7 @@ export class AdminComponent {
   }
 
   logout() {
+    localStorage.removeItem('currentAdmin');
     localStorage.removeItem('currentUser');
     localStorage.removeItem('userType');
 
