@@ -5,6 +5,7 @@ import { OrdersComponent } from './pages/orders/orders.component';
 import { LoginComponent } from './pages/login/login.component';
 import { MenuComponent } from './pages/menu/menu.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
 
 export const routes: Routes = [
   {
@@ -35,4 +36,8 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminComponent,
   },
+  {
+    path: 'productDetails/:id',
+    component: ProductDetailComponent,
+  }
 ];

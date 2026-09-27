@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Product } from '../../models/product';
 
 @Component({
@@ -9,4 +10,9 @@ import { Product } from '../../models/product';
 })
 export class ProductCardComponent {
   @Input() product!: Product;
+  router = inject(Router);
+
+  goToProductDetail(): void {
+    this.router.navigate(['productDetails', this.product.id]);
+  }
 }
