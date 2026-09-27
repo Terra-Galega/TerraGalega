@@ -2,8 +2,9 @@ import { Component, inject } from '@angular/core';
 import { ProductCardMenuComponent } from './components/product-card-menu/product-card-menu.component';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { Product } from '../../models/product';
 import { ProductService } from '../../services/product.service';
+
+import { Product } from '../../models/product';
 type FeatureKey =
   | 'vegetarian'
   | 'spicyMild'
