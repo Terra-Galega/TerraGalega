@@ -1,0 +1,100 @@
+/* ===============================
+   BOTONES DE CATEGORÍAS
+   =============================== */
+
+.category-btn {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  color: rgba(44, 44, 44, 0.6);
+  border: 1px solid rgba(44, 44, 44, 0.1);
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  border-color: #b2571f;
+  color: #b2571f;
+}
+
+.category-btn.active {
+  background: linear-gradient(
+    135deg,
+    #b2571f 0%,
+    #8a2222 100%
+  );
+  color: #fff;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
+}
+
+
+/* ===============================
+   BUSCADOR
+   =============================== */
+
+.search-glass {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s;
+}
+
+.search-glass:focus {
+  border-color: #b2571f;
+  box-shadow: 0 0 0 3px rgba(178, 87, 31, 0.1);
+}
+
+
+/* ===============================
+   FILTRO DE CARACTERÍSTICAS
+   =============================== */
+
+.feature-filter-btn {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(44, 44, 44, 0.1);
+  position: relative;
+  transition: all 0.2s;
+}
+
+.feature-filter-btn:hover {
+  border-color: #b2571f;
+  color: #b2571f;
+}
+
+.feature-filter-btn.active {
+  background: linear-gradient(
+    135deg,
+    #b2571f 0%,
+    #8a2222 100%
+  );
+  color: #fff;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
+}
+
+
+/* ===============================
+   PANEL DE FILTROS
+   =============================== */
+
+.feature-filter-panel {
+  width: 260px;
+  background: rgba(245, 242, 235, 0.98);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+
+  box-shadow:
+    0 12px 32px rgba(44, 44, 44, 0.14),
+    0 2px 8px rgba(44, 44, 44, 0.06);
+}
+
+
+/* ===============================
+   OPCIONES DEL FILTRO
+   =============================== */
+
+.feature-filter-option input[type='checkbox'] {
+  accent-color: #556141;
+}
