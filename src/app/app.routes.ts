@@ -4,6 +4,7 @@ import { ContactComponent } from './pages/contact/contact.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { LoginComponent } from './pages/login/login.component';
 import { MenuComponent } from './pages/menu/menu.component';
+import { AdminComponent } from './pages/admin/admin.component';
 
 export const routes: Routes = [
   {
@@ -29,5 +30,9 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
+  },
+  {
+    path: 'admin',
+    component: AdminComponent,
   },
 ];
