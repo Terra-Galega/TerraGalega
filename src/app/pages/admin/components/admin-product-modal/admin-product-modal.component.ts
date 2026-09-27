@@ -11,6 +11,7 @@ import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
 import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/category.service';
+
 @Component({
   selector: 'app-admin-product-modal',
   imports: [],
@@ -23,6 +24,7 @@ export class AdminProductModalComponent implements OnChanges {
   @Output() closed = new EventEmitter<void>();
 
   @Output() saved = new EventEmitter<void>();
+
   categories: Category[] = [];
 
   name = '';
@@ -49,6 +51,7 @@ export class AdminProductModalComponent implements OnChanges {
   ) {
     this.categories = this.categoryService.getCategories();
   }
+
   ngOnChanges(changes: SimpleChanges) {
     if (!changes['product']) {
       return;
@@ -114,13 +117,17 @@ export class AdminProductModalComponent implements OnChanges {
   }
 
   setCategory(event: Event) {
-    this.categoryName = (event.target as HTMLInputElement).value;
+    this.categoryName = (event.target as HTMLSelectElement).value;
   }
 
   save() {
     if (!this.name.trim()) {
       return;
     }
+
+    const selectedCategory =
+      this.categories.find((category) => category.name === this.categoryName) ??
+      null;
 
     if (this.product) {
       const updatedProduct: Product = {
@@ -131,12 +138,7 @@ export class AdminProductModalComponent implements OnChanges {
         price: this.price,
         imageUrl: this.imageUrl,
 
-        category: this.product.category
-          ? {
-              ...this.product.category,
-              name: this.categoryName,
-            }
-          : null,
+        category: selectedCategory,
 
         active: this.active,
         popular: this.popular,
@@ -155,7 +157,9 @@ export class AdminProductModalComponent implements OnChanges {
       const products = this.productService.getProducts();
 
       const newId =
-        products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
+        products.length > 0
+          ? Math.max(...products.map((product) => product.id)) + 1
+          : 1;
 
       const newProduct: Product = {
         id: newId,
@@ -164,7 +168,7 @@ export class AdminProductModalComponent implements OnChanges {
         description: this.description,
         price: this.price,
 
-        category: null,
+        category: selectedCategory,
 
         imageUrl: this.imageUrl,
 

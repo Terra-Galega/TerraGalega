@@ -16,11 +16,7 @@ type FeatureKey =
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [
-    ProductCardMenuComponent,
-    NavbarComponent,
-    FooterComponent,
-  ],
+  imports: [ProductCardMenuComponent, NavbarComponent, FooterComponent],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.scss',
 })
@@ -29,6 +25,13 @@ export class MenuComponent {
 
   products: Product[] = this.productService.getActiveProducts();
   filteredProducts: Product[] = [...this.products];
+
+  constructor() {
+    this.productService.productsChanged.subscribe(() => {
+      this.products = this.productService.getActiveProducts();
+      this.filterMenuItems();
+    });
+  }
 
   /*
    * Estado equivalente a:
@@ -120,11 +123,9 @@ export class MenuComponent {
        */
       const matchesCategory =
         this.currentCategory === 'Todos' ||
-        (
-          this.currentCategory === 'Popular'
-            ? product.popular
-            : product.category?.name === this.currentCategory
-        );
+        (this.currentCategory === 'Popular'
+          ? product.popular
+          : product.category?.name === this.currentCategory);
 
       /*
        * Búsqueda por nombre.
@@ -132,8 +133,7 @@ export class MenuComponent {
        * Igual que develop:
        * item.dataset.name.toLowerCase().includes(currentSearch)
        */
-      const matchesSearch =
-        product.name.toLowerCase().includes(search);
+      const matchesSearch = product.name.toLowerCase().includes(search);
 
       /*
        * Características.
@@ -144,16 +144,11 @@ export class MenuComponent {
        * Esto significa que si seleccionas Vegetariano + Mariscos,
        * el plato debe cumplir AMBAS.
        */
-      const matchesFeatures =
-        this.activeFeatureFilters.every(
-          (feature) => product[feature],
-        );
-
-      return (
-        matchesCategory &&
-        matchesSearch &&
-        matchesFeatures
+      const matchesFeatures = this.activeFeatureFilters.every(
+        (feature) => product[feature],
       );
+
+      return matchesCategory && matchesSearch && matchesFeatures;
     });
   }
 
@@ -188,8 +183,7 @@ export class MenuComponent {
    * Cambia temporalmente un checkbox.
    */
   toggleFeature(feature: FeatureKey): void {
-    this.featureFilters[feature] =
-      !this.featureFilters[feature];
+    this.featureFilters[feature] = !this.featureFilters[feature];
   }
 
   /**
@@ -201,9 +195,7 @@ export class MenuComponent {
   applyFeatureFilters(): void {
     this.activeFeatureFilters = (
       Object.keys(this.featureFilters) as FeatureKey[]
-    ).filter(
-      (feature) => this.featureFilters[feature],
-    );
+    ).filter((feature) => this.featureFilters[feature]);
 
     this.featureFilterOpen = false;
 
