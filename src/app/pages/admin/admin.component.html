@@ -1,0 +1,44 @@
+<div
+  class="min-h-screen flex font-sans text-charcoal"
+  style="background-color: #ece9e1"
+>
+  <app-admin-sidebar
+    [activeTab]="activeTab"
+    [adminName]="adminName"
+    (tabChanged)="changeTab($event)"
+    (logoutClicked)="logout()"
+  ></app-admin-sidebar>
+
+  <div class="flex-1 flex flex-col" style="margin-left: 240px">
+    <app-admin-topbar
+      [title]="pageTitle"
+      [showAddButton]="activeTab === 'products'"
+      (addClicked)="openAddProduct()"
+      (searchChanged)="searchProducts($event)"
+    ></app-admin-topbar>
+
+    <div class="flex-1 p-8">
+      @if (activeTab === "products") {
+        <app-admin-products
+          [searchTerm]="searchTerm"
+          (editProduct)="openEditProduct($event)"
+        ></app-admin-products>
+      }
+
+      @if (activeTab === "orders") {
+        <app-admin-orders></app-admin-orders>
+      }
+
+      @if (activeTab === "users") {
+        <app-admin-users></app-admin-users>
+      }
+    </div>
+  </div>
+</div>
+
+@if (productModalOpen) {
+  <app-admin-product-modal
+    [product]="selectedProduct"
+    (closed)="closeProductModal()"
+  ></app-admin-product-modal>
+}

@@ -1,0 +1,152 @@
+<div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr
+          class="border-b text-left"
+          style="border-color: rgba(44, 44, 44, 0.08)"
+        >
+          <th class="px-6 py-4 font-medium">Producto</th>
+
+          <th class="px-6 py-4 font-medium">Categoría</th>
+
+          <th class="px-6 py-4 font-medium">Precio</th>
+
+          <th class="px-6 py-4 font-medium">Popular</th>
+
+          <th class="px-6 py-4 font-medium">Estado</th>
+
+          <th class="px-6 py-4 font-medium text-right">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (product of filteredProducts; track product.id) {
+          <tr
+            class="border-b last:border-b-0"
+            style="border-color: rgba(44, 44, 44, 0.06)"
+          >
+            <!-- PRODUCTO -->
+
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-4">
+                <img
+                  [src]="product.imageUrl"
+                  [alt]="product.name"
+                  class="w-14 h-14 rounded-xl object-cover"
+                />
+
+                <div>
+                  <p class="font-medium text-charcoal">
+                    {{ product.name }}
+                  </p>
+
+                  <p
+                    class="text-xs mt-1 max-w-xs line-clamp-2"
+                    style="color: rgba(44, 44, 44, 0.55)"
+                  >
+                    {{ product.description }}
+                  </p>
+                </div>
+              </div>
+            </td>
+
+            <!-- CATEGORÍA -->
+
+            <td class="px-6 py-4">
+              <span
+                class="px-3 py-1 rounded-full text-xs"
+                style="
+                  background-color: rgba(178, 87, 31, 0.08);
+                  color: #b2571f;
+                "
+              >
+                {{ product.category?.name || "Sin categoría" }}
+              </span>
+            </td>
+
+            <!-- PRECIO -->
+
+            <td class="px-6 py-4">
+              <span class="font-medium">
+                ${{ product.price | number: "1.0-0" }}
+              </span>
+            </td>
+
+            <!-- POPULAR -->
+
+            <td class="px-6 py-4">
+              @if (product.popular) {
+                <span class="text-lg" style="color: #d99a21"> ★ </span>
+              } @else {
+                <span style="color: rgba(44, 44, 44, 0.2)"> ★ </span>
+              }
+            </td>
+
+            <!-- ESTADO -->
+
+            <td class="px-6 py-4">
+              <button
+                type="button"
+                (click)="toggleProduct(product)"
+                class="px-3 py-1 rounded-full text-xs font-medium"
+                [style.background-color]="
+                  product.active
+                    ? 'rgba(109, 178, 31, 0.12)'
+                    : 'rgba(44, 44, 44, 0.08)'
+                "
+                [style.color]="
+                  product.active ? '#556141' : 'rgba(44, 44, 44, 0.55)'
+                "
+              >
+                {{ product.active ? "Activo" : "Inactivo" }}
+              </button>
+            </td>
+
+            <!-- ACCIONES -->
+
+            <td class="px-6 py-4">
+              <div class="flex justify-end gap-2">
+                <button
+                  type="button"
+                  (click)="openEdit(product)"
+                  class="px-3 py-2 rounded-lg text-xs font-medium"
+                  style="
+                    color: #b2571f;
+                    background-color: rgba(178, 87, 31, 0.08);
+                  "
+                >
+                  Editar
+                </button>
+
+                <button
+                  type="button"
+                  (click)="removeProduct(product)"
+                  class="px-3 py-2 rounded-lg text-xs font-medium"
+                  style="
+                    color: #8a2222;
+                    background-color: rgba(138, 34, 34, 0.08);
+                  "
+                >
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+
+        @if (filteredProducts.length === 0) {
+          <tr>
+            <td
+              colspan="6"
+              class="px-6 py-16 text-center"
+              style="color: rgba(44, 44, 44, 0.5)"
+            >
+              No se encontraron productos.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
