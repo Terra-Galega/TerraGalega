@@ -1,0 +1,50 @@
+<div
+  class="rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+  style="box-shadow: 0 4px 24px rgba(44, 44, 44, 0.06)"
+>
+  <!-- Imagen del producto -->
+  <div class="relative h-48 overflow-hidden">
+    <img
+      [src]="product.imageUrl"
+      [alt]="product.name"
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+    />
+  </div>
+
+  <!-- Información del producto -->
+  <div class="p-6">
+
+    <!-- Categoría -->
+    <span
+      class="text-[11px] font-medium tracking-widest uppercase"
+      style="color: rgba(178, 87, 31, 0.7)"
+    >
+      {{ product.category.name }}
+    </span>
+
+    <!-- Nombre y precio -->
+    <div class="flex justify-between items-start gap-3 mt-1 mb-2">
+      <h3
+        class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors"
+      >
+        {{ product.name }}
+      </h3>
+
+      <span
+        class="font-bold text-lg flex-shrink-0"
+        style="color: #b2571f"
+      >
+        ${{ product.price }}
+      </span>
+    </div>
+
+    <!-- Descripción -->
+    <p
+      class="text-sm leading-relaxed line-clamp-2"
+      style="color: rgba(44, 44, 44, 0.68)"
+    >
+      {{ product.description }}
+    </p>
+
+  </div>
+</div>
