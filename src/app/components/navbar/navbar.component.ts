@@ -39,8 +39,9 @@ export class NavbarComponent {
 
   cartCount = 0;
 
-  constructor(private router: Router) {}
-
+  constructor(private router: Router) {
+    this.updateNavbar();
+  }
   // =========================
   // NAVEGACIÓN
   // =========================

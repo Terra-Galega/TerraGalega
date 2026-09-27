@@ -26,13 +26,6 @@ export class MenuComponent {
   products: Product[] = this.productService.getActiveProducts();
   filteredProducts: Product[] = [...this.products];
 
-  constructor() {
-    this.productService.productsChanged.subscribe(() => {
-      this.products = this.productService.getActiveProducts();
-      this.filterMenuItems();
-    });
-  }
-
   /*
    * Estado equivalente a:
    * let currentCategory = "Todos";

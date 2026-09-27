@@ -5,7 +5,6 @@ import { ProductService } from '../../services/product.service';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { TestimonialsComponent } from './components/testimonial/testimonial.component';
 import { ContactInfoComponent } from '../../components/contact-info/contact-info.component';
-
 @Component({
   selector: 'app-home',
   imports: [
@@ -24,12 +23,4 @@ export class HomeComponent {
   popularProducts = this.productService
     .getPopularProducts()
     .filter((product) => product.active);
-
-  constructor() {
-    this.productService.productsChanged.subscribe(() => {
-      this.popularProducts = this.productService
-        .getPopularProducts()
-        .filter((product) => product.active);
-    });
-  }
 }
