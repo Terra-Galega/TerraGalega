@@ -1,0 +1,52 @@
+/* ============================================================
+   TARJETA DEL MENÚ
+   Estilos migrados directamente desde develop
+   ============================================================ */
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+
+  border: 1px solid rgba(255, 255, 255, 0.6);
+
+  box-shadow:
+    0 4px 24px rgba(44, 44, 44, 0.07),
+    0 1px 4px rgba(44, 44, 44, 0.04);
+}
+
+/* ============================================================
+   CARACTERÍSTICAS DEL PLATO
+   ============================================================ */
+
+.feature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  background-color: rgba(85, 97, 65, 0.1);
+  color: #556141;
+
+  font-weight: 600;
+}
+
+/* ============================================================
+   BOTÓN +
+   ============================================================ */
+
+.menu-plus-btn {
+  background-color: rgba(44, 44, 44, 0.07);
+  color: rgba(44, 44, 44, 0.4);
+
+  transition: all 0.3s;
+}
+
+.group:hover .menu-plus-btn {
+  background: linear-gradient(
+    135deg,
+    #b2571f,
+    #8a2222
+  );
+
+  color: #f5f2eb;
+}
