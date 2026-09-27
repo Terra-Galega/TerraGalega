@@ -1,11 +1,250 @@
 <app-navbar></app-navbar>
+<main
+  class="min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8"
+>
+  <!-- HEADER -->
+  <div
+    class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14"
+  >
+    <div>
+      <p
+        class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
+        style="color: #b2571f"
+      >
+        Lo que ofrecemos
+      </p>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <h1
+        class="font-serif text-5xl font-bold text-charcoal"
+      >
+        Nuestra Carta
+      </h1>
+    </div>
 
-  @for (product of products; track product.id) {
-    <app-product-card-menu [product]="product"></app-product-card-menu>
-  }
+    <!-- BUSCADOR -->
+    <div class="relative w-full md:w-72">
+      <svg
+        class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="m20 20-4-4"></path>
+      </svg>
 
-</div>
+      <input
+        type="text"
+        placeholder="Buscar platos..."
+        class="search-glass w-full pl-11 pr-5 py-3 rounded-full text-sm text-charcoal border border-charcoal/30 outline-none"
+        [value]="searchTerm"
+        (input)="onSearch($event)"
+      />
+    </div>
+  </div>
 
-<app-footer></app-footer>   
+  <!-- CATEGORÍAS + FILTROS -->
+  <div
+    class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-12"
+  >
+    <!-- CATEGORÍAS -->
+    <div
+      class="flex gap-2.5 overflow-x-auto pb-1"
+    >
+      @for (category of categories; track category) {
+        <button
+          type="button"
+          class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+          [class.active]="selectedCategory === category"
+          (click)="selectCategory(category)"
+        >
+          {{ category }}
+        </button>
+      }
+    </div>
+
+    <!-- BOTÓN FILTROS -->
+    <div class="relative flex-shrink-0">
+      <button
+        type="button"
+        class="flex items-center gap-2 px-5 py-2.5 rounded-full text-[13px] font-medium border border-charcoal/20"
+        (click)="showFeatureFilters = !showFeatureFilters"
+      >
+        <svg
+          class="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="7" y1="12" x2="17" y2="12"></line>
+          <line x1="10" y1="18" x2="14" y2="18"></line>
+        </svg>
+
+        Filtros
+      </button>
+
+      <!-- DROPDOWN DE FILTROS -->
+      @if (showFeatureFilters) {
+        <div
+          class="absolute right-0 top-full mt-3 z-40 w-72 bg-white rounded-2xl p-5 shadow-xl border border-charcoal/10"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <h3
+              class="font-medium text-sm text-charcoal"
+            >
+              Características
+            </h3>
+
+            <button
+              type="button"
+              class="text-xs hover:underline"
+              style="color: #b2571f"
+              (click)="resetFilters()"
+            >
+              Limpiar
+            </button>
+          </div>
+
+          <div class="space-y-3">
+            <!-- VEGETARIANO -->
+            <label
+              class="flex items-center gap-3 cursor-pointer text-sm"
+            >
+              <input
+                type="checkbox"
+                [checked]="selectedFeatures.vegetarian"
+                (change)="toggleFeature('vegetarian')"
+                class="accent-[#b2571f]"
+              />
+
+              <span>
+                Vegetariano
+              </span>
+            </label>
+
+            <!-- PICANTE LIGERO -->
+            <label
+              class="flex items-center gap-3 cursor-pointer text-sm"
+            >
+              <input
+                type="checkbox"
+                [checked]="selectedFeatures.spicyMild"
+                (change)="toggleFeature('spicyMild')"
+                class="accent-[#b2571f]"
+              />
+
+              <span>
+                Picante ligero
+              </span>
+            </label>
+
+            <!-- PICANTE INTENSO -->
+            <label
+              class="flex items-center gap-3 cursor-pointer text-sm"
+            >
+              <input
+                type="checkbox"
+                [checked]="selectedFeatures.spicyHot"
+                (change)="toggleFeature('spicyHot')"
+                class="accent-[#b2571f]"
+              />
+
+              <span>
+                Picante intenso
+              </span>
+            </label>
+
+            <!-- NUECES -->
+            <label
+              class="flex items-center gap-3 cursor-pointer text-sm"
+            >
+              <input
+                type="checkbox"
+                [checked]="selectedFeatures.containsNuts"
+                (change)="toggleFeature('containsNuts')"
+                class="accent-[#b2571f]"
+              />
+
+              <span>
+                Nueces
+              </span>
+            </label>
+
+            <!-- MARISCOS -->
+            <label
+              class="flex items-center gap-3 cursor-pointer text-sm"
+            >
+              <input
+                type="checkbox"
+                [checked]="selectedFeatures.containsSeafood"
+                (change)="toggleFeature('containsSeafood')"
+                class="accent-[#b2571f]"
+              />
+
+              <span>
+                Mariscos
+              </span>
+            </label>
+
+            <!-- GLUTEN -->
+            <label
+              class="flex items-center gap-3 cursor-pointer text-sm"
+            >
+              <input
+                type="checkbox"
+                [checked]="selectedFeatures.containsGluten"
+                (change)="toggleFeature('containsGluten')"
+                class="accent-[#b2571f]"
+              />
+
+              <span>
+                Gluten
+              </span>
+            </label>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- PRODUCTOS -->
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+  >
+    @for (
+      product of filteredProducts;
+      track product.id
+    ) {
+      <app-product-card-menu
+        [product]="product"
+      ></app-product-card-menu>
+    }
+
+    <!-- SIN RESULTADOS -->
+    @if (filteredProducts.length === 0) {
+      <div
+        class="col-span-full py-24 text-center"
+      >
+        <p
+          class="text-lg mb-2"
+          style="color: rgba(44, 44, 44, 0.35)"
+        >
+          No se encontraron platos
+        </p>
+
+        <button
+          type="button"
+          class="text-sm font-medium hover:underline"
+          style="color: #b2571f"
+          (click)="resetFilters()"
+        >
+          Ver todos los platos
+        </button>
+      </div>
+    }
+  </div>
+</main>
+<app-footer></app-footer>
