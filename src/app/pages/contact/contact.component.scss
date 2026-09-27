@@ -1,4 +1,3 @@
-@import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
 /*imports para las fuentes*/
@@ -16,6 +15,31 @@
   --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", ui-serif, Georgia, serif;
 }
+.font-terra {
+  font-family: "Pinyon Script", cursive;
+}
+
+/* Fuente tipográfica estilo serif */
+.font-galega {
+  font-family: "Droid Serif", serif;
+}
+
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 24px rgba(44, 44, 44, 0.07);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f5f2eb;
+  color: #2c2c2c;
+}
+
 .glass-card {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px) saturate(160%);
@@ -24,4 +48,29 @@
   box-shadow:
     0 4px 24px rgba(44, 44, 44, 0.07),
     0 1px 4px rgba(44, 44, 44, 0.04);
+}
+
+.input-field {
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(44, 44, 44, 0.12);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-field:focus {
+  border-color: #b2571f;
+  box-shadow: 0 0 0 3px rgba(178, 87, 31, 0.1);
+}
+
+.btn-terra {
+  background-color: #b2571f;
+  transition: background-color 0.2s;
+}
+
+.btn-terra:hover {
+  background-color: #8a2222;
+}
+
+.hidden-modal {
+  display: none !important;
 }

@@ -1,0 +1,152 @@
+@if (isOpen) {
+  <div
+    class="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+    style="background-color: rgba(44, 44, 44, 0.65)"
+    (click)="closeCart()"
+  >
+    <div
+      class="bg-cream w-full md:max-w-lg shadow-2xl flex flex-col rounded-t-3xl md:rounded-3xl"
+      style="max-height: 95vh"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Encabezado -->
+      <div
+        class="p-6 border-b flex items-center justify-between"
+        style="border-color: rgba(44, 44, 44, 0.1)"
+      >
+        <h2 class="font-serif text-2xl font-semibold text-charcoal">
+          Mi Carrito
+        </h2>
+
+        <button
+          (click)="closeCart()"
+          style="color: rgba(44, 44, 44, 0.4)"
+          aria-label="Cerrar carrito"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenido -->
+      <div class="flex-1 overflow-y-auto p-6">
+        @if (cartItems.length === 0) {
+          <!-- Carrito vacío -->
+          <div class="text-center py-14" style="color: rgba(44, 44, 44, 0.75)">
+            <svg
+              class="w-12 h-12 mx-auto mb-4 opacity-40"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+
+            <p class="text-md">Tu carrito está vacío</p>
+
+            <button
+              class="mt-4 text-sm underline underline-offset-2"
+              style="color: #b2571f"
+            >
+              Explorar el menú
+            </button>
+          </div>
+        } @else {
+          <!-- Productos -->
+          <div class="space-y-3 rounded-full">
+            @for (item of cartItems; track item.id) {
+              <div
+                class="flex items-center gap-4 bg-white p-3"
+                style="border-radius: 2px"
+              >
+                <img
+                  [src]="item.imageUrl"
+                  [alt]="item.name"
+                  class="w-16 h-16 object-cover flex-shrink-0"
+                  style="border-radius: 2px"
+                />
+
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-charcoal text-sm truncate">
+                    {{ item.name }}
+                  </p>
+
+                  <p class="text-sm font-bold" style="color: #b2571f">
+                    ${{ item.price | number }}
+                  </p>
+
+                  <p class="text-xs" style="color: rgba(44, 44, 44, 0.4)">
+                    × {{ item.quantity }}
+                  </p>
+                </div>
+
+                <button
+                  class="flex-shrink-0"
+                  style="color: rgba(44, 44, 44, 0.3)"
+                  aria-label="Eliminar"
+                  (click)="removeItem(item.id)"
+                >
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      @if (cartItems.length > 0) {
+        <div class="p-6 border-t" style="border-color: rgba(44, 44, 44, 0.1)">
+          <div class="flex justify-between items-center mb-4 rounded-full p-4">
+            <span class="font-medium text-charcoal"> Total del pedido </span>
+
+            <span class="font-bold text-xl" style="color: #b2571f">
+              ${{ total | number }}
+            </span>
+          </div>
+
+          <button
+            class="w-full py-3 text-white font-medium rounded-full btn-terra"
+          >
+            Confirmar pedido
+          </button>
+
+          <p
+            class="text-center text-xs mt-3"
+            style="color: rgba(44, 44, 44, 0.4)"
+          >
+            Al confirmar el pedido, te llevaremos a la pasarela de pago.
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+}

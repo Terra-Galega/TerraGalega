@@ -1,15 +1,15 @@
 import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
+import { CartComponent } from '../cart/cart.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [],
+  imports: [CartComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
 export class NavbarComponent {
-
   // =========================
   // MENÚ MOBILE
   // =========================
@@ -109,9 +109,7 @@ export class NavbarComponent {
   private updateNavbar(): void {
     const currentUrl = this.router.url.split('?')[0].split('#')[0];
 
-    const isHome =
-      currentUrl === '/home' ||
-      currentUrl === '/';
+    const isHome = currentUrl === '/home' || currentUrl === '/';
 
     if (isHome) {
       this.navBarStayed = window.scrollY > 20;
@@ -138,20 +136,20 @@ export class NavbarComponent {
 
   scrollToHero(): void {
     document.getElementById('hero')?.scrollIntoView({
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
 
     this.closeMobileMenu();
   }
 
-  // =========================
-  // CARRITO
-  // =========================
+  cartOpen = false;
 
-  openCart(): void {
-    this.closeMobileMenu();
+  openCart() {
+    this.cartOpen = true;
+  }
 
-    console.log('Abrir carrito');
+  closeCart() {
+    this.cartOpen = false;
   }
 
   // =========================

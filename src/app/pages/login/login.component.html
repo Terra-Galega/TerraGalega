@@ -1,0 +1,346 @@
+<app-navbar></app-navbar>
+
+<div
+  class="min-h-screen font-sans text-charcoal"
+  style="background-color: #f5f2eb"
+>
+  <main class="min-h-screen flex items-center justify-center px-6 py-32">
+    <div class="w-full max-w-md mx-auto">
+      <!-- Encabezado -->
+      <div class="text-center mb-10 flex flex-col items-center">
+        <p
+          class="text-[12px] tracking-widest uppercase mt-4"
+          style="color: rgba(44, 44, 44, 0.38)"
+        >
+          @if (activeTab === "login") {
+            Bienvenido de vuelta
+          } @else {
+            Unete a nosotros
+          }
+        </p>
+      </div>
+
+      <!-- Selector -->
+      <div
+        class="flex rounded-2xl p-1 mb-8"
+        style="background-color: rgba(44, 44, 44, 0.06)"
+      >
+        <button
+          type="button"
+          (click)="selectTab('login')"
+          class="flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
+          [class.bg-white]="activeTab === 'login'"
+          [class.text-charcoal]="activeTab === 'login'"
+          [class.shadow-sm]="activeTab === 'login'"
+        >
+          Iniciar sesión
+        </button>
+
+        <button
+          type="button"
+          (click)="selectTab('signup')"
+          class="flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
+          [class.bg-white]="activeTab === 'signup'"
+          [class.text-charcoal]="activeTab === 'signup'"
+          [class.shadow-sm]="activeTab === 'signup'"
+        >
+          Registrarse
+        </button>
+      </div>
+
+      <!-- Contenedor -->
+      <div class="glass-card rounded-3xl p-8">
+        <!-- LOGIN -->
+        @if (activeTab === "login") {
+          <form class="space-y-4">
+            <!-- Correo -->
+            <div>
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+              >
+                Correo electrónico
+              </label>
+
+              <input
+                type="email"
+                placeholder="correo&#64;ejemplo.com"
+                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+              />
+            </div>
+
+            <!-- Contraseña -->
+            <div>
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+              >
+                Contraseña
+              </label>
+
+              <div class="relative">
+                <input
+                  [type]="showLoginPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="input-field w-full px-4 py-3 pr-11 rounded-xl text-charcoal text-sm"
+                />
+
+                <button
+                  type="button"
+                  (click)="toggleLoginPassword()"
+                  class="absolute right-3 top-1/2 -translate-y-1/2"
+                  style="color: rgba(44, 44, 44, 0.4)"
+                  aria-label="Mostrar contraseña"
+                >
+                  @if (!showLoginPassword) {
+                    <!-- Ojo abierto -->
+                    <svg
+                      class="w-4.5 h-4.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  } @else {
+                    <!-- Ojo cerrado -->
+                    <svg
+                      class="w-4.5 h-4.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65"
+                      />
+                    </svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            <!-- Botón -->
+            <button
+              type="button"
+              class="w-full py-3.5 rounded-xl font-medium text-white mt-2"
+              style="
+                background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+                box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
+              "
+            >
+              Iniciar sesión
+            </button>
+
+            <!-- Separador -->
+            <div class="flex items-center gap-3 py-1">
+              <div
+                class="flex-1 h-px"
+                style="background-color: rgba(44, 44, 44, 0.08)"
+              ></div>
+
+              <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.3)">
+                Accesos de prueba
+              </span>
+
+              <div
+                class="flex-1 h-px"
+                style="background-color: rgba(44, 44, 44, 0.08)"
+              ></div>
+            </div>
+
+            <!-- Accesos de prueba -->
+            <div
+              class="rounded-xl p-4 space-y-2"
+              style="
+                background-color: rgba(44, 44, 44, 0.04);
+                border: 1px solid rgba(44, 44, 44, 0.07);
+              "
+            >
+              <button
+                type="button"
+                class="w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
+                style="color: rgba(44, 44, 44, 0.6)"
+              >
+                <span class="font-semibold text-charcoal">
+                  Cliente de prueba:
+                </span>
+                cliente&#64;terra.com
+              </button>
+
+              <button
+                type="button"
+                class="w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
+                style="color: rgba(44, 44, 44, 0.6)"
+              >
+                <span class="font-semibold text-charcoal">
+                  Admin de prueba:
+                </span>
+                admin&#64;terra.com
+              </button>
+            </div>
+          </form>
+        }
+
+        <!-- REGISTRO -->
+        @if (activeTab === "signup") {
+          <form class="space-y-4">
+            <!-- Nombre + apellido -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                  style="color: rgba(44, 44, 44, 0.4)"
+                >
+                  Nombre
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Juan"
+                  class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+                />
+              </div>
+
+              <div>
+                <label
+                  class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                  style="color: rgba(44, 44, 44, 0.4)"
+                >
+                  Apellido
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="García"
+                  class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+                />
+              </div>
+            </div>
+
+            <!-- Correo -->
+            <div>
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+              >
+                Correo electrónico
+              </label>
+
+              <input
+                type="email"
+                placeholder="correo&#64;ejemplo.com"
+                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+              />
+            </div>
+
+            <!-- Contraseña -->
+            <div>
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+              >
+                Contraseña
+              </label>
+
+              <div class="relative">
+                <input
+                  [type]="showSignupPassword ? 'text' : 'password'"
+                  placeholder="••••••••"
+                  class="input-field w-full px-4 py-3 pr-11 rounded-xl text-charcoal text-sm"
+                />
+
+                <button
+                  type="button"
+                  (click)="toggleSignupPassword()"
+                  class="absolute right-3 top-1/2 -translate-y-1/2"
+                  style="color: rgba(44, 44, 44, 0.4)"
+                  aria-label="Mostrar contraseña"
+                >
+                  @if (!showSignupPassword) {
+                    <svg
+                      class="w-4.5 h-4.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  } @else {
+                    <svg
+                      class="w-4.5 h-4.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65"
+                      />
+                    </svg>
+                  }
+                </button>
+              </div>
+            </div>
+
+            <!-- Teléfono -->
+            <div>
+              <label
+                class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+                style="color: rgba(44, 44, 44, 0.4)"
+              >
+                Teléfono
+              </label>
+
+              <input
+                type="tel"
+                placeholder="+57 300 000 0000"
+                class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+              />
+            </div>
+
+            <!-- Botón -->
+            <button
+              type="button"
+              class="w-full py-3.5 rounded-xl font-medium text-white mt-2"
+              style="
+                background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+                box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
+              "
+            >
+              Crear cuenta
+            </button>
+          </form>
+        }
+      </div>
+    </div>
+  </main>
+</div>
+
+<app-footer></app-footer>

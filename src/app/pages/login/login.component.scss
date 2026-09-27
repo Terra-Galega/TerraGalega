@@ -1,0 +1,44 @@
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 4px 24px rgba(44, 44, 44, 0.07),
+    0 1px 4px rgba(44, 44, 44, 0.04);
+}
+
+.input-field {
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(44, 44, 44, 0.12);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.input-field:focus {
+  border-color: #b2571f;
+  box-shadow: 0 0 0 3px rgba(178, 87, 31, 0.1);
+}
+
+.auth-tab {
+  color: rgba(44, 44, 44, 0.55);
+}
+
+.auth-tab.active {
+  background-color: #ffffff;
+  color: #2c2c2c;
+  box-shadow:
+    0 2px 8px rgba(44, 44, 44, 0.08);
+}
+
+.demo-login-btn:hover {
+  background-color: rgba(44, 44, 44, 0.05);
+}
+
+.btn-terra {
+  transition: all 0.2s;
+}
+
+.btn-terra:hover {
+  transform: translateY(-1px);
+}

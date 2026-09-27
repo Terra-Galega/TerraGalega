@@ -1,0 +1,29 @@
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
+  @for (step of steps; track step.number) {
+    <div class="glass-card rounded-3xl p-7 flex gap-5 items-start">
+      <div
+        class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 font-serif font-bold text-lg text-white leading-none"
+        [style.background]="
+          step.color === 'terra'
+            ? 'linear-gradient(135deg, #b2571f, #8a2222)'
+            : 'linear-gradient(135deg, #556141, #3d4730)'
+        "
+      >
+        {{ step.number }}
+      </div>
+
+      <div>
+        <h3 class="font-serif text-xl font-semibold text-charcoal mb-2">
+          {{ step.title }}
+        </h3>
+
+        <p
+          class="text-[15px] leading-relaxed"
+          style="color: rgba(44, 44, 44, 0.75)"
+        >
+          {{ step.description }}
+        </p>
+      </div>
+    </div>
+  }
+</div>
