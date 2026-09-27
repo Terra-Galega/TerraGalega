@@ -1,18 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Category } from '../models/category';
+import { AddOnService } from './addOn.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CategoryService {
+  private addOnService = inject(AddOnService);
 
-  constructor() {}
+  constructor() {
+    this.assignAddOnsToCategories();
+  }
 
-  getCategories() {
+  getCategories(): Category[] {
     return this.categoryArray;
   }
 
-  getCategoryById(id: number) {
+  getCategoryById(id: number): Category | undefined {
     return this.categoryArray.find((category) => category.id === id);
   }
 
@@ -20,27 +24,38 @@ export class CategoryService {
     {
       id: 1,
       name: 'Entradas',
-      description: 'Platos para comenzar la comida',
+      description: "Pequeños platos gallegos pensados para abrir el apetito antes del plato principal.",
+      addOns: [],
     },
     {
       id: 2,
       name: 'Mariscos',
-      description: 'Platos de mariscos y pescados',
+      description: "Lo mejor de la costa gallega: mariscos frescos preparados con recetas tradicionales.",
+      addOns: [],
     },
     {
       id: 3,
       name: 'Carnes',
-      description: 'Platos tradicionales de carne',
+      description: "Cortes a la brasa y guisos tradicionales de la cocina gallega.",
+      addOns: [],
     },
     {
       id: 4,
       name: 'Postres',
-      description: 'Postres tradicionales españoles',
+      description: "Dulces clásicos de Galicia para cerrar la comida con sabor a tierra.",
+      addOns: [],
     },
     {
       id: 5,
       name: 'Bebidas',
-      description: 'Bebidas tradicionales',
+      description: "Mixología, vinos y bebidas premium seleccionadas para elevar tu experiencia gastronómica.",
+      addOns: [],
     },
   ];
+
+  private assignAddOnsToCategories(): void {
+    this.categoryArray.forEach((category) => {
+      category.addOns = this.addOnService.getAddOnsByCategoryId(category.id);
+    });
+  }
 }
