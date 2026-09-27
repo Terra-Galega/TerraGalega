@@ -13,13 +13,12 @@
 
   <!-- Información del producto -->
   <div class="p-6">
-
     <!-- Categoría -->
     <span
       class="text-[11px] font-medium tracking-widest uppercase"
       style="color: rgba(178, 87, 31, 0.7)"
     >
-      {{ product.category.name }}
+      {{ product.category?.name }}
     </span>
 
     <!-- Nombre y precio -->
@@ -30,10 +29,7 @@
         {{ product.name }}
       </h3>
 
-      <span
-        class="font-bold text-lg flex-shrink-0"
-        style="color: #b2571f"
-      >
+      <span class="font-bold text-lg flex-shrink-0" style="color: #b2571f">
         ${{ product.price }}
       </span>
     </div>
@@ -45,6 +41,5 @@
     >
       {{ product.description }}
     </p>
-
   </div>
 </div>
