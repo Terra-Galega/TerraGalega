@@ -1,0 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap");
+
+.font-terra {
+  font-family: "Pinyon Script", cursive;
+}
+
+.font-galega {
+  font-family: "Droid Serif", serif;
+}
+
+
+.admin-tab-btn {
+  color: rgba(245, 242, 235, 0.6);
+  transition: all 0.2s ease;
+}
+
+.admin-tab-btn:hover {
+  color: #f5f2eb;
+  background-color: rgba(85, 97, 65, 0.4);
+}
+
+.admin-tab-btn.active {
+  color: #f5f2eb;
+  background-color: #556141;
+  box-shadow: 0 4px 12px rgba(85, 97, 65, 0.3);
+}
+
+.admin-logout-btn {
+  color: rgba(245, 242, 235, 0.6);
+  transition: all 0.2s ease;
+}
+
+.admin-logout-btn:hover {
+  color: #f5f2eb;
+  background-color: rgba(105, 47, 47, 0.18);
+}

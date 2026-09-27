@@ -1,260 +1,283 @@
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center p-6"
-  style="background-color: rgba(44, 44, 44, 0.65)"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  style="background-color: rgba(44, 44, 44, 0.55)"
 >
   <div
-    class="bg-cream w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden"
-    style="max-height: 90vh"
+    class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
   >
-    <!-- HEADER -->
-
-    <div
-      class="p-6 border-b flex items-center justify-between"
-      style="border-color: rgba(44, 44, 44, 0.1)"
-    >
-      <div>
-        <h2 class="font-serif text-2xl font-semibold text-charcoal">
-          @if (product) {
-            Editar producto
-          } @else {
-            Añadir producto
-          }
-        </h2>
-
-        <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.5)">
-          Completa la información del producto.
-        </p>
-      </div>
+    <div class="flex items-center justify-between mb-7">
+      <h2 class="font-serif text-2xl font-semibold text-charcoal">
+        @if (product) {
+          Editar producto
+        } @else {
+          Añadir producto
+        }
+      </h2>
 
       <button
         type="button"
         (click)="close()"
         class="w-9 h-9 rounded-full flex items-center justify-center"
-        style="color: rgba(44, 44, 44, 0.5)"
+        style="
+          background-color: rgba(44, 44, 44, 0.06);
+          color: rgba(44, 44, 44, 0.6);
+        "
       >
         <svg
-          class="w-5 h-5"
-          fill="none"
+          width="15"
+          height="15"
           viewBox="0 0 24 24"
+          fill="none"
           stroke="currentColor"
+          stroke-width="2"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
+          <path d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
 
-    <!-- BODY -->
+    <div class="space-y-4">
+      <!-- Nombre -->
+      <div>
+        <label
+          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)"
+        >
+          Nombre
+        </label>
 
-    <div class="p-6 overflow-y-auto" style="max-height: 65vh">
-      <div class="grid md:grid-cols-2 gap-5">
-        <!-- NOMBRE -->
+        <input
+          type="text"
+          [value]="name"
+          (input)="setName($event)"
+          required
+          placeholder="Nombre del plato"
+          class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+        />
+      </div>
 
-        <div class="md:col-span-2">
-          <label
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          >
-            Nombre
-          </label>
-
-          <input
-            type="text"
-            [value]="name"
-            (input)="setName($event)"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-          />
-        </div>
-
-        <!-- PRECIO -->
-
+      <!-- Precio + Categoría -->
+      <div class="grid grid-cols-2 gap-3">
         <div>
           <label
             class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+            style="color: rgba(44, 44, 44, 0.4)"
           >
-            Precio
+            Precio (COP)
           </label>
 
           <input
             type="number"
             [value]="price"
             (input)="setPrice($event)"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+            required
+            placeholder="38900"
+            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
           />
         </div>
-
-        <!-- CATEGORÍA -->
 
         <div>
           <label
             class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+            style="color: rgba(44, 44, 44, 0.4)"
           >
             Categoría
           </label>
 
-          <input
-            type="text"
+          <select
             [value]="categoryName"
-            (input)="setCategory($event)"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-          />
-        </div>
-
-        <!-- IMAGEN -->
-
-        <div class="md:col-span-2">
-          <label
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+            (change)="setCategory($event)"
+            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
           >
-            URL de imagen
-          </label>
+            <option value="">Seleccionar categoría</option>
 
-          <input
-            type="text"
-            [value]="imageUrl"
-            (input)="setImageUrl($event)"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-          />
-        </div>
-
-        <!-- DESCRIPCIÓN -->
-
-        <div class="md:col-span-2">
-          <label
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          >
-            Descripción
-          </label>
-
-          <textarea
-            [value]="description"
-            (input)="setDescription($event)"
-            rows="4"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm resize-none"
-          ></textarea>
+            @for (category of categories; track category.id) {
+              <option [value]="category.name">
+                {{ category.name }}
+              </option>
+            }
+          </select>
         </div>
       </div>
 
-      <!-- CARACTERÍSTICAS -->
+      <!-- Descripción -->
+      <div>
+        <label
+          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)"
+        >
+          Descripción
+        </label>
 
-      <div class="mt-7">
-        <p class="text-[11px] font-medium uppercase tracking-wider mb-4">
+        <textarea
+          [value]="description"
+          (input)="setDescription($event)"
+          rows="3"
+          placeholder="Descripción del plato…"
+          class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
+        ></textarea>
+      </div>
+
+      <!-- URL de imagen -->
+      <div>
+        <label
+          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)"
+        >
+          URL de imagen
+        </label>
+
+        <input
+          type="url"
+          [value]="imageUrl"
+          (input)="setImageUrl($event)"
+          required
+          placeholder="https://images.unsplash.com/…"
+          class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+        />
+
+        @if (imageUrl) {
+          <img
+            [src]="imageUrl"
+            alt="preview"
+            class="mt-2 w-full h-28 object-cover rounded-xl"
+          />
+        }
+      </div>
+
+      <!-- Características -->
+      <div>
+        <label
+          class="block text-[11px] font-medium uppercase tracking-wider mb-2"
+          style="color: rgba(44, 44, 44, 0.4)"
+        >
           Características
-        </p>
+        </label>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <label class="flex items-center gap-2 text-sm">
+        <div class="grid grid-cols-2 gap-y-2 gap-x-3">
+          <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               [checked]="popular"
               (change)="popular = !popular"
+              class="w-4 h-4"
             />
 
-            Popular
+            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
+              Popular
+            </span>
           </label>
 
-          <label class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               [checked]="vegetarian"
               (change)="vegetarian = !vegetarian"
+              class="w-4 h-4"
             />
 
-            Vegetariano
+            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
+              Vegetariano
+            </span>
           </label>
 
-          <label class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               [checked]="spicyMild"
               (change)="spicyMild = !spicyMild"
+              class="w-4 h-4"
             />
 
-            Picante suave
+            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
+              Picante ligero
+            </span>
           </label>
 
-          <label class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               [checked]="spicyHot"
               (change)="spicyHot = !spicyHot"
+              class="w-4 h-4"
             />
 
-            Picante fuerte
+            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
+              Picante intenso
+            </span>
           </label>
 
-          <label class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               [checked]="containsNuts"
               (change)="containsNuts = !containsNuts"
+              class="w-4 h-4"
             />
 
-            Frutos secos
+            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
+              Contiene nueces
+            </span>
           </label>
 
-          <label class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               [checked]="containsSeafood"
               (change)="containsSeafood = !containsSeafood"
+              class="w-4 h-4"
             />
 
-            Mariscos
+            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
+              Mariscos
+            </span>
           </label>
 
-          <label class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               [checked]="containsGluten"
               (change)="containsGluten = !containsGluten"
+              class="w-4 h-4"
             />
 
-            Gluten
-          </label>
-
-          <label class="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              [checked]="active"
-              (change)="active = !active"
-            />
-
-            Activo
+            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
+              Contiene gluten
+            </span>
           </label>
         </div>
       </div>
-    </div>
 
-    <!-- FOOTER -->
+      <!-- Botones -->
+      <div class="flex gap-3 pt-2">
+        <button
+          type="button"
+          (click)="close()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium"
+          style="
+            color: rgba(44, 44, 44, 0.6);
+            border: 1px solid rgba(44, 44, 44, 0.12);
+          "
+        >
+          Cancelar
+        </button>
 
-    <div
-      class="p-6 border-t flex justify-end gap-3"
-      style="border-color: rgba(44, 44, 44, 0.1)"
-    >
-      <button
-        type="button"
-        (click)="close()"
-        class="px-5 py-3 rounded-full text-sm font-medium"
-        style="background-color: rgba(44, 44, 44, 0.06); color: #2c2c2c"
-      >
-        Cancelar
-      </button>
-
-      <button
-        type="button"
-        (click)="save()"
-        class="px-6 py-3 rounded-full text-sm font-medium text-white btn-terra"
-      >
-        @if (product) {
-          Guardar cambios
-        } @else {
-          Crear producto
-        }
-      </button>
+        <button
+          type="button"
+          (click)="save()"
+          class="flex-1 py-3 rounded-xl text-sm font-medium text-white"
+          style="
+            background: linear-gradient(135deg, #b2571f, #8a2222);
+            box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
+          "
+        >
+          @if (product) {
+            Guardar cambios
+          } @else {
+            Añadir producto
+          }
+        </button>
+      </div>
     </div>
   </div>
 </div>
