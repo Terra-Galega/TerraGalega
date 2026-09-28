@@ -40,3 +40,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+# Spring Boot / Maven
+demo/target/
+
+# Base de datos H2 local
+*.mv.db
+*.trace.db

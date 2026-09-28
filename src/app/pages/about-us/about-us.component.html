@@ -1,0 +1,176 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen pt-20 pb-28">
+  <!-- ============================================================
+       BANNER CON IMAGEN DE FONDO
+       ============================================================ -->
+  <div class="relative h-72 mb-20 overflow-hidden">
+    <img
+      src="https://images.unsplash.com/photo-1712630514718-3830cc6c0d0a?w=1600&h=500&fit=crop&auto=format"
+      alt="Cocina gallega"
+      class="absolute inset-0 w-full h-full object-cover"
+    />
+    <div
+      class="absolute inset-0"
+      style="background-color: rgba(44, 44, 44, 0.5)"
+    ></div>
+
+    <div
+      class="relative z-10 h-full flex flex-col items-center justify-center text-center px-8"
+    >
+      <p
+        class="text-[12px] font-medium tracking-[0.3em] uppercase mb-3"
+        style="color: #d99a21"
+      >
+        Nuestra Historia
+      </p>
+      <h1 class="font-serif text-4xl md:text-5xl font-bold text-cream">
+        Un pedazo de Galicia en cada plato
+      </h1>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-6">
+    <!-- ============================================================
+         HISTORIA + ESTADÍSTICAS
+         ============================================================ -->
+    <div class="grid md:grid-cols-2 gap-16 mb-20 items-center">
+      <div>
+        <div class="w-10 h-0.5 mb-6" style="background-color: #d99a21"></div>
+        <p
+          class="leading-relaxed mb-5 text-justify"
+          style="color: rgba(44, 44, 44, 0.75)"
+        >
+          Terra Galega nació del amor por la gastronomía gallega y el deseo de
+          compartirla con el mundo. Desde 2018, nuestro restaurante ha sido el
+          refugio de quienes buscan los auténticos sabores del noroeste
+          español.
+        </p>
+        <p
+          class="leading-relaxed text-justify"
+          style="color: rgba(44, 44, 44, 0.75)"
+        >
+          Nuestros ingredientes viajan directamente desde la costa gallega.
+          Trabajamos con productores locales que comparten nuestra pasión por
+          la calidad y la tradición. Cada plato se prepara con el respeto que
+          merecen siglos de cultura culinaria.
+        </p>
+      </div>
+
+      <!-- Tarjetas con estadísticas del restaurante -->
+      <div class="grid grid-cols-3 gap-5">
+        @for (stat of stats; track stat.label) {
+          <div class="glass-card rounded-2xl p-5 text-center">
+            <p
+              class="font-serif font-bold text-2xl mb-1"
+              style="color: #b2571f"
+            >
+              {{ stat.value }}
+            </p>
+            <p
+              class="text-[11px] leading-snug"
+              style="color: rgba(44, 44, 44, 0.55)"
+            >
+              {{ stat.label }}
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ============================================================
+         FRASE DESTACADA CON IMAGEN
+         ============================================================ -->
+    <div
+      class="relative mt-16 mb-24 rounded-3xl overflow-hidden shadow-2xl mx-auto"
+    >
+      <img
+        src="https://images.unsplash.com/photo-1773122150546-94699cfc8f23?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt="Ambiente Terra Galega"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+      <div
+        class="absolute inset-0"
+        style="background-color: rgba(44, 44, 44, 0.75)"
+      ></div>
+
+      <div class="relative z-10 py-16 px-8 text-center max-w-3xl mx-auto">
+        <!-- Icono de comillas doradas -->
+        <svg
+          class="w-10 h-10 mx-auto mb-6 opacity-90"
+          style="color: #d99a21"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"
+          />
+        </svg>
+        <p
+          class="font-serif italic text-2xl md:text-3xl leading-relaxed text-white"
+        >
+          "Nuestra mayor tradición no es solo conservar las recetas, sino
+          mantener viva la pasión con la que se sirven."
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         UBICACIÓN CON MAPA
+         ============================================================ -->
+    <div class="grid md:grid-cols-2 gap-12 items-center mb-10">
+      <div>
+        <div class="w-10 h-0.5 mb-6" style="background-color: #d99a21"></div>
+        <h2 class="font-serif text-3xl md:text-4xl font-bold mb-6 text-charcoal">
+          Dónde nos ubicamos
+        </h2>
+        <p
+          class="leading-relaxed mb-8"
+          style="color: rgba(44, 44, 44, 0.75)"
+        >
+          Ven a visitarnos y disfruta de nuestra gastronomía gallega. Te
+          esperamos con los brazos abiertos, listos para brindarte una
+          experiencia inolvidable.
+        </p>
+
+        <!-- Dirección y teléfono (componente reutilizado) -->
+        <div class="mb-10">
+          <app-contact-info
+            [contactItems]="locationItems"
+            layout="stack"
+          ></app-contact-info>
+        </div>
+
+        <a
+          routerLink="/menu"
+          class="inline-block px-10 py-4 rounded-full font-medium text-white transition-all duration-300 hover:scale-105"
+          style="
+            background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+            box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
+          "
+        >
+          Ver nuestra carta
+        </a>
+      </div>
+
+      <div class="glass-card p-2 md:p-3 rounded-2xl w-full">
+        <div
+          class="relative w-full aspect-square rounded-xl overflow-hidden border border-black/5"
+        >
+          <iframe
+            [src]="mapUrl"
+            title="Ubicación de Terra Galega en Bogotá"
+            width="100%"
+            height="400"
+            style="border: 0"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>
