@@ -1,0 +1,13 @@
+<label class="addon flex items-center justify-between p-4 rounded-2xl cursor-pointer" [class.selected]="selected">
+  <div class="flex items-center gap-3">
+    <input
+      type="checkbox"
+      class="w-4 h-4 rounded"
+      style="accent-color: #b2571f"
+      [checked]="selected"
+      (change)="toggled.emit(addOn)"
+    />
+    <span class="text-sm font-medium" style="color: rgba(44, 44, 44, 0.75)">{{ addOn.name }}</span>
+  </div>
+  <span class="text-sm" style="color: rgba(44, 44, 44, 0.45)">+${{ addOn.price | number: '1.0-0' }}</span>
+</label>

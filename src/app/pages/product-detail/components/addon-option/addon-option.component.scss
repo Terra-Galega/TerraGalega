@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.addon {
+  user-select: none;
+  background: rgba(44, 44, 44, 0.04);
+  border: 1px solid rgba(44, 44, 44, 0.07);
+  transition: all 0.2s;
+}
+
+.addon.selected {
+  border-color: rgba(178, 87, 31, 0.35);
+  background: rgba(178, 87, 31, 0.06);
+}

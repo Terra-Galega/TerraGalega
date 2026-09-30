@@ -1,8 +1,8 @@
 @for (feature of features; track feature.key) {
   @if (product[feature.key]) {
-    <span class="feature-chip text-[11px] px-2.5 py-1 rounded-full">
-      <app-feature-icon [name]="feature.key" size="w-3 h-3" />
-      {{ feature.chipLabel }}
+    <span class="feature-chip" [class]="size === 'md' ? 'text-[12px] px-3 py-1.5' : 'text-[11px] px-2.5 py-1'">
+      <app-feature-icon [name]="feature.key" [size]="size === 'md' ? 'w-3.5 h-3.5' : 'w-3 h-3'" />
+      {{ size === 'md' ? feature.filterLabel : feature.chipLabel }}
     </span>
   }
 }

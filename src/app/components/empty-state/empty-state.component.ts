@@ -3,11 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
   selector: 'app-empty-state',
   templateUrl: './empty-state.component.html',
-  styles: `
-    :host {
-      display: block;
-    }
-  `,
+  styleUrl: './empty-state.component.scss',
 })
 export class EmptyStateComponent {
   @Input() message = '';

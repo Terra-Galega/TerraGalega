@@ -3,10 +3,22 @@ import { Product } from '../../../../models/product';
 import { DecimalPipe } from '@angular/common';
 import { CategoryService } from '../../../../services/category.service';
 import { AddOn } from '../../../../models/addOn';
+import { ButtonComponent } from '../../../../components/button/button.component';
+import { FeatureChipsComponent } from '../../../../components/feature-chips/feature-chips.component';
+import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
+import { AddonOptionComponent } from '../addon-option/addon-option.component';
+import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
 
 @Component({
   selector: 'app-product-info-card',
-  imports: [DecimalPipe],
+  imports: [
+    DecimalPipe,
+    ButtonComponent,
+    FeatureChipsComponent,
+    StarIconComponent,
+    AddonOptionComponent,
+    QuantitySelectorComponent,
+  ],
   templateUrl: './product-info-card.component.html',
   styleUrl: './product-info-card.component.scss',
 })
@@ -50,16 +62,6 @@ export class ProductInfoCardComponent {
 
   isAddOnSelected(addOn: AddOn): boolean {
     return this.selectedAddOns.some((selected) => selected.id === addOn.id);
-  }
-
-  increaseQuantity(): void {
-    this.quantity++;
-  }
-
-  decreaseQuantity(): void {
-    if (this.quantity > 1) {
-      this.quantity--;
-    }
   }
 
   get addOnsTotal(): number {

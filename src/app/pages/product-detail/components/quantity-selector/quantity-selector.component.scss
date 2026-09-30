@@ -1,0 +1,13 @@
+.qty-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: rgba(44, 44, 44, 0.6);
+  transition: background-color 0.2s;
+}
+.qty-btn:hover {
+  background: #fff;
+}
