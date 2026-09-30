@@ -2,19 +2,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
 /*imports para las fuentes*/
 
-@import "tailwindcss";
 
-@theme {
-  --color-terra: #b2571f;
-  --color-gold: #d99a21;
-  --color-burgundy: #8a2222;
-  --color-cream: #f5f2eb;
-  --color-forest: #556141;
-  --color-charcoal: #2c2c2c;
-
-  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
-}
 .font-terra {
   font-family: "Pinyon Script", cursive;
 }
