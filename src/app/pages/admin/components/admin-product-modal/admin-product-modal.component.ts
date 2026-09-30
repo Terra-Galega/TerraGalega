@@ -11,10 +11,22 @@ import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
 import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/category.service';
+import { FEATURES, FeatureKey } from '../../../../models/feature';
+import { ButtonComponent } from '../../../../components/button/button.component';
+import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
+import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
+import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
+
+type CheckKey = 'active' | 'popular' | FeatureKey;
 
 @Component({
   selector: 'app-admin-product-modal',
-  imports: [],
+  imports: [
+    ButtonComponent,
+    IconButtonComponent,
+    FormFieldComponent,
+    CheckOptionComponent,
+  ],
   templateUrl: './admin-product-modal.component.html',
   styleUrl: './admin-product-modal.component.scss',
 })
@@ -26,6 +38,13 @@ export class AdminProductModalComponent implements OnChanges {
   @Output() saved = new EventEmitter<void>();
 
   categories: Category[] = [];
+
+  // Opciones que se muestran como checkboxes en el modal
+  checks: { key: CheckKey; label: string }[] = [
+    { key: 'active', label: 'Activo' },
+    { key: 'popular', label: 'Popular' },
+    ...FEATURES,
+  ];
 
   name = '';
   description = '';
@@ -118,6 +137,14 @@ export class AdminProductModalComponent implements OnChanges {
 
   setCategory(event: Event) {
     this.categoryName = (event.target as HTMLSelectElement).value;
+  }
+
+  isChecked(key: CheckKey): boolean {
+    return this[key];
+  }
+
+  toggle(key: CheckKey) {
+    this[key] = !this[key];
   }
 
   save() {

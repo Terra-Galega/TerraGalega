@@ -1,8 +1,8 @@
-@import "tailwindcss";
+// fuentes de Google Fonts
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
-/*imports para las fuentes*/
 
+// Variables de Tailwind
 @import "tailwindcss";
 
 @theme {
@@ -16,6 +16,36 @@
   --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", ui-serif, Georgia, serif;
 }
+
+// Scroll suave
+html {
+  scroll-behavior: smooth;
+}
+
+// Color de la página y del texto
+body {
+  background-color: #f5f2eb;
+  color: #2c2c2c;
+}
+
+// Barra de desplazamiento
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #b2571f transparent;
+}
+
+// TIPOGRAFÍAS DEL LOGO
+
+.font-terra {
+  font-family: "Pinyon Script", cursive;
+}
+
+.font-galega {
+  font-family: "Droid Serif", serif;
+}
+
+// TARJETA DE VIDRIO
+
 .glass-card {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px) saturate(160%);

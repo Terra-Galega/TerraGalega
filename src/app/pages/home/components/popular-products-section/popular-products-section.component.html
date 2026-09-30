@@ -1,0 +1,14 @@
+<section id="menu" class="py-24 bg-cream">
+  <div class="max-w-7xl mx-auto px-6">
+    <app-section-heading
+      eyebrow="Más solicitados"
+      title="Favoritos de la casa"
+    />
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (product of products; track product.id) {
+        <app-product-card [product]="product" />
+      }
+    </div>
+  </div>
+</section>

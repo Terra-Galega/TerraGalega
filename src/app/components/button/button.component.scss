@@ -1,7 +1,4 @@
-
-  // BOTÓN BASE 
-
-
+// Botón base: siempre con bordes totalmente redondeados
 .btn {
   display: inline-flex;
   align-items: center;
@@ -28,37 +25,32 @@
   width: 100%;
 }
 
-// tamaños
-
+// Tamaños (equivalen a px-4 py-2 / px-8 py-3.5 / px-10 py-4 de Tailwind)
 .btn--sm {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
 }
 
 .btn--md {
-  padding: 0.75rem 2rem;
+  padding: 0.875rem 2rem;
 }
 
 .btn--lg {
   padding: 1rem 2.5rem;
 }
 
-// variantes
-
-// degradado de color cálido (naranja a rojo) con sombra
+// Variantes
 .btn--primary {
   color: #fff;
   background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
   box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
 }
 
-// degradado de color frío (azul a morado) con sombra
 .btn--outline {
   color: rgba(44, 44, 44, 0.7);
   border-color: rgba(44, 44, 44, 0.2);
 }
 
-// degradado de color cálido (naranja a rojo) con sombra
 .btn--outline:hover {
   color: #fff;
   border-color: transparent;
@@ -66,7 +58,16 @@
   box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
 }
 
-// Vidrio claro / translúcido
+.btn--neutral {
+  color: rgba(44, 44, 44, 0.7);
+  border-color: rgba(44, 44, 44, 0.2);
+}
+
+.btn--neutral:hover {
+  color: #2c2c2c;
+  background-color: rgba(44, 44, 44, 0.06);
+}
+
 .btn--glass-light {
   color: #2c2c2c;
   background-color: rgba(245, 242, 235, 0.92);
@@ -75,7 +76,6 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 }
 
-// Vidrio oscuro / translúcido
 .btn--glass-dark {
   color: #f5f2eb;
   background-color: rgba(255, 255, 255, 0.1);
