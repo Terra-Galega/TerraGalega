@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
 
 interface Testimonial {
   name: string;
@@ -8,7 +9,7 @@ interface Testimonial {
 
 @Component({
   selector: 'app-testimonial',
-  imports: [],
+  imports: [StarIconComponent],
   templateUrl: './testimonial.component.html',
   styleUrl: './testimonial.component.scss'
 })

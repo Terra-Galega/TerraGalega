@@ -1,5 +1,5 @@
-<div class="py-24 text-center" style="color: rgba(44, 44, 44, 0.35)">
-  <p class="text-lg mb-2">{{ message }}</p>
+<div class="text-center" [class]="compact ? 'py-16' : 'py-24'" style="color: rgba(44, 44, 44, 0.35)">
+  <p class="mb-2" [class.text-lg]="!compact">{{ message }}</p>
   @if (actionLabel) {
     <button
       type="button"
