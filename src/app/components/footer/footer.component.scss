@@ -6,3 +6,13 @@
 .link-footer:hover {
   color: #d99a21;
 }
+
+// El <app-footer> debe ocupar todo el ancho, igual que una sección normal
+:host {
+  display: block;
+}
+
+footer {
+  background-color: #556141;
+  color: #f5f2eb;
+}

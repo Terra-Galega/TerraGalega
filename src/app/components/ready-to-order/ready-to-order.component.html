@@ -8,11 +8,19 @@
   </p>
 
   <div class="flex flex-col sm:flex-row gap-3 justify-center">
-    <app-button variant="outline" size="lg" routerLink="/login">Iniciar sesión</app-button>
-
-    <app-button variant="outline" size="lg" [routerLink]="['/login']"
-      [queryParams]="{ tab: 'register' }">Crear una cuenta</app-button>
-
-    <app-button variant="outline" size="lg" routerLink="/menu">Ver la carta</app-button>
+    <app-button variant="outline" size="lg" routerLink="/login">
+      Iniciar sesión
+    </app-button>
+    <app-button
+      variant="outline"
+      size="lg"
+      [routerLink]="['/login']"
+      [queryParams]="{ tab: 'register' }"
+    >
+      Crear una cuenta
+    </app-button>
+    <app-button variant="outline" size="lg" routerLink="/menu">
+      Ver la carta
+    </app-button>
   </div>
 </div>

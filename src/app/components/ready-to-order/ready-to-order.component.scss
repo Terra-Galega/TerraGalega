@@ -1,0 +1,19 @@
+// La tarjeta ocupa todo el ancho de su celda en la grilla
+:host {
+  display: block;
+}
+
+// Foto del plato: misma medida que h-48 (12rem) y recorte con object-fit,
+// sin depender de que Tailwind haya generado esas utilidades
+.card-image {
+  position: relative;
+  height: 12rem;
+  overflow: hidden;
+}
+
+.card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

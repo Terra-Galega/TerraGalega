@@ -1,0 +1,41 @@
+:host {
+  display: inline-flex;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  color: rgba(44, 44, 44, 0.7);
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  color: #2c2c2c;
+}
+
+.icon-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.icon-btn--soft {
+  background-color: rgba(44, 44, 44, 0.06);
+}
+
+.icon-btn--soft:hover {
+  background-color: rgba(44, 44, 44, 0.12);
+}
+
+.icon-btn--ghost {
+  background-color: transparent;
+}
+
+.icon-btn--ghost:hover {
+  background-color: rgba(44, 44, 44, 0.06);
+}

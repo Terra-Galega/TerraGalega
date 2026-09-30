@@ -10,7 +10,7 @@
           "style": "scss",
           "skipTests": true
         },
-         "@schematics/angular:service": {
+        "@schematics/angular:service": {
           "skipTests": true
         }
       },
@@ -36,7 +36,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.css"
             ],
             "scripts": []
           },
@@ -95,7 +95,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.css"
             ],
             "scripts": []
           }
