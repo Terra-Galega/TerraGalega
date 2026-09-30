@@ -6,6 +6,7 @@ export type ButtonVariant =
   | 'primary'
   | 'outline'
   | 'neutral'
+  | 'sage'
   | 'glass-light'
   | 'glass-dark';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -26,6 +27,7 @@ export class ButtonComponent {
   // primary: degradado naranja-rojo, texto blanco
   // outline: borde gris, y al pasar el mouse se llena con el degradado
   // neutral: borde gris, al pasar el mouse solo se oscurece el fondo (Cancelar)
+  // sage: verde salvia sólido (Aplicar filtros)
   // glass-light: fondo crema translúcido, texto oscuro (sobre imágenes)
   // glass-dark: fondo blanco translúcido, texto crema (sobre imágenes)
   @Input() variant: ButtonVariant = 'primary';

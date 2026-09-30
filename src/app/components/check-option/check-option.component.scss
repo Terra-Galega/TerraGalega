@@ -9,6 +9,7 @@
   font-size: 0.875rem;
   color: #2c2c2c;
   cursor: pointer;
+  user-select: none;
 }
 
 .check-option input {
@@ -16,4 +17,13 @@
   height: 1rem;
   accent-color: #b2571f;
   cursor: pointer;
+}
+
+.check-option--sage {
+  gap: 0.75rem;
+  color: rgba(44, 44, 44, 0.75);
+}
+
+.check-option--sage input {
+  accent-color: #556141;
 }

@@ -1,0 +1,10 @@
+@for (category of categories; track category) {
+  <button
+    type="button"
+    class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+    [class.active]="selected === category"
+    (click)="selectedChange.emit(category)"
+  >
+    {{ category }}
+  </button>
+}

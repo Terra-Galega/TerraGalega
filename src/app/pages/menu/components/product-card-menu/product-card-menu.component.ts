@@ -1,12 +1,13 @@
 import { Component, Input, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
+import { FeatureChipsComponent } from '../../../../components/feature-chips/feature-chips.component';
 import { Product } from '../../../../models/product';
 
 @Component({
   selector: 'app-product-card-menu',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, FeatureChipsComponent],
   templateUrl: './product-card-menu.component.html',
   styleUrl: './product-card-menu.component.scss',
 })
