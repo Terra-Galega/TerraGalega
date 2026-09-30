@@ -1,5 +1,6 @@
 /* Entrada ÚNICA de Tailwind. Debe ser .css (Tailwind no soporta Sass). */
 @import "tailwindcss";
+@source "./app";
 
 @theme {
   --color-terra: #b2571f;
