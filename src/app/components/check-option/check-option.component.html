@@ -1,4 +1,5 @@
-<label class="check-option">
+<label class="check-option" [class.check-option--sage]="accent === 'sage'">
   <input type="checkbox" [checked]="checked" (change)="onChange($event)" />
+  <ng-content />
   <span>{{ label }}</span>
 </label>

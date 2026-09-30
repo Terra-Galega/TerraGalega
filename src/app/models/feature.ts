@@ -9,14 +9,16 @@ export type FeatureKey =
 
 export interface Feature {
   key: FeatureKey;
-  label: string;
+  label: string; // modal de admin
+  chipLabel: string; // chips de las tarjetas
+  filterLabel: string; // panel de filtros del menú
 }
 
 export const FEATURES: Feature[] = [
-  { key: 'vegetarian', label: 'Vegetariano' },
-  { key: 'spicyMild', label: 'Picante suave' },
-  { key: 'spicyHot', label: 'Picante fuerte' },
-  { key: 'containsNuts', label: 'Contiene nueces' },
-  { key: 'containsSeafood', label: 'Contiene mariscos' },
-  { key: 'containsGluten', label: 'Contiene gluten' },
+  { key: 'vegetarian', label: 'Vegetariano', chipLabel: 'Vegetariano', filterLabel: 'Vegetariano' },
+  { key: 'spicyMild', label: 'Picante suave', chipLabel: 'Picante ligero', filterLabel: 'Picante ligero' },
+  { key: 'spicyHot', label: 'Picante fuerte', chipLabel: 'Picante intenso', filterLabel: 'Picante intenso' },
+  { key: 'containsNuts', label: 'Contiene nueces', chipLabel: 'Nueces', filterLabel: 'Contiene nueces' },
+  { key: 'containsSeafood', label: 'Contiene mariscos', chipLabel: 'Mariscos', filterLabel: 'Mariscos' },
+  { key: 'containsGluten', label: 'Contiene gluten', chipLabel: 'Gluten', filterLabel: 'Contiene gluten' },
 ];

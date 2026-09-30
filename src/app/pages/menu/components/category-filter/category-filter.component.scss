@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  gap: 0.625rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.category-btn {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  color: rgba(44, 44, 44, 0.6);
+  border: 1px solid rgba(44, 44, 44, 0.1);
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  border-color: #b2571f;
+  color: #b2571f;
+}
+
+.category-btn.active {
+  background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+  color: #fff;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
+}

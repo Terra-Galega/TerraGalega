@@ -8,6 +8,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class CheckOptionComponent {
   @Input() label = '';
   @Input() checked = false;
+  // terra: admin (naranja) · sage: filtros del menú (verde, con icono opcional dentro)
+  @Input() accent: 'terra' | 'sage' = 'terra';
 
   @Output() changed = new EventEmitter<boolean>();
 

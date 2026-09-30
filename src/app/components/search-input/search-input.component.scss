@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+.search__icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(44, 44, 44, 0.35);
+  pointer-events: none;
+}
+
+.search__input {
+  width: 100%;
+  border-radius: 9999px;
+  color: #2c2c2c;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search__input:focus {
+  border-color: #b2571f;
+  box-shadow: 0 0 0 3px rgba(178, 87, 31, 0.1);
+}
+
+// Menú público más grande
+.search--glass {
+  .search__icon {
+    left: 1rem;
+    width: 1rem;
+    height: 1rem;
+  }
+  .search__input {
+    padding: 0.75rem 1.25rem 0.75rem 2.75rem;
+    font-size: 0.875rem;
+    border: 1px solid rgba(44, 44, 44, 0.3);
+  }
+}
+
+// Panel de administración mas compacto y con fondo gris suave
+.search--soft {
+  .search__icon {
+    left: 0.75rem;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  .search__input {
+    padding: 0.5rem 1rem 0.5rem 2.25rem;
+    font-size: 0.875rem;
+    background-color: rgba(44, 44, 44, 0.07);
+    border: 1px solid rgba(44, 44, 44, 0.1);
+  }
+}

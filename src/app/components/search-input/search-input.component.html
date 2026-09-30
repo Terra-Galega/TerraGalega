@@ -1,0 +1,21 @@
+<div class="search relative" [class.search--glass]="variant === 'glass'" [class.search--soft]="variant === 'soft'">
+  <svg
+    class="search__icon"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+  </svg>
+  <input
+    type="text"
+    class="search__input"
+    [placeholder]="placeholder"
+    [attr.aria-label]="placeholder"
+    [value]="value"
+    (input)="onInput($event)"
+  />
+</div>
