@@ -1,0 +1,8 @@
+:host {
+  border-top: 1px solid rgba(44, 44, 44, 0.06);
+}
+
+// fila atenuada pa productos inactivos (el botón de estado se mantiene visible)
+:host(.is-inactive) td:not(.keep-opacity) {
+  opacity: 0.55;
+}

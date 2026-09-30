@@ -1,0 +1,31 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+  @for (testimonial of testimonials; track testimonial.name) {
+    <div
+      class="bg-cream p-8 shadow-sm"
+      style="background-color: rgb(251, 247, 242); border-radius: 2px"
+    >
+      <div class="flex gap-1 mb-5">
+        @for (star of [1, 2, 3, 4, 5]; track star) {
+          <app-star-icon size="w-4 h-4" />
+        }
+      </div>
+
+      <p
+        class="text-sm leading-relaxed mb-6 italic"
+        style="color: rgba(44, 44, 44, 0.68)"
+      >
+        "{{ testimonial.text }}"
+      </p>
+
+      <div class="pt-5 border-t" style="border-color: rgba(44, 44, 44, 0.1)">
+        <p class="font-semibold text-charcoal text-sm">
+          {{ testimonial.name }}
+        </p>
+
+        <p class="text-xs mt-0.5" style="color: rgba(44, 44, 44, 0.45)">
+          {{ testimonial.role }}
+        </p>
+      </div>
+    </div>
+  }
+</div>

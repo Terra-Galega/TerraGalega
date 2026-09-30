@@ -1,0 +1,60 @@
+<td class="py-3 px-5">
+  <div class="flex items-center gap-4">
+    <img [src]="product.imageUrl" [alt]="product.name" class="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+    <div class="min-w-0">
+      <div class="flex items-center gap-1.5">
+        <p class="font-semibold text-charcoal truncate" style="font-size: 15px">{{ product.name }}</p>
+        @if (product.popular) {
+          <app-star-icon size="w-[15px] h-[15px]" />
+        }
+      </div>
+      <p class="line-clamp-2 mt-0.5" style="font-size: 14px; color: rgba(44, 44, 44, 0.75); max-width: 320px">
+        {{ product.description }}
+      </p>
+    </div>
+  </div>
+</td>
+
+<td class="py-3 px-5">
+  <span
+    class="text-[12px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+    style="background-color: rgba(178, 87, 31, 0.09); color: #b2571f"
+  >
+    {{ product.category?.name }}
+  </span>
+</td>
+
+<td class="py-3 px-5 font-bold whitespace-nowrap" style="color: #b2571f">
+  ${{ product.price | number: '1.0-0' }}
+</td>
+
+<td class="py-3 px-5 keep-opacity">
+  <button
+    type="button"
+    class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap"
+    [style.background-color]="product.active ? 'rgba(85,97,65,0.1)' : 'rgba(44,44,44,0.06)'"
+    [style.color]="product.active ? '#556141' : 'rgba(44,44,44,0.4)'"
+    (click)="toggle.emit(product)"
+  >
+    {{ product.active ? 'Activo' : 'Inactivo' }}
+  </button>
+</td>
+
+<td class="py-3 px-5 keep-opacity">
+  <div class="flex items-center gap-2">
+    <app-icon-button variant="ghost" label="Editar" (click)="edit.emit(product)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+      </svg>
+    </app-icon-button>
+
+    <app-icon-button variant="ghost" label="Eliminar" (click)="remove.emit(product)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 6h18" />
+        <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+      </svg>
+    </app-icon-button>
+  </div>
+</td>

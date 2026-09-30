@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { DecimalPipe } from '@angular/common';
-
+import { EmptyStateComponent } from '../../../../components/empty-state/empty-state.component';
+import { AdminProductRowComponent } from '../admin-product-row/admin-product-row.component';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
 
 @Component({
   selector: 'app-admin-products',
-  imports: [DecimalPipe],
+  imports: [AdminProductRowComponent, EmptyStateComponent],
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss',
 })
@@ -15,6 +15,8 @@ export class AdminProductsComponent {
   @Input() searchTerm = '';
 
   @Output() editProduct = new EventEmitter<Product>();
+
+  readonly columns = ['Comida', 'Categoría', 'Precio', 'Estado', 'Acciones'];
 
   products: Product[] = [];
   filteredProducts: Product[] = [];
