@@ -23,7 +23,7 @@
         } @empty {
           <tr>
             <td [attr.colspan]="columns.length">
-              <app-empty-state message="No se encontraron productos" />
+             <app-empty-state [compact]="true" message="No se encontraron productos" />
             </td>
           </tr>
         }

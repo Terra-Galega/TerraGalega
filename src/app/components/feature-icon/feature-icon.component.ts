@@ -11,4 +11,10 @@ import { FeatureKey } from '../../models/feature';
 export class FeatureIconComponent {
   @Input({ required: true }) name!: FeatureKey;
   @Input() size = 'w-4 h-4';
+
+  // Solape de la segunda llama en "picante intenso":
+// -ml-1.5 en tamaño 3.5 (detalle), -ml-1 en el resto (tarjetas)
+get overlap(): string {
+  return this.size.includes('w-3.5') ? '-ml-1.5' : '-ml-1';
+}
 }

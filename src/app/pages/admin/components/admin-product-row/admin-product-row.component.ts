@@ -11,7 +11,6 @@ import { StarIconComponent } from '../../../../components/star-icon/star-icon.co
   imports: [DecimalPipe, IconButtonComponent, StarIconComponent],
   templateUrl: './admin-product-row.component.html',
   styleUrl: './admin-product-row.component.scss',
-  host: { '[class.is-inactive]': '!product.active' },
 })
 export class AdminProductRowComponent {
   @Input({ required: true }) product!: Product;

@@ -8,6 +8,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class EmptyStateComponent {
   @Input() message = '';
   @Input() actionLabel = '';
+  @Input() compact = false;
 
   @Output() action = new EventEmitter<void>();
 }
