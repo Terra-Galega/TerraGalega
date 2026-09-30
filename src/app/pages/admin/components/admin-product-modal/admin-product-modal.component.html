@@ -7,45 +7,18 @@
   >
     <div class="flex items-center justify-between mb-7">
       <h2 class="font-serif text-2xl font-semibold text-charcoal">
-        @if (product) {
-          Editar producto
-        } @else {
-          Añadir producto
-        }
+        {{ product ? "Editar producto" : "Añadir producto" }}
       </h2>
 
-      <button
-        type="button"
-        (click)="close()"
-        class="w-9 h-9 rounded-full flex items-center justify-center"
-        style="
-          background-color: rgba(44, 44, 44, 0.06);
-          color: rgba(44, 44, 44, 0.6);
-        "
-      >
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+      <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 18L18 6M6 6l12 12" />
         </svg>
-      </button>
+      </app-icon-button>
     </div>
 
     <div class="space-y-4">
-      <!-- Nombre -->
-      <div>
-        <label
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          Nombre
-        </label>
-
+      <app-form-field label="Nombre">
         <input
           type="text"
           [value]="name"
@@ -54,18 +27,10 @@
           placeholder="Nombre del plato"
           class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
         />
-      </div>
+      </app-form-field>
 
-      <!-- Precio + Categoría -->
       <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-            style="color: rgba(44, 44, 44, 0.4)"
-          >
-            Precio (COP)
-          </label>
-
+        <app-form-field label="Precio (COP)">
           <input
             type="number"
             [value]="price"
@@ -74,41 +39,23 @@
             placeholder="38900"
             class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
           />
-        </div>
+        </app-form-field>
 
-        <div>
-          <label
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-            style="color: rgba(44, 44, 44, 0.4)"
-          >
-            Categoría
-          </label>
-
+        <app-form-field label="Categoría">
           <select
             [value]="categoryName"
             (change)="setCategory($event)"
             class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
           >
             <option value="">Seleccionar categoría</option>
-
             @for (category of categories; track category.id) {
-              <option [value]="category.name">
-                {{ category.name }}
-              </option>
+              <option [value]="category.name">{{ category.name }}</option>
             }
           </select>
-        </div>
+        </app-form-field>
       </div>
 
-      <!-- Descripción -->
-      <div>
-        <label
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          Descripción
-        </label>
-
+      <app-form-field label="Descripción">
         <textarea
           [value]="description"
           (input)="setDescription($event)"
@@ -116,17 +63,9 @@
           placeholder="Descripción del plato…"
           class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
         ></textarea>
-      </div>
+      </app-form-field>
 
-      <!-- URL de imagen -->
-      <div>
-        <label
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          URL de imagen
-        </label>
-
+      <app-form-field label="URL de imagen">
         <input
           type="url"
           [value]="imageUrl"
@@ -137,146 +76,30 @@
         />
 
         @if (imageUrl) {
-          <img
-            [src]="imageUrl"
-            alt="preview"
-            class="mt-2 w-full h-28 object-cover rounded-xl"
-          />
+          <img [src]="imageUrl" alt="preview" class="mt-2 w-full h-28 object-cover rounded-xl" />
         }
-      </div>
+      </app-form-field>
 
-      <!-- Características -->
-      <div>
-        <label
-          class="block text-[11px] font-medium uppercase tracking-wider mb-2"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          Características
-        </label>
-
+      <app-form-field label="Características">
         <div class="grid grid-cols-2 gap-y-2 gap-x-3">
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              [checked]="popular"
-              (change)="popular = !popular"
-              class="w-4 h-4"
+          @for (check of checks; track check.key) {
+            <app-check-option
+              [label]="check.label"
+              [checked]="isChecked(check.key)"
+              (changed)="toggle(check.key)"
             />
-
-            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
-              Popular
-            </span>
-          </label>
-
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              [checked]="vegetarian"
-              (change)="vegetarian = !vegetarian"
-              class="w-4 h-4"
-            />
-
-            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
-              Vegetariano
-            </span>
-          </label>
-
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              [checked]="spicyMild"
-              (change)="spicyMild = !spicyMild"
-              class="w-4 h-4"
-            />
-
-            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
-              Picante ligero
-            </span>
-          </label>
-
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              [checked]="spicyHot"
-              (change)="spicyHot = !spicyHot"
-              class="w-4 h-4"
-            />
-
-            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
-              Picante intenso
-            </span>
-          </label>
-
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              [checked]="containsNuts"
-              (change)="containsNuts = !containsNuts"
-              class="w-4 h-4"
-            />
-
-            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
-              Contiene nueces
-            </span>
-          </label>
-
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              [checked]="containsSeafood"
-              (change)="containsSeafood = !containsSeafood"
-              class="w-4 h-4"
-            />
-
-            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
-              Mariscos
-            </span>
-          </label>
-
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              [checked]="containsGluten"
-              (change)="containsGluten = !containsGluten"
-              class="w-4 h-4"
-            />
-
-            <span class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
-              Contiene gluten
-            </span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Botones -->
-      <div class="flex gap-3 pt-2">
-        <button
-          type="button"
-          (click)="close()"
-          class="flex-1 py-3 rounded-xl text-sm font-medium"
-          style="
-            color: rgba(44, 44, 44, 0.6);
-            border: 1px solid rgba(44, 44, 44, 0.12);
-          "
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          (click)="save()"
-          class="flex-1 py-3 rounded-xl text-sm font-medium text-white"
-          style="
-            background: linear-gradient(135deg, #b2571f, #8a2222);
-            box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
-          "
-        >
-          @if (product) {
-            Guardar cambios
-          } @else {
-            Añadir producto
           }
-        </button>
+        </div>
+      </app-form-field>
+
+      <div class="flex gap-3 pt-2">
+        <app-button class="flex-1" variant="neutral" [fullWidth]="true" (click)="close()">
+          Cancelar
+        </app-button>
+
+        <app-button class="flex-1" [fullWidth]="true" (click)="save()">
+          {{ product ? "Guardar cambios" : "Añadir producto" }}
+        </app-button>
       </div>
     </div>
   </div>
