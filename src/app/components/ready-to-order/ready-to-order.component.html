@@ -8,26 +8,11 @@
   </p>
 
   <div class="flex flex-col sm:flex-row gap-3 justify-center">
-    <a
-      routerLink="/login"
-      class="px-10 py-4 rounded-full font-medium transition-all duration-300 hover:scale-105 border border-charcoal/20 text-charcoal/70 hover:text-white hover:border-transparent hover:shadow-[0_6px_28px_rgba(178,87,31,0.3)] hover:bg-[linear-gradient(135deg,#b2571f_0%,#8a2222_100%)]"
-    >
-      Iniciar sesión
-    </a>
+    <app-button variant="outline" size="lg" routerLink="/login">Iniciar sesión</app-button>
 
-    <a
-      [routerLink]="['/login']"
-      [queryParams]="{ tab: 'register' }"
-      class="px-10 py-4 rounded-full font-medium transition-all duration-300 hover:scale-105 border border-charcoal/20 text-charcoal/70 hover:text-white hover:border-transparent hover:shadow-[0_6px_28px_rgba(178,87,31,0.3)] hover:bg-[linear-gradient(135deg,#b2571f_0%,#8a2222_100%)]"
-    >
-      Crear una cuenta
-    </a>
+    <app-button variant="outline" size="lg" [routerLink]="['/login']"
+      [queryParams]="{ tab: 'register' }">Crear una cuenta</app-button>
 
-    <a
-      routerLink="/menu"
-      class="px-10 py-4 rounded-full font-medium transition-all duration-300 hover:scale-105 border border-charcoal/20 text-charcoal/70 hover:text-white hover:border-transparent hover:shadow-[0_6px_28px_rgba(178,87,31,0.3)] hover:bg-[linear-gradient(135deg,#b2571f_0%,#8a2222_100%)]"
-    >
-      Ver la carta
-    </a>
+    <app-button variant="outline" size="lg" routerLink="/menu">Ver la carta</app-button>
   </div>
 </div>
