@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ButtonComponent } from '../../../../components/button/button.component';
 
 @Component({
   selector: 'app-login-forms',
-  imports: [],
+  imports: [ButtonComponent],
   templateUrl: './login-forms.component.html',
   styleUrl: './login-forms.component.scss',
 })
