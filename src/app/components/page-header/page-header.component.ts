@@ -8,4 +8,8 @@ import { Component, Input } from '@angular/core';
 export class PageHeaderComponent {
   @Input() eyebrow = '';
   @Input() title = '';
+
+  // left: título a la izquierda y contenido proyectado a la derecha (menu)
+  // center: título centrado con línea dorada debajo (contacto)
+  @Input() align: 'left' | 'center' = 'left';
 }

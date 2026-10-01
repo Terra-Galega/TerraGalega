@@ -1,0 +1,67 @@
+<div
+  class="glass-card rounded-3xl p-8"
+  style="background-color: rgb(250, 248, 245)"
+>
+  <h2 class="font-serif text-xl font-semibold text-charcoal mb-6">
+    Envíanos un mensaje
+  </h2>
+
+  <form id="contact-form" class="space-y-4">
+    <div>
+      <label
+        class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)"
+      >
+        Nombre
+      </label>
+
+      <input
+        type="text"
+        id="contact-name"
+        placeholder="Tu nombre"
+        class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl"
+      />
+    </div>
+
+    <div>
+      <label
+        class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)"
+      >
+        Correo
+      </label>
+
+      <input
+        type="email"
+        id="contact-email"
+        placeholder="correo@ejemplo.com"
+        class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl"
+      />
+    </div>
+
+    <div>
+      <label
+        class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)"
+      >
+        Mensaje
+      </label>
+
+      <textarea
+        id="contact-message"
+        rows="4"
+        placeholder="¿En qué podemos ayudarte?"
+        class="input-field w-full px-4 py-3 text-charcoal text-sm rounded-xl resize-none"
+      ></textarea>
+    </div>
+
+    <p id="contact-error" class="hidden-modal text-xs" style="color: #8a2222"></p>
+
+    <button
+      type="submit"
+      class="w-full py-3.5 text-white font-medium rounded-full btn-terra"
+    >
+      Enviar mensaje
+    </button>
+  </form>
+</div>

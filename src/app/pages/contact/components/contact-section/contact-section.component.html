@@ -1,0 +1,15 @@
+<main class="min-h-screen pt-32 pb-28 max-w-6xl mx-auto px-6">
+  <app-page-header
+    align="center"
+    eyebrow="Encuéntranos"
+    title="Visítanos en Bogotá"
+  />
+
+  <div class="grid md:grid-cols-2 gap-10 items-start">
+    <!-- Tarjetas con información de contacto -->
+    <app-contact-info [contactItems]="contactItems" layout="stack" />
+
+    <!-- Formulario de contacto -->
+    <app-contact-form />
+  </div>
+</main>
