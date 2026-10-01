@@ -1,0 +1,35 @@
+<div class="text-center mb-10 flex flex-col items-center">
+  <p
+    id="auth-subtitle"
+    class="text-[12px] tracking-widest uppercase mt-4"
+    style="color: rgba(44, 44, 44, 0.38)"
+  >
+    {{ activeTab === "login" ? "Bienvenido de vuelta" : "Únete a nosotros" }}
+  </p>
+</div>
+
+<div
+  id="auth-tabs"
+  class="flex rounded-2xl p-1 mb-8"
+  style="background-color: rgba(44, 44, 44, 0.06)"
+>
+  <button
+    type="button"
+    id="tab-login-btn"
+    (click)="selectTab('login')"
+    class="auth-tab flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
+    [class.active]="activeTab === 'login'"
+  >
+    Iniciar sesión
+  </button>
+
+  <button
+    type="button"
+    id="tab-signup-btn"
+    (click)="selectTab('signup')"
+    class="auth-tab flex-1 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
+    [class.active]="activeTab === 'signup'"
+  >
+    Registrarse
+  </button>
+</div>

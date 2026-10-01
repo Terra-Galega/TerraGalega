@@ -6,10 +6,17 @@ import { FooterComponent } from '../../components/footer/footer.component';
 
 import { UserService } from '../../services/user.service';
 import { AdminService } from '../../services/admin.service';
+import { LoginHeaderComponent } from './components/login-header/login-header.component';
+import { LoginFormsComponent } from './components/login-forms/login-forms.component';
 
 @Component({
   selector: 'app-login',
-  imports: [NavbarComponent, FooterComponent],
+  imports: [
+    NavbarComponent,
+    FooterComponent,
+    LoginHeaderComponent,
+    LoginFormsComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
