@@ -103,16 +103,14 @@
       }
 
       <!-- Botón -->
-      <button
+      <app-button
         type="submit"
-        class="w-full py-3.5 rounded-xl font-medium text-white mt-2 btn-terra"
-        style="
-          background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
-          box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
-        "
+        variant="primary"
+        [fullWidth]="true"
+        class="mt-2"
       >
         Iniciar sesión
-      </button>
+      </app-button>
 
       <!-- Separador -->
       <div class="flex items-center gap-3 py-1">
@@ -323,16 +321,14 @@
 
       <!-- Crear cuenta -->
 
-      <button
+      <app-button
         type="submit"
-        class="w-full py-3.5 rounded-xl font-medium text-white mt-2"
-        style="
-          background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
-          box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
-        "
+        variant="primary"
+        [fullWidth]="true"
+        class="mt-2"
       >
         Crear cuenta
-      </button>
+      </app-button>
     </form>
   }
 </div>
