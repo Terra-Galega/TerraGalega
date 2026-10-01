@@ -1,0 +1,27 @@
+<section class="max-w-4xl mx-auto px-6 pt-24 pb-40">
+  <div class="grid md:grid-cols-2 gap-12 items-center">
+    <div>
+      <div class="w-10 h-0.5 mb-6" style="background-color: #d99a21"></div>
+      <h2 class="font-serif text-3xl md:text-4xl font-bold mb-6 text-charcoal">
+        Dónde nos ubicamos
+      </h2>
+      <p class="leading-relaxed mb-8" style="color: rgba(44, 44, 44, 0.75)">
+        Ven a visitarnos y disfruta de nuestra gastronomía gallega. Te esperamos
+        con los brazos abiertos, listos para brindarte una experiencia
+        inolvidable.
+      </p>
+
+      <!-- Dirección y teléfono (componente reutilizado) -->
+      <div class="mb-10">
+        <app-contact-info [contactItems]="locationItems" layout="stack" />
+      </div>
+
+      <app-button routerLink="/menu" size="lg">Ver nuestra carta</app-button>
+    </div>
+
+    <app-location-map
+      [src]="mapUrl"
+      mapTitle="Ubicación de Terra Galega en Bogotá"
+    />
+  </div>
+</section>

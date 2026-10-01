@@ -1,0 +1,12 @@
+<div class="grid grid-cols-3 gap-5">
+  @for (stat of stats; track stat.label) {
+    <div class="glass-card rounded-2xl p-5 text-center">
+      <p class="font-serif font-bold text-2xl mb-1" style="color: #b2571f">
+        {{ stat.value }}
+      </p>
+      <p class="text-[11px] leading-snug" style="color: rgba(44, 44, 44, 0.55)">
+        {{ stat.label }}
+      </p>
+    </div>
+  }
+</div>
