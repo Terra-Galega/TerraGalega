@@ -6,29 +6,7 @@
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
     @if (!isLoggedIn) {
       <!-- ENCABEZADO -->
-      <div class="text-center mb-16">
-        <p
-          class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
-          style="color: #b2571f"
-        >
-          Cómo funciona
-        </p>
-
-        <h1
-          class="font-serif text-4xl md:text-5xl font-bold text-charcoal mb-5"
-        >
-          Para ordenar necesitas una cuenta
-        </h1>
-
-        <p
-          class="text-base leading-relaxed max-w-2xl mx-auto"
-          style="color: rgba(44, 44, 44, 0.75)"
-        >
-          Creamos una cuenta para cada comensal para poder guardar tu dirección,
-          avisarte cuándo sale tu domicilio y dejarte repetir tus platos
-          favoritos con un solo clic. Toma menos de un minuto.
-        </p>
-      </div>
+      <app-logged-out></app-logged-out>
 
       <!-- PASOS -->
       <app-order-steps></app-order-steps>
@@ -39,67 +17,16 @@
 
     @if (isLoggedIn) {
       <!-- HISTORIAL -->
-      <div
-        class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14"
-      >
-        <div>
-          <p
-            class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
-            style="color: #b2571f"
-          >
-            Tu historial
-          </p>
+      <app-logged-in></app-logged-in>
 
-          <h1 class="font-serif text-4xl md:text-5xl font-bold text-charcoal">
-            Mis pedidos
-          </h1>
+      <!-- POR AHORA: SIN PEDIDOS, hay que implementar SI TIENE O NO PEDIDOS ASOCIADOS-->
+      <!-- No tiene  @if(orders.empty)-->
+      <app-empty-orders></app-empty-orders>
+      <!-- Si tiene  else{COMPONENTE QUE MUESTRE}-->
+      <!--QUITAR EL COMENTARIOOOOOOO-->
+      <!--<app-ordered></app-ordered>-->
 
-          <p class="mt-3 text-[15px]" style="color: rgba(44, 44, 44, 0.7)">
-            Hola, esto es todo lo que has pedido en Terra Galega.
-          </p>
-        </div>
-
-        <a
-          routerLink="/menu"
-          class="self-start px-8 py-3 rounded-full font-medium text-white whitespace-nowrap transition-all duration-300 hover:scale-105"
-          style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%)"
-        >
-          Pedir de nuevo
-        </a>
-      </div>
-
-      <!-- POR AHORA: SIN PEDIDOS -->
-      <div class="glass-card rounded-3xl py-20 text-center">
-        <svg
-          class="w-14 h-14 mx-auto mb-5 opacity-30"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-          />
-        </svg>
-
-        <p class="text-lg mb-2 text-charcoal">
-          Todavía no has hecho ningún pedido.
-        </p>
-
-        <p class="text-[15px] mb-7" style="color: rgba(44, 44, 44, 0.65)">
-          Cuando hagas tu primer pedido aparecerá aquí.
-        </p>
-
-        <a
-          routerLink="/menu"
-          class="text-[15px] font-medium underline underline-offset-4"
-          style="color: #b2571f"
-        >
-          Explorar la carta
-        </a>
-      </div>
+      
     }
   </main>
 </div>
