@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 
 import { EmptyStateComponent } from '../../../../components/empty-state/empty-state.component';
 import { AdminProductRowComponent } from '../admin-product-row/admin-product-row.component';
@@ -12,6 +12,8 @@ import { ProductService } from '../../../../services/product.service';
   styleUrl: './admin-products.component.scss',
 })
 export class AdminProductsComponent {
+  private productService = inject(ProductService);
+
   @Input() searchTerm = '';
 
   @Output() editProduct = new EventEmitter<Product>();
@@ -21,7 +23,7 @@ export class AdminProductsComponent {
   products: Product[] = [];
   filteredProducts: Product[] = [];
 
-  constructor(private productService: ProductService) {
+  constructor() {
     this.loadProducts();
   }
 

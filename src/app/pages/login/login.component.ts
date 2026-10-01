@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { inject } from '@angular/core';
 
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
@@ -33,12 +34,11 @@ export class LoginComponent {
 
   signupError = '';
 
-  constructor(
-    private userService: UserService,
-    private adminService: AdminService,
-    private router: Router,
-  ) {}
+  private userService = inject(UserService);
+  private adminService = inject(AdminService);
+  private router = inject(Router);
 
+  
   selectTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
   }
