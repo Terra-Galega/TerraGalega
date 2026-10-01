@@ -5,6 +5,7 @@ import {
   Output,
   OnChanges,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 
 import { Product } from '../../../../models/product';
@@ -31,6 +32,9 @@ type CheckKey = 'active' | 'popular' | FeatureKey;
   styleUrl: './admin-product-modal.component.scss',
 })
 export class AdminProductModalComponent implements OnChanges {
+  private productService = inject(ProductService);
+  private categoryService = inject(CategoryService);
+
   @Input() product: Product | null = null;
 
   @Output() closed = new EventEmitter<void>();
@@ -64,10 +68,7 @@ export class AdminProductModalComponent implements OnChanges {
   containsSeafood = false;
   containsGluten = false;
 
-  constructor(
-    private productService: ProductService,
-    private categoryService: CategoryService,
-  ) {
+  constructor() {
     this.categories = this.categoryService.getCategories();
   }
 
