@@ -1,0 +1,71 @@
+<app-header></app-header>
+
+<body class="min-h-screen bg-cream font-sans text-charcoal">
+  <!-- Modal de carrito -->
+    
+  <main class="min-h-screen flex items-center justify-center px-6 py-32">
+    <div class="w-full max-w-md mx-auto glass-card rounded-3xl p-8">
+      <p
+        class="text-[12px] tracking-widest uppercase mb-2"
+        style="color: rgba(44, 44, 44, 0.38)"
+      >
+        Sesión iniciada
+      </p>
+      <h1
+        class="font-serif text-3xl font-semibold mb-6"
+        th:text="${client.name + ' ' + client.lastName}"
+      ></h1>
+
+      <div class="space-y-3 text-sm mb-8" style="color: rgba(44, 44, 44, 0.7)">
+        <p>
+          <span class="font-semibold text-charcoal">Correo:</span>
+          <span> {{ client.email }}</span>
+        </p>
+        <p>
+          <span class="font-semibold text-charcoal">Teléfono:</span>
+          <span> {{ client.phone }}</span>
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <app-button routerLink="/menu" size="lg">Ver la carta</app-button>
+        <app-btn-action
+          [selected]="selectedAction"
+          (selectedChange)="onSelectedChange($event)"
+          action="Editar perfil"
+        >
+        </app-btn-action>
+
+        
+        <form th:action="@{/logout}" method="post">
+          <app-btn-action
+          [selected]="selectedAction"
+          (selectedChange)="onSelectedChange($event)"
+          action="Cerrar sesion"
+        >
+        </app-btn-action>
+          >
+        </form>
+
+        <form
+          th:action="@{/clients/{id}/delete(id=${client.id})}"
+          onsubmit="
+            return confirm(
+              '¿Seguro que querés eliminar tu cuenta? Esta acción no se puede deshacer.',
+            );
+          "
+        >
+          <app-btn-action
+          [selected]="selectedAction"
+          (selectedChange)="onSelectedChange($event)"
+          action="Eliminar cuenta"
+        >
+        </app-btn-action>
+        </form>
+      </div>
+    </div>
+  </main>
+
+</body>
+
+<app-footer></app-footer>
