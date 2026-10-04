@@ -1,1 +1,55 @@
-<p>admin-users works!</p>
+<div id="admin-panel-users" class="admin-panel hidden-modal space-y-3">
+  <!-- Mensaje si la lista de clientes está vacía -->
+  @if (clients.length === 0) {
+    <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
+      No se encontraron usuarios registrados.
+    </p>
+  } @else {
+    <!-- Iteración dinámica sobre la lista de clientes -->
+    @for (client of clients; track client.id) {
+      <div
+        class="flex items-center gap-5 px-6 py-4 rounded-2xl"
+        style="
+          background-color: rgba(255, 255, 255, 0.72);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.55);
+        "
+      >
+        <!-- Avatar generado con la primera letra del nombre -->
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-white text-sm uppercase"
+          style="background-color: #556141"
+        >
+          {{ client.name.substring(0, 1) }}
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <p
+            class="font-medium text-charcoal text-sm"
+            
+          >{{ client.name }}</p>
+          <p
+            class="truncate"
+            style="font-size: 12px; color: rgba(44, 44, 44, 0.45)"
+            
+          >{{ client.email }}</p>
+        </div>
+
+        <div class="flex items-center gap-6 flex-shrink-0">
+          <span
+            class="text-[11px] font-medium px-3 py-1 rounded-full"
+            style="
+              background-color: rgba(44, 44, 44, 0.07);
+              color: rgba(44, 44, 44, 0.55);
+            "
+            >Cliente</span
+          >
+          <!-- Muestra el teléfono-->
+          <p
+            style="font-size: 11px; color: rgba(44, 44, 44, 0.35)"
+          >{{ client.phone != null ? client.phone : 'Sin teléfono' }}</p>
+        </div>
+      </div>
+    }
+  }
+</div>

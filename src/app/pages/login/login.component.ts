@@ -93,7 +93,7 @@ export class LoginComponent {
 
       localStorage.setItem('userType', 'user');
 
-      this.router.navigate(['/']);
+      this.router.navigate(['/menu']);
 
       return;
     }
