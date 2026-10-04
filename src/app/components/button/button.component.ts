@@ -7,6 +7,7 @@ export type ButtonVariant =
   | 'outline'
   | 'neutral'
   | 'sage'
+  | 'danger'
   | 'glass-light'
   | 'glass-dark';
 export type ButtonSize = 'sm' | 'md' | 'lg';

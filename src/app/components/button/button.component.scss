@@ -76,6 +76,17 @@
 .btn--sage:hover {
   background-color: #4a5539;
 }
+.btn--danger {
+  color: #8a2222;
+  border-color: rgba(138, 34, 34, 0.3);
+  box-shadow: 0 2px 6px rgba(44, 44, 44, 0.08);
+}
+
+.btn--danger:hover {
+  color: #fff;
+  background-color: #8a2222;
+  border-color: #8a2222;
+}
 
 .btn--glass-light {
   color: #2c2c2c;

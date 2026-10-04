@@ -1,8 +1,8 @@
-<app-header></app-header>
+<app-navbar></app-navbar>
 
 <body class="min-h-screen bg-cream font-sans text-charcoal">
   <!-- Modal de carrito -->
-    
+
   <main class="min-h-screen flex items-center justify-center px-6 py-32">
     <div class="w-full max-w-md mx-auto glass-card rounded-3xl p-8">
       <p
@@ -11,61 +11,64 @@
       >
         Sesión iniciada
       </p>
-      <h1
-        class="font-serif text-3xl font-semibold mb-6"
-        th:text="${client.name + ' ' + client.lastName}"
-      ></h1>
+      <h1 class="font-serif text-3xl font-semibold mb-6">
+        {{ client?.name }} {{ client?.lastName }}
+      </h1>
 
       <div class="space-y-3 text-sm mb-8" style="color: rgba(44, 44, 44, 0.7)">
         <p>
           <span class="font-semibold text-charcoal">Correo:</span>
-          <span> {{ client.email }}</span>
+          <span> {{ client?.email }}</span>
         </p>
         <p>
           <span class="font-semibold text-charcoal">Teléfono:</span>
-          <span> {{ client.phone }}</span>
+          <span> {{ client?.phone }}</span>
         </p>
       </div>
 
       <div class="flex flex-col gap-3">
-        <app-button routerLink="/menu" size="lg">Ver la carta</app-button>
-        <app-btn-action
-          [selected]="selectedAction"
-          (selectedChange)="onSelectedChange($event)"
-          action="Editar perfil"
+        <!-- Ver la carta -->
+        <app-button
+          routerLink="/menu"
+          variant="primary"
+          size="lg"
+          [fullWidth]="true"
         >
-        </app-btn-action>
+          Ver la carta
+        </app-button>
 
-        
-        <form th:action="@{/logout}" method="post">
-          <app-btn-action
-          [selected]="selectedAction"
-          (selectedChange)="onSelectedChange($event)"
-          action="Cerrar sesion"
+        <!-- Editar perfil -->
+        <app-button
+          variant="neutral"
+          size="lg"
+          [fullWidth]="true"
+          (click)="editProfile()"
         >
-        </app-btn-action>
-          >
-        </form>
+          Editar perfil
+        </app-button>
 
-        <form
-          th:action="@{/clients/{id}/delete(id=${client.id})}"
-          onsubmit="
-            return confirm(
-              '¿Seguro que querés eliminar tu cuenta? Esta acción no se puede deshacer.',
-            );
-          "
+        <!-- Cerrar sesión -->
+        <app-button
+          variant="neutral"
+          size="lg"
+          [fullWidth]="true"
+          (click)="logout()"
         >
-          <app-btn-action
-          [selected]="selectedAction"
-          (selectedChange)="onSelectedChange($event)"
-          action="Eliminar cuenta"
+          Cerrar sesión
+        </app-button>
+
+        <!-- Eliminar cuenta -->
+        <app-button
+          variant="danger"
+          size="lg"
+          [fullWidth]="true"
+          (click)="deleteAccount()"
         >
-        </app-btn-action>
-        </form>
+          Eliminar mi cuenta
+        </app-button>
       </div>
     </div>
   </main>
-
 </body>
 
 <app-footer></app-footer>

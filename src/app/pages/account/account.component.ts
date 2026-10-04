@@ -1,10 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { Router ,ActivatedRoute} from '@angular/router';
 
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ButtonComponent } from '../../components/button/button.component';
-import { BtnActionComponent } from './components/btn-action/btn-action.component';
 
 import { Client } from '../../models/client';
 import { ClientService } from '../../services/client.service';
@@ -15,20 +14,25 @@ import { ClientService } from '../../services/client.service';
     NavbarComponent,
     FooterComponent,
     ButtonComponent,
-    BtnActionComponent
   ],
   templateUrl: './account.component.html',
-  styleUrl: './account.component.scss'
+  styleUrl: './account.component.scss',
 })
-export class AccountComponent {
-
+export class AccountComponent implements OnInit {
   private clientService = inject(ClientService);
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   client: Client | null = null;
 
-  selectedAction = '';
 
+
+  ngOnInit() {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+
+    this.client = this.clientService.getClientById(id) ?? null;
+  }
+  selectedAction = '';
   onSelectedChange(action: string) {
     this.selectedAction = action;
 
@@ -38,7 +42,7 @@ export class AccountComponent {
       break;
 
     case 'Cerrar sesion':
-      this.logOut();
+      this.logout();
       break;
     
     case 'Eliminar cuenta':
@@ -47,17 +51,37 @@ export class AccountComponent {
     }
   }
 
-  editProfile(){
-    
+  editProfile() {
+    if (!this.client) {
+      return;
+    }
+
+    this.router.navigate(['/account', this.client.id, 'edit']);
   }
 
-  logOut(){
+  logout() {
+    localStorage.removeItem('currentUser');
 
+    this.router.navigate(['/login']);
   }
 
-  deleteAccount(){
+  deleteAccount() {
+    if (!this.client) {
+      return;
+    }
 
+    const confirmed = confirm(
+      '¿Seguro que querés eliminar tu cuenta? Esta acción no se puede deshacer.',
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.clientService.deleteClient(this.client.id);
+
+    localStorage.removeItem('currentUser');
+
+    this.router.navigate(['/home']);
   }
-
-  
 }
