@@ -1,0 +1,47 @@
+<main class="container my-5">
+  <header>
+    <h1 class="h2 text-center mb-4 text-primary">Red Social DummyJSON</h1>
+  </header>
+
+  <!-- Sección 1: Barra de búsqueda -->
+  <form role="search" class="col-md-6 mx-auto mb-4" (ngSubmit)="buscarUsuario()">
+    <label for="username" class="visually-hidden">Buscar usuario por username</label>
+    <div class="input-group shadow-sm">
+      <span class="input-group-text bg-white">
+        <i class="bi bi-search" aria-hidden="true"></i>
+      </span>
+      <input
+        id="username"
+        name="username"
+        type="text"
+        class="form-control"
+        placeholder="Buscar por username (ej: emilys, dylanw)..."
+        [(ngModel)]="usernameToSearch">
+      <button class="btn btn-primary" type="submit">
+        Buscar
+      </button>
+    </div>
+  </form>
+
+  <!-- Mensaje de error -->
+  <p class="alert alert-danger text-center shadow-sm col-md-6 mx-auto" role="alert" *ngIf="errorMessage">
+    <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+    {{ errorMessage }}
+  </p>
+
+  <!-- Contenido principal -->
+  <ng-container *ngIf="user && !errorMessage">
+
+    <!-- Sección 2: Datos de Usuario -->
+    <app-user-data [user]="user"></app-user-data>
+
+    <hr class="my-5 border-secondary">
+
+    <!-- Sección 3: Posts del Usuario -->
+    <app-user-posts
+      [posts]="posts"
+      [commentsByPost]="commentsByPost">
+    </app-user-posts>
+
+  </ng-container>
+</main>

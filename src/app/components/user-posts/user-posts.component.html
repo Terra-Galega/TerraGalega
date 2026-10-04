@@ -1,0 +1,70 @@
+<section *ngIf="posts.length > 0">
+  <header>
+    <h2 class="h3 text-secondary border-bottom pb-2 mb-4">
+      <i class="bi bi-file-post me-2" aria-hidden="true"></i>Publicaciones del usuario
+    </h2>
+  </header>
+
+  <article class="card card-body shadow-sm border-0 bg-light mb-4" *ngFor="let post of posts">
+
+    <!-- Contenido del Post -->
+    <header>
+      <h3 class="h5 fw-bold text-dark">{{ post.title }}</h3>
+    </header>
+    <p>{{ post.body }}</p>
+
+    <!-- Reacciones -->
+    <ul class="list-unstyled d-flex align-items-center gap-2 mb-3">
+      <li class="badge rounded-pill bg-white text-dark border border-secondary p-2 shadow-sm">
+        <i class="bi bi-hand-thumbs-up-fill text-primary me-1" aria-hidden="true"></i>
+        <span class="visually-hidden">Likes:</span>
+        {{ post.reactions.likes || 0 }}
+      </li>
+      <li class="badge rounded-pill bg-white text-dark border border-secondary p-2 shadow-sm">
+        <i class="bi bi-hand-thumbs-down-fill text-danger me-1" aria-hidden="true"></i>
+        <span class="visually-hidden">Dislikes:</span>
+        {{ post.reactions.dislikes || 0 }}
+      </li>
+    </ul>
+
+    <!-- Sección de Comentarios -->
+    <section class="border-top pt-3">
+      <h4 class="h6 text-muted mb-3">
+        <i class="bi bi-chat-left-text me-2" aria-hidden="true"></i>Comentarios
+      </h4>
+
+      <!-- Mensaje de carga -->
+      <p *ngIf="!commentsByPost[post.id]" class="text-center text-muted small py-2" role="status">
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        Cargando comentarios...
+      </p>
+
+      <ng-container *ngIf="commentsByPost[post.id] as comments">
+
+        <!-- Lista de comentarios del post -->
+        <ul *ngIf="comments.length > 0" class="list-unstyled mb-0 comments-section" style="max-height: 250px; overflow-y: auto;">
+          <li *ngFor="let comment of comments" class="mb-3 bg-white p-3 rounded-3 shadow-sm border border-light">
+            <header class="d-flex justify-content-between align-items-center mb-1">
+              <strong class="text-primary" style="font-size: 0.9rem;">{{ comment.user.fullName }}</strong>
+              <small class="text-muted">{{ comment.user.username }}</small>
+            </header>
+            <p class="mb-0 text-dark" style="font-size: 0.95rem;">{{ comment.body }}</p>
+          </li>
+        </ul>
+
+        <!-- Si el arreglo llega vacío -->
+        <p *ngIf="comments.length === 0" class="text-muted small fst-italic mb-0">
+          Nadie ha comentado esta publicación aún.
+        </p>
+
+      </ng-container>
+    </section>
+
+  </article>
+</section>
+
+<!-- Si no tiene posts -->
+<section *ngIf="posts.length === 0" class="text-center text-muted py-5">
+  <i class="bi bi-journal-x fs-1 d-block mb-3" aria-hidden="true"></i>
+  <h2 class="h5">Este usuario no tiene publicaciones.</h2>
+</section>
