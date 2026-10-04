@@ -6,6 +6,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { MenuComponent } from './pages/menu/menu.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { AccountComponent } from './pages/account/account.component';
+import { AccountEditComponent } from './pages/account-edit/account-edit.component';
 import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
 import { AboutUsComponent } from './pages/about-us/about-us.component';
 
@@ -39,13 +40,16 @@ export const routes: Routes = [
     component: LoginComponent,
   },
   {
-    path: 'admin',
+    path: 'admin/:id',
     component: AdminComponent,
   },
-  
   {
-    path: 'account',
-    component: AccountComponent,
+    path: 'account/:id',
+    component: AccountComponent
+  },
+  {
+    path: 'account/:id/edit',
+    component: AccountEditComponent
   },
   {
     path: 'productDetails/:id',

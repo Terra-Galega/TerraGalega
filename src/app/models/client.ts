@@ -1,3 +1,5 @@
+import { Role } from "./role";
+
 export interface Client {
    
     id: number;
@@ -6,5 +8,5 @@ export interface Client {
     lastName: string;
     password: string;
     phone: string;
-
+    role : Role;
 }

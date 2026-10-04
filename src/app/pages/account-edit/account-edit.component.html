@@ -1,0 +1,145 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen flex items-center justify-center px-6 py-32">
+  <div class="w-full max-w-md mx-auto glass-card rounded-3xl p-8">
+
+    <p
+      class="text-[12px] tracking-widest uppercase mb-2"
+      style="color: rgba(44, 44, 44, 0.38)"
+    >
+      Mi cuenta
+    </p>
+
+    <h1 class="font-serif text-3xl font-semibold mb-6">
+      Editar perfil
+    </h1>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      class="space-y-4"
+    >
+
+      <!-- Nombre y apellido -->
+      <div class="grid grid-cols-2 gap-3">
+
+        <div>
+          <label
+            for="name"
+            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+            style="color: rgba(44, 44, 44, 0.4)"
+          >
+            Nombre
+          </label>
+
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+          />
+        </div>
+
+        <div>
+          <label
+            for="lastName"
+            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+            style="color: rgba(44, 44, 44, 0.4)"
+          >
+            Apellido
+          </label>
+
+          <input
+            id="lastName"
+            type="text"
+            formControlName="lastName"
+            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+          />
+        </div>
+
+      </div>
+
+      <!-- Correo -->
+      <div>
+        <label
+          for="email"
+          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)"
+        >
+          Correo electrónico
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+        />
+      </div>
+
+      <!-- Teléfono -->
+      <div>
+        <label
+          for="phone"
+          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)"
+        >
+          Teléfono
+        </label>
+
+        <input
+          id="phone"
+          type="text"
+          formControlName="phone"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+        />
+      </div>
+
+      <!-- Contraseña -->
+      <div>
+        <label
+          for="password"
+          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)"
+        >
+          Nueva contraseña
+        </label>
+
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="Dejar en blanco para no cambiarla"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+        />
+      </div>
+
+      <!-- Botones -->
+      <div class="flex flex-col gap-3 pt-2">
+
+        <app-button
+          type="submit"
+          variant="primary"
+          size="md"
+          [fullWidth]="true"
+        >
+          Guardar cambios
+        </app-button>
+
+        <app-button
+          type="button"
+          variant="neutral"
+          size="md"
+          [fullWidth]="true"
+          (click)="cancel()"
+        >
+          Cancelar
+        </app-button>
+
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<app-footer></app-footer>

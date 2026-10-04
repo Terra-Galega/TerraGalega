@@ -4,8 +4,7 @@ import { inject } from '@angular/core';
 
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-
-import { UserService } from '../../services/user.service';
+import { ClientService } from '../../services/client.service';
 import { AdminService } from '../../services/admin.service';
 import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
@@ -34,11 +33,10 @@ export class LoginComponent {
 
   signupError = '';
 
-  private userService = inject(UserService);
+  private clientService = inject(ClientService);
   private adminService = inject(AdminService);
   private router = inject(Router);
 
-  
   selectTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
   }
@@ -76,27 +74,29 @@ export class LoginComponent {
     const admin = this.adminService.login(this.loginEmail, this.loginPassword);
 
     if (admin) {
-      localStorage.setItem('currentAdmin', JSON.stringify(admin));
+      localStorage.setItem('currentUser', JSON.stringify(admin));
 
       localStorage.setItem('userType', 'admin');
 
-      this.router.navigate(['/admin']);
-
+      this.router.navigate(['/admin', admin.id]);
       return;
     }
 
-    // Si no es administrador, comprobamos usuario
-    const user = this.userService.login(this.loginEmail, this.loginPassword);
+    const client = this.clientService.login(
+      this.loginEmail,
+      this.loginPassword,
+    );
 
-    if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
+    if (client) {
+      localStorage.setItem('currentUser', JSON.stringify(client));
 
-      localStorage.setItem('userType', 'user');
+      localStorage.setItem('userType', 'client');
 
-      this.router.navigate(['/menu']);
-
+      this.router.navigate(['/account', client.id]);
       return;
     }
+
+    this.loginError = 'Correo o contraseña incorrectos.';
 
     this.loginError = 'Correo o contraseña incorrectos.';
   }
