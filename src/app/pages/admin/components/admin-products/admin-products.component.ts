@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-
 import { EmptyStateComponent } from '../../../../components/empty-state/empty-state.component';
 import { AdminProductRowComponent } from '../admin-product-row/admin-product-row.component';
 import { Product } from '../../../../models/product';
@@ -8,6 +7,7 @@ import { ProductService } from '../../../../services/product.service';
 @Component({
   selector: 'app-admin-products',
   imports: [AdminProductRowComponent, EmptyStateComponent],
+
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss',
 })
@@ -25,6 +25,10 @@ export class AdminProductsComponent {
 
   constructor() {
     this.loadProducts();
+
+    this.productService.refresh$.subscribe(() => {
+      this.loadProducts();
+    });
   }
 
   loadProducts() {
@@ -52,9 +56,14 @@ export class AdminProductsComponent {
   }
 
   toggleProduct(product: Product) {
-    this.productService.toggleProductActiveStatus(product.id).subscribe({
+    const updatedProduct: Product = {
+      ...product,
+      active: !product.active,
+    };
+
+    this.productService.updateProduct(updatedProduct).subscribe({
       next: () => {
-        this.loadProducts();
+        this.productService.refresh();
       },
       error: (error) => {
         console.error('Error cambiando estado del producto:', error);
@@ -71,7 +80,7 @@ export class AdminProductsComponent {
 
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
-        this.loadProducts();
+        this.productService.refresh();
       },
       error: (error) => {
         console.error('Error eliminando producto:', error);

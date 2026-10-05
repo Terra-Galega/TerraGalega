@@ -166,8 +166,7 @@ export class AdminProductModalComponent implements OnChanges {
         price: this.price,
         imageUrl: this.imageUrl,
 
-        category: selectedCategory,
-
+        category: selectedCategory ? { ...selectedCategory } : null,
         active: this.active,
         popular: this.popular,
 
@@ -182,6 +181,7 @@ export class AdminProductModalComponent implements OnChanges {
 
       this.productService.updateProduct(updatedProduct).subscribe({
         next: () => {
+          this.productService.refresh();
           this.saved.emit();
           this.closed.emit();
         },
@@ -209,6 +209,7 @@ export class AdminProductModalComponent implements OnChanges {
 
       this.productService.createProduct(newProduct).subscribe({
         next: () => {
+          this.productService.refresh();
           this.saved.emit();
           this.closed.emit();
         },
