@@ -1,15 +1,14 @@
-import { Component,inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ClientService } from '../../../../services/client.service';
 import { Client } from '../../../../models/client';
 @Component({
   selector: 'app-admin-users',
   imports: [],
   templateUrl: './admin-users.component.html',
-  styleUrl: './admin-users.component.scss'
+  styleUrl: './admin-users.component.scss',
 })
 export class AdminUsersComponent {
-    private clientService = inject(ClientService);
-
+  private clientService = inject(ClientService);
 
   clients: Client[] = [];
 
@@ -18,7 +17,13 @@ export class AdminUsersComponent {
   }
 
   loadClients() {
-    this.clients = this.clientService.getClients();
+    this.clientService.getClients().subscribe({
+      next: (clients) => {
+        this.clients = clients;
+      },
+      error: (error) => {
+        console.error('Error cargando clientes:', error);
+      },
+    });
   }
-
 }

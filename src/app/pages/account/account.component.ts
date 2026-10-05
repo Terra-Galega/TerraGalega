@@ -23,7 +23,15 @@ export class AccountComponent implements OnInit {
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
-    this.client = this.clientService.getClientById(id) ?? null;
+    this.clientService.getClientById(id).subscribe({
+      next: (client) => {
+        this.client = client;
+      },
+      error: (error) => {
+        console.error('Error cargando cliente:', error);
+        this.client = null;
+      },
+    });
   }
   selectedAction = '';
   onSelectedChange(action: string) {

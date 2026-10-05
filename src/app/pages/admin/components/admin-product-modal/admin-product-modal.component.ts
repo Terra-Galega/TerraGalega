@@ -180,33 +180,30 @@ export class AdminProductModalComponent implements OnChanges {
         containsGluten: this.containsGluten,
       };
 
-      this.productService.updateProduct(updatedProduct);
+      this.productService.updateProduct(updatedProduct).subscribe({
+        next: () => {
+          this.saved.emit();
+          this.closed.emit();
+        },
+        error: (error) => {
+          console.error('Error actualizando producto:', error);
+        },
+      });
     } else {
       const products = this.productService.getProducts();
 
-      const newId =
-        products.length > 0
-          ? Math.max(...products.map((product) => product.id)) + 1
-          : 1;
-
       const newProduct: Product = {
-        id: newId,
-
+        id: 0,
         name: this.name,
         description: this.description,
         price: this.price,
-
         category: selectedCategory,
-
         imageUrl: this.imageUrl,
-
         active: this.active,
         popular: this.popular,
-
         vegetarian: this.vegetarian,
         spicyMild: this.spicyMild,
         spicyHot: this.spicyHot,
-
         containsNuts: this.containsNuts,
         containsSeafood: this.containsSeafood,
         containsGluten: this.containsGluten,
