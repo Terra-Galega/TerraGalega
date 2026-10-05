@@ -62,15 +62,6 @@ public class AuthController {
     @GetMapping("/admin/{id}")
     public String admin(@PathVariable Integer id, Model model, HttpSession session) {
 
-        if (!isAdmin(id)) {
-
-            // cliente que intenta entrar a /admin/<su propio id> (su id
-            // es válido, pero no tiene rol admin) queda deslogueado,
-            // igual que cuando alguien toca el id de otra persona
-            session.invalidate();
-            return "redirect:/login";
-        }
-
         Admin admin = adminService.getAdminById(id);
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("categories", categoryService.getAllCategorys());
@@ -160,7 +151,6 @@ public class AuthController {
         }
         return "redirect:/account/" + created.getId();
     }
-
 
     // http://localhost:8080/account
     @GetMapping("/account/{id}")
