@@ -190,8 +190,6 @@ export class AdminProductModalComponent implements OnChanges {
         },
       });
     } else {
-      const products = this.productService.getProducts();
-
       const newProduct: Product = {
         id: 0,
         name: this.name,
@@ -209,11 +207,16 @@ export class AdminProductModalComponent implements OnChanges {
         containsGluten: this.containsGluten,
       };
 
-      this.productService.createProduct(newProduct);
+      this.productService.createProduct(newProduct).subscribe({
+        next: () => {
+          this.saved.emit();
+          this.closed.emit();
+        },
+        error: (error) => {
+          console.error('Error creando producto:', error);
+        },
+      });
     }
-
-    this.saved.emit();
-    this.closed.emit();
   }
 
   close() {
