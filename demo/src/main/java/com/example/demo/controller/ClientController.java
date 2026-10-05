@@ -5,6 +5,8 @@ import com.example.demo.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+
 @RestController
 @RequestMapping("/clients")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -13,20 +15,31 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
-    // http://localhost:8080/clients/{id}/edit
-    @GetMapping("/{id}/edit")
-    public void editMyAccountForm(@PathVariable Integer id) {
-        clientService.getClientById(id);
+    @GetMapping
+    public Collection<Client> getAllClients() {
+        return clientService.getAllClients();
     }
 
-    // Guarda los cambios del perfil
+    @GetMapping("/{id}")
+    public Client getClientById(@PathVariable Integer id) {
+        return clientService.getClientById(id);
+    }
+
+    @PostMapping
+    public Client addClient(@RequestBody Client client) {
+        return clientService.addClient(client);
+    }
+
     @PutMapping("/{id}")
-    public void updateMyAccount(@PathVariable Integer id, @ModelAttribute Client formClient) {
-        clientService.updateClient(id, formClient);
+    public Client updateClient(
+            @PathVariable Integer id,
+            @RequestBody Client client) {
+
+        return clientService.updateClient(id, client);
     }
 
-    @DeleteMapping("/{id}/delete")
-    public void deleteMyAccount(@PathVariable Integer id) {
+    @DeleteMapping("/{id}")
+    public void deleteClient(@PathVariable Integer id) {
         clientService.deleteClient(id);
     }
 }
