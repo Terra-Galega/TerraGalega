@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { Product } from '../models/product';
+import { Product, CreateProduct } from '../models/product';
 
 @Injectable({
   providedIn: 'root',
@@ -42,14 +42,33 @@ export class ProductService {
   // CRUD
   // =========================
 
-  createProduct(product: Product): Observable<Product> {
-    return this.http.post<Product>(this.apiUrl, product);
+  createProduct(product: CreateProduct): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, this.toPayload(product));
   }
+
   updateProduct(product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${product.id}`, product);
+    return this.http.put<Product>(
+      `${this.apiUrl}/${product.id}`,
+      this.toPayload(product),
+    );
   }
 
   deleteProduct(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  toggleProductActiveStatus(id: number): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${id}/toggle`, {});
+  }
+
+  private toPayload(product: Product | CreateProduct) {
+    return {
+      ...product,
+      category: product.category
+        ? {
+            id: product.category.id,
+          }
+        : null,
+    };
   }
 }

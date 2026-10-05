@@ -166,9 +166,11 @@
   <!-- REGISTRO -->
 
   @if (activeTab === "signup") {
-    <form id="signup-form" class="space-y-4">
-      <!-- Nombre + Apellido -->
-
+    <form
+      id="signup-form"
+      class="space-y-4"
+      (submit)="$event.preventDefault(); signup()"
+    >
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label
@@ -182,6 +184,8 @@
             type="text"
             id="signup-name"
             name="name"
+            [value]="signupName"
+            (input)="setSignupName($event)"
             placeholder="Juan"
             class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
           />
@@ -199,6 +203,8 @@
             type="text"
             id="signup-lastname"
             name="lastName"
+            [value]="signupLastName"
+            (input)="setSignupLastName($event)"
             placeholder="García"
             class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
           />
@@ -219,6 +225,8 @@
           type="email"
           id="signup-email"
           name="email"
+          [value]="signupEmail"
+          (input)="setSignupEmail($event)"
           placeholder="correo&#64;ejemplo.com"
           class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
         />
@@ -239,6 +247,8 @@
             [type]="showSignupPassword ? 'text' : 'password'"
             id="signup-password"
             name="password"
+            [value]="signupPassword"
+            (input)="setSignupPassword($event)"
             placeholder="••••••••"
             class="password-field input-field w-full px-4 py-3 pr-11 rounded-xl text-charcoal text-sm"
           />
@@ -306,6 +316,8 @@
           type="tel"
           id="signup-phone"
           name="phone"
+          [value]="signupPhone"
+          (input)="setSignupPhone($event)"
           placeholder="+57 300 000 0000"
           class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
         />

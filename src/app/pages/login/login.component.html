@@ -21,6 +21,17 @@
       (loginPasswordToggle)="toggleLoginPassword()"
       (signupPasswordToggle)="toggleSignupPassword()"
       (demoUser)="fillDemoUser($event.email, $event.password)"
+      [signupName]="signupName"
+      [signupLastName]="signupLastName"
+      [signupEmail]="signupEmail"
+      [signupPassword]="signupPassword"
+      [signupPhone]="signupPhone"
+      (signupNameChange)="setSignupName($event)"
+      (signupLastNameChange)="setSignupLastName($event)"
+      (signupEmailChange)="setSignupEmail($event)"
+      (signupPasswordChange)="setSignupPassword($event)"
+      (signupPhoneChange)="setSignupPhone($event)"
+      (signupSubmit)="signup()"
     ></app-login-forms>
   </div>
 </main>

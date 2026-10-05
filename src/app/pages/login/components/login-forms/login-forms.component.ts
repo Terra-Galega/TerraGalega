@@ -14,6 +14,11 @@ export class LoginFormsComponent {
   @Input() loginPassword = '';
   @Input() loginError = '';
   @Input() signupError = '';
+  @Input() signupName = '';
+  @Input() signupLastName = '';
+  @Input() signupEmail = '';
+  @Input() signupPassword = '';
+  @Input() signupPhone = '';
 
   @Input() showLoginPassword = false;
   @Input() showSignupPassword = false;
@@ -25,7 +30,13 @@ export class LoginFormsComponent {
 
   @Output() loginPasswordToggle = new EventEmitter<void>();
   @Output() signupPasswordToggle = new EventEmitter<void>();
+  @Output() signupNameChange = new EventEmitter<string>();
+  @Output() signupLastNameChange = new EventEmitter<string>();
+  @Output() signupEmailChange = new EventEmitter<string>();
+  @Output() signupPasswordChange = new EventEmitter<string>();
+  @Output() signupPhoneChange = new EventEmitter<string>();
 
+  @Output() signupSubmit = new EventEmitter<void>();
   @Output() demoUser = new EventEmitter<{
     email: string;
     password: string;
@@ -57,5 +68,29 @@ export class LoginFormsComponent {
 
   fillDemoUser(email: string, password: string) {
     this.demoUser.emit({ email, password });
+  }
+
+  setSignupName(event: Event) {
+    this.signupNameChange.emit((event.target as HTMLInputElement).value);
+  }
+
+  setSignupLastName(event: Event) {
+    this.signupLastNameChange.emit((event.target as HTMLInputElement).value);
+  }
+
+  setSignupEmail(event: Event) {
+    this.signupEmailChange.emit((event.target as HTMLInputElement).value);
+  }
+
+  setSignupPassword(event: Event) {
+    this.signupPasswordChange.emit((event.target as HTMLInputElement).value);
+  }
+
+  setSignupPhone(event: Event) {
+    this.signupPhoneChange.emit((event.target as HTMLInputElement).value);
+  }
+
+  signup() {
+    this.signupSubmit.emit();
   }
 }

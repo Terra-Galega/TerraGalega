@@ -56,12 +56,7 @@ export class AdminProductsComponent {
   }
 
   toggleProduct(product: Product) {
-    const updatedProduct: Product = {
-      ...product,
-      active: !product.active,
-    };
-
-    this.productService.updateProduct(updatedProduct).subscribe({
+    this.productService.toggleProductActiveStatus(product.id).subscribe({
       next: () => {
         this.productService.refresh();
       },
