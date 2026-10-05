@@ -20,7 +20,6 @@ import { ContactStripSectionComponent } from './components/contact-strip-section
     ContactStripSectionComponent,
   ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
 })
 export class HomeComponent {
   private productService = inject(ProductService);

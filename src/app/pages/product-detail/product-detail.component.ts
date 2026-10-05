@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {NavbarComponent} from "../../components/navbar/navbar.component";
-import {FooterComponent} from "../../components/footer/footer.component";
+import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { FooterComponent } from '../../components/footer/footer.component';
 import { Product } from '../../models/product';
 import { ProductService } from '../../services/product.service';
 import { ProductInfoCardComponent } from './components/product-info-card/product-info-card.component';
@@ -10,9 +10,13 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [NavbarComponent, ProductInfoCardComponent, ProductCardComponent, FooterComponent],
+  imports: [
+    NavbarComponent,
+    ProductInfoCardComponent,
+    ProductCardComponent,
+    FooterComponent,
+  ],
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.scss',
 })
 export class ProductDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -42,7 +46,8 @@ export class ProductDetailComponent implements OnInit {
           (product) =>
             product.id !== this.product!.id &&
             product.category?.id === categoryId,
-        ).slice(0, 3);
+        )
+        .slice(0, 3);
     }
   }
 

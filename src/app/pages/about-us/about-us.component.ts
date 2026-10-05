@@ -17,7 +17,6 @@ import { LocationSectionComponent } from './components/location-section/location
     LocationSectionComponent,
   ],
   templateUrl: './about-us.component.html',
-  styleUrl: './about-us.component.scss',
 })
 export class AboutUsComponent {
   quote =

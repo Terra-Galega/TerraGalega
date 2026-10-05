@@ -10,12 +10,15 @@ import { ButtonComponent } from '../../components/button/button.component';
 
 @Component({
   selector: 'app-account-edit',
-  imports: [NavbarComponent, FooterComponent, ReactiveFormsModule, ButtonComponent],
+  imports: [
+    NavbarComponent,
+    FooterComponent,
+    ReactiveFormsModule,
+    ButtonComponent,
+  ],
   templateUrl: './account-edit.component.html',
-  styleUrl: './account-edit.component.scss'
 })
 export class AccountEditComponent implements OnInit {
-
   private clientService = inject(ClientService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -27,14 +30,11 @@ export class AccountEditComponent implements OnInit {
     lastName: new FormControl(''),
     email: new FormControl(''),
     phone: new FormControl(''),
-    password: new FormControl('')
+    password: new FormControl(''),
   });
 
   ngOnInit(): void {
-
-    const id = Number(
-      this.route.snapshot.paramMap.get('id')
-    );
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
     this.client = this.clientService.getClientById(id) ?? null;
 
@@ -47,12 +47,11 @@ export class AccountEditComponent implements OnInit {
       name: this.client.name,
       lastName: this.client.lastName,
       email: this.client.email,
-      phone: this.client.phone
+      phone: this.client.phone,
     });
   }
 
   save(): void {
-
     if (!this.client) {
       return;
     }
@@ -67,27 +66,19 @@ export class AccountEditComponent implements OnInit {
 
       // Si deja contraseña vacía,
       // conserva la contraseña anterior.
-      password:
-        this.form.value.password || this.client.password
+      password: this.form.value.password || this.client.password,
     };
 
     this.clientService.updateClient(updatedClient);
 
-    this.router.navigate([
-      '/account',
-      this.client.id
-    ]);
+    this.router.navigate(['/account', this.client.id]);
   }
 
   cancel(): void {
-
     if (!this.client) {
       return;
     }
 
-    this.router.navigate([
-      '/account',
-      this.client.id
-    ]);
+    this.router.navigate(['/account', this.client.id]);
   }
 }

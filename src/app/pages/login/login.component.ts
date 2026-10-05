@@ -18,7 +18,6 @@ import { LoginFormsComponent } from './components/login-forms/login-forms.compon
     LoginFormsComponent,
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
   activeTab: 'login' | 'signup' = 'login';

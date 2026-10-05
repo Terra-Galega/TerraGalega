@@ -24,7 +24,6 @@ import { FeatureKey } from '../../models/feature';
     ProductCardMenuComponent,
   ],
   templateUrl: './menu.component.html',
-  styleUrl: './menu.component.scss',
 })
 export class MenuComponent {
   private productService = inject(ProductService);
@@ -36,7 +35,15 @@ export class MenuComponent {
   currentSearch = '';
   activeFeatureFilters: FeatureKey[] = [];
 
-  readonly categories = ['Todos', 'Popular', 'Entradas', 'Mariscos', 'Carnes', 'Postres', 'Bebidas'];
+  readonly categories = [
+    'Todos',
+    'Popular',
+    'Entradas',
+    'Mariscos',
+    'Carnes',
+    'Postres',
+    'Bebidas',
+  ];
 
   filterMenuItems(): void {
     const search = this.currentSearch.trim().toLowerCase();
@@ -51,7 +58,9 @@ export class MenuComponent {
       const matchesSearch = product.name.toLowerCase().includes(search);
 
       // Con varias características, el plato debe cumplirlas todas
-      const matchesFeatures = this.activeFeatureFilters.every((feature) => product[feature]);
+      const matchesFeatures = this.activeFeatureFilters.every(
+        (feature) => product[feature],
+      );
 
       return matchesCategory && matchesSearch && matchesFeatures;
     });

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Router ,ActivatedRoute} from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
@@ -10,13 +10,8 @@ import { ClientService } from '../../services/client.service';
 
 @Component({
   selector: 'app-account',
-  imports: [
-    NavbarComponent,
-    FooterComponent,
-    ButtonComponent,
-  ],
+  imports: [NavbarComponent, FooterComponent, ButtonComponent],
   templateUrl: './account.component.html',
-  styleUrl: './account.component.scss',
 })
 export class AccountComponent implements OnInit {
   private clientService = inject(ClientService);
@@ -24,8 +19,6 @@ export class AccountComponent implements OnInit {
   private router = inject(Router);
 
   client: Client | null = null;
-
-
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -37,17 +30,17 @@ export class AccountComponent implements OnInit {
     this.selectedAction = action;
 
     switch (action) {
-    case 'Editar perfil':
-      this.editProfile();
-      break;
+      case 'Editar perfil':
+        this.editProfile();
+        break;
 
-    case 'Cerrar sesion':
-      this.logout();
-      break;
-    
-    case 'Eliminar cuenta':
-      this.deleteAccount();
-      break;
+      case 'Cerrar sesion':
+        this.logout();
+        break;
+
+      case 'Eliminar cuenta':
+        this.deleteAccount();
+        break;
     }
   }
 
