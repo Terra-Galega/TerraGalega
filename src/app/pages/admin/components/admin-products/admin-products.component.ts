@@ -28,8 +28,15 @@ export class AdminProductsComponent {
   }
 
   loadProducts() {
-    this.products = this.productService.getProducts();
-    this.filterProducts();
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+        this.filterProducts();
+      },
+      error: (error) => {
+        console.error('Error cargando productos:', error);
+      },
+    });
   }
 
   ngOnChanges() {
@@ -45,10 +52,15 @@ export class AdminProductsComponent {
   }
 
   toggleProduct(product: Product) {
-    this.productService.toggleProductActiveStatus(product.id);
-    this.loadProducts();
+    this.productService.toggleProductActiveStatus(product.id).subscribe({
+      next: () => {
+        this.loadProducts();
+      },
+      error: (error) => {
+        console.error('Error cambiando estado del producto:', error);
+      },
+    });
   }
-
   removeProduct(product: Product) {
     const confirmed = window.confirm('¿Eliminar este producto de la carta?');
 
@@ -56,9 +68,14 @@ export class AdminProductsComponent {
       return;
     }
 
-    this.productService.deleteProduct(product.id);
-
-    this.loadProducts();
+    this.productService.deleteProduct(product.id).subscribe({
+      next: () => {
+        this.loadProducts();
+      },
+      error: (error) => {
+        console.error('Error eliminando producto:', error);
+      },
+    });
   }
 
   openEdit(product: Product) {

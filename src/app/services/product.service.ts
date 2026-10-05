@@ -1,52 +1,54 @@
-import { Injectable, inject } from '@angular/core';
-import { Product } from '../models/product';
-import { CategoryService } from './category.service';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+import { Product } from '../models/product';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
+  private apiUrl = 'http://localhost:8080/products';
+
   constructor(private http: HttpClient) {}
 
+  // =========================
+  // CONSULTAS
+  // =========================
+
   getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>('http://localhost:8080/admin/');
+    return this.http.get<Product[]>(this.apiUrl);
   }
 
-  getActiveProducts() {
-    return this.productArray.filter((product) => product.active);
+  getActiveProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/active`);
   }
 
-  getProductById(id: number) {
-    return this.productArray.find((product) => product.id === id);
+  getProductById(id: number): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
 
-  getPopularProducts() {
-    return this.productArray.filter((product) => product.popular);
+  getPopularProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/popular`);
   }
 
-  private categoryService = inject(CategoryService);
+  // =========================
+  // CRUD
+  // =========================
 
-  createProduct(product: Product): void {
-    this.productArray = [...this.productArray, product];
+  createProduct(product: Product): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, product);
   }
 
-  updateProduct(product: Product): void {
-    this.productArray = this.productArray.map((p) =>
-      p.id === product.id ? product : p,
-    );
+  updateProduct(product: Product): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${product.id}`, product);
   }
 
-  deleteProduct(id: number): void {
-    this.productArray = this.productArray.filter(
-      (product) => product.id !== id,
-    );
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  toggleProductActiveStatus(id: number): void {
-    const product = this.getProductById(id);
-    if (product) {
-      product.active = !product.active;
-    }
+  toggleProductActiveStatus(id: number): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${id}/toggle`, {});
   }
 }

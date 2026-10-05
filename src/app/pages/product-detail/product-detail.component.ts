@@ -30,25 +30,34 @@ export class ProductDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
-    this.product = this.productService.getProductById(id);
+    this.productService.getProductById(id).subscribe({
+      next: (product) => {
+        this.product = product;
 
-    if (!this.product) {
-      this.router.navigate(['/menu']);
-      return;
-    }
+        const categoryId = this.product.category?.id;
 
-    const categoryId = this.product.category?.id;
-
-    if (categoryId) {
-      this.relatedProducts = this.productService
-        .getActiveProducts()
-        .filter(
-          (product) =>
-            product.id !== this.product!.id &&
-            product.category?.id === categoryId,
-        )
-        .slice(0, 3);
-    }
+        if (categoryId) {
+          this.productService.getActiveProducts().subscribe({
+            next: (products) => {
+              this.relatedProducts = products
+                .filter(
+                  (relatedProduct) =>
+                    relatedProduct.id !== this.product!.id &&
+                    relatedProduct.category?.id === categoryId,
+                )
+                .slice(0, 3);
+            },
+            error: (error) => {
+              console.error('Error cargando productos relacionados:', error);
+            },
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error cargando producto:', error);
+        this.router.navigate(['/menu']);
+      },
+    });
   }
 
   goBackToMenu(): void {

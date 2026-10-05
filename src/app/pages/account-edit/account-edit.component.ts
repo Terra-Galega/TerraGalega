@@ -36,8 +36,15 @@ export class AccountEditComponent implements OnInit {
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
-    this.client = this.clientService.getClientById(id) ?? null;
-
+    this.clientService.getClientById(id).subscribe({
+      next: (client) => {
+        this.client = client;
+      },
+      error: (error) => {
+        console.error('Error cargando cliente:', error);
+        this.client = null;
+      },
+    });
     if (!this.client) {
       this.router.navigate(['/account']);
       return;
