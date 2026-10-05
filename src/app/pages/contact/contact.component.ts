@@ -7,6 +7,5 @@ import { ContactSectionComponent } from './components/contact-section/contact-se
   selector: 'app-contact',
   imports: [NavbarComponent, FooterComponent, ContactSectionComponent],
   templateUrl: './contact.component.html',
-  styleUrl: './contact.component.scss',
 })
 export class ContactComponent {}
