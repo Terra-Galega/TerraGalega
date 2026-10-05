@@ -79,10 +79,14 @@ export class AccountComponent implements OnInit {
       return;
     }
 
-    this.clientService.deleteClient(this.client.id);
-
-    localStorage.removeItem('currentUser');
-
-    this.router.navigate(['/home']);
+    this.clientService.deleteClient(this.client.id).subscribe({
+      next: () => {
+        localStorage.removeItem('currentUser');
+        this.router.navigate(['/home']);
+      },
+      error: (error) => {
+        console.error('Error eliminando cuenta:', error);
+      },
+    });
   }
 }

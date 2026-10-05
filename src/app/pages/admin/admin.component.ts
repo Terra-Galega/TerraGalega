@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar.component';
 import { AdminTopbarComponent } from './components/admin-topbar/admin-topbar.component';
 import { AdminProductsComponent } from './components/admin-products/admin-products.component';
 import { AdminOrdersComponent } from './components/admin-orders/admin-orders.component';
 import { AdminUsersComponent } from './components/admin-users/admin-users.component';
 import { AdminProductModalComponent } from './components/admin-product-modal/admin-product-modal.component';
+
 import { Product } from '../../models/product';
 
 @Component({
@@ -32,13 +34,12 @@ export class AdminComponent {
 
   adminName = '';
 
-  productsReload = 0;
-
   constructor(private router: Router) {
     const admin = localStorage.getItem('currentAdmin');
 
     if (admin) {
       const currentAdmin = JSON.parse(admin);
+
       this.adminName = `${currentAdmin.name} ${currentAdmin.lastName}`.trim();
     }
   }
@@ -76,10 +77,6 @@ export class AdminComponent {
   closeProductModal() {
     this.productModalOpen = false;
     this.selectedProduct = null;
-  }
-
-  productSaved() {
-    this.productsReload++;
   }
 
   logout() {

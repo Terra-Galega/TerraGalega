@@ -39,7 +39,6 @@
 @if (productModalOpen) {
   <app-admin-product-modal
     [product]="selectedProduct"
-    (saved)="productSaved()"
     (closed)="closeProductModal()"
   ></app-admin-product-modal>
 }
