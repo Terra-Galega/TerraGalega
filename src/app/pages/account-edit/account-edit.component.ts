@@ -39,22 +39,18 @@ export class AccountEditComponent implements OnInit {
     this.clientService.getClientById(id).subscribe({
       next: (client) => {
         this.client = client;
+
+        this.form.patchValue({
+          name: client.name,
+          lastName: client.lastName,
+          email: client.email,
+          phone: client.phone,
+        });
       },
       error: (error) => {
         console.error('Error cargando cliente:', error);
-        this.client = null;
+        this.router.navigate(['/account', id]);
       },
-    });
-    if (!this.client) {
-      this.router.navigate(['/account']);
-      return;
-    }
-
-    this.form.patchValue({
-      name: this.client.name,
-      lastName: this.client.lastName,
-      email: this.client.email,
-      phone: this.client.phone,
     });
   }
 
@@ -76,9 +72,14 @@ export class AccountEditComponent implements OnInit {
       password: this.form.value.password || this.client.password,
     };
 
-    this.clientService.updateClient(updatedClient);
-
-    this.router.navigate(['/account', this.client.id]);
+    this.clientService.updateClient(updatedClient).subscribe({
+      next: () => {
+        this.router.navigate(['/account', this.client!.id]);
+      },
+      error: (error) => {
+        console.error('Error actualizando cliente:', error);
+      },
+    });
   }
 
   cancel(): void {

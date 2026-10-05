@@ -29,19 +29,19 @@ export class MenuComponent {
   private productService = inject(ProductService);
 
   products: Product[] = [];
+  filteredProducts: Product[] = [];
 
   constructor() {
     this.productService.getActiveProducts().subscribe({
       next: (products) => {
         this.products = products;
+        this.filterMenuItems();
       },
       error: (error) => {
         console.error('Error cargando productos:', error);
       },
     });
   }
-
-  filteredProducts: Product[] = [...this.products];
 
   currentCategory = 'Todos';
   currentSearch = '';
