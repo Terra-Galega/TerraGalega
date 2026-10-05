@@ -10,7 +10,6 @@ import { Product } from '../../models/product';
 
 @Component({
   selector: 'app-admin',
-
   imports: [
     AdminSidebarComponent,
     AdminTopbarComponent,
@@ -19,7 +18,6 @@ import { Product } from '../../models/product';
     AdminUsersComponent,
     AdminProductModalComponent,
   ],
-
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
 })
@@ -33,6 +31,8 @@ export class AdminComponent {
   searchTerm = '';
 
   adminName = '';
+
+  productsReload = 0;
 
   constructor(private router: Router) {
     const admin = localStorage.getItem('currentAdmin');
@@ -65,20 +65,21 @@ export class AdminComponent {
 
   openAddProduct() {
     this.selectedProduct = null;
-
     this.productModalOpen = true;
   }
 
   openEditProduct(product: Product) {
     this.selectedProduct = product;
-
     this.productModalOpen = true;
   }
 
   closeProductModal() {
     this.productModalOpen = false;
-
     this.selectedProduct = null;
+  }
+
+  productSaved() {
+    this.productsReload++;
   }
 
   logout() {

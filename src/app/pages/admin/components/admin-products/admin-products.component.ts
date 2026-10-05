@@ -61,6 +61,7 @@ export class AdminProductsComponent {
       },
     });
   }
+
   removeProduct(product: Product) {
     const confirmed = window.confirm('¿Eliminar este producto de la carta?');
 
