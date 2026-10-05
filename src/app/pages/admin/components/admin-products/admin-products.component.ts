@@ -45,13 +45,7 @@ export class AdminProductsComponent {
   }
 
   toggleProduct(product: Product) {
-    const updatedProduct: Product = {
-      ...product,
-      active: !product.active,
-    };
-
-    this.productService.updateProduct(updatedProduct);
-
+    this.productService.toggleProductActiveStatus(product.id);
     this.loadProducts();
   }
 
