@@ -801,4 +801,11 @@ export class ProductService {
       (product) => product.id !== id,
     );
   }
+
+  toggleProductActiveStatus(id: number): void {
+    const product = this.getProductById(id);
+    if (product) {
+      product.active = !product.active;
+    }
+  }
 }
