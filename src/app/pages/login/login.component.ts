@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { Role } from '../../models/role';
-
+import { CreateClient } from '../../models/client';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ClientService } from '../../services/client.service';
@@ -140,8 +140,7 @@ export class LoginComponent {
       return;
     }
 
-    const client = {
-      id: 0,
+    const newClient: CreateClient = {
       name: this.signupName.trim(),
       lastName: this.signupLastName.trim(),
       email: this.signupEmail.trim(),
@@ -150,19 +149,23 @@ export class LoginComponent {
       role: Role.CLIENT,
     };
 
-    this.clientService.addClient(client).subscribe({
+    this.clientService.addClient(newClient).subscribe({
       next: (createdClient) => {
-        localStorage.setItem('currentUser', JSON.stringify(createdClient));
+        console.log('Cliente creado:', createdClient);
 
+        localStorage.setItem('currentUser', JSON.stringify(createdClient));
         localStorage.setItem('userType', 'client');
 
         this.router.navigate(['/account', createdClient.id]);
       },
       error: (error) => {
-        console.error('Error registrando cliente:', error);
+        console.error('Error creando cuenta:', error);
+        console.error('Status:', error.status);
+        console.error('Respuesta backend:', error.error);
 
         this.signupError =
-          error?.error?.message ?? 'No se pudo crear la cuenta.';
+          error?.error?.message ??
+          'No se pudo crear la cuenta. Inténtalo de nuevo.';
       },
     });
   }

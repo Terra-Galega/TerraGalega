@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-import { Client } from '../models/client';
+import { Observable, Subject } from 'rxjs';
+import { Client, CreateClient } from '../models/client';
 import { Role } from '../models/role';
 
 @Injectable({
@@ -10,6 +9,18 @@ import { Role } from '../models/role';
 })
 export class ClientService {
   private apiUrl = 'http://localhost:8080/clients';
+
+  // =========================
+  // Actualización de clientes
+  // =========================
+
+  private refreshSubject = new Subject<void>();
+
+  refresh$ = this.refreshSubject.asObservable();
+
+  refresh() {
+    this.refreshSubject.next();
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -25,7 +36,7 @@ export class ClientService {
     return this.http.get<Client>(`${this.apiUrl}/${id}`);
   }
 
-  addClient(client: Client): Observable<Client> {
+  addClient(client: CreateClient): Observable<Client> {
     return this.http.post<Client>(this.apiUrl, client);
   }
 

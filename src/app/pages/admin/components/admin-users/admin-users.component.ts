@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ClientService } from '../../../../services/client.service';
 import { Client } from '../../../../models/client';
+
 @Component({
   selector: 'app-admin-users',
   imports: [],
@@ -14,6 +15,10 @@ export class AdminUsersComponent {
 
   constructor() {
     this.loadClients();
+
+    this.clientService.refresh$.subscribe(() => {
+      this.loadClients();
+    });
   }
 
   loadClients() {
