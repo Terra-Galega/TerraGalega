@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import com.example.demo.controller.OrderController;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.entities.*;
@@ -15,8 +14,6 @@ import jakarta.transaction.Transactional;
 
 @Component
 public class DataLoader implements CommandLineRunner {
-
-        private final OrderController orderController;
 
         @Autowired
         private ClientRepository clientRepository;
@@ -42,9 +39,11 @@ public class DataLoader implements CommandLineRunner {
         @Autowired
         private OrderRepository orderRepository;
 
-        DataLoader(OrderController orderController) {
-                this.orderController = orderController;
-        }
+        /*
+         * DataLoader(OrderController orderController) {
+         * this.orderController = orderController;
+         * }
+         */
 
         // --- Helpers para reutilizar los productos/addOns ya cargados arriba,
         // en vez de duplicar su creación ---
@@ -127,7 +126,6 @@ public class DataLoader implements CommandLineRunner {
                                 Admin.builder().name("Javier").lastName("Ortiz").email("javier.ortiz@terra.com")
                                                 .password("javier123").role(Role.ADMIN).build());
 
-
                 // Categories
                 categoryRepository.save(Category.builder().name("Entradas")
                                 .description("Pequeños platos gallegos pensados para abrir el apetito antes del plato principal.")
@@ -149,7 +147,6 @@ public class DataLoader implements CommandLineRunner {
                                                 "Mixología, vinos y bebidas premium seleccionadas para elevar tu experiencia gastronómica.")
                                 .build());
 
-                
                 Category starters = categoryRepository.findByName("Entradas");
                 Category seafood = categoryRepository.findByName("Mariscos");
                 Category meats = categoryRepository.findByName("Carnes");
@@ -157,21 +154,28 @@ public class DataLoader implements CommandLineRunner {
 
                 // AddOns
                 addonRepository.save(AddOn.builder().name("Ensalada verde")
-                                .description("Adicional para Empanada").price(5000.0).Active(true).category(starters).build());
+                                .description("Adicional para Empanada").price(5000.0).Active(true).category(starters)
+                                .build());
                 addonRepository.save(AddOn.builder().name("Extra ajo")
-                                .description("Adicional para mariscos").price(2000.0).Active(true).category(seafood).build());
+                                .description("Adicional para mariscos").price(2000.0).Active(true).category(seafood)
+                                .build());
                 addonRepository.save(AddOn.builder().name("Salsa de limón")
-                                .description("Adicional para mariscos").price(3000.0).Active(true).category(seafood).build());
+                                .description("Adicional para mariscos").price(3000.0).Active(true).category(seafood)
+                                .build());
 
                 addonRepository.save(AddOn.builder().name("Pan de millo")
-                                .description("Adicional para Lacón").price(3500.0).Active(true).category(meats).build());
+                                .description("Adicional para Lacón").price(3500.0).Active(true).category(meats)
+                                .build());
                 addonRepository.save(AddOn.builder().name("Cachelos")
-                                .description("Adicional para Lacón").price(6000.0).Active(true).category(meats).build());
+                                .description("Adicional para Lacón").price(6000.0).Active(true).category(meats)
+                                .build());
 
                 addonRepository.save(AddOn.builder().name("Nata montada")
-                                .description("Adicional para Tarta de Santiago").price(3000.0).Active(true).category(desserts).build());
+                                .description("Adicional para Tarta de Santiago").price(3000.0).Active(true)
+                                .category(desserts).build());
                 addonRepository.save(AddOn.builder().name("Helado de vainilla")
-                                .description("Adicional para Tarta de Santiago").price(4000.0).Active(true).category(desserts).build());
+                                .description("Adicional para Tarta de Santiago").price(4000.0).Active(true)
+                                .category(desserts).build());
 
                 addonRepository.save(AddOn.builder().name("Porción de Pan Rústico")
                                 .description("Pan gallego artesanal, ideal para acompañar tus entradas y mojar salsas.")
@@ -219,8 +223,6 @@ public class DataLoader implements CommandLineRunner {
                 addonRepository.save(AddOn.builder().name("Nata Montada Extra")
                                 .description("Nata fresca montada al momento, ideal para acompañar dulces.")
                                 .price(3000.0).Active(true).category(desserts).build());
-
-
 
                 // Products
 
