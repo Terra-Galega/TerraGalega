@@ -15,3 +15,4 @@ export interface Product {
   containsSeafood: boolean;
   containsGluten: boolean;
 }
+export type CreateProduct = Omit<Product, 'id'>;

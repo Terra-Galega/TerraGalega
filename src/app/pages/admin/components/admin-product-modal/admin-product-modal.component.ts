@@ -8,7 +8,7 @@ import {
   inject,
 } from '@angular/core';
 
-import { Product } from '../../../../models/product';
+import { Product, CreateProduct } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
 import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/category.service';
@@ -38,12 +38,10 @@ export class AdminProductModalComponent implements OnChanges {
   @Input() product: Product | null = null;
 
   @Output() closed = new EventEmitter<void>();
-
   @Output() saved = new EventEmitter<void>();
 
   categories: Category[] = [];
 
-  // Opciones que se muestran como checkboxes en el modal
   checks: { key: CheckKey; label: string }[] = [
     { key: 'active', label: 'Activo' },
     { key: 'popular', label: 'Popular' },
@@ -150,13 +148,30 @@ export class AdminProductModalComponent implements OnChanges {
 
   save() {
     if (!this.name.trim()) {
+      console.error('El nombre del producto es obligatorio.');
       return;
     }
 
-    const selectedCategory =
-      this.categories.find((category) => category.name === this.categoryName) ??
-      null;
+    if (!this.categoryName) {
+      console.error('La categoría del producto es obligatoria.');
+      return;
+    }
 
+    if (this.price <= 0) {
+      console.error('El precio debe ser mayor que cero.');
+      return;
+    }
+
+    const selectedCategory = this.categories.find(
+      (category) => category.name === this.categoryName,
+    );
+
+    if (!selectedCategory) {
+      console.error('No se encontró la categoría seleccionada.');
+      return;
+    }
+
+    // EDITAR PRODUCTO
     if (this.product) {
       const updatedProduct: Product = {
         ...this.product,
@@ -166,7 +181,7 @@ export class AdminProductModalComponent implements OnChanges {
         price: this.price,
         imageUrl: this.imageUrl,
 
-        category: selectedCategory ? { ...selectedCategory } : null,
+        category: selectedCategory,
         active: this.active,
         popular: this.popular,
 
@@ -187,37 +202,46 @@ export class AdminProductModalComponent implements OnChanges {
         },
         error: (error) => {
           console.error('Error actualizando producto:', error);
+          console.error('Status:', error.status);
+          console.error('Respuesta backend:', error.error);
         },
       });
-    } else {
-      const newProduct: Product = {
-        id: 0,
-        name: this.name,
-        description: this.description,
-        price: this.price,
-        category: selectedCategory,
-        imageUrl: this.imageUrl,
-        active: this.active,
-        popular: this.popular,
-        vegetarian: this.vegetarian,
-        spicyMild: this.spicyMild,
-        spicyHot: this.spicyHot,
-        containsNuts: this.containsNuts,
-        containsSeafood: this.containsSeafood,
-        containsGluten: this.containsGluten,
-      };
 
-      this.productService.createProduct(newProduct).subscribe({
-        next: () => {
-          this.productService.refresh();
-          this.saved.emit();
-          this.closed.emit();
-        },
-        error: (error) => {
-          console.error('Error creando producto:', error);
-        },
-      });
+      return;
     }
+
+    // CREAR PRODUCTO
+    // No se envía ID porque el backend lo genera.
+    const newProduct: CreateProduct = {
+      name: this.name,
+      description: this.description,
+      price: this.price,
+      category: selectedCategory,
+      imageUrl: this.imageUrl,
+      active: this.active,
+      popular: this.popular,
+      vegetarian: this.vegetarian,
+      spicyMild: this.spicyMild,
+      spicyHot: this.spicyHot,
+      containsNuts: this.containsNuts,
+      containsSeafood: this.containsSeafood,
+      containsGluten: this.containsGluten,
+    };
+
+    this.productService.createProduct(newProduct).subscribe({
+      next: (product) => {
+        console.log('Producto creado:', product);
+
+        this.productService.refresh();
+        this.saved.emit();
+        this.closed.emit();
+      },
+      error: (error) => {
+        console.error('Error creando producto:', error);
+        console.error('Status:', error.status);
+        console.error('Respuesta backend:', error.error);
+      },
+    });
   }
 
   close() {
