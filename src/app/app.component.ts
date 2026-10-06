@@ -44,7 +44,7 @@ export class AppComponent {
           // mergeMap nos permite encadenar la llamada a la API
           return this.apiService.getPostsByUser(this.user.id);
         } else {
-          throw new Error('El nombre de usuario no existe. Por favor, intenta con otro.');
+          throw new Error('No se pudo conectar con la API.');
         }
       })
     ).subscribe({
