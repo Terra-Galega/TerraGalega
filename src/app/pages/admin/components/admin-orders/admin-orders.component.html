@@ -1,1 +1,32 @@
-<p>admin-orders works!</p>
+<div class="space-y-3">
+  @if (orders.length === 0) {
+    <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
+      No hay pedidos registrados.
+    </p>
+  } @else {
+    @for (order of orders; track order.id) {
+      <div class="flex items-center gap-5 px-6 py-4 rounded-2xl"
+           style="background-color: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.55)">
+        <span class="font-mono text-sm font-semibold w-16" style="color: rgba(44,44,44,0.55)">#{{ order.id }}</span>
+
+        <div class="flex-1 min-w-0">
+          <p class="font-medium text-charcoal text-sm">
+            {{ order.client ? order.client.name + ' ' + order.client.lastName : 'Cliente eliminado' }}
+          </p>
+          <p class="truncate" style="font-size: 12px; color: rgba(44,44,44,0.45)">
+            {{ order.address }} · {{ order.createdAt | date: 'dd MMM yyyy, HH:mm' }}
+          </p>
+          <p style="font-size: 12px; color: rgba(44,44,44,0.55)">
+            {{ order.details.length }} plato(s)
+          </p>
+        </div>
+
+        <span class="text-[11px] font-medium px-3 py-1 rounded-full"
+              style="background-color: rgba(85,97,65,.12); color: #556141">
+          {{ statusLabels[order.status] }}
+        </span>
+        <span class="font-bold" style="color: #b2571f">${{ order.total | number: '1.0-0' }}</span>
+      </div>
+    }
+  }
+</div>
