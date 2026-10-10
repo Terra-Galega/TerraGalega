@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Getter
 @Setter
 @ToString(exclude = { "order", "orderDetailAddOns" })
@@ -48,6 +50,7 @@ public class OrderDetail {
     @Column(nullable = false)
     private Double unitPrice;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderDetailAddOn> orderDetailAddOns = new ArrayList<>();
