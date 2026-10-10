@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Getter
 @Setter
 @ToString(exclude = { "details" })
@@ -41,6 +43,7 @@ public class Order {
     //Solo los clientes hacen pedidos y  no tiene relación
     // directa entre Order y Admin/Operator/DeliveryPerson, así que se asume que
     // "user" = "client" en la tabla Order.
+    @JsonIgnoreProperties("password")
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = true)
     private Client client;
@@ -60,10 +63,12 @@ public class Order {
 
     // Nullable: se asigna después de creado el pedido, no al momento de
     // pedir
+    @JsonIgnoreProperties("password")
     @ManyToOne
     @JoinColumn(name = "operator_id", nullable = true)
     private Operator operator;
 
+    @JsonIgnoreProperties("password")
     @ManyToOne
     @JoinColumn(name = "delivery_person_id", nullable = true)
     private DeliveryPerson deliveryPerson;

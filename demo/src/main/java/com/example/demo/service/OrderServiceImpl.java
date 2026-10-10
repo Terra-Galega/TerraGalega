@@ -37,18 +37,20 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getOrdersByClientId(Integer clientId) {
         return repository.findByClientIdOrderByCreatedAtDesc(clientId);
     }
-    @Override 
+
+    @Override
     @Transactional
     public List<Order> getAllOrders() {
-        return repository.findAll();
+        return repository.findAll(org.springframework.data.domain.Sort
+                .by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
     }
-    
+
     @Override
     @Transactional
     public void clearClientIdFromOrders(Integer clientId) {
         List<Order> orders = repository.findByClientIdOrderByCreatedAtDesc(clientId);
         for (Order order : orders) {
-            order.setClient(null);              
+            order.setClient(null);
         }
         repository.saveAll(orders);
     }
@@ -99,7 +101,8 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Producto no encontrado: " + item.getProductId()));
 
-            // El producto pudo desactivarse después de que el cliente lo guardara en su carrito 
+            // El producto pudo desactivarse después de que el cliente lo guardara en su
+            // carrito
             if (!Boolean.TRUE.equals(product.getActive())) {
                 throw new IllegalArgumentException(
                         "El producto \"" + product.getName() + "\" ya no está disponible.");
@@ -120,7 +123,6 @@ public class OrderServiceImpl implements OrderService {
                             .orElseThrow(() -> new IllegalArgumentException(
                                     "Adicional no encontrado: " + addOnId));
 
-                    
                     if (addOn.getCategory() == null
                             || product.getCategory() == null
                             || !addOn.getCategory().getId().equals(product.getCategory().getId())) {
