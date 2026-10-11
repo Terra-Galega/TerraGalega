@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-
+import { AuthService } from '../../services/auth.service';
 import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar.component';
 import { AdminTopbarComponent } from './components/admin-topbar/admin-topbar.component';
 import { AdminProductsComponent } from './components/admin-products/admin-products.component';
 import { AdminOrdersComponent } from './components/admin-orders/admin-orders.component';
 import { AdminUsersComponent } from './components/admin-users/admin-users.component';
 import { AdminProductModalComponent } from './components/admin-product-modal/admin-product-modal.component';
-
 import { Product } from '../../models/product';
 
 @Component({
@@ -34,13 +33,14 @@ export class AdminComponent {
 
   adminName = '';
 
-  constructor(private router: Router) {
-    const admin = localStorage.getItem('currentAdmin');
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+  ) {
+    const session = this.auth.session;
 
-    if (admin) {
-      const currentAdmin = JSON.parse(admin);
-
-      this.adminName = `${currentAdmin.name} ${currentAdmin.lastName}`.trim();
+    if (session) {
+      this.adminName = `${session.name} ${session.lastName}`.trim();
     }
   }
 
@@ -80,10 +80,8 @@ export class AdminComponent {
   }
 
   logout() {
-    localStorage.removeItem('currentAdmin');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('userType');
-
+    this.auth.logout();
     this.router.navigate(['/login']);
   }
+  
 }

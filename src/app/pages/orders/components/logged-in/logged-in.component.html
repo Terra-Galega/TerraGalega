@@ -18,6 +18,7 @@
           </p>
         </div>
         <!-- MOSTRAR SOLO SI HAY AL MENOS UN PEDIDO-->
-        <!-- <app-button routerLink="/menu" size="lg">Pedir de nuevo</app-button> -->
-        
+         @if(orders.length > 0){
+        <app-button routerLink="/menu" size="lg">Pedir de nuevo</app-button>
+         }
 </div>

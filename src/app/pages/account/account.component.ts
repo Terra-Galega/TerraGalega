@@ -1,10 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ButtonComponent } from '../../components/button/button.component';
-
+import { AuthService } from '../../services/auth.service';
 import { Client } from '../../models/client';
 import { ClientService } from '../../services/client.service';
 
@@ -19,6 +18,8 @@ export class AccountComponent implements OnInit {
   private router = inject(Router);
 
   client: Client | null = null;
+
+  private auth = inject(AuthService);
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -61,8 +62,7 @@ export class AccountComponent implements OnInit {
   }
 
   logout() {
-    localStorage.removeItem('currentUser');
-
+    this.auth.logout();
     this.router.navigate(['/login']);
   }
 
@@ -81,7 +81,7 @@ export class AccountComponent implements OnInit {
 
     this.clientService.deleteClient(this.client.id).subscribe({
       next: () => {
-        localStorage.removeItem('currentUser');
+        this.auth.logout();
         this.router.navigate(['/home']);
       },
       error: (error) => {

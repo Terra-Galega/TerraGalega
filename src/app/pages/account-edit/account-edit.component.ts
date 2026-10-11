@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-
+import { AuthService } from '../../services/auth.service';
 import { Client } from '../../models/client';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
@@ -22,6 +22,7 @@ export class AccountEditComponent implements OnInit {
   private clientService = inject(ClientService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   client: Client | null = null;
 
@@ -73,7 +74,8 @@ export class AccountEditComponent implements OnInit {
     };
 
     this.clientService.updateClient(updatedClient).subscribe({
-      next: () => {
+      next: (savedClient) => {
+        this.auth.setSession(savedClient, 'client');
         this.router.navigate(['/account', this.client!.id]);
       },
       error: (error) => {
