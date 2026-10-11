@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import io.swagger.v3.oas.annotations.Operation;
 
 @Controller
 public class HomeController {
@@ -19,8 +20,7 @@ public class HomeController {
     @Autowired
     private CategoryService categoryService;
 
-    // http://localhost:8090/
-    // http://localhost:8090/home
+    @Operation(summary = "Get the home page")
     @GetMapping({ "/", "/home" })
     public String home(Model model) {
         // Cargar todos los productos
@@ -30,7 +30,7 @@ public class HomeController {
         return "home";
     }
 
-    // http://localhost:8090/menu
+    @Operation(summary = "Get the menu page")
     @GetMapping("/menu")
     public String menu(Model model) {
         // Carga todos los productos para la carta completa y para el modal de producto
@@ -38,19 +38,19 @@ public class HomeController {
         return "menu";
     }
 
-    // http://localhost:8090/nosotros
+    @Operation(summary = "Get the about us page")
     @GetMapping("/aboutUs")
     public String aboutUs() {
         return "aboutUs";
     }
 
-    // http://localhost:8090/contacto
+    @Operation(summary = "Get the contact page")
     @GetMapping("/contact")
     public String contact() {
         return "contact";
     }
 
-    // http://localhost:8090/productDetail/{id}
+    @Operation(summary = "Get the product detail page")
     @GetMapping("/productDetail/{id}")
     public String productDetail(@PathVariable Integer id, Model model) {
 

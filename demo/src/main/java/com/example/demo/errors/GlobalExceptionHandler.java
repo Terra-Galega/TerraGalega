@@ -1,10 +1,12 @@
 package com.example.demo.errors;
 
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
+import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProductNotFoundException.class)
@@ -14,17 +16,14 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public String handlerIllegalArgument(IllegalArgumentException e, Model model) {
-        model.addAttribute("message", e.getMessage());
-        return "error";
+     @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public String handlerRuntime(RuntimeException e, Model model) {
+    public ResponseEntity<Map<String, String>> handleRuntime(RuntimeException e) {
         e.printStackTrace();
-        model.addAttribute("message", "Ha ocurrido un error inesperado. Por favor intenta de nuevo.");
-        return "error";
+        return ResponseEntity.status(500).body(Map.of("message", "Ha ocurrido un error inesperado."));
     }
-
 }

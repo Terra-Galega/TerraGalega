@@ -36,6 +36,7 @@ public class OrderDetail {
     @Column(unique = true, nullable = false)
     private Integer id;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
