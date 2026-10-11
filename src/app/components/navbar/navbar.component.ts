@@ -1,6 +1,8 @@
-import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartComponent } from '../cart/cart.component';
+import { Component, HostListener, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,7 +11,7 @@ import { CartComponent } from '../cart/cart.component';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnDestroy {
   // =========================
   // MENÚ MOBILE
   // =========================
@@ -39,8 +41,23 @@ export class NavbarComponent {
 
   cartCount = 0;
 
-  constructor(private router: Router) {
+  private sub: Subscription;
+
+  constructor(
+    private router: Router,
+    private auth: AuthService,
+  ) {
     this.updateNavbar();
+
+    this.sub = this.auth.session$.subscribe((session) => {
+      this.isLoggedIn = session !== null;
+      this.isLoggedAdmin = session?.type === 'admin';
+      this.isClient = session?.type === 'client';
+      this.username = session
+        ? `${session.name} ${session.lastName}`.trim()
+        : '';
+      this.userId = session?.id ?? null;
+    });
   }
   // =========================
   // NAVEGACIÓN
@@ -159,5 +176,15 @@ export class NavbarComponent {
 
   get fullName(): string {
     return this.username.toUpperCase();
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.closeMobileMenu();
+    this.router.navigate(['/login']);
   }
 }

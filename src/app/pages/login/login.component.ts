@@ -9,7 +9,7 @@ import { ClientService } from '../../services/client.service';
 import { AdminService } from '../../services/admin.service';
 import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
-
+import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-login',
   imports: [
@@ -42,6 +42,7 @@ export class LoginComponent {
   private clientService = inject(ClientService);
   private adminService = inject(AdminService);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   selectTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
@@ -80,10 +81,7 @@ export class LoginComponent {
     const admin = this.adminService.login(this.loginEmail, this.loginPassword);
 
     if (admin) {
-      localStorage.setItem('currentUser', JSON.stringify(admin));
-
-      localStorage.setItem('userType', 'admin');
-
+      this.auth.setSession(admin, 'admin');
       this.router.navigate(['/admin', admin.id]);
       return;
     }
@@ -94,15 +92,10 @@ export class LoginComponent {
     );
 
     if (client) {
-      localStorage.setItem('currentUser', JSON.stringify(client));
-
-      localStorage.setItem('userType', 'client');
-
+      this.auth.setSession(client, 'client');
       this.router.navigate(['/account', client.id]);
       return;
     }
-
-    this.loginError = 'Correo o contraseña incorrectos.';
 
     this.loginError = 'Correo o contraseña incorrectos.';
   }
@@ -153,8 +146,8 @@ export class LoginComponent {
       next: (createdClient) => {
         console.log('Cliente creado:', createdClient);
 
-        localStorage.setItem('currentUser', JSON.stringify(createdClient));
-        localStorage.setItem('userType', 'client');
+        this.auth.setSession(createdClient, 'client');
+        this.router.navigate(['/account', createdClient.id]);
 
         this.router.navigate(['/account', createdClient.id]);
       },

@@ -9,6 +9,7 @@ import { EmptyOrdersComponent } from './components/empty-orders/empty-orders.com
 import { OrderService } from '../../services/order.service';
 import { Order } from '../../models/order';
 import { OrderedComponent } from './components/ordered/ordered.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-orders',
@@ -24,25 +25,26 @@ import { OrderedComponent } from './components/ordered/ordered.component';
 ],
   templateUrl: './orders.component.html',
 })
+
 export class OrdersComponent implements OnInit {
+  private auth = inject(AuthService);
   private orderService = inject(OrderService);
 
-  isLoggedIn: boolean = false;
-  loading: boolean = true;
+  isLoggedIn = false;
+  loading = true;
   orders: Order[] = [];
 
   ngOnInit() {
-    const user = localStorage.getItem('user');
-    const type = localStorage.getItem('type');
-    if (user && type !== 'client') {
-      this.isLoggedIn = false;
+    const session = this.auth.session;
+
+    if (!session || session.type !== 'client') {
+      this.loading = false;
       return;
     }
 
     this.isLoggedIn = true;
-    const clientId = JSON.parse(user!).id;
 
-    this.orderService.getOrdersByClient(clientId).subscribe({
+    this.orderService.getOrdersByClient(session.id).subscribe({
       next: (orders) => {
         this.orders = orders;
         this.loading = false;

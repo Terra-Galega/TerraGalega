@@ -70,14 +70,14 @@
       } @else {
         @if (isLoggedAdmin || isClient) {
           <a
-            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer"
+            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer max-w-[160px] truncate"
             (click)="goToProfile()"
           >
             {{ fullName }}
           </a>
         } @else {
           <span
-            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap"
+            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap max-w-[160px] truncate"
           >
             {{ fullName }}
           </span>
