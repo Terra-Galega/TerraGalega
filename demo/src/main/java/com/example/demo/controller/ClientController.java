@@ -4,6 +4,7 @@ import com.example.demo.entities.Client;
 import com.example.demo.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.Collection;
 
@@ -15,21 +16,25 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
+    @Operation(summary = "Get all clients")
     @GetMapping
     public Collection<Client> getAllClients() {
         return clientService.getAllClients();
     }
 
+    @Operation(summary = "Get client by ID")
     @GetMapping("/{id}")
     public Client getClientById(@PathVariable Integer id) {
         return clientService.getClientById(id);
     }
 
+    @Operation(summary = "Add a new client for registration from client UI")
     @PostMapping
     public Client addClient(@RequestBody Client client) {
         return clientService.addClient(client);
     }
-
+    
+    @Operation(summary = "Update a client by ID from client UI")
     @PutMapping("/{id}")
     public Client updateClient(
             @PathVariable Integer id,
@@ -38,6 +43,7 @@ public class ClientController {
         return clientService.updateClient(id, client);
     }
 
+    @Operation(summary = "Delete a client by ID from client UI")
     @DeleteMapping("/{id}")
     public void deleteClient(@PathVariable Integer id) {
         clientService.deleteClient(id);
