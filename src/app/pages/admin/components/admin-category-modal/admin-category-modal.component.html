@@ -1,0 +1,69 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  style="background-color: rgba(44, 44, 44, 0.55)"
+>
+  <div
+    class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
+  >
+    <div class="flex items-center justify-between mb-7">
+      <h2 class="font-serif text-2xl font-semibold text-charcoal">
+        {{ category ? "Editar categoría" : "Añadir categoría" }}
+      </h2>
+
+      <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </app-icon-button>
+    </div>
+
+    <div class="space-y-4">
+      <app-form-field label="Nombre">
+        <input
+          type="text"
+          [value]="name"
+          (input)="setName($event)"
+          required
+          placeholder="Nombre de la categoría"
+          class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+        />
+      </app-form-field>
+
+      <app-form-field label="Descripción">
+        <textarea
+          [value]="description"
+          (input)="setDescription($event)"
+          rows="3"
+          placeholder="Descripción de la categoría…"
+          class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
+        ></textarea>
+      </app-form-field>
+
+      @if (errorMessage) {
+        <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
+      }
+
+      <div class="flex gap-3 pt-2">
+        <app-button
+          class="flex-1"
+          variant="neutral"
+          [fullWidth]="true"
+          (click)="close()"
+        >
+          Cancelar
+        </app-button>
+
+        <app-button class="flex-1" [fullWidth]="true" (click)="save()">
+          {{ category ? "Guardar cambios" : "Añadir categoría" }}
+        </app-button>
+      </div>
+    </div>
+  </div>
+</div>

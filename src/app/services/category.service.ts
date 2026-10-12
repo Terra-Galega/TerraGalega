@@ -1,61 +1,45 @@
-import { Injectable, inject } from '@angular/core';
-import { Category } from '../models/category';
-import { AddOnService } from './addOn.service';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, Subject } from 'rxjs';
+import { Category, CreateCategory } from '../models/category';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CategoryService {
-  private addOnService = inject(AddOnService);
+  private apiUrl = 'http://localhost:8080/categories';
+  private refreshSubject = new Subject<void>();
 
-  constructor() {
-    this.assignAddOnsToCategories();
+  refresh$ = this.refreshSubject.asObservable();
+
+  constructor(private http: HttpClient) {}
+
+  refresh() {
+    this.refreshSubject.next();
   }
 
-  getCategories(): Category[] {
-    return this.categoryArray;
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(this.apiUrl);
   }
 
-  getCategoryById(id: number): Category | undefined {
-    return this.categoryArray.find((category) => category.id === id);
+  getCategoryById(id: number): Observable<Category> {
+    return this.http.get<Category>(`${this.apiUrl}/${id}`);
   }
 
-  private categoryArray: Category[] = [
-    {
-      id: 1,
-      name: 'Entradas',
-      description: "Pequeños platos gallegos pensados para abrir el apetito antes del plato principal.",
-      addOns: [],
-    },
-    {
-      id: 2,
-      name: 'Mariscos',
-      description: "Lo mejor de la costa gallega: mariscos frescos preparados con recetas tradicionales.",
-      addOns: [],
-    },
-    {
-      id: 3,
-      name: 'Carnes',
-      description: "Cortes a la brasa y guisos tradicionales de la cocina gallega.",
-      addOns: [],
-    },
-    {
-      id: 4,
-      name: 'Postres',
-      description: "Dulces clásicos de Galicia para cerrar la comida con sabor a tierra.",
-      addOns: [],
-    },
-    {
-      id: 5,
-      name: 'Bebidas',
-      description: "Mixología, vinos y bebidas premium seleccionadas para elevar tu experiencia gastronómica.",
-      addOns: [],
-    },
-  ];
+  createCategory(category: CreateCategory): Observable<Category> {
+    return this.http.post<Category>(this.apiUrl, category);
+  }
 
-  private assignAddOnsToCategories(): void {
-    this.categoryArray.forEach((category) => {
-      category.addOns = this.addOnService.getAddOnsByCategoryId(category.id);
+  updateCategory(category: Category): Observable<Category> {
+    // Solo se envían los datos propios; los adicionales se manejan desde el adicional
+    return this.http.put<Category>(`${this.apiUrl}/${category.id}`, {
+      id: category.id,
+      name: category.name,
+      description: category.description,
     });
+  }
+
+  deleteCategory(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

@@ -67,7 +67,22 @@ export class AdminProductModalComponent implements OnChanges {
   containsGluten = false;
 
   constructor() {
-    this.categories = this.categoryService.getCategories();
+    this.loadCategories();
+
+    this.categoryService.refresh$.subscribe(() => {
+      this.loadCategories();
+    });
+  }
+
+  loadCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Error cargando categorías:', error);
+      },
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {

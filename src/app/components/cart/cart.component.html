@@ -76,19 +76,30 @@
                 style="border-radius: 2px"
               >
                 <img
-                  [src]="item.imageUrl"
-                  [alt]="item.name"
+                  [src]="item.product.imageUrl"
+                  [alt]="item.product.name"
                   class="w-16 h-16 object-cover flex-shrink-0"
                   style="border-radius: 2px"
                 />
 
                 <div class="flex-1 min-w-0">
                   <p class="font-medium text-charcoal text-sm truncate">
-                    {{ item.name }}
+                    {{ item.product.name }}
                   </p>
 
+                  @if (item.addOns.length > 0) {
+                    <p
+                      class="text-xs truncate"
+                      style="color: rgba(44, 44, 44, 0.5)"
+                    >
+                      @for (addOn of item.addOns; track addOn.id) {
+                        + {{ addOn.name }}&nbsp;
+                      }
+                    </p>
+                  }
+
                   <p class="text-sm font-bold" style="color: #b2571f">
-                    ${{ item.price | number }}
+                    ${{ unitPrice(item) | number: "1.0-0" }}
                   </p>
 
                   <p class="text-xs" style="color: rgba(44, 44, 44, 0.4)">

@@ -56,6 +56,46 @@
 
       Productos
     </button>
+    <button
+      type="button"
+      (click)="changeTab('categories')"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [class.active]="activeTab === 'categories'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+
+      Categorías
+    </button>
+
+    <button
+      type="button"
+      (click)="changeTab('addons')"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [class.active]="activeTab === 'addons'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 8v8M8 12h8" />
+      </svg>
+
+      Adicionales
+    </button>
 
     <button
       type="button"

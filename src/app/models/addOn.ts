@@ -1,9 +1,12 @@
-import { Category } from "./category";
+import { Category } from './category';
+
 export interface AddOn {
   id: number;
   name: string;
   description: string;
   price: number;
   active: boolean;
-  categoryIds: number[];
+  categories?: Category[];
 }
+
+export type CreateAddOn = Omit<AddOn, 'id'>;

@@ -3,7 +3,7 @@ import { CartComponent } from '../cart/cart.component';
 import { Component, HostListener, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-
+import { CartService } from '../../services/cart.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -42,10 +42,12 @@ export class NavbarComponent implements OnDestroy {
   cartCount = 0;
 
   private sub: Subscription;
+  private cartSub: Subscription;
 
   constructor(
     private router: Router,
     private auth: AuthService,
+    private cartService: CartService,
   ) {
     this.updateNavbar();
 
@@ -57,6 +59,10 @@ export class NavbarComponent implements OnDestroy {
         ? `${session.name} ${session.lastName}`.trim()
         : '';
       this.userId = session?.id ?? null;
+    });
+
+    this.cartSub = this.cartService.items$.subscribe(() => {
+      this.cartCount = this.cartService.count;
     });
   }
   // =========================
@@ -180,6 +186,7 @@ export class NavbarComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+    this.cartSub.unsubscribe();
   }
 
   logout(): void {
