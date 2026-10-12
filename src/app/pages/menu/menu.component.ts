@@ -9,6 +9,8 @@ import { FeatureFilterComponent } from './components/feature-filter/feature-filt
 import { ProductCardMenuComponent } from './components/product-card-menu/product-card-menu.component';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product';
+import { CategoryService } from '../../services/category.service';
+import { Category } from '../../models/category';
 import { FeatureKey } from '../../models/feature';
 
 @Component({
@@ -27,11 +29,22 @@ import { FeatureKey } from '../../models/feature';
 })
 export class MenuComponent {
   private productService = inject(ProductService);
+  private categoryService = inject(CategoryService);
 
   products: Product[] = [];
   filteredProducts: Product[] = [];
+  categories: Category[] = [];
 
   constructor() {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Error cargando categorías:', error);
+      },
+    });
+
     this.productService.getActiveProducts().subscribe({
       next: (products) => {
         this.products = products;
@@ -47,16 +60,13 @@ export class MenuComponent {
   currentSearch = '';
   activeFeatureFilters: FeatureKey[] = [];
 
-  readonly categories = [
-    'Todos',
-    'Popular',
-    'Entradas',
-    'Mariscos',
-    'Carnes',
-    'Postres',
-    'Bebidas',
-  ];
-
+  get categoriesList(): string[] {
+    return [
+      'Todos',
+      'Popular',
+      ...this.categories.map((category) => category.name),
+    ];
+  }
   filterMenuItems(): void {
     const search = this.currentSearch.trim().toLowerCase();
 
