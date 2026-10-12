@@ -1,14 +1,35 @@
 package com.example.demo;
 
-import org.springframework.stereotype.Component;
-
-import com.example.demo.entities.*;
-import com.example.demo.repository.*;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import java.util.Random;
-import java.time.LocalDateTime;
+import org.springframework.stereotype.Component;
+
+import com.example.demo.entities.AddOn;
+import com.example.demo.entities.Admin;
+import com.example.demo.entities.Category;
+import com.example.demo.entities.Client;
+import com.example.demo.entities.DeliveryPerson;
+import com.example.demo.entities.Operator;
+import com.example.demo.entities.Order;
+import com.example.demo.entities.OrderDetail;
+import com.example.demo.entities.OrderDetailAddOn;
+import com.example.demo.entities.OrderStatus;
+import com.example.demo.entities.Product;
+import com.example.demo.entities.Role;
+import com.example.demo.repository.AddOnRepository;
+import com.example.demo.repository.AdminRepository;
+import com.example.demo.repository.CategoryRepository;
+import com.example.demo.repository.ClientRepository;
+import com.example.demo.repository.DeliveryPersonRepository;
+import com.example.demo.repository.OperatorRepository;
+import com.example.demo.repository.OrderRepository;
+import com.example.demo.repository.ProductRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -59,6 +80,10 @@ public class DataLoader implements CommandLineRunner {
                                 .filter(a -> a.getName().equals(name))
                                 .findFirst()
                                 .orElseThrow();
+        }
+
+        private Set<Category> cats(Category... categories) {
+                return new HashSet<>(Arrays.asList(categories));
         }
 
         @Override
@@ -154,75 +179,78 @@ public class DataLoader implements CommandLineRunner {
 
                 // AddOns
                 addonRepository.save(AddOn.builder().name("Ensalada verde")
-                                .description("Adicional para Empanada").price(5000.0).Active(true).category(starters)
+                                .description("Adicional para Empanada").price(5000.0).active(true)
+                                .categories(cats(starters))
                                 .build());
                 addonRepository.save(AddOn.builder().name("Extra ajo")
-                                .description("Adicional para mariscos").price(2000.0).Active(true).category(seafood)
+                                .description("Adicional para mariscos").price(2000.0).active(true)
+                                .categories(cats(seafood))
                                 .build());
                 addonRepository.save(AddOn.builder().name("Salsa de limón")
-                                .description("Adicional para mariscos").price(3000.0).Active(true).category(seafood)
+                                .description("Adicional para mariscos").price(3000.0).active(true)
+                                .categories(cats(seafood))
                                 .build());
 
                 addonRepository.save(AddOn.builder().name("Pan de millo")
-                                .description("Adicional para Lacón").price(3500.0).Active(true).category(meats)
+                                .description("Adicional para Lacón").price(3500.0).active(true).categories(cats(meats))
                                 .build());
                 addonRepository.save(AddOn.builder().name("Cachelos")
-                                .description("Adicional para Lacón").price(6000.0).Active(true).category(meats)
+                                .description("Adicional para Lacón").price(6000.0).active(true).categories(cats(meats))
                                 .build());
 
                 addonRepository.save(AddOn.builder().name("Nata montada")
-                                .description("Adicional para Tarta de Santiago").price(3000.0).Active(true)
-                                .category(desserts).build());
+                                .description("Adicional para Tarta de Santiago").price(3000.0).active(true)
+                                .categories(cats(desserts)).build());
                 addonRepository.save(AddOn.builder().name("Helado de vainilla")
-                                .description("Adicional para Tarta de Santiago").price(4000.0).Active(true)
-                                .category(desserts).build());
+                                .description("Adicional para Tarta de Santiago").price(4000.0).active(true)
+                                .categories(cats(desserts)).build());
 
                 addonRepository.save(AddOn.builder().name("Porción de Pan Rústico")
                                 .description("Pan gallego artesanal, ideal para acompañar tus entradas y mojar salsas.")
-                                .price(3500.0).Active(true).category(starters).build());
+                                .price(3500.0).active(true).categories(cats(starters)).build());
 
                 addonRepository.save(AddOn.builder().name("Extra Salsa Brava")
                                 .description("Una porción extra de nuestra salsa brava ligeramente picante.")
-                                .price(2500.0).Active(true).category(starters).build());
+                                .price(2500.0).active(true).categories(cats(starters)).build());
 
                 addonRepository.save(AddOn.builder().name("Picos Camperos")
                                 .description("Palitos de pan crujientes típicos, perfectos para picar.")
-                                .price(2000.0).Active(true).category(starters).build());
+                                .price(2000.0).active(true).categories(cats(starters)).build());
 
                 // adicionales para mariscos
                 addonRepository.save(AddOn.builder().name("Ración de Cachelos")
                                 .description("Patatas cocidas con pimentón, el acompañante perfecto para el pulpo.")
-                                .price(6000.0).Active(true).category(seafood).build());
+                                .price(6000.0).active(true).categories(cats(seafood)).build());
 
                 addonRepository.save(AddOn.builder().name("Salsa de Limón y Perejil")
-                                .description("Toque cítrico y fresco extra para tus mariscos y pescados.")
-                                .price(3000.0).Active(true).category(seafood).build());
+                                .description("Toque cítrico y fresco extra para tus marisco.categories(cats(meats))s y pescados.")
+                                .price(3000.0).active(true).categories(cats(seafood)).build());
 
                 addonRepository.save(AddOn.builder().name("Mayonesa Casera Suave")
                                 .description("Nuestra mayonesa tradicional hecha en casa, sin ajo.")
-                                .price(2500.0).Active(true).category(seafood).build());
+                                .price(2500.0).active(true).categories(cats(seafood)).categories(cats(meats)).build());
 
                 // adicionales para carnes
                 addonRepository.save(AddOn.builder().name("Ensalada Verde de Guarnición")
                                 .description("Fresca mezcla de lechugas para equilibrar tus carnes.")
-                                .price(5000.0).Active(true).category(meats).build());
+                                .price(5000.0).active(true).categories(cats(meats)).build());
 
                 addonRepository.save(AddOn.builder().name("Patatas Panaderas")
                                 .description("Patatas horneadas lentamente a fuego lento, ideales para carnes asadas.")
-                                .price(6000.0).Active(true).category(meats).build());
+                                .price(6000.0).active(true).categories(cats(meats)).build());
 
                 addonRepository.save(AddOn.builder().name("Puré de Patatas Trufado")
                                 .description("Cremoso puré de patata con un toque de aceite de trufa blanca.")
-                                .price(6500.0).Active(true).category(meats).build());
+                                .price(6500.0).active(true).categories(cats(meats)).build());
 
                 // adicionales para postres
                 addonRepository.save(AddOn.builder().name("Bola de Helado de Vainilla")
                                 .description("Combina perfecto con torrijas, tartas o postres calientes.")
-                                .price(4500.0).Active(true).category(desserts).build());
+                                .price(4500.0).active(true).categories(cats(desserts)).build());
 
                 addonRepository.save(AddOn.builder().name("Nata Montada Extra")
                                 .description("Nata fresca montada al momento, ideal para acompañar dulces.")
-                                .price(3000.0).Active(true).category(desserts).build());
+                                .price(3000.0).active(true).categories(cats(desserts)).build());
 
                 // Products
 

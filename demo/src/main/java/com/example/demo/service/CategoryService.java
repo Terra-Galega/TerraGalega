@@ -13,4 +13,10 @@ public interface CategoryService {
     Category getCategoryByName(String name);
 
     List<AddOn> getAddonsByCategory(String categoryName);
+
+    Category addCategory(Category category);
+
+    Category updateCategory(Integer id, Category category);
+
+    void deleteCategory(Integer id);
 }
