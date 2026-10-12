@@ -74,17 +74,13 @@ export class ProductInfoCardComponent {
   }
 
   addToOrder(): void {
-    // Para pedir hay que haber iniciado sesión como cliente
-    const session = this.auth.session;
+    this.cartService.addItem(
+      this.product,
+      this.quantity,
+      this.selectedAddOns
+    );
 
-    if (!session || session.type !== 'client') {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    this.cartService.addItem(this.product, this.quantity, this.selectedAddOns);
-
-    // Se limpia la selección y se muestra la confirmación
+    // Limpiar la selección después de agregar el producto
     this.selectedAddOns = [];
     this.quantity = 1;
     this.added = true;

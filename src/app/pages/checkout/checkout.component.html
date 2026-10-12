@@ -1,0 +1,56 @@
+<div style="min-height: 100vh; background: #f5f2eb;">
+  <app-navbar></app-navbar>
+
+  <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
+  <app-page-header eyebrow="Pasarela de pago" title="Confirma y paga">
+    <p
+      class="text-[15px] md:text-right md:max-w-xs"
+      style="color: rgba(44, 44, 44, 0.7)"
+    >
+    Hola {{ clientName }}, estás a un paso de tu pedido.
+    </p>
+  </app-page-header>
+
+  @if (items.length === 0) {
+    <div class="glass-card rounded-3xl">
+      <app-empty-state
+        message="Tu carrito está vacío. Agrega algo de la carta antes de pagar."
+        actionLabel="Explorar la carta"
+        (action)="goToMenu()"
+      ></app-empty-state>
+    </div>
+  } @else {
+    <form
+      [formGroup]="form"
+      (ngSubmit)="pay()"
+      class="grid grid-cols-1 md:grid-cols-5 gap-8"
+    >
+      <div class="md:col-span-2 flex flex-col gap-4">
+        <app-order-summary
+          [items]="items"
+          [total]="total"
+          [unitPrice]="unitPrice"
+        ></app-order-summary>
+
+        <app-delivery-address
+          [form]="form"
+          [addressError]="addressError"
+          (fillTestData)="fillTestData()"
+        ></app-delivery-address>
+      </div>
+
+      <div class="md:col-span-3">
+        <app-payment-form
+          [form]="form"
+          [paying]="paying"
+          [cardError]="cardError"
+          [serverError]="serverError"
+          (cancel)="cancel()"
+        ></app-payment-form>
+      </div>
+    </form>
+  }
+</main>
+
+<app-footer></app-footer>
+</div>

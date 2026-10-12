@@ -1,0 +1,31 @@
+<div [formGroup]="form">
+  <div class="glass-card rounded-3xl p-6">
+    <app-form-field label="Dirección de entrega">
+      <input
+        type="text"
+        formControlName="address"
+        placeholder="Ejm: Calle 123 #45-67, apto 8"
+        maxlength="120"
+        aria-label="Dirección de entrega"
+        class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+      />
+    </app-form-field>
+
+    @if (addressError) {
+      <p class="text-xs mt-2" style="color: #8a2222">
+        Escribe la dirección donde quieres recibir tu pedido.
+      </p>
+    }
+  </div>
+
+  <div class="mt-4">
+    <app-button
+      variant="outline"
+      size="sm"
+      [fullWidth]="true"
+      (click)="fillTestData.emit()"
+    >
+      Autocompletar datos de prueba
+    </app-button>
+  </div>
+</div>

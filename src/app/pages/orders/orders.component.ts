@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { LoggedOutComponent } from './components/logged-out/logged-out.component';
@@ -21,20 +22,33 @@ import { AuthService } from '../../services/auth.service';
     LoggedInComponent,
     ReadyToOrderComponent,
     EmptyOrdersComponent,
-    OrderedComponent
-],
+    OrderedComponent,
+  ],
   templateUrl: './orders.component.html',
 })
 
 export class OrdersComponent implements OnInit {
   private auth = inject(AuthService);
   private orderService = inject(OrderService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
+  paidSuccess = false;
   isLoggedIn = false;
   loading = true;
   orders: Order[] = [];
 
-  ngOnInit() {
+  ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('paid') === 'true') {
+      this.paidSuccess = true;
+
+      this.router.navigate([], {
+        relativeTo: this.route,
+        replaceUrl: true,
+        queryParams: {},
+      });
+    }
+
     const session = this.auth.session;
 
     if (!session || session.type !== 'client') {

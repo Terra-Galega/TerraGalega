@@ -1,7 +1,7 @@
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { CartComponent } from '../cart/cart.component';
 import { Component, HostListener, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 @Component({
@@ -43,6 +43,7 @@ export class NavbarComponent implements OnDestroy {
 
   private sub: Subscription;
   private cartSub: Subscription;
+  private routerSub: Subscription;
 
   constructor(
     private router: Router,
@@ -64,6 +65,12 @@ export class NavbarComponent implements OnDestroy {
     this.cartSub = this.cartService.items$.subscribe(() => {
       this.cartCount = this.cartService.count;
     });
+
+    // Al construirse, router.url aún puede ser '/' (la navegación no terminó).
+    // Recalculamos el estado cuando la navegación realmente termina.
+    this.routerSub = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => this.updateNavbar());
   }
   // =========================
   // NAVEGACIÓN
@@ -187,6 +194,7 @@ export class NavbarComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.sub.unsubscribe();
     this.cartSub.unsubscribe();
+    this.routerSub.unsubscribe();
   }
 
   logout(): void {

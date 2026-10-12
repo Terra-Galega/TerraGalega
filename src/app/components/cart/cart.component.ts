@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 
 @Component({
@@ -14,7 +16,11 @@ export class CartComponent {
 
   cartItems: CartItem[] = [];
 
-  constructor(private cartService: CartService) {
+  constructor(
+    private cartService: CartService,
+    private router: Router,
+    private auth: AuthService,
+  ) {
     this.cartService.items$.subscribe((items) => {
       this.cartItems = items;
     });
@@ -35,6 +41,24 @@ export class CartComponent {
   get itemCount() {
     return this.cartService.count;
   }
+
+  // Cierra el carrito y lleva a la pasarela de pago
+  goToCheckout(): void {
+  this.closeCart();
+
+  const session = this.auth.session;
+
+  if (!session) {
+    this.router.navigate(['/login'], {
+      queryParams: { redirect: 'checkout' },
+    });
+    return;
+  }
+
+  if (session.type === 'client') {
+    this.router.navigate(['/checkout']);
+  }
+}
 
   removeItem(id: string) {
     this.cartService.removeItem(id);
