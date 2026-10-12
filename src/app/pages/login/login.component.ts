@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { Role } from '../../models/role';
 import { CreateClient } from '../../models/client';
@@ -42,7 +42,20 @@ export class LoginComponent {
   private clientService = inject(ClientService);
   private adminService = inject(AdminService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private auth = inject(AuthService);
+
+  // Si llegaron desde /checkout sin sesión, después de entrar vuelven allí
+  private goAfterClientAuth(clientId: number): void {
+  const redirect = this.route.snapshot.queryParamMap.get('redirect');
+
+  if (redirect === 'checkout') {
+    this.router.navigate(['/checkout']);
+    return;
+  }
+
+  this.router.navigate(['/account', clientId]);
+}
 
   selectTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
@@ -93,7 +106,7 @@ export class LoginComponent {
 
     if (client) {
       this.auth.setSession(client, 'client');
-      this.router.navigate(['/account', client.id]);
+      this.goAfterClientAuth(client.id);
       return;
     }
 
@@ -147,9 +160,7 @@ export class LoginComponent {
         console.log('Cliente creado:', createdClient);
 
         this.auth.setSession(createdClient, 'client');
-        this.router.navigate(['/account', createdClient.id]);
-
-        this.router.navigate(['/account', createdClient.id]);
+        this.goAfterClientAuth(createdClient.id);
       },
       error: (error) => {
         console.error('Error creando cuenta:', error);

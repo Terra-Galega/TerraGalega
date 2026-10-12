@@ -1,0 +1,46 @@
+<div class="glass-card rounded-3xl p-6">
+  <h2 class="font-serif text-xl font-semibold text-charcoal mb-4">
+    Tu pedido
+  </h2>
+
+  <div class="space-y-4 mb-5">
+    @for (item of items; track item.id) {
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <p class="font-medium text-charcoal text-sm">
+            {{ item.quantity }}× {{ item.product.name }}
+          </p>
+
+          @if (item.addOns.length > 0) {
+            <p
+              class="text-xs mt-0.5"
+              style="color: rgba(44, 44, 44, 0.5)"
+            >
+              @for (addOn of item.addOns; track addOn.id; let last = $last) {
+                + {{ addOn.name }}{{ last ? '' : ', ' }}
+              }
+            </p>
+          }
+        </div>
+
+        <span
+          class="font-semibold text-sm flex-shrink-0"
+          style="color: rgba(44, 44, 44, 0.8)"
+        >
+          ${{ unitPrice(item) * item.quantity | number: '1.0-0' }}
+        </span>
+      </div>
+    }
+  </div>
+
+  <div
+    class="pt-4 border-t flex items-center justify-between"
+    style="border-color: rgba(44, 44, 44, 0.1)"
+  >
+    <span class="font-medium text-charcoal">Total</span>
+
+    <span class="font-bold text-2xl" style="color: #b2571f">
+      ${{ total | number: '1.0-0' }}
+    </span>
+  </div>
+</div>
