@@ -123,9 +123,11 @@ public class OrderServiceImpl implements OrderService {
                             .orElseThrow(() -> new IllegalArgumentException(
                                     "Adicional no encontrado: " + addOnId));
 
-                    if (addOn.getCategory() == null
-                            || product.getCategory() == null
-                            || !addOn.getCategory().getId().equals(product.getCategory().getId())) {
+                    boolean addOnAllowed = product.getCategory() != null
+                            && addOn.getCategories().stream()
+                                    .anyMatch(c -> c.getId().equals(product.getCategory().getId()));
+
+                    if (!addOnAllowed) {
                         throw new IllegalArgumentException(
                                 "El adicional seleccionado no está disponible para este producto.");
                     }
