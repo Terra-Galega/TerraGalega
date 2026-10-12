@@ -1,56 +1,41 @@
-/*
- * package com.example.demo.controller;
- * 
- * import com.example.demo.dto.CheckoutRequestDTO;
- * import com.example.demo.entities.Client;
- * import com.example.demo.service.OrderService;
- * 
- * import jakarta.servlet.http.HttpSession;
- * 
- * import org.springframework.beans.factory.annotation.Autowired;
- * import org.springframework.stereotype.Controller;
- * import org.springframework.ui.Model;
- * import org.springframework.web.bind.annotation.GetMapping;
- * import org.springframework.web.bind.annotation.ModelAttribute;
- * import org.springframework.web.bind.annotation.PostMapping;
- * 
- * @Controller
- * public class CheckoutController {
- * 
- * @Autowired
- * private OrderService orderService;
- * 
- * // Muestra la página de checkout.
- * // Si el usuario no ha iniciado sesión,
- * // lo manda al login y después puede volver al checkout.
- * 
- * @GetMapping("/checkout")
- * public String checkoutPage(Model model, HttpSession session) {
- * 
- * Object logged = session.getAttribute(AuthController.SESSION_Client);
- * 
- * if (!(logged instanceof Client client)) {
- * return "redirect:/login?redirect=checkout";
- * }
- * 
- * model.addAttribute("client", client);
- * 
- * return "checkout";
- * }
- * 
- * // Procesa el pago simulado.
- * 
- * @PostMapping("/checkout")
- * public String pay(
- * 
- * @ModelAttribute CheckoutRequestDTO request,
- * HttpSession session) {
- * Object logged = session.getAttribute(AuthController.SESSION_Client);
- * if (!(logged instanceof Client client)) {
- * return "redirect:/login?redirect=checkout";
- * }
- * orderService.checkout(client, request);
- * return "redirect:/orders?paid=true";
- * }
- * }
- */
+
+package com.example.demo.controller;
+
+import com.example.demo.dto.CheckoutRequestDTO;
+import com.example.demo.entities.Client;
+import com.example.demo.entities.Order;
+import com.example.demo.service.ClientService;
+import com.example.demo.service.OrderService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+
+@RestController
+@RequestMapping("/checkout")
+@CrossOrigin(origins = "http://localhost:4200")
+public class CheckoutController {
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private ClientService clientService;
+
+    @Operation(summary = "Process checkout and create an order")
+    @PostMapping
+    public Order checkout(
+            @RequestParam Integer clientId,
+            @RequestBody CheckoutRequestDTO request) {
+
+        Client client = clientService.getClientById(clientId);
+
+        return orderService.checkout(client, request);
+    }
+}
