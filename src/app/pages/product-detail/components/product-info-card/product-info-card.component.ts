@@ -1,8 +1,10 @@
 import { Component, Input, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Product } from '../../../../models/product';
 import { DecimalPipe } from '@angular/common';
-import { CategoryService } from '../../../../services/category.service';
 import { AddOn } from '../../../../models/addOn';
+import { AuthService } from '../../../../services/auth.service';
+import { CartService } from '../../../../services/cart.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { FeatureChipsComponent } from '../../../../components/feature-chips/feature-chips.component';
 import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
@@ -23,7 +25,10 @@ import { QuantitySelectorComponent } from '../quantity-selector/quantity-selecto
   styleUrl: './product-info-card.component.scss',
 })
 export class ProductInfoCardComponent {
-  private categoryService = inject(CategoryService);
+  private router = inject(Router);
+  private auth = inject(AuthService);
+  private cartService = inject(CartService);
+
   @Input() product!: Product;
 
   addons: AddOn[] = [];
@@ -31,21 +36,17 @@ export class ProductInfoCardComponent {
 
   quantity = 1;
 
+  // Muestra el mensaje "añadido" por unos segundos
+  added = false;
+
   ngOnInit(): void {
     this.loadAddOns();
   }
 
   private loadAddOns(): void {
-    const categoryId = this.product.category?.id;
-
-    if (!categoryId) {
-      this.addons = [];
-      return;
-    }
-
-    const category = this.categoryService.getCategoryById(categoryId);
-
-    this.addons = category?.addOns.filter((addOn) => addOn.active) ?? [];
+    this.addons = (this.product.category?.addOns ?? []).filter(
+      (addOn) => addOn.active,
+    );
   }
 
   toggleAddOn(addOn: AddOn): void {
@@ -72,5 +73,24 @@ export class ProductInfoCardComponent {
     return (this.product.price + this.addOnsTotal) * this.quantity;
   }
 
-  addToOrder(): void {}
+  addToOrder(): void {
+    // Para pedir hay que haber iniciado sesión como cliente
+    const session = this.auth.session;
+
+    if (!session || session.type !== 'client') {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.cartService.addItem(this.product, this.quantity, this.selectedAddOns);
+
+    // Se limpia la selección y se muestra la confirmación
+    this.selectedAddOns = [];
+    this.quantity = 1;
+    this.added = true;
+
+    setTimeout(() => {
+      this.added = false;
+    }, 2500);
+  }
 }

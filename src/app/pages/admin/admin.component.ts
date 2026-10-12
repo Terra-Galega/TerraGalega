@@ -1,13 +1,22 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { AdminSidebarComponent } from './components/admin-sidebar/admin-sidebar.component';
+import {
+  AdminSidebarComponent,
+  AdminTab,
+} from './components/admin-sidebar/admin-sidebar.component';
 import { AdminTopbarComponent } from './components/admin-topbar/admin-topbar.component';
 import { AdminProductsComponent } from './components/admin-products/admin-products.component';
 import { AdminOrdersComponent } from './components/admin-orders/admin-orders.component';
 import { AdminUsersComponent } from './components/admin-users/admin-users.component';
 import { AdminProductModalComponent } from './components/admin-product-modal/admin-product-modal.component';
+import { AdminCategoriesComponent } from './components/admin-categories/admin-categories.component';
+import { AdminCategoryModalComponent } from './components/admin-category-modal/admin-category-modal.component';
+import { AdminAddonsComponent } from './components/admin-addons/admin-addons.component';
+import { AdminAddonModalComponent } from './components/admin-addon-modal/admin-addon-modal.component';
 import { Product } from '../../models/product';
+import { Category } from '../../models/category';
+import { AddOn } from '../../models/addOn';
 
 @Component({
   selector: 'app-admin',
@@ -18,16 +27,25 @@ import { Product } from '../../models/product';
     AdminOrdersComponent,
     AdminUsersComponent,
     AdminProductModalComponent,
+    AdminCategoriesComponent,
+    AdminCategoryModalComponent,
+    AdminAddonsComponent,
+    AdminAddonModalComponent,
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
 })
 export class AdminComponent {
-  activeTab: 'products' | 'orders' | 'users' = 'products';
+  activeTab: AdminTab = 'products';
 
   productModalOpen = false;
-
   selectedProduct: Product | null = null;
+
+  categoryModalOpen = false;
+  selectedCategory: Category | null = null;
+
+  addonModalOpen = false;
+  selectedAddon: AddOn | null = null;
 
   searchTerm = '';
 
@@ -44,26 +62,61 @@ export class AdminComponent {
     }
   }
 
-  changeTab(tab: 'products' | 'orders' | 'users') {
+  changeTab(tab: AdminTab) {
     this.activeTab = tab;
+    this.searchTerm = '';
   }
 
   get pageTitle() {
-    if (this.activeTab === 'products') {
-      return 'Productos';
+    switch (this.activeTab) {
+      case 'products':
+        return 'Productos';
+      case 'categories':
+        return 'Categorías';
+      case 'addons':
+        return 'Adicionales';
+      case 'orders':
+        return 'Ordenes';
+      default:
+        return 'Usuarios';
     }
+  }
 
-    if (this.activeTab === 'orders') {
-      return 'Ordenes';
+  get showAddButton() {
+    return (
+      this.activeTab === 'products' ||
+      this.activeTab === 'categories' ||
+      this.activeTab === 'addons'
+    );
+  }
+
+  get addLabel() {
+    switch (this.activeTab) {
+      case 'categories':
+        return 'Añadir categoría';
+      case 'addons':
+        return 'Añadir adicional';
+      default:
+        return 'Añadir producto';
     }
-
-    return 'Usuarios';
   }
 
   searchProducts(term: string) {
     this.searchTerm = term;
   }
 
+  // El botón "Añadir" de la barra abre el modal de la pestaña activa
+  onAddClicked() {
+    if (this.activeTab === 'products') {
+      this.openAddProduct();
+    } else if (this.activeTab === 'categories') {
+      this.openAddCategory();
+    } else if (this.activeTab === 'addons') {
+      this.openAddAddon();
+    }
+  }
+
+  // Productos
   openAddProduct() {
     this.selectedProduct = null;
     this.productModalOpen = true;
@@ -79,9 +132,40 @@ export class AdminComponent {
     this.selectedProduct = null;
   }
 
+  // Categorías
+  openAddCategory() {
+    this.selectedCategory = null;
+    this.categoryModalOpen = true;
+  }
+
+  openEditCategory(category: Category) {
+    this.selectedCategory = category;
+    this.categoryModalOpen = true;
+  }
+
+  closeCategoryModal() {
+    this.categoryModalOpen = false;
+    this.selectedCategory = null;
+  }
+
+  // Adicionales
+  openAddAddon() {
+    this.selectedAddon = null;
+    this.addonModalOpen = true;
+  }
+
+  openEditAddon(addon: AddOn) {
+    this.selectedAddon = addon;
+    this.addonModalOpen = true;
+  }
+
+  closeAddonModal() {
+    this.addonModalOpen = false;
+    this.selectedAddon = null;
+  }
+
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);
   }
-  
 }

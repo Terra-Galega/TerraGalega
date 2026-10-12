@@ -1,0 +1,111 @@
+<div
+  class="rounded-2xl overflow-hidden"
+  style="
+    background-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05);
+  "
+>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm" style="border-collapse: collapse">
+      <thead>
+        <tr style="background-color: rgba(44, 44, 44, 0.04)">
+          @for (column of columns; track column) {
+            <th
+              class="text-left font-medium uppercase tracking-wider py-3 px-5"
+              style="font-size: 11px; color: rgba(44, 44, 44, 0.45)"
+            >
+              {{ column }}
+            </th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (category of filteredCategories; track category.id) {
+          <tr>
+            <td class="py-3 px-5 font-semibold text-charcoal">
+              {{ category.name }}
+            </td>
+
+            <td
+              class="py-3 px-5"
+              style="color: rgba(44, 44, 44, 0.75); max-width: 360px"
+            >
+              {{ category.description }}
+            </td>
+
+            <td class="py-3 px-5">
+              <span
+                class="text-[12px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+                style="
+                  background-color: rgba(178, 87, 31, 0.09);
+                  color: #b2571f;
+                "
+              >
+                {{ category.addOns?.length ?? 0 }}
+              </span>
+            </td>
+
+            <td class="py-3 px-5">
+              <div class="flex items-center gap-2">
+                <app-icon-button
+                  variant="ghost"
+                  label="Editar"
+                  (click)="openEdit(category)"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                    />
+                    <path
+                      d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                    />
+                  </svg>
+                </app-icon-button>
+
+                <app-icon-button
+                  variant="ghost"
+                  label="Eliminar"
+                  (click)="removeCategory(category)"
+                >
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                  </svg>
+                </app-icon-button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="columns.length">
+              <app-empty-state
+                [compact]="true"
+                message="No se encontraron categorías"
+              />
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
