@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -25,7 +26,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(exclude = { "product", "addOns" })
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor_ = @JsonCreator(mode = JsonCreator.Mode.DISABLED))
 @Entity
 @NoArgsConstructor
 @Builder
