@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +23,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(exclude = { "categories" })
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor_ = @JsonCreator(mode = JsonCreator.Mode.DISABLED))
 @Entity
 @NoArgsConstructor
 @Builder
