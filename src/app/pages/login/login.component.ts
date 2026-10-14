@@ -6,7 +6,6 @@ import { CreateClient } from '../../models/client';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ClientService } from '../../services/client.service';
-import { AdminService } from '../../services/admin.service';
 import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
 import { AuthService } from '../../services/auth.service';
@@ -40,22 +39,21 @@ export class LoginComponent {
   signupPhone = '';
 
   private clientService = inject(ClientService);
-  private adminService = inject(AdminService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private auth = inject(AuthService);
 
   // Si llegaron desde /checkout sin sesión, después de entrar vuelven allí
   private goAfterClientAuth(clientId: number): void {
-  const redirect = this.route.snapshot.queryParamMap.get('redirect');
+    const redirect = this.route.snapshot.queryParamMap.get('redirect');
 
-  if (redirect === 'checkout') {
-    this.router.navigate(['/checkout']);
-    return;
+    if (redirect === 'checkout') {
+      this.router.navigate(['/checkout']);
+      return;
+    }
+
+    this.router.navigate(['/account', clientId]);
   }
-
-  this.router.navigate(['/account', clientId]);
-}
 
   selectTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
@@ -87,30 +85,43 @@ export class LoginComponent {
     this.loginError = '';
   }
 
+  // Redirección según el rol del usuario que devolvió el back
+  private goByRole(user: any): void {
+    switch (user.role) {
+      case Role.ADMIN:
+        this.router.navigate(['/admin', user.id]);
+        break;
+
+      case Role.CLIENT:
+        this.goAfterClientAuth(user.id);
+        break;
+
+      // case Role.OPERATOR:
+      //   this.router.navigate(['/operator', user.id]);
+      //   break;
+
+      // case Role.DELIVERY_PERSON:
+      //   this.router.navigate(['/delivery', user.id]);
+      //   break;
+
+      default:
+        this.router.navigate(['/home']);
+    }
+  }
+
   login() {
     this.loginError = '';
 
-    // Primero comprobamos si es administrador
-    const admin = this.adminService.login(this.loginEmail, this.loginPassword);
-
-    if (admin) {
-      this.auth.setSession(admin, 'admin');
-      this.router.navigate(['/admin', admin.id]);
-      return;
-    }
-
-    const client = this.clientService.login(
-      this.loginEmail,
-      this.loginPassword,
-    );
-
-    if (client) {
-      this.auth.setSession(client, 'client');
-      this.goAfterClientAuth(client.id);
-      return;
-    }
-
-    this.loginError = 'Correo o contraseña incorrectos.';
+    this.auth.login(this.loginEmail, this.loginPassword).subscribe({
+      next: (user) => {
+        this.auth.setSession(user);
+        this.goByRole(user);
+      },
+      error: (error) => {
+        this.loginError =
+          error.error?.message ?? 'No se pudo conectar con el servidor.';
+      },
+    });
   }
   setSignupName(value: string) {
     this.signupName = value;
@@ -159,8 +170,8 @@ export class LoginComponent {
       next: (createdClient) => {
         console.log('Cliente creado:', createdClient);
 
-        this.auth.setSession(createdClient, 'client');
-        this.goAfterClientAuth(createdClient.id);
+        this.auth.setSession(createdClient);
+        this.goByRole(createdClient);
       },
       error: (error) => {
         console.error('Error creando cuenta:', error);

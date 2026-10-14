@@ -22,6 +22,10 @@ export class AccountComponent implements OnInit {
   private auth = inject(AuthService);
 
   ngOnInit() {
+    if (!this.auth.session) {
+      this.router.navigate(['/login']);
+      return;
+    }
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     this.clientService.getClientById(id).subscribe({
@@ -30,7 +34,8 @@ export class AccountComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error cargando cliente:', error);
-        this.client = null;
+        this.auth.logout();
+        this.router.navigate(['/login']);
       },
     });
   }

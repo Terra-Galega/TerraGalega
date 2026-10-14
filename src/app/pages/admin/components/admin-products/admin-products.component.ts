@@ -3,6 +3,7 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { AdminProductRowComponent } from '../admin-product-row/admin-product-row.component';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-products',
@@ -13,6 +14,7 @@ import { ProductService } from '../../../../services/product.service';
 })
 export class AdminProductsComponent {
   private productService = inject(ProductService);
+  private router = inject(Router);
 
   @Input() searchTerm = '';
 
@@ -79,6 +81,11 @@ export class AdminProductsComponent {
       },
       error: (error) => {
         console.error('Error eliminando producto:', error);
+        this.router.navigate(['/error'], {
+          queryParams: {
+            message: error.error?.message ?? 'No se pudo eliminar el producto.',
+          },
+        });
       },
     });
   }

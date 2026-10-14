@@ -1,0 +1,71 @@
+@if (!isAdmin) {
+  <app-navbar></app-navbar>
+}
+
+<main class="min-h-screen flex items-center justify-center px-6 py-32">
+  <div class="w-full max-w-md mx-auto text-center">
+    <div class="glass-card rounded-3xl p-10">
+      <div
+        class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center"
+        style="
+          background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+          box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
+        "
+      >
+        <svg
+          class="w-8 h-8 text-cream"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.8"
+            d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </div>
+
+      <p
+        class="text-[12px] tracking-widest uppercase mb-3"
+        style="color: rgba(44, 44, 44, 0.38)"
+      >
+        Algo salió mal
+      </p>
+
+      <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
+        Error
+      </h1>
+
+      <p
+        class="text-sm leading-relaxed mb-8"
+        style="color: rgba(44, 44, 44, 0.62)"
+      >
+        {{ message }}
+      </p>
+
+      @if (isAdmin) {
+        <app-button size="lg" [fullWidth]="true" (click)="goToPanel()"
+          >Volver al panel</app-button
+        >
+      } @else {
+        <app-button size="lg" [fullWidth]="true" (click)="goHome()"
+          >Volver al inicio</app-button
+        >
+
+        <button
+          type="button"
+          (click)="goMenu()"
+          class="inline-flex items-center gap-2 text-[13px] font-medium text-charcoal/45 hover:text-charcoal mt-5 transition-colors"
+        >
+          Ver la carta
+        </button>
+      }
+    </div>
+  </div>
+</main>
+
+@if (!isAdmin) {
+  <app-footer></app-footer>
+}

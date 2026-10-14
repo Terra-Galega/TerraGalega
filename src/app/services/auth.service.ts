@@ -1,16 +1,30 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 export interface Session {
   id: number;
   name: string;
   lastName: string;
-  type: 'admin' | 'client';
+  type: 'admin' | 'client' | 'operator' | 'delivery';
 }
+
+// Rol que manda el back -> tipo de sesión que usa el front
+const TYPES: Record<string, Session['type']> = {
+  ADMIN: 'admin',
+  CLIENT: 'client',
+  OPERATOR: 'operator',
+  DELIVERY_PERSON: 'delivery',
+};
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private sessionSubject = new BehaviorSubject<Session | null>(this.readSession());
+  private http = inject(HttpClient);
+
+  private apiUrl = 'http://localhost:8080/auth';
+
+  // La sesión vive solo en memoria: si se recarga la página, se pierde
+  private sessionSubject = new BehaviorSubject<Session | null>(null);
 
   session$ = this.sessionSubject.asObservable();
 
@@ -22,39 +36,30 @@ export class AuthService {
     return this.session !== null;
   }
 
-  // Se llama desde el login y desde editar perfil
-  setSession(user: any, type: 'admin' | 'client') {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    localStorage.setItem('userType', type);
-    this.sessionSubject.next(this.readSession());
+  // Le pregunta al back si el correo y la contraseña existen.
+  // Si no existen, el back responde con error y el componente lo muestra.
+  login(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/login`, { email, password });
+  }
+
+  // Se llama desde el login, el registro y editar perfil
+  setSession(user: any) {
+    const type = TYPES[user.role];
+
+    if (!type) {
+      this.sessionSubject.next(null);
+      return;
+    }
+
+    this.sessionSubject.next({
+      id: user.id,
+      name: user.name,
+      lastName: user.lastName,
+      type,
+    });
   }
 
   logout() {
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('currentAdmin');
-    localStorage.removeItem('userType');
     this.sessionSubject.next(null);
-  }
-
-  private readSession(): Session | null {
-    try {
-      const raw = localStorage.getItem('currentUser');
-      const type = localStorage.getItem('userType');
-
-      if (!raw || (type !== 'admin' && type !== 'client')) {
-        return null;
-      }
-
-      const user = JSON.parse(raw);
-
-      return {
-        id: user.id,
-        name: user.name,
-        lastName: user.lastName,
-        type,
-      };
-    } catch {
-      return null;
-    }
   }
 }

@@ -75,7 +75,7 @@ export class AccountEditComponent implements OnInit {
 
     this.clientService.updateClient(updatedClient).subscribe({
       next: (savedClient) => {
-        this.auth.setSession(savedClient, 'client');
+        this.auth.setSession(savedClient);
         this.router.navigate(['/account', this.client!.id]);
       },
       error: (error) => {
