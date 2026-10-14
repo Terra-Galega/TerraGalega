@@ -12,7 +12,8 @@ export interface CartItem {
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private itemsSubject = new BehaviorSubject<CartItem[]>(this.readCart());
+  // El carrito vive solo en memoria: si se recarga la página, se vacía
+  private itemsSubject = new BehaviorSubject<CartItem[]>([]);
 
   items$ = this.itemsSubject.asObservable();
 
@@ -36,15 +37,15 @@ export class CartService {
       updated = [...this.items, { id, product, quantity, addOns }];
     }
 
-    this.saveCart(updated);
+    this.itemsSubject.next(updated);
   }
 
   removeItem(id: string) {
-    this.saveCart(this.items.filter((item) => item.id !== id));
+    this.itemsSubject.next(this.items.filter((item) => item.id !== id));
   }
 
   clear() {
-    this.saveCart([]);
+    this.itemsSubject.next([]);
   }
 
   // Precio de una unidad: producto + sus adicionales
@@ -74,19 +75,5 @@ export class CartService {
       .join('-');
 
     return `${product.id}:${addOnIds}`;
-  }
-
-  private saveCart(items: CartItem[]) {
-    localStorage.setItem('cart', JSON.stringify(items));
-    this.itemsSubject.next(items);
-  }
-
-  private readCart(): CartItem[] {
-    try {
-      const raw = localStorage.getItem('cart');
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
   }
 }

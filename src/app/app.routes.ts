@@ -10,54 +10,76 @@ import { AccountEditComponent } from './pages/account-edit/account-edit.componen
 import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
 import { AboutUsComponent } from './pages/about-us/about-us.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
+import { ErrorComponent } from './pages/error/error.component';
+import { adminGuard, clientAreaGuard } from './guards/role.guards';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'aboutUs',
     component: AboutUsComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'menu',
     component: MenuComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'contact',
     component: ContactComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'home',
     component: HomeComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'orders',
     component: OrdersComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'checkout',
     component: CheckoutComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'login',
     component: LoginComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'admin/:id',
     component: AdminComponent,
+    canActivate: [adminGuard],
   },
   {
     path: 'account/:id',
-    component: AccountComponent
+    component: AccountComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'account/:id/edit',
-    component: AccountEditComponent
+    component: AccountEditComponent,
+    canActivate: [clientAreaGuard],
   },
   {
     path: 'productDetails/:id',
     component: ProductDetailComponent,
-  }
+    canActivate: [clientAreaGuard],
+  },
+  {
+    path: 'error',
+    component: ErrorComponent,
+  },
+  {
+    path: '**',
+    redirectTo: 'home',
+  },
 ];

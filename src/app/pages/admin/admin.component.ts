@@ -57,9 +57,12 @@ export class AdminComponent {
   ) {
     const session = this.auth.session;
 
-    if (session) {
-      this.adminName = `${session.name} ${session.lastName}`.trim();
+    if (!session || session.type !== 'admin') {
+      this.router.navigate(['/login']);
+      return;
     }
+
+    this.adminName = `${session.name} ${session.lastName}`.trim();
   }
 
   changeTab(tab: AdminTab) {
