@@ -1,0 +1,30 @@
+package com.example.demo.controller;
+
+import com.example.demo.dto.LoginRequestDTO;
+import com.example.demo.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:4200")
+public class AuthController {
+
+    @Autowired
+    private AuthService authService;
+
+    @Operation(summary = "Login with email and password")
+    @PostMapping("/login")
+    public Object login(@RequestBody LoginRequestDTO request) {
+
+        Object user = authService.login(request.getEmail(), request.getPassword());
+
+        if (user == null) {
+            throw new IllegalArgumentException("Correo o contraseña incorrectos.");
+        }
+
+        // Devuelve el Client o el Admin, ambos traen su "role"
+        return user;
+    }
+}
