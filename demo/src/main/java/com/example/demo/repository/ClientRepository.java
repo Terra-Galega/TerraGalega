@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Integer> {
 
+    Client findByPhone(String phone);
+
     Client findByEmail(String email);
 
 }

@@ -6,6 +6,8 @@ import com.example.demo.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.demo.repository.DeliveryPersonRepository;
+import com.example.demo.repository.OperatorRepository;
 
 import java.util.Collection;
 
@@ -18,7 +20,13 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private AdminRepository adminRepository;
 
-    @Autowired 
+    @Autowired
+    private OperatorRepository operatorRepository;
+
+    @Autowired
+    private DeliveryPersonRepository deliveryPersonRepository;
+
+    @Autowired
     private OrderService orderService;
 
     @Override
@@ -36,8 +44,23 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
-    public Client addClient(Client Client) {
-        return repository.save(Client);
+    public Client addClient(Client client) {
+
+        // El correo no puede estar usado por ningún tipo de usuario
+        if (repository.findByEmail(client.getEmail()) != null
+                || adminRepository.findByEmail(client.getEmail()) != null
+                || operatorRepository.findByEmail(client.getEmail()) != null
+                || deliveryPersonRepository.findByEmail(client.getEmail()) != null) {
+            throw new IllegalArgumentException(
+                    "Ya existe una cuenta registrada con ese correo electrónico.");
+        }
+
+        if (repository.findByPhone(client.getPhone()) != null) {
+            throw new IllegalArgumentException(
+                    "Ya existe una cuenta registrada con ese número de teléfono.");
+        }
+
+        return repository.save(client);
     }
 
     @Override
@@ -48,6 +71,12 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new IllegalArgumentException("El cliente no existe."));
 
         Client emailClient = repository.findByEmail(client.getEmail());
+        Client phoneClient = repository.findByPhone(client.getPhone());
+
+        if (phoneClient != null && !phoneClient.getId().equals(id)) {
+            throw new IllegalArgumentException(
+                    "Ya existe otra cuenta con ese número de teléfono.");
+        }
 
         if (emailClient != null
                 && !emailClient.getId().equals(id)) {
