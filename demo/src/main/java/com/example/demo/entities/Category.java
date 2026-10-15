@@ -8,6 +8,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,12 +41,13 @@ public class Category {
     @Column(unique = true, nullable = false, length = 70)
     private String name;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = true, length = 255)
     private String description;
 
     // Lado inverso del ManyToMany: el dueño de la relación es AddOn.
     @ManyToMany(mappedBy = "categories")
-    @JsonIgnoreProperties("categories")
+    @JsonIgnore
     @Builder.Default
     private Set<AddOn> addOns = new HashSet<>();
 

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,7 +50,7 @@ public class AddOn {
     // Lado dueño del ManyToMany (crea la tabla intermedia addon_category)
     @ManyToMany
     @JoinTable(name = "addon_category", joinColumns = @JoinColumn(name = "addon_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
-    @JsonIgnoreProperties("addOns")
+    @JsonIncludeProperties({ "id", "name" })
     @Builder.Default
     private Set<Category> categories = new HashSet<>();
 }
