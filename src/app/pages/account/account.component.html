@@ -1,74 +1,52 @@
 <app-navbar></app-navbar>
 
-<body class="min-h-screen bg-cream font-sans text-charcoal">
-  <!-- Modal de carrito -->
+<div class="min-h-screen bg-cream font-sans text-charcoal">
+  <main class="pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
+    <app-page-header eyebrow="Mi cuenta" title="Tu perfil"></app-page-header>
 
-  <main class="min-h-screen flex items-center justify-center px-6 py-32">
-    <div class="w-full max-w-md mx-auto glass-card rounded-3xl p-8">
-      <p
-        class="text-[12px] tracking-widest uppercase mb-2"
-        style="color: rgba(44, 44, 44, 0.38)"
-      >
-        Sesión iniciada
-      </p>
-      <h1 class="font-serif text-3xl font-semibold mb-6">
-        {{ client?.name }} {{ client?.lastName }}
-      </h1>
+    @if (client) {
+      <div class="space-y-6">
+        <app-profile-card [client]="client"></app-profile-card>
 
-      <div class="space-y-3 text-sm mb-8" style="color: rgba(44, 44, 44, 0.7)">
-        <p>
-          <span class="font-semibold text-charcoal">Correo:</span>
-          <span> {{ client?.email }}</span>
-        </p>
-        <p>
-          <span class="font-semibold text-charcoal">Teléfono:</span>
-          <span> {{ client?.phone }}</span>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <app-personal-info
+            class="lg:col-span-2"
+            [client]="client"
+            (edit)="editProfile()"
+          ></app-personal-info>
+
+          <app-account-actions (logout)="logout()"></app-account-actions>
+        </div>
+
+        <section
+          class="rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5"
+          style="background: rgba(138, 34, 34, 0.05); border: 1px solid rgba(138, 34, 34, 0.18)"
+        >
+          <div>
+            <h3 class="font-serif text-xl font-semibold" style="color: #8a2222">
+              Eliminar cuenta
+            </h3>
+            <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.6)">
+              Esta acción es permanente y no se puede deshacer.
+            </p>
+          </div>
+          <app-button variant="danger" size="md" (click)="deleteAccount()">
+            Eliminar mi cuenta
+          </app-button>
+        </section>
+      </div>
+    } @else {
+      <div class="glass-card rounded-3xl p-10 text-center">
+        <div
+          class="w-10 h-10 mx-auto mb-4 rounded-full animate-spin"
+          style="border: 3px solid rgba(178, 87, 31, 0.2); border-top-color: #b2571f"
+        ></div>
+        <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
+          Cargando tu perfil...
         </p>
       </div>
-
-      <div class="flex flex-col gap-3">
-        <!-- Ver la carta -->
-        <app-button
-          routerLink="/menu"
-          variant="primary"
-          size="lg"
-          [fullWidth]="true"
-        >
-          Ver la carta
-        </app-button>
-
-        <!-- Editar perfil -->
-        <app-button
-          variant="neutral"
-          size="lg"
-          [fullWidth]="true"
-          (click)="editProfile()"
-        >
-          Editar perfil
-        </app-button>
-
-        <!-- Cerrar sesión -->
-        <app-button
-          variant="neutral"
-          size="lg"
-          [fullWidth]="true"
-          (click)="logout()"
-        >
-          Cerrar sesión
-        </app-button>
-
-        <!-- Eliminar cuenta -->
-        <app-button
-          variant="danger"
-          size="lg"
-          [fullWidth]="true"
-          (click)="deleteAccount()"
-        >
-          Eliminar mi cuenta
-        </app-button>
-      </div>
-    </div>
+    }
   </main>
-</body>
+</div>
 
 <app-footer></app-footer>

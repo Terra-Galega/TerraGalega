@@ -1,145 +1,38 @@
 <app-navbar></app-navbar>
 
-<main class="min-h-screen flex items-center justify-center px-6 py-32">
-  <div class="w-full max-w-md mx-auto glass-card rounded-3xl p-8">
-
-    <p
-      class="text-[12px] tracking-widest uppercase mb-2"
-      style="color: rgba(44, 44, 44, 0.38)"
+<div class="min-h-screen bg-cream font-sans text-charcoal">
+  <main class="pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
+    <!-- Volver -->
+    <button
+      type="button"
+      (click)="cancel()"
+      class="inline-flex items-center gap-2 text-sm mb-8 cursor-pointer transition-opacity hover:opacity-70"
+      style="color: rgba(44, 44, 44, 0.6)"
     >
-      Mi cuenta
-    </p>
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Volver a mi cuenta
+    </button>
 
-    <h1 class="font-serif text-3xl font-semibold mb-6">
-      Editar perfil
-    </h1>
+    <app-page-header eyebrow="Mi cuenta" title="Editar perfil"></app-page-header>
 
-    <form
-      [formGroup]="form"
-      (ngSubmit)="save()"
-      class="space-y-4"
-    >
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <app-profile-summary
+        class="lg:sticky lg:top-28"
+        [name]="form.value.name ?? ''"
+        [lastName]="form.value.lastName ?? ''"
+        [email]="form.value.email ?? ''"
+      ></app-profile-summary>
 
-      <!-- Nombre y apellido -->
-      <div class="grid grid-cols-2 gap-3">
-
-        <div>
-          <label
-            for="name"
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-            style="color: rgba(44, 44, 44, 0.4)"
-          >
-            Nombre
-          </label>
-
-          <input
-            id="name"
-            type="text"
-            formControlName="name"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-          />
-        </div>
-
-        <div>
-          <label
-            for="lastName"
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-            style="color: rgba(44, 44, 44, 0.4)"
-          >
-            Apellido
-          </label>
-
-          <input
-            id="lastName"
-            type="text"
-            formControlName="lastName"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-          />
-        </div>
-
-      </div>
-
-      <!-- Correo -->
-      <div>
-        <label
-          for="email"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          Correo electrónico
-        </label>
-
-        <input
-          id="email"
-          type="email"
-          formControlName="email"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-        />
-      </div>
-
-      <!-- Teléfono -->
-      <div>
-        <label
-          for="phone"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          Teléfono
-        </label>
-
-        <input
-          id="phone"
-          type="text"
-          formControlName="phone"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-        />
-      </div>
-
-      <!-- Contraseña -->
-      <div>
-        <label
-          for="password"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          Nueva contraseña
-        </label>
-
-        <input
-          id="password"
-          type="password"
-          formControlName="password"
-          placeholder="Dejar en blanco para no cambiarla"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-        />
-      </div>
-
-      <!-- Botones -->
-      <div class="flex flex-col gap-3 pt-2">
-
-        <app-button
-          type="submit"
-          variant="primary"
-          size="md"
-          [fullWidth]="true"
-        >
-          Guardar cambios
-        </app-button>
-
-        <app-button
-          type="button"
-          variant="neutral"
-          size="md"
-          [fullWidth]="true"
-          (click)="cancel()"
-        >
-          Cancelar
-        </app-button>
-
-      </div>
-
-    </form>
-  </div>
-</main>
+      <app-account-form
+        class="lg:col-span-2"
+        [form]="form"
+        (save)="save()"
+        (cancel)="cancel()"
+      ></app-account-form>
+    </div>
+  </main>
+</div>
 
 <app-footer></app-footer>
