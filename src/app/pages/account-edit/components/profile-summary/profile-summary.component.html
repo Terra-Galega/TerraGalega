@@ -1,0 +1,33 @@
+<aside class="glass-card rounded-3xl overflow-hidden">
+  <div
+    class="relative overflow-hidden h-24"
+    style="background-color: #556141"
+  >
+  </div>
+
+  <div class="px-6 pb-8 text-center">
+    <app-user-avatar
+      class="mx-auto -mt-10"
+      size="md"
+      [name]="name"
+      [lastName]="lastName"
+    ></app-user-avatar>
+
+    <h2 class="font-serif text-xl font-semibold mt-4">
+      {{ name }} {{ lastName }}
+    </h2>
+    <p class="text-sm mt-1 break-all" style="color: rgba(44, 44, 44, 0.55)">
+      {{ email }}
+    </p>
+
+    <div
+      class="mt-6 pt-6 text-xs leading-relaxed"
+      style="
+        color: rgba(44, 44, 44, 0.5);
+        border-top: 1px solid rgba(44, 44, 44, 0.08);
+      "
+    >
+      Los cambios se verán reflejados en tus próximos pedidos.
+    </div>
+  </div>
+</aside>

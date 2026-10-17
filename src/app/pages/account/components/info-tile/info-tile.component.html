@@ -1,0 +1,19 @@
+<div
+  class="rounded-2xl p-4 flex items-start gap-4"
+  style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(44, 44, 44, 0.06)"
+>
+  <div
+    class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+    style="background-color: rgba(109, 178, 31, 0.1)"
+    color="#556141"
+  >
+    <ng-content />
+  </div>
+
+  <div class="min-w-0">
+    <p class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.4)">
+      {{ label }}
+    </p>
+    <p class="text-sm font-medium mt-0.5 truncate">{{ value }}</p>
+  </div>
+</div>

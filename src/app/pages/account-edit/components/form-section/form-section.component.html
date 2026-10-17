@@ -1,0 +1,14 @@
+<section>
+  <div class="flex items-center gap-3 mb-6">
+    <div
+      class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+      style="background-color: rgba(109, 178, 31, 0.1)"
+      color="#556141"
+    >
+      <ng-content select="[icon]" />
+    </div>
+    <h3 class="font-serif text-xl font-semibold">{{ title }}</h3>
+  </div>
+
+  <ng-content />
+</section>

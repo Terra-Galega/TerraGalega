@@ -1,0 +1,40 @@
+<section class="glass-card rounded-3xl overflow-hidden">
+  <div
+    class="relative overflow-hidden h-36 md:h-44"
+    style="background: #556141"
+  >
+    <div
+      class="absolute top-6 right-6 md:top-8 md:right-8 px-4 py-1.5 rounded-full text-[11px] tracking-widest uppercase flex items-center gap-2"
+      style="
+        background: rgba(255, 255, 255, 0.15);
+        color: #f5f2eb;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+      "
+    >
+      <span
+        class="w-1.5 h-1.5 rounded-full"
+        style="background-color: #d99a21"
+      ></span>
+      Sesión iniciada
+    </div>
+  </div>
+
+  <div class="px-6 md:px-10 pb-8">
+    <div class="flex flex-col md:flex-row md:items-start gap-5 -mt-12 md:-mt-14">
+      <app-user-avatar
+        size="lg"
+        [name]="client.name"
+        [lastName]="client.lastName"
+      />
+
+      <div class="md:pt-16">
+        <h2 class="font-serif text-3xl md:text-4xl font-semibold">
+          {{ client.name }} {{ client.lastName }}
+        </h2>
+        <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.55)">
+          {{ client.email }}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

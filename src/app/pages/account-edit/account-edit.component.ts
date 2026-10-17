@@ -1,20 +1,23 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Client } from '../../models/client';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ClientService } from '../../services/client.service';
-import { ButtonComponent } from '../../components/button/button.component';
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { ProfileSummaryComponent } from './components/profile-summary/profile-summary.component';
+import { AccountFormComponent } from './components/account-form/account-form.component';
 
 @Component({
   selector: 'app-account-edit',
   imports: [
     NavbarComponent,
     FooterComponent,
-    ReactiveFormsModule,
-    ButtonComponent,
+    PageHeaderComponent,
+    ProfileSummaryComponent,
+    AccountFormComponent,
   ],
   templateUrl: './account-edit.component.html',
 })

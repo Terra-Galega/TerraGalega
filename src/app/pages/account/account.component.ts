@@ -2,14 +2,26 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { ButtonComponent } from '../../components/button/button.component';
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { ProfileCardComponent } from './components/profile-card/profile-card.component';
+import { PersonalInfoComponent } from './components/personal-info/personal-info.component';
+import { AccountActionsComponent } from './components/account-actions/account-actions.component';
 import { AuthService } from '../../services/auth.service';
 import { Client } from '../../models/client';
 import { ClientService } from '../../services/client.service';
+import { ButtonComponent } from '../../components/button/button.component';
 
 @Component({
   selector: 'app-account',
-  imports: [NavbarComponent, FooterComponent, ButtonComponent],
+  imports: [
+    NavbarComponent,
+    FooterComponent,
+    PageHeaderComponent,
+    ProfileCardComponent,
+    PersonalInfoComponent,
+    AccountActionsComponent,
+    ButtonComponent
+  ],
   templateUrl: './account.component.html',
 })
 export class AccountComponent implements OnInit {
