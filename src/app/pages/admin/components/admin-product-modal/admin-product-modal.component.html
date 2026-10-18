@@ -47,7 +47,7 @@
             (change)="setCategory($event)"
             class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
           >
-            <option value="">Seleccionar categoría</option>
+            <option value="">{{categoryName}}</option>
             @for (category of categories; track category.id) {
               <option [value]="category.name">{{ category.name }}</option>
             }
