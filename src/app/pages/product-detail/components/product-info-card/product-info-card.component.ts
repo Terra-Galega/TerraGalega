@@ -10,6 +10,7 @@ import { FeatureChipsComponent } from '../../../../components/feature-chips/feat
 import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
 import { AddonOptionComponent } from '../addon-option/addon-option.component';
 import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
+import { AddOnService } from '../../../../services/addOn.service';
 
 @Component({
   selector: 'app-product-info-card',
@@ -28,6 +29,7 @@ export class ProductInfoCardComponent {
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
+  private addOnService = inject(AddOnService);
 
   @Input() product!: Product;
 
@@ -44,10 +46,21 @@ export class ProductInfoCardComponent {
   }
 
   private loadAddOns(): void {
-    this.addons = (this.product.category?.addOns ?? []).filter(
-      (addOn) => addOn.active,
-    );
+  const categoryId = this.product.category?.id;
+
+  if (!categoryId) {
+    this.addons = [];
+    return;
   }
+
+  this.addOnService.getActiveAddOnsByCategory(categoryId).subscribe({
+    next: (addOns) => (this.addons = addOns),
+    error: (error) => {
+      console.error('Error cargando adicionales:', error);
+      this.addons = [];
+    },
+  });
+}
 
   toggleAddOn(addOn: AddOn): void {
     const isSelected = this.isAddOnSelected(addOn);

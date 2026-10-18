@@ -30,6 +30,10 @@ export class AddOnService {
     return this.http.get<AddOn>(`${this.apiUrl}/${id}`);
   }
 
+  getActiveAddOnsByCategory(categoryId: number): Observable<AddOn[]> {
+    return this.http.get<AddOn[]>(`${this.apiUrl}/active/category/${categoryId}`);
+  }
+
   createAddOn(addOn: CreateAddOn): Observable<AddOn> {
     return this.http.post<AddOn>(this.apiUrl, this.toPayload(addOn));
   }

@@ -3,6 +3,8 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/category.service';
+import { switchMap, map } from 'rxjs/operators';
+import { AddOnService } from '../../../../services/addOn.service';
 
 @Component({
   selector: 'app-admin-categories',
@@ -11,6 +13,7 @@ import { CategoryService } from '../../../../services/category.service';
 })
 export class AdminCategoriesComponent {
   private categoryService = inject(CategoryService);
+  private addOnService = inject(AddOnService);
 
   @Input() searchTerm = '';
 
@@ -30,15 +33,31 @@ export class AdminCategoriesComponent {
   }
 
   loadCategories() {
-    this.categoryService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories;
-        this.filterCategories();
-      },
-      error: (error) => {
-        console.error('Error cargando categorías:', error);
-      },
-    });
+    this.categoryService
+      .getCategories()
+      .pipe(
+        switchMap((categories) =>
+          this.addOnService.getAddOns().pipe(
+            map((addOns) =>
+              categories.map((category) => ({
+                ...category,
+                addOns: addOns.filter((addOn) =>
+                  addOn.categories?.some((c) => c.id === category.id),
+                ),
+              })),
+            ),
+          ),
+        ),
+      )
+      .subscribe({
+        next: (categories) => {
+          this.categories = categories;
+          this.filterCategories();
+        },
+        error: (error) => {
+          console.error('Error cargando categorías:', error);
+        },
+      });
   }
 
   ngOnChanges() {
