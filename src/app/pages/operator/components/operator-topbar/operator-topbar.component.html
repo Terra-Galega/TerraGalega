@@ -1,0 +1,43 @@
+<header
+  class="h-[60px] flex items-center justify-between px-8 border-b"
+  style="
+    background-color: rgba(245, 242, 235, 0.85);
+    backdrop-filter: blur(16px);
+    border-color: rgba(44, 44, 44, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  "
+>
+  <div class="flex items-center gap-4">
+    <a class="flex flex-col items-start leading-none select-none">
+      <span class="font-terra text-2xl leading-[0.6] text-charcoal">
+        Terra
+      </span>
+
+      <span
+        class="font-galega text-[11px] tracking-[0.22em] uppercase font-semibold -mt-1 text-charcoal"
+      >
+        Galega
+      </span>
+    </a>
+
+    <span
+      class="text-[10px] tracking-widest uppercase"
+      style="color: rgba(44, 44, 44, 0.4)"
+    >
+      Portal del operador
+    </span>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <div class="text-right">
+      <p class="text-sm font-medium text-charcoal">{{ operatorName }}</p>
+      <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.45)">Operador</p>
+    </div>
+
+    <app-button size="sm" variant="neutral" (click)="logoutClicked.emit()">
+      Cerrar sesión
+    </app-button>
+  </div>
+</header>

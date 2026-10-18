@@ -40,6 +40,12 @@ export interface Order {
     email: string;
     phone: string;
   } | null;
+  deliveryPerson?: {
+    id: number;
+    name: string;
+    lastName: string;
+    phone: string;
+  } | null;
   status: OrderStatus;
   createdAt: string;
   deliveredAt: string | null;

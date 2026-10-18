@@ -1,0 +1,122 @@
+<div>
+  @if (errorMessage) {
+    <p class="mb-4 text-sm" style="color: #da5858">{{ errorMessage }}</p>
+  }
+
+  @if (orders.length === 0) {
+    <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
+      No hay pedidos activos.
+    </p>
+  } @else {
+    <div
+      class="rounded-2xl overflow-x-auto"
+      style="
+        background-color: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+      "
+    >
+      <table class="w-full text-left text-sm">
+        <thead>
+          <tr
+            class="text-[11px] uppercase tracking-widest"
+            style="color: rgba(44, 44, 44, 0.45)"
+          >
+            <th class="px-6 py-4 font-medium">Pedido</th>
+            <th class="px-4 py-4 font-medium">Cliente</th>
+            <th class="px-4 py-4 font-medium">Detalle</th>
+            <th class="px-4 py-4 font-medium">Estado</th>
+            <th class="px-4 py-4 font-medium">Domiciliario</th>
+            <th class="px-4 py-4 font-medium text-right">Total</th>
+            <th class="px-6 py-4"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (order of orders; track order.id) {
+            <tr
+              class="border-t align-top"
+              style="border-color: rgba(44, 44, 44, 0.08)"
+            >
+              <td class="px-6 py-4">
+                <p
+                  class="font-mono font-semibold"
+                  style="color: rgba(44, 44, 44, 0.55)"
+                >
+                  #{{ order.id }}
+                </p>
+                <p style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
+                  {{ order.createdAt | date: "dd MMM, HH:mm" }}
+                </p>
+              </td>
+
+              <td class="px-4 py-4">
+                <p class="font-medium text-charcoal">
+                  {{ clientName(order) }}
+                </p>
+                <p style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
+                  {{ order.address }}
+                </p>
+              </td>
+
+              <td class="px-4 py-4">
+                <ul class="space-y-1">
+                  @for (detail of order.details; track detail.id) {
+                    <li>
+                      <span class="text-charcoal">
+                        {{ detail.quantity }}× {{ detail.product.name }}
+                      </span>
+                      @if (detail.addOns.length > 0) {
+                        <span
+                          class="block"
+                          style="font-size: 12px; color: rgba(44, 44, 44, 0.5)"
+                        >
+                          + {{ addOnNames(detail) }}
+                        </span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </td>
+
+              <td class="px-4 py-4">
+                <span
+                  class="inline-block text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap"
+                  [style.color]="statusColors[order.status]"
+                  style="
+                    background-color: color-mix(
+                      in srgb,
+                      currentColor 12%,
+                      transparent
+                    );
+                  "
+                >
+                  {{ statusLabels[order.status] }}
+                </span>
+              </td>
+
+              <td class="px-4 py-4" style="color: rgba(44, 44, 44, 0.65)">
+                {{ deliveryPersonName(order) }}
+              </td>
+
+              <td
+                class="px-4 py-4 text-right font-bold whitespace-nowrap"
+                style="color: #b2571f"
+              >
+                ${{ order.total | number: "1.0-0" }}
+              </td>
+
+              <td class="px-6 py-4 text-right">
+                @if (actionLabel(order); as label) {
+                  <app-button size="sm" (click)="onAction(order)">
+                    {{ busyOrderId === order.id ? "Procesando…" : label }}
+                  </app-button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
