@@ -17,4 +17,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     boolean existsByDetailsProductIdAndStatusNot(Integer productId, OrderStatus status);
 
     boolean existsByDetailsProductId(Integer productId);
+
+    boolean existsByOperatorId(Integer operatorId);
 }
