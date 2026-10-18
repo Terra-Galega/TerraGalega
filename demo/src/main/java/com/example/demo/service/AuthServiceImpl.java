@@ -16,6 +16,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private OperatorService operatorService;
+    
 
     @Override
     public Object login(String email, String password) {
@@ -33,6 +36,11 @@ public class AuthServiceImpl implements AuthService {
 
         if (admin != null) {
             return admin.getPassword().equals(password) ? admin : null;
+        }
+
+        Operator operator = operatorService.findByEmail(email);
+        if (operator != null) {
+            return operator.getPassword().equals(password) ? operator : null;
         }
 
         return null;
