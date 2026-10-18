@@ -11,4 +11,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AddOnRepository extends JpaRepository<AddOn, Integer> {
 
     List<AddOn> findByActiveTrue();
+    List<AddOn> findByActiveTrueAndCategories_Id(Integer categoryId);
 }

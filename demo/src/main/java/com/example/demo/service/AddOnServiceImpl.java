@@ -40,8 +40,16 @@ public class AddOnServiceImpl implements AddOnService {
     @Override
     @Transactional
     public AddOn getAddOnById(Integer id) {
-        return repository.findById(id)
+        return repository.findById(id)  
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró el adicional solicitado."));
+    }
+    @Override
+    @Transactional
+    public Collection<AddOn> getActiveAddOnsByCategory(Integer categoryId) {
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new IllegalArgumentException("No se encuentran categorias con este id.");
+        }
+        return repository.findByActiveTrueAndCategories_Id(categoryId);
     }
 
     // Validaciones compartidas por addAddOn() y updateAddOn()
