@@ -28,6 +28,12 @@ public class AddOnController {
         return addOnService.getAllAddOnsActive();
     }
 
+    @Operation(summary = "Get active addons of a category")
+    @GetMapping("/active/category/{categoryId}")
+    public Collection<AddOn> getActiveAddOnsByCategory(@PathVariable Integer categoryId) {
+        return addOnService.getActiveAddOnsByCategory(categoryId);
+    }
+
     @Operation(summary = "Get addon by ID")
     @GetMapping("/{id}")
     public AddOn getAddOnById(@PathVariable Integer id) {

@@ -10,6 +10,8 @@ public interface AddOnService {
     Collection<AddOn> getAllAddOnsActive();
 
     AddOn getAddOnById(Integer id);
+    
+    Collection<AddOn> getActiveAddOnsByCategory(Integer categoryId);
 
     AddOn addAddOn(AddOn addOn);
 
