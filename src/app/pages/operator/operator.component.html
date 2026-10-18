@@ -1,0 +1,27 @@
+<div
+  class="min-h-screen font-sans text-charcoal"
+  style="background-color: #ece9e1"
+>
+  <app-operator-topbar
+    [operatorName]="operatorName"
+    (logoutClicked)="logout()"
+  ></app-operator-topbar>
+
+  <main class="max-w-7xl mx-auto p-8">
+    <h1 class="font-serif text-2xl font-semibold text-charcoal mb-6">
+      Pedidos activos
+    </h1>
+
+    <app-operator-orders
+      [operatorId]="operatorId"
+      (sendRequested)="openSendModal($event)"
+    ></app-operator-orders>
+  </main>
+</div>
+
+@if (orderToSend) {
+  <app-operator-delivery-modal
+    [order]="orderToSend"
+    (closed)="closeSendModal()"
+  ></app-operator-delivery-modal>
+}

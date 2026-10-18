@@ -96,9 +96,9 @@ export class LoginComponent {
         this.goAfterClientAuth(user.id);
         break;
 
-      // case Role.OPERATOR:
-      //   this.router.navigate(['/operator', user.id]);
-      //   break;
+      case Role.OPERATOR:
+        this.router.navigate(['/operator', user.id]);
+        break;
 
       // case Role.DELIVERY_PERSON:
       //   this.router.navigate(['/delivery', user.id]);
@@ -150,8 +150,7 @@ export class LoginComponent {
       !this.signupName.trim() ||
       !this.signupLastName.trim() ||
       !this.signupEmail.trim() ||
-      !this.signupPassword.trim() ||
-      !this.signupPhone.trim()
+      !this.signupPassword.trim()
     ) {
       this.signupError = 'Todos los campos son obligatorios.';
       return;

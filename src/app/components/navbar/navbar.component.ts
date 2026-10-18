@@ -31,6 +31,7 @@ export class NavbarComponent implements OnDestroy {
   isLoggedIn = false;
   isLoggedAdmin = false;
   isClient = false;
+  isOperator = false;
 
   username = '';
   userId: number | null = null;
@@ -56,6 +57,7 @@ export class NavbarComponent implements OnDestroy {
       this.isLoggedIn = session !== null;
       this.isLoggedAdmin = session?.type === 'admin';
       this.isClient = session?.type === 'client';
+      this.isOperator = session?.type === 'operator';
       this.username = session
         ? `${session.name} ${session.lastName}`.trim()
         : '';

@@ -5,13 +5,14 @@ import { OrdersComponent } from './pages/orders/orders.component';
 import { LoginComponent } from './pages/login/login.component';
 import { MenuComponent } from './pages/menu/menu.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import {OperatorComponent} from './pages/operator/operator.component';
 import { AccountComponent } from './pages/account/account.component';
 import { AccountEditComponent } from './pages/account-edit/account-edit.component';
 import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
 import { AboutUsComponent } from './pages/about-us/about-us.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { ErrorComponent } from './pages/error/error.component';
-import { adminGuard, clientAreaGuard } from './guards/role.guards';
+import { adminGuard, clientAreaGuard, operatorGuard } from './guards/role.guards';
 
 export const routes: Routes = [
   {
@@ -58,6 +59,11 @@ export const routes: Routes = [
     path: 'admin/:id',
     component: AdminComponent,
     canActivate: [adminGuard],
+  },
+  {
+    path: 'operator/:id',
+    component: OperatorComponent,
+    canActivate: [operatorGuard],
   },
   {
     path: 'account/:id',

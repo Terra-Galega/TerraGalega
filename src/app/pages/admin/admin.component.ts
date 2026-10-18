@@ -9,6 +9,7 @@ import { AdminTopbarComponent } from './components/admin-topbar/admin-topbar.com
 import { AdminProductsComponent } from './components/admin-products/admin-products.component';
 import { AdminOrdersComponent } from './components/admin-orders/admin-orders.component';
 import { AdminUsersComponent } from './components/admin-users/admin-users.component';
+import { AdminOperatorsComponent } from './components/admin-operators/admin-operators.component';
 import { AdminProductModalComponent } from './components/admin-product-modal/admin-product-modal.component';
 import { AdminCategoriesComponent } from './components/admin-categories/admin-categories.component';
 import { AdminCategoryModalComponent } from './components/admin-category-modal/admin-category-modal.component';
@@ -26,6 +27,7 @@ import { AddOn } from '../../models/addOn';
     AdminProductsComponent,
     AdminOrdersComponent,
     AdminUsersComponent,
+    AdminOperatorsComponent,
     AdminProductModalComponent,
     AdminCategoriesComponent,
     AdminCategoryModalComponent,
@@ -80,6 +82,10 @@ export class AdminComponent {
         return 'Adicionales';
       case 'orders':
         return 'Ordenes';
+      case 'users':
+        return 'Usuarios';
+      case 'operators':
+        return 'Operadores';
       default:
         return 'Usuarios';
     }

@@ -34,3 +34,16 @@ export const adminGuard: CanActivateFn = (route) => {
 
   return true;
 };
+
+export const operatorGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  const session = auth.session;
+
+  if (session && session.type === 'operator') {
+    return router.createUrlTree(['/operator', session.id]);
+  }
+
+  return true;
+};
