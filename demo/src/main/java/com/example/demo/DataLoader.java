@@ -664,7 +664,7 @@ public class DataLoader implements CommandLineRunner {
                                 DeliveryPerson.builder().name("Luisa").lastName("Fernández")
                                                 .email("luisa.fernandez@terra.com").password("luisa123")
                                                 .role(Role.DELIVERY_PERSON).identification("CC1001234568")
-                                                .phone("+57 301 500 1002").available(true).active(true).build());
+                                                .phone("+57 301 500 1002").available(false).active(true).build());
                 deliveryPersonRepository.save(
                                 DeliveryPerson.builder().name("Miguel Ángel").lastName("Ruiz")
                                                 .email("miguel.ruiz@terra.com").password("miguel123")

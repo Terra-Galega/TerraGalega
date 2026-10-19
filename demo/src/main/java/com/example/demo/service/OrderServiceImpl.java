@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CheckoutItemDTO;
+import com.example.demo.dto.OrderSummaryDTO;
 import com.example.demo.dto.CheckoutRequestDTO;
 import com.example.demo.entities.AddOn;
 import com.example.demo.entities.Order;
@@ -8,6 +9,10 @@ import com.example.demo.entities.OrderDetail;
 import com.example.demo.entities.OrderDetailAddOn;
 import com.example.demo.entities.OrderStatus;
 import com.example.demo.entities.Product;
+import com.example.demo.entities.DeliveryPerson;
+import com.example.demo.entities.Operator;
+import com.example.demo.repository.DeliveryPersonRepository;
+import com.example.demo.repository.OperatorRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.AddOnRepository;
@@ -31,6 +36,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private AddOnRepository addOnRepository;
+
+    @Autowired
+    private OperatorRepository operatorRepository;
+
+    @Autowired
+    private DeliveryPersonRepository deliveryPersonRepository;
+
+    private static final List<OrderStatus> FINISHED_STATUSES = List.of(
+            OrderStatus.DELIVERED,
+            OrderStatus.CANCELLED);
 
     @Override
     @Transactional
@@ -149,4 +164,134 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
+    @Override
+    @Transactional
+    public List<OrderSummaryDTO> getActiveOrders() {
+        return repository.findByStatusNotInOrderByCreatedAtAsc(FINISHED_STATUSES).stream()
+                .map(this::toSummary)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public List<OrderSummaryDTO> getAllOrderSummaries() {
+        return repository.findAllByOrderByCreatedAtDesc().stream()
+                .map(this::toSummary)
+                .toList();
+    }
+
+    // Datos planos para la tabla del operador; el detalle se pide aparte con GET
+    // /orders/{id}
+    private OrderSummaryDTO toSummary(Order order) {
+        Client client = order.getClient();
+        DeliveryPerson deliveryPerson = order.getDeliveryPerson();
+
+        return new OrderSummaryDTO(
+                order.getId(),
+                order.getStatus(),
+                order.getCreatedAt(),
+                order.getAddress(),
+                client != null ? client.getName() + " " + client.getLastName() : null,
+                deliveryPerson != null
+                        ? deliveryPerson.getName() + " " + deliveryPerson.getLastName()
+                        : null,
+                order.getTotal());
+    }
+
+    @Override
+    @Transactional
+    public Order confirmOrder(Integer orderId) {
+
+        Order order = getOrderById(orderId);
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalArgumentException("Solo se pueden confirmar pedidos pendientes.");
+        }
+
+        order.setStatus(OrderStatus.CONFIRMED);
+
+        return repository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order cookOrder(Integer orderId, Integer operatorId) {
+
+        Order order = getOrderById(orderId);
+
+        if (order.getStatus() != OrderStatus.CONFIRMED) {
+            throw new IllegalArgumentException("Solo se pueden cocinar pedidos confirmados.");
+        }
+
+        if (operatorId == null) {
+            throw new IllegalArgumentException("Falta el operador que cocina el pedido.");
+        }
+
+        Operator operator = operatorRepository.findById(operatorId)
+                .orElseThrow(() -> new IllegalArgumentException("El operador no existe."));
+
+        if (!Boolean.TRUE.equals(operator.getActive())) {
+            throw new IllegalArgumentException("El operador está desactivado.");
+        }
+
+        order.setOperator(operator);
+        order.setStatus(OrderStatus.PREPARING);
+
+        return repository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order sendOrder(Integer orderId, Integer deliveryPersonId) {
+
+        Order order = getOrderById(orderId);
+
+        if (order.getStatus() != OrderStatus.PREPARING) {
+            throw new IllegalArgumentException("Solo se pueden enviar pedidos que se están preparando.");
+        }
+
+        if (deliveryPersonId == null) {
+            throw new IllegalArgumentException("Selecciona un domiciliario.");
+        }
+
+        DeliveryPerson deliveryPerson = deliveryPersonRepository.findById(deliveryPersonId)
+                .orElseThrow(() -> new IllegalArgumentException("El domiciliario no existe."));
+
+        if (!Boolean.TRUE.equals(deliveryPerson.getActive())
+                || !Boolean.TRUE.equals(deliveryPerson.getAvailable())) {
+            throw new IllegalArgumentException("El domiciliario no está disponible.");
+        }
+
+        // Mientras lleva el pedido no puede recibir otro
+        deliveryPerson.setAvailable(false);
+        deliveryPersonRepository.save(deliveryPerson);
+
+        order.setDeliveryPerson(deliveryPerson);
+        order.setStatus(OrderStatus.ON_THE_WAY);
+
+        return repository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order deliverOrder(Integer orderId) {
+
+        Order order = getOrderById(orderId);
+
+        if (order.getStatus() != OrderStatus.ON_THE_WAY) {
+            throw new IllegalArgumentException("Solo se pueden completar pedidos que van en camino.");
+        }
+
+        order.setStatus(OrderStatus.DELIVERED);
+        order.setDeliveredAt(LocalDateTime.now());
+
+        // El domiciliario queda libre para otro pedido
+        DeliveryPerson deliveryPerson = order.getDeliveryPerson();
+        if (deliveryPerson != null) {
+            deliveryPerson.setAvailable(true);
+            deliveryPersonRepository.save(deliveryPerson);
+        }
+
+        return repository.save(order);
+    }
 }
