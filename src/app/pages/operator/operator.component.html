@@ -15,6 +15,7 @@
     <app-operator-orders
       [operatorId]="operatorId"
       (sendRequested)="openSendModal($event)"
+      (detailRequested)="openDetail($event)"
     ></app-operator-orders>
   </main>
 </div>
@@ -24,4 +25,10 @@
     [order]="orderToSend"
     (closed)="closeSendModal()"
   ></app-operator-delivery-modal>
+}
+@if (orderIdToView !== null) {
+  <app-operator-order-detail-modal
+    [orderId]="orderIdToView"
+    (closed)="closeDetail()"
+  ></app-operator-order-detail-modal>
 }

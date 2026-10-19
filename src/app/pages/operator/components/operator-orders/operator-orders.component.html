@@ -24,7 +24,6 @@
           >
             <th class="px-6 py-4 font-medium">Pedido</th>
             <th class="px-4 py-4 font-medium">Cliente</th>
-            <th class="px-4 py-4 font-medium">Detalle</th>
             <th class="px-4 py-4 font-medium">Estado</th>
             <th class="px-4 py-4 font-medium">Domiciliario</th>
             <th class="px-4 py-4 font-medium text-right">Total</th>
@@ -35,8 +34,9 @@
         <tbody>
           @for (order of orders; track order.id) {
             <tr
-              class="border-t align-top"
+              class="border-t align-middle cursor-pointer hover:bg-white/60"
               style="border-color: rgba(44, 44, 44, 0.08)"
+              (click)="detailRequested.emit(order.id)"
             >
               <td class="px-6 py-4">
                 <p
@@ -57,26 +57,6 @@
                 <p style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
                   {{ order.address }}
                 </p>
-              </td>
-
-              <td class="px-4 py-4">
-                <ul class="space-y-1">
-                  @for (detail of order.details; track detail.id) {
-                    <li>
-                      <span class="text-charcoal">
-                        {{ detail.quantity }}× {{ detail.product.name }}
-                      </span>
-                      @if (detail.addOns.length > 0) {
-                        <span
-                          class="block"
-                          style="font-size: 12px; color: rgba(44, 44, 44, 0.5)"
-                        >
-                          + {{ addOnNames(detail) }}
-                        </span>
-                      }
-                    </li>
-                  }
-                </ul>
               </td>
 
               <td class="px-4 py-4">
@@ -106,11 +86,17 @@
                 ${{ order.total | number: "1.0-0" }}
               </td>
 
-              <td class="px-6 py-4 text-right">
+              <td class="px-6 py-4">
                 @if (actionLabel(order); as label) {
-                  <app-button size="sm" (click)="onAction(order)">
-                    {{ busyOrderId === order.id ? "Procesando…" : label }}
-                  </app-button>
+                  <div class="w-32 ml-auto">
+                    <app-button
+                      size="sm"
+                      [fullWidth]="true"
+                      (click)="$event.stopPropagation(); onAction(order)"
+                    >
+                      {{ busyOrderId === order.id ? "Procesando…" : label }}
+                    </app-button>
+                  </div>
                 }
               </td>
             </tr>

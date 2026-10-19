@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { Order } from '../../models/order';
+import { OrderSummary } from '../../models/order';
+import { OperatorOrderDetailModalComponent } from './components/operator-order-detail-modal/operator-order-detail-modal.component';
 import { OperatorTopbarComponent } from './components/operator-topbar/operator-topbar.component';
 import { OperatorOrdersComponent } from './components/operator-orders/operator-orders.component';
 import { OperatorDeliveryModalComponent } from './components/operator-delivery-modal/operator-delivery-modal.component';
@@ -12,6 +13,7 @@ import { OperatorDeliveryModalComponent } from './components/operator-delivery-m
     OperatorTopbarComponent,
     OperatorOrdersComponent,
     OperatorDeliveryModalComponent,
+    OperatorOrderDetailModalComponent,
   ],
   templateUrl: './operator.component.html',
 })
@@ -19,8 +21,8 @@ export class OperatorComponent {
   operatorId = 0;
   operatorName = '';
 
-  // Order waiting for a delivery person to be chosen
-  orderToSend: Order | null = null;
+  orderToSend: OrderSummary | null = null;
+  orderIdToView: number | null = null;
 
   constructor(
     private router: Router,
@@ -37,8 +39,16 @@ export class OperatorComponent {
     this.operatorName = `${session.name} ${session.lastName}`.trim();
   }
 
-  openSendModal(order: Order) {
+  openSendModal(order: OrderSummary) {
     this.orderToSend = order;
+  }
+
+  openDetail(orderId: number) {
+    this.orderIdToView = orderId;
+  }
+
+  closeDetail() {
+    this.orderIdToView = null;
   }
 
   closeSendModal() {

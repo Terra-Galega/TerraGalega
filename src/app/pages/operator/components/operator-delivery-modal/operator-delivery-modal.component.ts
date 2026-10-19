@@ -6,7 +6,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import { Order } from '../../../../models/order';
+import { OrderSummary } from '../../../../models/order';
 import { DeliveryPerson } from '../../../../models/deliveryPerson';
 import { OrderService } from '../../../../services/order.service';
 import { DeliveryPersonService } from '../../../../services/delivery-person.service';
@@ -23,7 +23,7 @@ export class OperatorDeliveryModalComponent implements OnInit {
   private orderService = inject(OrderService);
   private deliveryPersonService = inject(DeliveryPersonService);
 
-  @Input({ required: true }) order!: Order;
+  @Input({ required: true }) order!: OrderSummary;
 
   @Output() closed = new EventEmitter<void>();
 

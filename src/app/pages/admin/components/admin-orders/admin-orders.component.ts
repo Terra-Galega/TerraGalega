@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { OrderService } from '../../../../services/order.service';
-import { Order, ORDER_STATUS_LABELS } from '../../../../models/order';
+import { OrderSummary, ORDER_STATUS_LABELS } from '../../../../models/order';
 
 @Component({
   selector: 'app-admin-orders',
@@ -12,7 +12,7 @@ import { Order, ORDER_STATUS_LABELS } from '../../../../models/order';
 export class AdminOrdersComponent {
   private orderService = inject(OrderService);
 
-  orders: Order[] = [];
+  ordersSummary: OrderSummary[] = [];
   statusLabels = ORDER_STATUS_LABELS;
 
   constructor() {
@@ -21,8 +21,8 @@ export class AdminOrdersComponent {
   }
 
   loadOrders() {
-    this.orderService.getOrders().subscribe({
-      next: (orders) => (this.orders = orders),
+    this.orderService.getAllOrderSummaries().subscribe({
+      next: (orders) => (this.ordersSummary = orders),
       error: (error) => console.error('Error cargando pedidos:', error),
     });
   }
