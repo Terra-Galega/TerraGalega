@@ -4,7 +4,7 @@ import com.example.demo.entities.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.example.demo.entities.OrderStatus;
-
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -19,4 +19,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     boolean existsByDetailsProductId(Integer productId);
 
     boolean existsByOperatorId(Integer operatorId);
+    
+    List<Order> findByStatusNotInOrderByCreatedAtAsc(Collection<OrderStatus> statuses);
+
+    List<Order> findAllByOrderByCreatedAtDesc();
 }
