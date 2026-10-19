@@ -1,14 +1,46 @@
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
   style="background-color: rgba(44, 44, 44, 0.55)"
 >
   <div
-    class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
+    class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl"
   >
-    <div class="flex items-center justify-between mb-2">
-      <h2 class="font-serif text-2xl font-semibold text-charcoal">
-        Pedido #{{ orderId }}
-      </h2>
+    <!-- Encabezado -->
+    <div class="flex items-start justify-between px-8 pt-8 pb-5">
+      <div>
+        <p
+          class="text-[11px] uppercase tracking-widest"
+          style="color: rgba(44, 44, 44, 0.45)"
+        >
+          Pedido
+        </p>
+        <h2
+          class="font-serif text-3xl font-semibold text-charcoal leading-tight"
+        >
+          #{{ orderId }}
+        </h2>
+
+        @if (order; as o) {
+          <div class="flex items-center gap-3 mt-2">
+            <span
+              class="inline-block text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap"
+              [style.color]="statusColors[o.status]"
+              style="
+                background-color: color-mix(
+                  in srgb,
+                  currentColor 12%,
+                  transparent
+                );
+              "
+            >
+              {{ statusLabels[o.status] }}
+            </span>
+            <span class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
+              {{ o.createdAt | date: "dd MMM yyyy, HH:mm" }}
+            </span>
+          </div>
+        }
+      </div>
 
       <app-icon-button variant="soft" label="Cerrar" (click)="close()">
         <svg
@@ -25,98 +57,199 @@
     </div>
 
     @if (order; as o) {
-      <p class="text-sm mb-6" style="color: rgba(44, 44, 44, 0.55)">
-        {{ statusLabels[o.status] }} ·
-        {{ o.createdAt | date: "dd MMM yyyy, HH:mm" }}
-      </p>
+      <div class="px-8 pb-8 space-y-5">
+        <!-- Progreso del pedido -->
+        @if (o.status !== "CANCELLED") {
+          <div class="flex items-center py-2">
+            @for (
+              step of steps;
+              track step;
+              let i = $index, last = $last
+            ) {
+              <div class="flex flex-col items-center gap-1.5 w-16">
+                <span
+                  class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
+                  [style.background]="
+                    i <= stepIndex
+                      ? 'linear-gradient(135deg, #b2571f 0%, #8a2222 100%)'
+                      : 'rgba(44, 44, 44, 0.1)'
+                  "
+                  [style.color]="
+                    i <= stepIndex ? '#fff' : 'rgba(44, 44, 44, 0.4)'
+                  "
+                >
+                  @if (i < stepIndex) {
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  } @else {
+                    {{ i + 1 }}
+                  }
+                </span>
+                <span
+                  class="text-[10px] text-center leading-tight"
+                  [style.color]="
+                    i <= stepIndex ? '#2c2c2c' : 'rgba(44, 44, 44, 0.4)'
+                  "
+                >
+                  {{ statusLabels[step] }}
+                </span>
+              </div>
 
-      <div class="space-y-6">
-        <section>
-          <h3
-            class="text-[11px] uppercase tracking-widest mb-2"
-            style="color: rgba(44, 44, 44, 0.45)"
-          >
-            Cliente
-          </h3>
-          @if (o.client) {
-            <p class="font-medium text-charcoal">
-              {{ o.client.name }} {{ o.client.lastName }}
-            </p>
-            <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
-              {{ o.client.phone }} · {{ o.client.email }}
-            </p>
-          } @else {
-            <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
-              Cliente eliminado
-            </p>
-          }
-          <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.65)">
-            {{ o.address }}
-          </p>
-        </section>
+              @if (!last) {
+                <div
+                  class="flex-1 h-0.5 -mt-5 rounded-full"
+                  [style.background]="
+                    i < stepIndex ? '#b2571f' : 'rgba(44, 44, 44, 0.12)'
+                  "
+                ></div>
+              }
+            }
+          </div>
+        }
 
-        @if (o.deliveryPerson) {
-          <section>
-            <h3
+        <!-- Cliente y entrega -->
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="glass-card rounded-2xl p-4">
+            <p
               class="text-[11px] uppercase tracking-widest mb-2"
               style="color: rgba(44, 44, 44, 0.45)"
             >
-              Domiciliario
-            </h3>
-            <p class="font-medium text-charcoal">
-              {{ o.deliveryPerson.name }} {{ o.deliveryPerson.lastName }}
+              Cliente
             </p>
-            <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
-              {{ o.deliveryPerson.phone }}
-            </p>
-          </section>
-        }
+            @if (o.client) {
+              <p class="font-medium text-charcoal text-sm">
+                {{ o.client.name }} {{ o.client.lastName }}
+              </p>
+              <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.6)">
+                {{ o.client.phone }}
+              </p>
+              <p
+                class="text-xs truncate"
+                style="color: rgba(44, 44, 44, 0.6)"
+              >
+                {{ o.client.email }}
+              </p>
+            } @else {
+              <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
+                Cliente eliminado
+              </p>
+            }
+          </div>
 
-        <section>
-          <h3
-            class="text-[11px] uppercase tracking-widest mb-2"
+          <div class="glass-card rounded-2xl p-4">
+            <p
+              class="text-[11px] uppercase tracking-widest mb-2"
+              style="color: rgba(44, 44, 44, 0.45)"
+            >
+              Entrega
+            </p>
+            <p class="font-medium text-charcoal text-sm">{{ o.address }}</p>
+            @if (o.deliveryPerson) {
+              <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.6)">
+                {{ o.deliveryPerson.name }} {{ o.deliveryPerson.lastName }}
+              </p>
+              <p class="text-xs" style="color: rgba(44, 44, 44, 0.6)">
+                {{ o.deliveryPerson.phone }}
+              </p>
+            } @else {
+              <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.45)">
+                Sin domiciliario asignado
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- Platos -->
+        <div class="glass-card rounded-2xl px-4">
+          <p
+            class="text-[11px] uppercase tracking-widest pt-4 pb-1"
             style="color: rgba(44, 44, 44, 0.45)"
           >
-            Detalle
-          </h3>
-          <ul class="space-y-3">
-            @for (detail of o.details; track detail.id) {
-              <li class="flex justify-between gap-4 text-sm">
-                <div>
-                  <p class="text-charcoal">
-                    {{ detail.quantity }}× {{ detail.product.name }}
-                  </p>
-                  @if (detail.addOns.length > 0) {
-                    <p style="font-size: 12px; color: rgba(44, 44, 44, 0.5)">
-                      + {{ addOnNames(detail) }}
-                    </p>
-                  }
-                </div>
-                <p
-                  class="font-medium whitespace-nowrap"
-                  style="color: rgba(44, 44, 44, 0.65)"
-                >
-                  ${{ lineTotal(detail) | number: "1.0-0" }}
-                </p>
-              </li>
-            }
-          </ul>
-        </section>
+            Detalle del pedido
+          </p>
 
+          @for (detail of o.details; track detail.id) {
+            <div
+              class="flex items-center gap-3 py-3 border-t first:border-t-0"
+              style="border-color: rgba(44, 44, 44, 0.08)"
+            >
+              @if (detail.product.imageUrl) {
+                <img
+                  [src]="detail.product.imageUrl"
+                  alt=""
+                  class="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+                  (error)="hideImage($event)"
+                />
+              }
+
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-charcoal">
+                  <span style="color: #b2571f">{{ detail.quantity }}×</span>
+                  {{ detail.product.name }}
+                </p>
+
+                @if (detail.addOns.length > 0) {
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    @for (addOn of detail.addOns; track addOn.id) {
+                      <span
+                        class="text-[11px] px-2 py-0.5 rounded-full"
+                        style="
+                          background-color: rgba(85, 97, 65, 0.12);
+                          color: #556141;
+                        "
+                      >
+                        + {{ addOn.name }}
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <p
+                class="text-sm font-semibold whitespace-nowrap"
+                style="color: rgba(44, 44, 44, 0.7)"
+              >
+                ${{ lineTotal(detail) | number: "1.0-0" }}
+              </p>
+            </div>
+          }
+        </div>
+
+        <!-- Total -->
         <div
-          class="flex justify-between items-center pt-4 border-t"
-          style="border-color: rgba(44, 44, 44, 0.12)"
+          class="flex items-center justify-between rounded-2xl px-5 py-4 text-white"
+          style="
+            background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+            box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
+          "
         >
-          <span class="font-medium text-charcoal">Total</span>
-          <span class="text-lg font-bold" style="color: #b2571f">
+          <span class="text-sm tracking-widest uppercase opacity-80">
+            Total
+          </span>
+          <span class="font-serif text-2xl font-semibold">
             ${{ o.total | number: "1.0-0" }}
           </span>
         </div>
       </div>
     } @else if (errorMessage) {
-      <p class="text-sm mt-4" style="color: #da5858">{{ errorMessage }}</p>
+      <p class="px-8 pb-8 text-sm" style="color: #da5858">
+        {{ errorMessage }}
+      </p>
     } @else {
-      <p class="text-sm mt-4" style="color: rgba(44, 44, 44, 0.55)">
+      <p
+        class="px-8 pb-8 text-sm animate-pulse"
+        style="color: rgba(44, 44, 44, 0.55)"
+      >
         Cargando pedido…
       </p>
     }

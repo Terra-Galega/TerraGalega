@@ -8,6 +8,6 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 })
 export class OperatorTopbarComponent {
   @Input() operatorName = '';
-
+  @Input() operatorUsername = '';
   @Output() logoutClicked = new EventEmitter<void>();
 }
