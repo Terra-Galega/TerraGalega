@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { OrderSummary } from '../../models/order';
@@ -6,6 +6,7 @@ import { OperatorOrderDetailModalComponent } from './components/operator-order-d
 import { OperatorTopbarComponent } from './components/operator-topbar/operator-topbar.component';
 import { OperatorOrdersComponent } from './components/operator-orders/operator-orders.component';
 import { OperatorDeliveryModalComponent } from './components/operator-delivery-modal/operator-delivery-modal.component';
+import { OperatorService } from '../../services/operator.service';
 
 @Component({
   selector: 'app-operator',
@@ -20,6 +21,7 @@ import { OperatorDeliveryModalComponent } from './components/operator-delivery-m
 export class OperatorComponent {
   operatorId = 0;
   operatorName = '';
+  operatorUsername = '';
 
   orderToSend: OrderSummary | null = null;
   orderIdToView: number | null = null;
@@ -27,6 +29,7 @@ export class OperatorComponent {
   constructor(
     private router: Router,
     private auth: AuthService,
+    private operatorService: OperatorService,
   ) {
     const session = this.auth.session;
 
@@ -37,6 +40,11 @@ export class OperatorComponent {
 
     this.operatorId = session.id;
     this.operatorName = `${session.name} ${session.lastName}`.trim();
+    
+    this.operatorService.getOperatorById(session.id).subscribe({
+      next: (operator) => (this.operatorUsername = operator.username),
+      error: (error) => console.error('Error cargando el operador:', error),
+    });
   }
 
   openSendModal(order: OrderSummary) {

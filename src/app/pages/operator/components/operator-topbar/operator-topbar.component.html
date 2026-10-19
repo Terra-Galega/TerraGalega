@@ -1,43 +1,103 @@
 <header
-  class="h-[60px] flex items-center justify-between px-8 border-b"
+  class="sticky top-0 z-10 border-b"
   style="
     background-color: rgba(245, 242, 235, 0.85);
     backdrop-filter: blur(16px);
     border-color: rgba(44, 44, 44, 0.08);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    box-shadow: 0 4px 24px rgba(44, 44, 44, 0.05);
   "
 >
-  <div class="flex items-center gap-4">
-    <a class="flex flex-col items-start leading-none select-none">
-      <span class="font-terra text-2xl leading-[0.6] text-charcoal">
-        Terra
-      </span>
+  <div
+    class="max-w-7xl mx-auto h-[68px] px-8 flex items-center justify-between"
+  >
+    <!-- Marca y portal -->
+    <div class="flex items-center gap-5">
+      <a class="flex flex-col items-start leading-none select-none">
+        <span class="font-terra text-3xl leading-[0.6] text-charcoal">
+          Terra
+        </span>
+        <span
+          class="font-galega text-[11px] tracking-[0.22em] uppercase font-semibold -mt-1 text-charcoal"
+        >
+          Galega
+        </span>
+      </a>
 
       <span
-        class="font-galega text-[11px] tracking-[0.22em] uppercase font-semibold -mt-1 text-charcoal"
+        class="hidden sm:block h-7 w-px"
+        style="background-color: rgba(44, 44, 44, 0.12)"
+      ></span>
+
+      <span
+        class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium tracking-widest uppercase"
+        style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f"
       >
-        Galega
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 12h6M9 16h4"
+          />
+        </svg>
+        Portal del operador
       </span>
-    </a>
-
-    <span
-      class="text-[10px] tracking-widest uppercase"
-      style="color: rgba(44, 44, 44, 0.4)"
-    >
-      Portal del operador
-    </span>
-  </div>
-
-  <div class="flex items-center gap-4">
-    <div class="text-right">
-      <p class="text-sm font-medium text-charcoal">{{ operatorName }}</p>
-      <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.45)">Operador</p>
     </div>
 
-    <app-button size="sm" variant="neutral" (click)="logoutClicked.emit()">
-      Cerrar sesión
-    </app-button>
+    <!-- Usuario -->
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white"
+          style="
+            background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+            box-shadow: 0 4px 14px rgba(178, 87, 31, 0.3);
+          "
+        >
+          {{ operatorName.charAt(0).toUpperCase() }}
+        </div>
+
+        <div class="hidden sm:block leading-tight">
+          <p class="text-sm font-medium text-charcoal">&#64;{{ operatorUsername }}</p>
+          <p
+            class="text-[11px] flex items-center gap-1.5"
+            style="color: rgba(44, 44, 44, 0.5)"
+          >
+            <span
+              class="w-1.5 h-1.5 rounded-full"
+              style="background-color: #556141"
+            ></span>
+            Operador
+          </p>
+        </div>
+      </div>
+
+      <span
+        class="h-7 w-px"
+        style="background-color: rgba(44, 44, 44, 0.12)"
+      ></span>
+
+      <app-button size="sm" variant="neutral" (click)="logoutClicked.emit()">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+        </svg>
+        Cerrar sesión
+      </app-button>
+    </div>
   </div>
 </header>

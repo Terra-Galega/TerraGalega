@@ -10,10 +10,20 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import {
   Order,
   OrderDetail,
+  OrderStatus,
   ORDER_STATUS_LABELS,
 } from '../../../../models/order';
 import { OrderService } from '../../../../services/order.service';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
+
+const STATUS_COLORS: Record<OrderStatus, string> = {
+  PENDING: '#d99a21',
+  CONFIRMED: '#d99a21',
+  PREPARING: '#b2571f',
+  ON_THE_WAY: '#556141',
+  DELIVERED: '#556141',
+  CANCELLED: '#da5858',
+};
 
 @Component({
   selector: 'app-operator-order-detail-modal',
@@ -32,6 +42,16 @@ export class OperatorOrderDetailModalComponent implements OnInit {
   errorMessage = '';
 
   statusLabels = ORDER_STATUS_LABELS;
+  statusColors = STATUS_COLORS;
+
+  // Pasos del flujo normal de un pedido (el cancelado no entra aquí)
+  steps: OrderStatus[] = [
+    'PENDING',
+    'CONFIRMED',
+    'PREPARING',
+    'ON_THE_WAY',
+    'DELIVERED',
+  ];
 
   ngOnInit() {
     this.orderService.getOrderById(this.orderId).subscribe({
@@ -47,13 +67,18 @@ export class OperatorOrderDetailModalComponent implements OnInit {
     });
   }
 
-  addOnNames(detail: OrderDetail): string {
-    return detail.addOns.map((addOn) => addOn.name).join(', ');
+  get stepIndex(): number {
+    return this.order ? this.steps.indexOf(this.order.status) : -1;
   }
 
   lineTotal(detail: OrderDetail): number {
     const addOnsPrice = detail.addOns.reduce((sum, a) => sum + a.price, 0);
     return (detail.unitPrice + addOnsPrice) * detail.quantity;
+  }
+
+  // Si la imagen no carga, se oculta en vez de mostrar el ícono roto
+  hideImage(event: Event) {
+    (event.target as HTMLImageElement).style.display = 'none';
   }
 
   close() {
