@@ -4,34 +4,33 @@ import { finalize } from 'rxjs';
 import { OrderService } from '../../../../services/order.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import {
-  Order,
-  OrderDetail,
   OrderStatus,
+  OrderSummary,
   ORDER_STATUS_LABELS,
 } from '../../../../models/order';
 
-type OperatorAction = 'cook' | 'send' | 'deliver';
+type OperatorAction = 'confirm' | 'cook' | 'send' | 'deliver';
 
-// What the operator can do next, depending on the order status
 const NEXT_ACTION: Partial<Record<OrderStatus, OperatorAction>> = {
-  PENDING: 'cook',
+  PENDING: 'confirm',
+  CONFIRMED: 'cook',
   PREPARING: 'send',
   ON_THE_WAY: 'deliver',
 };
 
-// Button text shown to the operator
 const ACTION_LABELS: Record<OperatorAction, string> = {
+  confirm: 'Confirmar',
   cook: 'Cocinar',
   send: 'Enviar',
   deliver: 'Completar',
 };
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  PENDING: '#d99a21',
+  PENDING: '#e15e40',
   CONFIRMED: '#d99a21',
   PREPARING: '#b2571f',
   ON_THE_WAY: '#556141',
-  DELIVERED: '#556141',
+  DELIVERED: '#94c04f',
   CANCELLED: '#da5858',
 };
 
@@ -44,11 +43,11 @@ export class OperatorOrdersComponent {
   private orderService = inject(OrderService);
 
   @Input({ required: true }) operatorId!: number;
+  @Output() sendRequested = new EventEmitter<OrderSummary>();
+  @Output() detailRequested = new EventEmitter<number>();
 
-  // Sending an order needs a delivery person, so the parent opens the modal
-  @Output() sendRequested = new EventEmitter<Order>();
+  orders: OrderSummary[] = [];
 
-  orders: Order[] = [];
   errorMessage = '';
 
   // Order with a request in flight, to avoid double clicks
@@ -78,25 +77,27 @@ export class OperatorOrdersComponent {
     });
   }
 
-  onAction(order: Order) {
-    const action = NEXT_ACTION[order.status];
+  onAction(orderSummary: OrderSummary) {
+    const action = NEXT_ACTION[orderSummary.status];
 
     if (!action || this.busyOrderId !== null) {
       return;
     }
 
     if (action === 'send') {
-      this.sendRequested.emit(order);
+      this.sendRequested.emit(orderSummary);
       return;
     }
 
     const request$ =
-      action === 'cook'
-        ? this.orderService.cookOrder(order.id, this.operatorId)
-        : this.orderService.deliverOrder(order.id);
+      action === 'confirm'
+        ? this.orderService.confirmOrder(orderSummary.id)
+        : action === 'cook'
+          ? this.orderService.cookOrder(orderSummary.id, this.operatorId)
+          : this.orderService.deliverOrder(orderSummary.id);
 
     this.errorMessage = '';
-    this.busyOrderId = order.id;
+    this.busyOrderId = orderSummary.id;
 
     request$.pipe(finalize(() => (this.busyOrderId = null))).subscribe({
       next: () => this.orderService.refresh(),
@@ -108,24 +109,16 @@ export class OperatorOrdersComponent {
     });
   }
 
-  actionLabel(order: Order): string | null {
-    const action = NEXT_ACTION[order.status];
+  actionLabel(orderSummary: OrderSummary): string | null {
+    const action = NEXT_ACTION[orderSummary.status];
     return action ? ACTION_LABELS[action] : null;
   }
 
-  clientName(order: Order): string {
-    return order.client
-      ? `${order.client.name} ${order.client.lastName}`
-      : 'Cliente eliminado';
+  clientName(orderSummary: OrderSummary): string {
+    return orderSummary.clientName ?? 'Cliente eliminado';
   }
 
-  deliveryPersonName(order: Order): string {
-    return order.deliveryPerson
-      ? `${order.deliveryPerson.name} ${order.deliveryPerson.lastName}`
-      : '—';
-  }
-
-  addOnNames(detail: OrderDetail): string {
-    return detail.addOns.map((addOn) => addOn.name).join(', ');
+  deliveryPersonName(orderSummary: OrderSummary): string {
+    return orderSummary.deliveryPersonName ?? '—';
   }
 }

@@ -1,0 +1,124 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  style="background-color: rgba(44, 44, 44, 0.55)"
+>
+  <div
+    class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
+  >
+    <div class="flex items-center justify-between mb-2">
+      <h2 class="font-serif text-2xl font-semibold text-charcoal">
+        Pedido #{{ orderId }}
+      </h2>
+
+      <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </app-icon-button>
+    </div>
+
+    @if (order; as o) {
+      <p class="text-sm mb-6" style="color: rgba(44, 44, 44, 0.55)">
+        {{ statusLabels[o.status] }} ·
+        {{ o.createdAt | date: "dd MMM yyyy, HH:mm" }}
+      </p>
+
+      <div class="space-y-6">
+        <section>
+          <h3
+            class="text-[11px] uppercase tracking-widest mb-2"
+            style="color: rgba(44, 44, 44, 0.45)"
+          >
+            Cliente
+          </h3>
+          @if (o.client) {
+            <p class="font-medium text-charcoal">
+              {{ o.client.name }} {{ o.client.lastName }}
+            </p>
+            <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
+              {{ o.client.phone }} · {{ o.client.email }}
+            </p>
+          } @else {
+            <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
+              Cliente eliminado
+            </p>
+          }
+          <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.65)">
+            {{ o.address }}
+          </p>
+        </section>
+
+        @if (o.deliveryPerson) {
+          <section>
+            <h3
+              class="text-[11px] uppercase tracking-widest mb-2"
+              style="color: rgba(44, 44, 44, 0.45)"
+            >
+              Domiciliario
+            </h3>
+            <p class="font-medium text-charcoal">
+              {{ o.deliveryPerson.name }} {{ o.deliveryPerson.lastName }}
+            </p>
+            <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
+              {{ o.deliveryPerson.phone }}
+            </p>
+          </section>
+        }
+
+        <section>
+          <h3
+            class="text-[11px] uppercase tracking-widest mb-2"
+            style="color: rgba(44, 44, 44, 0.45)"
+          >
+            Detalle
+          </h3>
+          <ul class="space-y-3">
+            @for (detail of o.details; track detail.id) {
+              <li class="flex justify-between gap-4 text-sm">
+                <div>
+                  <p class="text-charcoal">
+                    {{ detail.quantity }}× {{ detail.product.name }}
+                  </p>
+                  @if (detail.addOns.length > 0) {
+                    <p style="font-size: 12px; color: rgba(44, 44, 44, 0.5)">
+                      + {{ addOnNames(detail) }}
+                    </p>
+                  }
+                </div>
+                <p
+                  class="font-medium whitespace-nowrap"
+                  style="color: rgba(44, 44, 44, 0.65)"
+                >
+                  ${{ lineTotal(detail) | number: "1.0-0" }}
+                </p>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <div
+          class="flex justify-between items-center pt-4 border-t"
+          style="border-color: rgba(44, 44, 44, 0.12)"
+        >
+          <span class="font-medium text-charcoal">Total</span>
+          <span class="text-lg font-bold" style="color: #b2571f">
+            ${{ o.total | number: "1.0-0" }}
+          </span>
+        </div>
+      </div>
+    } @else if (errorMessage) {
+      <p class="text-sm mt-4" style="color: #da5858">{{ errorMessage }}</p>
+    } @else {
+      <p class="text-sm mt-4" style="color: rgba(44, 44, 44, 0.55)">
+        Cargando pedido…
+      </p>
+    }
+  </div>
+</div>

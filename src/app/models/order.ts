@@ -53,3 +53,12 @@ export interface Order {
   details: OrderDetail[];
   total: number;
 }
+export interface OrderSummary {
+  id: number;
+  status: OrderStatus;
+  createdAt: string;
+  address: string;
+  clientName: string | null;
+  deliveryPersonName: string | null;
+  total: number;
+}

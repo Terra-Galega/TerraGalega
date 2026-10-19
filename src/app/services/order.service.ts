@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { Order } from '../models/order';
+import { Order, OrderSummary } from '../models/order';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
@@ -27,20 +27,30 @@ export class OrderService {
     return this.http.get<Order>(`${this.apiUrl}/${orderId}`);
   }
 
-  getActiveOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/active`);
+  getActiveOrders(): Observable<OrderSummary[]> {
+    return this.http.get<OrderSummary[]>(`${this.apiUrl}/active`);
+  }
+
+  getAllOrderSummaries(): Observable<OrderSummary[]> {
+    return this.http.get<OrderSummary[]>(`${this.apiUrl}/all`);
+  }
+
+  confirmOrder(orderId: number): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${orderId}/confirm`, {});
   }
 
   cookOrder(orderId: number, operatorId: number): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/${orderId}/cook`, {
-      operatorId,
-    });
+    return this.http.put<Order>(
+      `${this.apiUrl}/${orderId}/cook/${operatorId}`,
+      {},
+    );
   }
 
   sendOrder(orderId: number, deliveryPersonId: number): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/${orderId}/send`, {
-      deliveryPersonId,
-    });
+    return this.http.put<Order>(
+      `${this.apiUrl}/${orderId}/send/${deliveryPersonId}`,
+      {},
+    );
   }
 
   deliverOrder(orderId: number): Observable<Order> {

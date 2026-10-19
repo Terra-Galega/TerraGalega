@@ -100,9 +100,9 @@ export class LoginComponent {
         this.router.navigate(['/operator', user.id]);
         break;
 
-      // case Role.DELIVERY_PERSON:
-      //   this.router.navigate(['/delivery', user.id]);
-      //   break;
+      case Role.DELIVERY_PERSON:
+         this.router.navigate(['/delivery', user.id]);
+         break;
 
       default:
         this.router.navigate(['/home']);

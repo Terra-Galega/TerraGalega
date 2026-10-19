@@ -35,15 +35,16 @@ export const adminGuard: CanActivateFn = (route) => {
   return true;
 };
 
-export const operatorGuard: CanActivateFn = () => {
+export const operatorGuard: CanActivateFn = (route) => {
   const auth = inject(AuthService);
   const router = inject(Router);
-
   const session = auth.session;
 
-  if (session && session.type === 'operator') {
+  if (!session || session.type !== 'operator') {
+    return router.createUrlTree(['/login']);
+  }
+  if (Number(route.paramMap.get('id')) !== session.id) {
     return router.createUrlTree(['/operator', session.id]);
   }
-
   return true;
 };
