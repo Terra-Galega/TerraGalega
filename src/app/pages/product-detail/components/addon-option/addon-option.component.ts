@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { AddOn } from '../../../../models/addOn';
 
-// Fila de un adicional opcional: casilla + nombre + precio.
+// Fila de un adicional opcional: nombre + precio + selector de cantidad.
 @Component({
   selector: 'app-addon-option',
   imports: [DecimalPipe],
@@ -11,7 +11,7 @@ import { AddOn } from '../../../../models/addOn';
 })
 export class AddonOptionComponent {
   @Input({ required: true }) addOn!: AddOn;
-  @Input() selected = false;
+  @Input() quantity = 0;
 
-  @Output() toggled = new EventEmitter<AddOn>();
+  @Output() changed = new EventEmitter<number>();
 }

@@ -46,36 +46,41 @@ export class ProductInfoCardComponent {
   }
 
   private loadAddOns(): void {
-  const categoryId = this.product.category?.id;
+    const categoryId = this.product.category?.id;
 
-  if (!categoryId) {
-    this.addons = [];
-    return;
-  }
-
-  this.addOnService.getActiveAddOnsByCategory(categoryId).subscribe({
-    next: (addOns) => (this.addons = addOns),
-    error: (error) => {
-      console.error('Error cargando adicionales:', error);
+    if (!categoryId) {
       this.addons = [];
-    },
-  });
-}
-
-  toggleAddOn(addOn: AddOn): void {
-    const isSelected = this.isAddOnSelected(addOn);
-
-    if (isSelected) {
-      this.selectedAddOns = this.selectedAddOns.filter(
-        (selected) => selected.id !== addOn.id,
-      );
-    } else {
-      this.selectedAddOns = [...this.selectedAddOns, addOn];
+      return;
     }
+
+    this.addOnService.getActiveAddOnsByCategory(categoryId).subscribe({
+      next: (addOns) => (this.addons = addOns),
+      error: (error) => {
+        console.error('Error cargando adicionales:', error);
+        this.addons = [];
+      },
+    });
   }
 
-  isAddOnSelected(addOn: AddOn): boolean {
-    return this.selectedAddOns.some((selected) => selected.id === addOn.id);
+  // Cuántas unidades de este adicional hay seleccionadas
+  addOnQuantity(addOn: AddOn): number {
+    return this.selectedAddOns.filter((selected) => selected.id === addOn.id)
+      .length;
+  }
+
+  // delta = +1 agrega una unidad, delta = -1 quita una
+  changeAddOnQuantity(addOn: AddOn, delta: number): void {
+    if (delta > 0) {
+      this.selectedAddOns = [...this.selectedAddOns, addOn];
+      return;
+    }
+
+    const index = this.selectedAddOns.findIndex(
+      (selected) => selected.id === addOn.id,
+    );
+    if (index !== -1) {
+      this.selectedAddOns = this.selectedAddOns.filter((_, i) => i !== index);
+    }
   }
 
   get addOnsTotal(): number {
@@ -87,11 +92,7 @@ export class ProductInfoCardComponent {
   }
 
   addToOrder(): void {
-    this.cartService.addItem(
-      this.product,
-      this.quantity,
-      this.selectedAddOns
-    );
+    this.cartService.addItem(this.product, this.quantity, this.selectedAddOns);
 
     // Limpiar la selección después de agregar el producto
     this.selectedAddOns = [];

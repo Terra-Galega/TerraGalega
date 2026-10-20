@@ -1,7 +1,5 @@
 <div class="glass-card rounded-3xl p-6">
-  <h2 class="font-serif text-xl font-semibold text-charcoal mb-4">
-    Tu pedido
-  </h2>
+  <h2 class="font-serif text-xl font-semibold text-charcoal mb-4">Tu pedido</h2>
 
   <div class="space-y-4 mb-5">
     @for (item of items; track item.id) {
@@ -12,12 +10,9 @@
           </p>
 
           @if (item.addOns.length > 0) {
-            <p
-              class="text-xs mt-0.5"
-              style="color: rgba(44, 44, 44, 0.5)"
-            >
-              @for (addOn of item.addOns; track addOn.id; let last = $last) {
-                + {{ addOn.name }}{{ last ? '' : ', ' }}
+            <p class="text-xs mt-0.5" style="color: rgba(44, 44, 44, 0.5)">
+              @for (addOn of item.addOns; track $index; let last = $last) {
+                + {{ addOn.name }}{{ last ? "" : ", " }}
               }
             </p>
           }
@@ -27,7 +22,7 @@
           class="font-semibold text-sm flex-shrink-0"
           style="color: rgba(44, 44, 44, 0.8)"
         >
-          ${{ unitPrice(item) * item.quantity | number: '1.0-0' }}
+          ${{ unitPrice(item) * item.quantity | number: "1.0-0" }}
         </span>
       </div>
     }
@@ -40,7 +35,7 @@
     <span class="font-medium text-charcoal">Total</span>
 
     <span class="font-bold text-2xl" style="color: #b2571f">
-      ${{ total | number: '1.0-0' }}
+      ${{ total | number: "1.0-0" }}
     </span>
   </div>
 </div>

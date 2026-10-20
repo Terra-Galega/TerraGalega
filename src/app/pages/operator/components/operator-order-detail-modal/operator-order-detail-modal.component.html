@@ -61,11 +61,7 @@
         <!-- Progreso del pedido -->
         @if (o.status !== "CANCELLED") {
           <div class="flex items-center py-2">
-            @for (
-              step of steps;
-              track step;
-              let i = $index, last = $last
-            ) {
+            @for (step of steps; track step; let i = $index, last = $last) {
               <div class="flex flex-col items-center gap-1.5 w-16">
                 <span
                   class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
@@ -133,10 +129,7 @@
               <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.6)">
                 {{ o.client.phone }}
               </p>
-              <p
-                class="text-xs truncate"
-                style="color: rgba(44, 44, 44, 0.6)"
-              >
+              <p class="text-xs truncate" style="color: rgba(44, 44, 44, 0.6)">
                 {{ o.client.email }}
               </p>
             } @else {
@@ -200,7 +193,7 @@
 
                 @if (detail.addOns.length > 0) {
                   <div class="flex flex-wrap gap-1 mt-1">
-                    @for (addOn of detail.addOns; track addOn.id) {
+                    @for (addOn of detail.addOns; track $index) {
                       <span
                         class="text-[11px] px-2 py-0.5 rounded-full"
                         style="
