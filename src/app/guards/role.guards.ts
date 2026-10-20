@@ -13,6 +13,9 @@ export const clientAreaGuard: CanActivateFn = () => {
   if (session && session.type === 'admin') {
     return router.createUrlTree(['/admin', session.id]);
   }
+  if (session && session.type === 'operator') {
+    return router.createUrlTree(['/operator', session.id]);
+  }
 
   return true;
 };
