@@ -92,7 +92,7 @@
                       class="text-xs truncate"
                       style="color: rgba(44, 44, 44, 0.5)"
                     >
-                      @for (addOn of item.addOns; track addOn.id) {
+                      @for (addOn of item.addOns; track $index) {
                         + {{ addOn.name }}&nbsp;
                       }
                     </p>

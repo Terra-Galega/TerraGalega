@@ -82,8 +82,8 @@
           @for (addOn of addons; track addOn.id) {
             <app-addon-option
               [addOn]="addOn"
-              [selected]="isAddOnSelected(addOn)"
-              (toggled)="toggleAddOn($event)"
+              [quantity]="addOnQuantity(addOn)"
+              (changed)="changeAddOnQuantity(addOn, $event)"
             />
           }
         </div>

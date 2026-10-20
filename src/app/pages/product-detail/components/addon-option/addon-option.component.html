@@ -1,13 +1,41 @@
-<label class="addon flex items-center justify-between p-4 rounded-2xl cursor-pointer" [class.selected]="selected">
-  <div class="flex items-center gap-3">
-    <input
-      type="checkbox"
-      class="w-4 h-4 rounded"
-      style="accent-color: #b2571f"
-      [checked]="selected"
-      (change)="toggled.emit(addOn)"
-    />
-    <span class="text-sm font-medium" style="color: rgba(44, 44, 44, 0.75)">{{ addOn.name }}</span>
+<div
+  class="addon flex items-center justify-between p-4 rounded-2xl"
+  [class.selected]="quantity > 0"
+>
+  <div class="flex flex-col">
+    <span class="text-sm font-medium" style="color: rgba(44, 44, 44, 0.75)">{{
+      addOn.name
+    }}</span>
+    <span class="text-sm" style="color: rgba(44, 44, 44, 0.45)"
+      >+${{ addOn.price | number: "1.0-0" }}</span
+    >
   </div>
-  <span class="text-sm" style="color: rgba(44, 44, 44, 0.45)">+${{ addOn.price | number: '1.0-0' }}</span>
-</label>
+
+  <div
+    class="flex items-center rounded-full p-0.5"
+    style="background: rgba(44, 44, 44, 0.06)"
+  >
+    <button
+      type="button"
+      class="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-30"
+      style="color: rgba(44, 44, 44, 0.6)"
+      aria-label="Quitar uno"
+      [disabled]="quantity === 0"
+      (click)="changed.emit(-1)"
+    >
+      −
+    </button>
+    <span class="w-8 text-center text-sm font-semibold text-charcoal">{{
+      quantity
+    }}</span>
+    <button
+      type="button"
+      class="w-8 h-8 rounded-full flex items-center justify-center"
+      style="color: rgba(44, 44, 44, 0.6)"
+      aria-label="Agregar uno"
+      (click)="changed.emit(1)"
+    >
+      +
+    </button>
+  </div>
+</div>
