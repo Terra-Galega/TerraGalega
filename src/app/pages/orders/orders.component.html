@@ -1,13 +1,29 @@
 <app-navbar></app-navbar>
-<div class="min-h-screen bg-cream font-sans text-charcoal" style="background-color: #f5f2eb">
+<div
+  class="min-h-screen bg-cream font-sans text-charcoal"
+  style="background-color: #f5f2eb"
+>
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
     @if (paidSuccess) {
       <div
         class="glass-card rounded-2xl px-6 py-4 mb-8 flex items-center gap-3"
-        style="border: 1px solid rgba(85,97,65,0.3); background-color: rgba(85,97,65,0.08)"
+        style="
+          border: 1px solid rgba(85, 97, 65, 0.3);
+          background-color: rgba(85, 97, 65, 0.08);
+        "
       >
-        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#556141">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        <svg
+          class="w-5 h-5 flex-shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="#556141"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          />
         </svg>
         <p class="text-sm" style="color: #556141">
           ¡Pago exitoso! Tu pedido ya quedó registrado y está pendiente.
@@ -15,14 +31,14 @@
       </div>
     }
     @if (!isLoggedIn) {
-    <!-- ENCABEZADO -->
-    <app-logged-out></app-logged-out>
+      <!-- ENCABEZADO -->
+      <app-logged-out></app-logged-out>
 
-    <!-- PASOS -->
-    <app-order-steps></app-order-steps>
+      <!-- PASOS -->
+      <app-order-steps></app-order-steps>
 
-    <!-- LISTO PARA PEDIR -->
-    <app-ready-to-order></app-ready-to-order>
+      <!-- LISTO PARA PEDIR -->
+      <app-ready-to-order></app-ready-to-order>
     }
 
     @if (isLoggedIn) {
@@ -33,7 +49,27 @@
       } @else if (orders.length === 0) {
         <app-empty-orders></app-empty-orders>
       } @else {
-        <app-ordered [orders]="orders"></app-ordered>
+        <!-- PEDIDOS ACTIVOS -->
+        <h2 class="font-serif text-2xl font-semibold text-charcoal mb-5">
+          Pedidos activos
+        </h2>
+        @if (activeOrders.length > 0) {
+          <app-ordered [orders]="activeOrders"></app-ordered>
+        } @else {
+          <p class="text-sm mb-5" style="color: rgba(44, 44, 44, 0.55)">
+            No tienes pedidos activos en este momento.
+          </p>
+        }
+
+        <!-- PEDIDOS PASADOS -->
+        @if (pastOrders.length > 0) {
+          <h2
+            class="font-serif text-2xl font-semibold text-charcoal mt-14 mb-5"
+          >
+            Pedidos pasados
+          </h2>
+          <app-ordered [orders]="pastOrders"></app-ordered>
+        }
       }
     }
   </main>

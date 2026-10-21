@@ -26,7 +26,6 @@ import { AuthService } from '../../services/auth.service';
   ],
   templateUrl: './orders.component.html',
 })
-
 export class OrdersComponent implements OnInit {
   private auth = inject(AuthService);
   private orderService = inject(OrderService);
@@ -68,5 +67,19 @@ export class OrdersComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  // Un pedido está activo mientras no se haya entregado ni cancelado
+  get activeOrders(): Order[] {
+    return this.orders.filter(
+      (order) => order.status !== 'DELIVERED' && order.status !== 'CANCELLED',
+    );
+  }
+
+  // Pedidos ya terminados (entregados o cancelados)
+  get pastOrders(): Order[] {
+    return this.orders.filter(
+      (order) => order.status === 'DELIVERED' || order.status === 'CANCELLED',
+    );
   }
 }

@@ -50,6 +50,12 @@
       @if (activeTab === "operators") {
         <app-admin-operators></app-admin-operators>
       }
+      @if (activeTab === "deliveries") {
+        <app-admin-delivery-persons
+          [searchTerm]="searchTerm"
+          (editDeliveryPerson)="openEditDeliveryPerson($event)"
+        ></app-admin-delivery-persons>
+      }
     </div>
   </div>
 </div>
@@ -73,4 +79,10 @@
     [addon]="selectedAddon"
     (closed)="closeAddonModal()"
   ></app-admin-addon-modal>
+}
+@if (deliveryModalOpen) {
+  <app-admin-delivery-person-modal
+    [deliveryPerson]="selectedDeliveryPerson"
+    (closed)="closeDeliveryModal()"
+  ></app-admin-delivery-person-modal>
 }

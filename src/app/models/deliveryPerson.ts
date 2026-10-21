@@ -12,3 +12,8 @@ export interface DeliveryPerson {
   available: boolean;
   active: boolean;
 }
+// Datos que manda el admin al crear: el id, el rol y la disponibilidad los define el back
+export type CreateDeliveryPerson = Omit<
+  DeliveryPerson,
+  'id' | 'role' | 'available'
+>;

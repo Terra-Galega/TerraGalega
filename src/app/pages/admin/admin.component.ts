@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AdminDeliveryPersonsComponent } from './components/admin-delivery-persons/admin-delivery-persons.component';
+import { AdminDeliveryPersonModalComponent } from './components/admin-delivery-person-modal/admin-delivery-person-modal.component';
+import { DeliveryPerson } from '../../models/deliveryPerson';
 import {
   AdminSidebarComponent,
   AdminTab,
@@ -28,6 +31,8 @@ import { AddOn } from '../../models/addOn';
     AdminOrdersComponent,
     AdminUsersComponent,
     AdminOperatorsComponent,
+    AdminDeliveryPersonsComponent,
+    AdminDeliveryPersonModalComponent,
     AdminProductModalComponent,
     AdminCategoriesComponent,
     AdminCategoryModalComponent,
@@ -48,6 +53,9 @@ export class AdminComponent {
 
   addonModalOpen = false;
   selectedAddon: AddOn | null = null;
+
+  deliveryModalOpen = false;
+  selectedDeliveryPerson: DeliveryPerson | null = null;
 
   searchTerm = '';
 
@@ -86,6 +94,8 @@ export class AdminComponent {
         return 'Usuarios';
       case 'operators':
         return 'Operadores';
+      case 'deliveries':
+        return 'Domiciliarios';
       default:
         return 'Usuarios';
     }
@@ -95,7 +105,8 @@ export class AdminComponent {
     return (
       this.activeTab === 'products' ||
       this.activeTab === 'categories' ||
-      this.activeTab === 'addons'
+      this.activeTab === 'addons' ||
+      this.activeTab === 'deliveries'
     );
   }
 
@@ -105,6 +116,8 @@ export class AdminComponent {
         return 'Añadir categoría';
       case 'addons':
         return 'Añadir adicional';
+      case 'deliveries':
+        return 'Añadir domiciliario';
       default:
         return 'Añadir producto';
     }
@@ -122,6 +135,8 @@ export class AdminComponent {
       this.openAddCategory();
     } else if (this.activeTab === 'addons') {
       this.openAddAddon();
+    } else if (this.activeTab === 'deliveries') {
+      this.openAddDeliveryPerson();
     }
   }
 
@@ -171,6 +186,22 @@ export class AdminComponent {
   closeAddonModal() {
     this.addonModalOpen = false;
     this.selectedAddon = null;
+  }
+
+  // Domiciliarios
+  openAddDeliveryPerson() {
+    this.selectedDeliveryPerson = null;
+    this.deliveryModalOpen = true;
+  }
+
+  openEditDeliveryPerson(deliveryPerson: DeliveryPerson) {
+    this.selectedDeliveryPerson = deliveryPerson;
+    this.deliveryModalOpen = true;
+  }
+
+  closeDeliveryModal() {
+    this.deliveryModalOpen = false;
+    this.selectedDeliveryPerson = null;
   }
 
   logout() {

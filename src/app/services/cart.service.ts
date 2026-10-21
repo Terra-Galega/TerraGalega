@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Product } from '../models/product';
 import { AddOn } from '../models/addOn';
+import { AuthService, Session } from './auth.service';
 
 export interface CartItem {
   id: string;
@@ -10,12 +11,26 @@ export interface CartItem {
   addOns: AddOn[];
 }
 
+// Carrito de quien aún no ha iniciado sesión
+const GUEST_KEY = 'terragalega_cart';
+
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  // El carrito vive solo en memoria: si se recarga la página, se vacía
+  private auth = inject(AuthService);
+
+  // Llave de localStorage del carrito que se está usando ahora mismo
+  private currentKey: string | null = null;
+
   private itemsSubject = new BehaviorSubject<CartItem[]>([]);
 
   items$ = this.itemsSubject.asObservable();
+
+  constructor() {
+    // Cada vez que cambia la sesión (login, logout) se cambia de carrito.
+    // Al suscribirse emite la sesión actual, así que aquí también se
+    // carga el carrito inicial.
+    this.auth.session$.subscribe((session) => this.switchCart(session));
+  }
 
   get items(): CartItem[] {
     return this.itemsSubject.value;
@@ -37,15 +52,15 @@ export class CartService {
       updated = [...this.items, { id, product, quantity, addOns }];
     }
 
-    this.itemsSubject.next(updated);
+    this.update(updated);
   }
 
   removeItem(id: string) {
-    this.itemsSubject.next(this.items.filter((item) => item.id !== id));
+    this.update(this.items.filter((item) => item.id !== id));
   }
 
   clear() {
-    this.itemsSubject.next([]);
+    this.update([]);
   }
 
   // Precio de una unidad: producto + sus adicionales
@@ -75,5 +90,103 @@ export class CartService {
       .join('-');
 
     return `${product.id}:${addOnIds}`;
+  }
+
+  // Cada cliente tiene su llave; el resto (invitado, admin, operador,
+  // domiciliario) usa la del invitado
+  private keyFor(session: Session | null): string {
+    return session && session.type === 'client'
+      ? `${GUEST_KEY}_client_${session.id}`
+      : GUEST_KEY;
+  }
+
+  // Cambia al carrito de la sesión actual. Si un invitado inicia sesión
+  // como cliente, lo que tenía en su carrito se une al del cliente.
+  private switchCart(session: Session | null) {
+    const newKey = this.keyFor(session);
+
+    // La sesión se vuelve a emitir al editar el perfil: mismo dueño,
+    // no hay nada que cambiar
+    if (newKey === this.currentKey) return;
+
+    const previousKey = this.currentKey;
+    this.currentKey = newKey;
+
+    let items = this.load(newKey);
+
+    if (previousKey === GUEST_KEY && newKey !== GUEST_KEY) {
+      items = this.merge(items, this.items);
+      this.remove(GUEST_KEY);
+    }
+
+    this.update(items);
+  }
+
+  // Suma los productos del segundo carrito al primero
+  private merge(base: CartItem[], extra: CartItem[]): CartItem[] {
+    const result = [...base];
+
+    for (const item of extra) {
+      const index = result.findIndex((existing) => existing.id === item.id);
+
+      if (index === -1) {
+        result.push(item);
+      } else {
+        result[index] = {
+          ...result[index],
+          quantity: result[index].quantity + item.quantity,
+        };
+      }
+    }
+
+    return result;
+  }
+
+  // Punto único de cambio: avisa a los suscriptores y guarda en el navegador
+  private update(items: CartItem[]) {
+    this.itemsSubject.next(items);
+    this.save(items);
+  }
+
+  private save(items: CartItem[]) {
+    if (!this.currentKey) return;
+
+    try {
+      localStorage.setItem(this.currentKey, JSON.stringify(items));
+    } catch {
+      // Si el navegador bloquea el almacenamiento, el carrito sigue
+      // funcionando en memoria
+    }
+  }
+
+  private remove(key: string) {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // Sin almacenamiento no hay nada que borrar
+    }
+  }
+
+  // Lee un carrito guardado. Si no hay nada, o el contenido está dañado
+  // o no tiene el formato esperado, devuelve un carrito vacío
+  private load(key: string): CartItem[] {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return [];
+
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed.filter(
+        (item) =>
+          item &&
+          typeof item.id === 'string' &&
+          item.product &&
+          typeof item.quantity === 'number' &&
+          Array.isArray(item.addOns),
+      );
+    } catch {
+      return [];
+    }
   }
 }

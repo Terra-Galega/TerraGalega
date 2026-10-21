@@ -1,28 +1,65 @@
+<!-- Filtro: todos / activos / completados -->
+<div class="flex gap-2 mb-5">
+  @for (option of filterOptions; track option.value) {
+    <button
+      type="button"
+      class="text-[12px] font-medium px-4 py-2 rounded-xl"
+      [style.background-color]="
+        filter === option.value ? '#2c2c2c' : 'rgba(44,44,44,0.06)'
+      "
+      [style.color]="
+        filter === option.value ? '#f5f2eb' : 'rgba(44,44,44,0.55)'
+      "
+      (click)="filter = option.value"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>
+
 <div class="space-y-3">
-  @if (ordersSummary.length === 0) {
+  @if (filteredOrders.length === 0) {
     <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
-      No hay pedidos registrados.
+      No hay pedidos en esta vista.
     </p>
   } @else {
-    @for (orderSummary of ordersSummary; track orderSummary.id) {
-      <div class="flex items-center gap-5 px-6 py-4 rounded-2xl"
-           style="background-color: rgba(255,255,255,0.72); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.55)">
-        <span class="font-mono text-sm font-semibold w-16" style="color: rgba(44,44,44,0.55)">#{{ orderSummary.id }}</span>
+    @for (orderSummary of filteredOrders; track orderSummary.id) {
+      <div
+        class="flex items-center gap-5 px-6 py-4 rounded-2xl"
+        style="
+          background-color: rgba(255, 255, 255, 0.72);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.55);
+        "
+      >
+        <span
+          class="font-mono text-sm font-semibold w-16"
+          style="color: rgba(44, 44, 44, 0.55)"
+          >#{{ orderSummary.id }}</span
+        >
 
         <div class="flex-1 min-w-0">
           <p class="font-medium text-charcoal text-sm">
-            {{ orderSummary.clientName}}
+            {{ orderSummary.clientName }}
           </p>
-          <p class="truncate" style="font-size: 12px; color: rgba(44,44,44,0.45)">
-            {{ orderSummary.address }} · {{ orderSummary.createdAt | date: 'dd MMM yyyy, HH:mm' }}
+          <p
+            class="truncate"
+            style="font-size: 12px; color: rgba(44, 44, 44, 0.45)"
+          >
+            {{ orderSummary.address }} ·
+            {{ orderSummary.createdAt | date: "dd MMM yyyy, HH:mm" }}
           </p>
         </div>
 
-        <span class="text-[11px] font-medium px-3 py-1 rounded-full"
-              style="background-color: rgba(85,97,65,.12); color: #556141">
+        <span
+          class="text-[11px] font-medium px-3 py-1 rounded-full"
+          style="background-color: rgba(85, 97, 65, 0.12); color: #556141"
+        >
           {{ statusLabels[orderSummary.status] }}
         </span>
-        <span class="font-bold" style="color: #b2571f">${{ orderSummary.total | number: '1.0-0' }}</span>
+        <span class="font-bold" style="color: #b2571f"
+          >${{ orderSummary.total | number: "1.0-0" }}</span
+        >
       </div>
     }
   }
