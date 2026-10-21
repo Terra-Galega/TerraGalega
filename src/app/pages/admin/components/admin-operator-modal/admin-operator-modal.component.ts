@@ -15,7 +15,12 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 
 @Component({
   selector: 'app-admin-operator-modal',
-  imports: [IconButtonComponent, IconButtonComponent, FormFieldComponent, ButtonComponent],
+  imports: [
+    IconButtonComponent,
+    IconButtonComponent,
+    FormFieldComponent,
+    ButtonComponent,
+  ],
   templateUrl: './admin-operator-modal.component.html',
 })
 export class AdminOperatorModalComponent {
@@ -75,7 +80,7 @@ export class AdminOperatorModalComponent {
     this.password = (event.target as HTMLInputElement).value;
   }
   setActive(event: Event) {
-    this.active = (event.target as HTMLInputElement).checked;
+    this.active = (event.target as HTMLSelectElement).value === 'true';
   }
 
   private validateFields(): boolean {

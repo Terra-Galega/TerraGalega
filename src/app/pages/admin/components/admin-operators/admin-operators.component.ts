@@ -7,7 +7,6 @@ import { IconButtonComponent } from '../../../../components/icon-button/icon-but
   selector: 'app-admin-operators',
   imports: [IconButtonComponent],
   templateUrl: './admin-operators.component.html',
-  styleUrl: './admin-operators.component.scss',
 })
 export class AdminOperatorsComponent {
   private operatorService = inject(OperatorService);
@@ -49,14 +48,30 @@ export class AdminOperatorsComponent {
 
     this.operatorService.deleteOperator(id).subscribe({
       next: () => {
-        this.loadOperators();
+        this.operatorService.refresh();
       },
       error: (error) => {
         console.error('Error eliminando operador:', error);
         window.alert(
-          'Ocurrió un error al eliminar el operador. Por favor, inténtalo de nuevo.',
+          error.error?.message ??
+            'Ocurrió un error al eliminar el operador. Por favor, inténtalo de nuevo.',
         );
       },
     });
   }
+
+  toggleOperator(operator: Operator) {
+    this.operatorService.toggleOperatorActiveStatus(operator.id).subscribe({
+      next: () => {
+        this.operatorService.refresh();
+      },
+      error: (error) => {
+        console.error('Error cambiando estado del operador:', error);
+        window.alert(
+          error.error?.message ?? 'No se pudo cambiar el estado del operador.',
+        );
+      },
+    });
+  }
+
 }
