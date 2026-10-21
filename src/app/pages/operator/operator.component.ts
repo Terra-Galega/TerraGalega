@@ -40,7 +40,7 @@ export class OperatorComponent {
 
     this.operatorId = session.id;
     this.operatorName = `${session.name} ${session.lastName}`.trim();
-    
+
     this.operatorService.getOperatorById(session.id).subscribe({
       next: (operator) => (this.operatorUsername = operator.username),
       error: (error) => console.error('Error cargando el operador:', error),
