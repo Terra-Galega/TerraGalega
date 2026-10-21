@@ -16,6 +16,8 @@ import { AdminCategoryModalComponent } from './components/admin-category-modal/a
 import { AdminAddonsComponent } from './components/admin-addons/admin-addons.component';
 import { AdminAddonModalComponent } from './components/admin-addon-modal/admin-addon-modal.component';
 import { Product } from '../../models/product';
+import { AdminOperatorModalComponent } from './components/admin-operator-modal/admin-operator-modal.component';
+import { Operator } from '../../models/operator';
 import { Category } from '../../models/category';
 import { AddOn } from '../../models/addOn';
 
@@ -33,6 +35,7 @@ import { AddOn } from '../../models/addOn';
     AdminCategoryModalComponent,
     AdminAddonsComponent,
     AdminAddonModalComponent,
+    AdminOperatorModalComponent,
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
@@ -95,7 +98,8 @@ export class AdminComponent {
     return (
       this.activeTab === 'products' ||
       this.activeTab === 'categories' ||
-      this.activeTab === 'addons'
+      this.activeTab === 'addons' ||
+      this.activeTab === 'operators'
     );
   }
 
@@ -105,6 +109,8 @@ export class AdminComponent {
         return 'Añadir categoría';
       case 'addons':
         return 'Añadir adicional';
+      case 'operators':
+        return 'Añadir operador';
       default:
         return 'Añadir producto';
     }
@@ -122,6 +128,8 @@ export class AdminComponent {
       this.openAddCategory();
     } else if (this.activeTab === 'addons') {
       this.openAddAddon();
+    } else if (this.activeTab === 'operators') {
+      this.openAddOperator();
     }
   }
 
@@ -176,5 +184,24 @@ export class AdminComponent {
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Operadores
+  operatorModalOpen = false;
+  selectedOperator: Operator | null = null;
+
+  openAddOperator() {
+    this.selectedOperator = null;
+    this.operatorModalOpen = true;
+  }
+
+  openEditOperator(operator: Operator) {
+    this.selectedOperator = operator;
+    this.operatorModalOpen = true;
+  }
+
+  closeOperatorModal() {
+    this.operatorModalOpen = false;
+    this.selectedOperator = null;
   }
 }
