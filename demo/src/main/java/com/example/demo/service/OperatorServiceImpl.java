@@ -44,7 +44,8 @@ public class OperatorServiceImpl implements OperatorService {
     }
 
     // El correo no puede estar usado por ningún tipo de usuario.
-    // currentOperatorId permite que al editar un operador conserve su propio correo.
+    // currentOperatorId permite que al editar un operador conserve su propio
+    // correo.
     private void validateEmailAvailable(String email, Integer currentOperatorId) {
         Operator sameEmail = repository.findByEmail(email);
         boolean usedByOtherOperator = sameEmail != null && !sameEmail.getId().equals(currentOperatorId);
@@ -58,8 +59,9 @@ public class OperatorServiceImpl implements OperatorService {
         }
     }
 
-     // El nombre de usuario no puede estar usado por ningún operador.
-        // currentOperatorId permite que al editar un operador conserve su propio nombre de usuario.
+    // El nombre de usuario no puede estar usado por ningún operador.
+    // currentOperatorId permite que al editar un operador conserve su propio nombre
+    // de usuario.
     private void validateUsernameAvailable(String username, Integer currentOperatorId) {
         Operator sameUsername = repository.findByUsername(username);
         boolean usedByOtherOperator = sameUsername != null && !sameUsername.getId().equals(currentOperatorId);
@@ -130,7 +132,19 @@ public class OperatorServiceImpl implements OperatorService {
 
     @Override
     @Transactional
+    public Operator toggleOperatorActive(Integer id) {
+        Operator operator = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró el operador solicitado."));
+
+        operator.setActive(!Boolean.TRUE.equals(operator.getActive()));
+
+        return repository.save(operator);
+    }
+
+    @Override
+    @Transactional
     public Operator findByEmail(String email) {
         return repository.findByEmail(email);
     }
+
 }

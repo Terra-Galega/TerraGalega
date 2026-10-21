@@ -48,4 +48,10 @@ public class OperatorController {
     public void deleteOperator(@PathVariable Integer id) {
         operatorService.deleteOperator(id);
     }
+
+    @Operation(summary = "Toggle operator active status")
+    @PutMapping("/{id}/toggle")
+    public Operator toggleOperator(@PathVariable Integer id) {
+        return operatorService.toggleOperatorActive(id);
+    }
 }

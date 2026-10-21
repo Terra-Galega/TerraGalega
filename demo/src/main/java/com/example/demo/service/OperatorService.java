@@ -14,4 +14,6 @@ public interface OperatorService {
     void deleteOperator(Integer id);
 
     Operator findByEmail(String email);
+
+    Operator toggleOperatorActive(Integer id);
 }
