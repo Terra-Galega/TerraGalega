@@ -43,8 +43,8 @@
 
 @if (addonModalOpen) {
 <app-admin-addon-modal [addon]="selectedAddon" (closed)="closeAddonModal()"></app-admin-addon-modal>
+}
 
 @if (operatorModalOpen) {
 <app-admin-operator-modal [operator]="selectedOperator" (closed)="closeOperatorModal()"></app-admin-operator-modal>
-}
 }

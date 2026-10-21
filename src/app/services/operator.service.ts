@@ -5,7 +5,7 @@ import { Operator, CreateOperator } from '../models/operator';
 import { Role } from '../models/role';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OperatorService {
   private apiUrl = 'http://localhost:8080/operators';
@@ -47,5 +47,8 @@ export class OperatorService {
   deleteOperator(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
-  
+
+  toggleOperatorActiveStatus(id: number): Observable<Operator> {
+    return this.http.put<Operator>(`${this.apiUrl}/${id}/toggle`, {});
+  }
 }
