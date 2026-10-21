@@ -161,6 +161,27 @@
 
       Operadores
     </button>
+    <button
+      type="button"
+      (click)="changeTab('deliveries')"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [class.active]="activeTab === 'deliveries'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <circle cx="6" cy="17" r="3" />
+        <circle cx="18" cy="17" r="3" />
+        <path d="M6 17l3-7h5l4 7M9 10L8 7H5" />
+      </svg>
+
+      Domiciliarios
+    </button>
   </nav>
 
   <div

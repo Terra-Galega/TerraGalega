@@ -44,21 +44,21 @@ export class CartComponent {
 
   // Cierra el carrito y lleva a la pasarela de pago
   goToCheckout(): void {
-  this.closeCart();
+    this.closeCart();
 
-  const session = this.auth.session;
+    const session = this.auth.session;
 
-  if (!session) {
-    this.router.navigate(['/login'], {
-      queryParams: { redirect: 'checkout' },
-    });
-    return;
+    if (!session) {
+      this.router.navigate(['/login'], {
+        queryParams: { redirect: 'checkout' },
+      });
+      return;
+    }
+
+    if (session.type === 'client') {
+      this.router.navigate(['/checkout']);
+    }
   }
-
-  if (session.type === 'client') {
-    this.router.navigate(['/checkout']);
-  }
-}
 
   removeItem(id: string) {
     this.cartService.removeItem(id);

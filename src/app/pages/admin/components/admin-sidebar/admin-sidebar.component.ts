@@ -6,7 +6,8 @@ export type AdminTab =
   | 'addons'
   | 'orders'
   | 'users'
-  | 'operators';
+  | 'operators'
+  | 'deliveries';
 
 @Component({
   selector: 'app-admin-sidebar',
