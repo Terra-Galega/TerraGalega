@@ -6,8 +6,13 @@ export interface Operator {
   username: string;
   email: string;
   lastName: string;
-  password: string;
+  password?: string;
   role: Role;
   active: boolean;
 }
-export type CreateOperator = Omit<Operator, 'id'>;
+export type CreateOperator = Omit<Operator, 'id' | 'password'> & {
+  password: string;
+};
+
+export { Role };
+

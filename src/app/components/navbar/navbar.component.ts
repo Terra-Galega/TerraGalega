@@ -122,7 +122,11 @@ export class NavbarComponent implements OnDestroy {
     if (this.isLoggedAdmin) {
       this.router.navigate(['/admin', this.userId]);
       this.navBarStayed = true;
-    } else {
+    }
+    else if (this.isOperator) {
+    this.router.navigate(['/operator', this.userId]);
+    this.navBarStayed = true;
+    }else {
       this.router.navigate(['/account', this.userId]);
       this.navBarStayed = true;
     }
