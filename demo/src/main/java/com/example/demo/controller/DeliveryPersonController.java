@@ -2,12 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.entities.DeliveryPerson;
 import com.example.demo.service.DeliveryPersonService;
-import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 
 import java.util.Collection;
 
@@ -19,9 +16,48 @@ public class DeliveryPersonController {
     @Autowired
     private DeliveryPersonService deliveryPersonService;
 
+    @Operation(summary = "Get all delivery persons for admin UI")
+    @GetMapping
+    public Collection<DeliveryPerson> getAllDeliveryPersons() {
+        return deliveryPersonService.getAllDeliveryPersons();
+    }
+
     @Operation(summary = "Get active delivery persons that are available, for the operator UI")
     @GetMapping("/available")
     public Collection<DeliveryPerson> getAvailableDeliveryPersons() {
         return deliveryPersonService.getAvailableDeliveryPersons();
+    }
+
+    @Operation(summary = "Get delivery person by ID")
+    @GetMapping("/{id}")
+    public DeliveryPerson getDeliveryPersonById(@PathVariable Integer id) {
+        return deliveryPersonService.getDeliveryPersonById(id);
+    }
+
+    @Operation(summary = "Add a new delivery person from admin UI")
+    @PostMapping
+    public DeliveryPerson addDeliveryPerson(@RequestBody DeliveryPerson deliveryPerson) {
+        return deliveryPersonService.addDeliveryPerson(deliveryPerson);
+    }
+
+    @Operation(summary = "Update a delivery person by ID from admin UI")
+    @PutMapping("/{id}")
+    public DeliveryPerson updateDeliveryPerson(
+            @PathVariable Integer id,
+            @RequestBody DeliveryPerson deliveryPerson) {
+
+        return deliveryPersonService.updateDeliveryPerson(id, deliveryPerson);
+    }
+
+    @Operation(summary = "Activate or deactivate a delivery person (e.g. a day off)")
+    @PutMapping("/{id}/toggle")
+    public DeliveryPerson toggleDeliveryPerson(@PathVariable Integer id) {
+        return deliveryPersonService.toggleDeliveryPersonActive(id);
+    }
+
+    @Operation(summary = "Delete a delivery person by ID from admin UI")
+    @DeleteMapping("/{id}")
+    public void deleteDeliveryPerson(@PathVariable Integer id) {
+        deliveryPersonService.deleteDeliveryPerson(id);
     }
 }

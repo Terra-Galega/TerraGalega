@@ -167,8 +167,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<OrderSummaryDTO> getActiveOrders() {
-        return repository.findByStatusNotInOrderByCreatedAtAsc(FINISHED_STATUSES).stream()
-                .map(this::toSummary)
+        return repository.findByStatusNotInOrderByCreatedAtDesc(FINISHED_STATUSES).stream().map(this::toSummary)
                 .toList();
     }
 

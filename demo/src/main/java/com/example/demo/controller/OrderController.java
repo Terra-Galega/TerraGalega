@@ -72,4 +72,10 @@ public class OrderController {
         return orderService.sendOrder(id, deliveryPersonId);
     }
 
+    @Operation(summary = "Operator marks an order as delivered (ON_THE_WAY -> DELIVERED) and frees the delivery person")
+    @PutMapping("/{id}/deliver")
+    public Order deliverOrder(@PathVariable Integer id) {
+        return orderService.deliverOrder(id);
+    }
+
 }
