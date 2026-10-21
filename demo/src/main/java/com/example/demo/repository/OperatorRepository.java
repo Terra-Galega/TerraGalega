@@ -9,4 +9,6 @@ public interface OperatorRepository extends JpaRepository<Operator, Integer> {
 
     Operator findByEmail(String email);
 
+    Operator findByUsername(String username);
+
 }

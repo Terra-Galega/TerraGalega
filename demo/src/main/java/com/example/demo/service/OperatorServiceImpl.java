@@ -58,12 +58,23 @@ public class OperatorServiceImpl implements OperatorService {
         }
     }
 
+     // El nombre de usuario no puede estar usado por ningún operador.
+        // currentOperatorId permite que al editar un operador conserve su propio nombre de usuario.
+    private void validateUsernameAvailable(String username, Integer currentOperatorId) {
+        Operator sameUsername = repository.findByUsername(username);
+        boolean usedByOtherOperator = sameUsername != null && !sameUsername.getId().equals(currentOperatorId);
+
+        if (usedByOtherOperator) {
+            throw new IllegalArgumentException(
+                    "Ya existe una cuenta registrada con ese nombre de usuario.");
+        }
+    }
+
     @Override
     @Transactional
     public Operator addOperator(Operator operator) {
-
         validateEmailAvailable(operator.getEmail(), null);
-
+        validateUsernameAvailable(operator.getUsername(), null);
         // Evita que un id enviado desde el front sobrescriba un operador existente
         operator.setId(null);
         if (operator.getActive() == null) {
@@ -81,6 +92,7 @@ public class OperatorServiceImpl implements OperatorService {
                 .orElseThrow(() -> new IllegalArgumentException("El operador no existe."));
 
         validateEmailAvailable(operator.getEmail(), id);
+        validateUsernameAvailable(operator.getUsername(), id);
 
         existing.setName(operator.getName());
         existing.setLastName(operator.getLastName());
