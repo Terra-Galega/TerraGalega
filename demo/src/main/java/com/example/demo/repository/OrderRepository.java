@@ -19,8 +19,10 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     boolean existsByDetailsProductId(Integer productId);
 
     boolean existsByOperatorId(Integer operatorId);
-    
+
     List<Order> findByStatusNotInOrderByCreatedAtAsc(Collection<OrderStatus> statuses);
 
     List<Order> findAllByOrderByCreatedAtDesc();
+
+    boolean existsByDeliveryPersonId(Integer deliveryPersonId);
 }
