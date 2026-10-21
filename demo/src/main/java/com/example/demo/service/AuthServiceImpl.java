@@ -18,7 +18,6 @@ public class AuthServiceImpl implements AuthService {
     private AdminService adminService;
     @Autowired
     private OperatorService operatorService;
-    
 
     @Override
     public Object login(String email, String password) {
@@ -40,7 +39,14 @@ public class AuthServiceImpl implements AuthService {
 
         Operator operator = operatorService.findByEmail(email);
         if (operator != null) {
-            return operator.getPassword().equals(password) ? operator : null;
+            if (!operator.getPassword().equals(password)) {
+                return null;
+            }
+            if (!Boolean.TRUE.equals(operator.getActive())) {
+                throw new IllegalArgumentException(
+                        "Tu cuenta de operador está desactivada. Contacta al administrador.");
+            }
+            return operator;
         }
 
         return null;
