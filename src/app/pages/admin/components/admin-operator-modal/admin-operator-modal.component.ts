@@ -12,6 +12,7 @@ import { IconButtonComponent } from '../../../../components/icon-button/icon-but
 import { OperatorService } from '../../../../services/operator.service';
 import { CreateOperator, Operator, Role } from '../../../../models/operator';
 import { ButtonComponent } from '../../../../components/button/button.component';
+import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
 
 @Component({
   selector: 'app-admin-operator-modal',
@@ -20,6 +21,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
     IconButtonComponent,
     FormFieldComponent,
     ButtonComponent,
+    ChangePasswordModalComponent
   ],
   templateUrl: './admin-operator-modal.component.html',
 })
@@ -122,8 +124,6 @@ export class AdminOperatorModalComponent {
         username: this.username.trim(),
         email: this.email.trim(),
         active: this.active,
-        // No se envía la contraseña si no se ha modificado
-        password: this.password,
       };
 
       this.operatorService.updateOperator(updated).subscribe({
@@ -165,4 +165,9 @@ export class AdminOperatorModalComponent {
   close() {
     this.closed.emit();
   }
+
+  passwordModalOpen = false;
+
+savePassword = (current: string, next: string) =>
+  this.operatorService.changePassword(this.operator!.id, current, next);
 }

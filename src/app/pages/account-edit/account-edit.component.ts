@@ -9,6 +9,7 @@ import { ClientService } from '../../services/client.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { ProfileSummaryComponent } from './components/profile-summary/profile-summary.component';
 import { AccountFormComponent } from './components/account-form/account-form.component';
+import { ChangePasswordModalComponent } from '../../components/change-password-modal/change-password-modal.component';
 
 @Component({
   selector: 'app-account-edit',
@@ -18,6 +19,7 @@ import { AccountFormComponent } from './components/account-form/account-form.com
     PageHeaderComponent,
     ProfileSummaryComponent,
     AccountFormComponent,
+    ChangePasswordModalComponent,
   ],
   templateUrl: './account-edit.component.html',
 })
@@ -34,8 +36,9 @@ export class AccountEditComponent implements OnInit {
     lastName: new FormControl(''),
     email: new FormControl(''),
     phone: new FormControl(''),
-    password: new FormControl(''),
   });
+
+  passwordModalOpen = false;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -70,10 +73,6 @@ export class AccountEditComponent implements OnInit {
       lastName: this.form.value.lastName ?? '',
       email: this.form.value.email ?? '',
       phone: this.form.value.phone ?? '',
-
-      // Si deja contraseña vacía,
-      // conserva la contraseña anterior.
-      password: this.form.value.password || this.client.password,
     };
 
     this.clientService.updateClient(updatedClient).subscribe({
@@ -94,4 +93,7 @@ export class AccountEditComponent implements OnInit {
 
     this.router.navigate(['/account', this.client.id]);
   }
+
+  savePassword = (current: string, next: string) =>
+    this.clientService.changePassword(this.client!.id, current, next);
 }

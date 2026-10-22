@@ -50,4 +50,15 @@ export class DeliveryPersonService {
   deleteDeliveryPerson(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  changePassword(
+    id: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/password`, {
+      currentPassword,
+      newPassword,
+    });
+  }
 }

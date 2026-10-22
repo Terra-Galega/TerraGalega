@@ -51,4 +51,15 @@ export class OperatorService {
   toggleOperatorActiveStatus(id: number): Observable<Operator> {
     return this.http.put<Operator>(`${this.apiUrl}/${id}/toggle`, {});
   }
+
+  changePassword(
+    id: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/password`, {
+      currentPassword,
+      newPassword,
+    });
+  }
 }

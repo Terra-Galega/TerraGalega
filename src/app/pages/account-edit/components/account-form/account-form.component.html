@@ -1,31 +1,20 @@
-<form
-  [formGroup]="form"
-  (ngSubmit)="save.emit()"
-  class="glass-card rounded-3xl p-6 md:p-10 space-y-10"
->
+<form [formGroup]="form" (ngSubmit)="save.emit()" class="glass-card rounded-3xl p-6 md:p-10 space-y-10">
   <!-- Datos personales -->
   <app-form-section title="Datos personales" tone="terra">
     <svg icon class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
     </svg>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <app-form-field label="Nombre">
-        <input
-          type="text"
-          formControlName="name"
-          aria-label="Nombre"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-        />
+        <input type="text" formControlName="name" aria-label="Nombre"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
       </app-form-field>
 
       <app-form-field label="Apellido">
-        <input
-          type="text"
-          formControlName="lastName"
-          aria-label="Apellido"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-        />
+        <input type="text" formControlName="lastName" aria-label="Apellido"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
       </app-form-field>
     </div>
   </app-form-section>
@@ -33,26 +22,19 @@
   <!-- Contacto -->
   <app-form-section title="Contacto" tone="gold">
     <svg icon class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.9 5.3a2 2 0 002.2 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+        d="M3 8l7.9 5.3a2 2 0 002.2 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
     </svg>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <app-form-field label="Correo electrónico">
-        <input
-          type="email"
-          formControlName="email"
-          aria-label="Correo electrónico"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-        />
+        <input type="email" formControlName="email" aria-label="Correo electrónico"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
       </app-form-field>
 
       <app-form-field label="Teléfono">
-        <input
-          type="text"
-          formControlName="phone"
-          aria-label="Teléfono"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-        />
+        <input type="text" formControlName="phone" aria-label="Teléfono"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
       </app-form-field>
     </div>
   </app-form-section>
@@ -60,38 +42,18 @@
   <!-- Seguridad -->
   <app-form-section title="Seguridad" tone="sage">
     <svg icon class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
     </svg>
 
-    <app-form-field label="Nueva contraseña">
-      <div class="relative">
-        <input
-          [type]="showPassword ? 'text' : 'password'"
-          formControlName="password"
-          placeholder="Dejar en blanco para no cambiarla"
-          aria-label="Nueva contraseña"
-          class="input-field w-full pl-4 pr-12 py-3 rounded-xl text-charcoal text-sm"
-        />
-        <button
-          type="button"
-          (click)="togglePassword()"
-          class="absolute inset-y-0 right-0 px-4 flex items-center cursor-pointer transition-opacity hover:opacity-70"
-          style="color: rgba(44, 44, 44, 0.5)"
-          [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-        >
-          @if (showPassword) {
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.48 0-8.27-2.94-9.54-7a9.96 9.96 0 012.29-3.78M6.6 6.6A9.96 9.96 0 0112 5c4.48 0 8.27 2.94 9.54 7a9.97 9.97 0 01-4.13 5.4M3 3l18 18M9.88 9.88a3 3 0 104.24 4.24" />
-            </svg>
-          } @else {
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.46 12C3.73 7.94 7.52 5 12 5s8.27 2.94 9.54 7c-1.27 4.06-5.06 7-9.54 7s-8.27-2.94-9.54-7z" />
-            </svg>
-          }
-        </button>
-      </div>
-    </app-form-field>
+    <div class="flex items-center justify-between gap-4">
+      <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
+        Para cambiarla te pediremos tu contraseña actual.
+      </p>
+      <app-button type="button" variant="outline" size="md" (click)="changePassword.emit()">
+        Cambiar contraseña
+      </app-button>
+    </div>
 
     <p class="text-xs mt-2" style="color: rgba(44, 44, 44, 0.45)">
       Si la dejas vacía, conservaremos tu contraseña actual.
@@ -99,10 +61,8 @@
   </app-form-section>
 
   <!-- Botones -->
-  <div
-    class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6"
-    style="border-top: 1px solid rgba(44, 44, 44, 0.08)"
-  >
+  <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6"
+    style="border-top: 1px solid rgba(44, 44, 44, 0.08)">
     <app-button type="button" variant="neutral" size="md" (click)="cancel.emit()">
       Cancelar
     </app-button>

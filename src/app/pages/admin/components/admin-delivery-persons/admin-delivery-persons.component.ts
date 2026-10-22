@@ -10,15 +10,22 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { DeliveryPerson } from '../../../../models/deliveryPerson';
 import { DeliveryPersonService } from '../../../../services/delivery-person.service';
+import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
 
 // Tabla de domiciliarios del portal admin: editar, eliminar y activar/desactivar
 @Component({
   selector: 'app-admin-delivery-persons',
-  imports: [EmptyStateComponent, IconButtonComponent],
+  imports: [
+    EmptyStateComponent,
+    IconButtonComponent,
+    ChangePasswordModalComponent,
+  ],
   templateUrl: './admin-delivery-persons.component.html',
 })
 export class AdminDeliveryPersonsComponent implements OnChanges {
   private deliveryPersonService = inject(DeliveryPersonService);
+
+  passwordDeliveryPerson: DeliveryPerson | null = null;
 
   @Input() searchTerm = '';
 
@@ -106,4 +113,11 @@ export class AdminDeliveryPersonsComponent implements OnChanges {
       },
     });
   }
+
+  savePassword = (current: string, next: string) =>
+    this.deliveryPersonService.changePassword(
+      this.passwordDeliveryPerson!.id,
+      current,
+      next,
+    );
 }

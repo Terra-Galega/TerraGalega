@@ -4,16 +4,19 @@ import { OperatorService } from '../../../../services/operator.service';
 import { Operator } from '../../../../models/operator';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
+import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
 
 @Component({
   selector: 'app-admin-operators',
-  imports: [IconButtonComponent, ModalComponent],
+  imports: [IconButtonComponent, ModalComponent, ChangePasswordModalComponent],
   templateUrl: './admin-operators.component.html',
 })
 export class AdminOperatorsComponent {
   private operatorService = inject(OperatorService);
 
   @Output() editOperator = new EventEmitter<Operator>();
+
+  passwordOperator: Operator | null = null;
 
   operators: Operator[] = [];
 
@@ -118,4 +121,7 @@ export class AdminOperatorsComponent {
     this.errorTitle = '';
     this.errorMessage = '';
   }
+
+  savePassword = (current: string, next: string) =>
+  this.operatorService.changePassword(this.passwordOperator!.id, current, next);
 }
