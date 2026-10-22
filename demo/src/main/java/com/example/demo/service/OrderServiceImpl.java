@@ -15,6 +15,13 @@ import com.example.demo.repository.DeliveryPersonRepository;
 import com.example.demo.repository.OperatorRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.dto.OrderDTO;
+import com.example.demo.dto.OrderDetailDTO;
+import com.example.demo.dto.ProductDTO;
+import com.example.demo.dto.CategoryDTO;
+import com.example.demo.dto.AddOnOrderDTO;
+import com.example.demo.dto.ClientOrderDTO;
+import com.example.demo.dto.DeliveryPersonOrderDTO;
 import com.example.demo.repository.AddOnRepository;
 import com.example.demo.entities.Client;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -293,5 +300,110 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return repository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public OrderDTO toDTO(Order order) {
+
+        // Volver a cargar el pedido dentro de la transacción
+        order = repository.findById(order.getId())
+                .orElseThrow(() -> new IllegalArgumentException("El pedido no existe."));
+
+        OrderDTO dto = new OrderDTO();
+
+        dto.setId(order.getId());
+        dto.setStatus(order.getStatus());
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setDeliveredAt(order.getDeliveredAt());
+        dto.setAddress(order.getAddress());
+        dto.setTotal(order.getTotal());
+
+        // Cliente
+        if (order.getClient() != null) {
+            ClientOrderDTO clientDTO = new ClientOrderDTO();
+
+            clientDTO.setId(order.getClient().getId());
+            clientDTO.setName(order.getClient().getName());
+            clientDTO.setLastName(order.getClient().getLastName());
+            clientDTO.setEmail(order.getClient().getEmail());
+            clientDTO.setPhone(order.getClient().getPhone());
+
+            dto.setClient(clientDTO);
+        }
+
+        // Domiciliario
+        if (order.getDeliveryPerson() != null) {
+            DeliveryPersonOrderDTO deliveryDTO = new DeliveryPersonOrderDTO();
+
+            deliveryDTO.setId(order.getDeliveryPerson().getId());
+            deliveryDTO.setName(order.getDeliveryPerson().getName());
+            deliveryDTO.setLastName(order.getDeliveryPerson().getLastName());
+            deliveryDTO.setPhone(order.getDeliveryPerson().getPhone());
+
+            dto.setDeliveryPerson(deliveryDTO);
+        }
+
+        // Detalles del pedido
+        List<OrderDetailDTO> detailDTOs = new ArrayList<>();
+
+        for (OrderDetail detail : order.getDetails()) {
+            OrderDetailDTO detailDTO = new OrderDetailDTO();
+
+            detailDTO.setId(detail.getId());
+            detailDTO.setQuantity(detail.getQuantity());
+            detailDTO.setUnitPrice(detail.getUnitPrice());
+
+            // Producto
+            Product product = detail.getProduct();
+            ProductDTO productDTO = new ProductDTO();
+
+            productDTO.setId(product.getId());
+            productDTO.setName(product.getName());
+            productDTO.setDescription(product.getDescription());
+            productDTO.setPrice(product.getPrice());
+            productDTO.setImageUrl(product.getImageUrl());
+            productDTO.setActive(product.getActive());
+            productDTO.setPopular(product.getPopular());
+            productDTO.setVegetarian(product.isVegetarian());
+            productDTO.setSpicyMild(product.isSpicyMild());
+            productDTO.setSpicyHot(product.isSpicyHot());
+            productDTO.setContainsNuts(product.isContainsNuts());
+            productDTO.setContainsSeafood(product.isContainsSeafood());
+            productDTO.setContainsGluten(product.isContainsGluten());
+
+            if (product.getCategory() != null) {
+                CategoryDTO categoryDTO = new CategoryDTO();
+
+                categoryDTO.setId(product.getCategory().getId());
+                categoryDTO.setName(product.getCategory().getName());
+                categoryDTO.setDescription(
+                        product.getCategory().getDescription());
+
+                productDTO.setCategory(categoryDTO);
+            }
+
+            detailDTO.setProduct(productDTO);
+
+            // Adicionales seleccionados para este producto
+            List<AddOnOrderDTO> addOnDTOs = new ArrayList<>();
+
+            for (AddOn addOn : detail.getAddOns()) {
+                AddOnOrderDTO addOnDTO = new AddOnOrderDTO();
+
+                addOnDTO.setId(addOn.getId());
+                addOnDTO.setName(addOn.getName());
+                addOnDTO.setPrice(addOn.getPrice());
+
+                addOnDTOs.add(addOnDTO);
+            }
+
+            detailDTO.setAddOns(addOnDTOs);
+            detailDTOs.add(detailDTO);
+        }
+
+        dto.setDetails(detailDTOs);
+
+        return dto;
     }
 }

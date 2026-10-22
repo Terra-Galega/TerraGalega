@@ -6,7 +6,7 @@ import com.example.demo.entities.Client;
 import com.example.demo.entities.Order;
 import com.example.demo.service.ClientService;
 import com.example.demo.service.OrderService;
-
+import com.example.demo.dto.OrderDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,12 +30,13 @@ public class CheckoutController {
 
     @Operation(summary = "Process checkout and create an order")
     @PostMapping
-    public Order checkout(
+    public OrderDTO checkout(
             @RequestParam Integer clientId,
             @RequestBody CheckoutRequestDTO request) {
 
         Client client = clientService.getClientById(clientId);
 
-        return orderService.checkout(client, request);
+        return orderService.toDTO(
+                orderService.checkout(client, request));
     }
 }
