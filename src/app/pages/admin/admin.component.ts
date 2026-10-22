@@ -109,7 +109,8 @@ export class AdminComponent {
       this.activeTab === 'products' ||
       this.activeTab === 'categories' ||
       this.activeTab === 'addons' ||
-      this.activeTab === 'deliveries'
+      this.activeTab === 'deliveries' ||
+      this.activeTab === 'operators'
     );
   }
 
@@ -121,6 +122,8 @@ export class AdminComponent {
         return 'Añadir adicional';
       case 'deliveries':
         return 'Añadir domiciliario';
+      case 'operators':
+        return 'Añadir operador';
       default:
         return 'Añadir producto';
     }
@@ -140,6 +143,8 @@ export class AdminComponent {
       this.openAddAddon();
     } else if (this.activeTab === 'deliveries') {
       this.openAddDeliveryPerson();
+    } else if (this.activeTab === 'operators') {
+      this.openAddOperator();
     }
   }
 

@@ -48,7 +48,9 @@
         <app-admin-users></app-admin-users>
       }
       @if (activeTab === "operators") {
-        <app-admin-operators></app-admin-operators>
+        <app-admin-operators
+          (editOperator)="openEditOperator($event)"
+        ></app-admin-operators>
       }
       @if (activeTab === "deliveries") {
         <app-admin-delivery-persons
@@ -85,4 +87,10 @@
     [deliveryPerson]="selectedDeliveryPerson"
     (closed)="closeDeliveryModal()"
   ></app-admin-delivery-person-modal>
+}
+@if (operatorModalOpen) {
+  <app-admin-operator-modal
+    [operator]="selectedOperator"
+    (closed)="closeOperatorModal()"
+  ></app-admin-operator-modal>
 }
