@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.entities.DeliveryPerson;
 import com.example.demo.service.DeliveryPersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +60,12 @@ public class DeliveryPersonController {
     @DeleteMapping("/{id}")
     public void deleteDeliveryPerson(@PathVariable Integer id) {
         deliveryPersonService.deleteDeliveryPerson(id);
+    }
+
+    @Operation(summary = "Change password (requires current password)")
+    @PutMapping("/{id}/password")
+    public void changePassword(@PathVariable Integer id,
+            @RequestBody ChangePasswordRequestDTO request) {
+        deliveryPersonService.changePassword(id, request.getCurrentPassword(), request.getNewPassword());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.entities.Operator;
 import com.example.demo.service.OperatorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +54,12 @@ public class OperatorController {
     @PutMapping("/{id}/toggle")
     public Operator toggleOperator(@PathVariable Integer id) {
         return operatorService.toggleOperatorActive(id);
+    }
+
+    @Operation(summary = "Change password (requires current password)")
+    @PutMapping("/{id}/password")
+    public void changePassword(@PathVariable Integer id,
+            @RequestBody ChangePasswordRequestDTO request) {
+        operatorService.changePassword(id, request.getCurrentPassword(), request.getNewPassword());
     }
 }

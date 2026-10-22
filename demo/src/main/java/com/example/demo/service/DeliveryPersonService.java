@@ -21,4 +21,6 @@ public interface DeliveryPersonService {
     void deleteDeliveryPerson(Integer id);
 
     DeliveryPerson findByEmail(String email);
+
+    void changePassword(Integer id, String currentPassword, String newPassword);
 }

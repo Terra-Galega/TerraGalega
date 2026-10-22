@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.entities.Client;
 import com.example.demo.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class ClientController {
     public Client addClient(@RequestBody Client client) {
         return clientService.addClient(client);
     }
-    
+
     @Operation(summary = "Update a client by ID from client UI")
     @PutMapping("/{id}")
     public Client updateClient(
@@ -47,5 +48,12 @@ public class ClientController {
     @DeleteMapping("/{id}")
     public void deleteClient(@PathVariable Integer id) {
         clientService.deleteClient(id);
+    }
+
+    @Operation(summary = "Change password (requires current password)")
+    @PutMapping("/{id}/password")
+    public void changePassword(@PathVariable Integer id,
+            @RequestBody ChangePasswordRequestDTO request) {
+        clientService.changePassword(id, request.getCurrentPassword(), request.getNewPassword());
     }
 }

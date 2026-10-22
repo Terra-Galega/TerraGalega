@@ -122,4 +122,16 @@ public class ClientServiceImpl implements ClientService {
         return repository.findByEmail(email);
     }
 
+    @Override
+    @Transactional
+    public void changePassword(Integer id, String currentPassword, String newPassword) {
+        Client client = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró el cliente solicitado."));
+
+        PasswordRules.validateChange(client.getPassword(), currentPassword, newPassword);
+
+        client.setPassword(newPassword);
+        repository.save(client);
+    }
+
 }
