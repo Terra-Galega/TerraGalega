@@ -4,7 +4,7 @@ import com.example.demo.dto.CheckoutRequestDTO;
 import com.example.demo.dto.OrderSummaryDTO;
 import com.example.demo.entities.Order;
 import com.example.demo.entities.Client;
-
+import com.example.demo.dto.OrderDTO;
 import java.util.List;
 
 public interface OrderService {
@@ -14,6 +14,8 @@ public interface OrderService {
     List<Order> getAllOrders();
 
     void clearClientIdFromOrders(Integer clientId);
+
+    OrderDTO toDTO(Order order);
 
     Order getOrderById(Integer id);
 
