@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.entities.Order;
+import com.example.demo.entities.OrderStatus;
 import com.example.demo.entities.DeliveryPerson;
 import com.example.demo.entities.Role;
 import com.example.demo.repository.AdminRepository;
@@ -30,6 +32,11 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    // Un pedido deja de estar activo cuando se entrega o se cancela
+    private static final List<OrderStatus> FINISHED_STATUSES = List.of(
+            OrderStatus.DELIVERED,
+            OrderStatus.CANCELLED);
 
     @Override
     @Transactional
@@ -161,10 +168,18 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
             throw new IllegalArgumentException("No se encontró el domiciliario que se desea eliminar.");
         }
 
-        if (orderRepository.existsByDeliveryPersonId(id)) {
+        // Solo se bloquea si todavía tiene pedidos sin completar
+        if (orderRepository.existsByDeliveryPersonIdAndStatusNotIn(id, FINISHED_STATUSES)) {
             throw new IllegalArgumentException(
-                    "No se puede eliminar este domiciliario porque tiene pedidos asociados. Puedes desactivarlo.");
+                    "No se puede eliminar este domiciliario porque tiene pedidos sin completar. Puedes desactivarlo.");
         }
+
+        // Los pedidos ya terminados se conservan en el historial, sin domiciliario
+        List<Order> finishedOrders = orderRepository.findByDeliveryPersonId(id);
+        for (Order order : finishedOrders) {
+            order.setDeliveryPerson(null);
+        }
+        orderRepository.saveAll(finishedOrders);
 
         repository.deleteById(id);
     }

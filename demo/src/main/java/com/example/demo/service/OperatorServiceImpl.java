@@ -1,5 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.entities.Order;
+import com.example.demo.entities.OrderStatus;
+import java.util.List;
 import com.example.demo.entities.Operator;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
@@ -29,6 +32,11 @@ public class OperatorServiceImpl implements OperatorService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    // Un pedido deja de estar activo cuando se entrega o se cancela
+    private static final List<OrderStatus> FINISHED_STATUSES = List.of(
+            OrderStatus.DELIVERED,
+            OrderStatus.CANCELLED);
 
     @Override
     @Transactional
@@ -122,10 +130,18 @@ public class OperatorServiceImpl implements OperatorService {
             throw new IllegalArgumentException("No se encontró el operador que se desea eliminar.");
         }
 
-        if (orderRepository.existsByOperatorId(id)) {
+        // Solo se bloquea si todavía tiene pedidos sin completar
+        if (orderRepository.existsByOperatorIdAndStatusNotIn(id, FINISHED_STATUSES)) {
             throw new IllegalArgumentException(
-                    "No se puede eliminar este operador porque tiene pedidos asociados. Puedes desactivarlo.");
+                    "No se puede eliminar este operador porque tiene pedidos sin completar. Puedes desactivarlo.");
         }
+
+        // Los pedidos ya terminados se conservan en el historial, sin operador
+        List<Order> finishedOrders = orderRepository.findByOperatorId(id);
+        for (Order order : finishedOrders) {
+            order.setOperator(null);
+        }
+        orderRepository.saveAll(finishedOrders);
 
         repository.deleteById(id);
     }
