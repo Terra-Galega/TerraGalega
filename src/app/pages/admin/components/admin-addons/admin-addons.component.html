@@ -143,3 +143,24 @@
     </table>
   </div>
 </div>
+
+<app-modal
+  [open]="showDeleteModal"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  confirmLabel="Eliminar adicional"
+  cancelLabel="Cancelar"
+  variant="danger"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+></app-modal>
+
+<app-modal
+  [open]="showErrorModal"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  confirmLabel="Aceptar"
+  variant="error"
+  (confirm)="closeErrorModal()"
+  (cancel)="closeErrorModal()"
+></app-modal>

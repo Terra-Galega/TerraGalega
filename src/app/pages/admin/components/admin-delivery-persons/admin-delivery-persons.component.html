@@ -102,8 +102,3 @@
     </table>
   </div>
 </div>
-
-@if (passwordDeliveryPerson) {
-<app-change-password-modal [userName]="passwordDeliveryPerson.name + ' ' + passwordDeliveryPerson.lastName"
-  [save]="savePassword" (closed)="passwordDeliveryPerson = null" />
-}
