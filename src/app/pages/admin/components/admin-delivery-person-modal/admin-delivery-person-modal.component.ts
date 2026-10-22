@@ -15,6 +15,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
+import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
 
 // Modal para crear o editar un domiciliario.
 // Si recibe un domiciliario es edición; si no, es creación.
@@ -25,6 +26,7 @@ import { CheckOptionComponent } from '../../../../components/check-option/check-
     IconButtonComponent,
     FormFieldComponent,
     CheckOptionComponent,
+    ChangePasswordModalComponent,
   ],
   templateUrl: './admin-delivery-person-modal.component.html',
 })
@@ -138,4 +140,13 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
   close() {
     this.closed.emit();
   }
+
+  passwordModalOpen = false;
+
+  savePassword = (current: string, next: string) =>
+    this.deliveryPersonService.changePassword(
+      this.deliveryPerson!.id,
+      current,
+      next,
+    );
 }

@@ -1,149 +1,109 @@
-<div
-  class="rounded-2xl overflow-hidden"
-  style="
+<div class="rounded-2xl overflow-hidden" style="
     background-color: rgba(255, 255, 255, 0.6);
     box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05);
-  "
->
+  ">
   <div class="overflow-x-auto">
     <table class="w-full text-sm" style="border-collapse: collapse">
       <thead>
         <tr style="background-color: rgba(44, 44, 44, 0.04)">
           @for (column of columns; track column) {
-            <th
-              class="text-left font-medium uppercase tracking-wider py-3 px-5"
-              style="font-size: 11px; color: rgba(44, 44, 44, 0.45)"
-            >
-              {{ column }}
-            </th>
+          <th class="text-left font-medium uppercase tracking-wider py-3 px-5"
+            style="font-size: 11px; color: rgba(44, 44, 44, 0.45)">
+            {{ column }}
+          </th>
           }
         </tr>
       </thead>
 
       <tbody>
         @for (person of filteredDeliveryPersons; track person.id) {
-          <tr>
-            <td class="py-3 px-5">
-              <p class="font-semibold text-charcoal" style="font-size: 15px">
-                {{ person.name }} {{ person.lastName }}
-              </p>
-              <p
-                class="mt-0.5"
-                style="font-size: 13px; color: rgba(44, 44, 44, 0.6)"
-              >
-                {{ person.email }}
-              </p>
-            </td>
+        <tr>
+          <td class="py-3 px-5">
+            <p class="font-semibold text-charcoal" style="font-size: 15px">
+              {{ person.name }} {{ person.lastName }}
+            </p>
+            <p class="mt-0.5" style="font-size: 13px; color: rgba(44, 44, 44, 0.6)">
+              {{ person.email }}
+            </p>
+          </td>
 
-            <td
-              class="py-3 px-5 whitespace-nowrap"
-              style="color: rgba(44, 44, 44, 0.7)"
-            >
-              {{ person.identification }}
-            </td>
+          <td class="py-3 px-5 whitespace-nowrap" style="color: rgba(44, 44, 44, 0.7)">
+            {{ person.identification }}
+          </td>
 
-            <td
-              class="py-3 px-5 whitespace-nowrap"
-              style="color: rgba(44, 44, 44, 0.7)"
-            >
-              {{ person.phone }}
-            </td>
+          <td class="py-3 px-5 whitespace-nowrap" style="color: rgba(44, 44, 44, 0.7)">
+            {{ person.phone }}
+          </td>
 
-            <!-- Disponibilidad: solo tiene sentido si el domiciliario está activo -->
-            <td class="py-3 px-5">
-              @if (!person.active) {
-                <span style="font-size: 12px; color: rgba(44, 44, 44, 0.4)"
-                  >—</span
-                >
-              } @else {
-                <span
-                  class="text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap"
-                  [style.background-color]="
+          <!-- Disponibilidad: solo tiene sentido si el domiciliario está activo -->
+          <td class="py-3 px-5">
+            @if (!person.active) {
+            <span style="font-size: 12px; color: rgba(44, 44, 44, 0.4)">—</span>
+            } @else {
+            <span class="text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap" [style.background-color]="
                     person.available
                       ? 'rgba(85,97,65,0.1)'
                       : 'rgba(217,154,33,0.15)'
-                  "
-                  [style.color]="person.available ? '#556141' : '#b2571f'"
-                >
-                  {{ person.available ? "Disponible" : "En entrega" }}
-                </span>
-              }
-            </td>
+                  " [style.color]="person.available ? '#556141' : '#b2571f'">
+              {{ person.available ? "Disponible" : "En entrega" }}
+            </span>
+            }
+          </td>
 
-            <td class="py-3 px-5">
-              <button
-                type="button"
-                class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap"
-                [style.background-color]="
+          <td class="py-3 px-5">
+            <button type="button"
+              class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap"
+              [style.background-color]="
                   person.active ? 'rgba(85,97,65,0.1)' : 'rgba(44,44,44,0.06)'
-                "
-                [style.color]="person.active ? '#556141' : 'rgba(44,44,44,0.4)'"
-                (click)="toggleDeliveryPerson(person)"
-              >
-                {{ person.active ? "Activo" : "Inactivo" }}
-              </button>
-            </td>
+                " [style.color]="person.active ? '#556141' : 'rgba(44,44,44,0.4)'"
+              (click)="toggleDeliveryPerson(person)">
+              {{ person.active ? "Activo" : "Inactivo" }}
+            </button>
+          </td>
 
-            <td class="py-3 px-5">
-              <div class="flex items-center gap-2">
-                <app-icon-button
-                  variant="ghost"
-                  label="Editar"
-                  (click)="openEdit(person)"
-                >
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
-                    />
-                    <path
-                      d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
-                    />
-                  </svg>
-                </app-icon-button>
+          <td class="py-3 px-5">
+            <div class="flex items-center gap-2">
 
-                <app-icon-button
-                  variant="ghost"
-                  label="Eliminar"
-                  (click)="removeDeliveryPerson(person)"
-                >
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M3 6h18" />
-                    <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                  </svg>
-                </app-icon-button>
-              </div>
-            </td>
-          </tr>
+              <app-icon-button variant="ghost" label="Cambiar contraseña" (click)="passwordDeliveryPerson = person">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </app-icon-button>
+
+              <app-icon-button variant="ghost" label="Editar" (click)="openEdit(person)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </app-icon-button>
+
+              <app-icon-button variant="ghost" label="Eliminar" (click)="removeDeliveryPerson(person)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18" />
+                  <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                </svg>
+              </app-icon-button>
+            </div>
+          </td>
+        </tr>
         } @empty {
-          <tr>
-            <td [attr.colspan]="columns.length">
-              <app-empty-state
-                [compact]="true"
-                message="No se encontraron domiciliarios"
-              />
-            </td>
-          </tr>
+        <tr>
+          <td [attr.colspan]="columns.length">
+            <app-empty-state [compact]="true" message="No se encontraron domiciliarios" />
+          </td>
+        </tr>
         }
       </tbody>
     </table>
   </div>
 </div>
+
+@if (passwordDeliveryPerson) {
+<app-change-password-modal [userName]="passwordDeliveryPerson.name + ' ' + passwordDeliveryPerson.lastName"
+  [save]="savePassword" (closed)="passwordDeliveryPerson = null" />
+}

@@ -4,7 +4,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { FormSectionComponent } from '../form-section/form-section.component';
 
-// Formulario de edición. 
+// Formulario de edición.
 @Component({
   selector: 'app-account-form',
   imports: [
@@ -21,6 +21,7 @@ export class AccountFormComponent {
 
   @Output() save = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
+  @Output() changePassword = new EventEmitter<void>();
 
   showPassword = false;
 

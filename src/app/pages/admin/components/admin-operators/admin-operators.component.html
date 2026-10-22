@@ -40,6 +40,15 @@
     </div>
 
     <div class="flex items-center gap-2">
+
+      <app-icon-button variant="ghost" label="Cambiar contraseña" (click)="passwordOperator = operator">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </app-icon-button>
+
       <app-icon-button variant="ghost" label="Editar" (click)="openEdit(operator)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -47,7 +56,7 @@
           <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
         </svg>
       </app-icon-button>
-      
+
       <app-icon-button variant="ghost" label="Eliminar" (click)="removeOperator(operator.id)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -61,23 +70,13 @@
   }}
 
 </div>
-<app-modal
-  [open]="showDeleteModal"
-  [title]="confirmTitle"
-  [message]="confirmMessage"
-  confirmLabel="Eliminar operador"
-  cancelLabel="Cancelar"
-  variant="danger"
-  (confirm)="confirmDelete()"
-  (cancel)="cancelDelete()"
-></app-modal>
+<app-modal [open]="showDeleteModal" [title]="confirmTitle" [message]="confirmMessage" confirmLabel="Eliminar operador"
+  cancelLabel="Cancelar" variant="danger" (confirm)="confirmDelete()" (cancel)="cancelDelete()"></app-modal>
 
-<app-modal
-  [open]="showErrorModal"
-  [title]="errorTitle"
-  [message]="errorMessage"
-  confirmLabel="Aceptar"
-  variant="error"
-  (confirm)="closeErrorModal()"
-  (cancel)="closeErrorModal()"
-></app-modal>
+<app-modal [open]="showErrorModal" [title]="errorTitle" [message]="errorMessage" confirmLabel="Aceptar" variant="error"
+  (confirm)="closeErrorModal()" (cancel)="closeErrorModal()"></app-modal>
+
+@if (passwordOperator) {
+<app-change-password-modal [userName]="passwordOperator.name + ' ' + passwordOperator.lastName" [save]="savePassword"
+  (closed)="passwordOperator = null" />
+}

@@ -48,6 +48,17 @@ export class ClientService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
+  changePassword(
+    id: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/password`, {
+      currentPassword,
+      newPassword,
+    });
+  }
+
   // =========================
   // Mini login local
   // =========================
