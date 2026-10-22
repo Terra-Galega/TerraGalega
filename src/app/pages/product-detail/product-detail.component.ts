@@ -28,7 +28,15 @@ export class ProductDetailComponent implements OnInit {
   relatedProducts: Product[] = [];
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.route.paramMap.subscribe((params) => {
+      this.loadProduct(Number(params.get('id')));
+    });
+  }
+  private loadProduct(id: number): void {
+    this.product = undefined;
+    this.relatedProducts = [];
+
+    window.scrollTo({ top: 0 });
 
     this.productService.getProductById(id).subscribe({
       next: (product) => {
