@@ -193,4 +193,16 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
     }
+
+    @Override
+    @Transactional
+    public void changePassword(Integer id, String currentPassword, String newPassword) {
+        DeliveryPerson deliveryPerson = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró el domiciliario solicitado."));
+
+        PasswordRules.validateChange(deliveryPerson.getPassword(), currentPassword, newPassword);
+
+        deliveryPerson.setPassword(newPassword);
+        repository.save(deliveryPerson);
+    }
 }

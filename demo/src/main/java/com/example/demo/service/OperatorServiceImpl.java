@@ -163,4 +163,16 @@ public class OperatorServiceImpl implements OperatorService {
         return repository.findByEmail(email);
     }
 
+    @Override
+    @Transactional
+    public void changePassword(Integer id, String currentPassword, String newPassword) {
+        Operator operator = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró el operador solicitado."));
+
+        PasswordRules.validateChange(operator.getPassword(), currentPassword, newPassword);
+
+        operator.setPassword(newPassword);
+        repository.save(operator);
+    }
+
 }

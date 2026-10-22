@@ -17,4 +17,6 @@ public interface ClientService {
     void deleteClient(Integer id);
 
     Client findByEmail(String email);
+
+    void changePassword(Integer id, String currentPassword, String newPassword);
 }

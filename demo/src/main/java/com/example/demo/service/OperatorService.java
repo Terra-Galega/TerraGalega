@@ -16,4 +16,6 @@ public interface OperatorService {
     Operator findByEmail(String email);
 
     Operator toggleOperatorActive(Integer id);
+
+    void changePassword(Integer id, String currentPassword, String newPassword);
 }
