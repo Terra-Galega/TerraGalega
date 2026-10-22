@@ -10,6 +10,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface AddOnRepository extends JpaRepository<AddOn, Integer> {
 
+    // Busqueda por (active =true) -> Devuelve adicionales activos
     List<AddOn> findByActiveTrue();
+    
+    // Devuelve los adicionales activos y los cuales pertenecen a un cateogoria - reciben id de categoria
     List<AddOn> findByActiveTrueAndCategories_Id(Integer categoryId);
 }
