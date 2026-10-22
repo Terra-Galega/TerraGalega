@@ -55,7 +55,14 @@ export class ProductDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error cargando producto:', error);
-        this.router.navigate(['/menu']);
+        this.router.navigate(['/error'], {
+          replaceUrl: true,
+          queryParams: {
+            message:
+              error.error?.message ??
+              'Este producto no existe o ya no está disponible.',
+          },
+        });
       },
     });
   }
