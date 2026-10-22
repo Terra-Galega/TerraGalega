@@ -658,27 +658,27 @@ public class DataLoader implements CommandLineRunner {
                 DeliveryPerson deliveryPerson1 = deliveryPersonRepository.save(
                                 DeliveryPerson.builder().name("Pedro").lastName("Sánchez")
                                                 .email("pedro.sanchez@terra.com").password("pedro123")
-                                                .role(Role.DELIVERY_PERSON).identification("CC1001234567")
+                                                .role(Role.DELIVERY_PERSON).identification("1001234567")
                                                 .phone("+57 301 500 1001").available(true).active(true).build());
                 DeliveryPerson deliveryPerson2 = deliveryPersonRepository.save(
                                 DeliveryPerson.builder().name("Luisa").lastName("Fernández")
                                                 .email("luisa.fernandez@terra.com").password("luisa123")
-                                                .role(Role.DELIVERY_PERSON).identification("CC1001234568")
+                                                .role(Role.DELIVERY_PERSON).identification("1001234568")
                                                 .phone("+57 301 500 1002").available(false).active(true).build());
                 deliveryPersonRepository.save(
                                 DeliveryPerson.builder().name("Miguel Ángel").lastName("Ruiz")
                                                 .email("miguel.ruiz@terra.com").password("miguel123")
-                                                .role(Role.DELIVERY_PERSON).identification("CC1001234569")
+                                                .role(Role.DELIVERY_PERSON).identification("1001234569")
                                                 .phone("+57 301 500 1003").available(false).active(true).build());
                 deliveryPersonRepository.save(
                                 DeliveryPerson.builder().name("Daniela").lastName("Vargas")
                                                 .email("daniela.vargas@terra.com").password("daniela123")
-                                                .role(Role.DELIVERY_PERSON).identification("CC1001234570")
+                                                .role(Role.DELIVERY_PERSON).identification("1001234570")
                                                 .phone("+57 301 500 1004").available(true).active(true).build());
                 deliveryPersonRepository.save(
                                 DeliveryPerson.builder().name("Tomás").lastName("Herrera")
                                                 .email("tomas.herrera@terra.com").password("tomas123")
-                                                .role(Role.DELIVERY_PERSON).identification("CC1001234571")
+                                                .role(Role.DELIVERY_PERSON).identification("1001234571")
                                                 .phone("+57 301 500 1005").available(true).active(false).build());
 
                 // Operators

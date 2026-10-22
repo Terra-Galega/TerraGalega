@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, Integer> {
 
+    // Busca por medio de Email de Admin para evitar duplicado en Register y validar Login
     Admin findByEmail(String email);
 
 }
