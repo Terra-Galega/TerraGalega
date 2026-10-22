@@ -65,6 +65,12 @@ export class OrdersComponent implements OnInit {
       error: (error) => {
         console.error('Error cargando pedidos:', error);
         this.loading = false;
+        this.router.navigate(['/error'], {
+          replaceUrl: true,
+          queryParams: {
+            message: error.error?.message ?? 'No se pudieron cargar tus pedidos.',
+          },
+        });
       },
     });
   }

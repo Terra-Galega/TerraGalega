@@ -13,9 +13,10 @@ import { AuthService } from '../../services/auth.service';
 export class ErrorComponent {
   message = 'Ha ocurrido un error inesperado. Por favor intenta de nuevo.';
 
-  // Un administrador no ve la navbar ni el footer
+
   isAdmin = false;
-  adminId: number | null = null;
+  isOperator = false;
+  panelId: number | null = null;
 
   constructor(
     private router: Router,
@@ -25,18 +26,24 @@ export class ErrorComponent {
     const session = this.auth.session;
 
     this.isAdmin = session?.type === 'admin';
-    this.adminId = session?.id ?? null;
+    this.isOperator = session?.type === 'operator';
+    this.panelId = session?.id ?? null;
 
-    // El mensaje llega en la url
-    const message = this.route.snapshot.queryParamMap.get('message');
+    
+    const message =
+      this.route.snapshot.queryParamMap.get('message') ??
+      this.route.snapshot.data['message'];
 
     if (message) {
       this.message = message;
     }
   }
+  get hasPanel(): boolean {
+    return this.isAdmin || this.isOperator;
+  }
 
   goToPanel() {
-    this.router.navigate(['/admin', this.adminId]);
+    this.router.navigate([this.isAdmin ? '/admin' : '/operator', this.panelId]);
   }
 
   goHome() {

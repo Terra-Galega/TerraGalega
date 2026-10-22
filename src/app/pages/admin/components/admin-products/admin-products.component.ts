@@ -3,18 +3,17 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { AdminProductRowComponent } from '../admin-product-row/admin-product-row.component';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
-import { Router } from '@angular/router';
+import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
 
 @Component({
   selector: 'app-admin-products',
-  imports: [AdminProductRowComponent, EmptyStateComponent],
+  imports: [AdminProductRowComponent, EmptyStateComponent, ModalComponent],
 
   templateUrl: './admin-products.component.html',
   styleUrl: './admin-products.component.scss',
 })
 export class AdminProductsComponent {
   private productService = inject(ProductService);
-  private router = inject(Router);
 
   @Input() searchTerm = '';
 
@@ -24,6 +23,17 @@ export class AdminProductsComponent {
 
   products: Product[] = [];
   filteredProducts: Product[] = [];
+
+  showDeleteModal = false;
+  showErrorModal = false;
+
+  selectedProductId: number | null = null;
+
+  confirmTitle = 'Eliminar producto';
+  confirmMessage = '¿Estás seguro de que deseas eliminar este producto de la carta?';
+
+  errorTitle = '';
+  errorMessage = '';
 
   constructor() {
     this.loadProducts();
@@ -69,25 +79,52 @@ export class AdminProductsComponent {
   }
 
   removeProduct(product: Product) {
-    const confirmed = window.confirm('¿Eliminar este producto de la carta?');
+    this.selectedProductId = product.id;
+    this.showDeleteModal = true;
+  }
 
-    if (!confirmed) {
+  cancelDelete() {
+    this.showDeleteModal = false;
+    this.selectedProductId = null;
+  }
+
+  confirmDelete() {
+    if (this.selectedProductId === null) {
       return;
     }
 
-    this.productService.deleteProduct(product.id).subscribe({
+    const id = this.selectedProductId;
+
+    this.showDeleteModal = false;
+    this.selectedProductId = null;
+
+    this.productService.deleteProduct(id).subscribe({
       next: () => {
         this.productService.refresh();
       },
       error: (error) => {
         console.error('Error eliminando producto:', error);
-        this.router.navigate(['/error'], {
-          queryParams: {
-            message: error.error?.message ?? 'No se pudo eliminar el producto.',
-          },
-        });
+        this.openErrorModal(
+          'No se pudo eliminar el producto',
+          getErrorMessage(
+            error,
+            'Ocurrió un error al eliminar el producto. Por favor, inténtalo de nuevo.',
+          ),
+        );
       },
     });
+  }
+
+  private openErrorModal(title: string, message: string) {
+    this.errorTitle = title;
+    this.errorMessage = message;
+    this.showErrorModal = true;
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
+    this.errorTitle = '';
+    this.errorMessage = '';
   }
 
   openEdit(product: Product) {

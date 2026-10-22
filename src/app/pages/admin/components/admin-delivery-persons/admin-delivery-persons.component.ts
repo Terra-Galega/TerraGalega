@@ -10,11 +10,12 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { DeliveryPerson } from '../../../../models/deliveryPerson';
 import { DeliveryPersonService } from '../../../../services/delivery-person.service';
+import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
 
 // Tabla de domiciliarios del portal admin: editar, eliminar y activar/desactivar
 @Component({
   selector: 'app-admin-delivery-persons',
-  imports: [EmptyStateComponent, IconButtonComponent],
+  imports: [EmptyStateComponent, IconButtonComponent, ModalComponent],
   templateUrl: './admin-delivery-persons.component.html',
 })
 export class AdminDeliveryPersonsComponent implements OnChanges {
@@ -35,6 +36,17 @@ export class AdminDeliveryPersonsComponent implements OnChanges {
 
   deliveryPersons: DeliveryPerson[] = [];
   filteredDeliveryPersons: DeliveryPerson[] = [];
+
+  showDeleteModal = false;
+  showErrorModal = false;
+
+  selectedDeliveryPersonId: number | null = null;
+
+  confirmTitle = 'Eliminar domiciliario';
+  confirmMessage = '¿Estás seguro de que deseas eliminar este domiciliario?';
+
+  errorTitle = '';
+  errorMessage = '';
 
   constructor() {
     this.loadDeliveryPersons();
@@ -88,22 +100,51 @@ export class AdminDeliveryPersonsComponent implements OnChanges {
   }
 
   removeDeliveryPerson(person: DeliveryPerson) {
-    const confirmed = window.confirm('¿Eliminar este domiciliario?');
+    this.selectedDeliveryPersonId = person.id;
+    this.showDeleteModal = true;
+  }
 
-    if (!confirmed) {
+  cancelDelete() {
+    this.showDeleteModal = false;
+    this.selectedDeliveryPersonId = null;
+  }
+
+  confirmDelete() {
+    if (this.selectedDeliveryPersonId === null) {
       return;
     }
 
-    this.deliveryPersonService.deleteDeliveryPerson(person.id).subscribe({
+    const id = this.selectedDeliveryPersonId;
+
+    this.showDeleteModal = false;
+    this.selectedDeliveryPersonId = null;
+
+    this.deliveryPersonService.deleteDeliveryPerson(id).subscribe({
       next: () => {
         this.deliveryPersonService.refresh();
       },
       error: (error) => {
         console.error('Error eliminando domiciliario:', error);
-        window.alert(
-          error.error?.message ?? 'No se pudo eliminar el domiciliario.',
+        this.openErrorModal(
+          'No se pudo eliminar el domiciliario',
+          getErrorMessage(
+            error,
+            'Ocurrió un error al eliminar el domiciliario. Por favor, inténtalo de nuevo.',
+          ),
         );
       },
     });
+  }
+
+  private openErrorModal(title: string, message: string) {
+    this.errorTitle = title;
+    this.errorMessage = message;
+    this.showErrorModal = true;
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
+    this.errorTitle = '';
+    this.errorMessage = '';
   }
 }

@@ -86,6 +86,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'home',
+    component: ErrorComponent,
+    data: { message: 'La página que buscas no existe.' },
   },
 ];
