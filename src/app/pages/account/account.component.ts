@@ -10,6 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { Client } from '../../models/client';
 import { ClientService } from '../../services/client.service';
 import { ButtonComponent } from '../../components/button/button.component';
+import { ModalComponent, getErrorMessage } from '../../components/modal/modal.component';
 
 @Component({
   selector: 'app-account',
@@ -20,7 +21,8 @@ import { ButtonComponent } from '../../components/button/button.component';
     ProfileCardComponent,
     PersonalInfoComponent,
     AccountActionsComponent,
-    ButtonComponent
+    ButtonComponent,
+    ModalComponent,
   ],
   templateUrl: './account.component.html',
 })
@@ -28,10 +30,16 @@ export class AccountComponent implements OnInit {
   private clientService = inject(ClientService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private auth = inject(AuthService);
 
   client: Client | null = null;
 
-  private auth = inject(AuthService);
+  showDeleteModal = false;
+  showErrorModal = false;
+  confirmTitle = 'Eliminar cuenta';
+  confirmMessage ='¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.';
+  errorTitle = '';
+  errorMessage = '';
 
   ngOnInit() {
     if (!this.auth.session) {
@@ -50,24 +58,6 @@ export class AccountComponent implements OnInit {
         this.router.navigate(['/login']);
       },
     });
-  }
-  selectedAction = '';
-  onSelectedChange(action: string) {
-    this.selectedAction = action;
-
-    switch (action) {
-      case 'Editar perfil':
-        this.editProfile();
-        break;
-
-      case 'Cerrar sesion':
-        this.logout();
-        break;
-
-      case 'Eliminar cuenta':
-        this.deleteAccount();
-        break;
-    }
   }
 
   editProfile() {
@@ -88,22 +78,37 @@ export class AccountComponent implements OnInit {
       return;
     }
 
-    const confirmed = confirm(
-      '¿Seguro que querés eliminar tu cuenta? Esta acción no se puede deshacer.',
-    );
+    this.showDeleteModal = true;
+  }
 
-    if (!confirmed) {
+  cancelDelete() {
+    this.showDeleteModal = false;
+  }
+
+  confirmDelete() {
+    if (!this.client) {
       return;
     }
+
+    this.showDeleteModal = false;
 
     this.clientService.deleteClient(this.client.id).subscribe({
       next: () => {
         this.auth.logout();
         this.router.navigate(['/home']);
       },
-      error: (error) => {
+      error: (error) => { 
         console.error('Error eliminando cuenta:', error);
+        this.errorTitle = 'No se pudo eliminar la cuenta';
+        this.errorMessage = getErrorMessage(error);
+        this.showErrorModal = true;
       },
     });
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
+    this.errorTitle = '';
+    this.errorMessage = '';
   }
 }

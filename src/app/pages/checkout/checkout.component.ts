@@ -1,3 +1,4 @@
+
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,7 +14,7 @@ import { CartItem, CartService } from '../../services/cart.service';
 import { CheckoutService } from '../../services/checkout.service';
 import { CheckoutRequest } from '../../models/checkout';
 import { OrderService } from '../../services/order.service';
-
+import { ModalComponent, getErrorMessage } from '../../components/modal/modal.component';
 
 @Component({
   selector: 'app-checkout',
@@ -26,6 +27,7 @@ import { OrderService } from '../../services/order.service';
     DeliveryAddressComponent,
     PaymentFormComponent,
     EmptyStateComponent,
+    ModalComponent,
   ],
   templateUrl: './checkout.component.html',
 })
@@ -44,6 +46,16 @@ export class CheckoutComponent implements OnInit {
   addressError = false;
   cardError = '';
   serverError = '';
+
+  showCancelModal = false;
+  showErrorModal = false;
+
+  confirmTitle = 'Cancelar compra';
+  confirmMessage =
+    '¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará.';
+
+  errorTitle = 'No se pudo procesar el pedido';
+  errorMessage = '';
 
   form = this.fb.nonNullable.group({
     address: [''],
@@ -76,7 +88,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   unitPrice = (item: CartItem): number => {
-  return this.cartService.unitPrice(item);
+    return this.cartService.unitPrice(item);
   };
 
   formatCardNumber(event: Event): void {
@@ -174,23 +186,39 @@ export class CheckoutComponent implements OnInit {
       error: (error) => {
         console.error('Error en el checkout:', error);
 
-        this.serverError =
-          error?.error?.message ??
-          'No se pudo procesar el pedido. Inténtalo de nuevo.';
+        this.serverError = getErrorMessage(
+          error,
+          'No se pudo procesar el pedido. Inténtalo de nuevo.',
+        );
 
+        this.errorMessage = this.serverError;
         this.paying = false;
+        this.showErrorModal = true;
       },
     });
   }
 
   cancel(): void {
-    const confirmCancel = confirm(
-      '¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará.',
-    );
-
-    if (confirmCancel) {
-      this.router.navigate(['/menu']);
+    if (this.paying) {
+      return;
     }
+
+    this.showCancelModal = true;
+  }
+
+  confirmCancel(): void {
+    this.showCancelModal = false;
+    this.router.navigate(['/menu']);
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+  }
+
+  closeErrorModal(): void {
+    this.showErrorModal = false;
+    this.errorMessage = '';
+    this.serverError = '';
   }
 
   goToMenu(): void {
