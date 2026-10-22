@@ -54,3 +54,23 @@
 
 <app-footer></app-footer>
 </div>
+<app-modal
+  [open]="showCancelModal"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  confirmLabel="Sí, cancelar compra"
+  cancelLabel="Continuar comprando"
+  variant="danger"
+  (confirm)="confirmCancel()"
+  (cancel)="closeCancelModal()"
+></app-modal>
+
+<app-modal
+  [open]="showErrorModal"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  confirmLabel="Aceptar"
+  variant="error"
+  (confirm)="closeErrorModal()"
+  (cancel)="closeErrorModal()"
+></app-modal>

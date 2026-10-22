@@ -1,11 +1,13 @@
+
 import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { OperatorService } from '../../../../services/operator.service';
 import { Operator } from '../../../../models/operator';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
+import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
 
 @Component({
   selector: 'app-admin-operators',
-  imports: [IconButtonComponent],
+  imports: [IconButtonComponent, ModalComponent],
   templateUrl: './admin-operators.component.html',
 })
 export class AdminOperatorsComponent {
@@ -14,6 +16,17 @@ export class AdminOperatorsComponent {
   @Output() editOperator = new EventEmitter<Operator>();
 
   operators: Operator[] = [];
+
+  showDeleteModal = false;
+  showErrorModal = false;
+
+  selectedOperatorId: number | null = null;
+
+  confirmTitle = 'Eliminar operador';
+  confirmMessage = '¿Estás seguro de que deseas eliminar este operador?';
+
+  errorTitle = '';
+  errorMessage = '';
 
   constructor() {
     this.loadOperators();
@@ -30,6 +43,10 @@ export class AdminOperatorsComponent {
       },
       error: (error) => {
         console.error('Error cargando operadores:', error);
+        this.openErrorModal(
+          'Error al cargar operadores',
+          getErrorMessage(error, 'No se pudieron cargar los operadores.'),
+        );
       },
     });
   }
@@ -39,12 +56,24 @@ export class AdminOperatorsComponent {
   }
 
   removeOperator(id: number) {
-    const confirmation = window.confirm(
-      '¿Estás seguro de que deseas eliminar este operador?',
-    );
-    if (!confirmation) {
+    this.selectedOperatorId = id;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete() {
+    this.showDeleteModal = false;
+    this.selectedOperatorId = null;
+  }
+
+  confirmDelete() {
+    if (this.selectedOperatorId === null) {
       return;
     }
+
+    const id = this.selectedOperatorId;
+
+    this.showDeleteModal = false;
+    this.selectedOperatorId = null;
 
     this.operatorService.deleteOperator(id).subscribe({
       next: () => {
@@ -52,9 +81,12 @@ export class AdminOperatorsComponent {
       },
       error: (error) => {
         console.error('Error eliminando operador:', error);
-        window.alert(
-          error.error?.message ??
+        this.openErrorModal(
+          'No se pudo eliminar el operador',
+          getErrorMessage(
+            error,
             'Ocurrió un error al eliminar el operador. Por favor, inténtalo de nuevo.',
+          ),
         );
       },
     });
@@ -67,11 +99,23 @@ export class AdminOperatorsComponent {
       },
       error: (error) => {
         console.error('Error cambiando estado del operador:', error);
-        window.alert(
-          error.error?.message ?? 'No se pudo cambiar el estado del operador.',
+        this.openErrorModal(
+          'No se pudo cambiar el estado',
+          getErrorMessage(error, 'No se pudo cambiar el estado del operador.'),
         );
       },
     });
   }
 
+  private openErrorModal(title: string, message: string) {
+    this.errorTitle = title;
+    this.errorMessage = message;
+    this.showErrorModal = true;
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
+    this.errorTitle = '';
+    this.errorMessage = '';
+  }
 }
