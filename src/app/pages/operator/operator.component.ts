@@ -43,7 +43,16 @@ export class OperatorComponent {
 
     this.operatorService.getOperatorById(session.id).subscribe({
       next: (operator) => (this.operatorUsername = operator.username),
-      error: (error) => console.error('Error cargando el operador:', error),
+      error: (error) => {
+        console.error('Error cargando el operador:', error);
+        this.router.navigate(['/error'], {
+          replaceUrl: true,
+          queryParams: {
+            message:
+              error.error?.message ?? 'No se pudo cargar tu información de operador.',
+          },
+        });
+      },
     });
   }
 

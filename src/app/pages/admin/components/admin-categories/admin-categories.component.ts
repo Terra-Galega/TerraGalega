@@ -5,10 +5,11 @@ import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/category.service';
 import { switchMap, map } from 'rxjs/operators';
 import { AddOnService } from '../../../../services/addOn.service';
+import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
 
 @Component({
   selector: 'app-admin-categories',
-  imports: [EmptyStateComponent, IconButtonComponent],
+  imports: [EmptyStateComponent, IconButtonComponent, ModalComponent],
   templateUrl: './admin-categories.component.html',
 })
 export class AdminCategoriesComponent {
@@ -23,6 +24,17 @@ export class AdminCategoriesComponent {
 
   categories: Category[] = [];
   filteredCategories: Category[] = [];
+
+  showDeleteModal = false;
+  showErrorModal = false;
+
+  selectedCategoryId: number | null = null;
+
+  confirmTitle = 'Eliminar categoría';
+  confirmMessage = '¿Estás seguro de que deseas eliminar esta categoría?';
+
+  errorTitle = '';
+  errorMessage = '';
 
   constructor() {
     this.loadCategories();
@@ -77,22 +89,51 @@ export class AdminCategoriesComponent {
   }
 
   removeCategory(category: Category) {
-    const confirmed = window.confirm('¿Eliminar esta categoría?');
+    this.selectedCategoryId = category.id;
+    this.showDeleteModal = true;
+  }
 
-    if (!confirmed) {
+  cancelDelete() {
+    this.showDeleteModal = false;
+    this.selectedCategoryId = null;
+  }
+
+  confirmDelete() {
+    if (this.selectedCategoryId === null) {
       return;
     }
 
-    this.categoryService.deleteCategory(category.id).subscribe({
+    const id = this.selectedCategoryId;
+
+    this.showDeleteModal = false;
+    this.selectedCategoryId = null;
+
+    this.categoryService.deleteCategory(id).subscribe({
       next: () => {
         this.categoryService.refresh();
       },
       error: (error) => {
         console.error('Error eliminando categoría:', error);
-        window.alert(
-          error.error?.message ?? 'No se pudo eliminar la categoría.',
+        this.openErrorModal(
+          'No se pudo eliminar la categoría',
+          getErrorMessage(
+            error,
+            'Ocurrió un error al eliminar la categoría. Por favor, inténtalo de nuevo.',
+          ),
         );
       },
     });
+  }
+
+  private openErrorModal(title: string, message: string) {
+    this.errorTitle = title;
+    this.errorMessage = message;
+    this.showErrorModal = true;
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
+    this.errorTitle = '';
+    this.errorMessage = '';
   }
 }
