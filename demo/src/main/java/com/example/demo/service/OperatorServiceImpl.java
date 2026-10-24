@@ -114,11 +114,6 @@ public class OperatorServiceImpl implements OperatorService {
             existing.setActive(operator.getActive());
         }
 
-        // Solo se cambia la contraseña si viene una nueva
-        if (operator.getPassword() != null && !operator.getPassword().isBlank()) {
-            existing.setPassword(operator.getPassword());
-        }
-
         return repository.save(existing);
     }
 

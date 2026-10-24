@@ -138,12 +138,6 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
             existing.setActive(deliveryPerson.getActive());
         }
 
-        // Solo se cambia la contraseña si viene una nueva.
-        // "available" no se toca: lo controlan el envío y la entrega de pedidos.
-        if (!isBlank(deliveryPerson.getPassword())) {
-            existing.setPassword(deliveryPerson.getPassword());
-        }
-
         return repository.save(existing);
     }
 

@@ -96,11 +96,8 @@ public class ClientServiceImpl implements ClientService {
         // igual que se preserva la contraseña cuando viene vacía.
         client.setRole(actual.getRole());
 
-        if (client.getPassword() == null
-                || client.getPassword().isBlank()) {
-
-            client.setPassword(actual.getPassword());
-        }
+        // La contraseña solo se cambia por /clients/{id}/password (exige la actual)
+        client.setPassword(actual.getPassword());
 
         return repository.save(client);
     }
