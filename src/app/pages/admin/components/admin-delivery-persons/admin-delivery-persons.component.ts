@@ -11,6 +11,7 @@ import { IconButtonComponent } from '../../../../components/icon-button/icon-but
 import { DeliveryPerson } from '../../../../models/deliveryPerson';
 import { DeliveryPersonService } from '../../../../services/delivery-person.service';
 
+
 // Tabla de domiciliarios del portal admin: editar, eliminar y activar/desactivar
 @Component({
   selector: 'app-admin-delivery-persons',
@@ -135,5 +136,11 @@ export class AdminDeliveryPersonsComponent implements OnChanges {
         );
       },
     });
+  }
+
+  private openErrorModal(title: string, message: string) {
+    this.errorTitle = title;
+    this.errorMessage = message;
+    this.showErrorModal = true;
   }
 }
