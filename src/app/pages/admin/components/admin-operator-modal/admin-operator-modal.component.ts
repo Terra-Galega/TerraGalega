@@ -12,7 +12,6 @@ import { IconButtonComponent } from '../../../../components/icon-button/icon-but
 import { OperatorService } from '../../../../services/operator.service';
 import { CreateOperator, Operator, Role } from '../../../../models/operator';
 import { ButtonComponent } from '../../../../components/button/button.component';
-import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
 
 @Component({
   selector: 'app-admin-operator-modal',
@@ -21,7 +20,6 @@ import { ChangePasswordModalComponent } from '../../../../components/change-pass
     IconButtonComponent,
     FormFieldComponent,
     ButtonComponent,
-    ChangePasswordModalComponent
   ],
   templateUrl: './admin-operator-modal.component.html',
 })
@@ -32,6 +30,8 @@ export class AdminOperatorModalComponent {
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
+  // Le avisa al padre que cierre este modal y abra el de contraseña
+  @Output() changePassword = new EventEmitter<void>();
 
   name = '';
   lastName = '';
@@ -165,9 +165,4 @@ export class AdminOperatorModalComponent {
   close() {
     this.closed.emit();
   }
-
-  passwordModalOpen = false;
-
-savePassword = (current: string, next: string) =>
-  this.operatorService.changePassword(this.operator!.id, current, next);
 }
