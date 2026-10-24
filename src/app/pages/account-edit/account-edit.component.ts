@@ -73,6 +73,7 @@ export class AccountEditComponent implements OnInit {
       lastName: this.form.value.lastName ?? '',
       email: this.form.value.email ?? '',
       phone: this.form.value.phone ?? '',
+      password: '',  // la contraseña no se edita aquí
     };
 
     this.clientService.updateClient(updatedClient).subscribe({

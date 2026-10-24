@@ -1,4 +1,14 @@
 import { Component, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  EMPTY,
+  catchError,
+  filter,
+  fromEvent,
+  merge,
+  switchMap,
+  timer,
+} from 'rxjs';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
@@ -12,6 +22,9 @@ import { Product } from '../../models/product';
 import { CategoryService } from '../../services/category.service';
 import { Category } from '../../models/category';
 import { FeatureKey } from '../../models/feature';
+
+// Cada cuánto se vuelve a pedir el menú al servidor (en milisegundos)
+const REFRESH_MS = 10_000;
 
 @Component({
   selector: 'app-menu',
@@ -45,15 +58,27 @@ export class MenuComponent {
       },
     });
 
-    this.productService.getActiveProducts().subscribe({
-      next: (products) => {
+    // carga el menú al abrir, lo actualiza cada REFRESH_MS y también al volver
+    // a esta pestaña
+    // los cambios hechos en el admin aparecen sin recargar,
+    // y el buscador, la categoría y los filtros se conservan.
+    merge(timer(0, REFRESH_MS), fromEvent(document, 'visibilitychange'))
+      .pipe(
+        filter(() => document.visibilityState === 'visible'),
+        switchMap(() =>
+          this.productService.getActiveProducts().pipe(
+            catchError((error) => {
+              console.error('Error cargando productos:', error);
+              return EMPTY; // si falla, se queda el menú que ya se veía
+            }),
+          ),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe((products) => {
         this.products = products;
         this.filterMenuItems();
-      },
-      error: (error) => {
-        console.error('Error cargando productos:', error);
-      },
-    });
+      });
   }
 
   currentCategory = 'Todos';
