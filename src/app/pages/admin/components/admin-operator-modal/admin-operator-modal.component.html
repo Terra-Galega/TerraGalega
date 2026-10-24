@@ -46,7 +46,7 @@
             ••••••••
           </span>
 
-          <button type="button" (click)="passwordModalOpen = true"
+          <button type="button" (click)="changePassword.emit()"
             class="text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer whitespace-nowrap transition-opacity hover:opacity-70"
             style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
             Cambiar contraseña
@@ -82,8 +82,3 @@
     </div>
   </div>
 </div>
-
-@if (passwordModalOpen && operator) {
-<app-change-password-modal [userName]="operator.name + ' ' + operator.lastName" [save]="savePassword"
-  (closed)="passwordModalOpen = false" />
-}

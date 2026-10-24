@@ -15,9 +15,6 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
-import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
-
-// Modal para crear o editar un domiciliario.
 // Si recibe un domiciliario es edición; si no, es creación.
 @Component({
   selector: 'app-admin-delivery-person-modal',
@@ -26,7 +23,6 @@ import { ChangePasswordModalComponent } from '../../../../components/change-pass
     IconButtonComponent,
     FormFieldComponent,
     CheckOptionComponent,
-    ChangePasswordModalComponent,
   ],
   templateUrl: './admin-delivery-person-modal.component.html',
 })
@@ -36,6 +32,9 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
   @Input() deliveryPerson: DeliveryPerson | null = null;
 
   @Output() closed = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<void>();
+  // Le avisa al padre que cierre este modal y abra el de contraseña
+  @Output() changePassword = new EventEmitter<void>();
 
   // Valores del formulario. La contraseña de un domiciliario existente
   // nunca llega del back, por eso al editar empieza vacía.
@@ -141,12 +140,4 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
     this.closed.emit();
   }
 
-  passwordModalOpen = false;
-
-  savePassword = (current: string, next: string) =>
-    this.deliveryPersonService.changePassword(
-      this.deliveryPerson!.id,
-      current,
-      next,
-    );
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AdminDeliveryPersonsComponent } from './components/admin-delivery-persons/admin-delivery-persons.component';
@@ -23,6 +23,9 @@ import { AdminOperatorModalComponent } from './components/admin-operator-modal/a
 import { Operator } from '../../models/operator';
 import { Category } from '../../models/category';
 import { AddOn } from '../../models/addOn';
+import { OperatorService } from '../../services/operator.service';
+import { DeliveryPersonService } from '../../services/delivery-person.service';
+import { ChangePasswordModalComponent } from '../../components/change-password-modal/change-password-modal.component';
 
 @Component({
   selector: 'app-admin',
@@ -41,11 +44,31 @@ import { AddOn } from '../../models/addOn';
     AdminAddonsComponent,
     AdminAddonModalComponent,
     AdminOperatorModalComponent,
+    ChangePasswordModalComponent,
   ],
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.scss',
 })
 export class AdminComponent {
+  private operatorService = inject(OperatorService);
+  private deliveryPersonService = inject(DeliveryPersonService);
+
+  // Modal de contraseña que se abre después de cerrar el de editar
+  passwordOperator: Operator | null = null;
+  passwordDeliveryPerson: DeliveryPerson | null = null;
+
+  saveOperatorPassword = (current: string, next: string) =>
+    this.operatorService.changePassword(
+      this.passwordOperator!.id,
+      current,
+      next,
+    );
+
+  saveDeliveryPersonPassword = (current: string, next: string) =>
+    this.deliveryPersonService.changePassword(
+      this.passwordDeliveryPerson!.id,
+      current,
+      next,
+    );
   activeTab: AdminTab = 'products';
 
   productModalOpen = false;
@@ -234,5 +257,17 @@ export class AdminComponent {
   closeOperatorModal() {
     this.operatorModalOpen = false;
     this.selectedOperator = null;
+  }
+
+  // Cierra "Editar operador" y abre "Cambiar contraseña"
+  openOperatorPassword() {
+    this.passwordOperator = this.selectedOperator;
+    this.closeOperatorModal();
+  }
+
+  // Cierra "Editar domiciliario" y abre "Cambiar contraseña"
+  openDeliveryPersonPassword() {
+    this.passwordDeliveryPerson = this.selectedDeliveryPerson;
+    this.closeDeliveryModal();
   }
 }
