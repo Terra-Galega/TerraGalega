@@ -33,14 +33,6 @@
       <app-admin-delivery-persons [searchTerm]="searchTerm"
         (editDeliveryPerson)="openEditDeliveryPerson($event)"></app-admin-delivery-persons>
       }
-      @if (deliveryModalOpen) {
-      <app-admin-delivery-person-modal [deliveryPerson]="selectedDeliveryPerson" (closed)="closeDeliveryModal()"
-        (changePassword)="openDeliveryPersonPassword()"></app-admin-delivery-person-modal>
-      }
-      @if (operatorModalOpen) {
-      <app-admin-operator-modal [operator]="selectedOperator" (closed)="closeOperatorModal()"
-        (changePassword)="openOperatorPassword()"></app-admin-operator-modal>
-      }
     </div>
   </div>
 </div>
@@ -57,11 +49,12 @@
 <app-admin-addon-modal [addon]="selectedAddon" (closed)="closeAddonModal()"></app-admin-addon-modal>
 }
 @if (deliveryModalOpen) {
-<app-admin-delivery-person-modal [deliveryPerson]="selectedDeliveryPerson"
-  (closed)="closeDeliveryModal()"></app-admin-delivery-person-modal>
+<app-admin-delivery-person-modal [deliveryPerson]="selectedDeliveryPerson" (closed)="closeDeliveryModal()"
+  (changePassword)="openDeliveryPersonPassword()"></app-admin-delivery-person-modal>
 }
 @if (operatorModalOpen) {
-<app-admin-operator-modal [operator]="selectedOperator" (closed)="closeOperatorModal()"></app-admin-operator-modal>
+<app-admin-operator-modal [operator]="selectedOperator" (closed)="closeOperatorModal()"
+  (changePassword)="openOperatorPassword()"></app-admin-operator-modal>
 }
 @if (passwordOperator) {
 <app-change-password-modal [userName]="passwordOperator.name + ' ' + passwordOperator.lastName"
