@@ -24,10 +24,11 @@
       }
 
       @if (activeTab === "users") {
-      <app-admin-users></app-admin-users>
+      <app-admin-users [searchTerm]="searchTerm"></app-admin-users>
       }
       @if (activeTab === "operators") {
-      <app-admin-operators (editOperator)="openEditOperator($event)"></app-admin-operators>
+      <app-admin-operators [searchTerm]="searchTerm"
+      (editOperator)="openEditOperator($event)"></app-admin-operators>
       }
       @if (activeTab === "deliveries") {
       <app-admin-delivery-persons [searchTerm]="searchTerm"

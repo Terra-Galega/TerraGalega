@@ -1,12 +1,12 @@
 <div id="admin-panel-users" class="admin-panel hidden-modal space-y-3">
   <!-- Mensaje si la lista de clientes está vacía -->
-  @if (clients.length === 0) {
+  @if (filteredClients.length === 0) {
     <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
       No se encontraron usuarios registrados.
     </p>
   } @else {
     <!-- Iteración dinámica sobre la lista de clientes -->
-    @for (client of clients; track client.id) {
+    @for (client of filteredClients; track client.id) {
       <div
         class="flex items-center gap-5 px-6 py-4 rounded-2xl"
         style="
