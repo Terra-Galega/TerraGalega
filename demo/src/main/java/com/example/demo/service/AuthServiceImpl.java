@@ -2,13 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.entities.Admin;
 import com.example.demo.entities.Client;
-import com.example.demo.entities.DeliveryPerson;
 import com.example.demo.entities.Operator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
-import com.example.demo.repository.DeliveryPersonRepository;
 import com.example.demo.repository.OperatorRepository;
 
 @Service
@@ -24,9 +22,6 @@ public class AuthServiceImpl implements AuthService {
     private OperatorService operatorService;
 
     @Autowired
-    private DeliveryPersonService deliveryPersonService;
-
-    @Autowired
     private ClientRepository clientRepository;
 
     @Autowired
@@ -35,9 +30,6 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private OperatorRepository operatorRepository;
 
-    @Autowired
-    private DeliveryPersonRepository deliveryPersonRepository;
-
     // especificamos si la cuenta de una sesión abierta sigue existiendo
     @Override
     public boolean sessionExists(String type, Integer id) {
@@ -45,7 +37,6 @@ public class AuthServiceImpl implements AuthService {
             case "client" -> clientRepository.existsById(id);
             case "admin" -> adminRepository.existsById(id);
             case "operator" -> operatorRepository.existsById(id);
-            case "delivery" -> deliveryPersonRepository.existsById(id);
             default -> false;
         };
     }
@@ -71,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
             return admin.getPassword().equals(password) ? admin : null;
         }
 
-        // Operadores y domiciliarios solo pueden iniciar sesión si el admin
+        // Los operadores solo pueden iniciar sesión si el admin
         // los tiene activos. Se revisa después de la contraseña para no
         // revelar a quien la adivina qué cuentas existen o están inactivas.
         Operator operator = operatorService.findByEmail(email);
@@ -86,20 +77,6 @@ public class AuthServiceImpl implements AuthService {
             }
 
             return operator;
-        }
-
-        DeliveryPerson deliveryPerson = deliveryPersonService.findByEmail(email);
-
-        if (deliveryPerson != null) {
-            if (!deliveryPerson.getPassword().equals(password)) {
-                return null;
-            }
-
-            if (!Boolean.TRUE.equals(deliveryPerson.getActive())) {
-                throw new IllegalArgumentException(INACTIVE_ACCOUNT_MESSAGE);
-            }
-
-            return deliveryPerson;
         }
 
         return null;
