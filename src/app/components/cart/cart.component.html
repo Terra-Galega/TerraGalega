@@ -41,6 +41,20 @@
 
       <!-- Contenido -->
       <div class="flex-1 overflow-y-auto p-6">
+        @if (removedNotice) {
+          <div
+            class="mb-4 p-3 text-sm"
+            style="
+              background: rgba(178, 87, 31, 0.1);
+              color: #8a4a1a;
+              border-radius: 2px;
+            "
+            role="alert"
+          >
+            {{ removedNotice }}
+          </div>
+        }
+
         @if (cartItems.length === 0) {
           <!-- Carrito vacío -->
           <div class="text-center py-14" style="color: rgba(44, 44, 44, 0.75)">
@@ -92,8 +106,8 @@
                       class="text-xs truncate"
                       style="color: rgba(44, 44, 44, 0.5)"
                     >
-                      @for (addOn of groupAddOns(item.addOns); track addOn.id) {
-                        x{{ addOn.count }} {{ addOn.name }}&nbsp;
+                      @for (addOn of item.addOns; track $index) {
+                        + {{ addOn.name }}&nbsp;
                       }
                     </p>
                   }

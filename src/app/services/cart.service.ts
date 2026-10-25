@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Product } from '../models/product';
 import { AddOn } from '../models/addOn';
 import { AuthService, Session } from './auth.service';
+import { ProductService } from './product.service';
 
 export interface CartItem {
   id: string;
@@ -11,12 +13,22 @@ export interface CartItem {
   addOns: AddOn[];
 }
 
+// Mensaje para avisar al cliente de los productos que se quitaron del carrito
+export function unavailableMessage(names: string[]): string {
+  if (names.length === 1) {
+    return `El producto ${names[0]} ya no está disponible y lo quitamos de tu carrito.`;
+  }
+  const list = names.map((name) => `"${name}"`).join(', ');
+  return `Estos productos ya no están disponibles y los quitamos de tu carrito: ${list}.`;
+}
+
 // Carrito de quien aún no ha iniciado sesión
 const GUEST_KEY = 'terragalega_cart';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private auth = inject(AuthService);
+  private productService = inject(ProductService);
 
   // Llave de localStorage del carrito que se está usando ahora mismo
   private currentKey: string | null = null;
@@ -53,6 +65,26 @@ export class CartService {
     }
 
     this.update(updated);
+  }
+  // Quita del carrito los productos que ya no están disponibles  y devuelve sus nombres.
+  removeUnavailable(): Observable<string[]> {
+    if (this.items.length === 0) return of([]);
+
+    return this.productService.getActiveProducts().pipe(
+      map((activeProducts) => {
+        const activeIds = new Set(activeProducts.map((p) => p.id));
+
+        const unavailable = this.items.filter(
+          (item) => !activeIds.has(item.product.id),
+        );
+        if (unavailable.length === 0) return [];
+
+        this.update(this.items.filter((item) => activeIds.has(item.product.id)));
+
+        return [...new Set(unavailable.map((item) => item.product.name))];
+      }),
+      catchError(() => of([] as string[])),
+    );
   }
 
   removeItem(id: string) {
