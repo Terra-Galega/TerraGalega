@@ -5,7 +5,7 @@ export interface Client {
   name: string;
   email: string;
   lastName: string;
-  password: string;
+  password?: string;
   phone: string;
   role: Role;
 }
