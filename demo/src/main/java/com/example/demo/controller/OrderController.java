@@ -85,4 +85,12 @@ public class OrderController {
         return orderService.toDTO(
                 orderService.deliverOrder(id));
     }
+
+    @Operation(summary = "Cancel a pending order (only by its client)")
+    @PutMapping("/{id}/cancel")
+    public OrderDTO cancelOrder(
+            @PathVariable Integer id,
+            @RequestParam Integer clientId) {
+        return orderService.toDTO(orderService.cancelOrder(id, clientId));
+    }
 }

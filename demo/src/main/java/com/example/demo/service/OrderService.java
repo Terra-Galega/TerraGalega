@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface OrderService {
 
+    Order cancelOrder(Integer orderId, Integer clientId);
+
     List<Order> getOrdersByClientId(Integer clientId);
 
     List<Order> getAllOrders();
