@@ -16,7 +16,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
       <app-profile-summary class="lg:sticky lg:top-28" [name]="form.value.name ?? ''"
-        [lastName]="form.value.lastName ?? ''" [email]="form.value.email ?? ''"></app-profile-summary>
+        [lastName]="form.value.lastName ?? ''"  [email]="form.value.email ?? ''"></app-profile-summary>
 
       <app-account-form class="lg:col-span-2" [form]="form" (save)="save()" (cancel)="cancel()"
         (changePassword)="passwordModalOpen = true"></app-account-form>

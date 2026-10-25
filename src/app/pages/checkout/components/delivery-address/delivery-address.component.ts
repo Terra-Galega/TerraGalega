@@ -6,16 +6,14 @@ import { FormFieldComponent } from '../../../../components/form-field/form-field
 @Component({
   selector: 'app-delivery-address',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    FormFieldComponent,
-    ButtonComponent,
-  ],
+  imports: [ReactiveFormsModule, FormFieldComponent, ButtonComponent],
   templateUrl: './delivery-address.component.html',
 })
 export class DeliveryAddressComponent {
   @Input({ required: true }) form!: FormGroup;
   @Input() addressError = false;
+  @Input() savedAddress = '';
 
   @Output() fillTestData = new EventEmitter<void>();
+  @Output() useSavedAddress = new EventEmitter<void>();
 }
