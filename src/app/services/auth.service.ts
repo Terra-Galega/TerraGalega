@@ -17,6 +17,7 @@ export interface Session {
   id: number;
   name: string;
   lastName: string;
+  address?: string;
   type: 'admin' | 'client' | 'operator';
 }
 
@@ -77,6 +78,7 @@ export class AuthService {
       name: user.name,
       lastName: user.lastName,
       type,
+      address: user.address,
     });
   }
 

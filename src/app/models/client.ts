@@ -8,5 +8,6 @@ export interface Client {
   password?: string;
   phone: string;
   role: Role;
+  address: string;
 }
 export type CreateClient = Omit<Client, 'id'>;

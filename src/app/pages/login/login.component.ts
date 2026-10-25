@@ -37,6 +37,7 @@ export class LoginComponent {
   signupEmail = '';
   signupPassword = '';
   signupPhone = '';
+  signupAddress = '';
 
   private clientService = inject(ClientService);
   private router = inject(Router);
@@ -138,7 +139,9 @@ export class LoginComponent {
   setSignupPhone(value: string) {
     this.signupPhone = value;
   }
-
+  setSignupAddress(value: string) {
+    this.signupAddress = value;
+  }
   signup() {
     this.signupError = '';
 
@@ -159,6 +162,7 @@ export class LoginComponent {
       password: this.signupPassword,
       phone: this.signupPhone.trim(),
       role: Role.CLIENT,
+      address: this.signupAddress.trim(),
     };
 
     this.clientService.addClient(newClient).subscribe({
