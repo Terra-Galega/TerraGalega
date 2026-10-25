@@ -1,5 +1,5 @@
 
-import { Component, inject, Output, EventEmitter } from '@angular/core';
+import { Component, inject, Output, EventEmitter, Input, OnChanges } from '@angular/core';
 import { OperatorService } from '../../../../services/operator.service';
 import { Operator } from '../../../../models/operator';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
@@ -11,14 +11,16 @@ import { ChangePasswordModalComponent } from '../../../../components/change-pass
   imports: [IconButtonComponent, ModalComponent, ChangePasswordModalComponent],
   templateUrl: './admin-operators.component.html',
 })
-export class AdminOperatorsComponent {
+export class AdminOperatorsComponent implements OnChanges {
   private operatorService = inject(OperatorService);
+  @Input() searchTerm = '';
 
   @Output() editOperator = new EventEmitter<Operator>();
 
   passwordOperator: Operator | null = null;
 
   operators: Operator[] = [];
+  filteredOperators: Operator[] = [];
 
   showDeleteModal = false;
   showErrorModal = false;
@@ -32,27 +34,28 @@ export class AdminOperatorsComponent {
   errorMessage = '';
 
   constructor() {
-    this.loadOperators();
+  this.loadOperators();
 
-    this.operatorService.refresh$.subscribe(() => {
-      this.loadOperators();
-    });
-  }
+  this.operatorService.refresh$.subscribe(() => {
+    this.loadOperators();   // ya no hace falta filterOperators() aquí
+  });
+}
 
-  loadOperators() {
-    this.operatorService.getOperators().subscribe({
-      next: (operators) => {
-        this.operators = operators;
-      },
-      error: (error) => {
-        console.error('Error cargando operadores:', error);
-        this.openErrorModal(
-          'Error al cargar operadores',
-          getErrorMessage(error, 'No se pudieron cargar los operadores.'),
-        );
-      },
-    });
-  }
+loadOperators() {
+  this.operatorService.getOperators().subscribe({
+    next: (operators) => {
+      this.operators = operators;
+      this.filterOperators();   
+    },
+    error: (error) => {
+      console.error('Error cargando operadores:', error);
+      this.openErrorModal(
+        'Error al cargar operadores',
+        getErrorMessage(error, 'No se pudieron cargar los operadores.'),
+      );
+    },
+  });
+}
 
   openEdit(operator: Operator) {
     this.editOperator.emit(operator);
@@ -124,4 +127,18 @@ export class AdminOperatorsComponent {
 
   savePassword = (current: string, next: string) =>
   this.operatorService.changePassword(this.passwordOperator!.id, current, next);
+  
+  ngOnChanges() {
+    this.filterOperators();
+  }
+
+  filterOperators() {
+    const value = this.searchTerm.trim().toLowerCase();
+
+    this.filteredOperators = this.operators.filter((operator) =>
+      `${operator.name} ${operator.username} ${operator.email}`
+        .toLowerCase()
+        .includes(value),
+    );
+  }
 }
