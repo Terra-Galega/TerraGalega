@@ -3,7 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
-
+import { groupAddOns } from '../../models/order';
 @Component({
   selector: 'app-cart',
   imports: [DecimalPipe],
@@ -15,6 +15,7 @@ export class CartComponent {
   @Output() closed = new EventEmitter<void>();
 
   cartItems: CartItem[] = [];
+  groupAddOns = groupAddOns;
 
   constructor(
     private cartService: CartService,

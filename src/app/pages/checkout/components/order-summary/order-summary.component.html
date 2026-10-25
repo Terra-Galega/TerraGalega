@@ -11,8 +11,12 @@
 
           @if (item.addOns.length > 0) {
             <p class="text-xs mt-0.5" style="color: rgba(44, 44, 44, 0.5)">
-              @for (addOn of item.addOns; track $index; let last = $last) {
-                + {{ addOn.name }}{{ last ? "" : ", " }}
+              @for (
+                addOn of groupAddOns(item.addOns);
+                track addOn.id;
+                let last = $last
+              ) {
+                x{{ addOn.count }} {{ addOn.name }}{{ last ? "" : ", " }}
               }
             </p>
           }

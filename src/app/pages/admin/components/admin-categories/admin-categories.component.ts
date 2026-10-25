@@ -5,7 +5,10 @@ import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/category.service';
 import { switchMap, map } from 'rxjs/operators';
 import { AddOnService } from '../../../../services/addOn.service';
-import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
+import {
+  ModalComponent,
+  getErrorMessage,
+} from '../../../../components/modal/modal.component';
 
 @Component({
   selector: 'app-admin-categories',
@@ -35,6 +38,8 @@ export class AdminCategoriesComponent {
 
   errorTitle = '';
   errorMessage = '';
+  errorItems: string[] = [];
+  errorWarning = '';
 
   constructor() {
     this.loadCategories();
@@ -114,6 +119,19 @@ export class AdminCategoriesComponent {
       },
       error: (error) => {
         console.error('Error eliminando categoría:', error);
+
+        const products: string[] | undefined = error?.error?.products;
+
+        if (products?.length) {
+          this.openErrorModal(
+            'No se pudo eliminar la categoría',
+            getErrorMessage(error),
+            products,
+            'No puede tener productos sin categoría, primero asócielos a una diferente.',
+          );
+          return;
+        }
+
         this.openErrorModal(
           'No se pudo eliminar la categoría',
           getErrorMessage(
@@ -125,9 +143,16 @@ export class AdminCategoriesComponent {
     });
   }
 
-  private openErrorModal(title: string, message: string) {
+  private openErrorModal(
+    title: string,
+    message: string,
+    items: string[] = [],
+    warning = '',
+  ) {
     this.errorTitle = title;
     this.errorMessage = message;
+    this.errorItems = items;
+    this.errorWarning = warning;
     this.showErrorModal = true;
   }
 
@@ -135,5 +160,7 @@ export class AdminCategoriesComponent {
     this.showErrorModal = false;
     this.errorTitle = '';
     this.errorMessage = '';
+    this.errorItems = [];
+    this.errorWarning = '';
   }
 }

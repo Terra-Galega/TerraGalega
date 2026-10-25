@@ -193,7 +193,7 @@
 
                 @if (detail.addOns.length > 0) {
                   <div class="flex flex-wrap gap-1 mt-1">
-                    @for (addOn of detail.addOns; track $index) {
+                    @for (addOn of groupAddOns(detail.addOns); track addOn.id) {
                       <span
                         class="text-[11px] px-2 py-0.5 rounded-full"
                         style="
@@ -201,7 +201,7 @@
                           color: #556141;
                         "
                       >
-                        + {{ addOn.name }}
+                        x{{ addOn.count }} {{ addOn.name }}
                       </span>
                     }
                   </div>
