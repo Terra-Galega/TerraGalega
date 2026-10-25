@@ -19,6 +19,8 @@ public interface OrderService {
     List<OrderSummaryDTO> searchOrderSummaries(LocalDate from, LocalDate to, Integer productId, Integer orderId);
 
     void clearClientIdFromOrders(Integer clientId);
+    
+    void cancelPendingOrdersForClientDeletion(Integer clientId);
 
     OrderDTO toDTO(Order order);
 
