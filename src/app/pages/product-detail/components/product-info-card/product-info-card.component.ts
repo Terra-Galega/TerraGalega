@@ -1,16 +1,31 @@
-import { Component, Input, inject, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, Input, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { Product } from '../../../../models/product';
 import { DecimalPipe } from '@angular/common';
+import {
+  EMPTY,
+  catchError,
+  filter,
+  fromEvent,
+  merge,
+  of,
+  switchMap,
+  timer,
+} from 'rxjs';
+import { Product } from '../../../../models/product';
 import { AddOn } from '../../../../models/addOn';
 import { AuthService } from '../../../../services/auth.service';
 import { CartService } from '../../../../services/cart.service';
+import { ProductService } from '../../../../services/product.service';
+import { AddOnService } from '../../../../services/addOn.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { FeatureChipsComponent } from '../../../../components/feature-chips/feature-chips.component';
 import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
 import { AddonOptionComponent } from '../addon-option/addon-option.component';
 import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
-import { AddOnService } from '../../../../services/addOn.service';
+
+// Cada cuánto se vuelven a pedir los adicionales al servidor (en milisegundos)
+const REFRESH_MS = 30_000;
 
 @Component({
   selector: 'app-product-info-card',
@@ -29,7 +44,9 @@ export class ProductInfoCardComponent implements OnInit {
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
+  private productService = inject(ProductService);
   private addOnService = inject(AddOnService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() product!: Product;
 
@@ -40,6 +57,9 @@ export class ProductInfoCardComponent implements OnInit {
 
   // Muestra el mensaje "añadido" por unos segundos
   added = false;
+
+  // Evita agregar dos veces si se pulsa el botón mientras se verifica
+  private verifying = false;
 
   ngOnInit(): void {
     // Carga los adicionales al abrir, los actualiza cada REFRESH_MS y al volver
@@ -109,15 +129,31 @@ export class ProductInfoCardComponent implements OnInit {
   }
 
   addToOrder(): void {
+    if (this.verifying) {
+      return;
+    }
+    this.verifying = true;
+
     // Se vuelve a consultar el producto: pudo desactivarse mientras el cliente
+    // lo miraba, y el precio pudo cambiar desde la última actualización.
     this.productService.getProductById(this.product.id).subscribe({
       next: (currentProduct) => {
+        this.verifying = false;
+
+        // El admin lo desactivó: no se agrega al pedido
+        if (currentProduct.active === false) {
+          this.showUnavailable('Este producto ya no está disponible.');
+          return;
+        }
+
+        // Se agrega con los datos que tiene el servidor ahora (precio actual)
         this.cartService.addItem(
           currentProduct,
           this.quantity,
           this.selectedAddOns,
         );
 
+        // Limpiar la selección después de agregar el producto
         this.selectedAddOns = [];
         this.quantity = 1;
         this.added = true;
@@ -127,15 +163,29 @@ export class ProductInfoCardComponent implements OnInit {
         }, 2500);
       },
       error: (error) => {
+        this.verifying = false;
         console.error('Error validando producto:', error);
-        this.router.navigate(['/error'], {
-          replaceUrl: true,
-          queryParams: {
-            message:
-              error.error?.message ?? 'Este producto ya no está disponible.',
-          },
-        });
+
+        // Sin conexión o error del servidor: no se sabe si sigue disponible
+        if (error.status === 0 || error.status >= 500) {
+          this.showUnavailable(
+            'No se pudo verificar el producto. Revisa tu conexión e intenta de nuevo.',
+          );
+          return;
+        }
+
+        // Si fue eliminado, el servidor no devuelve un mensaje legible
+        this.showUnavailable(
+          error.error?.message ?? 'Este producto ya no está disponible.',
+        );
       },
+    });
+  }
+
+  private showUnavailable(message: string): void {
+    this.router.navigate(['/error'], {
+      replaceUrl: true,
+      queryParams: { message },
     });
   }
 }
