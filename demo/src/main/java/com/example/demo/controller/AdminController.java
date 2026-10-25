@@ -97,7 +97,7 @@ public class AdminController {
     @Operation(summary = "Get product by ID")
     @GetMapping("/{id}")
     public ProductDTO getProductById(@PathVariable Integer id) {
-        return toDTO(productService.getProductById(id));
+        return toDTO(productService.getActiveProductById(id));
     }
 
     @Operation(summary = "Get popular products")
