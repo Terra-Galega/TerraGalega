@@ -1,4 +1,5 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import {
   Order,
   OrderDetail,
@@ -6,7 +7,6 @@ import {
   groupAddOns,
 } from '../../../../models/order';
 
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { OrderService } from '../../../../services/order.service';
 import { AuthService } from '../../../../services/auth.service';
 import {

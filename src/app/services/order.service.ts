@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { Order, OrderSummary } from '../models/order';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
+export interface OrderFilters {
+  from?: string;
+  to?: string;
+  productId?: number | null;
+  orderId?: number | null;
+}
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private apiUrl = 'http://localhost:8080/orders';
@@ -31,10 +37,18 @@ export class OrderService {
     return this.http.get<OrderSummary[]>(`${this.apiUrl}/active`);
   }
 
-  getAllOrderSummaries(): Observable<OrderSummary[]> {
-    return this.http.get<OrderSummary[]>(`${this.apiUrl}/all`);
-  }
+  getAllOrderSummaries(filters: OrderFilters = {}): Observable<OrderSummary[]> {
+    let params = new HttpParams();
 
+    if (filters.from) params = params.set('from', filters.from);
+    if (filters.to) params = params.set('to', filters.to);
+    if (filters.productId != null)
+      params = params.set('productId', filters.productId);
+    if (filters.orderId != null)
+      params = params.set('orderId', filters.orderId);
+
+    return this.http.get<OrderSummary[]>(`${this.apiUrl}/all`, { params });
+  }
   confirmOrder(orderId: number): Observable<Order> {
     return this.http.put<Order>(`${this.apiUrl}/${orderId}/confirm`, {});
   }
