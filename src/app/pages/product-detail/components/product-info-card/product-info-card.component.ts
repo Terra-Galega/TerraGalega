@@ -24,8 +24,8 @@ import { StarIconComponent } from '../../../../components/star-icon/star-icon.co
 import { AddonOptionComponent } from '../addon-option/addon-option.component';
 import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
 
-// Cada cuánto se vuelven a pedir los adicionales al servidor (en milisegundos)
-const REFRESH_MS = 30_000;
+// Cada cuánto se vuelven a pedir los adicionales al servidor
+const REFRESH_MS = 10_000;
 
 @Component({
   selector: 'app-product-info-card',
