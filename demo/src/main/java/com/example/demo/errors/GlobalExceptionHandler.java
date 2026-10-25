@@ -10,13 +10,19 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProductNotFoundException.class)
-
     public String handlerProductNotFound(ProductNotFoundException e, Model model) {
         model.addAttribute("message", e.getMessage());
         return "error";
     }
 
-     @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler(CategoryHasProductsException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryHasProducts(CategoryHasProductsException e) {
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", e.getMessage(),
+                "products", e.getProducts()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }

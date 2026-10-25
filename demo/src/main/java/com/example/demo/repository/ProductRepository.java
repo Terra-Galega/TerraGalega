@@ -14,5 +14,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     List<Product> findByPopularTrueAndActiveTrue();
 
+    List<Product> findByCategoryId(Integer categoryId);
+
     List<Product> findByActiveTrue();
 }

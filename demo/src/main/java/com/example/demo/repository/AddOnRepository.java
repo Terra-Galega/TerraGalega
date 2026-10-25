@@ -12,7 +12,11 @@ public interface AddOnRepository extends JpaRepository<AddOn, Integer> {
 
     // Busqueda por (active =true) -> Devuelve adicionales activos
     List<AddOn> findByActiveTrue();
-    
-    // Devuelve los adicionales activos y los cuales pertenecen a un cateogoria - reciben id de categoria
+
+    // Adicionales que tienen asociada una categoría (sin importar si están activos)
+    List<AddOn> findByCategories_Id(Integer categoryId);
+
+    // Devuelve los adicionales activos y los cuales pertenecen a un cateogoria -
+    // reciben id de categoria
     List<AddOn> findByActiveTrueAndCategories_Id(Integer categoryId);
 }
