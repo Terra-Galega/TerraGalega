@@ -333,7 +333,25 @@
           class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
         />
       </div>
+      <!-- Dirección -->
+        <div>
+        <label
+          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)"
+        >
+          Dirección
+        </label>
 
+        <input
+          type="text"
+          id="signup-address"
+          name="address"
+          [value]="signupAddress"
+          (input)="setSignupAddress($event)"
+          placeholder="Dirección"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+        />
+      </div>
       <!-- Error registro -->
 
       @if (signupError) {

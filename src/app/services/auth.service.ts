@@ -17,7 +17,8 @@ export interface Session {
   id: number;
   name: string;
   lastName: string;
-  type: 'admin' | 'client' | 'operator' | 'delivery';
+  address?: string;
+  type: 'admin' | 'client' | 'operator';
 }
 
 // Rol que manda el back -> tipo de sesión que usa el front
@@ -25,7 +26,6 @@ const TYPES: Record<string, Session['type']> = {
   ADMIN: 'admin',
   CLIENT: 'client',
   OPERATOR: 'operator',
-  DELIVERY_PERSON: 'delivery',
 };
 
 // Llave con la que se guarda la sesión en el navegador
@@ -78,6 +78,7 @@ export class AuthService {
       name: user.name,
       lastName: user.lastName,
       type,
+      address: user.address,
     });
   }
 
@@ -145,7 +146,7 @@ export class AuthService {
       if (!raw) return null;
 
       const parsed = JSON.parse(raw);
-      const validType = ['admin', 'client', 'operator', 'delivery'].includes(
+      const validType = ['admin', 'client', 'operator'].includes(
         parsed?.type,
       );
 
