@@ -6,6 +6,8 @@ import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderSummaryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.example.demo.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,12 +51,6 @@ public class OrderController {
         return orderService.getActiveOrders();
     }
 
-    @Operation(summary = "Get all order summaries for admin UI")
-    @GetMapping("/all")
-    public Collection<OrderSummaryDTO> getAllOrderSummaries() {
-        return orderService.getAllOrderSummaries();
-    }
-
     @Operation(summary = "Confirm a pending order")
     @PutMapping("/{id}/confirm")
     public OrderDTO confirmOrder(@PathVariable Integer id) {
@@ -92,6 +88,16 @@ public class OrderController {
             @PathVariable Integer id,
             @RequestParam Integer clientId) {
         return orderService.toDTO(orderService.cancelOrder(id, clientId));
+    }
+
+    @Operation(summary = "Get order summaries for admin UI, with optional filters")
+    @GetMapping("/all")
+    public Collection<OrderSummaryDTO> getAllOrderSummaries(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) Integer productId,
+            @RequestParam(required = false) Integer orderId) {
+        return orderService.searchOrderSummaries(from, to, productId, orderId);
     }
 
 }

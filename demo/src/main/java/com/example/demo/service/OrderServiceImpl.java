@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.LocalDate;
 import com.example.demo.dto.CheckoutItemDTO;
 import com.example.demo.dto.OrderSummaryDTO;
 import com.example.demo.dto.CheckoutRequestDTO;
@@ -426,5 +427,30 @@ public class OrderServiceImpl implements OrderService {
         dto.setDetails(detailDTOs);
 
         return dto;
+    }
+
+    // Filtros opcionales y combinables: rango de fechas (ambos extremos incluidos),
+    // pedidos que contienen un producto, y número de pedido.
+    @Override
+    @Transactional
+    public List<OrderSummaryDTO> searchOrderSummaries(
+            LocalDate from, LocalDate to, Integer productId, Integer orderId) {
+
+        if (from != null && to != null && from.isAfter(to)) {
+            throw new IllegalArgumentException(
+                    "La fecha inicial no puede ser posterior a la fecha final.");
+        }
+
+        LocalDateTime start = from != null ? from.atStartOfDay() : null;
+        LocalDateTime end = to != null ? to.plusDays(1).atStartOfDay() : null;
+
+        return repository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(o -> orderId == null || o.getId().equals(orderId))
+                .filter(o -> start == null || !o.getCreatedAt().isBefore(start))
+                .filter(o -> end == null || o.getCreatedAt().isBefore(end))
+                .filter(o -> productId == null || o.getDetails().stream()
+                        .anyMatch(d -> d.getProduct().getId().equals(productId)))
+                .map(this::toSummary)
+                .toList();
     }
 }
