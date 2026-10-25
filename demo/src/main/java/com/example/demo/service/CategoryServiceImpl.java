@@ -7,7 +7,9 @@ import com.example.demo.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.demo.repository.AddOnRepository;
+import com.example.demo.entities.Product;
+import com.example.demo.errors.CategoryHasProductsException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,6 +22,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private AddOnRepository addOnRepository;
 
     @Override
     @Transactional
@@ -104,14 +109,26 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró la categoría que se desea eliminar."));
 
         if (productRepository.existsByCategoryId(id)) {
-            throw new IllegalArgumentException(
-                    "No se puede eliminar esta categoría porque tiene productos asociados.");
+            List<String> productNames = productRepository.findByCategoryId(id).stream()
+                    .map(Product::getName)
+                    .sorted()
+                    .toList();
+
+            if (!productNames.isEmpty()) {
+                throw new CategoryHasProductsException(productNames);
+            }
         }
 
-        // Soltamos la relación con los adicionales antes de borrar
-        for (AddOn addOn : new ArrayList<>(category.getAddOns())) {
-            addOn.getCategories().remove(category);
+        // AddOn es el dueño de la relación: a cada adicional que tenga esta
+        // categoría se le quita solo esa; sus otras categorías se mantienen.
+        // Si era la única, el adicional queda sin categorías hasta que el admin las
+        // asigne.
+        List<AddOn> addOns = addOnRepository.findByCategories_Id(id);
+        for (AddOn addOn : addOns) {
+            addOn.getCategories().removeIf(c -> c.getId().equals(id));
         }
+        addOnRepository.saveAll(addOns);
+        addOnRepository.flush();
 
         repository.delete(category);
     }
