@@ -121,7 +121,7 @@ public class OrderServiceImpl implements OrderService {
 
             Product product = productRepository.findById(item.getProductId())
                     .orElseThrow(() -> new IllegalArgumentException(
-                            "Producto no encontrado: " + item.getProductId()));
+                            "Uno de los productos de tu carrito ya no está disponible."));
 
             // El producto pudo desactivarse después de que el cliente lo guardara en su
             // carrito
