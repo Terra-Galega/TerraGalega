@@ -49,7 +49,7 @@
               </p>
               @if (item.addOns.length > 0) {
                 <div class="flex flex-wrap gap-1.5 mt-2">
-                  @for (addon of item.addOns; track $index) {
+                  @for (addon of groupAddOns(item.addOns); track addon.id) {
                     <span
                       class="text-[12px] px-2.5 py-0.5 rounded-full"
                       style="
@@ -57,7 +57,7 @@
                         background-color: rgba(85, 97, 65, 0.1);
                       "
                     >
-                      + {{ addon.name }}
+                      x{{ addon.count }} {{ addon.name }}
                     </span>
                   }
                 </div>

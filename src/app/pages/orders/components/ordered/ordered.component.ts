@@ -4,7 +4,9 @@ import {
   Order,
   OrderDetail,
   ORDER_STATUS_LABELS,
+  groupAddOns,
 } from '../../../../models/order';
+
 @Component({
   selector: 'app-ordered',
   imports: [DatePipe, DecimalPipe],
@@ -15,7 +17,7 @@ export class OrderedComponent {
   @Input() orders: Order[] = [];
 
   statusLabels = ORDER_STATUS_LABELS;
-
+  groupAddOns = groupAddOns;
   itemSubtotal(item: OrderDetail): number {
     const addOnsTotal = item.addOns.reduce(
       (sum, addOn) => sum + addOn.price,
