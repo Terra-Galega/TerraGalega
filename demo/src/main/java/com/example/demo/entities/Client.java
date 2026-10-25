@@ -50,4 +50,7 @@ public class Client {
 
     @Column(unique = true, nullable = false, length = 25)
     private String phone;
+
+    @Column(nullable = false, length = 150)
+    private String address;
 }

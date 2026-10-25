@@ -45,7 +45,7 @@ public class Product {
     @ManyToOne
     private Category category;
 
-    @Column(nullable = true, length = 255)
+    @Column(nullable = true, length = 300)
     private String imageUrl;
 
     @Column(nullable = false)
