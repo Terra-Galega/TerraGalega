@@ -1,4 +1,3 @@
-
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,7 +9,11 @@ import { DeliveryAddressComponent } from './components/delivery-address/delivery
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
 import { AuthService } from '../../services/auth.service';
-import { CartItem, CartService } from '../../services/cart.service';
+import {
+  CartItem,
+  CartService,
+  unavailableMessage,
+} from '../../services/cart.service';
 import { CheckoutService } from '../../services/checkout.service';
 import { CheckoutRequest } from '../../models/checkout';
 import { OrderService } from '../../services/order.service';
@@ -76,7 +79,19 @@ export class CheckoutComponent implements OnInit {
     }
 
     this.clientId = session.id;
-    this.clientName = session.name;
+    this.clientName = session.name; 
+    // Antes de pagar se quitan los productos que ya no están disponibles
+    this.cartService.removeUnavailable().subscribe((removed) => {
+      if (removed.length > 0) {
+        this.showCartUpdated(removed);
+      }
+    });
+  }
+
+  private showCartUpdated(removed: string[]): void {
+    this.errorTitle = 'Actualizamos tu carrito';
+    this.errorMessage = unavailableMessage(removed);
+    this.showErrorModal = true;
   }
 
   get items(): CartItem[] {
@@ -186,14 +201,26 @@ export class CheckoutComponent implements OnInit {
       error: (error) => {
         console.error('Error en el checkout:', error);
 
-        this.serverError = getErrorMessage(
+        const serverMessage = getErrorMessage(
           error,
           'No se pudo procesar el pedido. Inténtalo de nuevo.',
         );
 
-        this.errorMessage = this.serverError;
+
         this.paying = false;
-        this.showErrorModal = true;
+
+        // Si el pedido falló porque un producto dejó de estar disponible, se quita del carrito y se le avisa al cliente cuál fue
+        this.cartService.removeUnavailable().subscribe((removed) => {
+          if (removed.length > 0) {
+            this.showCartUpdated(removed);
+            return;
+          }
+
+          this.errorTitle = 'No se pudo procesar el pedido';
+          this.serverError = serverMessage;
+          this.errorMessage = serverMessage;
+          this.showErrorModal = true;
+        });
       },
     });
   }

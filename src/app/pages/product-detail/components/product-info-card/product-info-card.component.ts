@@ -11,20 +11,6 @@ import { StarIconComponent } from '../../../../components/star-icon/star-icon.co
 import { AddonOptionComponent } from '../addon-option/addon-option.component';
 import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
 import { AddOnService } from '../../../../services/addOn.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  EMPTY,
-  catchError,
-  filter,
-  fromEvent,
-  merge,
-  of,
-  switchMap,
-  timer,
-} from 'rxjs';
-
-// Cada cuánto se vuelven a pedir los adicionales al servidor (en milisegundos)
-const REFRESH_MS = 10_000;
 
 @Component({
   selector: 'app-product-info-card',
@@ -44,7 +30,6 @@ export class ProductInfoCardComponent implements OnInit {
   private auth = inject(AuthService);
   private cartService = inject(CartService);
   private addOnService = inject(AddOnService);
-  private destroyRef = inject(DestroyRef);
 
   @Input() product!: Product;
 
@@ -124,15 +109,33 @@ export class ProductInfoCardComponent implements OnInit {
   }
 
   addToOrder(): void {
-    this.cartService.addItem(this.product, this.quantity, this.selectedAddOns);
+    // Se vuelve a consultar el producto: pudo desactivarse mientras el cliente
+    this.productService.getProductById(this.product.id).subscribe({
+      next: (currentProduct) => {
+        this.cartService.addItem(
+          currentProduct,
+          this.quantity,
+          this.selectedAddOns,
+        );
 
-    // Limpiar la selección después de agregar el producto
-    this.selectedAddOns = [];
-    this.quantity = 1;
-    this.added = true;
+        this.selectedAddOns = [];
+        this.quantity = 1;
+        this.added = true;
 
-    setTimeout(() => {
-      this.added = false;
-    }, 2500);
+        setTimeout(() => {
+          this.added = false;
+        }, 2500);
+      },
+      error: (error) => {
+        console.error('Error validando producto:', error);
+        this.router.navigate(['/error'], {
+          replaceUrl: true,
+          queryParams: {
+            message:
+              error.error?.message ?? 'Este producto ya no está disponible.',
+          },
+        });
+      },
+    });
   }
 }

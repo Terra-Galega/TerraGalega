@@ -56,4 +56,12 @@ export class OrderService {
   deliverOrder(orderId: number): Observable<Order> {
     return this.http.put<Order>(`${this.apiUrl}/${orderId}/deliver`, {});
   }
+
+  cancelOrder(orderId: number, clientId: number): Observable<Order> {
+    return this.http.put<Order>(
+      `${this.apiUrl}/${orderId}/cancel`,
+      {},
+      { params: { clientId } },
+    );
+  }
 }

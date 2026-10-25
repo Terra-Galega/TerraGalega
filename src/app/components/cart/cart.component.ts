@@ -1,8 +1,20 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CartService, CartItem } from '../../services/cart.service';
+import {
+  CartService,
+  CartItem,
+  unavailableMessage,
+} from '../../services/cart.service';
+import { groupAddOns } from '../../models/order';
 
 @Component({
   selector: 'app-cart',
@@ -10,11 +22,15 @@ import { CartService, CartItem } from '../../services/cart.service';
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
 })
-export class CartComponent {
+export class CartComponent implements OnChanges {
   @Input() isOpen = false;
   @Output() closed = new EventEmitter<void>();
 
   cartItems: CartItem[] = [];
+
+  // Aviso de productos que se quitaron por no estar disponibles
+  removedNotice = '';
+  groupAddOns = groupAddOns;
 
   constructor(
     private cartService: CartService,
@@ -24,6 +40,21 @@ export class CartComponent {
     this.cartService.items$.subscribe((items) => {
       this.cartItems = items;
     });
+  }
+
+  // Cada vez que se abre el carrito se comprueba que sus productos sigan disponibles
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['isOpen']) return;
+
+    this.removedNotice = '';
+
+    if (this.isOpen) {
+      this.cartService.removeUnavailable().subscribe((removed) => {
+        if (removed.length > 0) {
+          this.removedNotice = unavailableMessage(removed);
+        }
+      });
+    }
   }
 
   closeCart() {

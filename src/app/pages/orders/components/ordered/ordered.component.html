@@ -49,7 +49,7 @@
               </p>
               @if (item.addOns.length > 0) {
                 <div class="flex flex-wrap gap-1.5 mt-2">
-                  @for (addon of item.addOns; track $index) {
+                  @for (addon of groupAddOns(item.addOns); track addon.id) {
                     <span
                       class="text-[12px] px-2.5 py-0.5 rounded-full"
                       style="
@@ -57,7 +57,7 @@
                         background-color: rgba(85, 97, 65, 0.1);
                       "
                     >
-                      + {{ addon.name }}
+                      x{{ addon.count }} {{ addon.name }}
                     </span>
                   }
                 </div>
@@ -86,6 +86,40 @@
           </p>
         </div>
       }
+      @if (order.status === "PENDING") {
+        <div
+          class="px-7 py-4 flex flex-wrap items-center justify-between gap-4 border-t"
+          style="border-color: rgba(44, 44, 44, 0.1)"
+        >
+          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.55)">
+            Puedes cancelarlo mientras el restaurante no lo confirme.
+          </p>
+          <app-button variant="danger" size="sm" (click)="askCancel(order)">
+            Cancelar pedido
+          </app-button>
+        </div>
+      }
     </article>
   }
 </div>
+
+<app-modal
+  [open]="showCancelModal"
+  title="Cancelar pedido"
+  message="¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer."
+  confirmLabel="Sí, cancelar pedido"
+  cancelLabel="Volver"
+  variant="danger"
+  (confirm)="confirmCancel()"
+  (cancel)="closeCancelModal()"
+></app-modal>
+
+<app-modal
+  [open]="showErrorModal"
+  title="No se pudo cancelar el pedido"
+  [message]="errorMessage"
+  confirmLabel="Aceptar"
+  variant="error"
+  (confirm)="closeErrorModal()"
+  (cancel)="closeErrorModal()"
+></app-modal>

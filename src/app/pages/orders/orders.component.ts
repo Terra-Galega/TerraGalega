@@ -56,8 +56,11 @@ export class OrdersComponent implements OnInit {
     }
 
     this.isLoggedIn = true;
+    this.loadOrders(session.id);
+  }
 
-    this.orderService.getOrdersByClient(session.id).subscribe({
+  loadOrders(clientId: number) {
+    this.orderService.getOrdersByClient(clientId).subscribe({
       next: (orders) => {
         this.orders = orders;
         this.loading = false;
@@ -68,11 +71,20 @@ export class OrdersComponent implements OnInit {
         this.router.navigate(['/error'], {
           replaceUrl: true,
           queryParams: {
-            message: error.error?.message ?? 'No se pudieron cargar tus pedidos.',
+            message:
+              error.error?.message ?? 'No se pudieron cargar tus pedidos.',
           },
         });
       },
     });
+  }
+
+  onOrderCancelled() {
+    const session = this.auth.session;
+
+    if (session && session.type === 'client') {
+      this.loadOrders(session.id);
+    }
   }
 
   // Un pedido está activo mientras no se haya entregado ni cancelado

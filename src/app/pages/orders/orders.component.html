@@ -54,7 +54,10 @@
           Pedidos activos
         </h2>
         @if (activeOrders.length > 0) {
-          <app-ordered [orders]="activeOrders"></app-ordered>
+          <app-ordered
+            [orders]="activeOrders"
+            (orderCancelled)="onOrderCancelled()"
+          ></app-ordered>
         } @else {
           <p class="text-sm mb-5" style="color: rgba(44, 44, 44, 0.55)">
             No tienes pedidos activos en este momento.
