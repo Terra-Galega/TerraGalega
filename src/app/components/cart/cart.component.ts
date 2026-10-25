@@ -14,6 +14,7 @@ import {
   CartItem,
   unavailableMessage,
 } from '../../services/cart.service';
+import { groupAddOns } from '../../models/order';
 
 @Component({
   selector: 'app-cart',
@@ -29,6 +30,7 @@ export class CartComponent implements OnChanges {
 
   // Aviso de productos que se quitaron por no estar disponibles
   removedNotice = '';
+  groupAddOns = groupAddOns;
 
   constructor(
     private cartService: CartService,
