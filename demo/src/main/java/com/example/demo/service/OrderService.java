@@ -6,6 +6,7 @@ import com.example.demo.entities.Order;
 import com.example.demo.entities.Client;
 import com.example.demo.dto.OrderDTO;
 import java.util.List;
+import java.time.LocalDate;
 
 public interface OrderService {
 
@@ -14,6 +15,8 @@ public interface OrderService {
     List<Order> getOrdersByClientId(Integer clientId);
 
     List<Order> getAllOrders();
+
+    List<OrderSummaryDTO> searchOrderSummaries(LocalDate from, LocalDate to, Integer productId, Integer orderId);
 
     void clearClientIdFromOrders(Integer clientId);
 
