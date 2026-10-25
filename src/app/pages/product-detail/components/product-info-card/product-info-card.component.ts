@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, DestroyRef, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Product } from '../../../../models/product';
 import { DecimalPipe } from '@angular/common';
@@ -11,6 +11,20 @@ import { StarIconComponent } from '../../../../components/star-icon/star-icon.co
 import { AddonOptionComponent } from '../addon-option/addon-option.component';
 import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
 import { AddOnService } from '../../../../services/addOn.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  EMPTY,
+  catchError,
+  filter,
+  fromEvent,
+  merge,
+  of,
+  switchMap,
+  timer,
+} from 'rxjs';
+
+// Cada cuánto se vuelven a pedir los adicionales al servidor (en milisegundos)
+const REFRESH_MS = 10_000;
 
 @Component({
   selector: 'app-product-info-card',
@@ -25,11 +39,12 @@ import { AddOnService } from '../../../../services/addOn.service';
   templateUrl: './product-info-card.component.html',
   styleUrl: './product-info-card.component.scss',
 })
-export class ProductInfoCardComponent {
+export class ProductInfoCardComponent implements OnInit {
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
   private addOnService = inject(AddOnService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() product!: Product;
 
@@ -42,24 +57,41 @@ export class ProductInfoCardComponent {
   added = false;
 
   ngOnInit(): void {
-    this.loadAddOns();
+    // Carga los adicionales al abrir, los actualiza cada REFRESH_MS y al volver
+    // a la pestaña. Así si el admin cambia, agrega o desactiva un adicional,
+    // se refleja sin recargar y sin perder lo que el cliente ya eligió.
+    merge(timer(0, REFRESH_MS), fromEvent(document, 'visibilitychange'))
+      .pipe(
+        filter(() => document.visibilityState === 'visible'),
+        switchMap(() => {
+          // Se lee en cada ciclo por si el admin cambió la categoría del producto
+          const categoryId = this.product.category?.id;
+
+          if (!categoryId) {
+            return of<AddOn[]>([]);
+          }
+
+          return this.addOnService.getActiveAddOnsByCategory(categoryId).pipe(
+            catchError((error) => {
+              console.error('Error cargando adicionales:', error);
+              return EMPTY; // si falla, se quedan los que ya se veían
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((addOns) => {
+        this.addons = addOns;
+        this.syncSelectedAddOns();
+      });
   }
 
-  private loadAddOns(): void {
-    const categoryId = this.product.category?.id;
-
-    if (!categoryId) {
-      this.addons = [];
-      return;
-    }
-
-    this.addOnService.getActiveAddOnsByCategory(categoryId).subscribe({
-      next: (addOns) => (this.addons = addOns),
-      error: (error) => {
-        console.error('Error cargando adicionales:', error);
-        this.addons = [];
-      },
-    });
+  // Los adicionales elegidos se actualizan con los datos nuevos (precio,
+  // nombre); si el admin desactivó alguno, se quita de la selección.
+  private syncSelectedAddOns(): void {
+    this.selectedAddOns = this.selectedAddOns
+      .map((selected) => this.addons.find((addOn) => addOn.id === selected.id))
+      .filter((addOn): addOn is AddOn => !!addOn);
   }
 
   // Cuántas unidades de este adicional hay seleccionadas
