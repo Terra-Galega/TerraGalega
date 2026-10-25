@@ -108,6 +108,10 @@ public class ClientServiceImpl implements ClientService {
         if (!repository.existsById(id)) {
             throw new IllegalArgumentException("No se encontró el cliente que se desea eliminar.");
         }
+
+        // Valida que no haya pedidos en curso y cancela los pendientes
+        orderService.cancelPendingOrdersForClientDeletion(id);
+
         // Antes de eliminar el cliente, limpiamos los id de los pedidos
         orderService.clearClientIdFromOrders(id);
         repository.deleteById(id);

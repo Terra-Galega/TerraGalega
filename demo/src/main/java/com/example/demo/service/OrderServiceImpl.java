@@ -78,6 +78,33 @@ public class OrderServiceImpl implements OrderService {
         repository.saveAll(orders);
     }
 
+    // Antes de eliminar la cuenta: si algún pedido ya fue confirmado por el
+    // restaurante y aún no termina, se bloquea la eliminación. Los pedidos
+    // que el restaurante aún no confirma (PENDING) se cancelan.
+    @Override
+    @Transactional
+    public void cancelPendingOrdersForClientDeletion(Integer clientId) {
+        List<Order> orders = repository.findByClientIdOrderByCreatedAtDesc(clientId);
+
+        for (Order order : orders) {
+            OrderStatus status = order.getStatus();
+
+            if (status != OrderStatus.PENDING && !FINISHED_STATUSES.contains(status)) {
+                throw new IllegalArgumentException(
+                        "No puedes eliminar tu cuenta mientras tengas pedidos en curso. "
+                                + "Espera a que sean entregados o cancélalos si aún no han sido confirmados.");
+            }
+        }
+
+        for (Order order : orders) {
+            if (order.getStatus() == OrderStatus.PENDING) {
+                order.setStatus(OrderStatus.CANCELLED);
+            }
+        }
+
+        repository.saveAll(orders);
+    }
+
     @Override
     @Transactional
     public Order getOrderById(Integer id) {
