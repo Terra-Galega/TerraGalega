@@ -222,6 +222,27 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    public Order cancelOrder(Integer orderId, Integer clientId) {
+
+        Order order = getOrderById(orderId);
+
+        // Solo el dueño del pedido puede cancelarlo
+        if (order.getClient() == null || !order.getClient().getId().equals(clientId)) {
+            throw new IllegalArgumentException("Este pedido no te pertenece.");
+        }
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new IllegalArgumentException(
+                    "Solo puedes cancelar pedidos que el restaurante aún no ha confirmado.");
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+
+        return repository.save(order);
+    }
+
+    @Override
+    @Transactional
     public Order cookOrder(Integer orderId, Integer operatorId) {
 
         Order order = getOrderById(orderId);
