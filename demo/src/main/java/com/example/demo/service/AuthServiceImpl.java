@@ -6,6 +6,10 @@ import com.example.demo.entities.DeliveryPerson;
 import com.example.demo.entities.Operator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.demo.repository.AdminRepository;
+import com.example.demo.repository.ClientRepository;
+import com.example.demo.repository.DeliveryPersonRepository;
+import com.example.demo.repository.OperatorRepository;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -21,6 +25,30 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private DeliveryPersonService deliveryPersonService;
+
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
+    private OperatorRepository operatorRepository;
+
+    @Autowired
+    private DeliveryPersonRepository deliveryPersonRepository;
+
+    // especificamos si la cuenta de una sesión abierta sigue existiendo
+    @Override
+    public boolean sessionExists(String type, Integer id) {
+        return switch (type) {
+            case "client" -> clientRepository.existsById(id);
+            case "admin" -> adminRepository.existsById(id);
+            case "operator" -> operatorRepository.existsById(id);
+            case "delivery" -> deliveryPersonRepository.existsById(id);
+            default -> false;
+        };
+    }
 
     // Mensaje cuando el admin desactivó la cuenta
     private static final String INACTIVE_ACCOUNT_MESSAGE = "Tu cuenta está desactivada. Contacta al administrador.";

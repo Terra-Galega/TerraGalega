@@ -3,6 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,5 +29,12 @@ public class AuthController {
 
         // Devuelve el Client o el Admin, ambos traen su "role"
         return user;
+    }
+
+    @Operation(summary = "Check that a logged-in account still exists")
+    @GetMapping("/session/{type}/{id}")
+    public Map<String, Boolean> sessionExists(@PathVariable String type,
+            @PathVariable Integer id) {
+        return Map.of("exists", authService.sessionExists(type, id));
     }
 }
