@@ -41,6 +41,17 @@ public class ProductServiceImpl implements ProductService {
 
         return product;
     }
+    @Override
+    @Transactional
+    public Product getActiveProductById(Integer id) {
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        if (!product.getActive()) {
+            throw new ProductNotFoundException(
+                    "El producto " + product.getName() + " ya no está disponible.");
+        }
+        return product;
+    }
 
     @Override
     @Transactional

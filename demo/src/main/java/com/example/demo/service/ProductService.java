@@ -10,6 +10,9 @@ public interface ProductService {
 
     Product getProductById(Integer id);
 
+    // Devuelve el producto solo si está activo
+    Product getActiveProductById(Integer id);
+
     // Devuelve los productos marcados como populares, usados en "Favoritos de la
     // casa" (home)
     Collection<Product> getPopularProductsActive();
