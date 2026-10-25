@@ -62,3 +62,25 @@ export interface OrderSummary {
   deliveryPersonName: string | null;
   total: number;
 }
+
+export interface GroupedAddOn {
+  id: number;
+  name: string;
+  count: number;
+}
+
+// Agrupa adicionales repetidos: [queso, queso, salsa] -> [{queso x2}, {salsa x1}]
+export function groupAddOns(
+  addOns: { id: number; name: string }[],
+): GroupedAddOn[] {
+  const map = new Map<number, GroupedAddOn>();
+  for (const a of addOns) {
+    const existing = map.get(a.id);
+    if (existing) {
+      existing.count++;
+    } else {
+      map.set(a.id, { id: a.id, name: a.name, count: 1 });
+    }
+  }
+  return [...map.values()];
+}

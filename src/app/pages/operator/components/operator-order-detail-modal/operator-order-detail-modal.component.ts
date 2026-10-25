@@ -12,6 +12,7 @@ import {
   OrderDetail,
   OrderStatus,
   ORDER_STATUS_LABELS,
+  groupAddOns,
 } from '../../../../models/order';
 import { OrderService } from '../../../../services/order.service';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
@@ -43,7 +44,7 @@ export class OperatorOrderDetailModalComponent implements OnInit {
 
   statusLabels = ORDER_STATUS_LABELS;
   statusColors = STATUS_COLORS;
-
+  groupAddOns = groupAddOns;
   // Pasos del flujo normal de un pedido (el cancelado no entra aquí)
   steps: OrderStatus[] = [
     'PENDING',
