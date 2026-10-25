@@ -6,7 +6,7 @@
   </p>
   } @else {
   <!-- Iteración dinámica sobre la lista de operadores -->
-  @for (operator of operators; track operator.id) {
+  @for (operator of filteredOperators; track operator.id) {
   <div class="flex items-center gap-5 px-6 py-4 rounded-2xl" style="
           background-color: rgba(255, 255, 255, 0.72);
           backdrop-filter: blur(20px);

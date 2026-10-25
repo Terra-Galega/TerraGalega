@@ -19,6 +19,7 @@ export class LoginFormsComponent {
   @Input() signupEmail = '';
   @Input() signupPassword = '';
   @Input() signupPhone = '';
+  @Input() signupAddress = '';
 
   @Input() showLoginPassword = false;
   @Input() showSignupPassword = false;
@@ -35,6 +36,7 @@ export class LoginFormsComponent {
   @Output() signupEmailChange = new EventEmitter<string>();
   @Output() signupPasswordChange = new EventEmitter<string>();
   @Output() signupPhoneChange = new EventEmitter<string>();
+  @Output() signupAddressChange = new EventEmitter<string>();
 
   @Output() signupSubmit = new EventEmitter<void>();
   @Output() demoUser = new EventEmitter<{
@@ -88,6 +90,10 @@ export class LoginFormsComponent {
 
   setSignupPhone(event: Event) {
     this.signupPhoneChange.emit((event.target as HTMLInputElement).value);
+  }
+
+  setSignupAddress(event: Event) {
+    this.signupAddressChange.emit((event.target as HTMLInputElement).value);
   }
 
   signup() {

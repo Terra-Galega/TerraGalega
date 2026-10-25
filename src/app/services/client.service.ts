@@ -72,6 +72,7 @@ export class ClientService {
       password: 'cliente123',
       phone: '+57 300 000 0000',
       role: Role.CLIENT,
+      address: 'Calle Falsa 123, Ciudad, País',
     };
 
     if (demoClient.email === email && demoClient.password === password) {

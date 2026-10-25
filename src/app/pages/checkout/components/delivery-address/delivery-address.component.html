@@ -11,6 +11,19 @@
       />
     </app-form-field>
 
+    @if (savedAddress) {
+      <div class="mt-3">
+        <app-button
+          variant="outline"
+          size="sm"
+          [fullWidth]="true"
+          (click)="useSavedAddress.emit()"
+        >
+          Usar dirección guardada
+        </app-button>
+      </div>
+    }
+
     @if (addressError) {
       <p class="text-xs mt-2" style="color: #8a2222">
         Escribe la dirección donde quieres recibir tu pedido.

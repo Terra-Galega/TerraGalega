@@ -17,7 +17,10 @@ import {
 import { CheckoutService } from '../../services/checkout.service';
 import { CheckoutRequest } from '../../models/checkout';
 import { OrderService } from '../../services/order.service';
-import { ModalComponent, getErrorMessage } from '../../components/modal/modal.component';
+import {
+  ModalComponent,
+  getErrorMessage,
+} from '../../components/modal/modal.component';
 
 @Component({
   selector: 'app-checkout',
@@ -44,6 +47,7 @@ export class CheckoutComponent implements OnInit {
 
   clientId: number | null = null;
   clientName = '';
+  savedAddress = '';
 
   paying = false;
   addressError = false;
@@ -70,7 +74,6 @@ export class CheckoutComponent implements OnInit {
 
   ngOnInit(): void {
     const session = this.auth.session;
-
     if (!session || session.type !== 'client') {
       this.router.navigate(['/login'], {
         queryParams: { redirect: 'checkout' },
@@ -79,7 +82,8 @@ export class CheckoutComponent implements OnInit {
     }
 
     this.clientId = session.id;
-    this.clientName = session.name; 
+    this.clientName = session.name;
+    this.savedAddress = session.address ?? '';
     // Antes de pagar se quitan los productos que ya no están disponibles
     this.cartService.removeUnavailable().subscribe((removed) => {
       if (removed.length > 0) {
@@ -122,17 +126,13 @@ export class CheckoutComponent implements OnInit {
       .slice(0, 4);
 
     this.form.controls.cardExpiry.setValue(
-      digits.length > 2
-        ? `${digits.slice(0, 2)}/${digits.slice(2)}`
-        : digits,
+      digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits,
     );
   }
 
   formatCvv(event: Event): void {
     this.form.controls.cardCvv.setValue(
-      (event.target as HTMLInputElement).value
-        .replace(/\D/g, '')
-        .slice(0, 3),
+      (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 3),
     );
   }
 
@@ -144,6 +144,10 @@ export class CheckoutComponent implements OnInit {
       cardExpiry: '12/28',
       cardCvv: '123',
     });
+  }
+  useSavedAddress(): void {
+    this.form.controls.address.setValue(this.savedAddress);
+    this.addressError = false;
   }
 
   pay(): void {
@@ -164,9 +168,7 @@ export class CheckoutComponent implements OnInit {
     }
 
     const digits = cardNumber.replace(/\s/g, '');
-    const validExpiry = /^(0[1-9]|1[0-2])\/\d{2}$/.test(
-      cardExpiry.trim(),
-    );
+    const validExpiry = /^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry.trim());
 
     if (
       !cardName.trim() ||
@@ -205,7 +207,6 @@ export class CheckoutComponent implements OnInit {
           error,
           'No se pudo procesar el pedido. Inténtalo de nuevo.',
         );
-
 
         this.paying = false;
 
