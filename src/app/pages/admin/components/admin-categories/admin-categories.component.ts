@@ -9,6 +9,7 @@ import {
   ModalComponent,
   getErrorMessage,
 } from '../../../../components/modal/modal.component';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-categories',
@@ -18,6 +19,7 @@ import {
 export class AdminCategoriesComponent {
   private categoryService = inject(CategoryService);
   private addOnService = inject(AddOnService);
+  private toast = inject(ToastService);
 
   @Input() searchTerm = '';
 
@@ -116,6 +118,7 @@ export class AdminCategoriesComponent {
     this.categoryService.deleteCategory(id).subscribe({
       next: () => {
         this.categoryService.refresh();
+        this.toast.show('Categoría eliminada correctamente');
       },
       error: (error) => {
         console.error('Error eliminando categoría:', error);

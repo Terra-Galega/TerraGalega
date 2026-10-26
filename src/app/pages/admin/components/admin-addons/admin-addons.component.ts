@@ -4,15 +4,24 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { AddOn } from '../../../../models/addOn';
 import { AddOnService } from '../../../../services/addOn.service';
-import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
-
+import {
+  ModalComponent,
+  getErrorMessage,
+} from '../../../../components/modal/modal.component';
+import { ToastService } from '../../../../services/toast.service';
 @Component({
   selector: 'app-admin-addons',
-  imports: [DecimalPipe, EmptyStateComponent, IconButtonComponent, ModalComponent],
+  imports: [
+    DecimalPipe,
+    EmptyStateComponent,
+    IconButtonComponent,
+    ModalComponent,
+  ],
   templateUrl: './admin-addons.component.html',
 })
 export class AdminAddonsComponent {
   private addOnService = inject(AddOnService);
+  private toast = inject(ToastService);
 
   @Input() searchTerm = '';
 
@@ -110,6 +119,7 @@ export class AdminAddonsComponent {
     this.addOnService.deleteAddOn(id).subscribe({
       next: () => {
         this.addOnService.refresh();
+        this.toast.show('Adicional eliminado correctamente');
       },
       error: (error) => {
         console.error('Error eliminando adicional:', error);
