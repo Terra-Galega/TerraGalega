@@ -10,22 +10,35 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { DeliveryPerson } from '../../../../models/deliveryPerson';
 import { DeliveryPersonService } from '../../../../services/delivery-person.service';
-import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
+import {
+  ModalComponent,
+  getErrorMessage,
+} from '../../../../components/modal/modal.component';
 import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
-
+import { ToastService } from '../../../../services/toast.service';
 
 // Tabla de domiciliarios del portal admin: editar, eliminar y activar/desactivar
 @Component({
   selector: 'app-admin-delivery-persons',
-  imports: [EmptyStateComponent, IconButtonComponent, ModalComponent, ChangePasswordModalComponent],
+  imports: [
+    EmptyStateComponent,
+    IconButtonComponent,
+    ModalComponent,
+    ChangePasswordModalComponent,
+  ],
   templateUrl: './admin-delivery-persons.component.html',
 })
 export class AdminDeliveryPersonsComponent implements OnChanges {
   private deliveryPersonService = inject(DeliveryPersonService);
+  private toast = inject(ToastService);
 
   passwordDeliveryPerson: DeliveryPerson | null = null;
   savePassword = (current: string, next: string) =>
-  this.deliveryPersonService.changePassword(this.passwordDeliveryPerson!.id, current, next);
+    this.deliveryPersonService.changePassword(
+      this.passwordDeliveryPerson!.id,
+      current,
+      next,
+    );
 
   @Input() searchTerm = '';
 
@@ -128,6 +141,7 @@ export class AdminDeliveryPersonsComponent implements OnChanges {
     this.deliveryPersonService.deleteDeliveryPerson(id).subscribe({
       next: () => {
         this.deliveryPersonService.refresh();
+        this.toast.show('Domiciliario eliminado correctamente');
       },
       error: (error) => {
         console.error('Error eliminando domiciliario:', error);

@@ -1,10 +1,20 @@
-
-import { Component, inject, Output, EventEmitter, Input, OnChanges } from '@angular/core';
+import {
+  Component,
+  inject,
+  Output,
+  EventEmitter,
+  Input,
+  OnChanges,
+} from '@angular/core';
 import { OperatorService } from '../../../../services/operator.service';
 import { Operator } from '../../../../models/operator';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
-import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
+import {
+  ModalComponent,
+  getErrorMessage,
+} from '../../../../components/modal/modal.component';
 import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-operators',
@@ -13,6 +23,8 @@ import { ChangePasswordModalComponent } from '../../../../components/change-pass
 })
 export class AdminOperatorsComponent implements OnChanges {
   private operatorService = inject(OperatorService);
+  private toast = inject(ToastService);
+  
   @Input() searchTerm = '';
 
   @Output() editOperator = new EventEmitter<Operator>();
@@ -34,28 +46,28 @@ export class AdminOperatorsComponent implements OnChanges {
   errorMessage = '';
 
   constructor() {
-  this.loadOperators();
+    this.loadOperators();
 
-  this.operatorService.refresh$.subscribe(() => {
-    this.loadOperators();   // ya no hace falta filterOperators() aquí
-  });
-}
+    this.operatorService.refresh$.subscribe(() => {
+      this.loadOperators(); // ya no hace falta filterOperators() aquí
+    });
+  }
 
-loadOperators() {
-  this.operatorService.getOperators().subscribe({
-    next: (operators) => {
-      this.operators = operators;
-      this.filterOperators();   
-    },
-    error: (error) => {
-      console.error('Error cargando operadores:', error);
-      this.openErrorModal(
-        'Error al cargar operadores',
-        getErrorMessage(error, 'No se pudieron cargar los operadores.'),
-      );
-    },
-  });
-}
+  loadOperators() {
+    this.operatorService.getOperators().subscribe({
+      next: (operators) => {
+        this.operators = operators;
+        this.filterOperators();
+      },
+      error: (error) => {
+        console.error('Error cargando operadores:', error);
+        this.openErrorModal(
+          'Error al cargar operadores',
+          getErrorMessage(error, 'No se pudieron cargar los operadores.'),
+        );
+      },
+    });
+  }
 
   openEdit(operator: Operator) {
     this.editOperator.emit(operator);
@@ -84,6 +96,7 @@ loadOperators() {
     this.operatorService.deleteOperator(id).subscribe({
       next: () => {
         this.operatorService.refresh();
+        this.toast.show('Operador eliminado correctamente');
       },
       error: (error) => {
         console.error('Error eliminando operador:', error);
@@ -126,8 +139,12 @@ loadOperators() {
   }
 
   savePassword = (current: string, next: string) =>
-  this.operatorService.changePassword(this.passwordOperator!.id, current, next);
-  
+    this.operatorService.changePassword(
+      this.passwordOperator!.id,
+      current,
+      next,
+    );
+
   ngOnChanges() {
     this.filterOperators();
   }

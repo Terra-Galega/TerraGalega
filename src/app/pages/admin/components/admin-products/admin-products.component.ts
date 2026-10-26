@@ -3,17 +3,20 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { AdminProductRowComponent } from '../admin-product-row/admin-product-row.component';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
-import { ModalComponent, getErrorMessage } from '../../../../components/modal/modal.component';
+import {
+  ModalComponent,
+  getErrorMessage,
+} from '../../../../components/modal/modal.component';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-products',
   imports: [AdminProductRowComponent, EmptyStateComponent, ModalComponent],
-
   templateUrl: './admin-products.component.html',
-  styleUrl: './admin-products.component.scss',
 })
 export class AdminProductsComponent {
   private productService = inject(ProductService);
+  private toast = inject(ToastService);
 
   @Input() searchTerm = '';
 
@@ -30,7 +33,8 @@ export class AdminProductsComponent {
   selectedProductId: number | null = null;
 
   confirmTitle = 'Eliminar producto';
-  confirmMessage = '¿Estás seguro de que deseas eliminar este producto de la carta?';
+  confirmMessage =
+    '¿Estás seguro de que deseas eliminar este producto de la carta?';
 
   errorTitle = '';
   errorMessage = '';
@@ -101,6 +105,7 @@ export class AdminProductsComponent {
     this.productService.deleteProduct(id).subscribe({
       next: () => {
         this.productService.refresh();
+        this.toast.show('Producto eliminado correctamente');
       },
       error: (error) => {
         console.error('Error eliminando producto:', error);

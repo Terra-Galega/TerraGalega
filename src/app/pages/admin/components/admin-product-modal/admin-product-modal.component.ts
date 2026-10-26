@@ -17,6 +17,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
+import { ToastService } from '../../../../services/toast.service';
 
 type CheckKey = 'active' | 'popular' | FeatureKey;
 
@@ -34,6 +35,7 @@ type CheckKey = 'active' | 'popular' | FeatureKey;
 export class AdminProductModalComponent implements OnChanges {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private toast = inject(ToastService);
 
   @Input() product: Product | null = null;
 
@@ -212,6 +214,7 @@ export class AdminProductModalComponent implements OnChanges {
       this.productService.updateProduct(updatedProduct).subscribe({
         next: () => {
           this.productService.refresh();
+          this.toast.show('Cambios del producto guardados correctamente');
           this.saved.emit();
           this.closed.emit();
         },
@@ -248,6 +251,7 @@ export class AdminProductModalComponent implements OnChanges {
         console.log('Producto creado:', product);
 
         this.productService.refresh();
+        this.toast.show('Producto creado correctamente');
         this.saved.emit();
         this.closed.emit();
       },

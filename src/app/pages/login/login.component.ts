@@ -8,7 +8,9 @@ import { FooterComponent } from '../../components/footer/footer.component';
 import { ClientService } from '../../services/client.service';
 import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
+import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
+
 @Component({
   selector: 'app-login',
   imports: [
@@ -43,6 +45,7 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
 
   // Si llegaron desde /checkout sin sesión, después de entrar vuelven allí
   private goAfterClientAuth(clientId: number): void {
@@ -170,6 +173,7 @@ export class LoginComponent {
         console.log('Cliente creado:', createdClient);
 
         this.auth.setSession(createdClient);
+        this.toast.show('Cuenta creada correctamente');
         this.goByRole(createdClient);
       },
       error: (error) => {
