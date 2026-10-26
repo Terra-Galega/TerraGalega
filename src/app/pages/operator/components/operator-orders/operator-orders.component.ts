@@ -3,6 +3,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { finalize } from 'rxjs';
 import { OrderService } from '../../../../services/order.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
+import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
 import {
   OrderStatus,
   OrderSummary,
@@ -36,8 +37,9 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
 
 @Component({
   selector: 'app-operator-orders',
-  imports: [DatePipe, DecimalPipe, ButtonComponent],
+  imports: [DatePipe, DecimalPipe, ButtonComponent, OrderProgressComponent],
   templateUrl: './operator-orders.component.html',
+  styleUrl: './operator-orders.component.scss',
 })
 export class OperatorOrdersComponent {
   private orderService = inject(OrderService);
@@ -49,6 +51,10 @@ export class OperatorOrdersComponent {
   orders: OrderSummary[] = [];
 
   errorMessage = '';
+
+  // Aviso temporal (toast) que se muestra al completar un pedido
+  toastMessage = '';
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Order with a request in flight, to avoid double clicks
   busyOrderId: number | null = null;
@@ -100,13 +106,37 @@ export class OperatorOrdersComponent {
     this.busyOrderId = orderSummary.id;
 
     request$.pipe(finalize(() => (this.busyOrderId = null))).subscribe({
-      next: () => this.orderService.refresh(),
+      next: () => {
+        this.orderService.refresh();
+
+        if (action === 'deliver') {
+          this.showToast(`El pedido #${orderSummary.id} fue completado exitosamente.`);
+        }
+      },
       error: (error) => {
         console.error('Error updating order:', error);
         this.errorMessage =
           error.error?.message ?? 'No se pudo actualizar el pedido.';
       },
     });
+  }
+
+  showToast(message: string) {
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+
+    this.toastMessage = message;
+    this.toastTimer = setTimeout(() => this.closeToast(), 4500);
+  }
+
+  closeToast() {
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+      this.toastTimer = null;
+    }
+
+    this.toastMessage = '';
   }
 
   actionLabel(orderSummary: OrderSummary): string | null {

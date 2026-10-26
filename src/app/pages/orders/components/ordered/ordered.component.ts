@@ -14,12 +14,18 @@ import {
   getErrorMessage,
 } from '../../../../components/modal/modal.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
+import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
 
 @Component({
   selector: 'app-ordered',
-  imports: [DatePipe, DecimalPipe, ModalComponent, ButtonComponent],
+  imports: [
+    DatePipe,
+    DecimalPipe,
+    ModalComponent,
+    ButtonComponent,
+    OrderProgressComponent,
+  ],
   templateUrl: './ordered.component.html',
-  styleUrl: './ordered.component.scss',
 })
 export class OrderedComponent {
   @Input() orders: Order[] = [];

@@ -1,51 +1,33 @@
 <header
-  class="sticky top-0 z-10 border-b"
+  class="sticky top-0 z-10"
   style="
-    background-color: rgba(245, 242, 235, 0.85);
-    backdrop-filter: blur(16px);
-    border-color: rgba(44, 44, 44, 0.08);
-    box-shadow: 0 4px 24px rgba(44, 44, 44, 0.05);
+    background-color: rgba(245, 242, 235, 0.88);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid rgba(44, 44, 44, 0.08);
   "
 >
-  <div
-    class="max-w-7xl mx-auto h-[68px] px-8 flex items-center justify-between"
-  >
-    <!-- Marca y portal -->
-    <div class="flex items-center gap-5">
-      <a class="flex flex-col items-start leading-none select-none">
-        <span class="font-terra text-3xl leading-[0.6] text-charcoal">
-          Terra
-        </span>
+  <div class="max-w-7xl mx-auto h-20 px-8 flex items-center justify-between">
+    <!-- Marca + portal -->
+    <div class="flex items-center gap-4">
+      <a class="flex flex-col items-start leading-none select-none" aria-label="Terra Galega">
+        <span class="font-terra text-2xl leading-[0.6] text-charcoal">Terra</span>
         <span
-          class="font-galega text-[11px] tracking-[0.22em] uppercase font-semibold -mt-1 text-charcoal"
+          class="font-galega text-sm tracking-[0.22em] uppercase font-semibold -mt-1 text-charcoal"
         >
           Galega
         </span>
       </a>
 
       <span
-        class="hidden sm:block h-7 w-px"
-        style="background-color: rgba(44, 44, 44, 0.12)"
+        class="hidden sm:block h-8 w-px"
+        style="background-color: rgba(44, 44, 44, 0.14)"
       ></span>
 
       <span
-        class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium tracking-widest uppercase"
-        style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f"
+        class="hidden sm:block text-base font-medium"
+        style="color: rgba(44, 44, 44, 0.6)"
       >
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 12h6M9 16h4"
-          />
-        </svg>
         Portal del operador
       </span>
     </div>
@@ -54,36 +36,22 @@
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-3">
         <div
-          class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white"
-          style="
-            background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
-            box-shadow: 0 4px 14px rgba(178, 87, 31, 0.3);
-          "
+          class="w-11 h-11 rounded-full flex items-center justify-center text-base font-semibold text-white"
+          style="background-color: #b2571f"
+          aria-hidden="true"
         >
           {{ operatorName.charAt(0).toUpperCase() }}
         </div>
 
-        <div class="hidden sm:block leading-tight">
-          <p class="text-sm font-medium text-charcoal">&#64;{{ operatorUsername }}</p>
-          <p
-            class="text-[11px] flex items-center gap-1.5"
-            style="color: rgba(44, 44, 44, 0.5)"
-          >
-            <span
-              class="w-1.5 h-1.5 rounded-full"
-              style="background-color: #556141"
-            ></span>
-            Operador
+        <div class="hidden md:block leading-tight">
+          <p class="text-[15px] font-semibold text-charcoal">{{ operatorName }}</p>
+          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.55)">
+            &#64;{{ operatorUsername }}
           </p>
         </div>
       </div>
 
-      <span
-        class="h-7 w-px"
-        style="background-color: rgba(44, 44, 44, 0.12)"
-      ></span>
-
-      <app-button size="sm" variant="neutral" (click)="logoutClicked.emit()">
+      <app-button size="md" variant="neutral" (click)="logoutClicked.emit()">
         <svg
           width="15"
           height="15"

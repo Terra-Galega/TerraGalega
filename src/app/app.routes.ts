@@ -53,6 +53,11 @@ export const routes: Routes = [
     canActivate: [clientAreaGuard],
   },
   {
+    path: 'checkout/confirm',
+    component: CheckoutConfirmComponent,
+    canActivate: [clientAreaGuard],
+  },
+  {
     path: 'login',
     component: LoginComponent,
     canActivate: [clientAreaGuard],
@@ -91,14 +96,5 @@ export const routes: Routes = [
     component: ErrorComponent,
     data: { message: 'La página que buscas no existe.' },
   },
-  {
-    path: 'checkout',
-    component: CheckoutComponent,
-    canActivate: [clientAreaGuard],
-  },
-  {
-    path: 'checkout/confirmar',
-    component: CheckoutConfirmComponent,
-    canActivate: [clientAreaGuard],
-  },
+
 ];

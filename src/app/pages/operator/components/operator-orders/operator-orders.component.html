@@ -1,108 +1,204 @@
 <div>
   @if (errorMessage) {
-    <p class="mb-4 text-sm" style="color: #da5858">{{ errorMessage }}</p>
+    <p
+      class="mb-5 px-4 py-3 rounded-xl text-sm"
+      style="color: #8a2222; background-color: rgba(138, 34, 34, 0.08)"
+      role="alert"
+    >
+      {{ errorMessage }}
+    </p>
   }
 
   @if (orders.length === 0) {
-    <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
-      No hay pedidos activos.
-    </p>
+    <div class="flex flex-col items-center text-center py-20">
+      <div
+        class="w-14 h-14 rounded-full flex items-center justify-center mb-4"
+        style="background-color: rgba(85, 97, 65, 0.1); color: #556141"
+      >
+        <svg
+          width="26"
+          height="26"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <p class="text-lg font-semibold text-charcoal">Todo al día</p>
+      <p class="mt-1 text-[15px]" style="color: rgba(44, 44, 44, 0.55)">
+        No hay pedidos activos por ahora.
+      </p>
+    </div>
   } @else {
-    <div
-      class="rounded-2xl overflow-x-auto"
-      style="
-        background-color: rgba(255, 255, 255, 0.72);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.55);
-      "
-    >
-      <table class="w-full text-left text-sm">
-        <thead>
-          <tr
-            class="text-[11px] uppercase tracking-widest"
-            style="color: rgba(44, 44, 44, 0.45)"
+    <ul class="space-y-4">
+      @for (order of orders; track order.id) {
+        <li>
+          <article
+            class="rounded-2xl p-6 cursor-pointer transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b2571f]"
+            style="
+              background-color: #ffffff;
+              border: 1px solid rgba(44, 44, 44, 0.08);
+              box-shadow: 0 1px 2px rgba(44, 44, 44, 0.04);
+            "
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'Ver detalle del pedido ' + order.id"
+            (click)="detailRequested.emit(order.id)"
+            (keydown.enter)="detailRequested.emit(order.id)"
           >
-            <th class="px-6 py-4 font-medium">Pedido</th>
-            <th class="px-4 py-4 font-medium">Cliente</th>
-            <th class="px-4 py-4 font-medium">Estado</th>
-            <th class="px-4 py-4 font-medium">Domiciliario</th>
-            <th class="px-4 py-4 font-medium text-right">Total</th>
-            <th class="px-6 py-4"></th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @for (order of orders; track order.id) {
-            <tr
-              class="border-t align-middle cursor-pointer hover:bg-white/60"
-              style="border-color: rgba(44, 44, 44, 0.08)"
-              (click)="detailRequested.emit(order.id)"
-            >
-              <td class="px-6 py-4">
-                <p
-                  class="font-mono font-semibold"
-                  style="color: rgba(44, 44, 44, 0.55)"
-                >
-                  #{{ order.id }}
+            <!-- Encabezado: cliente y total -->
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="text-xs font-medium" style="color: rgba(44, 44, 44, 0.5)">
+                  Pedido #{{ order.id }} · {{ order.createdAt | date: "dd MMM, HH:mm" }}
                 </p>
-                <p style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
-                  {{ order.createdAt | date: "dd MMM, HH:mm" }}
-                </p>
-              </td>
-
-              <td class="px-4 py-4">
-                <p class="font-medium text-charcoal">
+                <h2 class="mt-1 text-lg font-semibold text-charcoal truncate">
                   {{ clientName(order) }}
-                </p>
-                <p style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
-                  {{ order.address }}
-                </p>
-              </td>
-
-              <td class="px-4 py-4">
-                <span
-                  class="inline-block text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap"
-                  [style.color]="statusColors[order.status]"
-                  style="
-                    background-color: color-mix(
-                      in srgb,
-                      currentColor 12%,
-                      transparent
-                    );
-                  "
+                </h2>
+                <p
+                  class="mt-0.5 flex items-center gap-1.5 text-sm"
+                  style="color: rgba(44, 44, 44, 0.6)"
                 >
-                  {{ statusLabels[order.status] }}
-                </span>
-              </td>
+                  <svg
+                    class="flex-shrink-0"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z" />
+                    <circle cx="12" cy="10" r="2.5" />
+                  </svg>
+                  <span class="truncate">{{ order.address }}</span>
+                </p>
+              </div>
 
-              <td class="px-4 py-4" style="color: rgba(44, 44, 44, 0.65)">
-                {{ deliveryPersonName(order) }}
-              </td>
-
-              <td
-                class="px-4 py-4 text-right font-bold whitespace-nowrap"
-                style="color: #b2571f"
-              >
+              <p class="text-xl font-bold whitespace-nowrap" style="color: #b2571f">
                 ${{ order.total | number: "1.0-0" }}
-              </td>
+              </p>
+            </div>
 
-              <td class="px-6 py-4">
-                @if (actionLabel(order); as label) {
-                  <div class="w-32 ml-auto">
-                    <app-button
-                      size="sm"
-                      [fullWidth]="true"
-                      (click)="$event.stopPropagation(); onAction(order)"
-                    >
-                      {{ busyOrderId === order.id ? "Procesando…" : label }}
-                    </app-button>
-                  </div>
+            <!-- Progreso -->
+            <div class="mt-6">
+              <app-order-progress [status]="order.status"></app-order-progress>
+            </div>
+
+            <!-- Pie: domiciliario y acción -->
+            <div
+              class="mt-6 pt-4 flex flex-wrap items-center justify-between gap-3"
+              style="border-top: 1px solid rgba(44, 44, 44, 0.08)"
+            >
+              <p
+                class="flex items-center gap-2 text-sm"
+                style="color: rgba(44, 44, 44, 0.65)"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21a8 8 0 0116 0" />
+                </svg>
+                @if (order.deliveryPersonName) {
+                  Domiciliario:
+                  <span class="font-medium text-charcoal">
+                    {{ order.deliveryPersonName }}
+                  </span>
+                } @else {
+                  Sin domiciliario asignado
                 }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+              </p>
+
+              @if (actionLabel(order); as label) {
+                <div class="w-full sm:w-36">
+                  <app-button
+                    size="sm"
+                    [fullWidth]="true"
+                    (click)="$event.stopPropagation(); onAction(order)"
+                  >
+                    {{ busyOrderId === order.id ? "Procesando…" : label }}
+                  </app-button>
+                </div>
+              }
+            </div>
+          </article>
+        </li>
+      }
+    </ul>
+  }
+
+  <!-- Aviso al completar un pedido -->
+  @if (toastMessage) {
+    <div
+      class="toast fixed left-1/2 bottom-8 z-50 w-[calc(100%-2rem)] max-w-md flex items-center gap-4 rounded-2xl pl-4 pr-3 py-3.5"
+      style="
+        background-color: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(44, 44, 44, 0.08);
+        box-shadow: 0 12px 40px rgba(44, 44, 44, 0.18), 0 2px 6px rgba(44, 44, 44, 0.06);
+      "
+      role="status"
+      aria-live="polite"
+    >
+      <span
+        class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+        style="background-color: #556141"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#ffffff"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 13l4 4L19 7" />
+        </svg>
+      </span>
+
+      <div class="min-w-0 flex-1">
+        <p class="text-[15px] font-semibold text-charcoal">Pedido completado</p>
+        <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
+          {{ toastMessage }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-black/5"
+        style="color: rgba(44, 44, 44, 0.5)"
+        aria-label="Cerrar aviso"
+        (click)="closeToast()"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        >
+          <path d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
   }
 </div>

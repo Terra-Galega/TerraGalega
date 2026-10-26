@@ -217,7 +217,7 @@ export class CheckoutComponent implements OnInit {
       };
     }
 
-    this.router.navigate(['/checkout/confirmar']);
+    this.router.navigate(['/checkout/confirm']);
   }
 
   cancel(): void {
