@@ -2,14 +2,7 @@
   <app-navbar></app-navbar>
 
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
-    <app-page-header eyebrow="Pasarela de pago" title="Confirma y paga">
-      <p
-        class="text-[15px] md:text-right md:max-w-xs"
-        style="color: rgba(44, 44, 44, 0.7)"
-      >
-        Hola {{ clientName }}, estás a un paso de tu pedido.
-      </p>
-    </app-page-header>
+    <app-page-header eyebrow="Paso 1 de 2 · Pasarela de pago" title="Entrega y pago" />
 
     @if (items.length === 0) {
       <div class="glass-card rounded-3xl">
@@ -22,40 +15,56 @@
     } @else {
       <form
         [formGroup]="form"
-        (ngSubmit)="pay()"
-        class="grid grid-cols-1 md:grid-cols-5 gap-8"
+        (ngSubmit)="goToReview()"
+        class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start"
       >
-        <div class="md:col-span-2 flex flex-col gap-4">
+        <!-- Izquierda: dirección y método de pago -->
+        <div class="md:col-span-3 flex flex-col gap-10">
+          <app-delivery-address
+            [form]="form"
+            [error]="errors['address'] || ''"
+            [notice]="addressNotice"
+            [savedAddress]="savedAddress"
+            (useSavedAddress)="useSavedAddress()"
+          ></app-delivery-address>
+
+          <app-payment-form
+            [form]="form"
+            [errors]="errors"
+            (fillTestData)="fillTestData()"
+          ></app-payment-form>
+        </div>
+
+        <!-- Derecha: resumen y botón (queda fijo al hacer scroll en escritorio) -->
+        <aside class="md:col-span-2 md:sticky md:top-28">
           <app-order-summary
             [items]="items"
             [total]="total"
             [unitPrice]="unitPrice"
-          ></app-order-summary>
+          >
+            <div class="mt-6 flex flex-col items-center gap-4">
+              <app-button type="submit" size="lg" [fullWidth]="true">
+                Continuar
+              </app-button>
 
-          <app-delivery-address
-            [form]="form"
-            [addressError]="addressError"
-            [savedAddress]="savedAddress"
-            (fillTestData)="fillTestData()"
-            (useSavedAddress)="useSavedAddress()"
-          ></app-delivery-address>
-        </div>
-
-        <div class="md:col-span-3">
-          <app-payment-form
-            [form]="form"
-            [paying]="paying"
-            [cardError]="cardError"
-            [serverError]="serverError"
-            (cancel)="cancel()"
-          ></app-payment-form>
-        </div>
+              <button
+                type="button"
+                class="text-sm underline underline-offset-4 cursor-pointer"
+                style="color: rgba(44, 44, 44, 0.65)"
+                (click)="cancel()"
+              >
+                Cancelar compra
+              </button>
+            </div>
+          </app-order-summary>
+        </aside>
       </form>
     }
   </main>
 
   <app-footer></app-footer>
 </div>
+
 <app-modal
   [open]="showCancelModal"
   [title]="confirmTitle"

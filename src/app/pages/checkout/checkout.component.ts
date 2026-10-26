@@ -1,27 +1,25 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { ButtonComponent } from '../../components/button/button.component';
+import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
+import { ModalComponent } from '../../components/modal/modal.component';
 import { OrderSummaryComponent } from './components/order-summary/order-summary.component';
 import { DeliveryAddressComponent } from './components/delivery-address/delivery-address.component';
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
-import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
 import { AuthService } from '../../services/auth.service';
 import {
   CartItem,
   CartService,
   unavailableMessage,
 } from '../../services/cart.service';
-import { CheckoutService } from '../../services/checkout.service';
-import { CheckoutRequest } from '../../models/checkout';
-import { OrderService } from '../../services/order.service';
-import {
-  ModalComponent,
-  getErrorMessage,
-} from '../../components/modal/modal.component';
+import { CheckoutDraftService } from '../../services/checkout-draft.service';
 
+// Paso 1 del checkout: dirección de entrega y método de pago
 @Component({
   selector: 'app-checkout',
   imports: [
@@ -29,11 +27,12 @@ import {
     NavbarComponent,
     FooterComponent,
     PageHeaderComponent,
+    ButtonComponent,
+    EmptyStateComponent,
+    ModalComponent,
     OrderSummaryComponent,
     DeliveryAddressComponent,
     PaymentFormComponent,
-    EmptyStateComponent,
-    ModalComponent,
   ],
   templateUrl: './checkout.component.html',
 })
@@ -42,17 +41,16 @@ export class CheckoutComponent implements OnInit {
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
-  private checkoutService = inject(CheckoutService);
-  private orderService = inject(OrderService);
+  private draftService = inject(CheckoutDraftService);
+  private destroyRef = inject(DestroyRef);
 
-  clientId: number | null = null;
-  clientName = '';
   savedAddress = '';
 
-  paying = false;
-  addressError = false;
-  cardError = '';
-  serverError = '';
+  // Errores por campo: { address: '...', number: '...' }
+  errors: Record<string, string> = {};
+
+  // Una vez que se intentó continuar, los errores se actualizan mientras escribe
+  private submitted = false;
 
   showCancelModal = false;
   showErrorModal = false;
@@ -61,15 +59,19 @@ export class CheckoutComponent implements OnInit {
   confirmMessage =
     '¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará.';
 
-  errorTitle = 'No se pudo procesar el pedido';
+  errorTitle = '';
   errorMessage = '';
 
   form = this.fb.nonNullable.group({
     address: [''],
-    cardName: [''],
-    cardNumber: [''],
-    cardExpiry: [''],
-    cardCvv: [''],
+    method: ['' as 'cash' | 'card' | ''],
+    holder: [''],
+    documentType: ['CC'],
+    documentNumber: [''],
+    number: [''],
+    expiry: [''],
+    cvv: [''],
+    installments: [1],
   });
 
   ngOnInit(): void {
@@ -81,21 +83,32 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    this.clientId = session.id;
-    this.clientName = session.name;
     this.savedAddress = session.address ?? '';
+
+    // Si el cliente vuelve desde el paso 2 (botón Editar) se recupera lo que
+    // había escrito; si no, la dirección guardada queda lista para editar.
+    const draft = this.draftService.draft;
+    this.form.patchValue({
+      ...draft,
+      address: draft.address || this.savedAddress,
+    });
+
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.submitted) {
+          this.errors = this.validate();
+        }
+      });
+
     // Antes de pagar se quitan los productos que ya no están disponibles
     this.cartService.removeUnavailable().subscribe((removed) => {
       if (removed.length > 0) {
-        this.showCartUpdated(removed);
+        this.errorTitle = 'Actualizamos tu carrito';
+        this.errorMessage = unavailableMessage(removed);
+        this.showErrorModal = true;
       }
     });
-  }
-
-  private showCartUpdated(removed: string[]): void {
-    this.errorTitle = 'Actualizamos tu carrito';
-    this.errorMessage = unavailableMessage(removed);
-    this.showErrorModal = true;
   }
 
   get items(): CartItem[] {
@@ -110,132 +123,110 @@ export class CheckoutComponent implements OnInit {
     return this.cartService.unitPrice(item);
   };
 
-  formatCardNumber(event: Event): void {
-    const digits = (event.target as HTMLInputElement).value
-      .replace(/\D/g, '')
-      .slice(0, 16);
-
-    this.form.controls.cardNumber.setValue(
-      digits.replace(/(.{4})/g, '$1 ').trim(),
+  // Aviso de que la dirección del perfil se va a actualizar
+  get addressNotice(): string {
+    return this.draftService.addressNotice(
+      this.form.controls.address.value,
+      this.savedAddress,
     );
   }
 
-  formatExpiry(event: Event): void {
-    const digits = (event.target as HTMLInputElement).value
-      .replace(/\D/g, '')
-      .slice(0, 4);
-
-    this.form.controls.cardExpiry.setValue(
-      digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits,
-    );
-  }
-
-  formatCvv(event: Event): void {
-    this.form.controls.cardCvv.setValue(
-      (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 3),
-    );
-  }
-
-  fillTestData(): void {
-    this.form.setValue({
-      address: 'Calle 123 #45-67, apto 8',
-      cardName: 'Juan García',
-      cardNumber: '4111 1111 1111 1111',
-      cardExpiry: '12/28',
-      cardCvv: '123',
-    });
-  }
   useSavedAddress(): void {
     this.form.controls.address.setValue(this.savedAddress);
-    this.addressError = false;
   }
 
-  pay(): void {
-    this.addressError = false;
-    this.cardError = '';
-    this.serverError = '';
+  // Solo para pruebas: llena la tarjeta con datos válidos
+  fillTestData(): void {
+    this.form.patchValue({
+      method: 'card',
+      address: this.form.controls.address.value || 'Calle 123 #45-67, apto 8',
+      holder: 'Juan García',
+      documentType: 'CC',
+      documentNumber: '1020304050',
+      number: '4111 1111 1111 1111',
+      expiry: '12/28',
+      cvv: '123',
+      installments: 1,
+    });
+  }
 
-    if (this.paying || this.clientId === null || this.items.length === 0) {
+  // Devuelve los errores de cada campo (vacío = todo bien)
+  private validate(): Record<string, string> {
+    const v = this.form.getRawValue();
+    const errors: Record<string, string> = {};
+
+    if (!v.address.trim()) {
+      errors['address'] =
+        'Escribe la dirección donde quieres recibir tu pedido.';
+    } else if (v.address.trim().length > this.draftService.addressMax) {
+      // Puede pasar si la dirección guardada en el perfil es más larga
+      errors['address'] = 'La dirección no puede superar 120 caracteres.';
+    }
+
+    if (!v.method) {
+      errors['method'] = 'Elige cómo quieres pagar.';
+    }
+
+    if (v.method === 'card') {
+      if (v.holder.trim().length < 3) {
+        errors['holder'] = 'Escribe el nombre como aparece en la tarjeta.';
+      }
+      if (v.documentNumber.trim().length < 5) {
+        errors['documentNumber'] = 'Escribe tu número de documento.';
+      }
+      if (v.number.replace(/\s/g, '').length !== 16) {
+        errors['number'] = 'El número de la tarjeta debe tener 16 dígitos.';
+      }
+      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(v.expiry)) {
+        errors['expiry'] = 'Escribe el vencimiento como MM/AA.';
+      }
+      if (v.cvv.length !== 3) {
+        errors['cvv'] = 'El código de seguridad debe tener 3 dígitos.';
+      }
+    }
+
+    return errors;
+  }
+
+  // Botón "Continuar": valida, guarda el borrador y pasa al paso 2
+  goToReview(): void {
+    this.submitted = true;
+    this.errors = this.validate();
+
+    if (Object.keys(this.errors).length > 0 || this.items.length === 0) {
       return;
     }
 
-    const { address, cardName, cardNumber, cardExpiry, cardCvv } =
-      this.form.getRawValue();
+    const v = this.form.getRawValue();
 
-    if (!address.trim()) {
-      this.addressError = true;
-      return;
-    }
-
-    const digits = cardNumber.replace(/\s/g, '');
-    const validExpiry = /^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry.trim());
-
-    if (
-      !cardName.trim() ||
-      digits.length < 13 ||
-      !validExpiry ||
-      cardCvv.length < 3
-    ) {
-      this.cardError = 'Revisa los datos de la tarjeta.';
-      return;
-    }
-
-    const request: CheckoutRequest = {
-      address: address.trim(),
-      items: this.items.map((item) => ({
-        productId: item.product.id,
-        quantity: item.quantity,
-        addOnIds: item.addOns.map((addOn) => addOn.id),
-      })),
+    this.draftService.draft = {
+      ...v,
+      address: v.address.trim(),
     };
 
-    this.paying = true;
+    // Con contra entrega no se guarda ningún dato de tarjeta
+    if (v.method === 'cash') {
+      this.draftService.draft = {
+        ...this.draftService.draft,
+        holder: '',
+        documentNumber: '',
+        number: '',
+        expiry: '',
+        cvv: '',
+        installments: 1,
+      };
+    }
 
-    this.checkoutService.checkout(this.clientId, request).subscribe({
-      next: () => {
-        this.cartService.clear();
-        this.orderService.refresh();
-
-        this.router.navigate(['/orders'], {
-          queryParams: { paid: true },
-        });
-      },
-      error: (error) => {
-        console.error('Error en el checkout:', error);
-
-        const serverMessage = getErrorMessage(
-          error,
-          'No se pudo procesar el pedido. Inténtalo de nuevo.',
-        );
-
-        this.paying = false;
-
-        // Si el pedido falló porque un producto dejó de estar disponible, se quita del carrito y se le avisa al cliente cuál fue
-        this.cartService.removeUnavailable().subscribe((removed) => {
-          if (removed.length > 0) {
-            this.showCartUpdated(removed);
-            return;
-          }
-
-          this.errorTitle = 'No se pudo procesar el pedido';
-          this.serverError = serverMessage;
-          this.errorMessage = serverMessage;
-          this.showErrorModal = true;
-        });
-      },
-    });
+    this.router.navigate(['/checkout/confirmar']);
   }
 
   cancel(): void {
-    if (this.paying) {
-      return;
-    }
-
     this.showCancelModal = true;
   }
 
   confirmCancel(): void {
     this.showCancelModal = false;
+    this.draftService.reset();
     this.router.navigate(['/menu']);
   }
 
@@ -246,7 +237,6 @@ export class CheckoutComponent implements OnInit {
   closeErrorModal(): void {
     this.showErrorModal = false;
     this.errorMessage = '';
-    this.serverError = '';
   }
 
   goToMenu(): void {
