@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { AddOn, CreateAddOn } from '../models/addOn';
+import { AddOn, AddOnOption, CreateAddOn } from '../models/addOn';
 
 @Injectable({
   providedIn: 'root',
@@ -30,8 +30,10 @@ export class AddOnService {
     return this.http.get<AddOn>(`${this.apiUrl}/${id}`);
   }
 
-  getActiveAddOnsByCategory(categoryId: number): Observable<AddOn[]> {
-    return this.http.get<AddOn[]>(`${this.apiUrl}/active/category/${categoryId}`);
+  getActiveAddOnsByCategory(categoryId: number): Observable<AddOnOption[]> {
+    return this.http.get<AddOnOption[]>(
+      `${this.apiUrl}/active/category/${categoryId}`,
+    );
   }
 
   createAddOn(addOn: CreateAddOn): Observable<AddOn> {

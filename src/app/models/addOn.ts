@@ -6,7 +6,14 @@ export interface AddOn {
   description: string;
   price: number;
   active: boolean;
-  categories?: Category[];
+  categories?: Pick<Category, 'id' | 'name'>[];
+}
+
+// Lo que necesita el cliente para elegir adicionales
+export interface AddOnOption {
+  id: number;
+  name: string;
+  price: number;
 }
 
 export type CreateAddOn = Omit<AddOn, 'id'>;

@@ -1,5 +1,3 @@
-import { Product } from './product';
-
 export type OrderStatus =
   | 'PENDING'
   | 'CONFIRMED'
@@ -22,18 +20,23 @@ export interface OrderAddOn {
   name: string;
   price: number;
 }
+// Lo único que el pedido necesita de cada producto
+export interface OrderProduct {
+  id: number;
+  name: string;
+  imageUrl?: string | null;
+}
 
 export interface OrderDetail {
   id: number;
-  product: Product;
+  product: OrderProduct;
   quantity: number;
   unitPrice: number;
   addOns: OrderAddOn[];
 }
-
 export interface Order {
   id: number;
-  client: {
+  client?: {
     id: number;
     name: string;
     lastName: string;
