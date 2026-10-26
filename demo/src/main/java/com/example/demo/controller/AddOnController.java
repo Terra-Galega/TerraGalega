@@ -5,11 +5,11 @@ import com.example.demo.dto.CategoryDTO;
 import com.example.demo.entities.AddOn;
 import com.example.demo.entities.Category;
 import com.example.demo.service.AddOnService;
-
+import com.example.demo.dto.AddOnOptionDTO;
+import com.example.demo.dto.CategoryRefDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,23 +25,27 @@ public class AddOnController {
 
     private AddOnDTO toDTO(AddOn addOn) {
         AddOnDTO dto = new AddOnDTO();
-
         dto.setId(addOn.getId());
         dto.setName(addOn.getName());
         dto.setDescription(addOn.getDescription());
         dto.setPrice(addOn.getPrice());
         dto.setActive(addOn.getActive());
-
         dto.setCategories(addOn.getCategories().stream()
                 .map(category -> {
-                    CategoryDTO categoryDTO = new CategoryDTO();
-                    categoryDTO.setId(category.getId());
-                    categoryDTO.setName(category.getName());
-                    categoryDTO.setDescription(category.getDescription());
-                    return categoryDTO;
+                    CategoryRefDTO ref = new CategoryRefDTO();
+                    ref.setId(category.getId());
+                    ref.setName(category.getName());
+                    return ref;
                 })
                 .collect(Collectors.toSet()));
+        return dto;
+    }
 
+    private AddOnOptionDTO toOptionDTO(AddOn addOn) {
+        AddOnOptionDTO dto = new AddOnOptionDTO();
+        dto.setId(addOn.getId());
+        dto.setName(addOn.getName());
+        dto.setPrice(addOn.getPrice());
         return dto;
     }
 
@@ -57,7 +61,7 @@ public class AddOnController {
         Set<Category> categories = new HashSet<>();
 
         if (dto.getCategories() != null) {
-            for (CategoryDTO categoryDTO : dto.getCategories()) {
+            for (CategoryRefDTO categoryDTO : dto.getCategories()) {
                 if (categoryDTO.getId() != null) {
                     Category category = new Category();
                     category.setId(categoryDTO.getId());
@@ -86,10 +90,10 @@ public class AddOnController {
 
     @Operation(summary = "Get active addons of a category")
     @GetMapping("/active/category/{categoryId}")
-    public Collection<AddOnDTO> getActiveAddOnsByCategory(
+    public Collection<AddOnOptionDTO> getActiveAddOnsByCategory(
             @PathVariable Integer categoryId) {
         return addOnService.getActiveAddOnsByCategory(categoryId)
-                .stream().map(this::toDTO).toList();
+                .stream().map(this::toOptionDTO).toList();
     }
 
     @Operation(summary = "Get addon by ID")

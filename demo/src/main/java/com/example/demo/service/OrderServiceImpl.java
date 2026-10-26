@@ -18,6 +18,7 @@ import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderDetailDTO;
+import com.example.demo.dto.OrderProductDTO;
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.dto.CategoryDTO;
 import com.example.demo.dto.AddOnOrderDTO;
@@ -54,6 +55,10 @@ public class OrderServiceImpl implements OrderService {
     private static final List<OrderStatus> FINISHED_STATUSES = List.of(
             OrderStatus.DELIVERED,
             OrderStatus.CANCELLED);
+
+    // Valor fijo del domicilio, se cobra en cada pedido (el front tiene el mismo
+    // valor)
+    private static final double DELIVERY_FEE = 6000.0;
 
     @Override
     @Transactional
@@ -135,6 +140,7 @@ public class OrderServiceImpl implements OrderService {
                 .status(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .address(request.getAddress())
+                .deliveryFee(DELIVERY_FEE)
                 .build();
 
         List<OrderDetail> details = new ArrayList<>();
@@ -354,6 +360,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDTO toDTO(Order order) {
+        return buildDTO(order, false);
+    }
+
+    @Override
+    @Transactional
+    public OrderDTO toDTOWithContact(Order order) {
+        return buildDTO(order, true);
+    }
+
+    private OrderDTO buildDTO(Order order, boolean includeContact) {
 
         // Volver a cargar el pedido dentro de la transacción
         order = repository.findById(order.getId())
@@ -368,29 +384,26 @@ public class OrderServiceImpl implements OrderService {
         dto.setAddress(order.getAddress());
         dto.setTotal(order.getTotal());
 
-        // Cliente
-        if (order.getClient() != null) {
-            ClientOrderDTO clientDTO = new ClientOrderDTO();
+        // Cliente y domiciliario: solo cuando la pantalla los necesita
+        if (includeContact) {
+            if (order.getClient() != null) {
+                ClientOrderDTO clientDTO = new ClientOrderDTO();
+                clientDTO.setId(order.getClient().getId());
+                clientDTO.setName(order.getClient().getName());
+                clientDTO.setLastName(order.getClient().getLastName());
+                clientDTO.setEmail(order.getClient().getEmail());
+                clientDTO.setPhone(order.getClient().getPhone());
+                dto.setClient(clientDTO);
+            }
 
-            clientDTO.setId(order.getClient().getId());
-            clientDTO.setName(order.getClient().getName());
-            clientDTO.setLastName(order.getClient().getLastName());
-            clientDTO.setEmail(order.getClient().getEmail());
-            clientDTO.setPhone(order.getClient().getPhone());
-
-            dto.setClient(clientDTO);
-        }
-
-        // Domiciliario
-        if (order.getDeliveryPerson() != null) {
-            DeliveryPersonOrderDTO deliveryDTO = new DeliveryPersonOrderDTO();
-
-            deliveryDTO.setId(order.getDeliveryPerson().getId());
-            deliveryDTO.setName(order.getDeliveryPerson().getName());
-            deliveryDTO.setLastName(order.getDeliveryPerson().getLastName());
-            deliveryDTO.setPhone(order.getDeliveryPerson().getPhone());
-
-            dto.setDeliveryPerson(deliveryDTO);
+            if (order.getDeliveryPerson() != null) {
+                DeliveryPersonOrderDTO deliveryDTO = new DeliveryPersonOrderDTO();
+                deliveryDTO.setId(order.getDeliveryPerson().getId());
+                deliveryDTO.setName(order.getDeliveryPerson().getName());
+                deliveryDTO.setLastName(order.getDeliveryPerson().getLastName());
+                deliveryDTO.setPhone(order.getDeliveryPerson().getPhone());
+                dto.setDeliveryPerson(deliveryDTO);
+            }
         }
 
         // Detalles del pedido
@@ -403,35 +416,12 @@ public class OrderServiceImpl implements OrderService {
             detailDTO.setQuantity(detail.getQuantity());
             detailDTO.setUnitPrice(detail.getUnitPrice());
 
-            // Producto
+            // Producto: solo lo que muestra la interfaz
             Product product = detail.getProduct();
-            ProductDTO productDTO = new ProductDTO();
-
+            OrderProductDTO productDTO = new OrderProductDTO();
             productDTO.setId(product.getId());
             productDTO.setName(product.getName());
-            productDTO.setDescription(product.getDescription());
-            productDTO.setPrice(product.getPrice());
             productDTO.setImageUrl(product.getImageUrl());
-            productDTO.setActive(product.getActive());
-            productDTO.setPopular(product.getPopular());
-            productDTO.setVegetarian(product.isVegetarian());
-            productDTO.setSpicyMild(product.isSpicyMild());
-            productDTO.setSpicyHot(product.isSpicyHot());
-            productDTO.setContainsNuts(product.isContainsNuts());
-            productDTO.setContainsSeafood(product.isContainsSeafood());
-            productDTO.setContainsGluten(product.isContainsGluten());
-
-            if (product.getCategory() != null) {
-                CategoryDTO categoryDTO = new CategoryDTO();
-
-                categoryDTO.setId(product.getCategory().getId());
-                categoryDTO.setName(product.getCategory().getName());
-                categoryDTO.setDescription(
-                        product.getCategory().getDescription());
-
-                productDTO.setCategory(categoryDTO);
-            }
-
             detailDTO.setProduct(productDTO);
 
             // Adicionales seleccionados para este producto
@@ -439,11 +429,9 @@ public class OrderServiceImpl implements OrderService {
 
             for (AddOn addOn : detail.getAddOns()) {
                 AddOnOrderDTO addOnDTO = new AddOnOrderDTO();
-
                 addOnDTO.setId(addOn.getId());
                 addOnDTO.setName(addOn.getName());
                 addOnDTO.setPrice(addOn.getPrice());
-
                 addOnDTOs.add(addOnDTO);
             }
 

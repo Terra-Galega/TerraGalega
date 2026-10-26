@@ -42,7 +42,7 @@ public class OrderController {
     @Operation(summary = "Get order by ID")
     @GetMapping("/{id}")
     public OrderDTO getOrderById(@PathVariable Integer id) {
-        return orderService.toDTO(orderService.getOrderById(id));
+        return orderService.toDTOWithContact(orderService.getOrderById(id));
     }
 
     @Operation(summary = "Get active orders for operator UI")

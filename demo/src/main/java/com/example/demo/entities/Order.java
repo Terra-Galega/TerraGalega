@@ -40,7 +40,7 @@ public class Order {
     @Column(unique = true, nullable = false)
     private Integer id;
 
-    //Solo los clientes hacen pedidos y  no tiene relación
+    // Solo los clientes hacen pedidos y no tiene relación
     // directa entre Order y Admin/Operator/DeliveryPerson, así que se asume que
     // "user" = "client" en la tabla Order.
     @JsonIgnoreProperties("password")
@@ -76,14 +76,16 @@ public class Order {
     @Column(nullable = false, length = 120)
     private String address;
 
+    // Costo del domicilio cobrado en este pedido (null en los pedidos anteriores)
+    @Column(nullable = true)
+    private Double deliveryFee;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderDetail> details = new ArrayList<>();
 
-    // No es columna, se calcula a partir de los
-    // OrderDetail en vez de guardarse, para que nunca quede desactualizado
-    // si cambia un detalle
-    public Double getTotal() {
+    // Suma de los productos y adicionales, sin domicilio
+    public Double getSubtotal() {
         return details.stream()
                 .mapToDouble(d -> {
                     double addOnsPrice = d.getAddOns().stream()
@@ -92,5 +94,10 @@ public class Order {
                     return (d.getUnitPrice() + addOnsPrice) * d.getQuantity();
                 })
                 .sum();
+    }
+
+    // No es columna, se calcula para que nunca quede desactualizado
+    public Double getTotal() {
+        return getSubtotal() + (deliveryFee != null ? deliveryFee : 0.0);
     }
 }

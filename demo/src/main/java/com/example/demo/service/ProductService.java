@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.entities.Product;
 import java.util.Collection;
+import java.util.List;
 
 public interface ProductService {
     Collection<Product> getAllProducts();
@@ -29,4 +30,7 @@ public interface ProductService {
     void deleteProduct(Integer id);
 
     Product toggleProductActive(Integer id);
+
+    // Ids de los productos activos, sin traer los productos completos
+    List<Integer> getActiveProductIds();
 }
