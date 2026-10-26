@@ -23,6 +23,7 @@ import { FeatureChipsComponent } from '../../../../components/feature-chips/feat
 import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
 import { AddonOptionComponent } from '../addon-option/addon-option.component';
 import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
+import { ToastService } from '../../../../services/toast.service';
 
 // Cada cuánto se vuelven a pedir los adicionales al servidor
 const REFRESH_MS = 10_000;
@@ -47,6 +48,7 @@ export class ProductInfoCardComponent implements OnInit {
   private productService = inject(ProductService);
   private addOnService = inject(AddOnService);
   private destroyRef = inject(DestroyRef);
+  private toast = inject(ToastService);
 
   @Input() product!: Product;
 
@@ -54,9 +56,6 @@ export class ProductInfoCardComponent implements OnInit {
   selectedAddOns: AddOnOption[] = [];
 
   quantity = 1;
-
-  // Muestra el mensaje "añadido" por unos segundos
-  added = false;
 
   // Evita agregar dos veces si se pulsa el botón mientras se verifica
   private verifying = false;
@@ -147,20 +146,18 @@ export class ProductInfoCardComponent implements OnInit {
         }
 
         // Se agrega con los datos que tiene el servidor ahora (precio actual)
-        this.cartService.addItem(
-          currentProduct,
-          this.quantity,
-          this.selectedAddOns,
-        );
+        const quantity = this.quantity;
+
+        this.cartService.addItem(currentProduct, quantity, this.selectedAddOns);
 
         // Limpiar la selección después de agregar el producto
         this.selectedAddOns = [];
         this.quantity = 1;
-        this.added = true;
 
-        setTimeout(() => {
-          this.added = false;
-        }, 2500);
+        this.toast.show(
+          'Añadido al carrito',
+          `${quantity}× ${currentProduct.name}`,
+        );
       },
       error: (error) => {
         this.verifying = false;

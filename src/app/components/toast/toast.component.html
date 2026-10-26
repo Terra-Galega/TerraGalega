@@ -1,0 +1,61 @@
+@if (toastService.toast(); as toast) {
+  <div
+    class="toast fixed left-1/2 bottom-8 z-50 w-[calc(100%-2rem)] max-w-md flex items-center gap-4 rounded-2xl pl-4 pr-3 py-3.5"
+    style="
+      background-color: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(44, 44, 44, 0.08);
+      box-shadow: 0 12px 40px rgba(44, 44, 44, 0.18), 0 2px 6px rgba(44, 44, 44, 0.06);
+    "
+    role="status"
+    aria-live="polite"
+  >
+    <span
+      class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+      style="background-color: #556141"
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M5 13l4 4L19 7" />
+      </svg>
+    </span>
+
+    <div class="min-w-0 flex-1">
+      <p class="text-[15px] font-semibold text-charcoal">{{ toast.title }}</p>
+      @if (toast.message) {
+        <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
+          {{ toast.message }}
+        </p>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-black/5"
+      style="color: rgba(44, 44, 44, 0.5)"
+      aria-label="Cerrar aviso"
+      (click)="toastService.close()"
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+      >
+        <path d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+}
