@@ -91,9 +91,9 @@ export class AdminCategoryModalComponent {
     });
   }
 
-  private onSuccess() {
+  private onSuccess(message: string) {
     this.categoryService.refresh();
-     this.toast.show(message);
+    this.toast.show(message);
     this.saved.emit();
     this.closed.emit();
   }
