@@ -10,7 +10,11 @@ import { AuthService } from '../../services/auth.service';
 import { Client } from '../../models/client';
 import { ClientService } from '../../services/client.service';
 import { ButtonComponent } from '../../components/button/button.component';
-import { ModalComponent, getErrorMessage } from '../../components/modal/modal.component';
+import {
+  ModalComponent,
+  getErrorMessage,
+} from '../../components/modal/modal.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-account',
@@ -31,13 +35,15 @@ export class AccountComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
 
   client: Client | null = null;
 
   showDeleteModal = false;
   showErrorModal = false;
   confirmTitle = 'Eliminar cuenta';
-  confirmMessage ='¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.';
+  confirmMessage =
+    '¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.';
   errorTitle = '';
   errorMessage = '';
 
@@ -95,9 +101,10 @@ export class AccountComponent implements OnInit {
     this.clientService.deleteClient(this.client.id).subscribe({
       next: () => {
         this.auth.logout();
+        this.toast.show('Cuenta eliminada correctamente');
         this.router.navigate(['/home']);
       },
-      error: (error) => { 
+      error: (error) => {
         console.error('Error eliminando cuenta:', error);
         this.errorTitle = 'No se pudo eliminar la cuenta';
         this.errorMessage = getErrorMessage(error);

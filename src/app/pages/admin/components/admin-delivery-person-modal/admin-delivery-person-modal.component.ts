@@ -15,7 +15,8 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
-// Si recibe un domiciliario es edición; si no, es creación.
+import { ToastService } from '../../../../services/toast.service';
+
 @Component({
   selector: 'app-admin-delivery-person-modal',
   imports: [
@@ -28,6 +29,7 @@ import { CheckOptionComponent } from '../../../../components/check-option/check-
 })
 export class AdminDeliveryPersonModalComponent implements OnInit {
   private deliveryPersonService = inject(DeliveryPersonService);
+  private toast = inject(ToastService);
 
   @Input() deliveryPerson: DeliveryPerson | null = null;
 
@@ -109,7 +111,8 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
       const updated: DeliveryPerson = { ...this.deliveryPerson, ...data };
 
       this.deliveryPersonService.updateDeliveryPerson(updated).subscribe({
-        next: () => this.onSuccess(),
+        next: () =>
+          this.onSuccess('Cambios del domiciliario guardados correctamente'),
         error: (error) => this.onError(error),
       });
 
@@ -120,13 +123,14 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
     const created: CreateDeliveryPerson = data;
 
     this.deliveryPersonService.addDeliveryPerson(created).subscribe({
-      next: () => this.onSuccess(),
+      next: () => this.onSuccess('Domiciliario creado correctamente'),
       error: (error) => this.onError(error),
     });
   }
 
-  private onSuccess() {
+  private onSuccess(message: string) {
     this.deliveryPersonService.refresh();
+    this.toast.show(message);
     this.closed.emit();
   }
 
@@ -139,5 +143,4 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
   close() {
     this.closed.emit();
   }
-
 }

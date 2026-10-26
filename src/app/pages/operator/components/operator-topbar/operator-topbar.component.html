@@ -1,33 +1,26 @@
-<header
-  class="sticky top-0 z-10"
-  style="
-    background-color: rgba(245, 242, 235, 0.88);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 1px solid rgba(44, 44, 44, 0.08);
-  "
->
+<header class="sticky top-0 z-10" style="
+    background-color: rgba(44, 44, 44, 0.96);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    border-bottom: 1px solid rgba(245, 242, 235, 0.08);
+    color: #f5f2eb;
+  ">
   <div class="max-w-7xl mx-auto h-20 px-8 flex items-center justify-between">
     <!-- Marca + portal -->
     <div class="flex items-center gap-4">
       <a class="flex flex-col items-start leading-none select-none" aria-label="Terra Galega">
-        <span class="font-terra text-2xl leading-[0.6] text-charcoal">Terra</span>
-        <span
-          class="font-galega text-sm tracking-[0.22em] uppercase font-semibold -mt-1 text-charcoal"
-        >
+        <span class="font-terra text-2xl leading-[0.6]" style="color: #f5f2eb">
+          Terra
+        </span>
+        <span class="font-galega text-sm tracking-[0.22em] uppercase font-semibold -mt-1" style="color: #f5f2eb">
           Galega
         </span>
       </a>
 
-      <span
-        class="hidden sm:block h-8 w-px"
-        style="background-color: rgba(44, 44, 44, 0.14)"
-      ></span>
+      <span class="hidden sm:block h-8 w-px" style="background-color: rgba(245, 242, 235, 0.2)"
+        aria-hidden="true"></span>
 
-      <span
-        class="hidden sm:block text-base font-medium"
-        style="color: rgba(44, 44, 44, 0.6)"
-      >
+      <span class="hidden sm:block text-base font-medium">
         Portal del operador
       </span>
     </div>
@@ -36,32 +29,24 @@
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-3">
         <div
-          class="w-11 h-11 rounded-full flex items-center justify-center text-base font-semibold text-white"
-          style="background-color: #b2571f"
-          aria-hidden="true"
-        >
+          class="w-11 h-11 rounded-full flex items-center justify-center text-base font-semibold text-white flex-shrink-0"
+          style="background-color: #b2571f" aria-hidden="true">
           {{ operatorName.charAt(0).toUpperCase() }}
         </div>
 
-        <div class="hidden md:block leading-tight">
-          <p class="text-[15px] font-semibold text-charcoal">{{ operatorName }}</p>
-          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.55)">
+        <div class="hidden md:block leading-tight min-w-0">
+          <p class="text-[15px] font-semibold truncate" style="color: #f5f2eb">
+            {{ operatorName }}
+          </p>
+          <p class="text-[13px]" style="color: rgba(245, 242, 235, 0.6)">
             &#64;{{ operatorUsername }}
           </p>
         </div>
       </div>
 
-      <app-button size="md" variant="neutral" (click)="logoutClicked.emit()">
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+      <app-button size="md" variant="glass-dark" (click)="logoutClicked.emit()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
         </svg>
         Cerrar sesión

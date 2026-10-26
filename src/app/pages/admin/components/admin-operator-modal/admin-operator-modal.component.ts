@@ -12,6 +12,7 @@ import { IconButtonComponent } from '../../../../components/icon-button/icon-but
 import { OperatorService } from '../../../../services/operator.service';
 import { CreateOperator, Operator, Role } from '../../../../models/operator';
 import { ButtonComponent } from '../../../../components/button/button.component';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-operator-modal',
@@ -25,6 +26,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 })
 export class AdminOperatorModalComponent {
   private operatorService = inject(OperatorService);
+  private toast = inject(ToastService);
 
   @Input() operator: Operator | null = null;
 
@@ -127,7 +129,8 @@ export class AdminOperatorModalComponent {
       };
 
       this.operatorService.updateOperator(updated).subscribe({
-        next: () => this.onSuccess(),
+        next: () =>
+          this.onSuccess('Cambios del operador guardados correctamente'),
         error: (error) => this.onError(error),
       });
 
@@ -146,12 +149,14 @@ export class AdminOperatorModalComponent {
     };
 
     this.operatorService.addOperator(created).subscribe({
-      next: () => this.onSuccess(),
+      next: () => this.onSuccess('Operador creado correctamente'),
       error: (error) => this.onError(error),
     });
   }
-  private onSuccess() {
+
+  private onSuccess(message: string) {
     this.operatorService.refresh();
+    this.toast.show(message);
     this.saved.emit();
     this.closed.emit();
   }
