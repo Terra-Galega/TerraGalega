@@ -13,11 +13,13 @@ import { AboutUsComponent } from './pages/about-us/about-us.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { adminGuard, clientAreaGuard, operatorGuard } from './guards/role.guards';
+import { CheckoutConfirmComponent } from './pages/checkout/checkout-confirm.component';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+
     canActivate: [clientAreaGuard],
   },
   {
@@ -88,5 +90,15 @@ export const routes: Routes = [
     path: '**',
     component: ErrorComponent,
     data: { message: 'La página que buscas no existe.' },
+  },
+  {
+    path: 'checkout',
+    component: CheckoutComponent,
+    canActivate: [clientAreaGuard],
+  },
+  {
+    path: 'checkout/confirmar',
+    component: CheckoutConfirmComponent,
+    canActivate: [clientAreaGuard],
   },
 ];

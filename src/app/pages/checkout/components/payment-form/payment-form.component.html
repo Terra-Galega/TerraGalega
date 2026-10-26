@@ -1,92 +1,176 @@
-<div [formGroup]="form">
-  <div class="glass-card rounded-3xl p-7">
-    <h2 class="font-serif text-xl font-semibold text-charcoal mb-1">
-      Datos de pago
-    </h2>
+<section [formGroup]="form">
+  <h2 class="font-serif text-xl font-semibold text-charcoal">Método de pago</h2>
+  <p class="text-[15px] mt-1 mb-4" style="color: rgba(44, 44, 44, 0.65)">
+    Elige cómo quieres pagar tu pedido.
+  </p>
 
-    <p class="text-[15px] mb-6" style="color: rgba(44, 44, 44, 0.65)">
-      Ingresa los datos de tu tarjeta de crédito/débito para finalizar el pago.
-    </p>
+  <!-- Opciones: por dentro son botones de radio, así funcionan con teclado -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Método de pago">
+    @for (option of methods; track option.value) {
+      <label
+        class="flex items-start gap-3 rounded-2xl p-4 cursor-pointer has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-terra"
+        [style.background-color]="method === option.value ? 'rgba(178, 87, 31, 0.06)' : 'rgba(255, 255, 255, 0.85)'"
+        [style.border]="method === option.value ? '1.5px solid #b2571f' : '1.5px solid rgba(44, 44, 44, 0.12)'"
+      >
+        <input type="radio" formControlName="method" [value]="option.value" class="sr-only" />
 
-    <div class="space-y-4">
-      <app-form-field label="Nombre en la tarjeta">
-        <input
-          type="text"
-          formControlName="cardName"
-          placeholder="Juan García"
-          autocomplete="cc-name"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-        />
-      </app-form-field>
+        <!-- Círculo de selección -->
+        <span
+          class="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+          [style.background-color]="method === option.value ? '#b2571f' : 'transparent'"
+          [style.border]="method === option.value ? '1.5px solid #b2571f' : '1.5px solid rgba(44, 44, 44, 0.3)'"
+        >
+          @if (method === option.value) {
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#ffffff">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+          }
+        </span>
 
-      <app-form-field label="Número de tarjeta">
-        <input
-          type="text"
-          formControlName="cardNumber"
-          placeholder="4111 1111 1111 1111"
-          inputmode="numeric"
-          maxlength="19"
-          autocomplete="cc-number"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-          (input)="formatCardNumber($event)"
-        />
-      </app-form-field>
-
-      <div class="grid grid-cols-2 gap-4">
-        <app-form-field label="Vencimiento">
-          <input
-            type="text"
-            formControlName="cardExpiry"
-            placeholder="MM/AA"
-            inputmode="numeric"
-            maxlength="5"
-            autocomplete="cc-exp"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-            (input)="formatExpiry($event)"
-          />
-        </app-form-field>
-
-        <app-form-field label="CVV">
-          <input
-            type="text"
-            formControlName="cardCvv"
-            placeholder="123"
-            inputmode="numeric"
-            maxlength="3"
-            autocomplete="cc-csc"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
-            (input)="formatCvv($event)"
-          />
-        </app-form-field>
-      </div>
-    </div>
-
-    @if (cardError || serverError) {
-      <p class="text-xs mt-4" style="color: #8a2222">
-        {{ cardError || serverError }}
-      </p>
+        <span class="min-w-0">
+          <span class="block font-semibold text-charcoal text-[15px]">{{ option.title }}</span>
+          <span class="block text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
+            {{ option.description }}
+          </span>
+        </span>
+      </label>
     }
-
-    <div class="mt-6">
-      <app-button
-        type="submit"
-        size="lg"
-        [fullWidth]="true"
-        [disabled]="paying"
-      >
-        {{ paying ? 'Procesando pago...' : 'Pagar' }}
-      </app-button>
-    </div>
-
-    <div class="mt-3">
-      <app-button
-        variant="neutral"
-        [fullWidth]="true"
-        [disabled]="paying"
-        (click)="cancel.emit()"
-      >
-        Cancelar compra
-      </app-button>
-    </div>
   </div>
-</div>
+
+  @if (errors['method']) {
+    <p class="text-sm mt-2" style="color: #8a2222">{{ errors['method'] }}</p>
+  }
+
+  <!-- Contra entrega: solo un aviso, no se pide nada más -->
+  @if (method === 'cash') {
+    <p class="text-sm mt-4" style="color: rgba(44, 44, 44, 0.7)">
+      Pagarás el total en efectivo cuando el domiciliario llegue con tu pedido.
+    </p>
+  }
+
+  <!-- Tarjeta: datos en un solo bloque, filas separadas por líneas finas -->
+  @if (method === 'card') {
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-[15px] font-semibold text-charcoal">Datos de la tarjeta</h3>
+        <button
+          type="button"
+          class="text-sm font-medium underline underline-offset-4 cursor-pointer"
+          style="color: #b2571f"
+          (click)="fillTestData.emit()"
+        >
+          Usar datos de prueba
+        </button>
+      </div>
+
+      <div
+        class="rounded-2xl overflow-hidden divide-y divide-charcoal/10"
+        style="background-color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(44, 44, 44, 0.12)"
+      >
+        <label class="block px-4 pt-2.5 pb-2" [style.background-color]="errors['holder'] ? 'rgba(138, 34, 34, 0.07)' : null">
+          <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Nombre del titular</span>
+          <input
+            type="text"
+            formControlName="holder"
+            placeholder="Como aparece en la tarjeta"
+            autocomplete="cc-name"
+            class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
+          />
+        </label>
+
+        <div class="grid grid-cols-3 divide-x divide-charcoal/10">
+          <label class="block px-4 pt-2.5 pb-2">
+            <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Documento</span>
+            <select
+              formControlName="documentType"
+              class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
+            >
+              <option value="CC">CC</option>
+              <option value="CE">CE</option>
+              <option value="PAS">Pasaporte</option>
+              <option value="NIT">NIT</option>
+            </select>
+          </label>
+
+          <label
+            class="block px-4 pt-2.5 pb-2 col-span-2"
+            [style.background-color]="errors['documentNumber'] ? 'rgba(138, 34, 34, 0.07)' : null"
+          >
+            <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Número de documento</span>
+            <input
+              type="text"
+              formControlName="documentNumber"
+              maxlength="12"
+              placeholder="1020304050"
+              class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
+            />
+          </label>
+        </div>
+
+        <label class="block px-4 pt-2.5 pb-2" [style.background-color]="errors['number'] ? 'rgba(138, 34, 34, 0.07)' : null">
+          <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Número de tarjeta</span>
+          <input
+            type="text"
+            formControlName="number"
+            inputmode="numeric"
+            maxlength="19"
+            placeholder="1234 5678 9012 3456"
+            autocomplete="cc-number"
+            class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
+            (input)="formatCardNumber($event)"
+          />
+        </label>
+
+        <div class="grid grid-cols-2 divide-x divide-charcoal/10">
+          <label class="block px-4 pt-2.5 pb-2" [style.background-color]="errors['expiry'] ? 'rgba(138, 34, 34, 0.07)' : null">
+            <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Vencimiento</span>
+            <input
+              type="text"
+              formControlName="expiry"
+              inputmode="numeric"
+              maxlength="5"
+              placeholder="MM/AA"
+              autocomplete="cc-exp"
+              class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
+              (input)="formatExpiry($event)"
+            />
+          </label>
+
+          <label class="block px-4 pt-2.5 pb-2" [style.background-color]="errors['cvv'] ? 'rgba(138, 34, 34, 0.07)' : null">
+            <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Código de seguridad</span>
+            <input
+              type="text"
+              formControlName="cvv"
+              inputmode="numeric"
+              maxlength="3"
+              placeholder="123"
+              autocomplete="cc-csc"
+              class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
+              (input)="formatCvv($event)"
+            />
+          </label>
+        </div>
+
+        <label class="block px-4 pt-2.5 pb-2">
+          <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Cuotas</span>
+          <select
+            formControlName="installments"
+            class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
+          >
+            @for (n of installments; track n) {
+              <option [ngValue]="n">{{ n === 1 ? 'Pago de contado' : n + ' cuotas' }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      @for (message of cardErrors; track message) {
+        <p class="text-sm mt-2" style="color: #8a2222">{{ message }}</p>
+      }
+
+      <p class="text-xs mt-3" style="color: rgba(44, 44, 44, 0.5)">
+        Entorno de pruebas: no se realiza ningún cobro real.
+      </p>
+    </div>
+  }
+</section>
