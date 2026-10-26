@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -105,6 +106,19 @@ public class AdminController {
     public Collection<ProductDTO> getPopularProducts() {
         return productService.getPopularProductsActive()
                 .stream().map(this::toDTO).toList();
+    }
+
+    @Operation(summary = "Get up to 3 active products of the same category")
+    @GetMapping("/{id}/related")
+    public Collection<ProductDTO> getRelatedProducts(@PathVariable Integer id) {
+        return productService.getRelatedProducts(id)
+                .stream().map(this::toDTO).toList();
+    }
+
+    @Operation(summary = "Get only the ids of active products")
+    @GetMapping("/active/ids")
+    public List<Integer> getActiveProductIds() {
+        return productService.getActiveProductIds();
     }
 
     @Operation(summary = "Add a new product")

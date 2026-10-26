@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +42,7 @@ public class ProductServiceImpl implements ProductService {
 
         return product;
     }
+
     @Override
     @Transactional
     public Product getActiveProductById(Integer id) {
@@ -64,12 +66,20 @@ public class ProductServiceImpl implements ProductService {
     public Collection<Product> getRelatedProducts(Integer id) {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
-        // Filtra los productos de la misma categoría (excluyendo el propio producto) y
-        // toma los primeros 3
-        return repository.findAll().stream()
-                .filter(p -> p.getCategory().equals(product.getCategory()) && !p.getId().equals(product.getId()))
-                .limit(3)
-                .collect(Collectors.toList());
+
+        if (product.getCategory() == null) {
+            return List.of();
+        }
+
+        // Solo activos de la misma categoría, sin el propio producto; máximo 3
+        return repository.findTop3ByCategoryIdAndActiveTrueAndIdNotOrderByIdAsc(
+                product.getCategory().getId(), product.getId());
+    }
+
+    @Override
+    @Transactional
+    public List<Integer> getActiveProductIds() {
+        return repository.findActiveIds();
     }
 
     // Validaciones de negocio compartidas por addProduct() y updateProduct().

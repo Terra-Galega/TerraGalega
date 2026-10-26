@@ -14,5 +14,5 @@ public class AddOnDTO {
     private String description;
     private Double price;
     private Boolean active;
-    private Set<CategoryDTO> categories;
+    private Set<CategoryRefDTO> categories;
 }
