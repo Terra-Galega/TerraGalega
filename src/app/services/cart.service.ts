@@ -2,15 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Product } from '../models/product';
-import { AddOn } from '../models/addOn';
 import { AuthService, Session } from './auth.service';
 import { ProductService } from './product.service';
+import { AddOnOption } from '../models/addOn';
 
 export interface CartItem {
   id: string;
   product: Product;
   quantity: number;
-  addOns: AddOn[];
+  addOns: AddOnOption[];
 }
 
 // Mensaje para avisar al cliente de los productos que se quitaron del carrito
@@ -50,7 +50,7 @@ export class CartService {
 
   // Si el mismo producto con los mismos adicionales ya está en el carrito,
   // se suma la cantidad en vez de crear otro registro
-  addItem(product: Product, quantity: number, addOns: AddOn[]) {
+  addItem(product: Product, quantity: number, addOns: AddOnOption[]) {
     const id = this.buildId(product, addOns);
     const exists = this.items.some((item) => item.id === id);
 
@@ -66,20 +66,24 @@ export class CartService {
 
     this.update(updated);
   }
+
+ 
   // Quita del carrito los productos que ya no están disponibles  y devuelve sus nombres.
   removeUnavailable(): Observable<string[]> {
     if (this.items.length === 0) return of([]);
 
-    return this.productService.getActiveProducts().pipe(
-      map((activeProducts) => {
-        const activeIds = new Set(activeProducts.map((p) => p.id));
+    return this.productService.getActiveProductIds().pipe(
+      map((ids) => {
+        const activeIds = new Set(ids);
 
         const unavailable = this.items.filter(
           (item) => !activeIds.has(item.product.id),
         );
         if (unavailable.length === 0) return [];
 
-        this.update(this.items.filter((item) => activeIds.has(item.product.id)));
+        this.update(
+          this.items.filter((item) => activeIds.has(item.product.id)),
+        );
 
         return [...new Set(unavailable.map((item) => item.product.name))];
       }),
@@ -115,7 +119,7 @@ export class CartService {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
-  private buildId(product: Product, addOns: AddOn[]): string {
+   private buildId(product: Product, addOns: AddOnOption[]): string {
     const addOnIds = addOns
       .map((addOn) => addOn.id)
       .sort((a, b) => a - b)
@@ -123,6 +127,7 @@ export class CartService {
 
     return `${product.id}:${addOnIds}`;
   }
+
 
   // Cada cliente tiene su llave; el resto (invitado, admin, operador,
   // domiciliario) usa la del invitado

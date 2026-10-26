@@ -21,7 +21,7 @@ import { CheckoutService } from '../../services/checkout.service';
 import { CheckoutDraftService } from '../../services/checkout-draft.service';
 import { ClientService } from '../../services/client.service';
 import { OrderService } from '../../services/order.service';
-import { CheckoutRequest } from '../../models/checkout';
+import { CheckoutRequest, DELIVERY_FEE } from '../../models/checkout';
 
 // Lo que dura el "Procesando pago..." de la pasarela simulada (milisegundos)
 const PAYMENT_DELAY_MS = 1500;
@@ -51,6 +51,7 @@ export class CheckoutConfirmComponent implements OnInit {
 
   clientId: number | null = null;
   savedAddress = '';
+  deliveryFee = DELIVERY_FEE;
 
   // Lo elegido en el paso 1
   draft = this.draftService.draft;

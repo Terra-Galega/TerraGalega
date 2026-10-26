@@ -10,6 +10,7 @@ import { groupAddOns } from '../../../../models/order';
 export class OrderSummaryComponent {
   @Input() items: any[] = [];
   @Input() total = 0;
+  @Input() deliveryFee = 0;
   @Input() unitPrice: (item: any) => number = () => 0;
   groupAddOns = groupAddOns;
 }

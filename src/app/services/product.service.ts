@@ -38,6 +38,14 @@ export class ProductService {
     return this.http.get<Product[]>(`${this.apiUrl}/popular`);
   }
 
+  getRelatedProducts(id: number): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/${id}/related`);
+  }
+
+  getActiveProductIds(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.apiUrl}/active/ids`);
+  }
+
   // =========================
   // CRUD
   // =========================

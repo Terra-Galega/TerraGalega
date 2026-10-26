@@ -13,7 +13,7 @@ import {
   timer,
 } from 'rxjs';
 import { Product } from '../../../../models/product';
-import { AddOn } from '../../../../models/addOn';
+import { AddOnOption } from '../../../../models/addOn';
 import { AuthService } from '../../../../services/auth.service';
 import { CartService } from '../../../../services/cart.service';
 import { ProductService } from '../../../../services/product.service';
@@ -50,8 +50,8 @@ export class ProductInfoCardComponent implements OnInit {
 
   @Input() product!: Product;
 
-  addons: AddOn[] = [];
-  selectedAddOns: AddOn[] = [];
+  addons: AddOnOption[] = [];
+  selectedAddOns: AddOnOption[] = [];
 
   quantity = 1;
 
@@ -73,7 +73,7 @@ export class ProductInfoCardComponent implements OnInit {
           const categoryId = this.product.category?.id;
 
           if (!categoryId) {
-            return of<AddOn[]>([]);
+            return of<AddOnOption[]>([]);
           }
 
           return this.addOnService.getActiveAddOnsByCategory(categoryId).pipe(
@@ -96,17 +96,17 @@ export class ProductInfoCardComponent implements OnInit {
   private syncSelectedAddOns(): void {
     this.selectedAddOns = this.selectedAddOns
       .map((selected) => this.addons.find((addOn) => addOn.id === selected.id))
-      .filter((addOn): addOn is AddOn => !!addOn);
+      .filter((addOn): addOn is AddOnOption => !!addOn);
   }
 
   // Cuántas unidades de este adicional hay seleccionadas
-  addOnQuantity(addOn: AddOn): number {
+  addOnQuantity(addOn: AddOnOption): number {
     return this.selectedAddOns.filter((selected) => selected.id === addOn.id)
       .length;
   }
 
   // delta = +1 agrega una unidad, delta = -1 quita una
-  changeAddOnQuantity(addOn: AddOn, delta: number): void {
+  changeAddOnQuantity(addOn: AddOnOption, delta: number): void {
     if (delta > 0) {
       this.selectedAddOns = [...this.selectedAddOns, addOn];
       return;

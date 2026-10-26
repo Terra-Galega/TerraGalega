@@ -70,14 +70,14 @@ export class ProductDetailComponent implements OnInit {
         filter(() => document.visibilityState === 'visible'),
         switchMap(() =>
           // lanza las dos peticiones a la vez y espera a que las dos
-          // terminen, entrega un solo objeto con los resultados { product, active }.
+          // terminen, entrega un solo objeto con los resultados
           forkJoin({
             // si esta petición falla, falla todo el forkJoin (sin producto
             // no hay nada que mostrar) y lo atrapa el catchError de más abajo
             product: this.productService.getProductById(id),
             // Si fallan los relacionados, se dejan los que ya se veían
-            active: this.productService
-              .getActiveProducts()
+            related: this.productService
+              .getRelatedProducts(id)
               .pipe(catchError(() => of(null))),
           }).pipe(
             catchError((error) => {
@@ -88,7 +88,7 @@ export class ProductDetailComponent implements OnInit {
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ product, active }) => {
+      .subscribe(({ product, related }) => {
         // El admin lo desactivó mientras se estaba viendo
         if (product.active === false) {
           this.showUnavailable();
@@ -97,18 +97,8 @@ export class ProductDetailComponent implements OnInit {
 
         this.product = product;
 
-        const categoryId = product.category?.id;
-
-        if (active) {
-          this.relatedProducts = categoryId
-            ? active
-                .filter(
-                  (relatedProduct) =>
-                    relatedProduct.id !== product.id &&
-                    relatedProduct.category?.id === categoryId,
-                )
-                .slice(0, 3)
-            : [];
+        if (related) {
+          this.relatedProducts = related;
         }
       });
   }

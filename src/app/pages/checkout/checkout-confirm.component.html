@@ -5,136 +5,97 @@
     <app-page-header eyebrow="Paso 2 de 2 · Pasarela de pago" title="Revisa tu pedido" />
 
     @if (items.length === 0) {
-      <div class="glass-card rounded-3xl">
-        <app-empty-state
-          message="Tu carrito está vacío. Agrega algo de la carta antes de pagar."
-          actionLabel="Explorar la carta"
-          (action)="goToMenu()"
-        ></app-empty-state>
-      </div>
+    <div class="glass-card rounded-3xl">
+      <app-empty-state message="Tu carrito está vacío. Agrega algo de la carta antes de pagar."
+        actionLabel="Explorar la carta" (action)="goToMenu()"></app-empty-state>
+    </div>
     } @else if (ready) {
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
-        <!-- Izquierda: lo que eligió el cliente, cada bloque con su "Editar" -->
-        <div class="md:col-span-3 flex flex-col gap-4">
-          <section class="glass-card rounded-3xl p-6">
-            <div class="flex items-start justify-between gap-4">
-              <div class="min-w-0">
-                <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Entrega</p>
-                <p class="text-[15px] font-medium text-charcoal mt-1 break-words">
-                  {{ draft.address }}
-                </p>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
+      <!-- Izquierda: lo que eligió el cliente, cada bloque con su "Editar" -->
+      <div class="md:col-span-3 flex flex-col gap-4">
+        <section class="glass-card rounded-3xl p-6">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Entrega</p>
+              <p class="text-[15px] font-medium text-charcoal mt-1 break-words">
+                {{ draft.address }}
+              </p>
 
-                @if (addressNotice) {
-                  <p class="text-sm mt-3" style="color: rgba(44, 44, 44, 0.7)">
-                    {{ addressNotice }}
-                  </p>
-                }
-              </div>
-
-              <button
-                type="button"
-                class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
-                style="color: #b2571f"
-                (click)="edit()"
-              >
-                Editar
-              </button>
-            </div>
-          </section>
-
-          <section class="glass-card rounded-3xl p-6">
-            <div class="flex items-start justify-between gap-4">
-              <div class="min-w-0">
-                <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Método de pago</p>
-
-                @if (draft.method === 'card') {
-                  <p class="text-[15px] font-medium text-charcoal mt-1">Tarjeta {{ lastDigits }}</p>
-                  <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
-                    {{ installmentsText }}
-                  </p>
-                } @else {
-                  <p class="text-[15px] font-medium text-charcoal mt-1">Contra entrega</p>
-                  <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
-                    Pagas en efectivo cuando recibas tu pedido.
-                  </p>
-                }
-              </div>
-
-              <button
-                type="button"
-                class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
-                style="color: #b2571f"
-                (click)="edit()"
-              >
-                Editar
-              </button>
-            </div>
-          </section>
-        </div>
-
-        <!-- Derecha: productos, total y confirmar -->
-        <aside class="md:col-span-2 md:sticky md:top-28">
-          <app-order-summary
-            [items]="items"
-            [total]="total"
-            [unitPrice]="unitPrice"
-          >
-            <div class="mt-6 flex flex-col items-center gap-4">
-              <app-button
-                size="lg"
-                [fullWidth]="true"
-                [disabled]="paying"
-                (click)="confirm()"
-              >
-                {{
-                  paying
-                    ? draft.method === "card"
-                      ? "Procesando pago..."
-                      : "Confirmando pedido..."
-                    : "Confirmar pedido"
-                }}
-              </app-button>
-
-              @if (serverError) {
-                <p class="text-sm text-center" style="color: #8a2222">{{ serverError }}</p>
+              @if (addressNotice) {
+              <p class="text-sm mt-3" style="color: rgba(44, 44, 44, 0.7)">
+                {{ addressNotice }}
+              </p>
               }
-
-              <button
-                type="button"
-                class="text-sm underline underline-offset-4 cursor-pointer"
-                style="color: rgba(44, 44, 44, 0.65)"
-                [disabled]="paying"
-                (click)="cancel()"
-              >
-                Cancelar compra
-              </button>
             </div>
-          </app-order-summary>
-        </aside>
+
+            <button type="button" class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
+              style="color: #b2571f" (click)="edit()">
+              Editar
+            </button>
+          </div>
+        </section>
+
+        <section class="glass-card rounded-3xl p-6">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Método de pago</p>
+
+              @if (draft.method === 'card') {
+              <p class="text-[15px] font-medium text-charcoal mt-1">Tarjeta {{ lastDigits }}</p>
+              <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
+                {{ installmentsText }}
+              </p>
+              } @else {
+              <p class="text-[15px] font-medium text-charcoal mt-1">Contra entrega</p>
+              <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
+                Pagas en efectivo cuando recibas tu pedido.
+              </p>
+              }
+            </div>
+
+            <button type="button" class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
+              style="color: #b2571f" (click)="edit()">
+              Editar
+            </button>
+          </div>
+        </section>
       </div>
+
+      <!-- Derecha: productos, total y confirmar -->
+      <aside class="md:col-span-2 md:sticky md:top-28">
+        <app-order-summary [items]="items" [total]="total" [deliveryFee]="deliveryFee" [unitPrice]="unitPrice">
+          <div class="mt-6 flex flex-col items-center gap-4">
+            <app-button size="lg" [fullWidth]="true" [disabled]="paying" (click)="confirm()">
+              {{
+              paying
+              ? draft.method === "card"
+              ? "Procesando pago..."
+              : "Confirmando pedido..."
+              : "Confirmar pedido"
+              }}
+            </app-button>
+
+            @if (serverError) {
+            <p class="text-sm text-center" style="color: #8a2222">{{ serverError }}</p>
+            }
+
+            <button type="button" class="text-sm underline underline-offset-4 cursor-pointer"
+              style="color: rgba(44, 44, 44, 0.65)" [disabled]="paying" (click)="cancel()">
+              Cancelar compra
+            </button>
+          </div>
+        </app-order-summary>
+      </aside>
+    </div>
     }
   </main>
 
   <app-footer></app-footer>
 </div>
 
-<app-modal
-  [open]="showCancelModal"
-  [title]="confirmTitle"
-  [message]="confirmMessage"
-  confirmLabel="Sí, cancelar compra"
-  cancelLabel="Continuar comprando"
-  variant="danger"
-  (confirm)="confirmCancel()"
-  (cancel)="closeCancelModal()"
-></app-modal>
+<app-modal [open]="showCancelModal" [title]="confirmTitle" [message]="confirmMessage" confirmLabel="Sí, cancelar compra"
+  cancelLabel="Continuar comprando" variant="danger" (confirm)="confirmCancel()"
+  (cancel)="closeCancelModal()"></app-modal>
 
-<app-modal
-  [open]="showErrorModal"
-  [title]="errorTitle"
-  [message]="errorMessage"
-  confirmLabel="Aceptar"
-  variant="error"
-  (confirm)="closeErrorModal()"
-  (cancel)="closeErrorModal()"
-></app-modal>
+<app-modal [open]="showErrorModal" [title]="errorTitle" [message]="errorMessage" confirmLabel="Aceptar" variant="error"
+  (confirm)="closeErrorModal()" (cancel)="closeErrorModal()"></app-modal>

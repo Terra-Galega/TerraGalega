@@ -21,10 +21,6 @@ export class OrderService {
     this.refreshSubject.next();
   }
 
-  getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(this.apiUrl);
-  }
-
   getOrdersByClient(clientId: number): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.apiUrl}/client/${clientId}`);
   }
