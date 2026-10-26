@@ -11,6 +11,7 @@ import { CategoryService } from '../../../../services/category.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-category-modal',
@@ -19,6 +20,7 @@ import { FormFieldComponent } from '../../../../components/form-field/form-field
 })
 export class AdminCategoryModalComponent {
   private categoryService = inject(CategoryService);
+  private toast = inject(ToastService);
 
   @Input() category: Category | null = null;
 
@@ -69,7 +71,8 @@ export class AdminCategoryModalComponent {
       };
 
       this.categoryService.updateCategory(updated).subscribe({
-        next: () => this.onSuccess(),
+        next: () =>
+          this.onSuccess('Cambios de la categoría guardados correctamente'),
         error: (error) => this.onError(error),
       });
 
@@ -83,13 +86,14 @@ export class AdminCategoryModalComponent {
     };
 
     this.categoryService.createCategory(created).subscribe({
-      next: () => this.onSuccess(),
+      next: () => this.onSuccess('Categoría creada correctamente'),
       error: (error) => this.onError(error),
     });
   }
 
   private onSuccess() {
     this.categoryService.refresh();
+     this.toast.show(message);
     this.saved.emit();
     this.closed.emit();
   }

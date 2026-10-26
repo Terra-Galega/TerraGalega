@@ -14,6 +14,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-addon-modal',
@@ -28,6 +29,7 @@ import { CheckOptionComponent } from '../../../../components/check-option/check-
 export class AdminAddonModalComponent {
   private addOnService = inject(AddOnService);
   private categoryService = inject(CategoryService);
+  private toast = inject(ToastService);
 
   @Input() addon: AddOn | null = null;
 
@@ -135,7 +137,8 @@ export class AdminAddonModalComponent {
       };
 
       this.addOnService.updateAddOn(updated).subscribe({
-        next: () => this.onSuccess(),
+        next: () =>
+          this.onSuccess('Cambios del adicional guardados correctamente'),
         error: (error) => this.onError(error),
       });
 
@@ -152,15 +155,14 @@ export class AdminAddonModalComponent {
     };
 
     this.addOnService.createAddOn(created).subscribe({
-      next: () => this.onSuccess(),
+      next: () => this.onSuccess('Adicional creado correctamente'),
       error: (error) => this.onError(error),
     });
   }
 
-  private onSuccess() {
+  private onSuccess(message: string) {
     this.addOnService.refresh();
-    // Las categorías muestran cuántos adicionales tienen
-    this.categoryService.refresh();
+    this.toast.show(message);
     this.saved.emit();
     this.closed.emit();
   }
