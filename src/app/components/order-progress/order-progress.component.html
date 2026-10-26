@@ -1,0 +1,89 @@
+@if (cancelled) {
+  <div
+    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-medium"
+    style="color: #8a2222; background-color: rgba(138, 34, 34, 0.08)"
+    role="status"
+  >
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+    >
+      <path d="M6 18L18 6M6 6l12 12" />
+    </svg>
+    Pedido cancelado
+  </div>
+} @else {
+  <ol class="flex w-full" aria-label="Progreso del pedido">
+    @for (step of steps; track step.label; let i = $index) {
+      <li
+        class="relative flex-1 flex flex-col items-center text-center"
+        [attr.aria-current]="step.state === 'current' ? 'step' : null"
+      >
+        <!-- Línea que une con el paso anterior -->
+        @if (i > 0) {
+          <span
+            class="absolute top-[11px] right-1/2 w-full h-0.5 rounded-full"
+            [style.background-color]="
+              step.state === 'upcoming' ? 'rgba(44, 44, 44, 0.12)' : '#556141'
+            "
+          ></span>
+        }
+
+        <!-- Punto del paso -->
+        <span
+          class="relative z-10 w-[22px] h-[22px] rounded-full flex items-center justify-center"
+          [style.background-color]="
+            step.state === 'done'
+              ? '#556141'
+              : step.state === 'current'
+                ? '#b2571f'
+                : '#ece9e1'
+          "
+          [style.border]="
+            step.state === 'upcoming' ? '1.5px solid rgba(44, 44, 44, 0.18)' : 'none'
+          "
+          [style.box-shadow]="
+            step.state === 'current' ? '0 0 0 4px rgba(178, 87, 31, 0.18)' : 'none'
+          "
+        >
+          @if (step.state === 'done') {
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ffffff"
+              stroke-width="3.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+          } @else if (step.state === 'current') {
+            <span class="w-2 h-2 rounded-full bg-white"></span>
+          }
+        </span>
+
+        <span
+          class="mt-2 px-0.5 text-[11px] sm:text-xs leading-tight"
+          [style.color]="
+            step.state === 'upcoming' ? 'rgba(44, 44, 44, 0.4)' : '#2c2c2c'
+          "
+          [style.font-weight]="step.state === 'current' ? 600 : 500"
+        >
+          {{ step.label }}
+          @if (step.state === 'done') {
+            <span class="sr-only"> (completado)</span>
+          } @else if (step.state === 'current') {
+            <span class="sr-only"> (paso actual)</span>
+          }
+        </span>
+      </li>
+    }
+  </ol>
+}

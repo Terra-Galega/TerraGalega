@@ -1,17 +1,19 @@
-<div
-  class="min-h-screen font-sans text-charcoal"
-  style="background-color: #ece9e1"
->
+<div class="min-h-screen font-sans text-charcoal" style="background-color: #f5f2eb">
   <app-operator-topbar
     [operatorName]="operatorName"
     [operatorUsername]="operatorUsername"
     (logoutClicked)="logout()"
   ></app-operator-topbar>
 
-  <main class="max-w-7xl mx-auto p-8">
-    <h1 class="font-serif text-2xl font-semibold text-charcoal mb-6">
-      Pedidos activos
-    </h1>
+  <main class="max-w-7xl mx-auto px-8 pt-10 pb-16">
+    <header class="mb-8">
+      <h1 class="font-serif text-3xl font-semibold text-charcoal">
+        Pedidos activos
+      </h1>
+      <p class="mt-1 text-[15px]" style="color: rgba(44, 44, 44, 0.6)">
+        Toca un pedido para ver el detalle y avanza su estado cuando esté listo.
+      </p>
+    </header>
 
     <app-operator-orders
       [operatorId]="operatorId"
