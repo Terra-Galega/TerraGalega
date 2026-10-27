@@ -1,8 +1,10 @@
 <div class="block">
+  <!-- Solo se dibuja la etiqueta cuando el padre ha indicado un texto. -->
   @if (label) {
-    <span class="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 mb-1.5">
-      {{ label }}
-    </span>
+  <span class="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 mb-1.5">
+    {{ label }}
+  </span>
   }
+  <!-- Aquí se proyecta el campo (input, select, textarea...) escrito dentro de <app-form-field>. -->
   <ng-content />
 </div>

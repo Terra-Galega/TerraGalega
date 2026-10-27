@@ -1,3 +1,4 @@
+// El avatar se ajusta al ancho de su contenido y no se encoge dentro de contenedores flex.
 :host {
   display: block;
   width: fit-content;

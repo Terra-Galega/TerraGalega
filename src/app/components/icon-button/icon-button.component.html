@@ -1,8 +1,5 @@
-<button
-  [type]="type"
-  [disabled]="disabled"
-  [attr.aria-label]="label"
-  [class]="'icon-btn icon-btn--' + variant"
->
+<!-- Botón de solo icono: el tipo, el estado y la etiqueta accesible llegan desde el componente padre. -->
+<button [type]="type" [disabled]="disabled" [attr.aria-label]="label" [class]="'icon-btn icon-btn--' + variant">
+  <!-- Proyecta el icono (normalmente un SVG) que se escriba dentro de <app-icon-button>. -->
   <ng-content />
 </button>
