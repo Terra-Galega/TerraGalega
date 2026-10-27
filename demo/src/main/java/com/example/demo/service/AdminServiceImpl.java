@@ -9,18 +9,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
+// Implementa las operaciones definidas en AdminService.
 @Service
 public class AdminServiceImpl implements AdminService {
 
+    // Repositorio encargado de acceder a los datos de los administradores.
     @Autowired
     private AdminRepository repository;
 
+    // Obtiene todos los administradores registrados en el repositorio.
     @Override
     @Transactional
     public Collection<Admin> getAllAdmins() {
         return repository.findAll();
     }
 
+    // Busca un administrador por su ID y lanza una excepción si no existe.
     @Override
     @Transactional
     public Admin getAdminById(Integer id) {
@@ -28,6 +32,7 @@ public class AdminServiceImpl implements AdminService {
                 .orElseThrow(() -> ApiException.notFound("El admin no existe."));
     }
 
+    // Valida el correo electrónico antes de guardar el nuevo administrador.
     @Override
     @Transactional
     public Admin addAdmin(Admin admin) {
@@ -35,6 +40,7 @@ public class AdminServiceImpl implements AdminService {
         return repository.save(admin);
     }
 
+    // Busca y devuelve el administrador asociado al correo electrónico proporcionado.
     @Override
     @Transactional
     public Admin findByEmail(String email) {

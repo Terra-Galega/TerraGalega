@@ -11,9 +11,11 @@ import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
 import com.example.demo.repository.OperatorRepository;
 
+// Implementa la autenticación y las comprobaciones de existencia de cuentas.
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    // Servicios utilizados para buscar clientes, administradores y operadores por correo.
     @Autowired
     private ClientService clientService;
 
@@ -23,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private OperatorService operatorService;
 
+    // Repositorios utilizados para comprobar si las cuentas siguen existiendo.
     @Autowired
     private ClientRepository clientRepository;
 
@@ -32,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private OperatorRepository operatorRepository;
 
-    // especificamos si la cuenta de una sesión abierta sigue existiendo
+    // Comprueba si la cuenta de una sesión abierta sigue existiendo según su tipo e ID.
     @Override
     public boolean sessionExists(String type, Integer id) {
         return switch (type) {
@@ -43,15 +46,15 @@ public class AuthServiceImpl implements AuthService {
         };
     }
 
-    // Mensaje cuando el admin desactivó la cuenta
+    // Mensaje que se devuelve cuando un operador intenta acceder con su cuenta desactivada.
     private static final String INACTIVE_ACCOUNT_MESSAGE = "Tu cuenta está desactivada. Contacta al administrador.";
 
+    // Busca al usuario por correo y valida sus credenciales según su tipo de cuenta.
     @Override
     public LoginResponseDTO login(String email, String password) {
 
-        // Devuelve null (no lanza excepción) cuando el correo no existe o la
-        // contraseña no coincide, AuthController lo convierte en el mensaje
-        // "Correo o contraseña incorrectos."
+        // Primero busca un cliente. Si las credenciales no coinciden, devuelve null
+        // para que el controlador gestione el mensaje de error de autenticación.
         Client client = clientService.findByEmail(email);
 
         if (client != null) {
@@ -61,33 +64,38 @@ public class AuthServiceImpl implements AuthService {
                     : null;
         }
 
+        // Si no encuentra un cliente, busca un administrador por correo electrónico.
         Admin admin = adminService.findByEmail(email);
 
         if (admin != null) {
-            // El admin no tiene dirección
+            // El administrador no tiene dirección, por eso se envía null en ese campo.
             return admin.getPassword().equals(password)
                     ? new LoginResponseDTO(admin.getId(), admin.getName(),
                             admin.getLastName(), null, admin.getRole())
                     : null;
         }
 
-        // Los operadores solo pueden iniciar sesión si el admin los tiene activos
+        // Si no encuentra un administrador, busca un operador.
+        // Los operadores solo pueden iniciar sesión si su cuenta está activa.
         Operator operator = operatorService.findByEmail(email);
 
         if (operator != null) {
+            // Verifica que la contraseña del operador coincida con la proporcionada.
             if (!operator.getPassword().equals(password)) {
                 return null;
             }
 
+            // Impide el acceso cuando la cuenta del operador está desactivada.
             if (!Boolean.TRUE.equals(operator.getActive())) {
                 throw ApiException.forbidden(INACTIVE_ACCOUNT_MESSAGE);
             }
 
-            // El operador no tiene dirección
+            // El operador no tiene dirección, por eso se envía null en ese campo.
             return new LoginResponseDTO(operator.getId(), operator.getName(),
                     operator.getLastName(), null, operator.getRole());
         }
 
+        // Devuelve null si no existe ninguna cuenta asociada al correo proporcionado.
         return null;
     }
 }
