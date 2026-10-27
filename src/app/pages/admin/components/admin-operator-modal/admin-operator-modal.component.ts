@@ -4,7 +4,6 @@ import {
   inject,
   Input,
   Output,
-  SimpleChange,
   SimpleChanges,
 } from '@angular/core';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
@@ -15,6 +14,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 import { ToastService } from '../../../../services/toast.service';
 import { getErrorMessage } from '../../../../utils/http-error';
 import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../../../utils/email';
+// Modal para crear o editar un operador: si recibe un operador funciona como edición; si no, como creación.
 @Component({
   selector: 'app-admin-operator-modal',
   imports: [
@@ -26,16 +26,22 @@ import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../../../utils/email';
   templateUrl: './admin-operator-modal.component.html',
 })
 export class AdminOperatorModalComponent {
+  // Servicio con las operaciones sobre operadores en el backend.
   private operatorService = inject(OperatorService);
+  // Muestra avisos temporales de éxito.
   private toast = inject(ToastService);
 
+  // Operador a editar; null indica que el modal se usa para crear uno nuevo.
   @Input() operator: Operator | null = null;
 
+  // Avisa al padre que debe cerrar el modal.
   @Output() closed = new EventEmitter<void>();
+  // Avisa al padre que el operador se guardó correctamente.
   @Output() saved = new EventEmitter<void>();
   // Le avisa al padre que cierre este modal y abra el de contraseña
   @Output() changePassword = new EventEmitter<void>();
 
+  // Campos del formulario; el estado activo es true por defecto.
   name = '';
   lastName = '';
   username = '';
@@ -43,13 +49,17 @@ export class AdminOperatorModalComponent {
   password = '';
   active = true;
 
+  // Mensaje de validación o de error del servidor que se muestra en el formulario.
   errorMessage = '';
 
+  // Cada vez que cambia el operador recibido, rellena el formulario con sus datos (edición) o lo deja vacío (creación).
   ngOnChanges(changes: SimpleChanges) {
+    // Ignora los cambios que no corresponden al operador.
     if (!changes['operator']) {
       return;
     }
 
+    // Limpia los errores de un uso anterior del modal.
     this.errorMessage = '';
 
     if (this.operator) {
@@ -61,6 +71,7 @@ export class AdminOperatorModalComponent {
       // el back no devuelve la contraseña, por lo que no podemos mostrarla en el formulario
       this.password = '';
     } else {
+      // Modo creación: formulario vacío y operador activo por defecto.
       this.name = '';
       this.lastName = '';
       this.username = '';
@@ -69,6 +80,7 @@ export class AdminOperatorModalComponent {
       this.password = '';
     }
   }
+  // Los siguientes métodos actualizan cada campo del formulario con el valor escrito o seleccionado por el usuario.
   setName(event: Event) {
     this.name = (event.target as HTMLInputElement).value;
   }
@@ -84,11 +96,14 @@ export class AdminOperatorModalComponent {
   setPassword(event: Event) {
     this.password = (event.target as HTMLInputElement).value;
   }
+  // El select entrega texto (true o false), por eso se convierte a booleano.
   setActive(event: Event) {
     this.active = (event.target as HTMLSelectElement).value === 'true';
   }
 
+  // Valida los campos antes de guardar; si algo falla deja el mensaje en errorMessage y devuelve false.
   private validateFields(): boolean {
+    // Nombre, apellido, usuario y correo son obligatorios.
     if (
       !this.name.trim() ||
       !this.lastName.trim() ||
@@ -99,10 +114,12 @@ export class AdminOperatorModalComponent {
         'Nombre, apellido, nombre de usuario y correo electrónico son obligatorios.';
       return false;
     }
+    // Comprueba el formato del correo electrónico.
     if (!isValidEmail(this.email)) {
       this.errorMessage = EMAIL_ERROR_MESSAGE;
       return false;
     }
+    // La contraseña solo es obligatoria al crear; al editar se cambia desde su propio modal.
     if (!this.operator && !this.password.trim()) {
       this.errorMessage =
         'La contraseña es obligatoria para crear un nuevo operador.';
@@ -111,15 +128,18 @@ export class AdminOperatorModalComponent {
     return true;
   }
 
+  // Valida y guarda: actualiza si hay un operador y crea uno nuevo en caso contrario.
   save() {
     this.errorMessage = '';
 
+    // Detiene el guardado si el formulario no es válido.
     if (!this.validateFields()) {
       return;
     }
 
     //EDITAR Operador
     if (this.operator) {
+      // Conserva los datos originales (id, rol, etc.) y sobrescribe los campos editados sin espacios sobrantes.
       const updated: Operator = {
         ...this.operator,
         name: this.name.trim(),
@@ -129,12 +149,14 @@ export class AdminOperatorModalComponent {
         active: this.active,
       };
 
+      // Envía los cambios al backend.
       this.operatorService.updateOperator(updated).subscribe({
         next: () =>
           this.onSuccess('Cambios del operador guardados correctamente'),
         error: (error) => this.onError(error),
       });
 
+      // Termina aquí para no ejecutar la creación.
       return;
     }
 
@@ -155,6 +177,7 @@ export class AdminOperatorModalComponent {
     });
   }
 
+  // Tras guardar: actualiza la lista de operadores, muestra el aviso y cierra el modal.
   private onSuccess(message: string) {
     this.operatorService.refresh();
     this.toast.show(message);
@@ -162,6 +185,7 @@ export class AdminOperatorModalComponent {
     this.closed.emit();
   }
 
+  // Muestra en el formulario el mensaje de error del servidor o uno genérico.
   private onError(error: any) {
     console.error('Error guardando operador:', error);
     this.errorMessage = getErrorMessage(
@@ -170,6 +194,7 @@ export class AdminOperatorModalComponent {
     );
   }
 
+  // Cierra el modal sin guardar.
   close() {
     this.closed.emit();
   }
