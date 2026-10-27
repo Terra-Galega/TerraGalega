@@ -18,7 +18,7 @@ import { FormSectionComponent } from '../form-section/form-section.component';
 })
 export class AccountFormComponent {
   @Input({ required: true }) form!: FormGroup;
-
+  @Input() errorMessage = '';
   @Output() save = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
   @Output() changePassword = new EventEmitter<void>();
