@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Admin } from '../models/admin';
 import { Role } from '../models/role';
+import { HttpClient } from '@angular/common/http';
+import { ClientDTO } from '../models/client';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
-
+  constructor(private http: HttpClient) {}
   private admins: Admin[] = [
     {
       id: 1,
@@ -29,4 +31,8 @@ export class AdminService {
   getAdmins(): Admin[] {
     return this.admins;
   }
+  getClientDTOAdmins() {
+    return this.http.get<ClientDTO[]>('http://localhost:8080/products/clients');
+  }
+
 }

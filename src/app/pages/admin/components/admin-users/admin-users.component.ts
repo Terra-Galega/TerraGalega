@@ -1,6 +1,7 @@
 import { Component, inject, Input, OnChanges } from '@angular/core';
 import { ClientService } from '../../../../services/client.service';
-import { Client } from '../../../../models/client';
+import { AdminService } from '../../../../services/admin.service';
+import { Client, ClientDTO } from '../../../../models/client';
 import { filter } from 'rxjs';
 
 @Component({
@@ -11,10 +12,11 @@ import { filter } from 'rxjs';
 })
 export class AdminUsersComponent implements OnChanges {
   private clientService = inject(ClientService);
+  private adminService = inject(AdminService);
   @Input() searchTerm = '';
 
-  clients: Client[] = [];
-  filteredClients: Client[] = [];
+  clients: ClientDTO[] = [];
+  filteredClients: ClientDTO[] = [];
 
   ngOnChanges() {
     this.filterClients();
@@ -38,9 +40,9 @@ export class AdminUsersComponent implements OnChanges {
   }
 
   loadClients() {
-    this.clientService.getClients().subscribe({
-      next: (clients) => {
-        this.clients = clients;
+    this.adminService.getClientDTOAdmins().subscribe({
+      next: (clientsD) => {
+        this.clients = clientsD;
         this.filterClients();
       },
       error: (error) => {
