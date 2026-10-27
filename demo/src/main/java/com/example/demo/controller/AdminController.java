@@ -1,7 +1,10 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.CategoryDTO;
+import com.example.demo.dto.CategoryRefDTO;
 import com.example.demo.dto.ProductDTO;
+import com.example.demo.dto.ProductOptionDTO;
+import com.example.demo.dto.ProductSummaryDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.entities.Product;
 import com.example.demo.service.CategoryService;
@@ -53,6 +56,33 @@ public class AdminController {
         return dto;
     }
 
+    // Versión para listados: la categoría va sin descripción
+    private ProductSummaryDTO toSummaryDTO(Product product) {
+        CategoryRefDTO category = null;
+
+        if (product.getCategory() != null) {
+            category = new CategoryRefDTO();
+            category.setId(product.getCategory().getId());
+            category.setName(product.getCategory().getName());
+        }
+
+        return new ProductSummaryDTO(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                category,
+                product.getImageUrl(),
+                product.getActive(),
+                product.getPopular(),
+                product.isVegetarian(),
+                product.isSpicyMild(),
+                product.isSpicyHot(),
+                product.isContainsNuts(),
+                product.isContainsSeafood(),
+                product.isContainsGluten());
+    }
+
     private Product toEntity(ProductDTO dto) {
         Product product = new Product();
 
@@ -83,16 +113,22 @@ public class AdminController {
 
     @Operation(summary = "Get all products")
     @GetMapping
-    public Collection<ProductDTO> getAllProducts() {
+    public Collection<ProductSummaryDTO> getAllProducts() {
         return productService.getAllProducts()
-                .stream().map(this::toDTO).toList();
+                .stream().map(this::toSummaryDTO).toList();
+    }
+
+    @Operation(summary = "Get only id and name of all products (filter dropdowns)")
+    @GetMapping("/options")
+    public List<ProductOptionDTO> getProductOptions() {
+        return productService.getProductOptions();
     }
 
     @Operation(summary = "Get all active products")
     @GetMapping("/active")
-    public Collection<ProductDTO> getActiveProducts() {
+    public Collection<ProductSummaryDTO> getActiveProducts() {
         return productService.getAllProductsActive()
-                .stream().map(this::toDTO).toList();
+                .stream().map(this::toSummaryDTO).toList();
     }
 
     @Operation(summary = "Get product by ID")
@@ -103,16 +139,16 @@ public class AdminController {
 
     @Operation(summary = "Get popular products")
     @GetMapping("/popular")
-    public Collection<ProductDTO> getPopularProducts() {
+    public Collection<ProductSummaryDTO> getPopularProducts() {
         return productService.getPopularProductsActive()
-                .stream().map(this::toDTO).toList();
+                .stream().map(this::toSummaryDTO).toList();
     }
 
     @Operation(summary = "Get up to 3 active products of the same category")
     @GetMapping("/{id}/related")
-    public Collection<ProductDTO> getRelatedProducts(@PathVariable Integer id) {
+    public Collection<ProductSummaryDTO> getRelatedProducts(@PathVariable Integer id) {
         return productService.getRelatedProducts(id)
-                .stream().map(this::toDTO).toList();
+                .stream().map(this::toSummaryDTO).toList();
     }
 
     @Operation(summary = "Get only the ids of active products")

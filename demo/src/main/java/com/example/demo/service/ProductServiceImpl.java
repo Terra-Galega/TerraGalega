@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.ProductOptionDTO;
 import com.example.demo.errors.ApiException;
 import com.example.demo.entities.OrderStatus;
 import com.example.demo.entities.Product;
@@ -81,6 +82,12 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public List<Integer> getActiveProductIds() {
         return repository.findActiveIds();
+    }
+
+    @Override
+    @Transactional
+    public List<ProductOptionDTO> getProductOptions() {
+        return repository.findOptions();
     }
 
     // Validaciones de negocio compartidas por addProduct() y updateProduct().

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.ProductOptionDTO;
 import com.example.demo.entities.Product;
 import java.util.Collection;
 import java.util.List;
@@ -33,4 +34,7 @@ public interface ProductService {
 
     // Ids de los productos activos, sin traer los productos completos
     List<Integer> getActiveProductIds();
+
+    // Solo id y nombre de todos los productos, para desplegables de filtro
+    List<ProductOptionDTO> getProductOptions();
 }
