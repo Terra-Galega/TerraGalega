@@ -15,6 +15,7 @@ import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
 import { getErrorMessage } from '../../utils/http-error';
 @Component({
   selector: 'app-account-edit',
+  // Componentes utilizados en la vista para mostrar y editar el perfil
   imports: [
     NavbarComponent,
     FooterComponent,
@@ -26,14 +27,17 @@ import { getErrorMessage } from '../../utils/http-error';
   templateUrl: './account-edit.component.html',
 })
 export class AccountEditComponent implements OnInit {
+  // Servicios utilizados para consultar y actualizar los datos del cliente
   private clientService = inject(ClientService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
 
+  // Almacena los datos del cliente que se está editando
   client: Client | null = null;
 
+  // Formulario reactivo con los campos editables del perfil
   form = new FormGroup({
     name: new FormControl(''),
     lastName: new FormControl(''),
@@ -42,9 +46,11 @@ export class AccountEditComponent implements OnInit {
     address: new FormControl(''),
   });
 
+  // Controla la apertura del modal de cambio de contraseña y los mensajes de error
   passwordModalOpen = false;
   errorMessage = '';
 
+  // Obtiene el cliente por su ID y carga sus datos en el formulario
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
@@ -52,6 +58,7 @@ export class AccountEditComponent implements OnInit {
       next: (client) => {
         this.client = client;
 
+        // Rellena el formulario con la información actual del cliente
         this.form.patchValue({
           name: client.name,
           lastName: client.lastName,
@@ -62,11 +69,13 @@ export class AccountEditComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error cargando cliente:', error);
+        // Si no se pueden cargar los datos, vuelve a la cuenta del cliente
         this.router.navigate(['/account', id]);
       },
     });
   }
 
+  // Valida los datos del formulario y guarda los cambios del perfil
   save(): void {
     if (!this.client) {
       return;
@@ -74,6 +83,7 @@ export class AccountEditComponent implements OnInit {
 
     const email = (this.form.value.email ?? '').trim();
 
+    // Comprueba que el correo ingresado tenga un formato válido
     if (!isValidEmail(email)) {
       this.errorMessage = EMAIL_ERROR_MESSAGE;
       return;
@@ -81,6 +91,7 @@ export class AccountEditComponent implements OnInit {
 
     this.errorMessage = '';
 
+    // Construye el objeto con los datos actualizados del cliente
     const updatedClient: Client = {
       ...this.client,
 
@@ -88,18 +99,21 @@ export class AccountEditComponent implements OnInit {
       lastName: this.form.value.lastName ?? '',
       email,
       phone: this.form.value.phone ?? '',
-      password: '', // la contraseña no se edita aquí
-      address: this.form.value.address ?? '', // se agrega la dirección al objeto actualizado
+      password: '', // La contraseña no se modifica desde este formulario
+      address: this.form.value.address ?? '', // Incluye la dirección en los datos actualizados
     };
 
+    // Envía los cambios al servidor y actualiza la sesión con la respuesta
     this.clientService.updateClient(updatedClient).subscribe({
       next: (savedClient) => {
         this.auth.setSession(savedClient);
         this.toast.show('Cambios guardados correctamente');
+        // Redirige al perfil después de guardar los cambios
         this.router.navigate(['/account', this.client!.id]);
       },
       error: (error) => {
         console.error('Error actualizando cliente:', error);
+        // Muestra un mensaje si ocurre un problema al guardar los cambios
         this.errorMessage = getErrorMessage(
           error,
           'No se pudieron guardar los cambios. Inténtalo de nuevo.',
@@ -108,6 +122,7 @@ export class AccountEditComponent implements OnInit {
     });
   }
 
+  // Cancela la edición y regresa al perfil del cliente
   cancel(): void {
     if (!this.client) {
       return;
@@ -116,6 +131,7 @@ export class AccountEditComponent implements OnInit {
     this.router.navigate(['/account', this.client.id]);
   }
 
+  // Solicita al servicio el cambio de contraseña del cliente
   savePassword = (current: string, next: string) =>
     this.clientService.changePassword(this.client!.id, current, next);
 }

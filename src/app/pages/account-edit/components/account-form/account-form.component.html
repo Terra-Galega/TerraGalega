@@ -1,10 +1,12 @@
+<!-- Formulario reactivo para editar la información de la cuenta -->
 <form
   [formGroup]="form"
   (ngSubmit)="save.emit()"
   class="glass-card rounded-3xl p-6 md:p-10 space-y-10"
 >
-  <!-- Datos personales -->
+  <!-- Sección para editar el nombre y el apellido del cliente -->
   <app-form-section title="Datos personales" tone="terra">
+    <!-- Icono de usuario -->
     <svg
       icon
       class="w-5 h-5"
@@ -20,6 +22,7 @@
       />
     </svg>
 
+    <!-- Campos de nombre y apellido organizados en dos columnas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <app-form-field label="Nombre">
         <input
@@ -41,8 +44,9 @@
     </div>
   </app-form-section>
 
-  <!-- Contacto -->
+  <!-- Sección para actualizar los datos de contacto -->
   <app-form-section title="Contacto" tone="gold">
+    <!-- Icono de correo electrónico -->
     <svg
       icon
       class="w-5 h-5"
@@ -58,6 +62,7 @@
       />
     </svg>
 
+    <!-- Campos para el correo electrónico, el teléfono y la dirección -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <app-form-field label="Correo electrónico">
         <input
@@ -77,6 +82,7 @@
         />
       </app-form-field>
 
+      <!-- Campo de dirección que ocupa todo el ancho disponible -->
       <app-form-field label="Dirección" class="sm:col-span-2">
         <input
           type="text"
@@ -88,8 +94,9 @@
     </div>
   </app-form-section>
 
-  <!-- Seguridad -->
+  <!-- Sección para gestionar la contraseña de la cuenta -->
   <app-form-section title="Seguridad" tone="sage">
+    <!-- Icono de seguridad -->
     <svg
       icon
       class="w-5 h-5"
@@ -105,6 +112,7 @@
       />
     </svg>
 
+    <!-- Explicación y botón para abrir el modal de cambio de contraseña -->
     <div class="flex items-center justify-between gap-4">
       <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
         Para cambiarla te pediremos tu contraseña actual.
@@ -119,17 +127,20 @@
       </app-button>
     </div>
 
+    <!-- Información sobre la conservación de la contraseña actual -->
     <p class="text-xs mt-2" style="color: rgba(44, 44, 44, 0.45)">
       Si la dejas vacía, conservaremos tu contraseña actual.
     </p>
   </app-form-section>
 
+  <!-- Muestra el mensaje de error cuando existe -->
   @if (errorMessage) {
     <p class="text-sm" style="color: #8a2222" role="alert">
       {{ errorMessage }}
     </p>
   }
-  <!-- Botones -->
+
+  <!-- Botones para cancelar la edición o guardar los cambios -->
   <div
     class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6"
     style="border-top: 1px solid rgba(44, 44, 44, 0.08)"

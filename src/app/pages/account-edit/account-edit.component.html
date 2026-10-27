@@ -1,8 +1,9 @@
+<!-- Barra de navegación principal -->
 <app-navbar></app-navbar>
 
 <div class="min-h-screen bg-cream font-sans text-charcoal">
   <main class="pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
-    <!-- Volver -->
+    <!-- Botón para cancelar la edición y volver al perfil -->
     <button
       type="button"
       (click)="cancel()"
@@ -25,12 +26,14 @@
       Volver a mi cuenta
     </button>
 
+    <!-- Encabezado de la página de edición del perfil -->
     <app-page-header
       eyebrow="Mi cuenta"
       title="Editar perfil"
     ></app-page-header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <!-- Resumen del perfil con los datos actuales del formulario -->
       <app-profile-summary
         class="lg:sticky lg:top-28"
         [name]="form.value.name ?? ''"
@@ -38,6 +41,7 @@
         [email]="form.value.email ?? ''"
       ></app-profile-summary>
 
+      <!-- Formulario para editar los datos personales y gestionar la contraseña -->
       <app-account-form
         class="lg:col-span-2"
         [form]="form"
@@ -50,8 +54,10 @@
   </main>
 </div>
 
+<!-- Pie de página -->
 <app-footer></app-footer>
 
+<!-- Muestra el modal de cambio de contraseña cuando está abierto y existe un cliente -->
 @if (passwordModalOpen && client) {
   <app-change-password-modal
     [userName]="client.name + ' ' + client.lastName"
