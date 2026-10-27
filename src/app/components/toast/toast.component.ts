@@ -7,5 +7,6 @@ import { ToastService } from '../../services/toast.service';
   styleUrl: './toast.component.scss',
 })
 export class ToastComponent {
+  //Injectar el servicio
   toastService = inject(ToastService);
 }

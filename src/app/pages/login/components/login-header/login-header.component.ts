@@ -8,7 +8,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class LoginHeaderComponent {
   @Input() activeTab: 'login' | 'signup' = 'login';
-
+  //eventos para cambiar de "pestaña"
   @Output() tabChange = new EventEmitter<'login' | 'signup'>();
 
   selectTab(tab: 'login' | 'signup') {

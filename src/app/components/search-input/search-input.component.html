@@ -1,4 +1,10 @@
-<div class="search relative" [class.search--glass]="variant === 'glass'" [class.search--soft]="variant === 'soft'">
+<!-- Contenedor: la clase cambia según la variante (glass o soft) -->
+<div
+  class="search relative"
+  [class.search--glass]="variant === 'glass'"
+  [class.search--soft]="variant === 'soft'"
+>
+  <!-- Icono de lupa -->
   <svg
     class="search__icon"
     fill="none"
@@ -10,6 +16,7 @@
   >
     <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
   </svg>
+  <!-- Campo de texto: cada tecla dispara onInput para filtrar en tiempo real -->
   <input
     type="text"
     class="search__input"

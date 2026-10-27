@@ -1,7 +1,9 @@
+<!-- Tarjeta de vidrio que contiene el mapa -->
 <div class="glass-card p-2 md:p-3 rounded-2xl w-full">
   <div
     class="relative w-full aspect-square rounded-xl overflow-hidden border border-black/5"
   >
+    <!-- El mapa solo aparece si la URL pasó la validación del componente -->
     @if (safeUrl) {
       <iframe
         [src]="safeUrl"

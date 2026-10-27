@@ -19,11 +19,19 @@ import {
   switchMap,
   timer,
 } from 'rxjs';
-import { getErrorMessage, isNetworkOrServerError } from '../../utils/http-error';
+import {
+  getErrorMessage,
+  isNetworkOrServerError,
+} from '../../utils/http-error';
 
 // Cada cuánto se vuelve a pedir el producto al servidor (en milisegundos)
 const REFRESH_MS = 30_000;
 
+/**
+ * Página de detalle de un producto. Lee el id de la dirección (/productDetails/:id),
+ * carga el producto y sus productos relacionados, y los mantiene actualizados.
+ * Si el producto deja de existir o el admin lo desactiva, lleva a la página de error.
+ */
 @Component({
   selector: 'app-product-detail',
   standalone: true,
@@ -40,22 +48,30 @@ export class ProductDetailComponent implements OnInit {
   private router = inject(Router);
   private productService = inject(ProductService);
   private destroyRef = inject(DestroyRef);
+  // Suscripción de la actualización automática, para poder cancelarla
   private refreshSub?: Subscription;
 
+  // Producto que se muestra (undefined mientras carga)
   product: ProductDetail | undefined;
 
+  // "También te puede gustar": hasta 3 productos de la misma categoría
   relatedProducts: Product[] = [];
 
   ngOnInit(): void {
+    // Cada vez que cambia el id de la dirección (por ejemplo, al pulsar un
+    // producto relacionado) se carga el producto nuevo
     this.route.paramMap.subscribe((params) => {
       this.loadProduct(Number(params.get('id')));
     });
   }
 
+  // Carga el producto y sus relacionados, y deja la actualización automática
   private loadProduct(id: number): void {
+    // Se limpia lo que se veía del producto anterior
     this.product = undefined;
     this.relatedProducts = [];
 
+    // La página vuelve arriba al cambiar de producto
     window.scrollTo({ top: 0 });
 
     // Al cambiar de producto se reinicia la actualización automática
@@ -68,7 +84,9 @@ export class ProductDetailComponent implements OnInit {
       fromEvent(document, 'visibilitychange'),
     )
       .pipe(
+        // Solo se pide si la pestaña está visible
         filter(() => document.visibilityState === 'visible'),
+        // switchMap cancela la petición anterior si llega una nueva antes de terminar
         switchMap(() =>
           // lanza las dos peticiones a la vez y espera a que las dos
           // terminen, entrega un solo objeto con los resultados
@@ -87,6 +105,7 @@ export class ProductDetailComponent implements OnInit {
             }),
           ),
         ),
+        // Deja de actualizar cuando el componente se destruye (al salir de la página)
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ product, related }) => {
@@ -98,12 +117,14 @@ export class ProductDetailComponent implements OnInit {
 
         this.product = product;
 
+        // related es null si esa petición falló: en ese caso se conservan los anteriores
         if (related) {
           this.relatedProducts = related;
         }
       });
   }
 
+  // Decide qué hacer cuando falla la carga del producto
   private handleLoadError(error: any): void {
     console.error('Error cargando producto:', error);
 
@@ -113,22 +134,29 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
+    // En cualquier otro caso (no existe, no está disponible) se va a la página de error
     this.showUnavailable(
-      getErrorMessage(error, 'Este producto no existe o ya no está disponible.'),
+      getErrorMessage(
+        error,
+        'Este producto no existe o ya no está disponible.',
+      ),
     );
   }
 
+  // Detiene la actualización automática y lleva a la página de error con un mensaje
   private showUnavailable(
     message = 'Este producto ya no está disponible.',
   ): void {
     this.refreshSub?.unsubscribe();
 
+    // replaceUrl evita que "atrás" regrese a esta página rota
     this.router.navigate(['/error'], {
       replaceUrl: true,
       queryParams: { message },
     });
   }
 
+  // Botón "Volver a la carta"
   goBackToMenu(): void {
     this.router.navigate(['/menu']);
   }
