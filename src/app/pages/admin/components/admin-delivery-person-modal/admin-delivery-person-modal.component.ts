@@ -16,6 +16,7 @@ import { IconButtonComponent } from '../../../../components/icon-button/icon-but
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 @Component({
   selector: 'app-admin-delivery-person-modal',
@@ -137,7 +138,7 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
   private onError(error: any) {
     console.error('Error guardando domiciliario:', error);
     this.errorMessage =
-      error.error?.message ?? 'No se pudo guardar el domiciliario.';
+      getErrorMessage(error, 'No se pudo guardar el domiciliario.');
   }
 
   close() {

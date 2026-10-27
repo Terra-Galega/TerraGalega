@@ -19,6 +19,7 @@ import {
   switchMap,
   timer,
 } from 'rxjs';
+import { getErrorMessage, isNetworkOrServerError } from '../../utils/http-error';
 
 // Cada cuánto se vuelve a pedir el producto al servidor (en milisegundos)
 const REFRESH_MS = 30_000;
@@ -108,13 +109,12 @@ export class ProductDetailComponent implements OnInit {
 
     // Si ya se estaba mostrando el producto y solo falló la conexión o el
     // servidor, se deja lo que se ve y se reintenta en el siguiente ciclo.
-    if (this.product && (error.status === 0 || error.status >= 500)) {
+    if (this.product && isNetworkOrServerError(error)) {
       return;
     }
 
     this.showUnavailable(
-      error.error?.message ??
-        'Este producto no existe o ya no está disponible.',
+      getErrorMessage(error, 'Este producto no existe o ya no está disponible.'),
     );
   }
 

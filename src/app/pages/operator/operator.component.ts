@@ -7,6 +7,7 @@ import { OperatorTopbarComponent } from './components/operator-topbar/operator-t
 import { OperatorOrdersComponent } from './components/operator-orders/operator-orders.component';
 import { OperatorDeliveryModalComponent } from './components/operator-delivery-modal/operator-delivery-modal.component';
 import { OperatorService } from '../../services/operator.service';
+import { getErrorMessage } from '../../utils/http-error';
 
 @Component({
   selector: 'app-operator',
@@ -48,8 +49,9 @@ export class OperatorComponent {
         this.router.navigate(['/error'], {
           replaceUrl: true,
           queryParams: {
+            status: error.status,
             message:
-              error.error?.message ?? 'No se pudo cargar tu información de operador.',
+              getErrorMessage(error, 'No se pudo cargar tu información de operador.'),
           },
         });
       },

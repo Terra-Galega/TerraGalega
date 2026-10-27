@@ -24,6 +24,7 @@ import { StarIconComponent } from '../../../../components/star-icon/star-icon.co
 import { AddonOptionComponent } from '../addon-option/addon-option.component';
 import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage, isNetworkOrServerError } from '../../../../utils/http-error';
 
 // Cada cuánto se vuelven a pedir los adicionales al servidor
 const REFRESH_MS = 10_000;
@@ -164,7 +165,7 @@ export class ProductInfoCardComponent implements OnInit {
         console.error('Error validando producto:', error);
 
         // Sin conexión o error del servidor: no se sabe si sigue disponible
-        if (error.status === 0 || error.status >= 500) {
+        if (isNetworkOrServerError(error)) {
           this.showUnavailable(
             'No se pudo verificar el producto. Revisa tu conexión e intenta de nuevo.',
           );
@@ -173,7 +174,7 @@ export class ProductInfoCardComponent implements OnInit {
 
         // Si fue eliminado, el servidor no devuelve un mensaje legible
         this.showUnavailable(
-          error.error?.message ?? 'Este producto ya no está disponible.',
+          getErrorMessage(error, 'Este producto ya no está disponible.'),
         );
       },
     });

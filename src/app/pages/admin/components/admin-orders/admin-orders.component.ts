@@ -4,7 +4,7 @@ import { OrderService } from '../../../../services/order.service';
 import { ProductService } from '../../../../services/product.service';
 import { OrderSummary, ORDER_STATUS_LABELS } from '../../../../models/order';
 import { Product } from '../../../../models/product';
-import { getErrorMessage } from '../../../../components/modal/modal.component';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 type OrderFilter = 'all' | 'active' | 'completed';
 

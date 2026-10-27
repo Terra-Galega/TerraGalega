@@ -13,7 +13,7 @@ import { AboutUsComponent } from './pages/about-us/about-us.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { ErrorComponent } from './pages/error/error.component';
 import { adminGuard, clientAreaGuard, operatorGuard } from './guards/role.guards';
-import { CheckoutConfirmComponent } from './pages/checkout/checkout-confirm.component';
+import { CheckoutConfirmComponent } from './pages/checkout/chekout-confirm/checkout-confirm.component';
 
 export const routes: Routes = [
   {
@@ -94,7 +94,7 @@ export const routes: Routes = [
   {
     path: '**',
     component: ErrorComponent,
-    data: { message: 'La página que buscas no existe.' },
+    data: { status: 404, message: 'La página que buscas no existe.' },
   },
 
 ];

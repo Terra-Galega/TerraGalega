@@ -12,6 +12,7 @@ import { Observable } from 'rxjs';
 import { ButtonComponent } from '../button/button.component';
 import { IconButtonComponent } from '../icon-button/icon-button.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
+import { getErrorMessage } from '../../utils/http-error';
 
 @Component({
   selector: 'app-change-password-modal',
@@ -100,7 +101,7 @@ export class ChangePasswordModalComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.saving = false;
         this.errorMessage =
-          error.error?.message ?? 'No se pudo cambiar la contraseña.';
+          getErrorMessage(error, 'No se pudo cambiar la contraseña.');
       },
     });
   }

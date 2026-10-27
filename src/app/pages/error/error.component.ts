@@ -4,6 +4,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { ButtonComponent } from '../../components/button/button.component';
 import { AuthService } from '../../services/auth.service';
+import { getErrorTitle } from '../../utils/http-error';
 
 @Component({
   selector: 'app-error',
@@ -12,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class ErrorComponent {
   message = 'Ha ocurrido un error inesperado. Por favor intenta de nuevo.';
+  title = 'Error';
 
 
   isAdmin = false;
@@ -36,6 +38,14 @@ export class ErrorComponent {
 
     if (message) {
       this.message = message;
+    }
+
+    // El código HTTP (si llegó) define el título de la página
+    const status =
+      this.route.snapshot.queryParamMap.get('status') ??
+      this.route.snapshot.data['status'];
+    if (status !== null && status !== undefined) {
+      this.title = getErrorTitle(Number(status));
     }
   }
   get hasPanel(): boolean {

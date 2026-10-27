@@ -13,6 +13,7 @@ import { DeliveryPersonService } from '../../../../services/delivery-person.serv
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 @Component({
   selector: 'app-operator-delivery-modal',
@@ -74,7 +75,7 @@ export class OperatorDeliveryModalComponent implements OnInit {
       error: (error) => {
         console.error('Error sending order:', error);
         this.errorMessage =
-          error.error?.message ?? 'No se pudo enviar el pedido.';
+          getErrorMessage(error, 'No se pudo enviar el pedido.');
         this.sending = false;
       },
     });

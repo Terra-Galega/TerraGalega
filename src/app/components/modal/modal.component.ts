@@ -7,15 +7,6 @@ import {
 } from '@angular/core';
 import { ButtonComponent, ButtonVariant } from '../button/button.component';
 
-export function getErrorMessage(
-  error: any,
-  fallback = 'Ocurrió un error inesperado.',
-): string {
-  const body = error?.error;
-  if (typeof body === 'string' && body.trim()) return body;
-  return body?.message ?? body?.error ?? error?.message ?? fallback;
-}
-
 @Component({
   selector: 'app-modal',
   imports: [ButtonComponent],
