@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
 
+// Estructura de cada opinión mostrada en pantalla.
 interface Testimonial {
   name: string;
   role: string;
   text: string;
 }
 
+// Tarjetas de testimonios; el selector es app-testimonial aunque la clase se llame TestimonialsComponent.
 @Component({
   selector: 'app-testimonial',
   imports: [StarIconComponent],
@@ -15,6 +17,7 @@ interface Testimonial {
 })
 export class TestimonialsComponent {
 
+  // Opiniones escritas directamente en el código; no se consultan al backend.
   testimonials: Testimonial[] = [
     {
       name: 'María García',

@@ -1,11 +1,15 @@
+<!-- Sección de productos populares. -->
 <section id="menu" class="py-24 bg-cream">
   <div class="max-w-7xl mx-auto px-6">
+    <!-- Encabezado con etiqueta superior y título. -->
     <app-section-heading
       eyebrow="Más solicitados"
       title="Favoritos de la casa"
     />
 
+    <!-- Cuadrícula responsiva: 1 columna en móvil, 2 en tablet y 3 en escritorio. -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Una tarjeta por producto, usando su id para identificarlo en la lista. -->
       @for (product of products; track product.id) {
         <app-product-card [product]="product" />
       }
