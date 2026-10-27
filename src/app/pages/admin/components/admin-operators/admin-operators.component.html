@@ -1,3 +1,4 @@
+<!-- Contenedor de la lista de operadores. -->
 <div id="admin-panel-users" class="admin-panel hidden-modal space-y-3">
   <!-- Mensaje si la lista de clientes está vacía -->
   @if (operators.length === 0) {
@@ -7,6 +8,7 @@
   } @else {
   <!-- Iteración dinámica sobre la lista de operadores -->
   @for (operator of filteredOperators; track operator.id) {
+  <!-- Fila de un operador. -->
   <div class="flex items-center gap-5 px-6 py-4 rounded-2xl" style="
           background-color: rgba(255, 255, 255, 0.72);
           backdrop-filter: blur(20px);
@@ -19,6 +21,7 @@
       {{ operator.name.substring(0, 1) }}
     </div>
 
+    <!-- Nombre completo, usuario y correo del operador. -->
     <div class="flex-1 min-w-0">
       <p class="font-medium text-charcoal text-sm">
         {{ operator.name }} {{ operator.lastName }}
@@ -26,6 +29,7 @@
       </p>
     </div>
 
+    <!-- Etiqueta de rol y botón de estado. -->
     <div class="flex items-center gap-6 flex-shrink-0">
       <span class="text-[11px] font-medium px-3 py-1 rounded-full"
         style="background-color: rgba(44, 44, 44, 0.07); color: rgba(44, 44, 44, 0.55);">Operador</span>
@@ -39,8 +43,10 @@
       </button>
     </div>
 
+    <!-- Acciones de la fila: cambiar contraseña, editar y eliminar. -->
     <div class="flex items-center gap-2">
 
+      <!-- Abre el modal para cambiar la contraseña de este operador. -->
       <app-icon-button variant="ghost" label="Cambiar contraseña" (click)="passwordOperator = operator">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
           stroke-linecap="round" stroke-linejoin="round">
@@ -49,6 +55,7 @@
         </svg>
       </app-icon-button>
 
+      <!-- Solicita editar este operador; el padre abre el modal de edición. -->
       <app-icon-button variant="ghost" label="Editar" (click)="openEdit(operator)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -57,6 +64,7 @@
         </svg>
       </app-icon-button>
 
+      <!-- Solicita eliminar este operador; antes se pide confirmación. -->
       <app-icon-button variant="ghost" label="Eliminar" (click)="removeOperator(operator.id)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -70,12 +78,15 @@
   }}
 
 </div>
+<!-- Modal de confirmación para eliminar un operador. -->
 <app-modal [open]="showDeleteModal" [title]="confirmTitle" [message]="confirmMessage" confirmLabel="Eliminar operador"
   cancelLabel="Cancelar" variant="danger" (confirm)="confirmDelete()" (cancel)="cancelDelete()"></app-modal>
 
+<!-- Modal que informa de los errores al cargar, eliminar o cambiar el estado. -->
 <app-modal [open]="showErrorModal" [title]="errorTitle" [message]="errorMessage" confirmLabel="Aceptar" variant="error"
   (confirm)="closeErrorModal()" (cancel)="closeErrorModal()"></app-modal>
 
+<!-- Modal de cambio de contraseña; solo existe mientras haya un operador seleccionado. -->
 @if (passwordOperator) {
 <app-change-password-modal [userName]="passwordOperator.name + ' ' + passwordOperator.lastName" [save]="savePassword"
   (closed)="passwordOperator = null" />

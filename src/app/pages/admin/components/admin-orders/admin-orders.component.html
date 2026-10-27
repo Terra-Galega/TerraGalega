@@ -1,157 +1,110 @@
 <!-- Filtros: fechas, producto y número de pedido -->
 <div class="flex flex-wrap items-end gap-3 mb-4">
+  <!-- Fecha inicial del rango. -->
   <label class="flex flex-col gap-1">
-    <span
-      class="text-[11px] uppercase tracking-wider"
-      style="color: rgba(44, 44, 44, 0.45)"
-      >Desde</span
-    >
-    <input
-      type="date"
-      class="text-[12px] px-3 py-2 rounded-xl"
-      style="background-color: rgba(44, 44, 44, 0.06)"
-      [value]="dateFrom"
-      [attr.max]="dateTo || null"
-      (change)="onDateFromChange($event)"
-    />
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Desde</span>
+    <input type="date" class="text-[12px] px-3 py-2 rounded-xl" style="background-color: rgba(44, 44, 44, 0.06)"
+      [value]="dateFrom" [attr.max]="dateTo || null" (change)="onDateFromChange($event)" />
   </label>
 
+  <!-- Fecha final del rango; no permite elegir una fecha anterior a la inicial. -->
   <label class="flex flex-col gap-1">
-    <span
-      class="text-[11px] uppercase tracking-wider"
-      style="color: rgba(44, 44, 44, 0.45)"
-      >Hasta</span
-    >
-    <input
-      type="date"
-      class="text-[12px] px-3 py-2 rounded-xl"
-      style="background-color: rgba(44, 44, 44, 0.06)"
-      [value]="dateTo"
-      [attr.min]="dateFrom || null"
-      (change)="onDateToChange($event)"
-    />
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Hasta</span>
+    <input type="date" class="text-[12px] px-3 py-2 rounded-xl" style="background-color: rgba(44, 44, 44, 0.06)"
+      [value]="dateTo" [attr.min]="dateFrom || null" (change)="onDateToChange($event)" />
   </label>
 
+  <!-- Selector de producto. -->
   <label class="flex flex-col gap-1">
-    <span
-      class="text-[11px] uppercase tracking-wider"
-      style="color: rgba(44, 44, 44, 0.45)"
-      >Producto</span
-    >
-    <select
-      class="text-[12px] px-3 py-2 rounded-xl"
-      style="background-color: rgba(85, 44, 44, 0.06)"
-      (change)="onProductChange($event)"
-    >
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Producto</span>
+    <select class="text-[12px] px-3 py-2 rounded-xl" style="background-color: rgba(85, 44, 44, 0.06)"
+      (change)="onProductChange($event)">
       <option value="" [selected]="productId === null">
         Todos los productos
       </option>
+      <!-- Una opción por producto; queda seleccionada la que coincide con el filtro actual. -->
       @for (product of products; track product.id) {
-        <option [value]="product.id" [selected]="productId === product.id">
-          {{ product.name }}
-        </option>
+      <option [value]="product.id" [selected]="productId === product.id">
+        {{ product.name }}
+      </option>
       }
     </select>
   </label>
 
+  <!-- Número de pedido. -->
   <label class="flex flex-col gap-1">
-    <span
-      class="text-[11px] uppercase tracking-wider"
-      style="color: rgba(44, 44, 44, 0.45)"
-      >N.º de pedido</span
-    >
-    <input
-      type="number"
-      min="1"
-      placeholder="Ej. 12"
-      class="text-[12px] px-3 py-2 rounded-xl w-28"
-      style="background-color: rgba(44, 44, 44, 0.06)"
-      [value]="orderNumber"
-      (change)="onOrderNumberChange($event)"
-    />
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">N.º de pedido</span>
+    <input type="number" min="1" placeholder="Ej. 12" class="text-[12px] px-3 py-2 rounded-xl w-28"
+      style="background-color: rgba(44, 44, 44, 0.06)" [value]="orderNumber" (change)="onOrderNumberChange($event)" />
   </label>
 
+  <!-- El botón solo aparece cuando hay algún filtro aplicado. -->
   @if (hasFilters) {
-    <button
-      type="button"
-      class="text-[12px] font-medium px-4 py-2 rounded-xl"
-      style="
+  <button type="button" class="text-[12px] font-medium px-4 py-2 rounded-xl" style="
         background-color: rgba(44, 44, 44, 0.06);
         color: rgba(44, 44, 44, 0.65);
-      "
-      (click)="clearFilters()"
-    >
-      Limpiar filtros
-    </button>
+      " (click)="clearFilters()">
+    Limpiar filtros
+  </button>
   }
 </div>
 
+<!-- Muestra el error de carga, si existe. -->
 @if (errorMessage) {
-  <p class="text-sm mb-4" style="color: #8a2222">{{ errorMessage }}</p>
+<p class="text-sm mb-4" style="color: #8a2222">{{ errorMessage }}</p>
 }
 <!-- Filtro: todos / activos / completados -->
 <div class="flex gap-2 mb-5">
+  <!-- Un botón por opción; el seleccionado se resalta en verde. -->
   @for (option of filterOptions; track option.value) {
-    <button
-      type="button"
-      class="text-[12px] font-medium px-4 py-2 rounded-xl"
-      [style.background-color]="
+  <button type="button" class="text-[12px] font-medium px-4 py-2 rounded-xl" [style.background-color]="
         filter === option.value ? '#556141' : 'rgba(44,44,44,0.06)'
-      "
-      [style.color]="
+      " [style.color]="
         filter === option.value ? '#f5f2eb' : 'rgba(44,44,44,0.55)'
-      "
-      (click)="filter = option.value"
-    >
-      {{ option.label }}
-    </button>
+      " (click)="filter = option.value">
+    {{ option.label }}
+  </button>
   }
 </div>
 
+<!-- Lista de pedidos. -->
 <div class="space-y-3">
+  <!-- Mensaje que se muestra cuando ningún pedido cumple los filtros. -->
   @if (filteredOrders.length === 0) {
-    <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
-      No hay pedidos en esta vista.
-    </p>
+  <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">
+    No hay pedidos en esta vista.
+  </p>
   } @else {
-    @for (orderSummary of filteredOrders; track orderSummary.id) {
-      <div
-        class="flex items-center gap-5 px-6 py-4 rounded-2xl"
-        style="
+  <!-- Una fila por pedido. -->
+  @for (orderSummary of filteredOrders; track orderSummary.id) {
+  <div class="flex items-center gap-5 px-6 py-4 rounded-2xl" style="
           background-color: rgba(255, 255, 255, 0.72);
           backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.55);
-        "
-      >
-        <span
-          class="font-mono text-sm font-semibold w-16"
-          style="color: rgba(44, 44, 44, 0.55)"
-          >#{{ orderSummary.id }}</span
-        >
+        ">
+    <!-- Número del pedido. -->
+    <span class="font-mono text-sm font-semibold w-16" style="color: rgba(44, 44, 44, 0.55)">#{{ orderSummary.id
+      }}</span>
 
-        <div class="flex-1 min-w-0">
-          <p class="font-medium text-charcoal text-sm">
-            {{ orderSummary.clientName }}
-          </p>
-          <p
-            class="truncate"
-            style="font-size: 12px; color: rgba(44, 44, 44, 0.45)"
-          >
-            {{ orderSummary.address }} ·
-            {{ orderSummary.createdAt | date: "dd MMM yyyy, HH:mm" }}
-          </p>
-        </div>
+    <!-- Nombre del cliente, dirección y fecha de creación. -->
+    <div class="flex-1 min-w-0">
+      <p class="font-medium text-charcoal text-sm">
+        {{ orderSummary.clientName }}
+      </p>
+      <p class="truncate" style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
+        {{ orderSummary.address }} ·
+        {{ orderSummary.createdAt | date: "dd MMM yyyy, HH:mm" }}
+      </p>
+    </div>
 
-        <span
-          class="text-[11px] font-medium px-3 py-1 rounded-full"
-          style="background-color: rgba(85, 97, 65, 0.12); color: #556141"
-        >
-          {{ statusLabels[orderSummary.status] }}
-        </span>
-        <span class="font-bold" style="color: #b2571f"
-          >${{ orderSummary.total | number: "1.0-0" }}</span
-        >
-      </div>
-    }
+    <!-- Etiqueta con el estado del pedido ya traducido. -->
+    <span class="text-[11px] font-medium px-3 py-1 rounded-full"
+      style="background-color: rgba(85, 97, 65, 0.12); color: #556141">
+      {{ statusLabels[orderSummary.status] }}
+    </span>
+    <!-- Total del pedido, sin decimales. -->
+    <span class="font-bold" style="color: #b2571f">${{ orderSummary.total | number: "1.0-0" }}</span>
+  </div>
+  }
   }
 </div>

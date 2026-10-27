@@ -1,5 +1,8 @@
+<!-- Fondo oscuro que cubre la pantalla y centra el modal. -->
 <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(44, 44, 44, 0.55)">
+  <!-- Tarjeta del modal; tiene scroll interno si el contenido es muy alto. -->
   <div class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative">
+    <!-- Encabezado: el título cambia según se edite o se cree, y botón para cerrar. -->
     <div class="flex items-center justify-between mb-7">
       <h2 class="font-serif text-2xl font-semibold text-charcoal">
         {{ operator ? "Editar operador" : "Añadir operador" }}
@@ -12,7 +15,9 @@
       </app-icon-button>
     </div>
 
+    <!-- Formulario del operador. -->
     <div class="space-y-4">
+      <!-- Nombre y apellido en dos columnas. -->
       <div class="grid grid-cols-2 gap-4">
         <app-form-field label="Nombre">
           <input type="text" [value]="name" (input)="setName($event)" required placeholder="Nombre"
@@ -25,16 +30,19 @@
         </app-form-field>
       </div>
 
+      <!-- Nombre de usuario. -->
       <app-form-field label="Usuario">
         <input type="text" [value]="username" (input)="setUsername($event)" required placeholder="Nombre de usuario"
           class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
       </app-form-field>
 
+      <!-- Correo electrónico. -->
       <app-form-field label="Correo electrónico">
         <input type="email" [value]="email" (input)="setEmail($event)" required placeholder="correo@terra.com"
           class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
       </app-form-field>
 
+      <!-- Al editar, la contraseña no se muestra (el back no la devuelve) y se ofrece un botón para cambiarla; al crear, se pide en un campo oculto. -->
       @if (operator) {<app-form-field label="Contraseña">
         <div class="input-field w-full px-4 py-2.5 rounded-xl text-sm flex items-center justify-between gap-3">
           <span class="flex items-center gap-2" style="color: rgba(44, 44, 44, 0.4)">
@@ -46,6 +54,7 @@
             ••••••••
           </span>
 
+          <!-- Avisa al padre para que cierre este modal y abra el de contraseña. -->
           <button type="button" (click)="changePassword.emit()"
             class="text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer whitespace-nowrap transition-opacity hover:opacity-70"
             style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
@@ -53,12 +62,14 @@
           </button>
         </div>
       </app-form-field>} @else {
+      <!-- Modo creación: campo para definir la contraseña inicial. -->
       <app-form-field label="Contraseña">
         <input type="password" [value]="password" (input)="setPassword($event)" placeholder="Contraseña"
           class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
       </app-form-field>
       }
 
+      <!-- Estado del operador: activo o inactivo. -->
       <app-form-field label="Estado">
         <select (change)="setActive($event)" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal">
           <option value="true" [selected]="active">Activo</option>
@@ -66,10 +77,12 @@
         </select>
       </app-form-field>
 
+      <!-- Muestra los errores de validación o del servidor. -->
       @if (errorMessage) {
       <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
       }
 
+      <!-- Botones de cancelar y guardar; el texto del segundo cambia según el modo. -->
       <div class="flex gap-3 pt-2">
         <app-button class="flex-1" variant="neutral" [fullWidth]="true" (click)="close()">
           Cancelar
