@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 // Lo que ve el cliente al elegir adicionales de un producto
+// (solo lo necesario: sin descripción, estado ni categorías)
 @Getter
 @Setter
 @NoArgsConstructor
