@@ -14,7 +14,6 @@ type OrderFilter = 'all' | 'active' | 'completed';
   selector: 'app-admin-orders',
   imports: [DatePipe, DecimalPipe],
   templateUrl: './admin-orders.component.html',
-  styleUrl: './admin-orders.component.scss',
 })
 export class AdminOrdersComponent {
   // Servicio de pedidos: consulta la lista y avisa cuando hay que recargarla.
