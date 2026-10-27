@@ -5,11 +5,18 @@ import com.example.demo.entities.Product;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Contrato de la lógica de negocio de los productos (platos de la carta).
+ * La implementación está en ProductServiceImpl.
+ */
 public interface ProductService {
+    // Todos los productos, activos e inactivos (vista del admin)
     Collection<Product> getAllProducts();
 
+    // Solo los productos activos (los que ve el cliente)
     Collection<Product> getAllProductsActive();
 
+    // Un producto por id; falla si no existe
     Product getProductById(Integer id);
 
     // Devuelve el producto solo si está activo
