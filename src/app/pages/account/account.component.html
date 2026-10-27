@@ -3,7 +3,7 @@
 <div class="min-h-screen bg-cream font-sans text-charcoal">
   <main class="pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
     <app-page-header eyebrow="Mi cuenta" title="Tu perfil"></app-page-header>
-
+    <!--Revisa si es un cliente-->
     @if (client) {
       <div class="space-y-6">
         <app-profile-card [client]="client"></app-profile-card>
@@ -36,6 +36,7 @@
         </section>
       </div>
     } @else {
+      <!--Carga el perfil si se demora-->
       <div class="glass-card rounded-3xl p-10 text-center">
         <div
           class="w-10 h-10 mx-auto mb-4 rounded-full animate-spin"
@@ -50,7 +51,7 @@
 </div>
 
 <app-footer></app-footer>
-
+<!--modal para eliminar mi cuenta-->
 <app-modal
   [open]="showDeleteModal"
   [title]="confirmTitle"
@@ -61,7 +62,7 @@
   (confirm)="confirmDelete()"
   (cancel)="cancelDelete()"
 ></app-modal>
-
+<!--modal de error para que falle bonito-->
 <app-modal
   [open]="showErrorModal"
   [title]="errorTitle"

@@ -10,6 +10,6 @@ import { InfoTileComponent } from '../info-tile/info-tile.component';
 })
 export class PersonalInfoComponent {
   @Input({ required: true }) client!: Client;
-
+  //Evento para mandar a editar
   @Output() edit = new EventEmitter<void>();
 }

@@ -29,6 +29,7 @@ import { getErrorMessage } from '../../utils/http-error';
   templateUrl: './account.component.html',
 })
 export class AccountComponent implements OnInit {
+  //Injextar los servicios que se van a usar
   private clientService = inject(ClientService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -36,7 +37,7 @@ export class AccountComponent implements OnInit {
   private toast = inject(ToastService);
 
   client: Client | null = null;
-
+  //variables para mostrar u ocultar 
   showDeleteModal = false;
   showErrorModal = false;
   confirmTitle = 'Eliminar cuenta';
@@ -46,12 +47,13 @@ export class AccountComponent implements OnInit {
   errorMessage = '';
 
   ngOnInit() {
+    //si no ha iniciado sesión
     if (!this.auth.session) {
       this.router.navigate(['/login']);
       return;
     }
     const id = Number(this.route.snapshot.paramMap.get('id'));
-
+    //traer el cliente
     this.clientService.getClientById(id).subscribe({
       next: (client) => {
         this.client = client;
@@ -63,7 +65,7 @@ export class AccountComponent implements OnInit {
       },
     });
   }
-
+  //editar perfil
   editProfile() {
     if (!this.client) {
       return;
@@ -71,12 +73,12 @@ export class AccountComponent implements OnInit {
 
     this.router.navigate(['/account', this.client.id, 'edit']);
   }
-
+  //cerrar sesion
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);
   }
-
+ //borrar cuenta
   deleteAccount() {
     if (!this.client) {
       return;
@@ -84,18 +86,18 @@ export class AccountComponent implements OnInit {
 
     this.showDeleteModal = true;
   }
-
+  //btn de cancelar 
   cancelDelete() {
     this.showDeleteModal = false;
   }
-
+  //confirmar cancelar 
   confirmDelete() {
     if (!this.client) {
       return;
     }
 
     this.showDeleteModal = false;
-
+    // MANDAR AL SERVICE -> BACKK  a  borrar 
     this.clientService.deleteClient(this.client.id).subscribe({
       next: () => {
         this.auth.logout();

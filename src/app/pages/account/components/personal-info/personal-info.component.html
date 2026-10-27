@@ -1,6 +1,7 @@
 <section class="glass-card rounded-3xl p-6 md:p-8 h-full">
   <div class="flex items-center justify-between mb-6">
     <div>
+      <!--Info del cliente-->
       <p
         class="text-[12px] tracking-widest uppercase mb-1"
         style="color: rgba(44, 44, 44, 0.38)"
@@ -9,6 +10,7 @@
       </p>
       <h3 class="font-serif text-2xl font-semibold">Información personal</h3>
     </div>
+    <!--btn de editar-->
     <button
       type="button"
       (click)="edit.emit()"
@@ -18,7 +20,7 @@
       Editar
     </button>
   </div>
-
+  <!--Mostrar bonito la info del cliente, nombre correo...-->
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <app-info-tile label="Nombre" [value]="client.name" tone="terra">
       <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
