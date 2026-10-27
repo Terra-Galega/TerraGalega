@@ -4,9 +4,10 @@
     color: #f5f2eb;
   ">
   <div class="max-w-7xl mx-auto h-20 px-8 flex items-center justify-between">
-    <!-- Marca + portal -->
+    <!-- Agrupa la marca y el nombre del portal para mantenerlos alineados en la cabecera. -->
     <div class="flex items-center gap-4">
       <a class="flex flex-col items-start leading-none select-none" aria-label="Terra Galega">
+        <!-- Separa el nombre de la marca en dos líneas y aplica los estilos tipográficos propios del proyecto. -->
         <span class="font-terra text-2xl leading-[0.6]" style="color: #f5f2eb">
           Terra
         </span>
@@ -15,34 +16,41 @@
         </span>
       </a>
 
+      <!-- Separador visual que solo aparece en pantallas pequeñas en adelante. -->
       <span class="hidden sm:block h-8 w-px" style="background-color: rgba(245, 242, 235, 0.2)"
         aria-hidden="true"></span>
 
+      <!-- Identifica el área actual sin ocupar espacio en pantallas extra pequeñas. -->
       <span class="hidden sm:block text-xs tracking-widest uppercase">
         PANEL OPERADOR
       </span>
     </div>
 
-    <!-- Usuario -->
+    <!-- Reúne la información del operador y la acción para cerrar sesión. -->
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-3">
+        <!-- Genera el avatar a partir de la primera letra del nombre, sin necesitar una imagen de perfil. -->
         <div
           class="w-11 h-11 rounded-full flex items-center justify-center text-base font-semibold text-white flex-shrink-0"
           style="background-color: #b2571f" aria-hidden="true">
           {{ operatorName.charAt(0).toUpperCase() }}
         </div>
 
+        <!-- Oculta los datos textuales del operador en pantallas pequeñas para conservar espacio. -->
         <div class="hidden md:block leading-tight min-w-0">
           <p class="text-[15px] font-semibold truncate" style="color: #f5f2eb">
             {{ operatorName }}
           </p>
           <p class="text-[13px]" style="color: rgba(245, 242, 235, 0.6)">
+            <!-- El símbolo @ se codifica como entidad HTML para evitar conflictos con la sintaxis de Angular. -->
             &#64;{{ operatorUsername }}
           </p>
         </div>
       </div>
 
+      <!-- Emite el evento al componente padre para que este ejecute la lógica de cierre de sesión. -->
       <app-button size="md" variant="glass-dark" (click)="logoutClicked.emit()">
+        <!-- Icono SVG de salida; hereda el color del texto del botón mediante currentColor. -->
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />

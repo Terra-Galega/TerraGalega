@@ -1,10 +1,10 @@
 <div class="min-h-screen font-sans text-charcoal" style="background-color: #f5f2eb">
-  <app-operator-topbar
-    [operatorName]="operatorName"
-    [operatorUsername]="operatorUsername"
-    (logoutClicked)="logout()"
-  ></app-operator-topbar>
 
+  <!--Barra superior donde aparce el nombre de usuario, el nombre del operador y el botón de cerrar sesión-->
+  <app-operator-topbar [operatorName]="operatorName" [operatorUsername]="operatorUsername"
+    (logoutClicked)="logout()"></app-operator-topbar>
+
+  <!--Mostrar todos los pedidos activos con los que el operador puede interactuar-->
   <main class="max-w-7xl mx-auto px-8 pt-10 pb-16">
     <header class="mb-8">
       <h1 class="font-serif text-3xl font-semibold text-charcoal">
@@ -15,23 +15,18 @@
       </p>
     </header>
 
-    <app-operator-orders
-      [operatorId]="operatorId"
-      (sendRequested)="openSendModal($event)"
-      (detailRequested)="openDetail($event)"
-    ></app-operator-orders>
+    <!-- Ver detalles de un pedido -->
+    <app-operator-orders [operatorId]="operatorId" (sendRequested)="openSendModal($event)"
+      (detailRequested)="openDetail($event)"></app-operator-orders>
   </main>
 </div>
 
+<!-- Si la orden ya fue enviada desaparece de la vista de operador-->
 @if (orderToSend) {
-  <app-operator-delivery-modal
-    [order]="orderToSend"
-    (closed)="closeSendModal()"
-  ></app-operator-delivery-modal>
+<app-operator-delivery-modal [order]="orderToSend" (closed)="closeSendModal()"></app-operator-delivery-modal>
 }
+
+<!-- Ver la orden individual por detalles mientras exista y sea seleccionado-->
 @if (orderIdToView !== null) {
-  <app-operator-order-detail-modal
-    [orderId]="orderIdToView"
-    (closed)="closeDetail()"
-  ></app-operator-order-detail-modal>
+<app-operator-order-detail-modal [orderId]="orderIdToView" (closed)="closeDetail()"></app-operator-order-detail-modal>
 }

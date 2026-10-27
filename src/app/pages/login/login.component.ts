@@ -159,7 +159,9 @@ export class LoginComponent {
       !this.signupName.trim() ||
       !this.signupLastName.trim() ||
       !this.signupEmail.trim() ||
-      !this.signupPassword.trim()
+      !this.signupPassword.trim() ||
+      !this.signupPhone.trim() ||
+      !this.signupAddress.trim()
     ) {
       this.signupError = 'Todos los campos son obligatorios.';
       return;

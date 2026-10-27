@@ -1,250 +1,199 @@
-<div
-  class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-  style="background-color: rgba(44, 44, 44, 0.55)"
->
-  <div
-    class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl"
-  >
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+  style="background-color: rgba(44, 44, 44, 0.55)">
+  <div class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl">
     <!-- Encabezado -->
     <div class="flex items-start justify-between px-8 pt-8 pb-5">
       <div>
-        <p
-          class="text-[11px] uppercase tracking-widest"
-          style="color: rgba(44, 44, 44, 0.45)"
-        >
+        <p class="text-[11px] uppercase tracking-widest" style="color: rgba(44, 44, 44, 0.45)">
           Pedido
         </p>
-        <h2
-          class="font-serif text-3xl font-semibold text-charcoal leading-tight"
-        >
+        <h2 class="font-serif text-3xl font-semibold text-charcoal leading-tight">
           #{{ orderId }}
         </h2>
 
+        <!-- Muestra el estado y la fecha de creación únicamente cuando ya se dispone de la información del pedido. -->
         @if (order; as o) {
-          <div class="flex items-center gap-3 mt-2">
-            <span
-              class="inline-block text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap"
-              [style.color]="statusColors[o.status]"
-              style="
+        <div class="flex items-center gap-3 mt-2">
+          <span class="inline-block text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap"
+            [style.color]="statusColors[o.status]" style="
                 background-color: color-mix(
                   in srgb,
                   currentColor 12%,
                   transparent
                 );
-              "
-            >
-              {{ statusLabels[o.status] }}
-            </span>
-            <span class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
-              {{ o.createdAt | date: "dd MMM yyyy, HH:mm" }}
-            </span>
-          </div>
+              ">
+            {{ statusLabels[o.status] }}
+          </span>
+          <span class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
+            {{ o.createdAt | date: "dd MMM yyyy, HH:mm" }}
+          </span>
+        </div>
         }
       </div>
 
       <app-icon-button variant="soft" label="Cerrar" (click)="close()">
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 18L18 6M6 6l12 12" />
         </svg>
       </app-icon-button>
     </div>
 
+    <!-- Presenta el contenido del pedido cuando los datos están disponibles. -->
     @if (order; as o) {
-      <div class="px-8 pb-8 space-y-5">
-        <!-- Progreso del pedido -->
-        @if (o.status !== "CANCELLED") {
-          <div class="flex items-center py-2">
-            @for (step of steps; track step; let i = $index, last = $last) {
-              <div class="flex flex-col items-center gap-1.5 w-16">
-                <span
-                  class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
-                  [style.background]="
+    <div class="px-8 pb-8 space-y-5">
+      <!-- Progreso del pedido -->
+      <!-- Oculta la barra de progreso para los pedidos cancelados, ya que no continúan el flujo normal de estados. -->
+      @if (o.status !== "CANCELLED") {
+      <div class="flex items-center py-2">
+        @for (step of steps; track step; let i = $index, last = $last) {
+        <div class="flex flex-col items-center gap-1.5 w-16">
+          <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold" [style.background]="
                     i <= stepIndex
                       ? 'linear-gradient(135deg, #b2571f 0%, #8a2222 100%)'
                       : 'rgba(44, 44, 44, 0.1)'
-                  "
-                  [style.color]="
+                  " [style.color]="
                     i <= stepIndex ? '#fff' : 'rgba(44, 44, 44, 0.4)'
-                  "
-                >
-                  @if (i < stepIndex) {
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="3"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path d="M5 13l4 4L19 7" />
-                    </svg>
-                  } @else {
-                    {{ i + 1 }}
-                  }
-                </span>
-                <span
-                  class="text-[10px] text-center leading-tight"
-                  [style.color]="
-                    i <= stepIndex ? '#2c2c2c' : 'rgba(44, 44, 44, 0.4)'
-                  "
-                >
-                  {{ statusLabels[step] }}
-                </span>
-              </div>
-
-              @if (!last) {
-                <div
-                  class="flex-1 h-0.5 -mt-5 rounded-full"
-                  [style.background]="
-                    i < stepIndex ? '#b2571f' : 'rgba(44, 44, 44, 0.12)'
-                  "
-                ></div>
+                  ">
+            <!-- Sustituye el número por una marca de verificación en los pasos que ya se completaron. -->
+            @if (i < stepIndex) { <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 13l4 4L19 7" />
+              </svg>
+              } @else {
+              {{ i + 1 }}
               }
-            }
-          </div>
-        }
-
-        <!-- Cliente y entrega -->
-        <div class="grid sm:grid-cols-2 gap-3">
-          <div class="glass-card rounded-2xl p-4">
-            <p
-              class="text-[11px] uppercase tracking-widest mb-2"
-              style="color: rgba(44, 44, 44, 0.45)"
-            >
-              Cliente
-            </p>
-            @if (o.client) {
-              <p class="font-medium text-charcoal text-sm">
-                {{ o.client.name }} {{ o.client.lastName }}
-              </p>
-              <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.6)">
-                {{ o.client.phone }}
-              </p>
-              <p class="text-xs truncate" style="color: rgba(44, 44, 44, 0.6)">
-                {{ o.client.email }}
-              </p>
-            } @else {
-              <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
-                Cliente eliminado
-              </p>
-            }
-          </div>
-
-          <div class="glass-card rounded-2xl p-4">
-            <p
-              class="text-[11px] uppercase tracking-widest mb-2"
-              style="color: rgba(44, 44, 44, 0.45)"
-            >
-              Entrega
-            </p>
-            <p class="font-medium text-charcoal text-sm">{{ o.address }}</p>
-            @if (o.deliveryPerson) {
-              <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.6)">
-                {{ o.deliveryPerson.name }} {{ o.deliveryPerson.lastName }}
-              </p>
-              <p class="text-xs" style="color: rgba(44, 44, 44, 0.6)">
-                {{ o.deliveryPerson.phone }}
-              </p>
-            } @else {
-              <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.45)">
-                Sin domiciliario asignado
-              </p>
-            }
-          </div>
+          </span>
+          <span class="text-[10px] text-center leading-tight" [style.color]="
+                    i <= stepIndex ? '#2c2c2c' : 'rgba(44, 44, 44, 0.4)'
+                  ">
+            {{ statusLabels[step] }}
+          </span>
         </div>
 
-        <!-- Platos -->
-        <div class="glass-card rounded-2xl px-4">
-          <p
-            class="text-[11px] uppercase tracking-widest pt-4 pb-1"
-            style="color: rgba(44, 44, 44, 0.45)"
-          >
-            Detalle del pedido
+        <!-- Distingue los tramos completados de los pendientes y evita dibujar una línea después del último paso. -->
+        @if (!last) {
+        <div class="flex-1 h-0.5 -mt-5 rounded-full" [style.background]="
+                    i < stepIndex ? '#b2571f' : 'rgba(44, 44, 44, 0.12)'
+                  "></div>
+        }
+        }
+      </div>
+      }
+
+      <!-- Cliente y entrega -->
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="glass-card rounded-2xl p-4">
+          <p class="text-[11px] uppercase tracking-widest mb-2" style="color: rgba(44, 44, 44, 0.45)">
+            Cliente
           </p>
-
-          @for (detail of o.details; track detail.id) {
-            <div
-              class="flex items-center gap-3 py-3 border-t first:border-t-0"
-              style="border-color: rgba(44, 44, 44, 0.08)"
-            >
-              @if (detail.product.imageUrl) {
-                <img
-                  [src]="detail.product.imageUrl"
-                  alt=""
-                  class="w-12 h-12 rounded-xl object-cover flex-shrink-0"
-                  (error)="hideImage($event)"
-                />
-              }
-
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-charcoal">
-                  <span style="color: #b2571f">{{ detail.quantity }}×</span>
-                  {{ detail.product.name }}
-                </p>
-
-                @if (detail.addOns.length > 0) {
-                  <div class="flex flex-wrap gap-1 mt-1">
-                    @for (addOn of groupAddOns(detail.addOns); track addOn.id) {
-                      <span
-                        class="text-[11px] px-2 py-0.5 rounded-full"
-                        style="
-                          background-color: rgba(85, 97, 65, 0.12);
-                          color: #556141;
-                        "
-                      >
-                        x{{ addOn.count }} {{ addOn.name }}
-                      </span>
-                    }
-                  </div>
-                }
-              </div>
-
-              <p
-                class="text-sm font-semibold whitespace-nowrap"
-                style="color: rgba(44, 44, 44, 0.7)"
-              >
-                ${{ lineTotal(detail) | number: "1.0-0" }}
-              </p>
-            </div>
+          <!-- Comprueba si el pedido conserva los datos del cliente antes de mostrarlos. -->
+          @if (o.client) {
+          <p class="font-medium text-charcoal text-sm">
+            {{ o.client.name }} {{ o.client.lastName }}
+          </p>
+          <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.6)">
+            {{ o.client.phone }}
+          </p>
+          <p class="text-xs truncate" style="color: rgba(44, 44, 44, 0.6)">
+            {{ o.client.email }}
+          </p>
+          } @else {
+          <!-- Informa que el cliente ya no está disponible sin impedir la consulta del resto del pedido. -->
+          <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
+            Cliente eliminado
+          </p>
           }
         </div>
 
-        <!-- Total -->
-        <div
-          class="flex items-center justify-between rounded-2xl px-5 py-4 text-white"
-          style="
-            background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
-            box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
-          "
-        >
-          <span class="text-sm tracking-widest uppercase opacity-80">
-            Total
-          </span>
-          <span class="font-serif text-2xl font-semibold">
-            ${{ o.total | number: "1.0-0" }}
-          </span>
+        <div class="glass-card rounded-2xl p-4">
+          <p class="text-[11px] uppercase tracking-widest mb-2" style="color: rgba(44, 44, 44, 0.45)">
+            Entrega
+          </p>
+          <p class="font-medium text-charcoal text-sm">{{ o.address }}</p>
+          <!-- Muestra los datos de contacto del domiciliario solo si hay uno asignado al pedido. -->
+          @if (o.deliveryPerson) {
+          <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.6)">
+            {{ o.deliveryPerson.name }} {{ o.deliveryPerson.lastName }}
+          </p>
+          <p class="text-xs" style="color: rgba(44, 44, 44, 0.6)">
+            {{ o.deliveryPerson.phone }}
+          </p>
+          } @else {
+          <p class="text-xs mt-1" style="color: rgba(44, 44, 44, 0.45)">
+            Sin domiciliario asignado
+          </p>
+          }
         </div>
       </div>
+
+      <!-- Platos -->
+      <div class="glass-card rounded-2xl px-4">
+        <p class="text-[11px] uppercase tracking-widest pt-4 pb-1" style="color: rgba(44, 44, 44, 0.45)">
+          Detalle del pedido
+        </p>
+
+        <!-- Recorre los productos del pedido utilizando su identificador para mantener cada elemento asociado a su registro. -->
+        @for (detail of o.details; track detail.id) {
+        <div class="flex items-center gap-3 py-3 border-t first:border-t-0"
+          style="border-color: rgba(44, 44, 44, 0.08)">
+          <!-- Oculta la imagen si no hay una URL y delega al componente el manejo de errores de carga. -->
+          @if (detail.product.imageUrl) {
+          <img [src]="detail.product.imageUrl" alt="" class="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+            (error)="hideImage($event)" />
+          }
+
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-charcoal">
+              <span style="color: #b2571f">{{ detail.quantity }}×</span>
+              {{ detail.product.name }}
+            </p>
+
+            <!-- Agrupa los adicionales repetidos para mostrar su cantidad de forma consolidada. -->
+            @if (detail.addOns.length > 0) {
+            <div class="flex flex-wrap gap-1 mt-1">
+              @for (addOn of groupAddOns(detail.addOns); track addOn.id) {
+              <span class="text-[11px] px-2 py-0.5 rounded-full" style="
+                          background-color: rgba(85, 97, 65, 0.12);
+                          color: #556141;
+                        ">
+                x{{ addOn.count }} {{ addOn.name }}
+              </span>
+              }
+            </div>
+            }
+          </div>
+
+          <!-- Calcula y muestra el importe correspondiente a cada línea del pedido. -->
+          <p class="text-sm font-semibold whitespace-nowrap" style="color: rgba(44, 44, 44, 0.7)">
+            ${{ lineTotal(detail) | number: "1.0-0" }}
+          </p>
+        </div>
+        }
+      </div>
+
+      <!-- Presenta el total del pedido utilizando un formato numérico sin decimales. -->
+      <div class="flex items-center justify-between rounded-2xl px-5 py-4 text-white" style="
+            background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+            box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
+          ">
+        <span class="text-sm tracking-widest uppercase opacity-80">
+          Total
+        </span>
+        <span class="font-serif text-2xl font-semibold">
+          ${{ o.total | number: "1.0-0" }}
+        </span>
+      </div>
+    </div>
     } @else if (errorMessage) {
-      <p class="px-8 pb-8 text-sm" style="color: #da5858">
-        {{ errorMessage }}
-      </p>
+    <!-- Prioriza el mensaje de error cuando no se pudieron obtener los datos del pedido. -->
+    <p class="px-8 pb-8 text-sm" style="color: #da5858">
+      {{ errorMessage }}
+    </p>
     } @else {
-      <p
-        class="px-8 pb-8 text-sm animate-pulse"
-        style="color: rgba(44, 44, 44, 0.55)"
-      >
-        Cargando pedido…
-      </p>
+    <!-- Mantiene un indicador de carga mientras no haya datos ni un error que mostrar. -->
+    <p class="px-8 pb-8 text-sm animate-pulse" style="color: rgba(44, 44, 44, 0.55)">
+      Cargando pedido…
+    </p>
     }
   </div>
 </div>
