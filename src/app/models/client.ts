@@ -11,3 +11,5 @@ export interface Client {
   address: string;
 }
 export type CreateClient = Omit<Client, 'id'>;
+
+export type ClientDTO = Pick<Client, 'id' | 'name'  | 'email' | 'phone'>;

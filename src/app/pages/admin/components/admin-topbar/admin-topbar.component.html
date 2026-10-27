@@ -13,14 +13,14 @@
     {{ title }}
   </h1>
   <div class="flex items-center gap-3">
-      @if (showSearch) {
-    <app-search-input
-      class="w-48"
-      variant="soft"
-      placeholder="Buscar…"
-      (valueChange)="searchChanged.emit($event)"
-    />
-  }
+    @if (showSearch) {
+      <app-search-input
+        class="w-48"
+        variant="soft"
+        placeholder="Buscar…"
+        (valueChange)="searchChanged.emit($event)"
+      />
+    }
     @if (showAddButton) {
       <app-button size="sm" (click)="addClicked.emit()">
         <svg

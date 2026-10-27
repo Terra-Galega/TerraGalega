@@ -55,6 +55,7 @@
               showLoginPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
             "
           >
+          <!--Visisbilidad de la contraseña-->
             @if (!showLoginPassword) {
               <svg
                 class="eye-open w-4.5 h-4.5"
@@ -174,7 +175,6 @@
   }
 
   <!-- REGISTRO -->
-  <!-- REGISTRO -->
 
   @if (activeTab === "signup") {
     <form
@@ -273,6 +273,7 @@
               showSignupPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
             "
           >
+          <!--mostrar contraseña(ojito)-->
             @if (!showSignupPassword) {
               <svg
                 class="eye-open w-4.5 h-4.5"
