@@ -8,5 +8,6 @@ import { ButtonComponent } from '../../../../components/button/button.component'
   host: { class: 'block h-full' },
 })
 export class AccountActionsComponent {
+  //evento de cerrar sesión
   @Output() logout = new EventEmitter<void>();
 }

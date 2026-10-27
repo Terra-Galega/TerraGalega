@@ -9,7 +9,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 })
 export class LoginFormsComponent {
   @Input() activeTab: 'login' | 'signup' = 'login';
-
+  //recibo los datos para ponerlo en el formulario
   @Input() loginEmail = '';
   @Input() loginPassword = '';
   @Input() loginError = '';
@@ -23,7 +23,7 @@ export class LoginFormsComponent {
 
   @Input() showLoginPassword = false;
   @Input() showSignupPassword = false;
-
+  //eventos de salida (info del cliente)
   @Output() loginEmailChange = new EventEmitter<string>();
   @Output() loginPasswordChange = new EventEmitter<string>();
 
@@ -43,7 +43,7 @@ export class LoginFormsComponent {
     email: string;
     password: string;
   }>();
-
+  //Sets para asignar los datos y mandar los eventos
   setLoginEmail(event: Event) {
     const input = event.target as HTMLInputElement;
 
@@ -55,7 +55,7 @@ export class LoginFormsComponent {
 
     this.loginPasswordChange.emit(input.value);
   }
-
+  //mandar los eventos al padre para que el los maneje
   login() {
     this.loginSubmit.emit();
   }
