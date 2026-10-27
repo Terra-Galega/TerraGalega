@@ -31,6 +31,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public Admin addAdmin(Admin admin) {
+        EmailRules.validate(admin.getEmail());
         return repository.save(admin);
     }
 

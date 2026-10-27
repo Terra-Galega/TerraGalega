@@ -47,6 +47,8 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public Client addClient(Client client) {
 
+        EmailRules.validate(client.getEmail());
+
         // El correo no puede estar usado por ningún tipo de usuario
         if (repository.findByEmail(client.getEmail()) != null
                 || adminRepository.findByEmail(client.getEmail()) != null
@@ -70,6 +72,8 @@ public class ClientServiceImpl implements ClientService {
 
         Client actual = repository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("El cliente no existe."));
+
+        EmailRules.validate(client.getEmail());
 
         Client emailClient = repository.findByEmail(client.getEmail());
         Client phoneClient = repository.findByPhone(client.getPhone());
