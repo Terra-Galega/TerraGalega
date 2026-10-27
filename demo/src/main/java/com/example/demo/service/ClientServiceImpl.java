@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Client;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
@@ -39,7 +40,7 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public Client getClientById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el cliente solicitado."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró el cliente solicitado."));
     }
 
     @Override
@@ -51,12 +52,12 @@ public class ClientServiceImpl implements ClientService {
                 || adminRepository.findByEmail(client.getEmail()) != null
                 || operatorRepository.findByEmail(client.getEmail()) != null
                 || deliveryPersonRepository.findByEmail(client.getEmail()) != null) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe una cuenta registrada con ese correo electrónico.");
         }
 
         if (repository.findByPhone(client.getPhone()) != null) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe una cuenta registrada con ese número de teléfono.");
         }
 
@@ -68,25 +69,25 @@ public class ClientServiceImpl implements ClientService {
     public Client updateClient(Integer id, Client client) {
 
         Client actual = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("El cliente no existe."));
+                .orElseThrow(() -> ApiException.notFound("El cliente no existe."));
 
         Client emailClient = repository.findByEmail(client.getEmail());
         Client phoneClient = repository.findByPhone(client.getPhone());
 
         if (phoneClient != null && !phoneClient.getId().equals(id)) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe otra cuenta con ese número de teléfono.");
         }
 
         if (emailClient != null
                 && !emailClient.getId().equals(id)) {
 
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe otra cuenta con ese correo.");
         }
 
         if (adminRepository.findByEmail(client.getEmail()) != null) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe otra cuenta con ese correo.");
         }
 
@@ -106,7 +107,7 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public void deleteClient(Integer id) {
         if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("No se encontró el cliente que se desea eliminar.");
+            throw ApiException.notFound("No se encontró el cliente que se desea eliminar.");
         }
 
         // Valida que no haya pedidos en curso y cancela los pendientes
@@ -127,7 +128,7 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public void changePassword(Integer id, String currentPassword, String newPassword) {
         Client client = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el cliente solicitado."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró el cliente solicitado."));
 
         PasswordRules.validateChange(client.getPassword(), currentPassword, newPassword);
 

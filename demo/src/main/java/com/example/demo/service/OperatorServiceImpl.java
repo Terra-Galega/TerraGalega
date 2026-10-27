@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Order;
 import com.example.demo.entities.OrderStatus;
 import java.util.List;
@@ -48,7 +49,7 @@ public class OperatorServiceImpl implements OperatorService {
     @Transactional
     public Operator getOperatorById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el operador solicitado."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró el operador solicitado."));
     }
 
     // El correo no puede estar usado por ningún tipo de usuario.
@@ -62,7 +63,7 @@ public class OperatorServiceImpl implements OperatorService {
                 || adminRepository.findByEmail(email) != null
                 || clientRepository.findByEmail(email) != null
                 || deliveryPersonRepository.findByEmail(email) != null) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe una cuenta registrada con ese correo electrónico.");
         }
     }
@@ -75,7 +76,7 @@ public class OperatorServiceImpl implements OperatorService {
         boolean usedByOtherOperator = sameUsername != null && !sameUsername.getId().equals(currentOperatorId);
 
         if (usedByOtherOperator) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe una cuenta registrada con ese nombre de usuario.");
         }
     }
@@ -99,7 +100,7 @@ public class OperatorServiceImpl implements OperatorService {
     public Operator updateOperator(Integer id, Operator operator) {
 
         Operator existing = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("El operador no existe."));
+                .orElseThrow(() -> ApiException.notFound("El operador no existe."));
 
         validateEmailAvailable(operator.getEmail(), id);
         validateUsernameAvailable(operator.getUsername(), id);
@@ -122,12 +123,12 @@ public class OperatorServiceImpl implements OperatorService {
     public void deleteOperator(Integer id) {
 
         if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("No se encontró el operador que se desea eliminar.");
+            throw ApiException.notFound("No se encontró el operador que se desea eliminar.");
         }
 
         // Solo se bloquea si todavía tiene pedidos sin completar
         if (orderRepository.existsByOperatorIdAndStatusNotIn(id, FINISHED_STATUSES)) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "No se puede eliminar este operador porque tiene pedidos sin completar. Puedes desactivarlo.");
         }
 
@@ -145,7 +146,7 @@ public class OperatorServiceImpl implements OperatorService {
     @Transactional
     public Operator toggleOperatorActive(Integer id) {
         Operator operator = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el operador solicitado."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró el operador solicitado."));
 
         operator.setActive(!Boolean.TRUE.equals(operator.getActive()));
 
@@ -162,7 +163,7 @@ public class OperatorServiceImpl implements OperatorService {
     @Transactional
     public void changePassword(Integer id, String currentPassword, String newPassword) {
         Operator operator = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el operador solicitado."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró el operador solicitado."));
 
         PasswordRules.validateChange(operator.getPassword(), currentPassword, newPassword);
 

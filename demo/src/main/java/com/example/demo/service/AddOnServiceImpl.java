@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.entities.AddOn;
 import com.example.demo.entities.Category;
 import com.example.demo.repository.AddOnRepository;
@@ -41,13 +42,13 @@ public class AddOnServiceImpl implements AddOnService {
     @Transactional
     public AddOn getAddOnById(Integer id) {
         return repository.findById(id)  
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el adicional solicitado."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró el adicional solicitado."));
     }
     @Override
     @Transactional
     public Collection<AddOn> getActiveAddOnsByCategory(Integer categoryId) {
         if (!categoryRepository.existsById(categoryId)) {
-            throw new IllegalArgumentException("No se encuentran categorias con este id.");
+            throw ApiException.notFound("No se encuentran categorias con este id.");
         }
         return repository.findByActiveTrueAndCategories_Id(categoryId);
     }
@@ -55,11 +56,11 @@ public class AddOnServiceImpl implements AddOnService {
     // Validaciones compartidas por addAddOn() y updateAddOn()
     private void validateAddOn(AddOn addOn) {
         if (addOn.getName() == null || addOn.getName().isBlank()) {
-            throw new IllegalArgumentException("El nombre del adicional no puede estar vacío.");
+            throw ApiException.badRequest("El nombre del adicional no puede estar vacío.");
         }
         // Los adicionales pueden ser gratuitos, por eso se permite precio 0
         if (addOn.getPrice() == null || addOn.getPrice() < 0) {
-            throw new IllegalArgumentException("El precio del adicional no puede ser negativo.");
+            throw ApiException.badRequest("El precio del adicional no puede ser negativo.");
         }
     }
 
@@ -73,10 +74,10 @@ public class AddOnServiceImpl implements AddOnService {
 
         for (Category c : incoming) {
             if (c.getId() == null) {
-                throw new IllegalArgumentException("Categoría inválida.");
+                throw ApiException.badRequest("Categoría inválida.");
             }
             result.add(categoryRepository.findById(c.getId())
-                    .orElseThrow(() -> new IllegalArgumentException(
+                    .orElseThrow(() -> ApiException.badRequest(
                             "La categoría con id " + c.getId() + " no existe.")));
         }
 
@@ -104,7 +105,7 @@ public class AddOnServiceImpl implements AddOnService {
     public AddOn updateAddOn(Integer id, AddOn addOn) {
 
         AddOn existing = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("El adicional no existe."));
+                .orElseThrow(() -> ApiException.notFound("El adicional no existe."));
 
         validateAddOn(addOn);
 
@@ -126,11 +127,11 @@ public class AddOnServiceImpl implements AddOnService {
     public void deleteAddOn(Integer id) {
 
         if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("No se encontró el adicional que se desea eliminar.");
+            throw ApiException.notFound("No se encontró el adicional que se desea eliminar.");
         }
 
         if (orderRepository.existsByDetailsOrderDetailAddOnsAddOnId(id)) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "No se puede eliminar este adicional porque está en pedidos. Puedes desactivarlo.");
         }
 
@@ -142,7 +143,7 @@ public class AddOnServiceImpl implements AddOnService {
     public AddOn toggleAddOnActive(Integer id) {
 
         AddOn addOn = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("El adicional no existe."));
+                .orElseThrow(() -> ApiException.notFound("El adicional no existe."));
 
         addOn.setActive(!addOn.getActive());
 

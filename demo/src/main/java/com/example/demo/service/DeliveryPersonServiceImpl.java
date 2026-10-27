@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Order;
 import com.example.demo.entities.OrderStatus;
 import com.example.demo.entities.DeliveryPerson;
@@ -55,7 +56,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     @Transactional
     public DeliveryPerson getDeliveryPersonById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el domiciliario solicitado."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró el domiciliario solicitado."));
     }
 
     // Revisa que los datos obligatorios vengan completos. La contraseña solo
@@ -63,11 +64,11 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     private void validateRequired(DeliveryPerson dp, boolean passwordRequired) {
         if (isBlank(dp.getName()) || isBlank(dp.getLastName()) || isBlank(dp.getEmail())
                 || isBlank(dp.getIdentification()) || isBlank(dp.getPhone())) {
-            throw new IllegalArgumentException("Todos los campos del domiciliario son obligatorios.");
+            throw ApiException.badRequest("Todos los campos del domiciliario son obligatorios.");
         }
 
         if (passwordRequired && isBlank(dp.getPassword())) {
-            throw new IllegalArgumentException("La contraseña es obligatoria.");
+            throw ApiException.badRequest("La contraseña es obligatoria.");
         }
     }
 
@@ -82,19 +83,19 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
                 || adminRepository.findByEmail(dp.getEmail()) != null
                 || clientRepository.findByEmail(dp.getEmail()) != null
                 || operatorRepository.findByEmail(dp.getEmail()) != null) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe una cuenta registrada con ese correo electrónico.");
         }
 
         DeliveryPerson sameIdentification = repository.findByIdentification(dp.getIdentification());
         if (sameIdentification != null && !sameIdentification.getId().equals(currentId)) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe un domiciliario con esa identificación.");
         }
 
         DeliveryPerson samePhone = repository.findByPhone(dp.getPhone());
         if (samePhone != null && !samePhone.getId().equals(currentId)) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Ya existe un domiciliario con ese teléfono.");
         }
     }
@@ -123,7 +124,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     public DeliveryPerson updateDeliveryPerson(Integer id, DeliveryPerson deliveryPerson) {
 
         DeliveryPerson existing = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("El domiciliario no existe."));
+                .orElseThrow(() -> ApiException.notFound("El domiciliario no existe."));
 
         validateRequired(deliveryPerson, false);
         validateUnique(deliveryPerson, id);
@@ -147,7 +148,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     public DeliveryPerson toggleDeliveryPersonActive(Integer id) {
 
         DeliveryPerson existing = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("El domiciliario no existe."));
+                .orElseThrow(() -> ApiException.notFound("El domiciliario no existe."));
 
         existing.setActive(!Boolean.TRUE.equals(existing.getActive()));
 
@@ -159,12 +160,12 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     public void deleteDeliveryPerson(Integer id) {
 
         if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("No se encontró el domiciliario que se desea eliminar.");
+            throw ApiException.notFound("No se encontró el domiciliario que se desea eliminar.");
         }
 
         // Solo se bloquea si todavía tiene pedidos sin completar
         if (orderRepository.existsByDeliveryPersonIdAndStatusNotIn(id, FINISHED_STATUSES)) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "No se puede eliminar este domiciliario porque tiene pedidos sin completar. Puedes desactivarlo.");
         }
 
@@ -192,7 +193,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     @Transactional
     public void changePassword(Integer id, String currentPassword, String newPassword) {
         DeliveryPerson deliveryPerson = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el domiciliario solicitado."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró el domiciliario solicitado."));
 
         PasswordRules.validateChange(deliveryPerson.getPassword(), currentPassword, newPassword);
 

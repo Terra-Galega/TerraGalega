@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.entities.AddOn;
 import com.example.demo.entities.Category;
 import com.example.demo.repository.CategoryRepository;
@@ -36,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public Category getCategoryById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encuentran categorias con este id."));
+                .orElseThrow(() -> ApiException.notFound("No se encuentran categorias con este id."));
     }
 
     @Override
@@ -52,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = repository.findByName(categoryName);
 
         if (category == null) {
-            throw new IllegalArgumentException("No se encontró la categoría solicitada.");
+            throw ApiException.notFound("No se encontró la categoría solicitada.");
         }
 
         return new ArrayList<>(category.getAddOns());
@@ -61,13 +62,13 @@ public class CategoryServiceImpl implements CategoryService {
     // Validaciones compartidas por addCategory() y updateCategory()
     private void validateCategory(Category category, Integer currentId) {
         if (category.getName() == null || category.getName().isBlank()) {
-            throw new IllegalArgumentException("El nombre de la categoría no puede estar vacío.");
+            throw ApiException.badRequest("El nombre de la categoría no puede estar vacío.");
         }
 
         Category sameName = repository.findByName(category.getName().trim());
 
         if (sameName != null && !sameName.getId().equals(currentId)) {
-            throw new IllegalArgumentException("Ya existe una categoría con ese nombre.");
+            throw ApiException.conflict("Ya existe una categoría con ese nombre.");
         }
     }
 
@@ -89,7 +90,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Category updateCategory(Integer id, Category category) {
 
         Category existing = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("La categoría no existe."));
+                .orElseThrow(() -> ApiException.notFound("La categoría no existe."));
 
         validateCategory(category, id);
 
@@ -106,7 +107,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(Integer id) {
 
         Category category = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró la categoría que se desea eliminar."));
+                .orElseThrow(() -> ApiException.notFound("No se encontró la categoría que se desea eliminar."));
 
         if (productRepository.existsByCategoryId(id)) {
             List<String> productNames = productRepository.findByCategoryId(id).stream()

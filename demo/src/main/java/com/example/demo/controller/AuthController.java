@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +25,7 @@ public class AuthController {
         Object user = authService.login(request.getEmail(), request.getPassword());
 
         if (user == null) {
-            throw new IllegalArgumentException("Correo o contraseña incorrectos.");
+            throw ApiException.unauthorized("Correo o contraseña incorrectos.");
         }
 
         // Devuelve el Client o el Admin, ambos traen su "role"

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Admin;
 import com.example.demo.entities.Client;
 import com.example.demo.entities.Operator;
@@ -63,8 +64,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Los operadores solo pueden iniciar sesión si el admin
-        // los tiene activos. Se revisa después de la contraseña para no
-        // revelar a quien la adivina qué cuentas existen o están inactivas.
         Operator operator = operatorService.findByEmail(email);
 
         if (operator != null) {
@@ -73,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
             }
 
             if (!Boolean.TRUE.equals(operator.getActive())) {
-                throw new IllegalArgumentException(INACTIVE_ACCOUNT_MESSAGE);
+                throw ApiException.forbidden(INACTIVE_ACCOUNT_MESSAGE);
             }
 
             return operator;
