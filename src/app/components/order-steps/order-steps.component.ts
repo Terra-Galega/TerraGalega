@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 
+// Guía de "cómo pedir" (se usa en la página de pedidos): muestra los pasos para hacer un pedido, desde crear
+// la cuenta hasta seguir el domicilio. El contenido es fijo y se define aquí.
 @Component({
   selector: 'app-order-steps',
   imports: [],
