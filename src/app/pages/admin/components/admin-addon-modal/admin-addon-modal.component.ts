@@ -114,15 +114,18 @@ export class AdminAddonModalComponent {
     }
   }
 
-  save() {
-    if (!this.name.trim()) {
-      this.errorMessage = 'El nombre del adicional es obligatorio.';
-      return;
-    }
+  private validate(): string {
+    if (!this.name.trim()) return 'El nombre del addon es obligatorio.';
+    if (!this.price || this.price <= 0)
+      return 'El precio debe ser mayor que cero.';
+    if (!this.description.trim()) return 'La descripción es obligatoria.';
+    return '';
+  }
 
-    // Los adicionales pueden ser gratuitos, por eso se permite 0
-    if (this.price < 0) {
-      this.errorMessage = 'El precio no puede ser negativo.';
+  save() {
+    this.errorMessage = this.validate();
+    
+    if (this.errorMessage) {
       return;
     }
 
