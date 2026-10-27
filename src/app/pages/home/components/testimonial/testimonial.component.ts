@@ -12,8 +12,7 @@ interface Testimonial {
 @Component({
   selector: 'app-testimonial',
   imports: [StarIconComponent],
-  templateUrl: './testimonial.component.html',
-  styleUrl: './testimonial.component.scss'
+  templateUrl: './testimonial.component.html'
 })
 export class TestimonialsComponent {
 
