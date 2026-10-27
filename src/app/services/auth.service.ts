@@ -21,6 +21,15 @@ export interface Session {
   type: 'admin' | 'client' | 'operator';
 }
 
+// Lo único que el back devuelve al iniciar sesión
+export interface LoginResponse {
+  id: number;
+  name: string;
+  lastName: string;
+  address?: string; // solo los clientes tienen dirección
+  role: string;
+}
+
 // Rol que manda el back -> tipo de sesión que usa el front
 const TYPES: Record<string, Session['type']> = {
   ADMIN: 'admin',
@@ -60,8 +69,11 @@ export class AuthService {
 
   // Le pregunta al back si el correo y la contraseña existen.
   // Si no existen, el back responde con error y el componente lo muestra.
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, password });
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
+      email,
+      password,
+    });
   }
 
   // Se llama desde el login, el registro y editar perfil
@@ -146,9 +158,7 @@ export class AuthService {
       if (!raw) return null;
 
       const parsed = JSON.parse(raw);
-      const validType = ['admin', 'client', 'operator'].includes(
-        parsed?.type,
-      );
+      const validType = ['admin', 'client', 'operator'].includes(parsed?.type);
 
       return validType && typeof parsed.id === 'number' ? parsed : null;
     } catch {
