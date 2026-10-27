@@ -9,10 +9,13 @@ import { SearchInputComponent } from '../../../../components/search-input/search
   styleUrl: './admin-topbar.component.scss',
 })
 export class AdminTopbarComponent {
+  // Propiedades configurables para personalizar la barra superior desde el componente padre.
   @Input() title = 'Productos';
   @Input() showSearch = true;
   @Input() showAddButton = true;
   @Input() addLabel = 'Añadir producto';
+
+  // Eventos que notifican al componente padre los cambios en la búsqueda y los clics en el botón de añadir.
   @Output() searchChanged = new EventEmitter<string>();
   @Output() addClicked = new EventEmitter<void>();
 }
