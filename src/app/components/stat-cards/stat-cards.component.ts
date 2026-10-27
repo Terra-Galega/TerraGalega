@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 
+// Una cifra destacada: el número o texto grande y su descripción debajo.
 export interface Stat {
   value: string;
   label: string;
@@ -13,5 +14,6 @@ export interface Stat {
   styleUrl: './stat-cards.component.scss',
 })
 export class StatCardsComponent {
+  // Cifras a mostrar. Se dibujan en 3 columnas, así que está pensado para recibir 3 elementos.
   @Input({ required: true }) stats: Stat[] = [];
 }

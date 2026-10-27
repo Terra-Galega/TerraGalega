@@ -1,5 +1,7 @@
+<!-- Contenedor centrado -->
 <div class="text-center" [class]="compact ? 'py-16' : 'py-24'" style="color: rgba(44, 44, 44, 0.35)">
   <p class="mb-2" [class.text-lg]="!compact">{{ message }}</p>
+  <!-- Botón de acción: solo aparece si el padre le dio un texto -->
   @if (actionLabel) {
     <button
       type="button"

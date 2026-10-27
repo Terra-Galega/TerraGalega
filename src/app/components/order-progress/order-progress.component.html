@@ -1,3 +1,4 @@
+<!-- Pedido cancelado: no hay progreso que mostrar, solo una etiqueta roja -->
 @if (cancelled) {
   <div
     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-medium"
@@ -18,13 +19,14 @@
     Pedido cancelado
   </div>
 } @else {
+  <!-- Barra de progreso: lista ordenada con un paso por estado -->
   <ol class="flex w-full" aria-label="Progreso del pedido">
     @for (step of steps; track step.label; let i = $index) {
       <li
         class="relative flex-1 flex flex-col items-center text-center"
         [attr.aria-current]="step.state === 'current' ? 'step' : null"
       >
-        <!-- Línea que une con el paso anterior -->
+        <!-- Línea que une con el paso anterior. Verde si ese tramo ya se recorrió, gris si todavía falta -->
         @if (i > 0) {
           <span
             class="absolute top-[11px] right-1/2 w-full h-0.5 rounded-full"
@@ -34,7 +36,7 @@
           ></span>
         }
 
-        <!-- Punto del paso -->
+        <!-- Punto del paso: verde si está completado, naranja con halo si es el actual, gris si falta -->
         <span
           class="relative z-10 w-[22px] h-[22px] rounded-full flex items-center justify-center"
           [style.background-color]="
@@ -51,6 +53,7 @@
             step.state === 'current' ? '0 0 0 4px rgba(178, 87, 31, 0.18)' : 'none'
           "
         >
+          <!-- Check en los completados, punto blanco en el actual -->
           @if (step.state === 'done') {
             <svg
               width="12"
@@ -69,6 +72,7 @@
           }
         </span>
 
+        <!-- Nombre del paso. El texto oculto (sr-only) es solo para lectores de pantalla, que no pueden ver los colores -->
         <span
           class="mt-2 px-0.5 text-[11px] sm:text-xs leading-tight"
           [style.color]="
