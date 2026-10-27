@@ -62,6 +62,10 @@ export class AdminCategoryModalComponent {
       this.errorMessage = 'El nombre de la categoría es obligatorio.';
       return;
     }
+    if (!this.description.trim()) {
+      this.errorMessage = 'La descripción de la categoría es obligatoria.';
+      return;
+    }
 
     // EDITAR
     if (this.category) {
