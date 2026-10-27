@@ -48,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Object login(String email, String password) {
 
+        EmailRules.validate(email);
         // Devuelve null (no lanza excepción) cuando el correo no existe o la
         // contraseña no coincide: AuthController lo convierte en el mensaje
         // "Correo o contraseña incorrectos."

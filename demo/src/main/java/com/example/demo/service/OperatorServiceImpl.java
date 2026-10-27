@@ -56,6 +56,7 @@ public class OperatorServiceImpl implements OperatorService {
     // currentOperatorId permite que al editar un operador conserve su propio
     // correo.
     private void validateEmailAvailable(String email, Integer currentOperatorId) {
+        EmailRules.validate(email);
         Operator sameEmail = repository.findByEmail(email);
         boolean usedByOtherOperator = sameEmail != null && !sameEmail.getId().equals(currentOperatorId);
 

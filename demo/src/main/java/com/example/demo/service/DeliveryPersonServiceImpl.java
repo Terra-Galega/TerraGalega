@@ -66,6 +66,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
                 || isBlank(dp.getIdentification()) || isBlank(dp.getPhone())) {
             throw ApiException.badRequest("Todos los campos del domiciliario son obligatorios.");
         }
+        EmailRules.validate(dp.getEmail());
 
         if (passwordRequired && isBlank(dp.getPassword())) {
             throw ApiException.badRequest("La contraseña es obligatoria.");
