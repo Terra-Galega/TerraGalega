@@ -49,7 +49,7 @@ export class AdminProductModalComponent implements OnChanges {
     { key: 'popular', label: 'Popular' },
     ...FEATURES,
   ];
-
+  errorMessage = '';
   name = '';
   description = '';
   price = 0;
@@ -144,7 +144,11 @@ export class AdminProductModalComponent implements OnChanges {
   }
 
   setPrice(event: Event) {
-    this.price = Number((event.target as HTMLInputElement).value);
+    const input = event.target as HTMLInputElement;
+    const value = Number(input.value);
+
+    this.price = Math.round(value / 100) * 100;
+    input.value = String(this.price);
   }
 
   setImageUrl(event: Event) {
@@ -163,19 +167,20 @@ export class AdminProductModalComponent implements OnChanges {
     this[key] = !this[key];
   }
 
+  private validate(): string {
+    if (!this.name.trim()) return 'El nombre del producto es obligatorio.';
+    if (!this.price || this.price <= 0)
+      return 'El precio debe ser mayor que cero.';
+    if (!this.categoryName) return 'La categoría del producto es obligatoria.';
+    if (!this.description.trim()) return 'La descripción es obligatoria.';
+    if (!this.imageUrl.trim()) return 'La URL de la imagen es obligatoria.';
+    return '';
+  }
+
   save() {
-    if (!this.name.trim()) {
-      console.error('El nombre del producto es obligatorio.');
-      return;
-    }
+    this.errorMessage = this.validate();
 
-    if (!this.categoryName) {
-      console.error('La categoría del producto es obligatoria.');
-      return;
-    }
-
-    if (this.price <= 0) {
-      console.error('El precio debe ser mayor que cero.');
+    if (this.errorMessage) {
       return;
     }
 
@@ -184,7 +189,7 @@ export class AdminProductModalComponent implements OnChanges {
     );
 
     if (!selectedCategory) {
-      console.error('No se encontró la categoría seleccionada.');
+      this.errorMessage = 'No se encontró la categoría seleccionada.';
       return;
     }
 
