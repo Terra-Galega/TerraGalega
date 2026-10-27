@@ -92,7 +92,7 @@ export class AdminAddonModalComponent {
     const input = event.target as HTMLInputElement;
     const value = Number(input.value);
 
-    this.price = Math.round(value / 100) * 100;
+    this.price = Math.round(value / 50) * 50;
     input.value = String(this.price);
   }
 
