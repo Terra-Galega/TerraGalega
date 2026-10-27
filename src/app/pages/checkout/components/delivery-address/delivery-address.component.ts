@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
+// Campo de dirección de entrega del checkout.
 @Component({
   selector: 'app-delivery-address',
   standalone: true,
@@ -8,6 +9,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
   templateUrl: './delivery-address.component.html',
 })
 export class DeliveryAddressComponent {
+  // Formulario del padre; este componente usa su control `address`
   @Input({ required: true }) form!: FormGroup;
 
   // Mensaje de error (vacío = sin error)
@@ -16,8 +18,10 @@ export class DeliveryAddressComponent {
   // Aviso de que se actualizará la dirección del perfil (vacío = no se muestra)
   @Input() notice = '';
 
+  // Dirección del perfil, para ofrecer el botón de restaurarla
   @Input() savedAddress = '';
 
+  // Avisa al padre que el cliente quiere volver a la dirección guardada
   @Output() useSavedAddress = new EventEmitter<void>();
 
   // Cuántos caracteres lleva escritos (para el contador)

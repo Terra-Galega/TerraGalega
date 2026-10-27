@@ -1,9 +1,11 @@
+<!-- Se enlaza al mismo formulario del padre -->
 <section [formGroup]="form">
   <h2 class="font-serif text-xl font-semibold text-charcoal">Dirección de entrega</h2>
   <p class="text-[15px] mt-1 mb-4" style="color: rgba(44, 44, 44, 0.65)">
     ¿Dónde quieres recibir tu pedido?
   </p>
 
+  <!-- Caja del input: el borde se pone rojo si hay error. -->
   <div
     class="rounded-2xl overflow-hidden"
     style="background-color: rgba(255, 255, 255, 0.85)"
@@ -37,6 +39,7 @@
     </span>
   </div>
 
+  <!-- Botón para volver a la dirección del perfil (solo si la escrita es distinta) -->
   @if (canRestore) {
     <button
       type="button"

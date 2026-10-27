@@ -1,14 +1,17 @@
+<!-- Página del paso 2: resumen para revisar y confirmar el pedido -->
 <div style="min-height: 100vh; background: #f5f2eb">
   <app-navbar></app-navbar>
 
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
     <app-page-header eyebrow="Paso 2 de 2 · Pasarela de pago" title="Revisa tu pedido" />
 
+    <!-- Carrito vacío: invita a ir a la carta -->
     @if (items.length === 0) {
     <div class="glass-card rounded-3xl">
       <app-empty-state message="Tu carrito está vacío. Agrega algo de la carta antes de pagar."
         actionLabel="Explorar la carta" (action)="goToMenu()"></app-empty-state>
     </div>
+    <!-- 'ready' es true solo si el paso 1 quedó completo; si no, se redirige al paso 1 -->
     } @else if (ready) {
     <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
       <!-- Izquierda: lo que eligió el cliente, cada bloque con su "Editar" -->
@@ -21,6 +24,7 @@
                 {{ draft.address }}
               </p>
 
+              <!-- Aviso de que la dirección del perfil se va a actualizar -->
               @if (addressNotice) {
               <p class="text-sm mt-3" style="color: rgba(44, 44, 44, 0.7)">
                 {{ addressNotice }}
@@ -40,6 +44,8 @@
             <div class="min-w-0">
               <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Método de pago</p>
 
+              <!-- Tarjeta: solo se muestran los últimos 4 dígitos y las cuotas.
+                  Contra entrega: mensaje de pago en efectivo. -->
               @if (draft.method === 'card') {
               <p class="text-[15px] font-medium text-charcoal mt-1">Tarjeta {{ lastDigits }}</p>
               <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
@@ -63,8 +69,10 @@
 
       <!-- Derecha: productos, total y confirmar -->
       <aside class="md:col-span-2 md:sticky md:top-28">
+        <!-- Resumen con el costo del domicilio incluido -->
         <app-order-summary [items]="items" [total]="total" [deliveryFee]="deliveryFee" [unitPrice]="unitPrice">
           <div class="mt-6 flex flex-col items-center gap-4">
+            <!-- El texto cambia según el estado -->
             <app-button size="lg" [fullWidth]="true" [disabled]="paying" (click)="confirm()">
               {{
               paying
@@ -75,6 +83,7 @@
               }}
             </app-button>
 
+            <!-- Error del backend, visible bajo el botón -->
             @if (serverError) {
             <p class="text-sm text-center" style="color: #8a2222">{{ serverError }}</p>
             }
