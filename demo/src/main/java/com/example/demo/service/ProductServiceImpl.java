@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.entities.OrderStatus;
 import com.example.demo.entities.Product;
 import com.example.demo.errors.ProductNotFoundException;
@@ -85,10 +86,10 @@ public class ProductServiceImpl implements ProductService {
     // Validaciones de negocio compartidas por addProduct() y updateProduct().
     private void validateProduct(Product product) {
         if (product.getName() == null || product.getName().isBlank()) {
-            throw new IllegalArgumentException("El nombre del producto no puede estar vacío.");
+            throw ApiException.badRequest("El nombre del producto no puede estar vacío.");
         }
         if (product.getPrice() == null || product.getPrice() <= 0) {
-            throw new IllegalArgumentException("El precio del producto debe ser mayor que cero.");
+            throw ApiException.badRequest("El precio del producto debe ser mayor que cero.");
         }
     }
 
@@ -129,11 +130,11 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void deleteProduct(Integer id) {
         if (orderRepository.existsByDetailsProductIdAndStatusNot(id, OrderStatus.DELIVERED)) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "No se puede eliminar este producto porque está asociado a un pedido que aún no se ha entregado.");
         }
         if (orderRepository.existsByDetailsProductId(id)) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "No se puede eliminar este producto porque tiene pedidos asociados en el historial. Puedes desactivarlo.");
         }
 

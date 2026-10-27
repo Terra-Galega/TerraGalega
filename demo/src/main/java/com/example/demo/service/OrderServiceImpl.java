@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import java.time.LocalDate;
 import com.example.demo.dto.CheckoutItemDTO;
 import com.example.demo.dto.OrderSummaryDTO;
@@ -95,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
             OrderStatus status = order.getStatus();
 
             if (status != OrderStatus.PENDING && !FINISHED_STATUSES.contains(status)) {
-                throw new IllegalArgumentException(
+                throw ApiException.conflict(
                         "No puedes eliminar tu cuenta mientras tengas pedidos en curso. "
                                 + "Espera a que sean entregados o cancélalos si aún no han sido confirmados.");
             }
@@ -114,7 +115,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order getOrderById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("El pedido no existe."));
+                .orElseThrow(() -> ApiException.notFound("El pedido no existe."));
     }
 
     @Override
@@ -132,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
     public Order checkout(Client client, CheckoutRequestDTO request) {
 
         if (request.getItems() == null || request.getItems().isEmpty()) {
-            throw new IllegalArgumentException("El carrito está vacío.");
+            throw ApiException.badRequest("El carrito está vacío.");
         }
 
         Order order = Order.builder()
@@ -149,18 +150,18 @@ public class OrderServiceImpl implements OrderService {
 
             Integer quantity = item.getQuantity();
             if (quantity == null || quantity < 1) {
-                throw new IllegalArgumentException(
+                throw ApiException.badRequest(
                         "Cantidad inválida para el producto " + item.getProductId());
             }
 
             Product product = productRepository.findById(item.getProductId())
-                    .orElseThrow(() -> new IllegalArgumentException(
+                    .orElseThrow(() -> ApiException.conflict(
                             "Uno de los productos de tu carrito ya no está disponible."));
 
             // El producto pudo desactivarse después de que el cliente lo guardara en su
             // carrito
             if (!Boolean.TRUE.equals(product.getActive())) {
-                throw new IllegalArgumentException(
+                throw ApiException.conflict(
                         "El producto \"" + product.getName() + "\" ya no está disponible.");
             }
 
@@ -176,7 +177,7 @@ public class OrderServiceImpl implements OrderService {
             if (item.getAddOnIds() != null) {
                 for (Integer addOnId : item.getAddOnIds()) {
                     AddOn addOn = addOnRepository.findById(addOnId)
-                            .orElseThrow(() -> new IllegalArgumentException(
+                            .orElseThrow(() -> ApiException.conflict(
                                     "Adicional no encontrado: " + addOnId));
 
                     boolean addOnAllowed = product.getCategory() != null
@@ -184,7 +185,7 @@ public class OrderServiceImpl implements OrderService {
                                     .anyMatch(c -> c.getId().equals(product.getCategory().getId()));
 
                     if (!addOnAllowed) {
-                        throw new IllegalArgumentException(
+                        throw ApiException.badRequest(
                                 "El adicional seleccionado no está disponible para este producto.");
                     }
 
@@ -246,7 +247,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderById(orderId);
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalArgumentException("Solo se pueden confirmar pedidos pendientes.");
+            throw ApiException.conflict("Solo se pueden confirmar pedidos pendientes.");
         }
 
         order.setStatus(OrderStatus.CONFIRMED);
@@ -262,11 +263,11 @@ public class OrderServiceImpl implements OrderService {
 
         // Solo el dueño del pedido puede cancelarlo
         if (order.getClient() == null || !order.getClient().getId().equals(clientId)) {
-            throw new IllegalArgumentException("Este pedido no te pertenece.");
+            throw ApiException.forbidden("Este pedido no te pertenece.");
         }
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalArgumentException(
+            throw ApiException.conflict(
                     "Solo puedes cancelar pedidos que el restaurante aún no ha confirmado.");
         }
 
@@ -282,18 +283,18 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderById(orderId);
 
         if (order.getStatus() != OrderStatus.CONFIRMED) {
-            throw new IllegalArgumentException("Solo se pueden cocinar pedidos confirmados.");
+            throw ApiException.conflict("Solo se pueden cocinar pedidos confirmados.");
         }
 
         if (operatorId == null) {
-            throw new IllegalArgumentException("Falta el operador que cocina el pedido.");
+            throw ApiException.badRequest("Falta el operador que cocina el pedido.");
         }
 
         Operator operator = operatorRepository.findById(operatorId)
-                .orElseThrow(() -> new IllegalArgumentException("El operador no existe."));
+                .orElseThrow(() -> ApiException.notFound("El operador no existe."));
 
         if (!Boolean.TRUE.equals(operator.getActive())) {
-            throw new IllegalArgumentException("El operador está desactivado.");
+            throw ApiException.conflict("El operador está desactivado.");
         }
 
         order.setOperator(operator);
@@ -309,19 +310,19 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderById(orderId);
 
         if (order.getStatus() != OrderStatus.PREPARING) {
-            throw new IllegalArgumentException("Solo se pueden enviar pedidos que se están preparando.");
+            throw ApiException.conflict("Solo se pueden enviar pedidos que se están preparando.");
         }
 
         if (deliveryPersonId == null) {
-            throw new IllegalArgumentException("Selecciona un domiciliario.");
+            throw ApiException.badRequest("Selecciona un domiciliario.");
         }
 
         DeliveryPerson deliveryPerson = deliveryPersonRepository.findById(deliveryPersonId)
-                .orElseThrow(() -> new IllegalArgumentException("El domiciliario no existe."));
+                .orElseThrow(() -> ApiException.notFound("El domiciliario no existe."));
 
         if (!Boolean.TRUE.equals(deliveryPerson.getActive())
                 || !Boolean.TRUE.equals(deliveryPerson.getAvailable())) {
-            throw new IllegalArgumentException("El domiciliario no está disponible.");
+            throw ApiException.conflict("El domiciliario no está disponible.");
         }
 
         // Mientras lleva el pedido no puede recibir otro
@@ -341,7 +342,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderById(orderId);
 
         if (order.getStatus() != OrderStatus.ON_THE_WAY) {
-            throw new IllegalArgumentException("Solo se pueden completar pedidos que van en camino.");
+            throw ApiException.conflict("Solo se pueden completar pedidos que van en camino.");
         }
 
         order.setStatus(OrderStatus.DELIVERED);
@@ -373,7 +374,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Volver a cargar el pedido dentro de la transacción
         order = repository.findById(order.getId())
-                .orElseThrow(() -> new IllegalArgumentException("El pedido no existe."));
+                .orElseThrow(() -> ApiException.notFound("El pedido no existe."));
 
         OrderDTO dto = new OrderDTO();
 
@@ -452,7 +453,7 @@ public class OrderServiceImpl implements OrderService {
             LocalDate from, LocalDate to, Integer productId, Integer orderId) {
 
         if (from != null && to != null && from.isAfter(to)) {
-            throw new IllegalArgumentException(
+            throw ApiException.badRequest(
                     "La fecha inicial no puede ser posterior a la fecha final.");
         }
 

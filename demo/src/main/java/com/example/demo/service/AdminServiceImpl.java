@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Admin;
 import com.example.demo.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     public Admin getAdminById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("El admin no existe."));
+                .orElseThrow(() -> ApiException.notFound("El admin no existe."));
     }
 
     @Override
