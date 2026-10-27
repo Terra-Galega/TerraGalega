@@ -7,11 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @Repository
 public interface OperatorRepository extends JpaRepository<Operator, Integer> {
 
-
-    // BUsqueda de operador por email para evitar duplicado en Register y validacion en Login
+    // BUsqueda de operador por email para evitar duplicado en Register y validacion
+    // en Login
+    // Ambos métodos devuelven un solo resultado: dependen de que email y username
+    // sean únicos (unique=true en la entidad).
     Operator findByEmail(String email);
 
-    // Busqueda de operador por usuario para evitar duplicado en Register y validacion alterna en Login
+    // Busqueda de operador por usuario para evitar duplicado en Register y
+    // validacion alterna en Login
     Operator findByUsername(String username);
 
 }

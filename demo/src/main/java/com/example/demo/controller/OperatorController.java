@@ -11,6 +11,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/operators")
+// Solo permite peticiones desde el front en desarrollo (Angular, puerto 4200).
 @CrossOrigin(origins = "http://localhost:4200")
 public class OperatorController {
 
@@ -35,6 +36,8 @@ public class OperatorController {
         return operatorService.addOperator(operator);
     }
 
+    // La contraseña no se actualiza por aquí: se cambia únicamente en
+    // /{id}/password.
     @Operation(summary = "Update an operator by ID from operator UI")
     @PutMapping("/{id}")
     public Operator updateOperator(
@@ -51,11 +54,14 @@ public class OperatorController {
     }
 
     @Operation(summary = "Toggle operator active status")
+    // Alterna activo/inactivo sin recibir cuerpo; el servidor decide el nuevo
+    // estado.
     @PutMapping("/{id}/toggle")
     public Operator toggleOperator(@PathVariable Integer id) {
         return operatorService.toggleOperatorActive(id);
     }
 
+    // El servicio verifica la contraseña actual antes de aplicar la nueva.
     @Operation(summary = "Change password (requires current password)")
     @PutMapping("/{id}/password")
     public void changePassword(@PathVariable Integer id,

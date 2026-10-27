@@ -34,6 +34,8 @@ public class OperatorServiceImpl implements OperatorService {
     @Autowired
     private OrderRepository orderRepository;
 
+    // Los repositorios de los demás roles se necesitan porque el correo debe ser
+    // único entre todos los tipos de usuario.
     // Un pedido deja de estar activo cuando se entrega o se cancela
     private static final List<OrderStatus> FINISHED_STATUSES = List.of(
             OrderStatus.DELIVERED,
@@ -56,6 +58,7 @@ public class OperatorServiceImpl implements OperatorService {
     // currentOperatorId permite que al editar un operador conserve su propio
     // correo.
     private void validateEmailAvailable(String email, Integer currentOperatorId) {
+        // Primero se valida el formato; después la disponibilidad.
         EmailRules.validate(email);
         Operator sameEmail = repository.findByEmail(email);
         boolean usedByOtherOperator = sameEmail != null && !sameEmail.getId().equals(currentOperatorId);
@@ -88,6 +91,7 @@ public class OperatorServiceImpl implements OperatorService {
         validateEmailAvailable(operator.getEmail(), null);
         validateUsernameAvailable(operator.getUsername(), null);
         // Evita que un id enviado desde el front sobrescriba un operador existente
+        // (el id se fuerza a null para que save() siempre cree un registro nuevo)
         operator.setId(null);
         if (operator.getActive() == null) {
             operator.setActive(true);
@@ -110,6 +114,7 @@ public class OperatorServiceImpl implements OperatorService {
         existing.setLastName(operator.getLastName());
         existing.setEmail(operator.getEmail());
         existing.setUsername(operator.getUsername());
+        // La contraseña no se copia a propósito: solo cambia mediante changePassword.
         existing.setRole(operator.getRole());
 
         if (operator.getActive() != null) {
@@ -149,6 +154,8 @@ public class OperatorServiceImpl implements OperatorService {
         Operator operator = repository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("No se encontró el operador solicitado."));
 
+        // Se usa Boolean.TRUE.equals para que un valor null cuente como inactivo y pase
+        // a activo.
         operator.setActive(!Boolean.TRUE.equals(operator.getActive()));
 
         return repository.save(operator);
@@ -166,8 +173,11 @@ public class OperatorServiceImpl implements OperatorService {
         Operator operator = repository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("No se encontró el operador solicitado."));
 
+        // Lanza ApiException si la contraseña actual no coincide o la nueva no cumple
+        // las reglas.
         PasswordRules.validateChange(operator.getPassword(), currentPassword, newPassword);
 
+        // Nota: la contraseña se guarda en texto plano (sin hash).
         operator.setPassword(newPassword);
         repository.save(operator);
     }
