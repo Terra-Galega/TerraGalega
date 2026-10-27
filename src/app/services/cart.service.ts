@@ -25,16 +25,24 @@ export function unavailableMessage(names: string[]): string {
 // Carrito de quien aún no ha iniciado sesión
 const GUEST_KEY = 'terragalega_cart';
 
+// Servicio que administra el carrito de compras. Guarda un carrito por cliente
+// en localStorage y mantiene la lista actual en memoria para que los
+// componentes se actualicen al instante.
 @Injectable({ providedIn: 'root' })
 export class CartService {
+  // Sesión actual: define de quién es el carrito.
   private auth = inject(AuthService);
+  // Se usa para comprobar qué productos siguen activos en el backend.
   private productService = inject(ProductService);
 
   // Llave de localStorage del carrito que se está usando ahora mismo
   private currentKey: string | null = null;
 
+  // Contenido actual del carrito. BehaviorSubject guarda el último valor,
+  // así quien se suscribe recibe de inmediato el estado vigente.
   private itemsSubject = new BehaviorSubject<CartItem[]>([]);
 
+  // Observable de solo lectura para que los componentes escuchen los cambios.
   items$ = this.itemsSubject.asObservable();
 
   constructor() {
@@ -44,9 +52,14 @@ export class CartService {
     this.auth.session$.subscribe((session) => this.switchCart(session));
   }
 
+  // Lectura rápida del contenido actual, sin necesidad de suscribirse.
   get items(): CartItem[] {
     return this.itemsSubject.value;
   }
+
+  // =========================
+  // Modificación del carrito
+  // =========================
 
   // Si el mismo producto con los mismos adicionales ya está en el carrito,
   // se suma la cantidad en vez de crear otro registro
@@ -57,10 +70,12 @@ export class CartService {
     let updated: CartItem[];
 
     if (exists) {
+      // Ya existe: se aumenta la cantidad de esa línea y las demás no cambian
       updated = this.items.map((item) =>
         item.id === id ? { ...item, quantity: item.quantity + quantity } : item,
       );
     } else {
+      // Es nueva: se agrega al final
       updated = [...this.items, { id, product, quantity, addOns }];
     }
 
@@ -69,6 +84,7 @@ export class CartService {
 
  
   // Quita del carrito los productos que ya no están disponibles  y devuelve sus nombres.
+  // Si el backend falla no se quita nada y se devuelve una lista vacía
   removeUnavailable(): Observable<string[]> {
     if (this.items.length === 0) return of([]);
 
@@ -91,13 +107,19 @@ export class CartService {
     );
   }
 
+  // Elimina una línea completa del carrito
   removeItem(id: string) {
     this.update(this.items.filter((item) => item.id !== id));
   }
 
+  // Vacía el carrito (por ejemplo, después de confirmar un pedido)
   clear() {
     this.update([]);
   }
+
+  // =========================
+  // Cálculos
+  // =========================
 
   // Precio de una unidad: producto + sus adicionales
   unitPrice(item: CartItem): number {
@@ -108,6 +130,7 @@ export class CartService {
     return item.product.price + addOnsTotal;
   }
 
+  // Valor total del carrito (sin domicilio): precio unitario por cantidad de cada línea
   get total(): number {
     return this.items.reduce(
       (sum, item) => sum + this.unitPrice(item) * item.quantity,
@@ -115,11 +138,17 @@ export class CartService {
     );
   }
 
+  // Cantidad total de unidades (no de líneas). Es el número que se muestra en el ícono del carrito.
   get count(): number {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
-   private buildId(product: Product, addOns: AddOnOption[]): string {
+  // =========================
+  // Identificación de líneas
+  // =========================
+
+   // Construye el id de una línea a partir del producto y sus adicionales.
+  private buildId(product: Product, addOns: AddOnOption[]): string {
     const addOnIds = addOns
       .map((addOn) => addOn.id)
       .sort((a, b) => a - b)
@@ -128,6 +157,9 @@ export class CartService {
     return `${product.id}:${addOnIds}`;
   }
 
+  // =========================
+  // Carrito por sesión
+  // =========================
 
   // Cada cliente tiene su llave; el resto (invitado, admin, operador,
   // domiciliario) usa la del invitado
@@ -149,8 +181,11 @@ export class CartService {
     const previousKey = this.currentKey;
     this.currentKey = newKey;
 
+    // Se carga lo que el nuevo dueño tenía guardado
     let items = this.load(newKey);
 
+    // Invitado que inicia sesión como cliente: se suma lo que ya había
+    // agregado y se borra el carrito de invitado para no duplicarlo
     if (previousKey === GUEST_KEY && newKey !== GUEST_KEY) {
       items = this.merge(items, this.items);
       this.remove(GUEST_KEY);
@@ -161,6 +196,7 @@ export class CartService {
 
   // Suma los productos del segundo carrito al primero
   private merge(base: CartItem[], extra: CartItem[]): CartItem[] {
+    // Copia para no modificar el carrito original
     const result = [...base];
 
     for (const item of extra) {
@@ -179,12 +215,17 @@ export class CartService {
     return result;
   }
 
+  // =========================
+  // Persistencia (localStorage)
+  // =========================
+
   // Punto único de cambio: avisa a los suscriptores y guarda en el navegador
   private update(items: CartItem[]) {
     this.itemsSubject.next(items);
     this.save(items);
   }
 
+  // Guarda el carrito en el navegador bajo la llave del dueño actual
   private save(items: CartItem[]) {
     if (!this.currentKey) return;
 
@@ -196,6 +237,7 @@ export class CartService {
     }
   }
 
+  // Borra un carrito guardado en el navegador
   private remove(key: string) {
     try {
       localStorage.removeItem(key);
@@ -214,6 +256,8 @@ export class CartService {
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) return [];
 
+      // Se descartan las líneas incompletas para que un dato dañado
+      // no rompa la pantalla del carrito
       return parsed.filter(
         (item) =>
           item &&
