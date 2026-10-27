@@ -1,3 +1,4 @@
+<!-- Barra superior con título, campo de búsqueda y botón de acción -->
 <div
   class="h-[60px] flex items-center justify-between px-8 border-b flex-shrink-0"
   style="
@@ -9,10 +10,13 @@
     z-index: 10;
   "
 >
+  <!-- Título definido desde el componente padre -->
   <h1 class="font-serif text-xl font-semibold text-charcoal">
     {{ title }}
   </h1>
+
   <div class="flex items-center gap-3">
+    <!-- Campo de búsqueda visible cuando showSearch está habilitado (en Orders no )-->
     @if (showSearch) {
       <app-search-input
         class="w-48"
@@ -21,8 +25,11 @@
         (valueChange)="searchChanged.emit($event)"
       />
     }
+
+    <!-- Botón de añadir visible cuando showAddButton está habilitado -->
     @if (showAddButton) {
       <app-button size="sm" (click)="addClicked.emit()">
+        <!-- Icono de suma del botón -->
         <svg
           width="15"
           height="15"
@@ -33,6 +40,7 @@
         >
           <path d="M12 5v14M5 12h14" />
         </svg>
+
         {{ addLabel }}
       </app-button>
     }
