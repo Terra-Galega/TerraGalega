@@ -26,6 +26,11 @@ import { FeatureKey } from '../../models/feature';
 // Cada cuánto se vuelve a pedir el menú al servidor (en milisegundos)
 const REFRESH_MS = 10_000;
 
+/**
+ * Página de la carta: muestra los productos activos y permite filtrarlos por
+ * texto, por categoría (incluida "Popular") y por características
+ * (vegetariano, picante, alérgenos). Los tres filtros se combinan.
+ */
 @Component({
   selector: 'app-menu',
   imports: [
@@ -44,11 +49,15 @@ export class MenuComponent {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
 
+  // Todos los productos activos que llegaron del servidor
   products: Product[] = [];
+  // Los productos que se ven en pantalla, después de aplicar los filtros
   filteredProducts: Product[] = [];
+  // Categorías que vienen del servidor, para armar los botones de filtro
   categories: Category[] = [];
 
   constructor() {
+    // Las categorías se piden una sola vez al abrir la página
     this.categoryService.getCategories().subscribe({
       next: (categories) => {
         this.categories = categories;
@@ -64,7 +73,9 @@ export class MenuComponent {
     // y el buscador, la categoría y los filtros se conservan.
     merge(timer(0, REFRESH_MS), fromEvent(document, 'visibilitychange'))
       .pipe(
+        // Solo se pide el menú si la pestaña está visible (no gasta peticiones en segundo plano)
         filter(() => document.visibilityState === 'visible'),
+        // switchMap cancela la petición anterior si llega una nueva antes de terminar
         switchMap(() =>
           this.productService.getActiveProducts().pipe(
             catchError((error) => {
@@ -73,18 +84,23 @@ export class MenuComponent {
             }),
           ),
         ),
+        // Deja de actualizar cuando el componente se destruye (al salir de la página)
         takeUntilDestroyed(),
       )
       .subscribe((products) => {
         this.products = products;
+        // Se vuelven a aplicar los filtros sobre la lista recién cargada
         this.filterMenuItems();
       });
   }
 
+  // Estado actual de los filtros
   currentCategory = 'Todos';
   currentSearch = '';
   activeFeatureFilters: FeatureKey[] = [];
 
+  // Nombres de los botones de categoría: "Todos" y "Popular" son fijos y
+  // después van las categorías reales
   get categoriesList(): string[] {
     return [
       'Todos',
@@ -92,16 +108,22 @@ export class MenuComponent {
       ...this.categories.map((category) => category.name),
     ];
   }
+
+  // Aplica los tres filtros a la lista de productos. Un producto se muestra
+  // solo si cumple categoría, búsqueda y características a la vez.
   filterMenuItems(): void {
     const search = this.currentSearch.trim().toLowerCase();
 
     this.filteredProducts = this.products.filter((product) => {
+      // "Todos" no filtra; "Popular" usa la marca popular del producto;
+      // cualquier otra opción compara con el nombre de su categoría
       const matchesCategory =
         this.currentCategory === 'Todos' ||
         (this.currentCategory === 'Popular'
           ? product.popular
           : product.category?.name === this.currentCategory);
 
+      // Búsqueda por nombre, sin importar mayúsculas
       const matchesSearch = product.name.toLowerCase().includes(search);
 
       // Con varias características, el plato debe cumplirlas todas
@@ -113,21 +135,26 @@ export class MenuComponent {
     });
   }
 
+  // El usuario eligió otro botón de categoría
   selectCategory(category: string): void {
     this.currentCategory = category;
     this.filterMenuItems();
   }
 
+  // El usuario escribió en el buscador
   onSearch(term: string): void {
     this.currentSearch = term;
     this.filterMenuItems();
   }
 
+  // El usuario aplicó (o limpió) el panel de características
   applyFeatureFilters(features: FeatureKey[]): void {
     this.activeFeatureFilters = features;
     this.filterMenuItems();
   }
 
+  // Quita todos los filtros y vuelve a mostrar toda la carta
+  // (lo usa el botón "Ver todos los platos" cuando no hay resultados)
   resetMenu(): void {
     this.currentSearch = '';
     this.currentCategory = 'Todos';

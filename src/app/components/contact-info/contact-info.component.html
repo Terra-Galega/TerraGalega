@@ -1,10 +1,15 @@
+<!-- Contenedor: según "layout", acomoda las tarjetas en cuadrícula de 3 columnas
+     (grid) o en una columna con separación vertical (stack) -->
 <div
   [class.grid]="layout === 'grid'"
   [class.md:grid-cols-3]="layout === 'grid'"
   [class.gap-8]="layout === 'grid'"
   [class.space-y-5]="layout === 'stack'"
 >
+  <!-- Una tarjeta por cada dato de contacto -->
   @for (item of contactItems; track item.title) {
+    <!-- Si el dato trae enlace, toda la tarjeta es un enlace que abre en pestaña
+         nueva (rel="noopener noreferrer" por seguridad); si no, es una tarjeta normal -->
     @if (item.link) {
       <a
         [href]="item.link"
@@ -12,6 +17,8 @@
         rel="noopener noreferrer"
         class="glass-card rounded-2xl p-6 flex items-start gap-5 block transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
       >
+        <!-- Recuadro del icono (en la versión con enlace solo se dibuja el
+             icono de ubicación) -->
         <div
           class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
           style="background-color: rgba(109, 178, 31, 0.1); color: #556141"
@@ -33,6 +40,7 @@
           }
         </div>
 
+        <!-- Texto de la tarjeta: título pequeño y valor -->
         <div>
           <p
             class="text-[11px] font-medium uppercase tracking-widest mb-1"
@@ -47,11 +55,14 @@
         </div>
       </a>
     } @else {
+      <!-- Tarjeta sin enlace -->
       <div class="glass-card rounded-2xl p-6 flex items-start gap-5">
+        <!-- Recuadro del icono: se dibuja el que corresponde a item.icon -->
         <div
           class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
           style="background-color: rgba(109, 178, 31, 0.1); color: #556141"
         >
+          <!-- Teléfono -->
           @if (item.icon === "phone") {
             <svg
               width="20"
@@ -66,6 +77,7 @@
               />
             </svg>
           }
+          <!-- Ubicación -->
           @if (item.icon === "location") {
             <svg
               width="20"
@@ -81,6 +93,7 @@
               <circle cx="12" cy="11" r="3" />
             </svg>
           }
+          <!-- Correo -->
           @if (item.icon === "email") {
             <svg
               width="20"
@@ -95,6 +108,7 @@
             </svg>
           }
 
+          <!-- Reloj (horario) -->
           @if (item.icon === "clock") {
             <svg
               width="20"
@@ -110,6 +124,7 @@
           }
         </div>
 
+        <!-- Texto de la tarjeta: título pequeño y valor -->
         <div>
           <p
             class="text-[11px] font-medium uppercase tracking-widest mb-1"

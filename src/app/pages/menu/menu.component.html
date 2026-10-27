@@ -1,6 +1,7 @@
 <app-navbar />
 
 <main class="min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8">
+  <!-- Encabezado de la página con el buscador de platos a la derecha -->
   <app-page-header eyebrow="Lo que ofrecemos" title="Nuestra Carta">
     <app-search-input
       class="w-full md:w-72"
@@ -10,6 +11,8 @@
     />
   </app-page-header>
 
+  <!-- Fila de filtros: botones de categoría (ocupan el espacio sobrante) y,
+       a la derecha, el botón con el panel de características -->
   <div class="flex items-center gap-3 mb-12">
     <app-category-filter
       class="flex-1 min-w-0"
@@ -17,9 +20,15 @@
       [selected]="currentCategory"
       (selectedChange)="selectCategory($event)"
     />
-    <app-feature-filter [active]="activeFeatureFilters" (filtersApplied)="applyFeatureFilters($event)" />
+    <app-feature-filter
+      [active]="activeFeatureFilters"
+      (filtersApplied)="applyFeatureFilters($event)"
+    />
   </div>
 
+  <!-- Cuadrícula de productos: 1 columna en celular, 2 en pantallas medianas
+       y 3 en grandes. Si no hay resultados, muestra un aviso con un botón
+       para quitar los filtros. -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
     @for (product of filteredProducts; track product.id) {
       <app-product-card-menu [product]="product" />

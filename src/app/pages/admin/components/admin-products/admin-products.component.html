@@ -1,10 +1,22 @@
-<div class="rounded-2xl overflow-hidden" style="background-color: rgba(255, 255, 255, 0.6); box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05)">
+<!-- Contenedor de la tabla: tarjeta con fondo translúcido y sombra suave -->
+<div
+  class="rounded-2xl overflow-hidden"
+  style="
+    background-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05);
+  "
+>
+  <!-- Permite desplazar la tabla de lado en pantallas pequeñas -->
   <div class="overflow-x-auto">
     <table class="w-full text-sm" style="border-collapse: collapse">
+      <!-- Encabezados (salen de la lista "columns" del .ts) -->
       <thead>
         <tr style="background-color: rgba(44, 44, 44, 0.04)">
           @for (column of columns; track column) {
-            <th class="text-left font-medium uppercase tracking-wider py-3 px-5" style="font-size: 11px; color: rgba(44, 44, 44, 0.45)">
+            <th
+              class="text-left font-medium uppercase tracking-wider py-3 px-5"
+              style="font-size: 11px; color: rgba(44, 44, 44, 0.45)"
+            >
               {{ column }}
             </th>
           }
@@ -12,6 +24,8 @@
       </thead>
 
       <tbody>
+        <!-- Una fila por producto filtrado. Cada fila avisa con sus eventos:
+             (toggle) activar/desactivar, (edit) editar, (remove) eliminar -->
         @for (product of filteredProducts; track product.id) {
           <tr
             app-admin-product-row
@@ -21,9 +35,13 @@
             (remove)="removeProduct($event)"
           ></tr>
         } @empty {
+          <!-- Sin resultados: una sola celda que ocupa todas las columnas -->
           <tr>
             <td [attr.colspan]="columns.length">
-              <app-empty-state [compact]="true" message="No se encontraron productos" />
+              <app-empty-state
+                [compact]="true"
+                message="No se encontraron productos"
+              />
             </td>
           </tr>
         }
@@ -32,6 +50,7 @@
   </div>
 </div>
 
+<!-- Confirmación para eliminar un producto -->
 <app-modal
   [open]="showDeleteModal"
   [title]="confirmTitle"
@@ -43,6 +62,8 @@
   (cancel)="cancelDelete()"
 ></app-modal>
 
+<!-- Ventana de error (por ejemplo, si el servidor no deja eliminar).
+     Solo tiene botón "Aceptar", por eso confirmar y cancelar hacen lo mismo -->
 <app-modal
   [open]="showErrorModal"
   [title]="errorTitle"

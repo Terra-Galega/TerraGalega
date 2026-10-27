@@ -1,15 +1,19 @@
+<!-- Fondo oscuro que cubre toda la pantalla y centra la ventana -->
 <div
   class="fixed inset-0 z-50 flex items-center justify-center p-4"
   style="background-color: rgba(44, 44, 44, 0.55)"
 >
+  <!-- Ventana: si el formulario es muy alto, se desplaza por dentro -->
   <div
     class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
   >
+    <!-- Encabezado: el título cambia según se edite o se cree -->
     <div class="flex items-center justify-between mb-7">
       <h2 class="font-serif text-2xl font-semibold text-charcoal">
         {{ category ? "Editar categoría" : "Añadir categoría" }}
       </h2>
 
+      <!-- Botón X para cerrar -->
       <app-icon-button variant="soft" label="Cerrar" (click)="close()">
         <svg
           width="15"
@@ -25,6 +29,7 @@
     </div>
 
     <div class="space-y-4">
+      <!-- Nombre -->
       <app-form-field label="Nombre">
         <input
           type="text"
@@ -36,6 +41,7 @@
         />
       </app-form-field>
 
+      <!-- Descripción -->
       <app-form-field label="Descripción">
         <textarea
           [value]="description"
@@ -46,10 +52,12 @@
         ></textarea>
       </app-form-field>
 
+      <!-- Error de validación o del servidor -->
       @if (errorMessage) {
         <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
       }
 
+      <!-- Botones: Cancelar y Guardar -->
       <div class="flex gap-3 pt-2">
         <app-button
           class="flex-1"

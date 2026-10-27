@@ -1,73 +1,125 @@
-<div class="glass-card w-full rounded-3xl overflow-hidden p-6 md:p-10 flex flex-col md:flex-row gap-10 md:gap-14 mb-16">
+<!-- Tarjeta de vidrio: en pantallas medianas o más grandes la imagen va a la
+     izquierda y la información a la derecha; en celular, una encima de otra -->
+<div
+  class="glass-card w-full rounded-3xl overflow-hidden p-6 md:p-10 flex flex-col md:flex-row gap-10 md:gap-14 mb-16"
+>
+  <!-- Imagen del producto -->
   <div class="w-full md:w-[45%] flex-shrink-0 md:min-h-[460px]">
-    <img [src]="product.imageUrl" [alt]="product.name" class="w-full h-[460px] md:h-full object-cover rounded-2xl" />
+    <img
+      [src]="product.imageUrl"
+      [alt]="product.name"
+      class="w-full h-[460px] md:h-full object-cover rounded-2xl"
+    />
   </div>
 
+  <!-- Información del producto -->
   <div class="flex-1">
+    <!-- Categoría e insignia "Popular" (cada una solo si aplica) -->
     <div class="flex items-center gap-3 mb-4">
       @if (product.category) {
-      <span class="text-[11px] font-medium tracking-widest uppercase" style="color: rgba(178, 87, 31, 0.8)">
-        {{ product.category.name }}
-      </span>
+        <span
+          class="text-[11px] font-medium tracking-widest uppercase"
+          style="color: rgba(178, 87, 31, 0.8)"
+        >
+          {{ product.category.name }}
+        </span>
       }
       @if (product.popular) {
-      <span class="flex items-center gap-1 text-[11px] font-medium" style="color: #d99a21">
-        <app-star-icon />
-        Popular
-      </span>
+        <span
+          class="flex items-center gap-1 text-[11px] font-medium"
+          style="color: #d99a21"
+        >
+          <app-star-icon />
+          Popular
+        </span>
       }
     </div>
 
-    <h1 class="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-5">
+    <!-- Nombre del plato y línea decorativa -->
+    <h1
+      class="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-5"
+    >
       {{ product.name }}
     </h1>
     <div class="w-12 h-0.5 mb-6" style="background: #b2571f"></div>
 
-    <p class="text-base leading-relaxed mb-6" style="color: rgba(44, 44, 44, 0.65)">
+    <!-- Descripción -->
+    <p
+      class="text-base leading-relaxed mb-6"
+      style="color: rgba(44, 44, 44, 0.65)"
+    >
       {{ product.description }}
     </p>
 
-    <app-feature-chips class="flex flex-wrap gap-2 mb-8" size="md" [product]="product" />
+    <!-- Características del plato (en tamaño grande, con la etiqueta completa) -->
+    <app-feature-chips
+      class="flex flex-wrap gap-2 mb-8"
+      size="md"
+      [product]="product"
+    />
 
+    <!-- Recuadro con el nombre y la descripción de la categoría -->
     @if (product.category) {
-    <div class="mb-8 p-4 rounded-2xl" style="
+      <div
+        class="mb-8 p-4 rounded-2xl"
+        style="
           background: rgba(44, 44, 44, 0.04);
           border: 1px solid rgba(44, 44, 44, 0.07);
-        ">
-      <p class="text-[11px] font-medium tracking-widest uppercase mb-1" style="color: rgba(178, 87, 31, 0.8)">
-        Categoría: {{ product.category.name }}
-      </p>
-      <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
-        {{ product.category.description }}
-      </p>
-    </div>
-    }
-
-    @if (addons.length > 0) {
-    <div class="mb-8">
-      <p class="text-[11px] font-medium tracking-widest uppercase mb-4" style="color: rgba(44, 44, 44, 0.35)">
-        Adicionales opcionales
-      </p>
-      <div class="space-y-3">
-        @for (addOn of addons; track addOn.id) {
-        <app-addon-option [addOn]="addOn" [quantity]="addOnQuantity(addOn)"
-          (changed)="changeAddOnQuantity(addOn, $event)" />
-        }
+        "
+      >
+        <p
+          class="text-[11px] font-medium tracking-widest uppercase mb-1"
+          style="color: rgba(178, 87, 31, 0.8)"
+        >
+          Categoría: {{ product.category.name }}
+        </p>
+        <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
+          {{ product.category.description }}
+        </p>
       </div>
-    </div>
     }
 
+    <!-- Adicionales opcionales (solo si la categoría tiene adicionales activos).
+         Cada fila avisa con (changed) cuando se suma o resta una unidad. -->
+    @if (addons.length > 0) {
+      <div class="mb-8">
+        <p
+          class="text-[11px] font-medium tracking-widest uppercase mb-4"
+          style="color: rgba(44, 44, 44, 0.35)"
+        >
+          Adicionales opcionales
+        </p>
+        <div class="space-y-3">
+          @for (addOn of addons; track addOn.id) {
+            <app-addon-option
+              [addOn]="addOn"
+              [quantity]="addOnQuantity(addOn)"
+              (changed)="changeAddOnQuantity(addOn, $event)"
+            />
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Cantidad de platos (enlace doble con "quantity") y total a pagar -->
     <div class="flex items-center justify-between gap-6 mb-6">
       <app-quantity-selector [(value)]="quantity" />
       <div>
-        <p class="text-[11px] uppercase tracking-widest mb-1" style="color: rgba(44, 44, 44, 0.35)">
+        <p
+          class="text-[11px] uppercase tracking-widest mb-1"
+          style="color: rgba(44, 44, 44, 0.35)"
+        >
           Total
         </p>
-        <span class="font-serif text-3xl font-bold" style="color: #b2571f">${{ totalPrice | number: "1.0-0" }}</span>
+        <span class="font-serif text-3xl font-bold" style="color: #b2571f"
+          >${{ totalPrice | number: "1.0-0" }}</span
+        >
       </div>
     </div>
 
-    <app-button size="lg" [fullWidth]="true" (click)="addToOrder()">Añadir a la orden</app-button>
-
+    <!-- Botón que verifica el producto y lo agrega al carrito -->
+    <app-button size="lg" [fullWidth]="true" (click)="addToOrder()"
+      >Añadir a la orden</app-button
+    >
   </div>
 </div>

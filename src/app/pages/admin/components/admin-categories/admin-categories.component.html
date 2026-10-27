@@ -1,3 +1,4 @@
+<!-- Contenedor de la tabla: tarjeta con fondo translúcido y sombra suave -->
 <div
   class="rounded-2xl overflow-hidden"
   style="
@@ -5,8 +6,10 @@
     box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05);
   "
 >
+  <!-- Permite desplazar la tabla de lado en pantallas pequeñas -->
   <div class="overflow-x-auto">
     <table class="w-full text-sm" style="border-collapse: collapse">
+      <!-- Encabezados (salen de la lista "columns" del .ts) -->
       <thead>
         <tr style="background-color: rgba(44, 44, 44, 0.04)">
           @for (column of columns; track column) {
@@ -21,12 +24,15 @@
       </thead>
 
       <tbody>
+        <!-- Una fila por categoría filtrada -->
         @for (category of filteredCategories; track category.id) {
           <tr>
+            <!-- Nombre -->
             <td class="py-3 px-5 font-semibold text-charcoal">
               {{ category.name }}
             </td>
 
+            <!-- Descripción -->
             <td
               class="py-3 px-5"
               style="color: rgba(44, 44, 44, 0.75); max-width: 360px"
@@ -34,6 +40,7 @@
               {{ category.description }}
             </td>
 
+            <!-- Cantidad de adicionales asociados (0 si no tiene ninguno) -->
             <td class="py-3 px-5">
               <span
                 class="text-[12px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
@@ -46,8 +53,10 @@
               </span>
             </td>
 
+            <!-- Acciones: editar y eliminar -->
             <td class="py-3 px-5">
               <div class="flex items-center gap-2">
+                <!-- Editar (ícono de lápiz) -->
                 <app-icon-button
                   variant="ghost"
                   label="Editar"
@@ -72,6 +81,7 @@
                   </svg>
                 </app-icon-button>
 
+                <!-- Eliminar (ícono de caneca de basura) -->
                 <app-icon-button
                   variant="ghost"
                   label="Eliminar"
@@ -96,6 +106,7 @@
             </td>
           </tr>
         } @empty {
+          <!-- Sin resultados: una sola celda que ocupa todas las columnas -->
           <tr>
             <td [attr.colspan]="columns.length">
               <app-empty-state
@@ -109,6 +120,8 @@
     </table>
   </div>
 </div>
+
+<!-- Confirmación para eliminar una categoría -->
 <app-modal
   [open]="showDeleteModal"
   [title]="confirmTitle"
@@ -120,6 +133,9 @@
   (cancel)="cancelDelete()"
 ></app-modal>
 
+<!-- Ventana de error. Si la categoría tiene productos, "items" muestra sus
+     nombres como etiquetas y "warning" la advertencia de abajo.
+     Solo tiene botón "Aceptar", por eso confirmar y cancelar hacen lo mismo -->
 <app-modal
   [open]="showErrorModal"
   [title]="errorTitle"

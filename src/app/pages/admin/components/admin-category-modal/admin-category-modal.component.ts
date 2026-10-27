@@ -14,6 +14,12 @@ import { FormFieldComponent } from '../../../../components/form-field/form-field
 import { ToastService } from '../../../../services/toast.service';
 import { getErrorMessage } from '../../../../utils/http-error';
 
+/**
+ * Ventana flotante para crear o editar una categoría.
+ * Si recibe una categoría, la edita; si recibe null, crea una nueva.
+ * Valida nombre y descripción y llama al servicio correspondiente.
+ * Avisa al padre con "saved" y "closed".
+ */
 @Component({
   selector: 'app-admin-category-modal',
   imports: [ButtonComponent, IconButtonComponent, FormFieldComponent],
@@ -23,16 +29,22 @@ export class AdminCategoryModalComponent {
   private categoryService = inject(CategoryService);
   private toast = inject(ToastService);
 
+  // Categoría a editar; null significa "crear una nueva"
   @Input() category: Category | null = null;
 
+  // closed: se debe cerrar la ventana. saved: se guardó con éxito.
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
+  // Campos del formulario
   name = '';
   description = '';
 
+  // Mensaje de error que se muestra dentro del formulario
   errorMessage = '';
 
+  // Se ejecuta cada vez que el padre cambia el @Input "category":
+  // llena el formulario con la categoría (editar) o lo deja vacío (crear)
   ngOnChanges(changes: SimpleChanges) {
     if (!changes['category']) {
       return;
@@ -49,6 +61,7 @@ export class AdminCategoryModalComponent {
     }
   }
 
+  // Guardan en el componente lo que el usuario escribe
   setName(event: Event) {
     this.name = (event.target as HTMLInputElement).value;
   }
@@ -57,7 +70,9 @@ export class AdminCategoryModalComponent {
     this.description = (event.target as HTMLTextAreaElement).value;
   }
 
+  // Botón "Guardar cambios" / "Añadir categoría"
   save() {
+    // Validación: nombre y descripción son obligatorios
     if (!this.name.trim()) {
       this.errorMessage = 'El nombre de la categoría es obligatorio.';
       return;
@@ -69,6 +84,8 @@ export class AdminCategoryModalComponent {
 
     // EDITAR
     if (this.category) {
+      // Se parte de la categoría original (conserva su id) y se
+      // sobreescriben los campos del formulario
       const updated: Category = {
         ...this.category,
         name: this.name.trim(),
@@ -96,6 +113,7 @@ export class AdminCategoryModalComponent {
     });
   }
 
+  // Guardado exitoso: refresca la tabla, avisa al usuario y cierra la ventana
   private onSuccess(message: string) {
     this.categoryService.refresh();
     this.toast.show(message);
@@ -103,12 +121,16 @@ export class AdminCategoryModalComponent {
     this.closed.emit();
   }
 
+  // Error al guardar: se muestra dentro del formulario y la ventana sigue abierta
   private onError(error: any) {
     console.error('Error guardando categoría:', error);
-    this.errorMessage =
-      getErrorMessage(error, 'No se pudo guardar la categoría.');
+    this.errorMessage = getErrorMessage(
+      error,
+      'No se pudo guardar la categoría.',
+    );
   }
 
+  // Botón "Cancelar" y la X: pide al padre cerrar la ventana
   close() {
     this.closed.emit();
   }
