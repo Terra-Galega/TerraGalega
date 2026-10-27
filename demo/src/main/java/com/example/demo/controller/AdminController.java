@@ -2,12 +2,14 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.CategoryDTO;
 import com.example.demo.dto.CategoryRefDTO;
+import com.example.demo.dto.ClientDTOAdmin;
 import com.example.demo.dto.ProductDTO;
 import com.example.demo.dto.ProductOptionDTO;
 import com.example.demo.dto.ProductSummaryDTO;
 import com.example.demo.entities.Category;
 import com.example.demo.entities.Product;
 import com.example.demo.service.CategoryService;
+import com.example.demo.service.ClientService;
 import com.example.demo.service.ProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/products")
@@ -27,6 +30,9 @@ public class AdminController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ClientService clientService;
 
     private ProductDTO toDTO(Product product) {
         ProductDTO dto = new ProductDTO();
@@ -55,6 +61,22 @@ public class AdminController {
 
         return dto;
     }
+    
+    @GetMapping("/clients")
+    public Collection<ClientDTOAdmin> getClientDTOAdmins() {
+        return clientService.getAllClients()
+                .stream()
+                .map(client -> {
+                    ClientDTOAdmin dto = new ClientDTOAdmin();
+                    dto.setId(client.getId());
+                    dto.setName(client.getName());
+                    dto.setEmail(client.getEmail());
+                    dto.setPhone(client.getPhone());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
 
     // Versión para listados: la categoría va sin descripción
     private ProductSummaryDTO toSummaryDTO(Product product) {
