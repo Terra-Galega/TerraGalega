@@ -1,3 +1,5 @@
+<!-- El <label> envuelve todo, así que hacer clic en el texto también marca la casilla.
+     <ng-content /> deja que el padre ponga un icono entre la casilla y el texto. -->
 <label class="check-option" [class.check-option--sage]="accent === 'sage'">
   <input type="checkbox" [checked]="checked" (change)="onChange($event)" />
   <ng-content />
