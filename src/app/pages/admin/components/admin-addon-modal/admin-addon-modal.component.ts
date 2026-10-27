@@ -89,7 +89,11 @@ export class AdminAddonModalComponent {
   }
 
   setPrice(event: Event) {
-    this.price = Number((event.target as HTMLInputElement).value);
+    const input = event.target as HTMLInputElement;
+    const value = Number(input.value);
+
+    this.price = Math.round(value / 100) * 100;
+    input.value = String(this.price);
   }
 
   toggleActive() {
