@@ -12,6 +12,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.example.demo.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 
+
+// API REST de pedidos. Ruta: /orders.
+
 @RestController
 @RequestMapping("/orders")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -20,6 +23,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    // GET /orders
     @Operation(summary = "Get all orders for admin UI")
     @GetMapping
     public Collection<OrderDTO> getAllOrders() {
@@ -29,6 +33,7 @@ public class OrderController {
                 .toList();
     }
 
+    // GET /orders/client/{clientId}: historial del cliente
     @Operation(summary = "Get all orders for a specific client")
     @GetMapping("/client/{clientId}")
     public Collection<OrderDTO> getOrdersByClient(
@@ -39,24 +44,28 @@ public class OrderController {
                 .toList();
     }
 
+    // GET /orders/{id}: detalle de un pedido, incluye cliente y domiciliario
     @Operation(summary = "Get order by ID")
     @GetMapping("/{id}")
     public OrderDTO getOrderById(@PathVariable Integer id) {
         return orderService.toDTOWithContact(orderService.getOrderById(id));
     }
 
+    // GET /orders/active: pedidos sin terminar (ni entregados ni cancelados)
     @Operation(summary = "Get active orders for operator UI")
     @GetMapping("/active")
     public Collection<OrderSummaryDTO> getActiveOrders() {
         return orderService.getActiveOrders();
     }
 
+    // PUT /orders/{id}/confirm: PENDING pasa a CONFIRMED
     @Operation(summary = "Confirm a pending order")
     @PutMapping("/{id}/confirm")
     public OrderDTO confirmOrder(@PathVariable Integer id) {
         return orderService.toDTO(orderService.confirmOrder(id));
     }
 
+    // PUT /orders/{id}/cook/{operatorId}: CONFIRMED pasa a PREPARING
     @Operation(summary = "Start preparing an order")
     @PutMapping("/{id}/cook/{operatorId}")
     public OrderDTO cookOrder(
@@ -66,6 +75,7 @@ public class OrderController {
                 orderService.cookOrder(id, operatorId));
     }
 
+    // PUT /orders/{id}/send/{deliveryPersonId}: PREPARING pasa a ON_THE_WAY
     @Operation(summary = "Send an order with a delivery person")
     @PutMapping("/{id}/send/{deliveryPersonId}")
     public OrderDTO sendOrder(
@@ -75,6 +85,7 @@ public class OrderController {
                 orderService.sendOrder(id, deliveryPersonId));
     }
 
+    // PUT /orders/{id}/deliver: ON_THE_WAY pasa a DELIVERED
     @Operation(summary = "Mark an order as delivered")
     @PutMapping("/{id}/deliver")
     public OrderDTO deliverOrder(@PathVariable Integer id) {
@@ -82,6 +93,8 @@ public class OrderController {
                 orderService.deliverOrder(id));
     }
 
+    // PUT /orders/{id}/cancel?clientId=X: PENDING pasa a CANCELLED
+    // El clientId permite al servicio comprobar que el pedido es del cliente
     @Operation(summary = "Cancel a pending order (only by its client)")
     @PutMapping("/{id}/cancel")
     public OrderDTO cancelOrder(
@@ -90,6 +103,7 @@ public class OrderController {
         return orderService.toDTO(orderService.cancelOrder(id, clientId));
     }
 
+    // GET /orders/all?from=&to=&productId=&orderId=: resúmenes para el admin.
     @Operation(summary = "Get order summaries for admin UI, with optional filters")
     @GetMapping("/all")
     public Collection<OrderSummaryDTO> getAllOrderSummaries(

@@ -19,6 +19,7 @@ import java.util.List;
 @Service
 public class DeliveryPersonServiceImpl implements DeliveryPersonService {
 
+    
     @Autowired
     private DeliveryPersonRepository repository;
 
@@ -52,6 +53,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
         return repository.findByAvailableTrueAndActiveTrue();
     }
 
+    // Busca por id o lanza 404 si no existe
     @Override
     @Transactional
     public DeliveryPerson getDeliveryPersonById(Integer id) {
@@ -66,6 +68,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
                 || isBlank(dp.getIdentification()) || isBlank(dp.getPhone())) {
             throw ApiException.badRequest("Todos los campos del domiciliario son obligatorios.");
         }
+        // Valida el formato del correo
         EmailRules.validate(dp.getEmail());
 
         if (passwordRequired && isBlank(dp.getPassword())) {
@@ -101,6 +104,8 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
         }
     }
 
+    // Crea un domiciliario nuevo: valida, fuerza los valores que no debe decidir
+    // el front y lo guarda
     @Override
     @Transactional
     public DeliveryPerson addDeliveryPerson(DeliveryPerson deliveryPerson) {
@@ -113,6 +118,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
         // El rol y la disponibilidad los define el servidor, no el front
         deliveryPerson.setRole(Role.DELIVERY_PERSON);
         deliveryPerson.setAvailable(true);
+        // Si el front no indica el estado, se crea activo
         if (deliveryPerson.getActive() == null) {
             deliveryPerson.setActive(true);
         }
@@ -120,6 +126,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
         return repository.save(deliveryPerson);
     }
 
+    // Edita los datos del domiciliario
     @Override
     @Transactional
     public DeliveryPerson updateDeliveryPerson(Integer id, DeliveryPerson deliveryPerson) {
@@ -151,11 +158,13 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
         DeliveryPerson existing = repository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("El domiciliario no existe."));
 
+        // Invierte el valor actual (si estaba null cuenta como inactivo)
         existing.setActive(!Boolean.TRUE.equals(existing.getActive()));
 
         return repository.save(existing);
     }
 
+    // Elimina al domiciliario
     @Override
     @Transactional
     public void deleteDeliveryPerson(Integer id) {
@@ -180,6 +189,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
         repository.deleteById(id);
     }
 
+    // Busca por correo
     @Override
     @Transactional
     public DeliveryPerson findByEmail(String email) {
@@ -190,6 +200,7 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
         return value == null || value.isBlank();
     }
 
+    // Cambia la contraseña. PasswordRules comprueba que la actual sea correcta
     @Override
     @Transactional
     public void changePassword(Integer id, String currentPassword, String newPassword) {

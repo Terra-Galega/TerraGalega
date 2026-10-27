@@ -22,8 +22,14 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * Una línea de un pedido: un producto, su cantidad y su precio en el momento
+ * de la compra. Un pedido (Order) tiene una o varias de estas líneas.
+ */
 @Getter
 @Setter
+// Se excluyen "order" y "orderDetailAddOns" del toString para evitar bucles
+// infinitos entre entidades que se referencian entre sí
 @ToString(exclude = { "order", "orderDetailAddOns" })
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,26 +37,34 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class OrderDetail {
 
+    // Identificador de la línea, autogenerado por la base de datos
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false)
     private Integer id;
 
+    // Pedido al que pertenece la línea. @JsonIgnore evita un bucle infinito al
+    // convertir a JSON (Order -> details -> order -> details ...)
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    // Producto que se pidió
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    // Cuántas unidades del producto se pidieron
     @Column(nullable = false)
     private Integer quantity;
 
+    // Precio del producto al momento de pedir. Se copia aquí para que el pedido
+    // no cambie si después se modifica el precio del producto.
     @Column(nullable = false)
     private Double unitPrice;
 
+    // Filas de la tabla de unión con los adicionales elegidos
     @JsonIgnore
     @OneToMany(mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
