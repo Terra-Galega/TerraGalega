@@ -4,9 +4,8 @@ import com.example.demo.errors.ApiException;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
-
 import java.util.Map;
-
+import com.example.demo.dto.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,17 +17,16 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @Operation(summary = "Login with email and password")
+        @Operation(summary = "Login with email and password")
     @PostMapping("/login")
-    public Object login(@RequestBody LoginRequestDTO request) {
+    public LoginResponseDTO login(@RequestBody LoginRequestDTO request) {
 
-        Object user = authService.login(request.getEmail(), request.getPassword());
+        LoginResponseDTO user = authService.login(request.getEmail(), request.getPassword());
 
         if (user == null) {
             throw ApiException.unauthorized("Correo o contraseña incorrectos.");
         }
 
-        // Devuelve el Client o el Admin, ambos traen su "role"
         return user;
     }
 
