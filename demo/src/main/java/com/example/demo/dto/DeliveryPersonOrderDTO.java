@@ -4,6 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+/**
+ * Datos del domiciliario que se muestran dentro de un pedido, para que el
+ * cliente y el operador sepan quién lo lleva y cómo contactarlo.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

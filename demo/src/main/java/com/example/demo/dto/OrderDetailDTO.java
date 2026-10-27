@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+// DTO Order parcial, para detales lo que necesita el frontend: producto, cantidad, precio unitario y los adicionales elegidos.
 @Getter
 @Setter
 @NoArgsConstructor

@@ -36,12 +36,16 @@ public interface OrderService {
 
     List<OrderSummaryDTO> getAllOrderSummaries();
 
+    // PENDING -> CONFIRMED
     Order confirmOrder(Integer orderId);
 
+    // CONFIRMED -> PREPARING
     Order cookOrder(Integer orderId, Integer operatorId);
 
+    // PREPARING -> ON_THE_WAY
     Order sendOrder(Integer orderId, Integer deliveryPersonId);
 
+    // ON_THE_WAY -> DELIVERED
     Order deliverOrder(Integer orderId);
 
 }
