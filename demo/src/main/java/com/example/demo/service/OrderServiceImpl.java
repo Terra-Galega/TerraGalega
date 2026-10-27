@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+// Lógica de negocio de los pedidos.
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -57,16 +58,16 @@ public class OrderServiceImpl implements OrderService {
             OrderStatus.DELIVERED,
             OrderStatus.CANCELLED);
 
-    // Valor fijo del domicilio, se cobra en cada pedido (el front tiene el mismo
-    // valor)
     private static final double DELIVERY_FEE = 6000.0;
 
+    // Historial del cliente, del más reciente al más antiguo
     @Override
     @Transactional
     public List<Order> getOrdersByClientId(Integer clientId) {
         return repository.findByClientIdOrderByCreatedAtDesc(clientId);
     }
 
+    // Todos los pedidos ordenados por fecha de creación descendente
     @Override
     @Transactional
     public List<Order> getAllOrders() {
@@ -74,6 +75,7 @@ public class OrderServiceImpl implements OrderService {
                 .by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
     }
 
+    // Pone client = null en todos los pedidos del cliente, para poder borrar su cuenta sin perder el historial de pedidos
     @Override
     @Transactional
     public void clearClientIdFromOrders(Integer clientId) {
@@ -92,6 +94,7 @@ public class OrderServiceImpl implements OrderService {
     public void cancelPendingOrdersForClientDeletion(Integer clientId) {
         List<Order> orders = repository.findByClientIdOrderByCreatedAtDesc(clientId);
 
+        // Primera pasada: solo validar
         for (Order order : orders) {
             OrderStatus status = order.getStatus();
 
@@ -102,6 +105,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+        // Segunda pasada: ya es seguro, se cancelan los pendientes
         for (Order order : orders) {
             if (order.getStatus() == OrderStatus.PENDING) {
                 order.setStatus(OrderStatus.CANCELLED);
@@ -111,6 +115,7 @@ public class OrderServiceImpl implements OrderService {
         repository.saveAll(orders);
     }
 
+    // Busca un pedido o lanza 404 si no existe
     @Override
     @Transactional
     public Order getOrderById(Integer id) {
@@ -118,6 +123,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> ApiException.notFound("El pedido no existe."));
     }
 
+    // Guarda tal cual un pedido ya armado (sin validaciones)
     @Override
     @Transactional
     public Order createOrder(Order order) {
@@ -136,6 +142,7 @@ public class OrderServiceImpl implements OrderService {
             throw ApiException.badRequest("El carrito está vacío.");
         }
 
+        // Cabecera del pedido: estado inicial PENDING, fecha actual y el domicilio
         Order order = Order.builder()
                 .client(client)
                 .status(OrderStatus.PENDING)
@@ -146,6 +153,7 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderDetail> details = new ArrayList<>();
 
+        // Se crea una línea (OrderDetail) por cada producto del carrito
         for (CheckoutItemDTO item : request.getItems()) {
 
             Integer quantity = item.getQuantity();
@@ -174,6 +182,7 @@ public class OrderServiceImpl implements OrderService {
 
             List<OrderDetailAddOn> orderDetailAddOns = new ArrayList<>();
 
+            // Adicionales elegidos para este producto (opcionales)
             if (item.getAddOnIds() != null) {
                 for (Integer addOnId : item.getAddOnIds()) {
                     AddOn addOn = addOnRepository.findById(addOnId)
@@ -206,6 +215,7 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
+    // Pedidos activos sin entregar ni cancelar)
     @Override
     @Transactional
     public List<OrderSummaryDTO> getActiveOrders() {
@@ -214,6 +224,7 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
+    // Resumen de todos los pedidos
     @Override
     @Transactional
     public List<OrderSummaryDTO> getAllOrderSummaries() {
@@ -222,8 +233,7 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-    // Datos planos para la tabla del operador; el detalle se pide aparte con GET
-    // /orders/{id}
+    // Datos para la tabla del operador
     private OrderSummaryDTO toSummary(Order order) {
         Client client = order.getClient();
         DeliveryPerson deliveryPerson = order.getDeliveryPerson();
@@ -240,6 +250,7 @@ public class OrderServiceImpl implements OrderService {
                 order.getTotal());
     }
 
+    // El restaurante acepta el pedido
     @Override
     @Transactional
     public Order confirmOrder(Integer orderId) {
@@ -255,6 +266,7 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
+    // Solo el cliente dueño puede cancelar y solo antes de que el restaurante confirme
     @Override
     @Transactional
     public Order cancelOrder(Integer orderId, Integer clientId) {
@@ -276,6 +288,7 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
+    // Un operador activo empieza a cocinar y queda registrado en el pedido
     @Override
     @Transactional
     public Order cookOrder(Integer orderId, Integer operatorId) {
@@ -303,6 +316,7 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
+    // Se asigna un domiciliario activo y disponible.
     @Override
     @Transactional
     public Order sendOrder(Integer orderId, Integer deliveryPersonId) {
@@ -335,6 +349,7 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
+    // Registra la hora de entrega y libera al domiciliario
     @Override
     @Transactional
     public Order deliverOrder(Integer orderId) {
@@ -358,18 +373,21 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
+    // Convierte el pedido a DTO sin datos de contacto (listas y confirmaciones)
     @Override
     @Transactional
     public OrderDTO toDTO(Order order) {
         return buildDTO(order, false);
     }
 
+    // Convierte el pedido a DTO con cliente y domiciliario (pantalla de detalle)
     @Override
     @Transactional
     public OrderDTO toDTOWithContact(Order order) {
         return buildDTO(order, true);
     }
 
+    // Construye el OrderDTO
     private OrderDTO buildDTO(Order order, boolean includeContact) {
 
         // Volver a cargar el pedido dentro de la transacción
