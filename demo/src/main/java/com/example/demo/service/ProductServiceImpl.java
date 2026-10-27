@@ -13,29 +13,42 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * Lógica de negocio de los productos: consultas para el cliente (solo activos),
+ * CRUD del admin con sus validaciones, y reglas para eliminar (no se puede si
+ * el producto está en pedidos).
+ *
+ * Todos los métodos son @Transactional, así que se ejecutan dentro de una
+ * transacción y se pueden leer las relaciones sin problemas.
+ */
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    // Acceso a la tabla de productos
     @Autowired
     private ProductRepository repository;
 
+    // Se usa para saber si un producto aparece en pedidos antes de eliminarlo
     @Autowired
     private OrderRepository orderRepository;
 
+    // Todos los productos (activos e inactivos), para el admin
     @Override
     @Transactional
     public Collection<Product> getAllProducts() {
         return repository.findAll();
     }
 
+    // Solo los productos activos, para el cliente
     @Override
     @Transactional
     public Collection<Product> getAllProductsActive() {
         return repository.findByActiveTrue();
     }
 
+    // Busca un producto por id (activo o no); si no existe lanza
+    // ProductNotFoundException
     @Override
     @Transactional
     public Product getProductById(Integer id) {
@@ -45,6 +58,8 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
+    // Igual que getProductById, pero además rechaza los productos inactivos.
+    // Así el cliente no puede ver ni pedir un plato que el admin desactivó.
     @Override
     @Transactional
     public Product getActiveProductById(Integer id) {
@@ -57,18 +72,21 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
+    // Productos populares y activos, para "Favoritos de la casa" en el inicio
     @Override
     @Transactional
     public Collection<Product> getPopularProductsActive() {
         return repository.findByPopularTrueAndActiveTrue();
     }
 
+    // Productos relacionados con uno dado, para "También te puede gustar"
     @Override
     @Transactional
     public Collection<Product> getRelatedProducts(Integer id) {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
+        // Un producto sin categoría no tiene con qué relacionarse
         if (product.getCategory() == null) {
             return List.of();
         }
@@ -78,12 +96,15 @@ public class ProductServiceImpl implements ProductService {
                 product.getCategory().getId(), product.getId());
     }
 
+    // Solo los ids de los productos activos (consulta liviana, sin traer los platos
+    // completos)
     @Override
     @Transactional
     public List<Integer> getActiveProductIds() {
         return repository.findActiveIds();
     }
 
+    // Solo id y nombre de todos los productos, para llenar desplegables de filtro
     @Override
     @Transactional
     public List<ProductOptionDTO> getProductOptions() {
@@ -100,6 +121,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    // Crea un producto nuevo. Si no se indica, nace activo y no popular.
     @Override
     @Transactional
     public Product addProduct(Product product) {
@@ -115,10 +137,12 @@ public class ProductServiceImpl implements ProductService {
         return repository.save(product);
     }
 
+    // Actualiza un producto existente con los datos del formulario del admin
     @Override
     @Transactional
     public Product updateProduct(Integer id, Product product) {
 
+        // Se comprueba que exista antes de actualizar
         Product existingProduct = repository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
@@ -132,11 +156,16 @@ public class ProductServiceImpl implements ProductService {
         if (product.getPopular() == null) {
             product.setPopular(false);
         }
+        // Se fuerza el id de la ruta para que se actualice este producto y no otro
         product.setId(id);
 
         return repository.save(product);
     }
 
+    // Elimina un producto aplicando dos reglas, de la más urgente a la menos:
+    // 1) Si está en un pedido que aún no se entregó, no se puede borrar.
+    // 2) Si solo aparece en pedidos ya entregados (historial), tampoco se borra,
+    // para no dejar el historial incompleto; se debe desactivar.
     @Override
     @Transactional
     public void deleteProduct(Integer id) {
@@ -152,6 +181,8 @@ public class ProductServiceImpl implements ProductService {
         repository.deleteById(id);
     }
 
+    // Cambia el producto de activo a inactivo, o al revés. Un producto inactivo
+    // deja de verse en el menú pero se conserva en la base de datos.
     @Override
     @Transactional
     public Product toggleProductActive(Integer id) {
