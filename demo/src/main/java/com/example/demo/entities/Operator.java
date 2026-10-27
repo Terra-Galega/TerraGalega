@@ -41,6 +41,8 @@ public class Operator {
     @Column(unique = true, nullable = false, length = 120)
     private String email;
 
+    // WRITE_ONLY: la contraseña se acepta en las peticiones pero nunca se devuelve
+    // en las respuestas JSON.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(nullable = false, length = 70)
     private String password;
@@ -53,5 +55,7 @@ public class Operator {
     private String username;
 
     @Column(nullable = false)
+    // Boolean (no boolean) para poder distinguir 'no enviado' (null) de false; el
+    // servicio usa true por defecto al crear.
     private Boolean active;
 }
