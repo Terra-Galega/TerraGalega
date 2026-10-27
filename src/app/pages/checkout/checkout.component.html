@@ -1,9 +1,11 @@
+<!-- Página del paso 1: navbar + contenido + footer -->
 <div style="min-height: 100vh; background: #f5f2eb">
   <app-navbar></app-navbar>
 
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
     <app-page-header eyebrow="Paso 1 de 2 · Pasarela de pago" title="Entrega y pago" />
 
+    <!-- Sin productos en el carrito no tiene sentido pagar: se invita a ir a la carta -->
     @if (items.length === 0) {
       <div class="glass-card rounded-3xl">
         <app-empty-state
@@ -13,6 +15,8 @@
         ></app-empty-state>
       </div>
     } @else {
+      <!-- Formulario reactivo; al enviarlo (Enter o botón Continuar) se ejecuta goToReview().
+        Los hijos reciben el mismo `form` y escriben directamente en él. -->
       <form
         [formGroup]="form"
         (ngSubmit)="goToReview()"
@@ -20,6 +24,7 @@
       >
         <!-- Izquierda: dirección y método de pago -->
         <div class="md:col-span-3 flex flex-col gap-10">
+          <!-- Dirección: recibe el error del campo, el aviso de actualización del perfil y la dirección guardada -->
           <app-delivery-address
             [form]="form"
             [error]="errors['address'] || ''"
@@ -28,6 +33,7 @@
             (useSavedAddress)="useSavedAddress()"
           ></app-delivery-address>
 
+          <!-- Método de pago y datos de tarjeta; le pasa todos los errores y escucha el botón Autocompletar -->
           <app-payment-form
             [form]="form"
             [errors]="errors"
@@ -37,6 +43,7 @@
 
         <!-- Derecha: resumen y botón (queda fijo al hacer scroll en escritorio) -->
         <aside class="md:col-span-2 md:sticky md:top-28">
+          <!-- El resumen proyecta aquí dentro (ng-content) los botones propios de esta página -->
           <app-order-summary
             [items]="items"
             [total]="total"

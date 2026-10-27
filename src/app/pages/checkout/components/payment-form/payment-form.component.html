@@ -34,6 +34,7 @@
     }
   </div>
 
+  <!-- Error si no eligió método de pago -->
   @if (errors['method']) {
   <p class="text-sm mt-2" style="color: #8a2222">{{ errors['method'] }}</p>
   }
@@ -123,6 +124,7 @@
       </label>
     </div>
 
+    <!-- Errores de la tarjeta, uno debajo del otro -->
     @for (message of cardErrors; track message) {
     <p class="text-sm mt-2" style="color: #8a2222">{{ message }}</p>
     }
