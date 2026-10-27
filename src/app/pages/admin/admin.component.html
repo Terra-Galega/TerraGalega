@@ -1,68 +1,117 @@
-<div class="min-h-screen flex font-sans text-charcoal" style="background-color: #ece9e1">
-  <app-admin-sidebar [activeTab]="activeTab" [adminName]="adminName" (tabChanged)="changeTab($event)"
-    (logoutClicked)="logout()"></app-admin-sidebar>
+<div
+  class="min-h-screen flex font-sans text-charcoal"
+  style="background-color: #ece9e1"
+>
+  <app-admin-sidebar
+    [activeTab]="activeTab"
+    [adminName]="adminName"
+    (tabChanged)="changeTab($event)"
+    (logoutClicked)="logout()"
+  ></app-admin-sidebar>
 
   <div class="flex-1 flex flex-col" style="margin-left: 240px">
-    <app-admin-topbar [title]="pageTitle" [showAddButton]="showAddButton" [addLabel]="addLabel"
-      (addClicked)="onAddClicked()" (searchChanged)="searchProducts($event)"></app-admin-topbar>
+    <app-admin-topbar
+      [title]="pageTitle"
+      [showAddButton]="showAddButton"
+      [addLabel]="addLabel"
+      [showSearch]="activeTab !== 'orders'"
+      (addClicked)="onAddClicked()"
+      (searchChanged)="searchProducts($event)"
+    ></app-admin-topbar>
 
     <div class="flex-1 p-8">
       @if (activeTab === "products") {
-      <app-admin-products [searchTerm]="searchTerm" (editProduct)="openEditProduct($event)"></app-admin-products>
+        <app-admin-products
+          [searchTerm]="searchTerm"
+          (editProduct)="openEditProduct($event)"
+        ></app-admin-products>
       }
 
       @if (activeTab === "categories") {
-      <app-admin-categories [searchTerm]="searchTerm" (editCategory)="openEditCategory($event)"></app-admin-categories>
+        <app-admin-categories
+          [searchTerm]="searchTerm"
+          (editCategory)="openEditCategory($event)"
+        ></app-admin-categories>
       }
 
       @if (activeTab === "addons") {
-      <app-admin-addons [searchTerm]="searchTerm" (editAddon)="openEditAddon($event)"></app-admin-addons>
+        <app-admin-addons
+          [searchTerm]="searchTerm"
+          (editAddon)="openEditAddon($event)"
+        ></app-admin-addons>
       }
 
       @if (activeTab === "orders") {
-      <app-admin-orders></app-admin-orders>
+        <app-admin-orders></app-admin-orders>
       }
 
       @if (activeTab === "users") {
-      <app-admin-users [searchTerm]="searchTerm"></app-admin-users>
+        <app-admin-users [searchTerm]="searchTerm"></app-admin-users>
       }
       @if (activeTab === "operators") {
-      <app-admin-operators [searchTerm]="searchTerm"
-      (editOperator)="openEditOperator($event)"></app-admin-operators>
+        <app-admin-operators
+          [searchTerm]="searchTerm"
+          (editOperator)="openEditOperator($event)"
+        ></app-admin-operators>
       }
       @if (activeTab === "deliveries") {
-      <app-admin-delivery-persons [searchTerm]="searchTerm"
-        (editDeliveryPerson)="openEditDeliveryPerson($event)"></app-admin-delivery-persons>
+        <app-admin-delivery-persons
+          [searchTerm]="searchTerm"
+          (editDeliveryPerson)="openEditDeliveryPerson($event)"
+        ></app-admin-delivery-persons>
       }
     </div>
   </div>
 </div>
 
 @if (productModalOpen) {
-<app-admin-product-modal [product]="selectedProduct" (closed)="closeProductModal()"></app-admin-product-modal>
+  <app-admin-product-modal
+    [product]="selectedProduct"
+    (closed)="closeProductModal()"
+  ></app-admin-product-modal>
 }
 
 @if (categoryModalOpen) {
-<app-admin-category-modal [category]="selectedCategory" (closed)="closeCategoryModal()"></app-admin-category-modal>
+  <app-admin-category-modal
+    [category]="selectedCategory"
+    (closed)="closeCategoryModal()"
+  ></app-admin-category-modal>
 }
 
 @if (addonModalOpen) {
-<app-admin-addon-modal [addon]="selectedAddon" (closed)="closeAddonModal()"></app-admin-addon-modal>
+  <app-admin-addon-modal
+    [addon]="selectedAddon"
+    (closed)="closeAddonModal()"
+  ></app-admin-addon-modal>
 }
 @if (deliveryModalOpen) {
-<app-admin-delivery-person-modal [deliveryPerson]="selectedDeliveryPerson" (closed)="closeDeliveryModal()"
-  (changePassword)="openDeliveryPersonPassword()"></app-admin-delivery-person-modal>
+  <app-admin-delivery-person-modal
+    [deliveryPerson]="selectedDeliveryPerson"
+    (closed)="closeDeliveryModal()"
+    (changePassword)="openDeliveryPersonPassword()"
+  ></app-admin-delivery-person-modal>
 }
 @if (operatorModalOpen) {
-<app-admin-operator-modal [operator]="selectedOperator" (closed)="closeOperatorModal()"
-  (changePassword)="openOperatorPassword()"></app-admin-operator-modal>
+  <app-admin-operator-modal
+    [operator]="selectedOperator"
+    (closed)="closeOperatorModal()"
+    (changePassword)="openOperatorPassword()"
+  ></app-admin-operator-modal>
 }
 @if (passwordOperator) {
-<app-change-password-modal [userName]="passwordOperator.name + ' ' + passwordOperator.lastName"
-  [save]="saveOperatorPassword" (closed)="passwordOperator = null" />
+  <app-change-password-modal
+    [userName]="passwordOperator.name + ' ' + passwordOperator.lastName"
+    [save]="saveOperatorPassword"
+    (closed)="passwordOperator = null"
+  />
 }
 
 @if (passwordDeliveryPerson) {
-<app-change-password-modal [userName]="passwordDeliveryPerson.name + ' ' + passwordDeliveryPerson.lastName"
-  [save]="saveDeliveryPersonPassword" (closed)="passwordDeliveryPerson = null" />
+  <app-change-password-modal
+    [userName]="
+      passwordDeliveryPerson.name + ' ' + passwordDeliveryPerson.lastName
+    "
+    [save]="saveDeliveryPersonPassword"
+    (closed)="passwordDeliveryPerson = null"
+  />
 }
