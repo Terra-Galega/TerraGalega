@@ -12,7 +12,7 @@ import {
   switchMap,
   timer,
 } from 'rxjs';
-import { Product } from '../../../../models/product';
+import { ProductDetail } from '../../../../models/product';
 import { AddOnOption } from '../../../../models/addOn';
 import { AuthService } from '../../../../services/auth.service';
 import { CartService } from '../../../../services/cart.service';
@@ -51,7 +51,7 @@ export class ProductInfoCardComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private toast = inject(ToastService);
 
-  @Input() product!: Product;
+  @Input() product!: ProductDetail;
 
   addons: AddOnOption[] = [];
   selectedAddOns: AddOnOption[] = [];
