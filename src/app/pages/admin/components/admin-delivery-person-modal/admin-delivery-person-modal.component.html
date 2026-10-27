@@ -1,5 +1,8 @@
+<!-- Fondo oscuro que cubre toda la pantalla) -->
 <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(44, 44, 44, 0.55)">
+  <!-- Caja del modal -->
   <div class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative">
+    <!-- Encabezado: el título cambia según sea edición o creación, y botón X para cerrar -->
     <div class="flex items-center justify-between mb-7">
       <h2 class="font-serif text-2xl font-semibold text-charcoal">
         {{ deliveryPerson ? "Editar domiciliario" : "Añadir domiciliario" }}
@@ -12,7 +15,9 @@
       </app-icon-button>
     </div>
 
+    <!-- Formulario. Los inputs usan [value] + (input) para actualizar `form` a mano (sin ngModel) -->
     <div class="space-y-4">
+      <!-- Nombre y apellido en dos columnas -->
       <div class="grid grid-cols-2 gap-4">
         <app-form-field label="Nombre">
           <input type="text" [value]="form.name" (input)="form.name = $any($event.target).value" placeholder="Pedro"
@@ -25,12 +30,14 @@
         </app-form-field>
       </div>
 
+      <!-- Correo (se valida el formato en save()) -->
       <app-form-field label="Correo electrónico">
         <input type="email" [value]="form.email" (input)="form.email = $any($event.target).value"
           placeholder="domiciliario@terragalega.com"
           class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
       </app-form-field>
 
+      <!-- Identificación y teléfono en dos columnas -->
       <div class="grid grid-cols-2 gap-4">
         <app-form-field label="Identificación">
           <input type="text" [value]="form.identification" (input)="form.identification = $any($event.target).value"
@@ -43,6 +50,9 @@
         </app-form-field>
       </div>
 
+      <!-- Contraseña:
+          - Editando: no se muestra el valor; solo un botón que le pide al padre abrir el modal de cambio de contraseña.
+          - Creando: campo normal, obligatorio. -->
       @if (deliveryPerson) {
       <app-form-field label="Contraseña">
         <div class="input-field w-full px-4 py-2.5 rounded-xl text-sm flex items-center justify-between gap-3">
@@ -69,15 +79,18 @@
       </app-form-field>
       }
 
+      <!-- Si está inactivo no aparecerá al asignar pedidos -->
       <app-form-field label="Estado">
         <app-check-option label="Activo (disponible para recibir pedidos)" [checked]="form.active"
           (changed)="toggleActive()" />
       </app-form-field>
 
+      <!-- Mensaje de validación o de error del servidor -->
       @if (errorMessage) {
       <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
       }
 
+      <!-- Botones de acción: cancelar y guardar (el texto cambia según el modo) -->
       <div class="flex gap-3 pt-2">
         <app-button class="flex-1" variant="neutral" [fullWidth]="true" (click)="close()">
           Cancelar

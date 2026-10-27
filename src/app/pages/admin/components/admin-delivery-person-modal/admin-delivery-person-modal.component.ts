@@ -18,6 +18,10 @@ import { CheckOptionComponent } from '../../../../components/check-option/check-
 import { ToastService } from '../../../../services/toast.service';
 import { getErrorMessage } from '../../../../utils/http-error';
 import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../../../utils/email';
+
+// Modal del admin para crear o editar un domiciliario.
+// El mismo componente sirve para los dos casos: si llega `deliveryPerson`
+// es edición; si es null, es creación.
 @Component({
   selector: 'app-admin-delivery-person-modal',
   imports: [
@@ -32,9 +36,12 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
   private deliveryPersonService = inject(DeliveryPersonService);
   private toast = inject(ToastService);
 
+  // Domiciliario a editar. null = modo "Añadir domiciliario"
   @Input() deliveryPerson: DeliveryPerson | null = null;
 
+  // Avisa al padre que debe cerrar el modal (cancelar o guardado exitoso)
   @Output() closed = new EventEmitter<void>();
+  // Avisa que se guardó correctamente
   @Output() saved = new EventEmitter<void>();
   // Le avisa al padre que cierre este modal y abra el de contraseña
   @Output() changePassword = new EventEmitter<void>();
@@ -51,8 +58,10 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
     active: true,
   };
 
+  // Mensaje de validación o de error del servidor que se muestra bajo el formulario
   errorMessage = '';
 
+  // Al abrir en modo edición, precarga el formulario con los datos actuales
   ngOnInit() {
     if (this.deliveryPerson) {
       this.form = {
@@ -67,14 +76,17 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
     }
   }
 
+  // Invierte el checkbox "Activo"
   toggleActive() {
     this.form.active = !this.form.active;
   }
 
+  // Valida el formulario y decide si crear o actualizar
   save() {
     const { name, lastName, email, identification, phone, password } =
       this.form;
 
+    // Validación 1: ningún campo de texto puede estar vacío (o solo espacios)
     if (
       !name.trim() ||
       !lastName.trim() ||
@@ -86,6 +98,7 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
       return;
     }
 
+    // Validación 2: formato de correo válido
     if (!isValidEmail(email)) {
       this.errorMessage = EMAIL_ERROR_MESSAGE;
       return;
@@ -97,6 +110,8 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
       return;
     }
 
+    // Datos limpios (sin espacios sobrantes) listos para enviar al backend.
+    // La contraseña se manda tal cual, sin trim, para no alterarla.
     const data = {
       name: name.trim(),
       lastName: lastName.trim(),
@@ -109,6 +124,8 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
 
     // EDITAR
     if (this.deliveryPerson) {
+      // Se mezcla el domiciliario original con los datos nuevos para conservar
+      // id, rol y disponibilidad, que el formulario no maneja
       const updated: DeliveryPerson = { ...this.deliveryPerson, ...data };
 
       this.deliveryPersonService.updateDeliveryPerson(updated).subscribe({
@@ -121,6 +138,7 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
     }
 
     // CREAR
+    // CreateDeliveryPerson no lleva id, rol ni disponibilidad: los define el back
     const created: CreateDeliveryPerson = data;
 
     this.deliveryPersonService.addDeliveryPerson(created).subscribe({
@@ -129,12 +147,15 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
     });
   }
 
+  // Éxito (crear o editar): refresca la tabla, muestra el aviso y cierra el modal
   private onSuccess(message: string) {
     this.deliveryPersonService.refresh();
     this.toast.show(message);
     this.closed.emit();
   }
 
+  // Error del servidor: lo muestra dentro del modal (no lo cierra)
+  // para que el admin pueda corregir y reintentar
   private onError(error: any) {
     console.error('Error guardando domiciliario:', error);
     this.errorMessage = getErrorMessage(
@@ -143,6 +164,7 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
     );
   }
 
+  // Cancelar / cerrar con la X
   close() {
     this.closed.emit();
   }

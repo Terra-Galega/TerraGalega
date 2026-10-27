@@ -1,9 +1,12 @@
+<!-- Tarjeta contenedora de la tabla de domiciliarios -->
 <div class="rounded-2xl overflow-hidden" style="
     background-color: rgba(255, 255, 255, 0.6);
     box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05);
   ">
+  <!-- Permite scroll horizontal en pantallas pequeñas para que la tabla no se rompa -->
   <div class="overflow-x-auto">
     <table class="w-full text-sm" style="border-collapse: collapse">
+      <!-- Encabezados: se generan a partir del arreglo `columns` del .ts -->
       <thead>
         <tr style="background-color: rgba(44, 44, 44, 0.04)">
           @for (column of columns; track column) {
@@ -15,9 +18,11 @@
         </tr>
       </thead>
 
+      <!-- Una fila por domiciliario ya filtrado -->
       <tbody>
         @for (person of filteredDeliveryPersons; track person.id) {
         <tr>
+          <!-- Columna Domiciliario: nombre completo y correo -->
           <td class="py-3 px-5">
             <p class="font-semibold text-charcoal" style="font-size: 15px">
               {{ person.name }} {{ person.lastName }}
@@ -27,15 +32,17 @@
             </p>
           </td>
 
+          <!-- Columna Identificación -->
           <td class="py-3 px-5 whitespace-nowrap" style="color: rgba(44, 44, 44, 0.7)">
             {{ person.identification }}
           </td>
 
+          <!-- Columna Teléfono -->
           <td class="py-3 px-5 whitespace-nowrap" style="color: rgba(44, 44, 44, 0.7)">
             {{ person.phone }}
           </td>
 
-          <!-- Disponibilidad: solo tiene sentido si el domiciliario está activo -->
+          <!-- Disponibilidad: solo tiene sentido si el domiciliario está activo. Inactivo → guion. Activo → verde "Disponible" o naranja "En entrega" -->
           <td class="py-3 px-5">
             @if (!person.active) {
             <span style="font-size: 12px; color: rgba(44, 44, 44, 0.4)">—</span>
@@ -50,6 +57,7 @@
             }
           </td>
 
+          <!-- Columna Estado: botón que activa/desactiva al domiciliario con un clic -->
           <td class="py-3 px-5">
             <button type="button"
               class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap"
@@ -61,9 +69,11 @@
             </button>
           </td>
 
+          <!-- Columna Acciones: cambiar contraseña, editar y eliminar -->
           <td class="py-3 px-5">
             <div class="flex items-center gap-2">
 
+              <!-- Abre el modal de contraseña (se activa al asignar passwordDeliveryPerson) -->
               <app-icon-button variant="ghost" label="Cambiar contraseña" (click)="passwordDeliveryPerson = person">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -72,6 +82,7 @@
                 </svg>
               </app-icon-button>
 
+              <!-- Pide al padre abrir el formulario de edición -->
               <app-icon-button variant="ghost" label="Editar" (click)="openEdit(person)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -80,6 +91,7 @@
                 </svg>
               </app-icon-button>
 
+              <!-- Abre la confirmación de eliminación (aún no borra) -->
               <app-icon-button variant="ghost" label="Eliminar" (click)="removeDeliveryPerson(person)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -92,6 +104,7 @@
           </td>
         </tr>
         } @empty {
+        <!-- Se muestra cuando no hay resultados -->
         <tr>
           <td [attr.colspan]="columns.length">
             <app-empty-state [compact]="true" message="No se encontraron domiciliarios" />
@@ -103,6 +116,7 @@
   </div>
 </div>
 
+<!-- Modal de confirmación para eliminar -->
 <app-modal
   [open]="showDeleteModal"
   [title]="confirmTitle"
@@ -114,6 +128,7 @@
   (cancel)="cancelDelete()"
 ></app-modal>
 
+<!-- Modal de error (p. ej. si el backend rechaza la eliminación) -->
 <app-modal
   [open]="showErrorModal"
   [title]="errorTitle"
@@ -124,6 +139,7 @@
   (cancel)="closeErrorModal()"
 ></app-modal>
 
+<!-- Modal de cambio de contraseña: solo existe mientras haya un domiciliario seleccionado. `save` recibe la función savePassword; `closed` limpia la selección -->
 @if (passwordDeliveryPerson) {
   <app-change-password-modal
     [userName]="passwordDeliveryPerson.name + ' ' + passwordDeliveryPerson.lastName"
