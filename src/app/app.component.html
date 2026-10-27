@@ -1,8 +1,12 @@
-<main
-  class="min-h-screen font-sans text-charcoal"
-  style="background-color: #f5f2eb"
->
+<!-- Contenedor principal de toda la aplicación: ocupa al menos el alto completo de la pantalla,
+     usa la fuente sans por defecto y el color de texto "charcoal" definido en el tema.
+     El fondo crema (#f5f2eb) se aplica en línea para que sea común a todas las páginas. -->
+<main class="min-h-screen font-sans text-charcoal" style="background-color: #f5f2eb">
+  <!-- Punto donde el router de Angular inserta el componente de la página activa
+       (home, menú, login, admin, operator, etc., según app.routes.ts). -->
   <router-outlet></router-outlet>
 </main>
 
+<!-- Componente global de notificaciones (toasts). Está fuera de <main> para que se muestre
+     por encima de cualquier página sin depender de ella. -->
 <app-toast />
