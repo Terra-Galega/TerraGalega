@@ -7,6 +7,11 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+/**
+ * Acceso a datos de los adicionales. Al extender JpaRepository ya incluye las
+ * operaciones básicas (guardar, buscar por id, listar, borrar). Los métodos
+ * de abajo son consultas derivadas: Spring genera el SQL a partir del nombre.
+ */
 @Repository
 public interface AddOnRepository extends JpaRepository<AddOn, Integer> {
 
