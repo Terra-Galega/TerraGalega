@@ -6,6 +6,7 @@ import com.example.demo.entities.Client;
 import com.example.demo.entities.Operator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
 import com.example.demo.repository.OperatorRepository;
@@ -46,25 +47,31 @@ public class AuthServiceImpl implements AuthService {
     private static final String INACTIVE_ACCOUNT_MESSAGE = "Tu cuenta está desactivada. Contacta al administrador.";
 
     @Override
-    public Object login(String email, String password) {
+    public LoginResponseDTO login(String email, String password) {
 
-        EmailRules.validate(email);
         // Devuelve null (no lanza excepción) cuando el correo no existe o la
-        // contraseña no coincide: AuthController lo convierte en el mensaje
+        // contraseña no coincide, AuthController lo convierte en el mensaje
         // "Correo o contraseña incorrectos."
         Client client = clientService.findByEmail(email);
 
         if (client != null) {
-            return client.getPassword().equals(password) ? client : null;
+            return client.getPassword().equals(password)
+                    ? new LoginResponseDTO(client.getId(), client.getName(),
+                            client.getLastName(), client.getAddress(), client.getRole())
+                    : null;
         }
 
         Admin admin = adminService.findByEmail(email);
 
         if (admin != null) {
-            return admin.getPassword().equals(password) ? admin : null;
+            // El admin no tiene dirección
+            return admin.getPassword().equals(password)
+                    ? new LoginResponseDTO(admin.getId(), admin.getName(),
+                            admin.getLastName(), null, admin.getRole())
+                    : null;
         }
 
-        // Los operadores solo pueden iniciar sesión si el admin
+        // Los operadores solo pueden iniciar sesión si el admin los tiene activos
         Operator operator = operatorService.findByEmail(email);
 
         if (operator != null) {
@@ -76,7 +83,9 @@ public class AuthServiceImpl implements AuthService {
                 throw ApiException.forbidden(INACTIVE_ACCOUNT_MESSAGE);
             }
 
-            return operator;
+            // El operador no tiene dirección
+            return new LoginResponseDTO(operator.getId(), operator.getName(),
+                    operator.getLastName(), null, operator.getRole());
         }
 
         return null;
