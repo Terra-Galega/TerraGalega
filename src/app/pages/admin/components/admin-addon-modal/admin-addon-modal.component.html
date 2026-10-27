@@ -41,7 +41,7 @@
           type="number"
           min="0"
           [value]="price"
-          (input)="setPrice($event)"
+          (blur)="setPrice($event)"
           required
           placeholder="3000"
           class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
