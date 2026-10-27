@@ -1,7 +1,9 @@
+<!-- Fila del adicional; se resalta (clase "selected") si hay al menos una unidad elegida -->
 <div
   class="addon flex items-center justify-between p-4 rounded-2xl"
   [class.selected]="quantity > 0"
 >
+  <!-- Nombre y precio (sin decimales, con "+" delante porque es un extra) -->
   <div class="flex flex-col">
     <span class="text-sm font-medium" style="color: rgba(44, 44, 44, 0.75)">{{
       addOn.name
@@ -11,10 +13,12 @@
     >
   </div>
 
+  <!-- Selector de cantidad: "−", número y "+" -->
   <div
     class="flex items-center rounded-full p-0.5"
     style="background: rgba(44, 44, 44, 0.06)"
   >
+    <!-- Quitar uno (deshabilitado cuando no hay ninguna unidad) -->
     <button
       type="button"
       class="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-30"
@@ -28,6 +32,7 @@
     <span class="w-8 text-center text-sm font-semibold text-charcoal">{{
       quantity
     }}</span>
+    <!-- Agregar uno (se puede repetir el mismo adicional varias veces) -->
     <button
       type="button"
       class="w-8 h-8 rounded-full flex items-center justify-center"

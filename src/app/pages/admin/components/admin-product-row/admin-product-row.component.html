@@ -1,3 +1,4 @@
+<!-- Columna "Comida": imagen, nombre (con estrella si es popular) y descripción -->
 <td class="py-3 px-5">
   <div class="flex items-center gap-4">
     <img
@@ -10,10 +11,12 @@
         <p class="font-semibold text-charcoal truncate" style="font-size: 15px">
           {{ product.name }}
         </p>
+        <!-- Estrella solo para los productos populares -->
         @if (product.popular) {
           <app-star-icon size="w-[15px] h-[15px]" />
         }
       </div>
+      <!-- Descripción recortada a 2 líneas -->
       <p
         class="line-clamp-2 mt-0.5"
         style="font-size: 14px; color: rgba(44, 44, 44, 0.75); max-width: 320px"
@@ -24,6 +27,7 @@
   </div>
 </td>
 
+<!-- Columna "Categoría": etiqueta con el nombre -->
 <td class="py-3 px-5">
   <span
     class="text-[12px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
@@ -33,10 +37,13 @@
   </span>
 </td>
 
+<!-- Columna "Precio": sin decimales -->
 <td class="py-3 px-5 font-bold whitespace-nowrap" style="color: #b2571f">
   ${{ product.price | number: "1.0-0" }}
 </td>
 
+<!-- Columna "Estado": botón que activa o desactiva el producto.
+     Verde si está activo, gris si está inactivo -->
 <td class="py-3 px-5">
   <button
     type="button"
@@ -51,8 +58,10 @@
   </button>
 </td>
 
+<!-- Columna "Acciones": editar y eliminar -->
 <td class="py-3 px-5">
   <div class="flex items-center gap-2">
+    <!-- Editar (ícono de lápiz) -->
     <app-icon-button
       variant="ghost"
       label="Editar"
@@ -73,6 +82,7 @@
       </svg>
     </app-icon-button>
 
+    <!-- Eliminar (ícono de caneca de basura) -->
     <app-icon-button
       variant="ghost"
       label="Eliminar"

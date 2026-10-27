@@ -15,10 +15,11 @@ import {
   unavailableMessage,
 } from '../../services/cart.service';
 import { groupAddOns } from '../../models/order';
+import { ButtonComponent } from '../button/button.component';
 
 @Component({
   selector: 'app-cart',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe,ButtonComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
 })

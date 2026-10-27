@@ -1,14 +1,20 @@
+<!-- Sección reutilizable para organizar campos y contenido de un formulario -->
 <section>
   <div class="flex items-center gap-3 mb-6">
+    <!-- Contenedor del icono que acompaña al título de la sección -->
     <div
       class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
       style="background-color: rgba(109, 178, 31, 0.1)"
       color="#556141"
     >
+      <!-- Inserta el contenido asignado al espacio identificado como icon -->
       <ng-content select="[icon]" />
     </div>
+
+    <!-- Título recibido mediante el decorador Input -->
     <h3 class="font-serif text-xl font-semibold">{{ title }}</h3>
   </div>
 
+  <!-- Permite insertar los campos y demás elementos de la sección desde el componente padre -->
   <ng-content />
 </section>

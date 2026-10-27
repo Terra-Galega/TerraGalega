@@ -2,11 +2,12 @@
 
 <main class="min-h-screen flex items-center justify-center px-6 py-32">
   <div class="w-full max-w-md mx-auto">
+    <!--Barra para login o register-->
     <app-login-header
       [activeTab]="activeTab"
       (tabChange)="selectTab($event)"
     ></app-login-header>
-
+    <!--Formulario-->
     <app-login-forms
       [activeTab]="activeTab"
       [loginEmail]="loginEmail"

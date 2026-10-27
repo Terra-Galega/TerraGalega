@@ -1,3 +1,5 @@
+<!-- Pie de página: fondo verde, con 5 columnas en pantallas medianas o más
+     grandes (el logo ocupa 2) y una sola columna en celular -->
 <footer
   class="bg-[#556141] text-[#f5f2eb] pt-16 pb-8 border-t border-[#ffffff10]"
 >
@@ -12,6 +14,7 @@
        ========================================================== -->
 
       <div class="md:col-span-2 flex flex-col items-start">
+        <!-- El logo es un enlace al inicio -->
         <a
           routerLink="/home"
           class="inline-block mb-3 mx-auto md:mx-0 md:translate-x-3"
@@ -119,6 +122,10 @@
           Síguenos
         </p>
 
+        <!-- Cada enlace abre la red social en una pestaña nueva. rel="noopener
+             noreferrer" evita que esa pestaña pueda controlar esta página. Al
+             pasar el mouse el enlace sube un poco y el icono se agranda. -->
+
         <ul class="space-y-3 text-sm font-medium">
           <!-- Instagram -->
 
@@ -212,6 +219,7 @@
         color: rgba(245, 242, 235, 0.4);
       "
     >
+      <!-- currentYear viene del componente, así el año siempre es el actual -->
       <p>© {{ currentYear }} Terra Galega. Todos los derechos reservados.</p>
 
       <p>Gastronomía gallega auténtica</p>

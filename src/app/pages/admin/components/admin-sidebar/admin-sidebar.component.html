@@ -1,3 +1,4 @@
+<!-- Barra lateral fija del panel administrativo -->
 <aside
   class="w-60 flex-shrink-0 flex flex-col py-7 px-4"
   style="
@@ -11,6 +12,7 @@
     z-index: 20;
   "
 >
+  <!-- Logotipo y nombre del panel administrativo -->
   <div class="px-3 mb-10 flex flex-col items-start">
     <a class="flex flex-col items-start leading-none select-none">
       <span class="font-terra text-2xl leading-[0.6]" style="color: #f5f2eb">
@@ -33,7 +35,9 @@
     </p>
   </div>
 
+  <!-- Opciones de navegación entre las secciones del panel -->
   <nav class="flex flex-col gap-1 flex-1">
+    <!-- Acceso a la sección de productos -->
     <button
       type="button"
       (click)="changeTab('products')"
@@ -56,6 +60,8 @@
 
       Productos
     </button>
+
+    <!-- Acceso a la sección de categorías -->
     <button
       type="button"
       (click)="changeTab('categories')"
@@ -76,6 +82,7 @@
       Categorías
     </button>
 
+    <!-- Acceso a la sección de adicionales -->
     <button
       type="button"
       (click)="changeTab('addons')"
@@ -97,6 +104,7 @@
       Adicionales
     </button>
 
+    <!-- Acceso a la sección de órdenes -->
     <button
       type="button"
       (click)="changeTab('orders')"
@@ -119,6 +127,7 @@
       Ordenes
     </button>
 
+    <!-- Acceso a la sección de usuarios -->
     <button
       type="button"
       (click)="changeTab('users')"
@@ -140,6 +149,8 @@
 
       Usuarios
     </button>
+
+    <!-- Acceso a la sección de operadores -->
     <button
       type="button"
       (click)="changeTab('operators')"
@@ -161,6 +172,8 @@
 
       Operadores
     </button>
+
+    <!-- Acceso a la sección de domiciliarios -->
     <button
       type="button"
       (click)="changeTab('deliveries')"
@@ -184,6 +197,7 @@
     </button>
   </nav>
 
+  <!-- Información del administrador y opción para cerrar sesión -->
   <div
     class="px-4 py-4 rounded-xl mt-4"
     style="background-color: rgba(255, 255, 255, 0.04)"
@@ -196,6 +210,7 @@
       Administrador
     </p>
 
+    <!-- Solicita al componente padre gestionar el cierre de sesión -->
     <button
       type="button"
       (click)="logout()"

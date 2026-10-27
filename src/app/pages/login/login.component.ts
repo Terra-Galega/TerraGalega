@@ -25,15 +25,15 @@ import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
 })
 export class LoginComponent {
   activeTab: 'login' | 'signup' = 'login';
-
+  // Controla la visibilidad de las contraseñas en los formularios
   showLoginPassword = false;
   showSignupPassword = false;
-
+  //campos de login
   loginEmail = '';
   loginPassword = '';
 
   loginError = '';
-
+  //campos de signup
   signupError = '';
 
   signupName = '';
@@ -42,7 +42,7 @@ export class LoginComponent {
   signupPassword = '';
   signupPhone = '';
   signupAddress = '';
-
+// Servicios inyectados
   private clientService = inject(ClientService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -52,39 +52,39 @@ export class LoginComponent {
   // Si llegaron desde /checkout sin sesión, después de entrar vuelven allí
   private goAfterClientAuth(clientId: number): void {
     const redirect = this.route.snapshot.queryParamMap.get('redirect');
-
+    // Si venían de checkout, los redirigimos allí
     if (redirect === 'checkout') {
       this.router.navigate(['/checkout']);
       return;
     }
-
+    // Si no, van a su perfil
     this.router.navigate(['/account', clientId]);
   }
-
+  // Cambia la pestaña activa entre login y signup
   selectTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
   }
-
+  // Alterna la visibilidad de la contraseña en el formulario de login
   toggleLoginPassword() {
     this.showLoginPassword = !this.showLoginPassword;
   }
-
+// Alterna la visibilidad de la contraseña en el formulario de signup
   toggleSignupPassword() {
     this.showSignupPassword = !this.showSignupPassword;
   }
-
+  // Maneja el inicio de sesión del usuario
   setLoginEmail(event: Event) {
     const input = event.target as HTMLInputElement;
 
     this.loginEmail = input.value;
   }
-
+// Maneja el inicio de sesión del usuario
   setLoginPassword(event: Event) {
     const input = event.target as HTMLInputElement;
 
     this.loginPassword = input.value;
   }
-
+  // Maneja el registro de un nuevo cliente
   fillDemoUser(email: string, password: string) {
     this.loginEmail = email;
     this.loginPassword = password;
@@ -110,7 +110,7 @@ export class LoginComponent {
         this.router.navigate(['/home']);
     }
   }
-
+  // Maneja el inicio de sesión del usuario
   login() {
     this.loginError = '';
     if (!isValidEmail(this.loginEmail)) {
@@ -130,6 +130,7 @@ export class LoginComponent {
       },
     });
   }
+  // Maneja el registro de un nuevo cliente
   setSignupName(value: string) {
     this.signupName = value;
   }
@@ -152,6 +153,7 @@ export class LoginComponent {
   setSignupAddress(value: string) {
     this.signupAddress = value;
   }
+  //valida los campos del formulario de registro y llama al servicio para crear un nuevo cliente
   signup() {
     this.signupError = '';
 
@@ -170,6 +172,7 @@ export class LoginComponent {
       this.signupError = EMAIL_ERROR_MESSAGE;
       return;
     }
+    //crear un objeto CreateClient con los datos del formulario
     const newClient: CreateClient = {
       name: this.signupName.trim(),
       lastName: this.signupLastName.trim(),
@@ -179,7 +182,7 @@ export class LoginComponent {
       role: Role.CLIENT,
       address: this.signupAddress.trim(),
     };
-
+    //llama al servicio para crear un nuevo cliente
     this.clientService.addClient(newClient).subscribe({
       next: (createdClient) => {
         console.log('Cliente creado:', createdClient);

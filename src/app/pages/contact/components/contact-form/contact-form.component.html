@@ -1,12 +1,16 @@
+<!-- Tarjeta que contiene el formulario de contacto -->
 <div
   class="glass-card rounded-3xl p-8"
   style="background-color: rgb(250, 248, 245)"
 >
+  <!-- Título del formulario -->
   <h2 class="font-serif text-xl font-semibold text-charcoal mb-6">
     Envíanos un mensaje
   </h2>
 
+  <!-- Formulario para recopilar los datos del usuario -->
   <form id="contact-form" class="space-y-4">
+    <!-- Campo para ingresar el nombre -->
     <div>
       <label
         class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
@@ -23,6 +27,7 @@
       />
     </div>
 
+    <!-- Campo para ingresar el correo electrónico -->
     <div>
       <label
         class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
@@ -39,6 +44,7 @@
       />
     </div>
 
+    <!-- Campo para escribir el mensaje -->
     <div>
       <label
         class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
@@ -55,8 +61,10 @@
       ></textarea>
     </div>
 
+    <!-- Espacio para mostrar mensajes de error del formulario -->
     <p id="contact-error" class="hidden-modal text-xs" style="color: #8a2222"></p>
 
+    <!-- Botón para enviar el formulario -->
     <button
       type="submit"
       class="w-full py-3.5 text-white font-medium rounded-full btn-terra"

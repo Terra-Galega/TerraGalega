@@ -24,11 +24,21 @@ import { StarIconComponent } from '../../../../components/star-icon/star-icon.co
 import { AddonOptionComponent } from '../addon-option/addon-option.component';
 import { QuantitySelectorComponent } from '../quantity-selector/quantity-selector.component';
 import { ToastService } from '../../../../services/toast.service';
-import { getErrorMessage, isNetworkOrServerError } from '../../../../utils/http-error';
+import {
+  getErrorMessage,
+  isNetworkOrServerError,
+} from '../../../../utils/http-error';
 
 // Cada cuánto se vuelven a pedir los adicionales al servidor
 const REFRESH_MS = 10_000;
 
+/**
+ * Tarjeta principal del detalle de un producto: imagen, datos, categoría,
+ * adicionales opcionales, cantidad, total y botón para añadir al carrito.
+ * Calcula el total (producto + adicionales) × cantidad y, antes de agregar
+ * al carrito, vuelve a consultar el producto para confirmar que sigue
+ * disponible y tomar su precio actual.
+ */
 @Component({
   selector: 'app-product-info-card',
   imports: [
@@ -51,11 +61,16 @@ export class ProductInfoCardComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private toast = inject(ToastService);
 
+  // Producto que muestra la tarjeta (lo pasa la página de detalle)
   @Input() product!: ProductDetail;
 
+  // Adicionales activos de la categoría del producto (los que se pueden elegir)
   addons: AddOnOption[] = [];
+  // Adicionales que el cliente eligió. Si elige el mismo dos veces, aparece
+  // dos veces en la lista (una entrada por unidad).
   selectedAddOns: AddOnOption[] = [];
 
+  // Cantidad de platos que quiere el cliente
   quantity = 1;
 
   // Evita agregar dos veces si se pulsa el botón mientras se verifica
@@ -67,11 +82,14 @@ export class ProductInfoCardComponent implements OnInit {
     // se refleja sin recargar y sin perder lo que el cliente ya eligió.
     merge(timer(0, REFRESH_MS), fromEvent(document, 'visibilitychange'))
       .pipe(
+        // Solo se pide si la pestaña está visible
         filter(() => document.visibilityState === 'visible'),
+        // switchMap cancela la petición anterior si llega una nueva antes de terminar
         switchMap(() => {
           // Se lee en cada ciclo por si el admin cambió la categoría del producto
           const categoryId = this.product.category?.id;
 
+          // Sin categoría no hay adicionales que ofrecer
           if (!categoryId) {
             return of<AddOnOption[]>([]);
           }
@@ -83,6 +101,7 @@ export class ProductInfoCardComponent implements OnInit {
             }),
           );
         }),
+        // Deja de actualizar cuando el componente se destruye
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((addOns) => {
@@ -112,6 +131,7 @@ export class ProductInfoCardComponent implements OnInit {
       return;
     }
 
+    // Para quitar, se busca la primera unidad de ese adicional y se elimina solo esa
     const index = this.selectedAddOns.findIndex(
       (selected) => selected.id === addOn.id,
     );
@@ -120,15 +140,19 @@ export class ProductInfoCardComponent implements OnInit {
     }
   }
 
+  // Suma de los precios de todos los adicionales elegidos (para un plato)
   get addOnsTotal(): number {
     return this.selectedAddOns.reduce((total, addOn) => total + addOn.price, 0);
   }
 
+  // Total a pagar: (precio del plato + adicionales) × cantidad
   get totalPrice(): number {
     return (this.product.price + this.addOnsTotal) * this.quantity;
   }
 
+  // Botón "Añadir a la orden"
   addToOrder(): void {
+    // Si ya hay una verificación en curso, se ignora el clic
     if (this.verifying) {
       return;
     }
@@ -155,6 +179,7 @@ export class ProductInfoCardComponent implements OnInit {
         this.selectedAddOns = [];
         this.quantity = 1;
 
+        // Aviso de que se agregó al carrito
         this.toast.show(
           'Añadido al carrito',
           `${quantity}× ${currentProduct.name}`,
@@ -180,6 +205,8 @@ export class ProductInfoCardComponent implements OnInit {
     });
   }
 
+  // Lleva a la página de error con un mensaje (replaceUrl evita que "atrás"
+  // regrese a esta página)
   private showUnavailable(message: string): void {
     this.router.navigate(['/error'], {
       replaceUrl: true,

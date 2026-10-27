@@ -13,9 +13,11 @@ import { StarIconComponent } from '../../../../components/star-icon/star-icon.co
   styleUrl: './admin-product-row.component.scss',
 })
 export class AdminProductRowComponent {
+  // Producto que muestra la fila
   @Input({ required: true }) product!: Product;
 
-  @Output() toggle = new EventEmitter<Product>();
-  @Output() edit = new EventEmitter<Product>();
-  @Output() remove = new EventEmitter<Product>();
+  // La fila no decide nada: solo avisa al padre qué botón se pulsó
+  @Output() toggle = new EventEmitter<Product>(); // activar / desactivar
+  @Output() edit = new EventEmitter<Product>(); // editar
+  @Output() remove = new EventEmitter<Product>(); // eliminar
 }

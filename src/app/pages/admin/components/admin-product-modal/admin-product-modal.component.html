@@ -1,15 +1,19 @@
+<!-- Fondo oscuro que cubre toda la pantalla y centra la ventana -->
 <div
   class="fixed inset-0 z-50 flex items-center justify-center p-4"
   style="background-color: rgba(44, 44, 44, 0.55)"
 >
+  <!-- Ventana: si el formulario es muy alto, se desplaza por dentro -->
   <div
     class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
   >
+    <!-- Encabezado: el título cambia según se edite o se cree -->
     <div class="flex items-center justify-between mb-7">
       <h2 class="font-serif text-2xl font-semibold text-charcoal">
         {{ product ? "Editar producto" : "Añadir producto" }}
       </h2>
 
+      <!-- Botón X para cerrar -->
       <app-icon-button variant="soft" label="Cerrar" (click)="close()">
         <svg
           width="15"
@@ -25,6 +29,7 @@
     </div>
 
     <div class="space-y-4">
+      <!-- Nombre -->
       <app-form-field label="Nombre">
         <input
           type="text"
@@ -36,7 +41,9 @@
         />
       </app-form-field>
 
+      <!-- Precio y categoría, lado a lado -->
       <div class="grid grid-cols-2 gap-3">
+        <!-- El precio se redondea a múltiplos de 100 al salir del campo (blur) -->
         <app-form-field label="Precio (COP)">
           <input
             type="number"
@@ -48,6 +55,8 @@
           />
         </app-form-field>
 
+        <!-- La primera opción (valor vacío) muestra la categoría actual al
+             editar; las demás salen de las categorías cargadas -->
         <app-form-field label="Categoría">
           <select
             [value]="categoryName"
@@ -62,6 +71,7 @@
         </app-form-field>
       </div>
 
+      <!-- Descripción -->
       <app-form-field label="Descripción">
         <textarea
           [value]="description"
@@ -72,6 +82,7 @@
         ></textarea>
       </app-form-field>
 
+      <!-- URL de la imagen, con vista previa si ya hay una URL escrita -->
       <app-form-field label="URL de imagen">
         <input
           type="url"
@@ -91,6 +102,8 @@
         }
       </app-form-field>
 
+      <!-- Características: casillas generadas desde la lista "checks"
+           (Popular + características del plato), en 2 columnas -->
       <app-form-field label="Características">
         <div class="grid grid-cols-2 gap-y-2 gap-x-3">
           @for (check of checks; track check.key) {
@@ -102,6 +115,8 @@
           }
         </div>
       </app-form-field>
+
+      <!-- Estado: si el producto está activo (visible en la carta) -->
       <app-form-field label="Estado">
         <app-check-option
           label="Activo"
@@ -109,9 +124,13 @@
           (changed)="toggleActive()"
         />
       </app-form-field>
+
+      <!-- Error de validación o del servidor -->
       @if (errorMessage) {
         <p class="text-sm text-red-600">{{ errorMessage }}</p>
       }
+
+      <!-- Botones: Cancelar y Guardar -->
       <div class="flex gap-3 pt-2">
         <app-button
           class="flex-1"

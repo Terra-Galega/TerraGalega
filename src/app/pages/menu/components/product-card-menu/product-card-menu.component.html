@@ -1,7 +1,9 @@
+<!-- Tarjeta completa: toda el área es clicable y lleva al detalle del producto.
+     Al pasar el mouse se levanta y se agranda la imagen. -->
 <div
   class="glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
   (click)="openProductDetail()"
-  >
+>
   <!-- Imagen del producto -->
   <div class="relative h-56 overflow-hidden">
     <img
@@ -10,7 +12,7 @@
       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
     />
 
-    <!-- Insignia Popular -->
+    <!-- Insignia Popular (arriba a la izquierda, solo en productos populares) -->
     @if (product.popular) {
       <span
         class="absolute top-3 left-3 flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider"
@@ -26,7 +28,7 @@
       </span>
     }
 
-    <!-- Categoría -->
+    <!-- Categoría (arriba a la derecha; el "?" evita error si no tiene categoría) -->
     <span
       class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-medium"
       style="
@@ -48,7 +50,7 @@
       {{ product.name }}
     </h3>
 
-    <!-- Descripción -->
+    <!-- Descripción (se recorta a 2 líneas) -->
     <p
       class="text-sm leading-relaxed line-clamp-2 mb-3 flex-grow min-h-[2.9rem]"
       style="color: rgba(44, 44, 44, 0.75)"
@@ -62,7 +64,8 @@
       [product]="product"
     />
 
-    <!-- Precio + botón -->
+    <!-- Precio (sin decimales, ej. 38.900) y botón "+" decorativo; el clic
+         en cualquier parte de la tarjeta ya abre el detalle -->
     <div class="flex items-center justify-between mt-auto">
       <span class="font-bold text-lg" style="color: #b2571f">
         ${{ product.price | number: "1.0-0" }}
