@@ -62,6 +62,7 @@ public class AdminController {
         return dto;
     }
     
+    @Operation(summary = "Get clients but only atributes: id, name, email, phone")
     @GetMapping("/clients")
     public Collection<ClientDTOAdmin> getClientDTOAdmins() {
         return clientService.getAllClients()
