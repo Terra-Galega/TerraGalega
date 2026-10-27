@@ -15,6 +15,7 @@ import { IconButtonComponent } from '../../../../components/icon-button/icon-but
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 @Component({
   selector: 'app-admin-addon-modal',
@@ -170,7 +171,7 @@ export class AdminAddonModalComponent {
   private onError(error: any) {
     console.error('Error guardando adicional:', error);
     this.errorMessage =
-      error.error?.message ?? 'No se pudo guardar el adicional.';
+      getErrorMessage(error, 'No se pudo guardar el adicional.');
   }
 
   close() {

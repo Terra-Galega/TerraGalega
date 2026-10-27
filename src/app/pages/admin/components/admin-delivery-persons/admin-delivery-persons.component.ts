@@ -10,12 +10,10 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { DeliveryPerson } from '../../../../models/deliveryPerson';
 import { DeliveryPersonService } from '../../../../services/delivery-person.service';
-import {
-  ModalComponent,
-  getErrorMessage,
-} from '../../../../components/modal/modal.component';
+import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ChangePasswordModalComponent } from '../../../../components/change-password-modal/change-password-modal.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 // Tabla de domiciliarios del portal admin: editar, eliminar y activar/desactivar
 @Component({

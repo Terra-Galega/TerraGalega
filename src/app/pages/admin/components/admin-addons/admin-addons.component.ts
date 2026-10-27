@@ -4,11 +4,9 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { AddOn } from '../../../../models/addOn';
 import { AddOnService } from '../../../../services/addOn.service';
-import {
-  ModalComponent,
-  getErrorMessage,
-} from '../../../../components/modal/modal.component';
+import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage } from '../../../../utils/http-error';
 @Component({
   selector: 'app-admin-addons',
   imports: [

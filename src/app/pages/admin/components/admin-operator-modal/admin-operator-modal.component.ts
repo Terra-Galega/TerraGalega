@@ -13,6 +13,7 @@ import { OperatorService } from '../../../../services/operator.service';
 import { CreateOperator, Operator, Role } from '../../../../models/operator';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 @Component({
   selector: 'app-admin-operator-modal',
@@ -164,7 +165,7 @@ export class AdminOperatorModalComponent {
   private onError(error: any) {
     console.error('Error guardando operador:', error);
     this.errorMessage =
-      error.error?.message ?? 'No se pudo guardar el operador.';
+      getErrorMessage(error, 'No se pudo guardar el operador.');
   }
 
   close() {

@@ -10,11 +10,9 @@ import { AuthService } from '../../services/auth.service';
 import { Client } from '../../models/client';
 import { ClientService } from '../../services/client.service';
 import { ButtonComponent } from '../../components/button/button.component';
-import {
-  ModalComponent,
-  getErrorMessage,
-} from '../../components/modal/modal.component';
+import { ModalComponent } from '../../components/modal/modal.component';
 import { ToastService } from '../../services/toast.service';
+import { getErrorMessage } from '../../utils/http-error';
 
 @Component({
   selector: 'app-account',

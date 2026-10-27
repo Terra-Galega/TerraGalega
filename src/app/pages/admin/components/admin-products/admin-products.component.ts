@@ -3,11 +3,9 @@ import { EmptyStateComponent } from '../../../../components/empty-state/empty-st
 import { AdminProductRowComponent } from '../admin-product-row/admin-product-row.component';
 import { Product } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
-import {
-  ModalComponent,
-  getErrorMessage,
-} from '../../../../components/modal/modal.component';
+import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 @Component({
   selector: 'app-admin-products',

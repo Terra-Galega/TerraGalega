@@ -11,6 +11,7 @@ import { OrderService } from '../../services/order.service';
 import { Order } from '../../models/order';
 import { OrderedComponent } from './components/ordered/ordered.component';
 import { AuthService } from '../../services/auth.service';
+import { getErrorMessage } from '../../utils/http-error';
 
 @Component({
   selector: 'app-orders',
@@ -71,8 +72,9 @@ export class OrdersComponent implements OnInit {
         this.router.navigate(['/error'], {
           replaceUrl: true,
           queryParams: {
+            status: error.status,
             message:
-              error.error?.message ?? 'No se pudieron cargar tus pedidos.',
+              getErrorMessage(error, 'No se pudieron cargar tus pedidos.'),
           },
         });
       },

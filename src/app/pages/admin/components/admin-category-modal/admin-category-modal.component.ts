@@ -12,6 +12,7 @@ import { ButtonComponent } from '../../../../components/button/button.component'
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 @Component({
   selector: 'app-admin-category-modal',
@@ -101,7 +102,7 @@ export class AdminCategoryModalComponent {
   private onError(error: any) {
     console.error('Error guardando categoría:', error);
     this.errorMessage =
-      error.error?.message ?? 'No se pudo guardar la categoría.';
+      getErrorMessage(error, 'No se pudo guardar la categoría.');
   }
 
   close() {

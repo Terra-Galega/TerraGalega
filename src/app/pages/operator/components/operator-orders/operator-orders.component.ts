@@ -9,6 +9,7 @@ import {
   OrderSummary,
   ORDER_STATUS_LABELS,
 } from '../../../../models/order';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 type OperatorAction = 'confirm' | 'cook' | 'send' | 'deliver';
 
@@ -116,7 +117,7 @@ export class OperatorOrdersComponent {
       error: (error) => {
         console.error('Error updating order:', error);
         this.errorMessage =
-          error.error?.message ?? 'No se pudo actualizar el pedido.';
+          getErrorMessage(error, 'No se pudo actualizar el pedido.');
       },
     });
   }

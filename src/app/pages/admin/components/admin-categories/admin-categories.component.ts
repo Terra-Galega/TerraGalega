@@ -5,11 +5,9 @@ import { Category } from '../../../../models/category';
 import { CategoryService } from '../../../../services/category.service';
 import { switchMap, map } from 'rxjs/operators';
 import { AddOnService } from '../../../../services/addOn.service';
-import {
-  ModalComponent,
-  getErrorMessage,
-} from '../../../../components/modal/modal.component';
+import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 @Component({
   selector: 'app-admin-categories',

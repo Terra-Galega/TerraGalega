@@ -10,6 +10,7 @@ import { LoginHeaderComponent } from './components/login-header/login-header.com
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
+import { getErrorMessage } from '../../utils/http-error';
 
 @Component({
   selector: 'app-login',
@@ -119,7 +120,7 @@ export class LoginComponent {
       },
       error: (error) => {
         this.loginError =
-          error.error?.message ?? 'No se pudo conectar con el servidor.';
+          getErrorMessage(error, 'No se pudo conectar con el servidor.');
       },
     });
   }
@@ -178,12 +179,9 @@ export class LoginComponent {
       },
       error: (error) => {
         console.error('Error creando cuenta:', error);
-        console.error('Status:', error.status);
-        console.error('Respuesta backend:', error.error);
 
         this.signupError =
-          error?.error?.message ??
-          'No se pudo crear la cuenta. Inténtalo de nuevo.';
+          getErrorMessage(error, 'No se pudo crear la cuenta. Inténtalo de nuevo.');
       },
     });
   }

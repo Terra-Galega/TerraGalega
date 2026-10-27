@@ -1,27 +1,25 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { switchMap, timer } from 'rxjs';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
-import { FooterComponent } from '../../components/footer/footer.component';
-import { PageHeaderComponent } from '../../components/page-header/page-header.component';
-import { ButtonComponent } from '../../components/button/button.component';
-import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
-import {
-  ModalComponent,
-  getErrorMessage,
-} from '../../components/modal/modal.component';
-import { OrderSummaryComponent } from './components/order-summary/order-summary.component';
-import { AuthService } from '../../services/auth.service';
+import { NavbarComponent } from '../../../components/navbar/navbar.component';
+import { FooterComponent } from '../../../components/footer/footer.component';
+import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
+import { ButtonComponent } from '../../../components/button/button.component';
+import { EmptyStateComponent } from '../../../components/empty-state/empty-state.component';
+import { ModalComponent } from '../../../components/modal/modal.component';
+import { OrderSummaryComponent } from '../components/order-summary/order-summary.component';
+import { AuthService } from '../../../services/auth.service';
 import {
   CartItem,
   CartService,
   unavailableMessage,
-} from '../../services/cart.service';
-import { CheckoutService } from '../../services/checkout.service';
-import { CheckoutDraftService } from '../../services/checkout-draft.service';
-import { ClientService } from '../../services/client.service';
-import { OrderService } from '../../services/order.service';
-import { CheckoutRequest, DELIVERY_FEE } from '../../models/checkout';
+} from '../../../services/cart.service';
+import { CheckoutService } from '../../../services/checkout.service';
+import { CheckoutDraftService } from '../../../services/checkout-draft.service';
+import { ClientService } from '../../../services/client.service';
+import { OrderService } from '../../../services/order.service';
+import { CheckoutRequest, DELIVERY_FEE } from '../../../models/checkout';
+import { getErrorMessage } from '../../../utils/http-error';
 
 // Lo que dura el "Procesando pago..." de la pasarela simulada (milisegundos)
 const PAYMENT_DELAY_MS = 1500;

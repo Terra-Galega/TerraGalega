@@ -9,12 +9,10 @@ import {
 
 import { OrderService } from '../../../../services/order.service';
 import { AuthService } from '../../../../services/auth.service';
-import {
-  ModalComponent,
-  getErrorMessage,
-} from '../../../../components/modal/modal.component';
+import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
+import { getErrorMessage } from '../../../../utils/http-error';
 
 @Component({
   selector: 'app-ordered',
