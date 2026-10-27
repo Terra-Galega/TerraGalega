@@ -17,7 +17,7 @@ import { FormFieldComponent } from '../../../../components/form-field/form-field
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
 import { ToastService } from '../../../../services/toast.service';
 import { getErrorMessage } from '../../../../utils/http-error';
-
+import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../../../utils/email';
 @Component({
   selector: 'app-admin-delivery-person-modal',
   imports: [
@@ -86,8 +86,8 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
       return;
     }
 
-    if (!email.includes('@')) {
-      this.errorMessage = 'El correo no es válido.';
+    if (!isValidEmail(email)) {
+      this.errorMessage = EMAIL_ERROR_MESSAGE;
       return;
     }
 
@@ -137,8 +137,10 @@ export class AdminDeliveryPersonModalComponent implements OnInit {
 
   private onError(error: any) {
     console.error('Error guardando domiciliario:', error);
-    this.errorMessage =
-      getErrorMessage(error, 'No se pudo guardar el domiciliario.');
+    this.errorMessage = getErrorMessage(
+      error,
+      'No se pudo guardar el domiciliario.',
+    );
   }
 
   close() {
