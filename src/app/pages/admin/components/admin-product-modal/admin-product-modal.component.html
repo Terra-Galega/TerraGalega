@@ -102,6 +102,13 @@
           }
         </div>
       </app-form-field>
+      <app-form-field label="Estado">
+        <app-check-option
+          label="Activo"
+          [checked]="active"
+          (changed)="toggleActive()"
+        />
+      </app-form-field>
       @if (errorMessage) {
         <p class="text-sm text-red-600">{{ errorMessage }}</p>
       }
