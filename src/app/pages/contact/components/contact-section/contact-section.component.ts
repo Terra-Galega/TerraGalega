@@ -6,6 +6,7 @@ import {
 } from '../../../../components/contact-info/contact-info.component';
 import { ContactFormComponent } from '../contact-form/contact-form.component';
 
+// Componente que reúne la información de contacto y el formulario.
 @Component({
   selector: 'app-contact-section',
   imports: [PageHeaderComponent, ContactInfoComponent, ContactFormComponent],
@@ -13,7 +14,7 @@ import { ContactFormComponent } from '../contact-form/contact-form.component';
   styleUrl: './contact-section.component.scss',
 })
 export class ContactSectionComponent {
-  /** Datos del restaurante: se pintan con <app-contact-info>. */
+  /** Datos de contacto del restaurante: dirección, teléfono, correo y horario. */
   contactItems: ContactInfo[] = [
     {
       title: 'Dirección',

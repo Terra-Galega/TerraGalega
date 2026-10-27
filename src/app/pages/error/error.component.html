@@ -1,3 +1,4 @@
+<!-- Muestra la barra de navegación cuando el usuario no tiene acceso a un panel -->
 @if (!hasPanel) {
   <app-navbar></app-navbar>
 }
@@ -5,6 +6,7 @@
 <main class="min-h-screen flex items-center justify-center px-6 py-32">
   <div class="w-full max-w-md mx-auto text-center">
     <div class="glass-card rounded-3xl p-10">
+      <!-- Icono visual que representa la presencia de un error -->
       <div
         class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center"
         style="
@@ -27,6 +29,7 @@
         </svg>
       </div>
 
+      <!-- Texto introductorio de la página de error -->
       <p
         class="text-[12px] tracking-widest uppercase mb-3"
         style="color: rgba(44, 44, 44, 0.38)"
@@ -34,10 +37,12 @@
         Algo salió mal
       </p>
 
+      <!-- Título del error definido por el componente -->
       <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
         {{ title }}
       </h1>
 
+      <!-- Mensaje descriptivo del error -->
       <p
         class="text-sm leading-relaxed mb-8"
         style="color: rgba(44, 44, 44, 0.62)"
@@ -45,15 +50,19 @@
         {{ message }}
       </p>
 
+      <!-- Muestra las opciones de navegación según el tipo de usuario -->
       @if (hasPanel) {
+        <!-- Permite al administrador u operador regresar a su panel -->
         <app-button size="lg" [fullWidth]="true" (click)="goToPanel()"
           >Volver al panel</app-button
         >
       } @else {
+        <!-- Permite a los demás usuarios regresar a la página principal -->
         <app-button size="lg" [fullWidth]="true" (click)="goHome()"
           >Volver al inicio</app-button
         >
 
+        <!-- Acceso alternativo a la carta de productos -->
         <button
           type="button"
           (click)="goMenu()"
@@ -66,6 +75,7 @@
   </div>
 </main>
 
+<!-- Muestra el pie de página cuando el usuario no tiene acceso a un panel -->
 @if (!hasPanel) {
   <app-footer></app-footer>
 }
