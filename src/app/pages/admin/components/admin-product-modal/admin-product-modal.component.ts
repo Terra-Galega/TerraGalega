@@ -18,9 +18,8 @@ import { IconButtonComponent } from '../../../../components/icon-button/icon-but
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
 import { ToastService } from '../../../../services/toast.service';
-
-type CheckKey = 'active' | 'popular' | FeatureKey;
-
+import { getErrorMessage } from '../../../../utils/http-error';
+type CheckKey = 'popular' | FeatureKey;
 @Component({
   selector: 'app-admin-product-modal',
   imports: [
@@ -45,7 +44,6 @@ export class AdminProductModalComponent implements OnChanges {
   categories: Category[] = [];
 
   checks: { key: CheckKey; label: string }[] = [
-    { key: 'active', label: 'Activo' },
     { key: 'popular', label: 'Popular' },
     ...FEATURES,
   ];
@@ -91,6 +89,7 @@ export class AdminProductModalComponent implements OnChanges {
     if (!changes['product']) {
       return;
     }
+    this.errorMessage = '';
 
     if (this.product) {
       this.name = this.product.name;
@@ -166,6 +165,9 @@ export class AdminProductModalComponent implements OnChanges {
   toggle(key: CheckKey) {
     this[key] = !this[key];
   }
+  toggleActive() {
+    this.active = !this.active;
+  }
 
   private validate(): string {
     if (!this.name.trim()) return 'El nombre del producto es obligatorio.';
@@ -224,9 +226,11 @@ export class AdminProductModalComponent implements OnChanges {
           this.closed.emit();
         },
         error: (error) => {
-          console.error('Error actualizando producto:', error);
-          console.error('Status:', error.status);
-          console.error('Respuesta backend:', error.error);
+          console.error('Error guardando producto:', error);
+          this.errorMessage = getErrorMessage(
+            error,
+            'No se pudo guardar el producto.',
+          );
         },
       });
 
@@ -261,9 +265,11 @@ export class AdminProductModalComponent implements OnChanges {
         this.closed.emit();
       },
       error: (error) => {
-        console.error('Error creando producto:', error);
-        console.error('Status:', error.status);
-        console.error('Respuesta backend:', error.error);
+        console.error('Error guardando producto:', error);
+        this.errorMessage = getErrorMessage(
+          error,
+          'No se pudo guardar el producto.',
+        );
       },
     });
   }
