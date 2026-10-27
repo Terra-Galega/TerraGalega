@@ -14,7 +14,7 @@ import { CreateOperator, Operator, Role } from '../../../../models/operator';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { ToastService } from '../../../../services/toast.service';
 import { getErrorMessage } from '../../../../utils/http-error';
-
+import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../../../utils/email';
 @Component({
   selector: 'app-admin-operator-modal',
   imports: [
@@ -99,8 +99,8 @@ export class AdminOperatorModalComponent {
         'Nombre, apellido, nombre de usuario y correo electrónico son obligatorios.';
       return false;
     }
-    if (!this.email.includes('@')) {
-      this.errorMessage = 'El correo electrónico no es válido.';
+    if (!isValidEmail(this.email)) {
+      this.errorMessage = EMAIL_ERROR_MESSAGE;
       return false;
     }
     if (!this.operator && !this.password.trim()) {
@@ -164,8 +164,10 @@ export class AdminOperatorModalComponent {
 
   private onError(error: any) {
     console.error('Error guardando operador:', error);
-    this.errorMessage =
-      getErrorMessage(error, 'No se pudo guardar el operador.');
+    this.errorMessage = getErrorMessage(
+      error,
+      'No se pudo guardar el operador.',
+    );
   }
 
   close() {

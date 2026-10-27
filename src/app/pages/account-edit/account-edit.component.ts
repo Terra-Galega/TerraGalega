@@ -11,7 +11,8 @@ import { ProfileSummaryComponent } from './components/profile-summary/profile-su
 import { AccountFormComponent } from './components/account-form/account-form.component';
 import { ChangePasswordModalComponent } from '../../components/change-password-modal/change-password-modal.component';
 import { ToastService } from '../../services/toast.service';
-
+import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
+import { getErrorMessage } from '../../utils/http-error';
 @Component({
   selector: 'app-account-edit',
   imports: [
@@ -42,6 +43,7 @@ export class AccountEditComponent implements OnInit {
   });
 
   passwordModalOpen = false;
+  errorMessage = '';
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -70,12 +72,21 @@ export class AccountEditComponent implements OnInit {
       return;
     }
 
+    const email = (this.form.value.email ?? '').trim();
+
+    if (!isValidEmail(email)) {
+      this.errorMessage = EMAIL_ERROR_MESSAGE;
+      return;
+    }
+
+    this.errorMessage = '';
+
     const updatedClient: Client = {
       ...this.client,
 
       name: this.form.value.name ?? '',
       lastName: this.form.value.lastName ?? '',
-      email: this.form.value.email ?? '',
+      email,
       phone: this.form.value.phone ?? '',
       password: '', // la contraseña no se edita aquí
       address: this.form.value.address ?? '', // se agrega la dirección al objeto actualizado
@@ -89,6 +100,10 @@ export class AccountEditComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error actualizando cliente:', error);
+        this.errorMessage = getErrorMessage(
+          error,
+          'No se pudieron guardar los cambios. Inténtalo de nuevo.',
+        );
       },
     });
   }
