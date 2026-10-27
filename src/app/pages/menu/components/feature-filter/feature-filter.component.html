@@ -1,3 +1,5 @@
+<!-- Botón redondo que abre y cierra el panel. Se resalta cuando hay filtros
+     aplicados. Los atributos aria-* informan a lectores de pantalla. -->
 <button
   type="button"
   class="feature-filter-btn w-12 h-12 rounded-full flex items-center justify-center"
@@ -7,19 +9,37 @@
   aria-label="Filtrar por características"
   (click)="open = !open"
 >
+  <!-- Icono de filtro: tres líneas horizontales de distinto largo -->
   <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 6C2.25 5.58579 2.58579 5.25 3 5.25H21C21.4142 5.25 21.75 5.58579 21.75 6C21.75 6.41421 21.4142 6.75 21 6.75H3C2.58579 6.75 2.25 6.41421 2.25 6Z" />
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M4.25 12C4.25 11.5858 4.58579 11.25 5 11.25H19C19.4142 11.25 19.75 11.5858 19.75 12C19.75 12.4142 19.4142 12.75 19 12.75H5C4.58579 12.75 4.25 12.4142 4.25 12Z" />
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M6.25 18C6.25 17.5858 6.58579 17.25 7 17.25H17C17.4142 17.25 17.75 17.5858 17.75 18C17.75 18.4142 17.4142 18.75 17 18.75H7C6.58579 18.75 6.25 18.4142 6.25 18Z" />
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M2.25 6C2.25 5.58579 2.58579 5.25 3 5.25H21C21.4142 5.25 21.75 5.58579 21.75 6C21.75 6.41421 21.4142 6.75 21 6.75H3C2.58579 6.75 2.25 6.41421 2.25 6Z"
+    />
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M4.25 12C4.25 11.5858 4.58579 11.25 5 11.25H19C19.4142 11.25 19.75 11.5858 19.75 12C19.75 12.4142 19.4142 12.75 19 12.75H5C4.58579 12.75 4.25 12.4142 4.25 12Z"
+    />
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M6.25 18C6.25 17.5858 6.58579 17.25 7 17.25H17C17.4142 17.25 17.75 17.5858 17.75 18C17.75 18.4142 17.4142 18.75 17 18.75H7C6.58579 18.75 6.25 18.4142 6.25 18Z"
+    />
   </svg>
 </button>
 
+<!-- Panel flotante con las casillas; solo existe mientras está abierto -->
 @if (open) {
   <div class="feature-filter-panel rounded-2xl p-5 absolute right-0 mt-3 z-30">
-    <p class="text-[11px] font-semibold tracking-[0.2em] uppercase mb-4" style="color: rgba(44, 44, 44, 0.4)">
+    <p
+      class="text-[11px] font-semibold tracking-[0.2em] uppercase mb-4"
+      style="color: rgba(44, 44, 44, 0.4)"
+    >
       Filtrar por
     </p>
 
+    <!-- Título de la sección y botón para desmarcar todo -->
     <div class="flex items-center justify-between mb-3">
       <p class="text-sm font-semibold text-charcoal">Características</p>
       <button
@@ -32,6 +52,7 @@
       </button>
     </div>
 
+    <!-- Una casilla por característica, con su icono dentro -->
     <div class="space-y-2.5 mb-5">
       @for (feature of features; track feature.key) {
         <app-check-option
@@ -45,6 +66,9 @@
       }
     </div>
 
-    <app-button variant="sage" size="sm" [fullWidth]="true" (click)="apply()">Aplicar</app-button>
+    <!-- Aplica las casillas marcadas y cierra el panel -->
+    <app-button variant="sage" size="sm" [fullWidth]="true" (click)="apply()"
+      >Aplicar</app-button
+    >
   </div>
 }
