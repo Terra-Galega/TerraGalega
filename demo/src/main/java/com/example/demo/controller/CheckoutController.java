@@ -26,6 +26,7 @@ public class CheckoutController {
     @Autowired
     private ClientService clientService;
 
+    // POST /checkout?clientId=X con el carrito en el cuerpo 
     @Operation(summary = "Process checkout and create an order")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201 sin cuerpo: el pedido se creó
@@ -33,9 +34,10 @@ public class CheckoutController {
             @RequestParam Integer clientId,
             @RequestBody CheckoutRequestDTO request) {
 
+        // Busca al cliente (lanza 404 si no existe)
         Client client = clientService.getClientById(clientId);
 
-        // El pedido se guarda; no se devuelve porque el frontend no lo usa
+        // El pedido se guarda
         orderService.checkout(client, request);
     }
 }
