@@ -11,6 +11,7 @@ import { LoginFormsComponent } from './components/login-forms/login-forms.compon
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
 import { getErrorMessage } from '../../utils/http-error';
+import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
 
 @Component({
   selector: 'app-login',
@@ -112,15 +113,20 @@ export class LoginComponent {
 
   login() {
     this.loginError = '';
-
+    if (!isValidEmail(this.loginEmail)) {
+      this.loginError = EMAIL_ERROR_MESSAGE;
+      return;
+    }
     this.auth.login(this.loginEmail, this.loginPassword).subscribe({
       next: (user) => {
         this.auth.setSession(user);
         this.goByRole(user);
       },
       error: (error) => {
-        this.loginError =
-          getErrorMessage(error, 'No se pudo conectar con el servidor.');
+        this.loginError = getErrorMessage(
+          error,
+          'No se pudo conectar con el servidor.',
+        );
       },
     });
   }
@@ -158,7 +164,10 @@ export class LoginComponent {
       this.signupError = 'Todos los campos son obligatorios.';
       return;
     }
-
+    if (!isValidEmail(this.signupEmail)) {
+      this.signupError = EMAIL_ERROR_MESSAGE;
+      return;
+    }
     const newClient: CreateClient = {
       name: this.signupName.trim(),
       lastName: this.signupLastName.trim(),
@@ -180,8 +189,10 @@ export class LoginComponent {
       error: (error) => {
         console.error('Error creando cuenta:', error);
 
-        this.signupError =
-          getErrorMessage(error, 'No se pudo crear la cuenta. Inténtalo de nuevo.');
+        this.signupError = getErrorMessage(
+          error,
+          'No se pudo crear la cuenta. Inténtalo de nuevo.',
+        );
       },
     });
   }
