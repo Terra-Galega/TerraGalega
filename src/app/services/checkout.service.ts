@@ -1,9 +1,7 @@
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CheckoutRequest } from '../models/checkout';
-import { Order } from '../models/order';
 
 @Injectable({ providedIn: 'root' })
 export class CheckoutService {
@@ -11,7 +9,8 @@ export class CheckoutService {
 
     constructor(private http: HttpClient) {}
 
-    checkout(clientId: number, request: CheckoutRequest): Observable<Order> {
-        return this.http.post<Order>(this.apiUrl, request, { params: { clientId } });
+    // El servidor responde 201 sin cuerpo: solo importa si el pedido se creó
+    checkout(clientId: number, request: CheckoutRequest): Observable<void> {
+        return this.http.post<void>(this.apiUrl, request, { params: { clientId } });
     }
 }
