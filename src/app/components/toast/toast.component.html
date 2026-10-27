@@ -1,4 +1,6 @@
+<!-- Muestra el aviso cuando el servicio tiene una notificación activa -->
 @if (toastService.toast(); as toast) {
+  <!-- Contenedor principal de la notificación, ubicado en la parte inferior de la pantalla -->
   <div
     class="toast fixed left-1/2 bottom-8 z-50 w-[calc(100%-2rem)] max-w-md flex items-center gap-4 rounded-2xl pl-4 pr-3 py-3.5"
     style="
@@ -11,6 +13,7 @@
     role="status"
     aria-live="polite"
   >
+    <!-- Icono que indica que la operación se realizó correctamente -->
     <span
       class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
       style="background-color: #556141"
@@ -29,8 +32,11 @@
       </svg>
     </span>
 
+    <!-- Muestra el título y, si existe, el mensaje de la notificación -->
     <div class="min-w-0 flex-1">
       <p class="text-[15px] font-semibold text-charcoal">{{ toast.title }}</p>
+
+      <!-- El mensaje adicional solo aparece cuando tiene contenido -->
       @if (toast.message) {
         <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
           {{ toast.message }}
@@ -38,6 +44,7 @@
       }
     </div>
 
+    <!-- Botón para cerrar la notificación mediante el servicio -->
     <button
       type="button"
       class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-black/5"
@@ -45,6 +52,7 @@
       aria-label="Cerrar aviso"
       (click)="toastService.close()"
     >
+      <!-- Icono de cierre -->
       <svg
         width="14"
         height="14"

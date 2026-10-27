@@ -11,6 +11,7 @@ import {
   styleUrl: './history-section.component.scss',
 })
 export class HistorySectionComponent {
+  //estadisticas (info que se muestra)
   stats: Stat[] = [
     { value: '6+', label: 'Años de trayectoria' },
     { value: '150+', label: 'Platos al día' },
