@@ -1,24 +1,12 @@
-<div
-  class="fixed inset-0 z-50 flex items-center justify-center p-4"
-  style="background-color: rgba(44, 44, 44, 0.55)"
->
-  <div
-    class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
-  >
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(44, 44, 44, 0.55)">
+  <div class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative">
     <div class="flex items-center justify-between mb-2">
       <h2 class="font-serif text-2xl font-semibold text-charcoal">
         Enviar pedido #{{ order.id }}
       </h2>
 
       <app-icon-button variant="soft" label="Cerrar" (click)="close()">
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 18L18 6M6 6l12 12" />
         </svg>
       </app-icon-button>
@@ -29,48 +17,44 @@
     </p>
 
     <div class="space-y-4">
+      <!-- Controla qué contenido se muestra según el estado de carga y la disponibilidad de domiciliarios. -->
       @if (loading) {
-        <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-          Cargando domiciliarios…
-        </p>
+      <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
+        Cargando domiciliarios…
+      </p>
       } @else if (deliveryPersons.length === 0) {
-        <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-          No hay domiciliarios disponibles en este momento.
-        </p>
+      <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
+        No hay domiciliarios disponibles en este momento.
+      </p>
       } @else {
-        <app-form-field label="Domiciliario">
-          <select
-            (change)="onSelect($event)"
-            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
-          >
-            <option value="" disabled selected>
-              Selecciona un domiciliario
-            </option>
+      <app-form-field label="Domiciliario">
+        <select (change)="onSelect($event)" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal">
+          <option value="" disabled selected>
+            Selecciona un domiciliario
+          </option>
 
-            @for (person of deliveryPersons; track person.id) {
-              <option [value]="person.id">
-                {{ person.name }} {{ person.lastName }} · {{ person.phone }}
-              </option>
-            }
-          </select>
-        </app-form-field>
+          <!-- Genera una opción por cada domiciliario y utiliza su identificador como valor de selección. -->
+          @for (person of deliveryPersons; track person.id) {
+          <option [value]="person.id">
+            {{ person.name }} {{ person.lastName }} · {{ person.phone }}
+          </option>
+          }
+        </select>
+      </app-form-field>
       }
 
+      <!-- Muestra los errores de validación o del proceso de envío cuando existe un mensaje disponible. -->
       @if (errorMessage) {
-        <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
+      <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
       }
 
       <div class="flex gap-3 pt-2">
-        <app-button
-          class="flex-1"
-          variant="neutral"
-          [fullWidth]="true"
-          (click)="close()"
-        >
+        <app-button class="flex-1" variant="neutral" [fullWidth]="true" (click)="close()">
           Cancelar
         </app-button>
 
         <app-button class="flex-1" [fullWidth]="true" (click)="send()">
+          <!-- Cambia el texto del botón durante el envío para indicar que la operación está en curso. -->
           {{ sending ? "Enviando…" : "Enviar pedido" }}
         </app-button>
       </div>

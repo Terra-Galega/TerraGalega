@@ -17,6 +17,7 @@ import {
 import { OrderService } from '../../../../services/order.service';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 
+// Asigna un color a cada estado para distinguir visualmente la situación actual del pedido.
 const STATUS_COLORS: Record<OrderStatus, string> = {
   PENDING: '#d99a21',
   CONFIRMED: '#d99a21',
@@ -45,7 +46,7 @@ export class OperatorOrderDetailModalComponent implements OnInit {
   statusLabels = ORDER_STATUS_LABELS;
   statusColors = STATUS_COLORS;
   groupAddOns = groupAddOns;
-  // Pasos del flujo normal de un pedido (el cancelado no entra aquí)
+  // Define la secuencia de estados del flujo normal para calcular el progreso; los pedidos cancelados quedan fuera de esta secuencia.
   steps: OrderStatus[] = [
     'PENDING',
     'CONFIRMED',
@@ -55,6 +56,7 @@ export class OperatorOrderDetailModalComponent implements OnInit {
   ];
 
   ngOnInit() {
+    // Consulta el pedido por su identificador al iniciar el modal para cargar sus detalles actualizados.
     this.orderService.getOrderById(this.orderId).subscribe({
       next: (order) => {
         this.order = order;
@@ -68,16 +70,18 @@ export class OperatorOrderDetailModalComponent implements OnInit {
     });
   }
 
+  // Calcula la posición del estado actual dentro del flujo para identificar los pasos completados; devuelve -1 si no hay pedido o su estado no está en la secuencia.
   get stepIndex(): number {
     return this.order ? this.steps.indexOf(this.order.status) : -1;
   }
 
+  // Suma el precio unitario del producto y sus adicionales, y multiplica el resultado por la cantidad solicitada.
   lineTotal(detail: OrderDetail): number {
     const addOnsPrice = detail.addOns.reduce((sum, a) => sum + a.price, 0);
     return (detail.unitPrice + addOnsPrice) * detail.quantity;
   }
 
-  // Si la imagen no carga, se oculta en vez de mostrar el ícono roto
+  // Si la imagen no carga, se oculta en vez de mostrar el ícono roto.
   hideImage(event: Event) {
     (event.target as HTMLImageElement).style.display = 'none';
   }

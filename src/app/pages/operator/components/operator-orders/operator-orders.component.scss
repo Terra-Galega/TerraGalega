@@ -1,9 +1,12 @@
 // Entrada suave del aviso: sube y aparece. Se desactiva si el usuario prefiere menos movimiento.
 .toast {
+  // Mantiene el aviso centrado horizontalmente respecto a su posición fija.
   transform: translateX(-50%);
+  // Aplica la animación de entrada con una curva de aceleración personalizada y conserva el estado final.
   animation: toast-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 }
 
+// Define la transición desde un estado invisible y desplazado hacia abajo hasta su posición final.
 @keyframes toast-in {
   from {
     opacity: 0;
@@ -15,6 +18,7 @@
   }
 }
 
+// Respeta la preferencia de accesibilidad del usuario para reducir las animaciones y el movimiento.
 @media (prefers-reduced-motion: reduce) {
   .toast {
     animation: none;
