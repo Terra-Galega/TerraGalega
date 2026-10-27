@@ -6,6 +6,7 @@ import com.example.demo.service.DeliveryPersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
+import com.example.demo.dto.DeliveryPersonOptionDTO;
 
 import java.util.Collection;
 
@@ -25,8 +26,10 @@ public class DeliveryPersonController {
 
     @Operation(summary = "Get active delivery persons that are available, for the operator UI")
     @GetMapping("/available")
-    public Collection<DeliveryPerson> getAvailableDeliveryPersons() {
-        return deliveryPersonService.getAvailableDeliveryPersons();
+    public Collection<DeliveryPersonOptionDTO> getAvailableDeliveryPersons() {
+        return deliveryPersonService.getAvailableDeliveryPersons().stream()
+                .map(this::toOptionDTO)
+                .toList();
     }
 
     @Operation(summary = "Get delivery person by ID")
@@ -67,5 +70,14 @@ public class DeliveryPersonController {
     public void changePassword(@PathVariable Integer id,
             @RequestBody ChangePasswordRequestDTO request) {
         deliveryPersonService.changePassword(id, request.getCurrentPassword(), request.getNewPassword());
+    }
+
+    private DeliveryPersonOptionDTO toOptionDTO(DeliveryPerson deliveryPerson) {
+        DeliveryPersonOptionDTO dto = new DeliveryPersonOptionDTO();
+        dto.setId(deliveryPerson.getId());
+        dto.setName(deliveryPerson.getName());
+        dto.setLastName(deliveryPerson.getLastName());
+        dto.setPhone(deliveryPerson.getPhone());
+        return dto;
     }
 }
