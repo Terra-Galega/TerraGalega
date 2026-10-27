@@ -1,11 +1,15 @@
+<!-- Si se recibió un routerLink, el componente se muestra como enlace de navegación. -->
 @if (routerLink) {
-  <a [routerLink]="routerLink" [queryParams]="queryParams" [class]="classes">
-    <ng-container *ngTemplateOutlet="content" />
-  </a>
+<a [routerLink]="routerLink" [queryParams]="queryParams" [class]="classes">
+  <!-- Inserta el contenido definido más abajo para no duplicarlo en cada rama. -->
+  <ng-container *ngTemplateOutlet="content" />
+</a>
 } @else {
-  <button [type]="type" [disabled]="disabled" [class]="classes">
-    <ng-container *ngTemplateOutlet="content" />
-  </button>
+<!-- En caso contrario, se muestra como un botón nativo con su tipo y estado deshabilitado. -->
+<button [type]="type" [disabled]="disabled" [class]="classes">
+  <ng-container *ngTemplateOutlet="content" />
+</button>
 }
 
+<!-- Plantilla compartida: proyecta el contenido que el padre escribe dentro de <app-button>. -->
 <ng-template #content><ng-content /></ng-template>

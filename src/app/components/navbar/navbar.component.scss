@@ -1,11 +1,14 @@
 // TIPOGRAFÍAS DEL LOGO
 
+// Carga desde Google Fonts las fuentes del logo.
 @import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
 
+// Fuente cursiva (Pinyon Script) para la palabra 'Terra'.
 .font-terra {
   font-family: "Pinyon Script", cursive;
 }
 
+// Fuente con serifa (Droid Serif) para la palabra 'Galega'.
 .font-galega {
   font-family: "Droid Serif", serif;
 }
@@ -43,14 +46,18 @@
 .nav-bar.nav-bar--stayed {
   background-color: rgba(206, 206, 206, 0.505);
 
+  // Efecto de vidrio esmerilado: desenfoca y satura lo que queda detrás de la barra.
   backdrop-filter: blur(35px) saturate(180%);
+  // Prefijo necesario para que el efecto funcione en Safari.
   -webkit-backdrop-filter: blur(35px) saturate(180%);
 
+  // Bordes claros arriba y a los lados simulan el canto de un cristal; el inferior es oscuro y sutil.
   border-top: 1px solid rgba(255, 255, 255, 0.9);
   border-left: 1px solid rgba(255, 255, 255, 0.4);
   border-right: 1px solid rgba(255, 255, 255, 0.4);
   border-bottom: 1px solid rgba(75, 75, 75, 0.12);
 
+  // Sombra suave que separa la barra del contenido.
   box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.08);
 }
 
@@ -90,6 +97,7 @@
 .link-nav.active,
 #mobile-menu .link-nav.active,
 .nav-bar.nav-bar--stayed .link-nav.active {
+  // Usa !important para imponerse al resto de estados de color de los enlaces.
   color: #556141 !important;
 
   text-decoration: underline;
@@ -161,10 +169,12 @@
 
 // POSICIÓN BASE (no depende de Tailwind)
 
+// Hace que el contenedor <app-navbar> se comporte como un bloque.
 :host {
   display: block;
 }
 
+// Fija la barra arriba del todo y a todo el ancho sin depender de Tailwind.
 .nav-bar {
   position: fixed;
   top: 0;

@@ -1,7 +1,9 @@
+// Hace que el contenedor <app-icon-button> se comporte como un elemento en línea que respeta su tamaño.
 :host {
   display: inline-flex;
 }
 
+// Botón base: círculo de tamaño fijo con el icono centrado.
 .icon-btn {
   display: inline-flex;
   align-items: center;
@@ -15,15 +17,18 @@
   transition: all 0.2s;
 }
 
+// Oscurece el icono al pasar el mouse.
 .icon-btn:hover {
   color: #2c2c2c;
 }
 
+// Aspecto de botón deshabilitado: más tenue y con cursor de acción no permitida.
 .icon-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+// Variante suave: fondo gris translúcido que se intensifica al pasar el mouse.
 .icon-btn--soft {
   background-color: rgba(44, 44, 44, 0.06);
 }
@@ -32,6 +37,7 @@
   background-color: rgba(44, 44, 44, 0.12);
 }
 
+// Variante fantasma: sin fondo hasta que se pasa el mouse por encima.
 .icon-btn--ghost {
   background-color: transparent;
 }

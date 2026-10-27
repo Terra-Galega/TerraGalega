@@ -1,26 +1,33 @@
 // Botón base: siempre con bordes totalmente redondeados
 .btn {
+  // Alinea el contenido (texto e iconos) en una fila centrada.
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  // Separación entre el icono y el texto.
   gap: 0.5rem;
   border-radius: 9999px;
   font-weight: 500;
+  // Evita que el texto del botón se parta en varias líneas.
   white-space: nowrap;
   cursor: pointer;
+  // Borde transparente para que las variantes con borde no cambien el tamaño del botón.
   border: 1px solid transparent;
   transition: all 0.3s;
 }
 
+// Efecto de ampliación al pasar el mouse, excepto en los botones de ancho completo.
 .btn:not(.btn--full):hover {
   transform: scale(1.05);
 }
 
+// Aspecto de botón deshabilitado: más tenue y con cursor de acción no permitida.
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+// Hace que el botón ocupe todo el ancho de su contenedor.
 .btn--full {
   width: 100%;
 }
@@ -40,12 +47,14 @@
 }
 
 // Variantes
+// Principal: degradado naranja-rojo con sombra cálida.
 .btn--primary {
   color: #fff;
   background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
   box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
 }
 
+// Contorno: borde gris que se rellena con el degradado al pasar el mouse.
 .btn--outline {
   color: rgba(44, 44, 44, 0.7);
   border-color: rgba(44, 44, 44, 0.2);
@@ -58,6 +67,7 @@
   box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
 }
 
+// Neutro: borde gris que solo oscurece ligeramente el fondo al pasar el mouse (por ejemplo, Cancelar).
 .btn--neutral {
   color: rgba(44, 44, 44, 0.7);
   border-color: rgba(44, 44, 44, 0.2);
@@ -68,6 +78,7 @@
   background-color: rgba(44, 44, 44, 0.06);
 }
 
+// Salvia: verde sólido; se oscurece un poco al pasar el mouse.
 .btn--sage {
   color: #fff;
   background-color: #556141;
@@ -76,6 +87,7 @@
 .btn--sage:hover {
   background-color: #4a5539;
 }
+// Peligro: texto y borde rojizos que se rellenan de rojo al pasar el mouse (acciones destructivas).
 .btn--danger {
   color: #8a2222;
   border-color: rgba(138, 34, 34, 0.3);
@@ -88,14 +100,17 @@
   border-color: #8a2222;
 }
 
+// Cristal claro: fondo crema translúcido con desenfoque, pensado para ir sobre imágenes.
 .btn--glass-light {
   color: #2c2c2c;
   background-color: rgba(245, 242, 235, 0.92);
   backdrop-filter: blur(16px);
+  // Prefijo necesario para que el desenfoque funcione en Safari.
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 }
 
+// Cristal oscuro: fondo gris oscuro con borde claro y desenfoque, para fondos oscuros o imágenes.
 .btn--glass-dark {
   color: #f5f2eb;
   background-color: rgb(53, 53, 53);
@@ -104,6 +119,7 @@
   -webkit-backdrop-filter: blur(16px);
 }
 
+// Fondo oscuro: variante translúcida con texto crema; no está incluida en el tipo ButtonVariant del componente.
 .btn--dark-background {
   color: #f5f2eb;
   background-color: rgba(255, 255, 255, 0.1);

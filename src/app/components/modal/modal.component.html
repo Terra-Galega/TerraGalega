@@ -1,85 +1,64 @@
+<!-- Solo se dibuja el modal cuando el padre lo marca como abierto. -->
 @if (open) {
-  <div
-    class="fixed inset-0 z-[100] flex items-center justify-center p-4"
-    style="background-color: rgba(44, 44, 44, 0.45); backdrop-filter: blur(4px)"
-    (click)="cancel.emit()"
-  >
-    <div
-      class="glass-card w-full max-w-md rounded-3xl p-6 md:p-8"
-      style="background: rgba(255, 255, 255, 0.98)"
-      [attr.role]="variant === 'error' ? 'alertdialog' : 'dialog'"
-      aria-modal="true"
-      (click)="$event.stopPropagation()"
-    >
-      <h3
-        class="font-serif text-xl font-semibold mb-2"
-        [style.color]="titleColor"
-      >
-        {{ title }}
-      </h3>
+<!-- Capa oscura con desenfoque que cubre toda la pantalla y centra el cuadro; al hacer clic fuera del cuadro se emite cancel. -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+  style="background-color: rgba(44, 44, 44, 0.45); backdrop-filter: blur(4px)" (click)="cancel.emit()">
+  <!-- Cuadro del modal: usa el rol 'alertdialog' en los errores y 'dialog' en el resto; stopPropagation evita que un clic dentro lo cierre. -->
+  <div class="glass-card w-full max-w-md rounded-3xl p-6 md:p-8" style="background: rgba(255, 255, 255, 0.98)"
+    [attr.role]="variant === 'error' ? 'alertdialog' : 'dialog'" aria-modal="true" (click)="$event.stopPropagation()">
+    <!-- Título del modal; su color depende de la variante. -->
+    <h3 class="font-serif text-xl font-semibold mb-2" [style.color]="titleColor">
+      {{ title }}
+    </h3>
 
-      <p
-        class="text-sm mb-4 whitespace-pre-line"
-        style="color: rgba(44, 44, 44, 0.7)"
-      >
-        {{ message }}
-      </p>
+    <!-- Mensaje principal; whitespace-pre-line respeta los saltos de línea del texto. -->
+    <p class="text-sm mb-4 whitespace-pre-line" style="color: rgba(44, 44, 44, 0.7)">
+      {{ message }}
+    </p>
 
-      @if (items.length > 0) {
-        <div class="flex flex-wrap gap-1.5 mb-4">
-          @for (item of items; track $index) {
-            <span
-              class="text-[12px] px-2.5 py-0.5 rounded-full"
-              style="color: #556141; background-color: rgba(85, 97, 65, 0.1)"
-            >
-              {{ item }}
-            </span>
-          }
-        </div>
+    <!-- Lista opcional de textos que se muestran como chips verdes. -->
+    @if (items.length > 0) {
+    <div class="flex flex-wrap gap-1.5 mb-4">
+      <!-- Crea un chip por cada elemento de la lista. -->
+      @for (item of items; track $index) {
+      <span class="text-[12px] px-2.5 py-0.5 rounded-full"
+        style="color: #556141; background-color: rgba(85, 97, 65, 0.1)">
+        {{ item }}
+      </span>
+      }
+    </div>
+    }
+
+    <!-- Aviso destacado en amarillo; solo aparece si se recibió un texto de advertencia. -->
+    @if (warning) {
+    <div class="flex items-start gap-2 text-sm rounded-xl px-3 py-2.5 mb-4"
+      style="background-color: rgba(217, 154, 33, 0.12); color: #8a5a00">
+      <!-- Icono de advertencia (triángulo con signo de exclamación); es decorativo, por eso está oculto para lectores de pantalla. -->
+      <svg class="flex-shrink-0" width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true">
+        <g transform="translate(32, 42.666667)" fill="#c3a550" fill-rule="evenodd">
+          <path
+            d="M246.312928,5.62892705 C252.927596,9.40873724 258.409564,14.8907053 262.189374,21.5053731 L444.667042,340.84129 C456.358134,361.300701 449.250007,387.363834 428.790595,399.054926 C422.34376,402.738832 415.04715,404.676552 407.622001,404.676552 L42.6666667,404.676552 C19.1025173,404.676552 7.10542736e-15,385.574034 7.10542736e-15,362.009885 C7.10542736e-15,354.584736 1.93772021,347.288125 5.62162594,340.84129 L188.099293,21.5053731 C199.790385,1.04596203 225.853517,-6.06216498 246.312928,5.62892705 Z M225.144334,42.6739678 L42.6666667,362.009885 L407.622001,362.009885 L225.144334,42.6739678 Z M224,272 C239.238095,272 250.666667,283.264 250.666667,298.624 C250.666667,313.984 239.238095,325.248 224,325.248 C208.415584,325.248 197.333333,313.984 197.333333,298.282667 C197.333333,283.264 208.761905,272 224,272 Z M245.333333,106.666667 L245.333333,234.666667 L202.666667,234.666667 L202.666667,106.666667 L245.333333,106.666667 Z" />
+        </g>
+      </svg>
+      <span>{{ warning }}</span>
+    </div>
+    }
+
+    <!-- Zona de acciones alineada a la derecha. -->
+    <div class="flex justify-end gap-3 mt-3">
+      <!-- El botón de cancelar solo aparece si se definió su etiqueta. -->
+      @if (cancelLabel) {
+      <app-button variant="neutral" size="sm" (click)="cancel.emit()">
+        {{ cancelLabel }}
+      </app-button>
       }
 
-      @if (warning) {
-        <div
-          class="flex items-start gap-2 text-sm rounded-xl px-3 py-2.5 mb-4"
-          style="background-color: rgba(217, 154, 33, 0.12); color: #8a5a00"
-        >
-          <svg
-            class="flex-shrink-0"
-            width="20"
-            height="20"
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <g
-              transform="translate(32, 42.666667)"
-              fill="#c3a550"
-              fill-rule="evenodd"
-            >
-              <path
-                d="M246.312928,5.62892705 C252.927596,9.40873724 258.409564,14.8907053 262.189374,21.5053731 L444.667042,340.84129 C456.358134,361.300701 449.250007,387.363834 428.790595,399.054926 C422.34376,402.738832 415.04715,404.676552 407.622001,404.676552 L42.6666667,404.676552 C19.1025173,404.676552 7.10542736e-15,385.574034 7.10542736e-15,362.009885 C7.10542736e-15,354.584736 1.93772021,347.288125 5.62162594,340.84129 L188.099293,21.5053731 C199.790385,1.04596203 225.853517,-6.06216498 246.312928,5.62892705 Z M225.144334,42.6739678 L42.6666667,362.009885 L407.622001,362.009885 L225.144334,42.6739678 Z M224,272 C239.238095,272 250.666667,283.264 250.666667,298.624 C250.666667,313.984 239.238095,325.248 224,325.248 C208.415584,325.248 197.333333,313.984 197.333333,298.282667 C197.333333,283.264 208.761905,272 224,272 Z M245.333333,106.666667 L245.333333,234.666667 L202.666667,234.666667 L202.666667,106.666667 L245.333333,106.666667 Z"
-              />
-            </g>
-          </svg>
-          <span>{{ warning }}</span>
-        </div>
-      }
-
-      <div class="flex justify-end gap-3 mt-3">
-        @if (cancelLabel) {
-          <app-button variant="neutral" size="sm" (click)="cancel.emit()">
-            {{ cancelLabel }}
-          </app-button>
-        }
-
-        <app-button
-          [variant]="confirmVariant"
-          size="sm"
-          (click)="confirm.emit()"
-        >
-          {{ confirmLabel }}
-        </app-button>
-      </div>
+      <!-- Botón de confirmar; su variante la calcula el componente según el tipo de modal. -->
+      <app-button [variant]="confirmVariant" size="sm" (click)="confirm.emit()">
+        {{ confirmLabel }}
+      </app-button>
     </div>
   </div>
+</div>
 }

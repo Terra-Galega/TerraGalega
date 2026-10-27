@@ -1,51 +1,36 @@
-<nav
-  id="nav-bar"
-  class="nav-bar fixed top-0 inset-x-0 z-50 w-full"
-  [class.nav-bar--stayed]="navBarStayed"
->
+<!-- Contenedor fijo de la barra; la clase nav-bar--stayed se aplica cuando navBarStayed es true (fondo de vidrio). -->
+<nav id="nav-bar" class="nav-bar fixed top-0 inset-x-0 z-50 w-full" [class.nav-bar--stayed]="navBarStayed">
   <!-- ============================================================ DESKTOP ============================================================ -->
-  <div
-    class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
-    style="grid-template-columns: 1fr auto 1fr"
-  >
+  <!-- Versión de escritorio: solo visible desde pantallas medianas, con rejilla de tres columnas (enlaces, logo, sesión y carrito). -->
+  <div class="hidden md:grid max-w-[1400px] mx-auto px-4 h-20 items-center w-full"
+    style="grid-template-columns: 1fr auto 1fr">
     <!-- ========================================================== COLUMNA IZQUIERDA ========================================================== -->
     <div class="flex items-center justify-evenly w-full">
+      <!-- Los enlaces navegan por código con (click) y llaman a los métodos goTo... del componente. -->
       <!-- NOSOTROS -->
-      <a
-        class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        (click)="goToAboutUs()"
-      >
+      <a class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+        (click)="goToAboutUs()">
         NOSOTROS
       </a>
       <!-- MENÚ -->
-      <a
-        class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        (click)="goToMenu()"
-      >
+      <a class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer" (click)="goToMenu()">
         MENÚ
       </a>
       <!-- CONTACTO -->
-      <a
-        class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        (click)="goToContact()"
-      >
+      <a class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+        (click)="goToContact()">
         CONTACTO
       </a>
     </div>
     <!-- ========================================================== LOGO CENTRAL ========================================================== -->
     <div class="flex justify-center px-10">
-      <a
-        class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300 cursor-pointer"
-        (click)="goToHome()"
-      >
-        <span
-          class="logo-terra font-terra text-[24px] leading-[0.6] font-normal"
-        >
+      <!-- Logo con el nombre de la marca en dos líneas; al pulsarlo se vuelve al inicio. -->
+      <a class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300 cursor-pointer"
+        (click)="goToHome()">
+        <span class="logo-terra font-terra text-[24px] leading-[0.6] font-normal">
           Terra
         </span>
-        <span
-          class="logo-galega font-galega text-[21px] tracking-[0.05em] uppercase -mt-1.5"
-        >
+        <span class="logo-galega font-galega text-[21px] tracking-[0.05em] uppercase -mt-1.5">
           Galega
         </span>
       </a>
@@ -53,238 +38,151 @@
     <!-- ========================================================== COLUMNA DERECHA Pedidos - sesión - carrito ========================================================== -->
     <div class="flex items-center justify-evenly w-full">
       <!-- PEDIDOS -->
-      <a
-        class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        (click)="goToOrders()"
-      >
+      <a class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer" (click)="goToOrders()">
+        <!-- El texto cambia según haya o no una sesión iniciada. -->
         {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
       </a>
       <!-- ======================================================== USUARIO / LOGIN ======================================================== -->
+      <!-- Sin sesión se ofrece iniciar sesión; con sesión se muestra el nombre del usuario. -->
       @if (!isLoggedIn) {
-        <a
-          class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-          (click)="goToLogin()"
-        >
-          INICIAR SESIÓN
-        </a>
+      <a class="link-nav text-xs font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer" (click)="goToLogin()">
+        INICIAR SESIÓN
+      </a>
       } @else {
-        @if (isLoggedAdmin || isClient) {
-          <a
-            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer max-w-[160px] truncate"
-            (click)="goToProfile()"
-          >
-            {{ fullName }}
-          </a>
-        } @else {
-          <span
-            class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap max-w-[160px] truncate"
-          >
-            {{ fullName }}
-          </span>
-        }
+      <!-- Admin y cliente pueden abrir su perfil al pulsar su nombre; el operador solo ve su nombre, sin enlace. -->
+      @if (isLoggedAdmin || isClient) {
+      <a class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer max-w-[160px] truncate"
+        (click)="goToProfile()">
+        {{ fullName }}
+      </a>
+      } @else {
+      <span
+        class="link-nav text-xs font-medium tracking-[0.18em] leading-none whitespace-nowrap max-w-[160px] truncate">
+        {{ fullName }}
+      </span>
+      }
       }
       <!-- ======================================================== CARRITO ======================================================== -->
-      <button
-        class="link-nav relative flex items-center justify-center p-2"
-        aria-label="Carrito"
-        (click)="openCart()"
-      >
-        <svg
-          class="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.8"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-          />
+      <!-- Botón del carrito: abre el panel lateral. -->
+      <button class="link-nav relative flex items-center justify-center p-2" aria-label="Carrito" (click)="openCart()">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
+        <!-- Insignia con la cantidad de productos; solo aparece si el carrito no está vacío. -->
         @if (cartCount > 0) {
-          <span
-            class="absolute top-0 right-0 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
-          >
-            {{ cartCount }}
-          </span>
+        <span
+          class="absolute top-0 right-0 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium">
+          {{ cartCount }}
+        </span>
         }
       </button>
     </div>
   </div>
   <!-- ============================================================ MOBILE ============================================================ -->
+  <!-- Versión móvil: solo visible en pantallas pequeñas. -->
   <div class="flex md:hidden items-center justify-between px-5 h-16 relative">
     <!-- LOGO -->
-    <button
-      type="button"
-      (click)="scrollToHero()"
-      class="flex flex-col items-center justify-center drop-shadow-md z-10"
-      aria-label="Ir al inicio"
-    >
+    <!-- En móvil, el logo desplaza suavemente hasta la sección principal (hero). -->
+    <button type="button" (click)="scrollToHero()" class="flex flex-col items-center justify-center drop-shadow-md z-10"
+      aria-label="Ir al inicio">
       <span class="logo-terra font-terra text-[24px] leading-[0.6]">
         Terra
       </span>
-      <span
-        class="logo-galega font-galega text-[22px] tracking-[0.05em] uppercase -mt-1"
-      >
+      <span class="logo-galega font-galega text-[22px] tracking-[0.05em] uppercase -mt-1">
         Galega
       </span>
     </button>
     <!-- ========================================================== CARRITO + HAMBURGUESA ========================================================== -->
     <div class="flex items-center gap-4">
       <!-- CARRITO -->
-      <button
-        type="button"
-        class="link-nav relative p-2"
-        aria-label="Carrito"
-        (click)="openCart()"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-          />
+      <button type="button" class="link-nav relative p-2" aria-label="Carrito" (click)="openCart()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
+        <!-- Insignia del carrito para móvil. -->
         @if (cartCount > 0) {
-          <span
-            id="cart-count-mobile"
-            class="absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
-          >
-            {{ cartCount }}
-          </span>
+        <span id="cart-count-mobile"
+          class="absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium">
+          {{ cartCount }}
+        </span>
         }
       </button>
       <!-- HAMBURGUESA -->
-      <button
-        type="button"
-        class="link-nav p-1"
-        aria-label="Menú"
-        (click)="toggleMobileMenu()"
-      >
+      <button type="button" class="link-nav p-1" aria-label="Menú" (click)="toggleMobileMenu()">
+        <!-- Alterna entre el icono de hamburguesa y el de cerrar según el estado del menú. -->
         @if (!mobileMenuOpen) {
-          <!-- ICONO ABRIR -->
-          <svg
-            id="icon-open"
-            class="w-6 h-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
+        <!-- ICONO ABRIR -->
+        <svg id="icon-open" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
         } @else {
-          <!-- ICONO CERRAR -->
-          <svg
-            id="icon-close"
-            class="w-6 h-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+        <!-- ICONO CERRAR -->
+        <svg id="icon-close" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
         }
       </button>
     </div>
   </div>
   <!-- ============================================================ PERFIL MOBILE ============================================================ -->
+  <!-- Bloque de usuario para móvil: nombre y botón de cerrar sesión; solo se muestra si hay sesión. -->
   @if (isLoggedIn) {
-    <div
-      id="user-profile-mobile"
-      class="flex md:hidden flex-col gap-3 pt-4 pb-2 border-t mt-2"
-      style="border-color: rgba(255, 255, 255, 0.08)"
-    >
-      @if (isLoggedAdmin || isClient) {
-        <a
-          class="link-nav text-center text-xs font-medium tracking-[0.18em] cursor-pointer"
-          (click)="goToProfile()"
-        >
-          {{ fullName }}
-        </a>
-      } @else {
-        <span
-          class="link-nav text-center text-xs font-medium tracking-[0.18em]"
-        >
-          {{ fullName }}
-        </span>
-      }
-      <button
-        type="button"
-        class="w-full py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded bg-red-800/80 hover:bg-red-700 text-center transition-colors border-0 cursor-pointer"
-        (click)="closeMobileMenu()"
-      >
-        CERRAR SESIÓN
-      </button>
-    </div>
+  <div id="user-profile-mobile" class="flex md:hidden flex-col gap-3 pt-4 pb-2 border-t mt-2"
+    style="border-color: rgba(255, 255, 255, 0.08)">
+    <!-- Igual que en escritorio: solo admin y cliente tienen enlace a su perfil. -->
+    @if (isLoggedAdmin || isClient) {
+    <a class="link-nav text-center text-xs font-medium tracking-[0.18em] cursor-pointer" (click)="goToProfile()">
+      {{ fullName }}
+    </a>
+    } @else {
+    <span class="link-nav text-center text-xs font-medium tracking-[0.18em]">
+      {{ fullName }}
+    </span>
+    }
+    <!-- Este botón solo cierra el menú móvil; no llama a logout(). -->
+    <button type="button"
+      class="w-full py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded bg-red-800/80 hover:bg-red-700 text-center transition-colors border-0 cursor-pointer"
+      (click)="closeMobileMenu()">
+      CERRAR SESIÓN
+    </button>
+  </div>
   }
   <!-- ============================================================ MENÚ MOBILE ============================================================ -->
+  <!-- Menú desplegable de móvil; solo se dibuja cuando está abierto. -->
   @if (mobileMenuOpen) {
-    <div
-      id="mobile-menu"
-      class="md:hidden px-6 py-4 flex flex-col gap-4 border-t"
-    >
-      <!-- NOSOTROS -->
-      <a
-        class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2 cursor-pointer"
-        (click)="goToAboutUs()"
-      >
-        NOSOTROS
-      </a>
-      <!-- MENÚ -->
-      <a
-        class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2 cursor-pointer"
-        (click)="goToMenu()"
-      >
-        MENÚ
-      </a>
-      <!-- CONTACTO -->
-      <a
-        class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2 cursor-pointer"
-        (click)="goToContact()"
-      >
-        CONTACTO
-      </a>
-      <!-- PEDIDOS -->
-      <a
-        class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2 cursor-pointer"
-        (click)="goToOrders()"
-      >
-        {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
-      </a>
-      <!-- LOGIN -->
-      @if (!isLoggedIn) {
-        <div
-          class="flex pt-4 pb-2 border-t mt-2"
-          style="border-color: rgba(255, 255, 255, 0.08)"
-        >
-          <button
-            type="button"
-            class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center cursor-pointer"
-            (click)="goToLogin()"
-          >
-            INICIAR SESIÓN
-          </button>
-        </div>
-      }
+  <div id="mobile-menu" class="md:hidden px-6 py-4 flex flex-col gap-4 border-t">
+    <!-- NOSOTROS -->
+    <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2 cursor-pointer" (click)="goToAboutUs()">
+      NOSOTROS
+    </a>
+    <!-- MENÚ -->
+    <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2 cursor-pointer" (click)="goToMenu()">
+      MENÚ
+    </a>
+    <!-- CONTACTO -->
+    <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2 cursor-pointer" (click)="goToContact()">
+      CONTACTO
+    </a>
+    <!-- PEDIDOS -->
+    <a class="link-nav text-left text-xs font-medium tracking-[0.18em] py-2 cursor-pointer" (click)="goToOrders()">
+      <!-- El texto cambia según haya o no una sesión iniciada. -->
+      {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
+    </a>
+    <!-- LOGIN -->
+    <!-- El botón de iniciar sesión solo aparece cuando no hay sesión. -->
+    @if (!isLoggedIn) {
+    <div class="flex pt-4 pb-2 border-t mt-2" style="border-color: rgba(255, 255, 255, 0.08)">
+      <button type="button"
+        class="flex-1 py-3 text-[10px] sm:text-xs font-medium tracking-widest text-white rounded btn-terra text-center cursor-pointer"
+        (click)="goToLogin()">
+        INICIAR SESIÓN
+      </button>
     </div>
+    }
+  </div>
   }
 </nav>
+<!-- Panel del carrito: se muestra según cartOpen y avisa con (closed) cuando se cierra. -->
 <app-cart [isOpen]="cartOpen" (closed)="closeCart()"></app-cart>
