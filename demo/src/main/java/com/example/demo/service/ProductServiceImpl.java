@@ -124,7 +124,11 @@ public class ProductServiceImpl implements ProductService {
 
         validateProduct(product);
 
-        product.setActive(existingProduct.getActive());
+        // Si el formulario no manda el estado, se conserva el actual
+        if (product.getActive() == null) {
+            product.setActive(existingProduct.getActive());
+        }
+
         if (product.getPopular() == null) {
             product.setPopular(false);
         }
