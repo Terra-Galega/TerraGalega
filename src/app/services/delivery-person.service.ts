@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { DeliveryPerson, CreateDeliveryPerson } from '../models/deliveryPerson';
+import {
+  DeliveryPerson,
+  CreateDeliveryPerson,
+  DeliveryPersonOption,
+} from '../models/deliveryPerson';
 
 @Injectable({ providedIn: 'root' })
 export class DeliveryPersonService {
@@ -23,10 +27,9 @@ export class DeliveryPersonService {
   }
 
   // Solo activos y que no estén entregando un pedido (para el modal de envío)
-  getAvailableDeliveryPersons(): Observable<DeliveryPerson[]> {
-    return this.http.get<DeliveryPerson[]>(`${this.apiUrl}/available`);
+  getAvailableDeliveryPersons(): Observable<DeliveryPersonOption[]> {
+    return this.http.get<DeliveryPersonOption[]>(`${this.apiUrl}/available`);
   }
-
   addDeliveryPerson(
     deliveryPerson: CreateDeliveryPerson,
   ): Observable<DeliveryPerson> {

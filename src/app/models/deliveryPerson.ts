@@ -17,3 +17,9 @@ export type CreateDeliveryPerson = Omit<
   DeliveryPerson,
   'id' | 'role' | 'available'
 >;
+
+// Lo que devuelve /delivery-persons/available para el modal del operador
+export type DeliveryPersonOption = Pick<
+  DeliveryPerson,
+  'id' | 'name' | 'lastName' | 'phone'
+>;
