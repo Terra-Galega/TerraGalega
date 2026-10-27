@@ -10,6 +10,7 @@ import { SearchInputComponent } from '../../../../components/search-input/search
 })
 export class AdminTopbarComponent {
   @Input() title = 'Productos';
+  @Input() showSearch = true;
   @Input() showAddButton = true;
   @Input() addLabel = 'Añadir producto';
   @Output() searchChanged = new EventEmitter<string>();
