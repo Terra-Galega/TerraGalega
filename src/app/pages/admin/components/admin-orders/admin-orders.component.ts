@@ -3,7 +3,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { OrderService } from '../../../../services/order.service';
 import { ProductService } from '../../../../services/product.service';
 import { OrderSummary, ORDER_STATUS_LABELS } from '../../../../models/order';
-import { Product } from '../../../../models/product';
+import { ProductOption } from '../../../../models/product';
 import { getErrorMessage } from '../../../../utils/http-error';
 
 type OrderFilter = 'all' | 'active' | 'completed';
@@ -19,7 +19,7 @@ export class AdminOrdersComponent {
   private productService = inject(ProductService);
 
   ordersSummary: OrderSummary[] = [];
-  products: Product[] = [];
+  products: ProductOption[] = [];
   statusLabels = ORDER_STATUS_LABELS;
 
   // Filtros que se resuelven en el back
@@ -42,7 +42,7 @@ export class AdminOrdersComponent {
     this.loadOrders();
     this.orderService.refresh$.subscribe(() => this.loadOrders());
 
-    this.productService.getProducts().subscribe({
+    this.productService.getProductOptions().subscribe({
       next: (products) =>
         (this.products = [...products].sort((a, b) =>
           a.name.localeCompare(b.name),

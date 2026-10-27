@@ -2,7 +2,7 @@ import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { Product } from '../../models/product';
+import { Product, ProductDetail } from '../../models/product';
 import { ProductService } from '../../services/product.service';
 import { ProductInfoCardComponent } from './components/product-info-card/product-info-card.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
@@ -42,7 +42,7 @@ export class ProductDetailComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private refreshSub?: Subscription;
 
-  product: Product | undefined;
+  product: ProductDetail | undefined;
 
   relatedProducts: Product[] = [];
 

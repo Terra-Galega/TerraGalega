@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { Product, CreateProduct } from '../models/product';
+import {
+  Product,
+  CreateProduct,
+  ProductDetail,
+  ProductOption,
+} from '../models/product';
 
 @Injectable({
   providedIn: 'root',
@@ -30,8 +35,13 @@ export class ProductService {
     return this.http.get<Product[]>(`${this.apiUrl}/active`);
   }
 
-  getProductById(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+  // Solo id y nombre de todos los productos (filtros del admin)
+  getProductOptions(): Observable<ProductOption[]> {
+    return this.http.get<ProductOption[]>(`${this.apiUrl}/options`);
+  }
+
+  getProductById(id: number): Observable<ProductDetail> {
+    return this.http.get<ProductDetail>(`${this.apiUrl}/${id}`);
   }
 
   getPopularProducts(): Observable<Product[]> {
