@@ -7,14 +7,13 @@ import {
   inject,
 } from '@angular/core';
 import { OrderSummary } from '../../../../models/order';
-import { DeliveryPerson } from '../../../../models/deliveryPerson';
 import { OrderService } from '../../../../services/order.service';
 import { DeliveryPersonService } from '../../../../services/delivery-person.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { getErrorMessage } from '../../../../utils/http-error';
-
+import { DeliveryPersonOption } from '../../../../models/deliveryPerson';
 @Component({
   selector: 'app-operator-delivery-modal',
   imports: [ButtonComponent, IconButtonComponent, FormFieldComponent],
@@ -28,7 +27,7 @@ export class OperatorDeliveryModalComponent implements OnInit {
 
   @Output() closed = new EventEmitter<void>();
 
-  deliveryPersons: DeliveryPerson[] = [];
+  deliveryPersons: DeliveryPersonOption[] = [];
   selectedId: number | null = null;
 
   loading = true;
@@ -50,8 +49,7 @@ export class OperatorDeliveryModalComponent implements OnInit {
   }
 
   onSelect(event: Event) {
-    this.selectedId =
-      Number((event.target as HTMLSelectElement).value) || null;
+    this.selectedId = Number((event.target as HTMLSelectElement).value) || null;
   }
 
   send() {
@@ -74,8 +72,10 @@ export class OperatorDeliveryModalComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error sending order:', error);
-        this.errorMessage =
-          getErrorMessage(error, 'No se pudo enviar el pedido.');
+        this.errorMessage = getErrorMessage(
+          error,
+          'No se pudo enviar el pedido.',
+        );
         this.sending = false;
       },
     });
