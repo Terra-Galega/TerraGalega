@@ -70,6 +70,7 @@
       </div>
 
       <!-- Dirección -->
+      <!-- Dirección de entrega (solo si el pedido la tiene) -->
       @if (order.address) {
         <div
           class="px-7 py-4 flex items-start gap-3"
@@ -96,6 +97,7 @@
         </div>
       }
 
+      <!-- Solo se puede cancelar mientras el pedido está PENDIENTE (aún sin confirmar) -->
       @if (order.status === "PENDING") {
         <div
           class="px-7 py-4 flex flex-wrap items-center justify-between gap-4"
@@ -113,6 +115,7 @@
   }
 </div>
 
+<!-- Modal de confirmación de cancelación -->
 <app-modal
   [open]="showCancelModal"
   title="Cancelar pedido"
@@ -124,6 +127,7 @@
   (cancel)="closeCancelModal()"
 ></app-modal>
 
+<!-- Modal de error si la cancelación falla -->
 <app-modal
   [open]="showErrorModal"
   title="No se pudo cancelar el pedido"

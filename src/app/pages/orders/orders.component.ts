@@ -26,6 +26,8 @@ import { getErrorMessage } from '../../utils/http-error';
 
 // Cada cuánto se vuelven a pedir los pedidos al servidor (en milisegundos)
 const REFRESH_MS = 10_000;
+// Página "Mis pedidos": sin sesión muestra la explicación para crear cuenta;
+// con sesión de cliente muestra sus pedidos activos y pasados, actualizados automáticamente.
 @Component({
   selector: 'app-orders',
   imports: [
@@ -41,6 +43,7 @@ const REFRESH_MS = 10_000;
   templateUrl: './orders.component.html',
 })
 export class OrdersComponent implements OnInit {
+  // Dependencias inyectadas: sesión, pedidos, ruta actual, navegación y ciclo de vida
   private auth = inject(AuthService);
   private orderService = inject(OrderService);
   private route = inject(ActivatedRoute);
@@ -50,11 +53,15 @@ export class OrdersComponent implements OnInit {
   // Pide la lista de inmediato (por ejemplo, después de cancelar un pedido)
   private reload$ = new Subject<void>();
 
+  // true si se llegó desde un pago exitoso (muestra el aviso verde)
   paidSuccess = false;
+  // true si hay un cliente con sesión
   isLoggedIn = false;
+  // true hasta recibir la primera respuesta del servidor
   loading = true;
   orders: Order[] = [];
 
+  // Al abrir: detecta el aviso de pago, comprueba la sesión y empieza a vigilar los pedidos
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('paid') === 'true') {
       this.paidSuccess = true;
@@ -66,6 +73,7 @@ export class OrdersComponent implements OnInit {
       });
     }
 
+    // Solo los clientes ven pedidos; sin sesión (o con otro rol) se muestra la versión "logged out"
     const session = this.auth.session;
 
     if (!session || session.type !== 'client') {
@@ -81,6 +89,7 @@ export class OrdersComponent implements OnInit {
   // pestaña y cuando se pide recargar. Así, cuando el operador cambia el estado
   // de un pedido, se ve sin recargar la página.
   private watchOrders(clientId: number): void {
+    // Tres disparadores: temporizador periódico, cambio de visibilidad de la pestaña y recarga manual.
     merge(
       timer(0, REFRESH_MS),
       fromEvent(document, 'visibilitychange'),
@@ -104,6 +113,7 @@ export class OrdersComponent implements OnInit {
       });
   }
 
+  // Manejo de errores al cargar: si falla la primera carga, va a la página de error.
   private handleLoadError(error: any): void {
     console.error('Error cargando pedidos:', error);
 
@@ -123,10 +133,12 @@ export class OrdersComponent implements OnInit {
     });
   }
 
+  // Un pedido fue cancelado (o falló la cancelación): recarga la lista de inmediato
   onOrderCancelled() {
     this.reload$.next();
   }
 
+  // Carga única de pedidos.
   loadOrders(clientId: number) {
     this.orderService.getOrdersByClient(clientId).subscribe({
       next: (orders) => {
