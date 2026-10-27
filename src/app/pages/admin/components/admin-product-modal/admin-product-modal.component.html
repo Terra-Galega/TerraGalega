@@ -11,7 +11,14 @@
       </h2>
 
       <app-icon-button variant="soft" label="Cerrar" (click)="close()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path d="M6 18L18 6M6 6l12 12" />
         </svg>
       </app-icon-button>
@@ -34,7 +41,7 @@
           <input
             type="number"
             [value]="price"
-            (input)="setPrice($event)"
+            (blur)="setPrice($event)"
             required
             placeholder="38900"
             class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
@@ -47,7 +54,7 @@
             (change)="setCategory($event)"
             class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
           >
-            <option value="">{{categoryName}}</option>
+            <option value="">{{ categoryName }}</option>
             @for (category of categories; track category.id) {
               <option [value]="category.name">{{ category.name }}</option>
             }
@@ -76,7 +83,11 @@
         />
 
         @if (imageUrl) {
-          <img [src]="imageUrl" alt="preview" class="mt-2 w-full h-28 object-cover rounded-xl" />
+          <img
+            [src]="imageUrl"
+            alt="preview"
+            class="mt-2 w-full h-28 object-cover rounded-xl"
+          />
         }
       </app-form-field>
 
@@ -91,9 +102,16 @@
           }
         </div>
       </app-form-field>
-
+      @if (errorMessage) {
+        <p class="text-sm text-red-600">{{ errorMessage }}</p>
+      }
       <div class="flex gap-3 pt-2">
-        <app-button class="flex-1" variant="neutral" [fullWidth]="true" (click)="close()">
+        <app-button
+          class="flex-1"
+          variant="neutral"
+          [fullWidth]="true"
+          (click)="close()"
+        >
           Cancelar
         </app-button>
 
