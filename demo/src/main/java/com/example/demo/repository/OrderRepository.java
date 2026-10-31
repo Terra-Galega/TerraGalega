@@ -2,6 +2,8 @@ package com.example.demo.repository;
 
 import com.example.demo.entities.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.example.demo.entities.OrderStatus;
 import java.util.Collection;
@@ -10,7 +12,8 @@ import java.util.List;
 /**
  * Repositorio de pedidos. Extiende JpaRepository, así que ya trae save,
  * findById, findAll, deleteById, etc. Los métodos
- * de abajo son consultas derivadas:Spring genera la consulta SQL a partir del nombre del método.
+ * de abajo son consultas derivadas:Spring genera la consulta SQL a partir del
+ * nombre del método.
  */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
@@ -22,9 +25,18 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     boolean existsByDetailsOrderDetailAddOnsAddOnId(Integer addOnId);
 
     // ¿Hay pedidos con este producto que no estén en el estado indicado?
-    boolean existsByDetailsProductIdAndStatusNot(Integer productId, OrderStatus status);
+    @Query("""
+            select count(o) > 0 from Order o
+            join o.details d
+            where d.product.id = :productId
+              and o.status <> :status
+            """)
+    boolean existsByDetailsProductIdAndStatusNot(
+            @Param("productId") Integer productId,
+            @Param("status") OrderStatus status);
 
-    // ¿Algún pedido contiene este producto? (para impedir borrar un producto en uso)
+    // ¿Algún pedido contiene este producto? (para impedir borrar un producto en
+    // uso)
     boolean existsByDetailsProductId(Integer productId);
 
     // ¿Este operador ha cocinado algún pedido alguna vez?

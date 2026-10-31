@@ -4,6 +4,8 @@ import com.example.demo.dto.ProductOptionDTO;
 import com.example.demo.entities.Product;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,9 +31,19 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     // Solo los productos activos
     List<Product> findByActiveTrue();
 
-    // Hasta 3 productos activos de la misma categoría, sin contar el propio
+    // Hasta 3 productos activos de la misma categoría, sin contar el propio.
+    // "limit 3" es válido en HQL (Hibernate 6+, que es el que trae tu Spring Boot).
+    @Query("""
+            select p from Product p
+            where p.category.id = :categoryId
+              and p.active = true
+              and p.id <> :id
+            order by p.id asc
+            limit 3
+            """)
     List<Product> findTop3ByCategoryIdAndActiveTrueAndIdNotOrderByIdAsc(
-            Integer categoryId, Integer id);
+            @Param("categoryId") Integer categoryId,
+            @Param("id") Integer id);
 
     // Solo los ids de los productos activos (para validar el carrito)
     @Query("select p.id from Product p where p.active = true")
