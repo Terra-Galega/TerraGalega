@@ -1,1 +1,2 @@
-mydatabase.mv.db
+mydatabase*.db
+testdb*.db

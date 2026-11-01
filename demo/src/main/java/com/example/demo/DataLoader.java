@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import com.example.demo.entities.AddOn;
 import com.example.demo.entities.Admin;
@@ -36,6 +37,7 @@ import jakarta.transaction.Transactional;
 // (CommandLineRunner).
 // Inserta sin comprobar si ya existen; no se duplica porque
 // ddl-auto=create-drop recrea las tablas en cada arranque.
+@Profile("default") 
 public class DataLoader implements CommandLineRunner {
 
         @Autowired

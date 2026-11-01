@@ -33,4 +33,5 @@ build/
 .vscode/
 
 
-mydatabase.trace.db
+mydatabase*.db
+testdb*.db
