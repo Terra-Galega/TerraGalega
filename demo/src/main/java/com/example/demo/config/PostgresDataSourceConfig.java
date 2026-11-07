@@ -21,10 +21,10 @@ import jakarta.persistence.EntityManagerFactory;
 
 /**
  * Base SECUNDARIA (PostgreSQL en Docker): seguimiento de domicilios.
- * Solo escanea el paquete "delivery".
+ * Solo escanea el paquete "movil".
  */
 @Configuration
-@EnableJpaRepositories(basePackages = "com.example.demo.delivery.repository", entityManagerFactoryRef = "postgresEntityManagerFactory", transactionManagerRef = "postgresTransactionManager")
+@EnableJpaRepositories(basePackages = "com.example.demo.movil.repository", entityManagerFactoryRef = "postgresEntityManagerFactory", transactionManagerRef = "postgresTransactionManager")
 public class PostgresDataSourceConfig {
 
     @Bean(name = "postgresDataSource")
@@ -46,7 +46,7 @@ public class PostgresDataSourceConfig {
             @Value("${terra.postgres.ddl-auto:update}") String ddlAuto) {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource);
-        emf.setPackagesToScan("com.example.demo.delivery.entity");
+        emf.setPackagesToScan("com.example.demo.movil.entity");
         emf.setPersistenceUnitName("postgres");
         emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         Map<String, Object> props = new HashMap<>();
@@ -61,4 +61,5 @@ public class PostgresDataSourceConfig {
             @Qualifier("postgresEntityManagerFactory") EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
     }
+
 }

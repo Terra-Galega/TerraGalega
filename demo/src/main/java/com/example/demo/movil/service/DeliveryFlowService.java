@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.delivery.dto.DeliveryDTOs.ClientDeliveryDTO;
-import com.example.demo.delivery.dto.DeliveryDTOs.DeliveryJobDTO;
-import com.example.demo.delivery.entity.DeliveryTracking;
+import com.example.demo.movil.dto.DeliveryDTOs.ClientDeliveryDTO;
+import com.example.demo.movil.dto.DeliveryDTOs.DeliveryJobDTO;
+import com.example.demo.movil.entity.DeliveryTracking;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.entities.DeliveryPerson;
 import com.example.demo.entities.Order;

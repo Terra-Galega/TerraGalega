@@ -10,12 +10,15 @@ import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
 import com.example.demo.repository.OperatorRepository;
+import com.example.demo.entities.DeliveryPerson;
+import com.example.demo.repository.DeliveryPersonRepository;
 
 // Implementa la autenticación y las comprobaciones de existencia de cuentas.
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    // Servicios utilizados para buscar clientes, administradores y operadores por correo.
+    // Servicios utilizados para buscar clientes, administradores y operadores por
+    // correo.
     @Autowired
     private ClientService clientService;
 
@@ -35,21 +38,31 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private OperatorRepository operatorRepository;
 
-    // Comprueba si la cuenta de una sesión abierta sigue existiendo según su tipo e ID.
+    @Autowired
+    private DeliveryPersonService deliveryPersonService;
+
+    @Autowired
+    private DeliveryPersonRepository deliveryPersonRepository;
+
+    // Comprueba si la cuenta de una sesión abierta sigue existiendo según su tipo e
+    // ID.
     @Override
     public boolean sessionExists(String type, Integer id) {
         return switch (type) {
             case "client" -> clientRepository.existsById(id);
             case "admin" -> adminRepository.existsById(id);
             case "operator" -> operatorRepository.existsById(id);
+            case "delivery_person" -> deliveryPersonRepository.existsById(id);
             default -> false;
         };
     }
 
-    // Mensaje que se devuelve cuando un operador intenta acceder con su cuenta desactivada.
+    // Mensaje que se devuelve cuando un operador intenta acceder con su cuenta
+    // desactivada.
     private static final String INACTIVE_ACCOUNT_MESSAGE = "Tu cuenta está desactivada. Contacta al administrador.";
 
-    // Busca al usuario por correo y valida sus credenciales según su tipo de cuenta.
+    // Busca al usuario por correo y valida sus credenciales según su tipo de
+    // cuenta.
     @Override
     public LoginResponseDTO login(String email, String password) {
 
@@ -95,6 +108,19 @@ public class AuthServiceImpl implements AuthService {
                     operator.getLastName(), null, operator.getRole());
         }
 
+        // Domiciliarios (app móvil). Solo entran si el admin no los desactivó.
+        DeliveryPerson deliveryPerson = deliveryPersonService.findByEmail(email);
+
+        if (deliveryPerson != null) {
+            if (!deliveryPerson.getPassword().equals(password)) {
+                return null;
+            }
+            if (!Boolean.TRUE.equals(deliveryPerson.getActive())) {
+                throw ApiException.forbidden(INACTIVE_ACCOUNT_MESSAGE);
+            }
+            return new LoginResponseDTO(deliveryPerson.getId(), deliveryPerson.getName(),
+                    deliveryPerson.getLastName(), null, deliveryPerson.getRole());
+        }
         // Devuelve null si no existe ninguna cuenta asociada al correo proporcionado.
         return null;
     }

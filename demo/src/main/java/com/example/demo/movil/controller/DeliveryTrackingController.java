@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.delivery.dto.DeliveryDTOs.ClientDeliveryDTO;
-import com.example.demo.delivery.dto.DeliveryDTOs.CompleteDeliveryRequestDTO;
-import com.example.demo.delivery.dto.DeliveryDTOs.DeliveryJobDTO;
-import com.example.demo.delivery.dto.DeliveryDTOs.LocationRequestDTO;
-import com.example.demo.delivery.service.DeliveryFlowService;
+import com.example.demo.movil.dto.DeliveryDTOs.ClientDeliveryDTO;
+import com.example.demo.movil.dto.DeliveryDTOs.CompleteDeliveryRequestDTO;
+import com.example.demo.movil.dto.DeliveryDTOs.DeliveryJobDTO;
+import com.example.demo.movil.dto.DeliveryDTOs.LocationRequestDTO;
+import com.example.demo.movil.service.DeliveryFlowService;
 import com.example.demo.dto.OrderDTO;
 
 import io.swagger.v3.oas.annotations.Operation;

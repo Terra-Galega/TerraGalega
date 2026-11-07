@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.delivery.entity.DeliveryTracking;
-import com.example.demo.delivery.entity.DeliveryTrackingStatus;
-import com.example.demo.delivery.repository.DeliveryTrackingRepository;
+import com.example.demo.movil.entity.DeliveryTracking;
+import com.example.demo.movil.entity.DeliveryTrackingStatus;
+import com.example.demo.movil.repository.DeliveryTrackingRepository;
 import com.example.demo.entities.Order;
 import com.example.demo.entities.OrderStatus;
 import com.example.demo.errors.ApiException;
