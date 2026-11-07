@@ -10,7 +10,8 @@ import java.util.List;
 /**
  * Repositorio de pedidos. Extiende JpaRepository, así que ya trae save,
  * findById, findAll, deleteById, etc. Los métodos
- * de abajo son consultas derivadas:Spring genera la consulta SQL a partir del nombre del método.
+ * de abajo son consultas derivadas:Spring genera la consulta SQL a partir del
+ * nombre del método.
  */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
@@ -24,7 +25,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     // ¿Hay pedidos con este producto que no estén en el estado indicado?
     boolean existsByDetailsProductIdAndStatusNot(Integer productId, OrderStatus status);
 
-    // ¿Algún pedido contiene este producto? (para impedir borrar un producto en uso)
+    // ¿Algún pedido contiene este producto? (para impedir borrar un producto en
+    // uso)
     boolean existsByDetailsProductId(Integer productId);
 
     // ¿Este operador ha cocinado algún pedido alguna vez?
@@ -51,4 +53,10 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     // Todos los pedidos de un domiciliario (para soltar la relación al eliminarlo)
     List<Order> findByDeliveryPersonId(Integer deliveryPersonId);
+
+    // Pedidos de un cliente en un estado (ej. los que van en camino)
+    List<Order> findByClientIdAndStatus(Integer clientId, OrderStatus status);
+
+    // Pedidos de un domiciliario en un estado
+    List<Order> findByDeliveryPersonIdAndStatus(Integer deliveryPersonId, OrderStatus status);
 }

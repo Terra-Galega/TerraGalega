@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: terragalega-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: terragalega_delivery
+      POSTGRES_USER: terra
+      POSTGRES_PASSWORD: terra123
+    ports:
+      - "5433:5432"
+    volumes:
+      - terragalega_pgdata:/var/lib/postgresql/data
+
+volumes:
+  terragalega_pgdata:

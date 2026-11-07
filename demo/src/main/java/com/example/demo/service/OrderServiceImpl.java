@@ -20,17 +20,15 @@ import com.example.demo.repository.ProductRepository;
 import com.example.demo.dto.OrderDTO;
 import com.example.demo.dto.OrderDetailDTO;
 import com.example.demo.dto.OrderProductDTO;
-import com.example.demo.dto.ProductDTO;
-import com.example.demo.dto.CategoryDTO;
 import com.example.demo.dto.AddOnOrderDTO;
 import com.example.demo.dto.ClientOrderDTO;
 import com.example.demo.dto.DeliveryPersonOrderDTO;
 import com.example.demo.repository.AddOnRepository;
 import com.example.demo.entities.Client;
+import com.example.demo.movil.service.DeliveryTrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +52,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private DeliveryPersonRepository deliveryPersonRepository;
 
+    @Autowired
+    private DeliveryTrackingService deliveryTrackingService;
+
     private static final List<OrderStatus> FINISHED_STATUSES = List.of(
             OrderStatus.DELIVERED,
             OrderStatus.CANCELLED);
@@ -75,7 +76,8 @@ public class OrderServiceImpl implements OrderService {
                 .by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
     }
 
-    // Pone client = null en todos los pedidos del cliente, para poder borrar su cuenta sin perder el historial de pedidos
+    // Pone client = null en todos los pedidos del cliente, para poder borrar su
+    // cuenta sin perder el historial de pedidos
     @Override
     @Transactional
     public void clearClientIdFromOrders(Integer clientId) {
@@ -266,7 +268,8 @@ public class OrderServiceImpl implements OrderService {
         return repository.save(order);
     }
 
-    // Solo el cliente dueño puede cancelar y solo antes de que el restaurante confirme
+    // Solo el cliente dueño puede cancelar y solo antes de que el restaurante
+    // confirme
     @Override
     @Transactional
     public Order cancelOrder(Integer orderId, Integer clientId) {
@@ -346,7 +349,13 @@ public class OrderServiceImpl implements OrderService {
         order.setDeliveryPerson(deliveryPerson);
         order.setStatus(OrderStatus.ON_THE_WAY);
 
-        return repository.save(order);
+        order.setDeliveryPerson(deliveryPerson);
+        order.setStatus(OrderStatus.ON_THE_WAY);
+
+        Order saved = repository.save(order);
+        // Postgres: crea el PIN. Si Postgres falla, lanza excepción y H2 hace rollback.
+        deliveryTrackingService.startTracking(saved);
+        return saved;
     }
 
     // Registra la hora de entrega y libera al domiciliario
