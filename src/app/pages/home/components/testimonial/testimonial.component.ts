@@ -13,6 +13,7 @@ interface Testimonial {
   selector: 'app-testimonial',
   imports: [StarIconComponent],
   templateUrl: './testimonial.component.html',
+  styleUrl: './testimonial.component.scss'
 })
 export class TestimonialsComponent {
   // Opiniones escritas directamente en el código; no se consultan al backend.

@@ -39,6 +39,7 @@ const PAYMENT_DELAY_MS = 1500;
   templateUrl: './checkout-confirm.component.html',
 })
 export class CheckoutConfirmComponent implements OnInit {
+  // Dependencias inyectadas: navegación, sesión, carrito, servicios de checkout, perfil y pedidos
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
@@ -47,8 +48,10 @@ export class CheckoutConfirmComponent implements OnInit {
   private clientService = inject(ClientService);
   private orderService = inject(OrderService);
 
+  // Id del cliente logueado; null hasta comprobar la sesión
   clientId: number | null = null;
   savedAddress = '';
+  // Costo fijo del domicilio, que se suma al total en el resumen
   deliveryFee = DELIVERY_FEE;
 
   // Lo elegido en el paso 1
@@ -57,7 +60,9 @@ export class CheckoutConfirmComponent implements OnInit {
   // false mientras se comprueba que el paso 1 esté completo
   ready = false;
 
+  // true mientras se procesa el pago: bloquea botones para evitar doble envío
   paying = false;
+  // Mensaje de error del backend mostrado bajo el botón Confirmar
   serverError = '';
 
   showCancelModal = false;
@@ -99,6 +104,7 @@ export class CheckoutConfirmComponent implements OnInit {
     });
   }
 
+  // Datos del carrito para el resumen (vienen del CartService)
   get items(): CartItem[] {
     return this.cartService.items;
   }
@@ -111,6 +117,7 @@ export class CheckoutConfirmComponent implements OnInit {
     return this.cartService.unitPrice(item);
   };
 
+  // Aviso de que la dirección del perfil se actualizará (si la del pedido es distinta)
   get addressNotice(): string {
     return this.draftService.addressNotice(
       this.draft.address,
@@ -123,6 +130,7 @@ export class CheckoutConfirmComponent implements OnInit {
     return '•••• ' + this.draft.number.slice(-4);
   }
 
+  // Texto de las cuotas: 1 = contado, más de 1 = "N cuotas"
   get installmentsText(): string {
     return this.draft.installments === 1
       ? 'Pago de contado'
@@ -134,12 +142,15 @@ export class CheckoutConfirmComponent implements OnInit {
     this.router.navigate(['/checkout']);
   }
 
+  // Reutiliza el modal de error para avisar qué productos se quitaron del carrito
   private showCartUpdated(removed: string[]): void {
     this.errorTitle = 'Actualizamos tu carrito';
     this.errorMessage = unavailableMessage(removed);
     this.showErrorModal = true;
   }
 
+  // Botón "Confirmar pedido": arma la solicitud, simula el pago y crea el pedido.
+  // No hace nada si ya se está pagando, si falta el cliente o si el carrito está vacío.
   confirm(): void {
     if (this.paying || this.clientId === null || this.items.length === 0) {
       return;
@@ -150,6 +161,7 @@ export class CheckoutConfirmComponent implements OnInit {
     const clientId = this.clientId;
     const address = this.draft.address;
 
+    // Solicitud al backend: dirección y, por cada ítem, producto, cantidad e ids de adicionales.
     const request: CheckoutRequest = {
       address,
       items: this.items.map((item) => ({
@@ -164,9 +176,12 @@ export class CheckoutConfirmComponent implements OnInit {
     // Con tarjeta se simula lo que tarda la pasarela; contra entrega confirma ya
     const wait = this.draft.method === 'card' ? PAYMENT_DELAY_MS : 0;
 
+    // timer espera y luego switchMap lanza la petición real de checkout
     timer(wait)
       .pipe(switchMap(() => this.checkoutService.checkout(clientId, request)))
       .subscribe({
+        // Éxito: se actualiza el perfil, se vacía el carrito, se limpia el borrador
+        // y se redirige a /orders (paid=true muestra el aviso verde de éxito)
         next: () => {
           // La dirección del pedido pasa a ser la dirección del perfil
           this.saveAddressInProfile(clientId, address);
@@ -179,6 +194,7 @@ export class CheckoutConfirmComponent implements OnInit {
             queryParams: { paid: true },
           });
         },
+        // Fallo: se reactiva el botón y se muestra el motivo
         error: (error) => {
           console.error('Error en el checkout:', error);
 
@@ -208,6 +224,7 @@ export class CheckoutConfirmComponent implements OnInit {
 
   // Si la dirección del pedido es distinta a la del perfil, se actualiza el
   // perfil. Si esto falla, el pedido ya está creado y no se avisa de error.
+  // Guarda la dirección del pedido en el perfil: primero trae el cliente completo.
   private saveAddressInProfile(clientId: number, address: string): void {
     if (address.trim() === this.savedAddress.trim()) {
       return;
@@ -231,6 +248,7 @@ export class CheckoutConfirmComponent implements OnInit {
       });
   }
 
+  // Cancelar compra: no se permite mientras se está procesando el pago
   cancel(): void {
     if (!this.paying) {
       this.showCancelModal = true;
@@ -247,6 +265,7 @@ export class CheckoutConfirmComponent implements OnInit {
     this.showCancelModal = false;
   }
 
+  // Cierra el modal de error y limpia los mensajes
   closeErrorModal(): void {
     this.showErrorModal = false;
     this.errorMessage = '';

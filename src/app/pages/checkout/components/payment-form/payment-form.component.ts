@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
+// Selección del método de pago y datos de tarjeta. Trabaja sobre el formulario del padre,
+// que es quien valida y guarda.
 @Component({
   selector: 'app-payment-form',
   standalone: true,
@@ -8,13 +10,16 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
   templateUrl: './payment-form.component.html',
 })
 export class PaymentFormComponent {
+  // Formulario del padre (controles: method, holder, number, expiry, cvv...)
   @Input({ required: true }) form!: FormGroup;
 
   // Errores por campo: { number: '...', cvv: '...' }
   @Input() errors: Record<string, string> = {};
 
+  // Avisa al padre que llene la tarjeta con datos de prueba
   @Output() fillTestData = new EventEmitter<void>();
 
+  // Opciones de pago que se pintan como tarjetas seleccionables
   methods = [
     {
       value: 'cash',
@@ -28,8 +33,10 @@ export class PaymentFormComponent {
     },
   ];
 
+  // Cuotas disponibles (1 = pago de contado)
   installments = [1, 3, 6, 12, 24, 36];
 
+  // Método elegido actualmente ('cash' | 'card' | '')
   get method(): string {
     return this.form.get('method')?.value ?? '';
   }
@@ -60,6 +67,8 @@ export class PaymentFormComponent {
     this.form.get('expiry')?.setValue(input.value, { emitEvent: false });
   }
 
+  // Solo números, máximo 3 dígitos.
+  // Los tres formateadores usan emitEvent:false para no revalidar en cada tecla.
   formatCvv(event: Event): void {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/\D/g, '').slice(0, 3);

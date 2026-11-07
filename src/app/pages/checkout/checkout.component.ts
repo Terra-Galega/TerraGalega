@@ -37,6 +37,7 @@ import { CheckoutDraftService } from '../../services/checkout-draft.service';
   templateUrl: './checkout.component.html',
 })
 export class CheckoutComponent implements OnInit {
+  // Dependencias inyectadas: formulario, navegación, sesión, carrito y borrador del checkout
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private auth = inject(AuthService);
@@ -44,6 +45,7 @@ export class CheckoutComponent implements OnInit {
   private draftService = inject(CheckoutDraftService);
   private destroyRef = inject(DestroyRef);
 
+  // Dirección guardada en el perfil del cliente
   savedAddress = '';
 
   // Errores por campo: { address: '...', number: '...' }
@@ -52,16 +54,22 @@ export class CheckoutComponent implements OnInit {
   // Una vez que se intentó continuar, los errores se actualizan mientras escribe
   private submitted = false;
 
+  // Visibilidad de los modales de cancelar compra y de error
   showCancelModal = false;
   showErrorModal = false;
 
+  // Textos del modal de cancelación
   confirmTitle = 'Cancelar compra';
   confirmMessage =
     '¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará.';
 
+  // Textos del modal de error; se rellenan cuando hay que avisar algo (p. ej. carrito actualizado)
   errorTitle = '';
   errorMessage = '';
 
+  // Formulario único que comparten los componentes hijos (dirección y pago).
+  // nonNullable evita valores null: los campos vacíos son ''.
+  // Las validaciones no van aquí sino en validate(), para controlar cuándo se muestran.
   form = this.fb.nonNullable.group({
     address: [''],
     method: ['' as 'cash' | 'card' | ''],
@@ -74,7 +82,10 @@ export class CheckoutComponent implements OnInit {
     installments: [1],
   });
 
+  // Al abrir la página: exige sesión de cliente, precarga el formulario y
+  // limpia del carrito lo que ya no esté disponible
   ngOnInit(): void {
+    // Solo un cliente con sesión puede pagar; si no, va al login y vuelve aquí (redirect)
     const session = this.auth.session;
     if (!session || session.type !== 'client') {
       this.router.navigate(['/login'], {
@@ -93,6 +104,8 @@ export class CheckoutComponent implements OnInit {
       address: draft.address || this.savedAddress,
     });
 
+    // Tras el primer intento de continuar, revalida en vivo para que los errores
+    // desaparezcan mientras el cliente corrige
     this.form.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -111,6 +124,7 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
+  // Datos del carrito que se muestran en el resumen (vienen del CartService)
   get items(): CartItem[] {
     return this.cartService.items;
   }
@@ -119,6 +133,7 @@ export class CheckoutComponent implements OnInit {
     return this.cartService.total;
   }
 
+  // Arrow function para poder pasarla como @Input al resumen sin perder el `this`
   unitPrice = (item: CartItem): number => {
     return this.cartService.unitPrice(item);
   };
@@ -131,6 +146,7 @@ export class CheckoutComponent implements OnInit {
     );
   }
 
+  // Botón "Usar mi dirección guardada": restaura la dirección del perfil en el formulario
   useSavedAddress(): void {
     this.form.controls.address.setValue(this.savedAddress);
   }
@@ -152,6 +168,7 @@ export class CheckoutComponent implements OnInit {
 
   // Devuelve los errores de cada campo (vacío = todo bien)
   private validate(): Record<string, string> {
+    // getRawValue() lee todos los campos del formulario
     const v = this.form.getRawValue();
     const errors: Record<string, string> = {};
 
@@ -163,10 +180,12 @@ export class CheckoutComponent implements OnInit {
       errors['address'] = 'La dirección no puede superar 120 caracteres.';
     }
 
+    // Método de pago obligatorio
     if (!v.method) {
       errors['method'] = 'Elige cómo quieres pagar.';
     }
 
+    // Los datos de tarjeta solo se validan si eligió pagar con tarjeta
     if (v.method === 'card') {
       if (v.holder.trim().length < 3) {
         errors['holder'] = 'Escribe el nombre como aparece en la tarjeta.';
@@ -174,9 +193,11 @@ export class CheckoutComponent implements OnInit {
       if (v.documentNumber.trim().length < 5) {
         errors['documentNumber'] = 'Escribe tu número de documento.';
       }
+      // Se quitan los espacios del formato antes de contar los 16 dígitos
       if (v.number.replace(/\s/g, '').length !== 16) {
         errors['number'] = 'El número de la tarjeta debe tener 16 dígitos.';
       }
+      // Vencimiento con formato MM/AA y mes entre 01 y 12
       if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(v.expiry)) {
         errors['expiry'] = 'Escribe el vencimiento como MM/AA.';
       }
@@ -197,6 +218,7 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    // Guarda lo elegido en el servicio (no en la URL) para que el paso 2 lo lea
     const v = this.form.getRawValue();
 
     this.draftService.draft = {
@@ -220,6 +242,8 @@ export class CheckoutComponent implements OnInit {
     this.router.navigate(['/checkout/confirm']);
   }
 
+  // Cancelar compra en dos pasos: cancel() abre el modal, confirmCancel() borra el borrador
+  // y vuelve a la carta (el carrito se conserva), closeCancelModal() se arrepiente
   cancel(): void {
     this.showCancelModal = true;
   }
@@ -234,6 +258,7 @@ export class CheckoutComponent implements OnInit {
     this.showCancelModal = false;
   }
 
+  // Cierra el modal de error y limpia el mensaje
   closeErrorModal(): void {
     this.showErrorModal = false;
     this.errorMessage = '';
