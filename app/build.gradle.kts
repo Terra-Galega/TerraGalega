@@ -72,5 +72,6 @@ dependencies {
     // Para las pantallas siguientes: mapa (OpenStreetMap, sin API key) y GPS
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("org.maplibre.gl:android-sdk:11.8.0")
-
+    // Blur real para el efecto liquid glass
+    implementation("dev.chrisbanes.haze:haze:1.7.2")
 }

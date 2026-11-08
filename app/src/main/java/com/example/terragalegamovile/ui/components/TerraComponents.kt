@@ -44,6 +44,42 @@ import com.example.terragalegamovile.ui.theme.Playfair
 import com.example.terragalegamovile.ui.theme.SourceSans
 import com.example.terragalegamovile.ui.theme.Terra
 import com.example.terragalegamovile.ui.theme.TextLabel
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import com.example.terragalegamovile.ui.theme.Cream
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
+import com.example.terragalegamovile.ui.theme.Forest
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 // Logo "Terra" (Pinyon Script) + "GALEGA" (serifa), como en la navbar de la web
 @Composable
@@ -246,31 +282,200 @@ fun PinDigits(pin: String) {
 }
 
 // Barra superior: estilo de la navbar de la web cuando está en modo vidrio
+// Barra superior: réplica de la navbar de la web en estado "stayed" (vidrio esmerilado)
+// Contenedor de pantalla: el contenido ocupa TODO (también bajo la barra) y la barra flota encima
+// desenfocando lo que pasa por detrás, como la navbar de la web.
 @Composable
-fun TerraTopBar(role: String, name: String, onLogout: () -> Unit) {
+fun TerraScaffold(
+    role: String,
+    name: String,
+    onLogout: () -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    val hazeState = rememberHazeState()
+    val density = LocalDensity.current
+    var barHeight by remember { mutableStateOf(96.dp) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Cream)
+                .hazeSource(hazeState)
+        ) {
+            content(PaddingValues(top = barHeight))
+        }
+        TerraTopBar(
+            role = role,
+            name = name,
+            onLogout = onLogout,
+            hazeState = hazeState,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .onSizeChanged { barHeight = with(density) { it.height.toDp() } }
+        )
+    }
+}
+
+// Barra superior: réplica de .nav-bar--stayed (vidrio esmerilado con blur real)
+@Composable
+fun TerraTopBar(
+    role: String,
+    name: String,
+    onLogout: () -> Unit,
+    hazeState: HazeState,
+    modifier: Modifier = Modifier
+) {
+    val pill = RoundedCornerShape(50)
+
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFCECECE).copy(alpha = 0.5f))
-            .padding(horizontal = 20.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            // box-shadow: 0 10px 30px rgba(0,0,0,.08)
+            .shadow(
+                elevation = 10.dp,
+                ambientColor = Color.Black.copy(alpha = 0.08f),
+                spotColor = Color.Black.copy(alpha = 0.08f)
+            )
+            // backdrop-filter: blur(35px) + background rgba(206,206,206,.505)
+            // backdrop-filter más fuerte + tinte verde Forest (#556141) traslúcido
+            .hazeEffect(state = hazeState) {
+                blurRadius = 40.dp
+                noiseFactor = 0.02f
+                backgroundColor = Cream
+                tints = listOf(HazeTint(Forest.copy(alpha = 0.30f)))
+            }
+            // brillo de cristal más sutil, para que el verde y el blur se noten
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color.White.copy(alpha = 0.22f), Color.White.copy(alpha = 0.0f))
+                )
+            )
+            // canto del cristal: borde superior blanco, inferior oscuro sutil
+            .drawBehind {
+                val line = 1.dp.toPx()
+                drawLine(
+                    Color.White.copy(alpha = 0.9f),
+                    Offset(0f, line / 2), Offset(size.width, line / 2), line
+                )
+                drawLine(
+                    Color(0xFF4B4B4B).copy(alpha = 0.12f),
+                    Offset(0f, size.height - line / 2), Offset(size.width, size.height - line / 2), line
+                )
+            }
+            .statusBarsPadding() // el vidrio llega hasta arriba, el contenido queda bajo la hora/batería
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TerraLogo(scale = 0.8f)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    role.uppercase(),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 1.8.sp,
-                    color = Terra
-                )
-                Text(name, fontSize = 14.sp)
+        TerraLogo(
+            scale = 0.8f,
+            terraColor = Terra,
+            galegaColor = Color(0xFF1A1A1A)
+        )
+        Spacer(Modifier.width(12.dp))
+
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Chip de usuario
+            Row(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .clip(pill)
+                    .background(Color.White)
+                    .border(1.dp, Color.White, pill)
+                    .padding(start = 5.dp, end = 14.dp, top = 5.dp, bottom = 5.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Brush.linearGradient(listOf(Terra, Burgundy))),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        name.trim().firstOrNull()?.uppercase() ?: "?",
+                        color = Color.White,
+                        fontFamily = Playfair,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f, fill = false)) {
+                    Text(
+                        role.uppercase(),
+                        fontFamily = SourceSans,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 1.8.sp,
+                        color = Terra
+                    )
+                    Text(
+                        name,
+                        fontFamily = SourceSans,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Charcoal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
-            TextButton(onClick = onLogout) {
-                Text("Salir", color = Charcoal.copy(alpha = 0.62f))
+
+            Spacer(Modifier.width(8.dp))
+
+            // Botón Salir (estilo "danger" de la web; al presionar se rellena)
+            val interaction = remember { MutableInteractionSource() }
+            val pressed by interaction.collectIsPressedAsState()
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(if (pressed) Burgundy else Color.White)
+                    .border(1.dp, Burgundy, CircleShape)
+                    .semantics { contentDescription = "Cerrar sesión" }
+                    .clickable(interactionSource = interaction, indication = null, onClick = onLogout),
+                contentAlignment = Alignment.Center
+            ) {
+                LogoutIcon(
+                    bracket = if (pressed) Color.White else Burgundy,
+                    arrow = if (pressed) Color.White else Terra,
+                    modifier = Modifier.size(22.dp)
+                )
             }
         }
+    }
+}
+
+// Ícono de salir: puerta + flecha, dibujado en dos tonos
+@Composable
+fun LogoutIcon(bracket: Color, arrow: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val stroke = Stroke(width = w * 0.11f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+
+        // Puerta (corchete)
+        val door = Path().apply {
+            moveTo(w * 0.42f, h * 0.14f)
+            lineTo(w * 0.18f, h * 0.14f)
+            lineTo(w * 0.18f, h * 0.86f)
+            lineTo(w * 0.42f, h * 0.86f)
+        }
+        drawPath(door, bracket, style = stroke)
+
+        // Flecha
+        val arrowPath = Path().apply {
+            moveTo(w * 0.36f, h * 0.50f)
+            lineTo(w * 0.88f, h * 0.50f)
+            moveTo(w * 0.68f, h * 0.30f)
+            lineTo(w * 0.88f, h * 0.50f)
+            lineTo(w * 0.68f, h * 0.70f)
+        }
+        drawPath(arrowPath, arrow, style = stroke)
     }
 }

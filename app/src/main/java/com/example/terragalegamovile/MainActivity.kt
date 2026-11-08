@@ -21,6 +21,8 @@ import com.example.terragalegamovile.ui.ClientScreen
 import com.example.terragalegamovile.ui.CourierScreen
 import com.example.terragalegamovile.ui.LoginScreen
 import com.example.terragalegamovile.ui.theme.TerraGalegaMovileTheme
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.navigationBarsPadding
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,14 +32,14 @@ class MainActivity : ComponentActivity() {
         AppStorage.init(applicationContext)
         MapService.init(applicationContext)
         Session.restore()
-
+        enableEdgeToEdge()
         setContent {
             TerraGalegaMovileTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
+                    Box(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
                         AppNav()
                     }
                 }

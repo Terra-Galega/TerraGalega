@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -78,22 +79,23 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .imePadding()
             .padding(horizontal = 24.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(32.dp))
-        TerraLogo(scale = 1.8f)
+        Spacer(Modifier.height(72.dp))
+        TerraLogo(scale = 2.2f)
         Spacer(Modifier.height(12.dp))
         Text(
             "BIENVENIDO DE VUELTA",
-            fontSize = 12.sp,
+            fontSize = 15.sp,
             letterSpacing = 3.sp,
             color = Charcoal.copy(alpha = 0.38f),
             textAlign = TextAlign.Center
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(40.dp))
 
         GlassCard(modifier = Modifier.fillMaxWidth()) {
             TerraTextField(

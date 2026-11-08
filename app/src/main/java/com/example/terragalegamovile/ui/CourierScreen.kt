@@ -75,6 +75,9 @@ import kotlinx.coroutines.launch
 import com.google.android.gms.location.LocationRequest as GmsLocationRequest
 import android.content.Intent
 import android.net.Uri
+import com.example.terragalegamovile.ui.components.TerraScaffold
+import androidx.compose.ui.platform.LocalConfiguration
+
 @SuppressLint("MissingPermission")
 @Composable
 fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
@@ -109,7 +112,10 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
     fun hasLocationPermission(): Boolean =
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) ==
                 PackageManager.PERMISSION_GRANTED
 
     var hasPermission by remember { mutableStateOf(hasLocationPermission()) }
@@ -215,7 +221,8 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
     }
 
     // Ruta fija: del restaurante al destino
-    LaunchedEffect(destination) {        val to = destination
+    LaunchedEffect(destination) {
+        val to = destination
         val address = job?.address
         if (to != null && address != null) {
             route = MapService.routeFor(address, to)
@@ -245,7 +252,11 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
             AppStorage.saveTraveled(current.orderId, traveled)
 
             try {
-                ApiClient.api.sendLocation(user.id, current.orderId, LocationRequest(pos.lat, pos.lon))
+                ApiClient.api.sendLocation(
+                    user.id,
+                    current.orderId,
+                    LocationRequest(pos.lat, pos.lon)
+                )
                 locationError = null
             } catch (e: CancellationException) {
                 throw e
@@ -295,180 +306,214 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
     }
 
     // Posición mostrada: la actual; si no hay, la última que conoce el backend; si no, el restaurante
-    val serverPos = job?.let { j -> j.latitude?.let { la -> j.longitude?.let { lo -> LatLon(la, lo) } } }
+    val serverPos =
+        job?.let { j -> j.latitude?.let { la -> j.longitude?.let { lo -> LatLon(la, lo) } } }
     val courierPos = myPos?.let { LatLon(it.first, it.second) } ?: serverPos ?: Restaurant.location
 
     // El PIN solo se pide al llegar (en GPS real, una vez iniciada la entrega)
     val canFinish = if (Simulation.USE_REAL_GPS) started else arrived
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TerraTopBar(
-            role = "Repartidor",
-            name = "${user.name} ${user.lastName}",
-            onLogout = onLogout
-        )
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
-            message?.let {
-                StatusPill(it, Forest)
-                Spacer(Modifier.height(12.dp))
-            }
-
-            when {
-                loading -> Text("Cargando pedido...", color = TextSoft)
-
-                loadError != null -> {
-                    Text(loadError!!, color = Burgundy)
-                    Spacer(Modifier.height(12.dp))
-                    TerraButton("Reintentar", onClick = { loadJob() }, style = ButtonStyle.Outline)
-                }
-
-                job == null -> {
-                    Text("No tienes pedidos en camino", style = MaterialTheme.typography.titleLarge)
-                    Spacer(Modifier.height(6.dp))
-                    Text("Cuando el operador te asigne un pedido, aparecerá aquí.", color = TextSoft)
-                    Spacer(Modifier.height(16.dp))
-                    TerraButton("Actualizar", onClick = { loadJob() }, style = ButtonStyle.Outline)
-                }
-
-                else -> {
-                    val current = job!!
-
-                    // Datos del pedido
-                    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Pedido #${current.orderId}", style = MaterialTheme.typography.titleLarge)
-                            StatusPill(if (started) "En camino" else "Por iniciar", Terra)
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        InfoLine("Sales de", Restaurant.ADDRESS)
-                        InfoLine("Dirección de entrega", current.address ?: "-")
-                        InfoLine("Cliente", current.clientName ?: "-")
-                        InfoLine("Teléfono", current.clientPhone ?: "-")
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-
-                    // Mapa: restaurante, tu posición, destino y ruta
-                    TrackingMap(
-                        courier = courierPos,
-                        destination = destination,
-                        route = shownRoute,
-                        restaurant = Restaurant.location,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(260.dp)
-                            .clip(RoundedCornerShape(24.dp))
+    TerraScaffold(
+        role = "Repartidor",
+        name = "${user.name} ${user.lastName}",
+        onLogout = onLogout
+    ) { padding ->
+        Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = padding.calculateTopPadding() + 16.dp,
+                        bottom = 16.dp
                     )
+            ) {
+                message?.let {
+                    StatusPill(it, Forest)
+                    Spacer(Modifier.height(12.dp))
+                }
 
-                    Spacer(Modifier.height(16.dp))
+                when {
+                    loading -> Text("Cargando pedido...", color = TextSoft)
 
-                    if (!started) {
-                        // Botón "Iniciar entrega"
-                        TerraButton(
-                            text = if (routeReady) "Iniciar entrega" else "Preparando ruta...",
-                            onClick = { startTrip() },
-                            enabled = routeReady,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        if (geocodeDone && destination == null) {
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                "No se pudo ubicar la dirección en el mapa. Revisa tu conexión.",
-                                color = Burgundy,
-                                fontSize = 14.sp
-                            )
-                            Spacer(Modifier.height(8.dp))
-                            TerraButton(
-                                "Reintentar",
-                                onClick = { geocodeDone = false; retry++ },
-                                style = ButtonStyle.Outline
-                            )
-                        }
-                    } else {
-                        // Estado del recorrido
-                        val status = when {
-                            Simulation.USE_REAL_GPS ->
-                                if (myPos == null) "Buscando tu ubicación..." else "Enviando tu ubicación en vivo"
-                            arrived -> "Llegaste al destino. Pídele su PIN al cliente."
-                            else -> "En camino al destino: $progress %"
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(if (arrived) Forest else Gold)
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(status, fontSize = 14.sp, color = TextSoft)
-                        }
-                    }
-                    // Botón para llamar al cliente (abre el teléfono con el número ya marcado)
-                    current.clientPhone?.takeIf { it.isNotBlank() }?.let { phone ->
+                    loadError != null -> {
+                        Text(loadError!!, color = Burgundy)
                         Spacer(Modifier.height(12.dp))
                         TerraButton(
-                            text = "Llamar al cliente",
-                            onClick = {
-                                try {
-                                    context.startActivity(
-                                        Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
-                                    )
-                                } catch (_: Exception) {
-                                    message = "Este dispositivo no tiene app de teléfono"
-                                }
-                            },
-                            style = ButtonStyle.Outline,
-                            modifier = Modifier.fillMaxWidth()
+                            "Reintentar",
+                            onClick = { loadJob() },
+                            style = ButtonStyle.Outline
                         )
                     }
 
-                    locationError?.let {
-                        Spacer(Modifier.height(4.dp))
-                        Text(it, color = Burgundy, fontSize = 13.sp)
+                    job == null -> {
+                        Text(
+                            "No tienes pedidos en camino",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            "Cuando el operador te asigne un pedido, aparecerá aquí.",
+                            color = TextSoft
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        TerraButton(
+                            "Actualizar",
+                            onClick = { loadJob() },
+                            style = ButtonStyle.Outline
+                        )
                     }
 
-                    // PIN: solo aparece al llegar
-                    if (canFinish) {
-                        Spacer(Modifier.height(16.dp))
+                    else -> {
+                        val current = job!!
+
+                        // Datos del pedido
                         GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
-                            Text("Finalizar entrega", style = MaterialTheme.typography.titleLarge)
-                            Spacer(Modifier.height(4.dp))
-                            Text("Pídele al cliente su PIN de 4 dígitos.", color = TextSoft)
-                            Spacer(Modifier.height(16.dp))
-                            TerraTextField(
-                                label = "PIN del cliente",
-                                value = pin,
-                                onValueChange = { if (it.length <= 4 && it.all(Char::isDigit)) pin = it },
-                                placeholder = "••••",
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
-                            )
-                            Spacer(Modifier.height(6.dp))
-                            Text(
-                                "Intentos restantes: ${current.attemptsLeft}",
-                                fontSize = 12.sp,
-                                color = TextSoft
-                            )
-                            pinError?.let {
-                                Spacer(Modifier.height(8.dp))
-                                Text(it, color = Burgundy, fontSize = 14.sp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    "Pedido #${current.orderId}",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                StatusPill(if (started) "En camino" else "Por iniciar", Terra)
                             }
-                            Spacer(Modifier.height(16.dp))
+                            Spacer(Modifier.height(12.dp))
+                            InfoLine("Sales de", Restaurant.ADDRESS)
+                            InfoLine("Dirección de entrega", current.address ?: "-")
+                            InfoLine("Cliente", current.clientName ?: "-")
+                            InfoLine("Teléfono", current.clientPhone ?: "-")
+                        }
+
+                        Spacer(Modifier.height(16.dp))
+
+                        // Mapa: restaurante, tu posición, destino y ruta
+                        // Mapa: restaurante, tu posición, destino y ruta
+                        val mapHeight = (LocalConfiguration.current.screenHeightDp * 0.62f).dp
+                        TrackingMap(
+                            courier = courierPos,
+                            destination = destination,
+                            route = shownRoute,
+                            restaurant = Restaurant.location,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(mapHeight)
+                                .clip(RoundedCornerShape(24.dp))
+                        )
+
+                        Spacer(Modifier.height(16.dp))
+
+                        if (!started) {
+                            // Botón "Iniciar entrega"
                             TerraButton(
-                                text = if (sending) "Validando..." else "Entregar pedido",
-                                onClick = { finishOrder() },
-                                enabled = pin.length == 4 && !sending,
+                                text = if (routeReady) "Iniciar entrega" else "Preparando ruta...",
+                                onClick = { startTrip() },
+                                enabled = routeReady,
                                 modifier = Modifier.fillMaxWidth()
                             )
+                            if (geocodeDone && destination == null) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    "No se pudo ubicar la dirección en el mapa. Revisa tu conexión.",
+                                    color = Burgundy,
+                                    fontSize = 14.sp
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                TerraButton(
+                                    "Reintentar",
+                                    onClick = { geocodeDone = false; retry++ },
+                                    style = ButtonStyle.Outline
+                                )
+                            }
+                        } else {
+                            // Estado del recorrido
+                            val status = when {
+                                Simulation.USE_REAL_GPS ->
+                                    if (myPos == null) "Buscando tu ubicación..." else "Enviando tu ubicación en vivo"
+
+                                arrived -> "Llegaste al destino. Pídele su PIN al cliente."
+                                else -> "En camino al destino: $progress %"
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(if (arrived) Forest else Gold)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(status, fontSize = 14.sp, color = TextSoft)
+                            }
+                        }
+                        // Botón para llamar al cliente (abre el teléfono con el número ya marcado)
+                        current.clientPhone?.takeIf { it.isNotBlank() }?.let { phone ->
+                            Spacer(Modifier.height(12.dp))
+                            TerraButton(
+                                text = "Llamar al cliente",
+                                onClick = {
+                                    try {
+                                        context.startActivity(
+                                            Intent(
+                                                Intent.ACTION_DIAL,
+                                                Uri.fromParts("tel", phone, null)
+                                            )
+                                        )
+                                    } catch (_: Exception) {
+                                        message = "Este dispositivo no tiene app de teléfono"
+                                    }
+                                },
+                                style = ButtonStyle.Outline,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        locationError?.let {
+                            Spacer(Modifier.height(4.dp))
+                            Text(it, color = Burgundy, fontSize = 13.sp)
+                        }
+
+                        // PIN: solo aparece al llegar
+                        if (canFinish) {
+                            Spacer(Modifier.height(16.dp))
+                            GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
+                                Text(
+                                    "Finalizar entrega",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text("Pídele al cliente su PIN de 4 dígitos.", color = TextSoft)
+                                Spacer(Modifier.height(16.dp))
+                                TerraTextField(
+                                    label = "PIN del cliente",
+                                    value = pin,
+                                    onValueChange = {
+                                        if (it.length <= 4 && it.all(Char::isDigit)) pin = it
+                                    },
+                                    placeholder = "••••",
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                                )
+                                Spacer(Modifier.height(6.dp))
+                                Text(
+                                    "Intentos restantes: ${current.attemptsLeft}",
+                                    fontSize = 12.sp,
+                                    color = TextSoft
+                                )
+                                pinError?.let {
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(it, color = Burgundy, fontSize = 14.sp)
+                                }
+                                Spacer(Modifier.height(16.dp))
+                                TerraButton(
+                                    text = if (sending) "Validando..." else "Entregar pedido",
+                                    onClick = { finishOrder() },
+                                    enabled = pin.length == 4 && !sending,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }
