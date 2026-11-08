@@ -6,7 +6,9 @@ import android.content.pm.PackageManager
 import android.os.Looper
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,16 +16,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -34,24 +35,44 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.terragalegamovile.data.ApiClient
+import com.example.terragalegamovile.data.AppStorage
 import com.example.terragalegamovile.data.CompleteRequest
 import com.example.terragalegamovile.data.DeliveryJob
+import com.example.terragalegamovile.data.LatLon
 import com.example.terragalegamovile.data.LocationRequest
 import com.example.terragalegamovile.data.LoginResponse
+import com.example.terragalegamovile.data.MapService
+import com.example.terragalegamovile.data.Restaurant
+import com.example.terragalegamovile.data.RoutePath
+import com.example.terragalegamovile.data.Simulation
 import com.example.terragalegamovile.data.toUserMessage
+import com.example.terragalegamovile.ui.components.ButtonStyle
+import com.example.terragalegamovile.ui.components.GlassCard
+import com.example.terragalegamovile.ui.components.InfoLine
+import com.example.terragalegamovile.ui.components.StatusPill
+import com.example.terragalegamovile.ui.components.TerraButton
+import com.example.terragalegamovile.ui.components.TerraTextField
+import com.example.terragalegamovile.ui.components.TerraTopBar
+import com.example.terragalegamovile.ui.theme.Burgundy
+import com.example.terragalegamovile.ui.theme.Forest
+import com.example.terragalegamovile.ui.theme.Gold
+import com.example.terragalegamovile.ui.theme.Terra
+import com.example.terragalegamovile.ui.theme.TextSoft
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.gms.location.LocationRequest as GmsLocationRequest
-import com.example.terragalegamovile.data.LatLon
-import com.example.terragalegamovile.data.MapService
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -70,12 +91,19 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
     var pinError by remember { mutableStateOf<String?>(null) }
     var sending by remember { mutableStateOf(false) }
 
-    // Ubicación
+    // Recorrido
+    var started by remember { mutableStateOf(false) }
+    var arrived by remember { mutableStateOf(false) }
+    var progress by remember { mutableStateOf(0) }
     var myPos by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     var locationError by remember { mutableStateOf<String?>(null) }
-    // Destino y ruta para el mapa
+
+    // Destino y ruta (restaurante -> destino)
     var destination by remember { mutableStateOf<LatLon?>(null) }
+    var geocodeDone by remember { mutableStateOf(false) }
+    var retry by remember { mutableStateOf(0) }
     var route by remember { mutableStateOf<List<LatLon>>(emptyList()) }
+    var routeReady by remember { mutableStateOf(false) }
 
     fun hasLocationPermission(): Boolean =
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
@@ -89,18 +117,42 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { hasPermission = hasLocationPermission() }
 
-    // Carga el pedido en camino de este repartidor
+    // Carga el pedido en camino y recupera el progreso del recorrido
     fun loadJob() {
         scope.launch {
             loading = true
             loadError = null
             try {
-                job = ApiClient.api.courierActive(user.id).firstOrNull()
+                val fetched = ApiClient.api.courierActive(user.id).firstOrNull()
+                if (fetched != null) {
+                    // Si el backend no tiene ninguna ubicación, es un pedido nuevo:
+                    // se descarta lo que quedó guardado de un pedido anterior con el mismo número
+                    if (fetched.latitude == null && fetched.longitude == null) {
+                        AppStorage.clearTrip(fetched.orderId)
+                    }
+                    started = AppStorage.isTripStarted(fetched.orderId)
+                }
+                job = fetched
             } catch (e: Exception) {
                 loadError = e.toUserMessage()
             } finally {
                 loading = false
             }
+        }
+    }
+
+    // Botón "Iniciar entrega"
+    fun startTrip() {
+        val current = job ?: return
+        AppStorage.setTripStarted(current.orderId, true)
+        started = true
+        if (Simulation.USE_REAL_GPS && !hasPermission) {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
         }
     }
 
@@ -112,9 +164,19 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
             pinError = null
             try {
                 ApiClient.api.complete(user.id, current.orderId, CompleteRequest(pin)).close()
+                AppStorage.clearTrip(current.orderId)
                 message = "Pedido #${current.orderId} entregado ✓"
                 pin = ""
                 job = null
+                // Deja todo listo para el siguiente pedido
+                started = false
+                arrived = false
+                progress = 0
+                myPos = null
+                destination = null
+                geocodeDone = false
+                route = emptyList()
+                routeReady = false
             } catch (e: Exception) {
                 pinError = e.toUserMessage()
                 // Actualiza los intentos que quedan
@@ -128,23 +190,70 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
         }
     }
 
-    // Al abrir la pantalla: carga el pedido y pide el permiso de ubicación
-    LaunchedEffect(Unit) {
-        loadJob()
-        if (!hasPermission) {
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
+    LaunchedEffect(Unit) { loadJob() }
+
+    // La dirección del pedido se convierte en un punto del mapa (con memoria y reintentos)
+    LaunchedEffect(job?.address, retry) {
+        val address = job?.address
+        if (address != null) {
+            destination = MapService.destinationFor(address)
+            geocodeDone = true
         }
     }
 
-    // Mientras haya pedido y permiso: manda la ubicación al backend cada 5 segundos
-    DisposableEffect(job?.orderId, hasPermission) {
+    // Ruta fija: del restaurante al destino
+    LaunchedEffect(destination) {
+        val to = destination
+        val address = job?.address
+        if (to != null && address != null) {
+            route = MapService.routeFor(address, to)
+            routeReady = true
+        }
+    }
+
+    // Si no se pudo calcular la ruta, se usa una línea recta
+    val shownRoute = if (route.size > 1) route
+    else (destination?.let { listOf(Restaurant.location, it) } ?: emptyList())
+
+    // RECORRIDO SIMULADO: sale del restaurante y llega solo al destino.
+    // Si la app se cierra, al volver sigue desde donde iba.
+    LaunchedEffect(job?.orderId, started, routeReady) {
+        if (Simulation.USE_REAL_GPS || !started || !routeReady) return@LaunchedEffect
+        val current = job ?: return@LaunchedEffect
+        val to = destination ?: return@LaunchedEffect
+
+        val path = RoutePath(shownRoute.ifEmpty { listOf(Restaurant.location, to) })
+        var traveled = AppStorage.getTraveled(current.orderId)
+
+        while (true) {
+            val pos = path.pointAt(traveled)
+            myPos = pos.lat to pos.lon
+            progress = if (path.totalMeters == 0.0) 100
+            else (traveled / path.totalMeters * 100).toInt().coerceAtMost(100)
+            AppStorage.saveTraveled(current.orderId, traveled)
+
+            try {
+                ApiClient.api.sendLocation(user.id, current.orderId, LocationRequest(pos.lat, pos.lon))
+                locationError = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                locationError = e.toUserMessage()
+            }
+
+            if (traveled >= path.totalMeters) {
+                arrived = true
+                break
+            }
+            delay(Simulation.TICK_MILLIS)
+            traveled += Simulation.SPEED_METERS_PER_SECOND * Simulation.TICK_MILLIS / 1000.0
+        }
+    }
+
+    // GPS REAL: solo si Simulation.USE_REAL_GPS = true
+    DisposableEffect(job?.orderId, started, hasPermission) {
         val current = job
-        if (current == null || !hasPermission) {
+        if (!Simulation.USE_REAL_GPS || current == null || !started || !hasPermission) {
             return@DisposableEffect onDispose { }
         }
 
@@ -173,142 +282,165 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
         onDispose { client.removeLocationUpdates(callback) }
     }
 
-    val courierPos = myPos?.let { LatLon(it.first, it.second) }
+    // Posición mostrada: la actual; si no hay, la última que conoce el backend; si no, el restaurante
+    val serverPos = job?.let { j -> j.latitude?.let { la -> j.longitude?.let { lo -> LatLon(la, lo) } } }
+    val courierPos = myPos?.let { LatLon(it.first, it.second) } ?: serverPos ?: Restaurant.location
 
-    // La dirección del pedido se convierte en un punto del mapa
-    LaunchedEffect(job?.address) {
-        val address = job?.address
-        if (address != null) destination = MapService.geocode(address)
-    }
+    // El PIN solo se pide al llegar (en GPS real, una vez iniciada la entrega)
+    val canFinish = if (Simulation.USE_REAL_GPS) started else arrived
 
-    // Recalcula la ruta cuando te mueves ~100 m
-    val courierKey = courierPos?.let { "%.3f,%.3f".format(it.lat, it.lon) }
-    LaunchedEffect(courierKey, destination) {
-        val from = courierPos
-        val to = destination
-        if (from != null && to != null) route = MapService.route(from, to)
-    }
+    Column(modifier = Modifier.fillMaxSize()) {
+        TerraTopBar(
+            role = "Repartidor",
+            name = "${user.name} ${user.lastName}",
+            onLogout = onLogout
+        )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
         ) {
-            Column {
-                Text("Repartidor", style = MaterialTheme.typography.titleMedium)
-                Text("${user.name} ${user.lastName}", style = MaterialTheme.typography.headlineSmall)
-            }
-            TextButton(onClick = onLogout) { Text("Salir") }
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        message?.let {
-            Text(it, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(12.dp))
-        }
-
-        when {
-            loading -> Text("Cargando pedido...")
-
-            loadError != null -> {
-                Text(loadError!!, color = MaterialTheme.colorScheme.error)
-                Spacer(Modifier.height(8.dp))
-                OutlinedButton(onClick = { loadJob() }) { Text("Reintentar") }
-            }
-
-            job == null -> {
-                Text("No tienes pedidos en camino.")
-                Spacer(Modifier.height(8.dp))
-                OutlinedButton(onClick = { loadJob() }) { Text("Actualizar") }
-            }
-
-            else -> {
-                val current = job!!
-
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("Pedido #${current.orderId}", style = MaterialTheme.typography.titleLarge)
-                        Spacer(Modifier.height(8.dp))
-                        Text("Dirección: ${current.address ?: "-"}")
-                        Text("Cliente: ${current.clientName ?: "-"}")
-                        Text("Teléfono: ${current.clientPhone ?: "-"}")
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
-
-                TrackingMap(
-                    courier = courierPos,
-                    destination = destination,
-                    route = route,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(260.dp)
-                )
-                Spacer(Modifier.height(16.dp))
-
-                // Estado del GPS
-                if (!hasPermission) {
-                    Text(
-                        "Falta el permiso de ubicación: el cliente no puede ver dónde vas.",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Button(onClick = {
-                        permissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                            )
-                        )
-                    }) { Text("Dar permiso de ubicación") }
-                } else {
-                    val pos = myPos
-                    Text(
-                        if (pos == null) "Buscando tu ubicación..."
-                        else "Enviando ubicación: %.5f, %.5f".format(pos.first, pos.second)
-                    )
-                }
-                locationError?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error)
-                }
-
-                Spacer(Modifier.height(24.dp))
-
-                // PIN que le dice el cliente
-                Text("Finalizar entrega", style = MaterialTheme.typography.titleMedium)
-                Text("Pídele al cliente su PIN de 4 dígitos.")
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = pin,
-                    onValueChange = { if (it.length <= 4 && it.all(Char::isDigit)) pin = it },
-                    label = { Text("PIN del cliente") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    "Intentos restantes: ${current.attemptsLeft}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                pinError?.let {
-                    Spacer(Modifier.height(8.dp))
-                    Text(it, color = MaterialTheme.colorScheme.error)
-                }
+            message?.let {
+                StatusPill(it, Forest)
                 Spacer(Modifier.height(12.dp))
-                Button(
-                    enabled = pin.length == 4 && !sending,
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { finishOrder() }
-                ) {
-                    Text(if (sending) "Validando..." else "Entregar pedido")
+            }
+
+            when {
+                loading -> Text("Cargando pedido...", color = TextSoft)
+
+                loadError != null -> {
+                    Text(loadError!!, color = Burgundy)
+                    Spacer(Modifier.height(12.dp))
+                    TerraButton("Reintentar", onClick = { loadJob() }, style = ButtonStyle.Outline)
+                }
+
+                job == null -> {
+                    Text("No tienes pedidos en camino", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(6.dp))
+                    Text("Cuando el operador te asigne un pedido, aparecerá aquí.", color = TextSoft)
+                    Spacer(Modifier.height(16.dp))
+                    TerraButton("Actualizar", onClick = { loadJob() }, style = ButtonStyle.Outline)
+                }
+
+                else -> {
+                    val current = job!!
+
+                    // Datos del pedido
+                    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Pedido #${current.orderId}", style = MaterialTheme.typography.titleLarge)
+                            StatusPill(if (started) "En camino" else "Por iniciar", Terra)
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        InfoLine("Sales de", Restaurant.ADDRESS)
+                        InfoLine("Dirección de entrega", current.address ?: "-")
+                        InfoLine("Cliente", current.clientName ?: "-")
+                        InfoLine("Teléfono", current.clientPhone ?: "-")
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // Mapa: restaurante, tu posición, destino y ruta
+                    TrackingMap(
+                        courier = courierPos,
+                        destination = destination,
+                        route = shownRoute,
+                        restaurant = Restaurant.location,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(260.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    if (!started) {
+                        // Botón "Iniciar entrega"
+                        TerraButton(
+                            text = if (routeReady) "Iniciar entrega" else "Preparando ruta...",
+                            onClick = { startTrip() },
+                            enabled = routeReady,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (geocodeDone && destination == null) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                "No se pudo ubicar la dirección en el mapa. Revisa tu conexión.",
+                                color = Burgundy,
+                                fontSize = 14.sp
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            TerraButton(
+                                "Reintentar",
+                                onClick = { geocodeDone = false; retry++ },
+                                style = ButtonStyle.Outline
+                            )
+                        }
+                    } else {
+                        // Estado del recorrido
+                        val status = when {
+                            Simulation.USE_REAL_GPS ->
+                                if (myPos == null) "Buscando tu ubicación..." else "Enviando tu ubicación en vivo"
+                            arrived -> "Llegaste al destino. Pídele su PIN al cliente."
+                            else -> "En camino al destino: $progress %"
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(if (arrived) Forest else Gold)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(status, fontSize = 14.sp, color = TextSoft)
+                        }
+                    }
+
+                    locationError?.let {
+                        Spacer(Modifier.height(4.dp))
+                        Text(it, color = Burgundy, fontSize = 13.sp)
+                    }
+
+                    // PIN: solo aparece al llegar
+                    if (canFinish) {
+                        Spacer(Modifier.height(16.dp))
+                        GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
+                            Text("Finalizar entrega", style = MaterialTheme.typography.titleLarge)
+                            Spacer(Modifier.height(4.dp))
+                            Text("Pídele al cliente su PIN de 4 dígitos.", color = TextSoft)
+                            Spacer(Modifier.height(16.dp))
+                            TerraTextField(
+                                label = "PIN del cliente",
+                                value = pin,
+                                onValueChange = { if (it.length <= 4 && it.all(Char::isDigit)) pin = it },
+                                placeholder = "••••",
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                "Intentos restantes: ${current.attemptsLeft}",
+                                fontSize = 12.sp,
+                                color = TextSoft
+                            )
+                            pinError?.let {
+                                Spacer(Modifier.height(8.dp))
+                                Text(it, color = Burgundy, fontSize = 14.sp)
+                            }
+                            Spacer(Modifier.height(16.dp))
+                            TerraButton(
+                                text = if (sending) "Validando..." else "Entregar pedido",
+                                onClick = { finishOrder() },
+                                enabled = pin.length == 4 && !sending,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
             }
         }

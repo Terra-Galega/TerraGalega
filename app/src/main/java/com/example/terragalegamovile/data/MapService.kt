@@ -75,4 +75,32 @@ object MapService {
             emptyList()
         }
     }
+
+    // Dirección -> coordenadas, con memoria y reintentos
+    suspend fun destinationFor(address: String): LatLon? {
+        AppStorage.getDestination(address)?.let { return it }
+        repeat(4) {
+            val result = geocode(address)
+            if (result != null) {
+                AppStorage.saveDestination(address, result)
+                return result
+            }
+            delay(2500)
+        }
+        return null
+    }
+
+    // Ruta restaurante -> destino, con memoria y reintentos
+    suspend fun routeFor(address: String, to: LatLon): List<LatLon> {
+        AppStorage.getRoute(address)?.let { return it }
+        repeat(4) {
+            val result = route(Restaurant.location, to)
+            if (result.size > 1) {
+                AppStorage.saveRoute(address, result)
+                return result
+            }
+            delay(2500)
+        }
+        return emptyList()
+    }
 }
