@@ -32,6 +32,7 @@
       <!-- Nombre -->
       <app-form-field label="Nombre">
         <input
+          id="addon-name"
           type="text"
           [value]="name"
           (input)="setName($event)"
@@ -44,6 +45,7 @@
       <!-- Precio: se redondea a múltiplos de 50 al salir del campo (blur) -->
       <app-form-field label="Precio (COP)">
         <input
+          id="addon-price"
           type="number"
           min="0"
           [value]="price"
@@ -57,6 +59,7 @@
       <!-- Descripción -->
       <app-form-field label="Descripción">
         <textarea
+          id="addon-description"
           [value]="description"
           (input)="setDescription($event)"
           rows="3"
@@ -71,6 +74,7 @@
         <div class="grid grid-cols-2 gap-y-2 gap-x-3">
           @for (category of categories; track category.id) {
             <app-check-option
+              class="addon-category"
               [label]="category.name"
               [checked]="isCategorySelected(category.id)"
               (changed)="toggleCategory(category.id)"
@@ -104,7 +108,7 @@
           Cancelar
         </app-button>
 
-        <app-button class="flex-1" [fullWidth]="true" (click)="save()">
+        <app-button id="btn-save-addon" class="flex-1" [fullWidth]="true" (click)="save()">
           {{ addon ? "Guardar cambios" : "Añadir adicional" }}
         </app-button>
       </div>

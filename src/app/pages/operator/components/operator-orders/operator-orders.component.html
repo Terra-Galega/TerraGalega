@@ -28,6 +28,7 @@
     @for (order of orders; track order.id) {
     <li>
       <article
+        [id]="'operator-order-' + order.id"
         class="rounded-2xl p-6 cursor-pointer transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b2571f]"
         style="
               background-color: #ffffff;
@@ -42,7 +43,7 @@
             <p class="text-xs font-medium" style="color: rgba(44, 44, 44, 0.5)">
               Pedido #{{ order.id }} · {{ order.createdAt | date: "dd MMM, HH:mm" }}
             </p>
-            <h2 class="mt-1 text-lg font-semibold text-charcoal truncate">
+            <h2 [id]="'operator-order-client-' + order.id" class="mt-1 text-lg font-semibold text-charcoal truncate">
               {{ clientName(order) }}
             </h2>
             <p class="mt-0.5 flex items-center gap-1.5 text-sm" style="color: rgba(44, 44, 44, 0.6)">
@@ -78,7 +79,7 @@
             <!-- Diferencia los pedidos que ya tienen un domiciliario asignado de los que aún requieren asignación. -->
             @if (order.deliveryPersonName) {
             Domiciliario:
-            <span class="font-medium text-charcoal">
+            <span [id]="'operator-delivery-person-' + order.id" class="font-medium text-charcoal">
               {{ order.deliveryPersonName }}
             </span>
             } @else {
@@ -90,7 +91,7 @@
           @if (actionLabel(order); as label) {
           <div class="w-full sm:w-36">
             <!-- Evita que el clic en la acción se propague a la tarjeta y abra también el detalle del pedido. -->
-            <app-button size="sm" [fullWidth]="true" (click)="$event.stopPropagation(); onAction(order)">
+            <app-button [id]="'operator-action-' + order.id" size="sm" [fullWidth]="true" (click)="$event.stopPropagation(); onAction(order)">
               <!-- Cambia temporalmente el texto del botón para indicar qué pedido se está procesando. -->
               {{ busyOrderId === order.id ? "Procesando…" : label }}
             </app-button>
@@ -124,7 +125,7 @@
     </span>
 
     <div class="min-w-0 flex-1">
-      <p class="text-[15px] font-semibold text-charcoal">Pedido completado</p>
+      <p id="operator-toast-title" class="text-[15px] font-semibold text-charcoal">Pedido completado</p>
       <p class="text-sm" style="color: rgba(44, 44, 44, 0.65)">
         {{ toastMessage }}
       </p>

@@ -32,6 +32,7 @@
       <!-- Nombre -->
       <app-form-field label="Nombre">
         <input
+          id="product-name"
           type="text"
           [value]="name"
           (input)="setName($event)"
@@ -46,6 +47,7 @@
         <!-- El precio se redondea a múltiplos de 100 al salir del campo (blur) -->
         <app-form-field label="Precio (COP)">
           <input
+            id="product-price"
             type="number"
             [value]="price"
             (blur)="setPrice($event)"
@@ -65,7 +67,7 @@
           >
             <option value="">{{ categoryName }}</option>
             @for (category of categories; track category.id) {
-              <option [value]="category.name">{{ category.name }}</option>
+              <option class="category-option" [value]="category.name">{{ category.name }}</option>
             }
           </select>
         </app-form-field>
@@ -74,6 +76,7 @@
       <!-- Descripción -->
       <app-form-field label="Descripción">
         <textarea
+          id="product-description"
           [value]="description"
           (input)="setDescription($event)"
           rows="3"
@@ -85,6 +88,7 @@
       <!-- URL de la imagen, con vista previa si ya hay una URL escrita -->
       <app-form-field label="URL de imagen">
         <input
+          id="product-image"
           type="url"
           [value]="imageUrl"
           (input)="setImageUrl($event)"
@@ -141,7 +145,7 @@
           Cancelar
         </app-button>
 
-        <app-button class="flex-1" [fullWidth]="true" (click)="save()">
+        <app-button id="btn-save-product" class="flex-1" [fullWidth]="true" (click)="save()">
           {{ product ? "Guardar cambios" : "Añadir producto" }}
         </app-button>
       </div>

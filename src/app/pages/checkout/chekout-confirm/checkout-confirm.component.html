@@ -73,7 +73,7 @@
         <app-order-summary [items]="items" [total]="total" [deliveryFee]="deliveryFee" [unitPrice]="unitPrice">
           <div class="mt-6 flex flex-col items-center gap-4">
             <!-- El texto cambia según el estado -->
-            <app-button size="lg" [fullWidth]="true" [disabled]="paying" (click)="confirm()">
+            <app-button id="btn-confirm-order" size="lg" [fullWidth]="true" [disabled]="paying" (click)="confirm()">
               {{
               paying
               ? draft.method === "card"

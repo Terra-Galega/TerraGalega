@@ -7,7 +7,7 @@
         <p class="text-[11px] uppercase tracking-widest" style="color: rgba(44, 44, 44, 0.45)">
           Pedido
         </p>
-        <h2 class="font-serif text-3xl font-semibold text-charcoal leading-tight">
+        <h2 id="detail-order-id" class="font-serif text-3xl font-semibold text-charcoal leading-tight">
           #{{ orderId }}
         </h2>
 
@@ -31,7 +31,7 @@
         }
       </div>
 
-      <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+      <app-icon-button id="btn-close-detail" variant="soft" label="Cerrar" (click)="close()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -127,7 +127,7 @@
       </div>
 
       <!-- Platos -->
-      <div class="glass-card rounded-2xl px-4">
+      <div id="detail-items" class="glass-card rounded-2xl px-4">
         <p class="text-[11px] uppercase tracking-widest pt-4 pb-1" style="color: rgba(44, 44, 44, 0.45)">
           Detalle del pedido
         </p>
@@ -179,7 +179,7 @@
         <span class="text-sm tracking-widest uppercase opacity-80">
           Total
         </span>
-        <span class="font-serif text-2xl font-semibold">
+        <span id="detail-total" class="font-serif text-2xl font-semibold">
           ${{ o.total | number: "1.0-0" }}
         </span>
       </div>
