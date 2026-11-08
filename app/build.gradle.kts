@@ -70,8 +70,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.5")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     // Para las pantallas siguientes: mapa (OpenStreetMap, sin API key) y GPS
-    implementation("org.osmdroid:osmdroid-android:6.1.20")
     implementation("com.google.android.gms:play-services-location:21.3.0")
-
+    implementation("org.maplibre.gl:android-sdk:11.8.0")
 
 }

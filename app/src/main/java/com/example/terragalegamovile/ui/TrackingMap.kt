@@ -1,7 +1,7 @@
 package com.example.terragalegamovile.ui
 
-import android.content.Context
 import android.view.MotionEvent
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -12,26 +12,53 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.terragalegamovile.data.LatLon
 import kotlinx.coroutines.delay
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.util.MapTileIndex
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.CopyrightOverlay
-import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Polyline
-import java.io.File
+import org.maplibre.android.MapLibre
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.style.expressions.Expression
+import org.maplibre.android.style.layers.CircleLayer
+import org.maplibre.android.style.layers.LineLayer
+import org.maplibre.android.style.layers.Property
+import org.maplibre.android.style.layers.PropertyFactory.circleColor
+import org.maplibre.android.style.layers.PropertyFactory.circleRadius
+import org.maplibre.android.style.layers.PropertyFactory.circleStrokeColor
+import org.maplibre.android.style.layers.PropertyFactory.circleStrokeWidth
+import org.maplibre.android.style.layers.PropertyFactory.lineCap
+import org.maplibre.android.style.layers.PropertyFactory.lineColor
+import org.maplibre.android.style.layers.PropertyFactory.lineJoin
+import org.maplibre.android.style.layers.PropertyFactory.lineWidth
+import org.maplibre.android.style.sources.GeoJsonSource
+import org.maplibre.geojson.Feature
+import org.maplibre.geojson.FeatureCollection
+import org.maplibre.geojson.LineString
+import org.maplibre.geojson.Point
 
-// Zoom de calle (más número = más cerca)
-private const val ZOOM_DESTINATION = 17.0
-private const val ZOOM_FOLLOW = 17.5
+// Estilo gratis y sin clave de OpenFreeMap. Otros: "bright" (más sobrio), "positron" (claro y minimalista)
+private const val STYLE_URL = "https://tiles.openfreemap.org/styles/liberty"
+
+// Zoom de calle (en MapLibre es ~1 punto menos que en osmdroid)
+private const val ZOOM_DESTINATION = 16.0
+private const val ZOOM_FOLLOW = 16.5
+
+private const val ROUTE_SRC = "route-src"
+private const val ROUTE_LAYER = "route-layer"
+private const val POINTS_SRC = "points-src"
+private const val POINTS_LAYER = "points-layer"
+
+private fun pointFeature(p: LatLon, color: String, radius: Float): Feature =
+    Feature.fromGeometry(Point.fromLngLat(p.lon, p.lat)).apply {
+        addStringProperty("color", color)
+        addNumberProperty("r", radius)
+    }
 
 // Mapa con el repartidor, el destino y la ruta entre los dos.
 // Primero muestra el destino ~3 s y luego sigue al repartidor todo el tiempo.
-
 @Composable
 fun TrackingMap(
     courier: LatLon?,
@@ -42,21 +69,42 @@ fun TrackingMap(
 ) {
     val context = LocalContext.current
 
+    var map by remember { mutableStateOf<MapLibreMap?>(null) }
+    var styleReady by remember { mutableStateOf(false) }
     var introDone by remember { mutableStateOf(false) }
     var followStarted by remember { mutableStateOf(false) }
 
     val mapView = remember {
-        val config = Configuration.getInstance()
-        config.load(context, context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
-        config.userAgentValue = "TerraGalegaMovil/1.0 (proyecto universitario Javeriana)"
-        config.osmdroidBasePath = File(context.filesDir, "osmdroid")
-        config.osmdroidTileCache = File(context.cacheDir, "osm-tiles")
-
+        MapLibre.getInstance(context)
         MapView(context).apply {
-            setTileSource(EsriStreetMap)
-            setMultiTouchControls(true)
-            controller.setZoom(ZOOM_DESTINATION)
-            controller.setCenter(GeoPoint(4.65, -74.08)) // Bogotá, hasta tener posiciones
+            onCreate(null)
+            getMapAsync { m ->
+                m.uiSettings.isRotateGesturesEnabled = false
+                m.uiSettings.isTiltGesturesEnabled = false
+                m.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(4.65, -74.08), 11.0))
+                m.setStyle(STYLE_URL) { style ->
+                    style.addSource(GeoJsonSource(ROUTE_SRC))
+                    style.addSource(GeoJsonSource(POINTS_SRC))
+                    style.addLayer(
+                        LineLayer(ROUTE_LAYER, ROUTE_SRC).withProperties(
+                            lineColor("#B2571F"), // terracota
+                            lineWidth(5f),
+                            lineCap(Property.LINE_CAP_ROUND),
+                            lineJoin(Property.LINE_JOIN_ROUND)
+                        )
+                    )
+                    style.addLayer(
+                        CircleLayer(POINTS_LAYER, POINTS_SRC).withProperties(
+                            circleColor(Expression.toColor(Expression.get("color"))),
+                            circleRadius(Expression.get("r")),
+                            circleStrokeColor("#FFFFFF"),
+                            circleStrokeWidth(3f)
+                        )
+                    )
+                    map = m
+                    styleReady = true
+                }
+            }
 
             // Mientras el dedo está sobre el mapa, la pantalla no puede quitarle el gesto
             setOnTouchListener { view, event ->
@@ -71,21 +119,60 @@ fun TrackingMap(
         }
     }
 
-    DisposableEffect(Unit) {
-        mapView.onResume()
+    // El MapView necesita seguir el ciclo de vida de la pantalla
+    val lifecycle = (context as ComponentActivity).lifecycle
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> mapView.onStart()
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_STOP -> mapView.onStop()
+                else -> {}
+            }
+        }
+        lifecycle.addObserver(observer)
         onDispose {
+            lifecycle.removeObserver(observer)
             mapView.onPause()
-            mapView.onDetach()
+            mapView.onStop()
+            mapView.onDestroy()
         }
     }
 
+    // Dibuja ruta y puntos cada vez que cambian
+    LaunchedEffect(styleReady, route, courier, destination, restaurant) {
+        if (!styleReady) return@LaunchedEffect
+        val style = map?.style ?: return@LaunchedEffect
+
+        val routeFeatures =
+            if (route.size > 1) listOf(
+                Feature.fromGeometry(
+                    LineString.fromLngLats(route.map { Point.fromLngLat(it.lon, it.lat) })
+                )
+            ) else emptyList()
+        style.getSourceAs<GeoJsonSource>(ROUTE_SRC)
+            ?.setGeoJson(FeatureCollection.fromFeatures(routeFeatures))
+
+        val pointFeatures = buildList {
+            restaurant?.let { add(pointFeature(it, "#B2571F", 9f)) } // restaurante: terracota
+            destination?.let { add(pointFeature(it, "#C62828", 10f)) } // destino: rojo
+            courier?.let { add(pointFeature(it, "#1565C0", 9f)) } // repartidor: azul
+        }
+        style.getSourceAs<GeoJsonSource>(POINTS_SRC)
+            ?.setGeoJson(FeatureCollection.fromFeatures(pointFeatures))
+    }
+
     // 1) Cuando se conoce el destino: lo enfoca y espera 3 segundos
-    LaunchedEffect(destination) {
-        if (destination != null && !introDone) {
-            mapView.controller.animateTo(
-                GeoPoint(destination.lat, destination.lon),
-                ZOOM_DESTINATION,
-                800L
+    LaunchedEffect(destination, map) {
+        val m = map
+        if (m != null && destination != null && !introDone) {
+            m.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(destination.lat, destination.lon),
+                    ZOOM_DESTINATION
+                ),
+                800
             )
             delay(3000)
             introDone = true
@@ -99,76 +186,18 @@ fun TrackingMap(
     }
 
     // 2) Después sigue al repartidor cada vez que se mueve
-    LaunchedEffect(courier, introDone) {
+    LaunchedEffect(courier, introDone, map) {
+        val m = map ?: return@LaunchedEffect
         if (introDone && courier != null) {
-            val point = GeoPoint(courier.lat, courier.lon)
+            val point = LatLng(courier.lat, courier.lon)
             if (!followStarted) {
-                // La primera vez acerca el zoom; después solo lo sigue sin tocar tu zoom
-                mapView.controller.animateTo(point, ZOOM_FOLLOW, 800L)
+                m.animateCamera(CameraUpdateFactory.newLatLngZoom(point, ZOOM_FOLLOW), 800)
                 followStarted = true
             } else {
-                mapView.controller.animateTo(point)
+                m.animateCamera(CameraUpdateFactory.newLatLng(point), 800)
             }
         }
     }
 
-    AndroidView(
-        modifier = modifier,
-        factory = { mapView },
-        update = { map ->
-            map.overlays.clear()
-            map.overlays.add(CopyrightOverlay(context))
-
-            if (route.size > 1) {
-                val line = Polyline().apply {
-                    setPoints(route.map { GeoPoint(it.lat, it.lon) })
-                    outlinePaint.color = android.graphics.Color.parseColor("#B2571F") // terracota
-                    outlinePaint.strokeWidth = 10f
-                }
-                map.overlays.add(line)
-            }
-
-            restaurant?.let {
-                map.overlays.add(Marker(map).apply {
-                    position = GeoPoint(it.lat, it.lon)
-                    title = "Restaurante Terra Galega"
-                    icon = ContextCompat.getDrawable(context, android.R.drawable.ic_menu_myplaces)
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                })
-            }
-
-            destination?.let {
-                map.overlays.add(Marker(map).apply {
-                    position = GeoPoint(it.lat, it.lon)
-                    title = "Destino"
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                })
-            }
-
-            courier?.let {
-                map.overlays.add(Marker(map).apply {
-                    position = GeoPoint(it.lat, it.lon)
-                    title = "Repartidor"
-                    icon = ContextCompat.getDrawable(context, android.R.drawable.ic_menu_mylocation)
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                })
-            }
-
-            map.invalidate()
-        }
-    )
-}
-
-// Mapa de calles de Esri (no pide clave). Esri pide las imágenes en orden zoom/y/x.
-private val EsriStreetMap = object : OnlineTileSourceBase(
-    "EsriWorldStreet", 0, 19, 256, ".png",
-    arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/"),
-    "Tiles © Esri, © OpenStreetMap contributors"
-) {
-    override fun getTileURLString(pMapTileIndex: Long): String {
-        return baseUrl +
-                MapTileIndex.getZoom(pMapTileIndex) + "/" +
-                MapTileIndex.getY(pMapTileIndex) + "/" +
-                MapTileIndex.getX(pMapTileIndex)
-    }
+    AndroidView(modifier = modifier, factory = { mapView })
 }

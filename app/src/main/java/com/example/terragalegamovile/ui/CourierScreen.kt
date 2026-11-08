@@ -73,7 +73,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.google.android.gms.location.LocationRequest as GmsLocationRequest
-
+import android.content.Intent
+import android.net.Uri
 @SuppressLint("MissingPermission")
 @Composable
 fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
@@ -146,7 +147,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
         val current = job ?: return
         AppStorage.setTripStarted(current.orderId, true)
         started = true
-        if (Simulation.USE_REAL_GPS && !hasPermission) {
+        if (!hasPermission) {
             permissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -192,6 +193,17 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
 
     LaunchedEffect(Unit) { loadJob() }
     // Ubica el restaurante con el mismo geocodificador que los destinos
+    // Pide el permiso de ubicación apenas el repartidor abre su pantalla
+    LaunchedEffect(Unit) {
+        if (!hasPermission) {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
 
     // La dirección del pedido se convierte en un punto del mapa (con memoria y reintentos)
     LaunchedEffect(job?.address, retry) {
@@ -400,6 +412,24 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                             Spacer(Modifier.width(8.dp))
                             Text(status, fontSize = 14.sp, color = TextSoft)
                         }
+                    }
+                    // Botón para llamar al cliente (abre el teléfono con el número ya marcado)
+                    current.clientPhone?.takeIf { it.isNotBlank() }?.let { phone ->
+                        Spacer(Modifier.height(12.dp))
+                        TerraButton(
+                            text = "Llamar al cliente",
+                            onClick = {
+                                try {
+                                    context.startActivity(
+                                        Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
+                                    )
+                                } catch (_: Exception) {
+                                    message = "Este dispositivo no tiene app de teléfono"
+                                }
+                            },
+                            style = ButtonStyle.Outline,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
 
                     locationError?.let {
