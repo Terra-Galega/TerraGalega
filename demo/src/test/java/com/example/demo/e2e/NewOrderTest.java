@@ -87,11 +87,11 @@ public class NewOrderTest {
         clientWait = new WebDriverWait(clientDriver, Duration.ofSeconds(10));
     }
 
-    /*@AfterEach
+    @AfterEach
     public void tearDown() {
         if (clientDriver != null) clientDriver.quit();
         if (operatorDriver != null) operatorDriver.quit();
-    }*/
+    }
 
 
     private WebElement waitFor(WebDriver driver, WebDriverWait wait, By locator) {
