@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.terragalegamovile.data.AppStorage
+import com.example.terragalegamovile.data.MapService
 import com.example.terragalegamovile.data.Session
 import com.example.terragalegamovile.ui.ClientScreen
 import com.example.terragalegamovile.ui.CourierScreen
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
 
         // Recupera la sesión guardada antes de dibujar nada
         AppStorage.init(applicationContext)
+        MapService.init(applicationContext)
         Session.restore()
 
         setContent {

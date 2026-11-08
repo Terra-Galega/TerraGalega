@@ -68,6 +68,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit) {
         }
     }
 
+    // Ubica el restaurante con el mismo geocodificador que los destinos
     // La dirección escrita se convierte en un punto del mapa (una sola vez)
     LaunchedEffect(delivery?.address) {
         val address = delivery?.address
@@ -81,8 +82,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit) {
     val courier = serverCourier ?: Restaurant.location
 
     // Ruta fija: del restaurante al destino
-    LaunchedEffect(destination) {
-        val to = destination
+    LaunchedEffect(destination) {        val to = destination
         val address = delivery?.address
         if (to != null && address != null) route = MapService.routeFor(address, to)
     }

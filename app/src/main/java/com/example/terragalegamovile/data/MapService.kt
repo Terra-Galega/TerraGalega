@@ -8,6 +8,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
+import android.content.Context
+import android.location.Geocoder
+import java.util.Locale
 
 data class LatLon(val lat: Double, val lon: Double)
 
@@ -28,13 +31,47 @@ object MapService {
         }
     }
 
-    // Dirección escrita -> coordenadas. Si la dirección exacta no se encuentra,
-    // prueba versiones más simples hasta quedarse solo con la ciudad.
-    suspend fun geocode(address: String): LatLon? = withContext(Dispatchers.IO) {
-        val candidates = listOf(
+    private var appContext: Context? = null
+
+    fun init(context: Context) {
+        appContext = context.applicationContext
+    }
+
+    // Geocodificador de Google que trae Android (sin clave). Primero busca solo dentro
+    // de Bogotá y, si no encuentra nada, sin restricción.
+    @Suppress("DEPRECATION")
+    private fun geocodeWithGoogle(address: String): LatLon? {
+        val context = appContext ?: return null
+        if (!Geocoder.isPresent()) return null
+        val geocoder = Geocoder(context, Locale("es", "CO"))
+        for (query in listOf(address, normalize(address)).distinct()) {
+            try {
+                val found = geocoder.getFromLocationName(query, 1, 4.45, -74.25, 4.85, -73.99)
+                    ?.firstOrNull()
+                    ?: geocoder.getFromLocationName(query, 1)?.firstOrNull()
+                if (found != null) return LatLon(found.latitude, found.longitude)
+            } catch (_: Exception) {
+            }
+        }
+        return null
+    }
+
+    // "Cl. 93 #15-47" -> "Calle 93 15-47", que Nominatim entiende mejor
+    private fun normalize(address: String): String = address
+        .replace(Regex("\\b(Cl|Cll)\\.?\\s", RegexOption.IGNORE_CASE), "Calle ")
+        .replace(Regex("\\b(Cra|Kr|Cr)\\.?\\s", RegexOption.IGNORE_CASE), "Carrera ")
+        .replace("#", " ")
+        .replace(Regex("\\s+"), " ")
+
+    // Dirección escrita -> coordenadas. Con allowCityFallback = true, si nada funciona
+    // termina usando solo la ciudad.
+    suspend fun geocode(address: String, allowCityFallback: Boolean = false): LatLon? = withContext(Dispatchers.IO) {
+        geocodeWithGoogle(address)?.let { return@withContext it }   // <-- NUEVA
+        val candidates = listOfNotNull(
             address,
+            normalize(address),
             address.replace("#", " "),
-            address.substringAfterLast(",").trim()
+            address.substringAfterLast(",").trim().takeIf { allowCityFallback }
         ).filter { it.isNotBlank() }.map { "$it, Colombia" }.distinct()
 
         for ((index, query) in candidates.withIndex()) {

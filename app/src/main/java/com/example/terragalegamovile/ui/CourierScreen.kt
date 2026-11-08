@@ -191,6 +191,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
     }
 
     LaunchedEffect(Unit) { loadJob() }
+    // Ubica el restaurante con el mismo geocodificador que los destinos
 
     // La dirección del pedido se convierte en un punto del mapa (con memoria y reintentos)
     LaunchedEffect(job?.address, retry) {
@@ -202,8 +203,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
     }
 
     // Ruta fija: del restaurante al destino
-    LaunchedEffect(destination) {
-        val to = destination
+    LaunchedEffect(destination) {        val to = destination
         val address = job?.address
         if (to != null && address != null) {
             route = MapService.routeFor(address, to)
