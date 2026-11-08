@@ -27,14 +27,14 @@ class ProductRepositoryQueriesTest {
     private CategoryRepository categoryRepository;
     //variables globales
     private Category tortillas;
-    private Category bebidas;
+    private Category drinks;
     private Product tortilla1;
     private Product tortilla2;
     private Product tortilla3;
-    private Product tortillaInactiva;
+    private Product inactiveTortilla;
     private Product tortilla4;
     private Product tortilla5;
-    private Product limonada;
+    private Product lemonade;
 
     // Constructor de un producto válido de una categoría con el estado dado
     private Product saveProduct(String name, Category category, boolean active) {
@@ -52,15 +52,15 @@ class ProductRepositoryQueriesTest {
     @BeforeEach
     void setUp() {
         tortillas = categoryRepository.save(Category.builder().name("Tortillas").build());
-        bebidas = categoryRepository.save(Category.builder().name("Bebidas").build());
+        drinks = categoryRepository.save(Category.builder().name("Bebidas").build());
 
         tortilla1 = saveProduct("Tortilla 1", tortillas, true);
         tortilla2 = saveProduct("Tortilla 2", tortillas, true);
-        tortillaInactiva = saveProduct("Tortilla Inactiva", tortillas, false);
+        inactiveTortilla = saveProduct("Tortilla Inactiva", tortillas, false);
         tortilla3 = saveProduct("Tortilla 3", tortillas, true);
         tortilla4 = saveProduct("Tortilla 4", tortillas, true);
         tortilla5 = saveProduct("Tortilla 5", tortillas, true);
-        limonada = saveProduct("Limonada", bebidas, true);
+        lemonade = saveProduct("Limonada", drinks, true);
     }
 
     @Test
@@ -74,8 +74,8 @@ class ProductRepositoryQueriesTest {
         assertThat(ids).hasSize(6);
         //revisar que tenga todos los ids correspondientes a los productos activos y que no tenga el id del producto inactivo
         assertThat(ids).contains(tortilla1.getId(), tortilla2.getId(), tortilla3.getId(),
-                tortilla4.getId(), tortilla5.getId(), limonada.getId());
-        assertThat(ids).doesNotContain(tortillaInactiva.getId());
+                tortilla4.getId(), tortilla5.getId(), lemonade.getId());
+        assertThat(ids).doesNotContain(inactiveTortilla.getId());
     }
 
     @Test
@@ -90,7 +90,7 @@ class ProductRepositoryQueriesTest {
         assertThat(options).extracting(ProductOptionDTO::name)
                 .contains("Tortilla 1", "Tortilla Inactiva", "Limonada");
         assertThat(options).extracting(ProductOptionDTO::id)
-                .contains(tortilla1.getId(), tortillaInactiva.getId(), limonada.getId());
+                .contains(tortilla1.getId(), inactiveTortilla.getId(), lemonade.getId());
     }
 
     @Test

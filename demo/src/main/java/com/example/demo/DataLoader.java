@@ -37,7 +37,7 @@ import jakarta.transaction.Transactional;
 // (CommandLineRunner).
 // Inserta sin comprobar si ya existen; no se duplica porque
 // ddl-auto=create-drop recrea las tablas en cada arranque.
-@Profile("default") 
+@Profile("default")
 public class DataLoader implements CommandLineRunner {
 
         @Autowired

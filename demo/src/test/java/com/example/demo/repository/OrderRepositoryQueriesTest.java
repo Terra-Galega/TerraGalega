@@ -32,8 +32,8 @@ class OrderRepositoryQueriesTest {
     private CategoryRepository categoryRepository;
 
     private Product tortilla;
-    private Product limonada;
-    private Product sinPedidos;
+    private Product lemonade;
+    private Product withoutOrders;
 
     // Constructor, guarda un producto activo de la categoría dada
     private Product saveProduct(String name, double price, Category category) {
@@ -70,11 +70,11 @@ class OrderRepositoryQueriesTest {
         Category category = categoryRepository.save(Category.builder().name("Comida").build());
 
         tortilla = saveProduct("Tortilla", 25000.0, category);
-        limonada = saveProduct("Limonada", 8000.0, category);
-        sinPedidos = saveProduct("Postre", 12000.0, category);
+        lemonade = saveProduct("Limonada", 8000.0, category);
+        withoutOrders = saveProduct("Postre", 12000.0, category);
 
         saveOrderWith(tortilla, OrderStatus.DELIVERED);
-        saveOrderWith(limonada, OrderStatus.PENDING);
+        saveOrderWith(lemonade, OrderStatus.PENDING);
     }
 
     @Test
@@ -83,7 +83,7 @@ class OrderRepositoryQueriesTest {
 
         // Act: se pregunta si tiene pedidos en un estado distinto de DELIVERED
         boolean exists = orderRepository
-                .existsByDetailsProductIdAndStatusNot(limonada.getId(), OrderStatus.DELIVERED);
+                .existsByDetailsProductIdAndStatusNot(lemonade.getId(), OrderStatus.DELIVERED);
 
         // Assert: sí, el pedido PENDING cuenta
         assertThat(exists).isTrue();
