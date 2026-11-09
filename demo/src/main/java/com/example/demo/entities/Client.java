@@ -8,6 +8,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Id;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +24,7 @@ import lombok.ToString;
 @Getter
 @Setter
 // Genera el método toString(), excluyendo la contraseña para evitar mostrarla.
-@ToString(exclude = "password")
+@ToString(exclude = { "password", "addresses" })
 // Genera un constructor con todos los atributos.
 @AllArgsConstructor
 // Genera un constructor sin argumentos.
@@ -35,7 +39,8 @@ public class Client {
 
     // Identifica el atributo como clave primaria.
     @Id
-    // Configura la generación automática del identificador mediante la base de datos.
+    // Configura la generación automática del identificador mediante la base de
+    // datos.
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     // Define el identificador como obligatorio y único.
     @Column(unique = true, nullable = false, length = 10)
@@ -45,7 +50,8 @@ public class Client {
     @Column(nullable = false, length = 70)
     private String name;
 
-    // Almacena el apellido del cliente; es obligatorio y admite hasta 70 caracteres.
+    // Almacena el apellido del cliente; es obligatorio y admite hasta 70
+    // caracteres.
     @Column(nullable = false, length = 70)
     private String lastName;
 
@@ -53,7 +59,8 @@ public class Client {
     @Column(unique = true, nullable = false, length = 120)
     private String email;
 
-    // Permite recibir la contraseña en las solicitudes, pero evita incluirla en las respuestas JSON.
+    // Permite recibir la contraseña en las solicitudes, pero evita incluirla en las
+    // respuestas JSON.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     // Define la contraseña como obligatoria, con un máximo de 70 caracteres.
     @Column(nullable = false, length = 70)
@@ -69,7 +76,10 @@ public class Client {
     @Column(unique = true, nullable = false, length = 25)
     private String phone;
 
-    // Almacena la dirección del cliente como un campo obligatorio de hasta 150 caracteres.
-    @Column(nullable = false, length = 150)
-    private String address;
+    // Direcciones guardadas del cliente. La FK vive en Address.client.
+    // cascade + orphanRemoval: al borrar el cliente o quitar una dirección
+    // de la lista, se borra también en la base de datos.
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Address> addresses = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.entities.Address;
 import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Client;
 import com.example.demo.repository.AdminRepository;
@@ -10,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.repository.DeliveryPersonRepository;
 import com.example.demo.repository.OperatorRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 // Indica que esta clase contiene la lógica de negocio para gestionar clientes.
 @Service
@@ -20,7 +23,8 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private ClientRepository repository;
 
-    // Repositorio utilizado para comprobar si un correo pertenece a un administrador.
+    // Repositorio utilizado para comprobar si un correo pertenece a un
+    // administrador.
     @Autowired
     private AdminRepository adminRepository;
 
@@ -51,7 +55,8 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> ApiException.notFound("No se encontró el cliente solicitado."));
     }
 
-    // Registra un cliente después de validar su correo y comprobar que no existan duplicados.
+    // Registra un cliente después de validar su correo y comprobar que no existan
+    // duplicados.
     @Override
     @Transactional
     public Client addClient(Client client) {
@@ -72,6 +77,33 @@ public class ClientServiceImpl implements ClientService {
         if (repository.findByPhone(client.getPhone()) != null) {
             throw ApiException.conflict(
                     "Ya existe una cuenta registrada con ese número de teléfono.");
+        }
+
+        // Un cliente nuevo debe registrarse con al menos una dirección.
+        if (client.getAddresses() == null || client.getAddresses().isEmpty()) {
+            throw ApiException.badRequest("Agrega al menos una dirección.");
+        }
+
+        // Las direcciones llegan sin cliente (Address.client es @JsonIgnore):
+        // se limpian y se enlazan al nuevo cliente antes de guardar.
+        // La primera queda como predeterminada; sin nombre se llama "Casa".
+        List<String> usedNames = new ArrayList<>();
+        boolean first = true;
+        for (Address address : client.getAddresses()) {
+            address.setId(null);
+            address.setLabel(AddressRules.clean(address.getLabel()));
+
+            String name = AddressRules.cleanName(address.getName());
+            if (name == null) {
+                name = AddressRules.freeName(usedNames);
+            }
+            usedNames.add(name);
+            address.setName(name);
+
+            address.setDefaultAddress(first);
+            first = false;
+
+            address.setClient(client);
         }
 
         // Guarda el cliente en la base de datos y devuelve el registro creado.
@@ -124,6 +156,10 @@ public class ClientServiceImpl implements ClientService {
         // La contraseña solo se cambia por /clients/{id}/password (exige la actual).
         client.setPassword(actual.getPassword());
 
+        // Las direcciones se gestionan solo por /clients/{id}/addresses;
+        // si no se conservan, orphanRemoval las borraría todas al guardar.
+        client.setAddresses(actual.getAddresses());
+
         // Guarda los datos actualizados del cliente.
         return repository.save(client);
     }
@@ -154,7 +190,8 @@ public class ClientServiceImpl implements ClientService {
         return repository.findByEmail(email);
     }
 
-    // Cambia la contraseña después de comprobar que el cliente existe y validar las credenciales.
+    // Cambia la contraseña después de comprobar que el cliente existe y validar las
+    // credenciales.
     @Override
     @Transactional
     public void changePassword(Integer id, String currentPassword, String newPassword) {

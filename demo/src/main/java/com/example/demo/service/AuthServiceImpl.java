@@ -3,19 +3,24 @@ package com.example.demo.service;
 import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Admin;
 import com.example.demo.entities.Client;
+import com.example.demo.entities.Address;
 import com.example.demo.entities.Operator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.demo.dto.AddressDTO;
 import com.example.demo.dto.LoginResponseDTO;
+import java.util.List;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
 import com.example.demo.repository.OperatorRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 // Implementa la autenticación y las comprobaciones de existencia de cuentas.
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    // Servicios utilizados para buscar clientes, administradores y operadores por correo.
+    // Servicios utilizados para buscar clientes, administradores y operadores por
+    // correo.
     @Autowired
     private ClientService clientService;
 
@@ -35,7 +40,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private OperatorRepository operatorRepository;
 
-    // Comprueba si la cuenta de una sesión abierta sigue existiendo según su tipo e ID.
+
+    // Comprueba si la cuenta de una sesión abierta sigue existiendo según su tipo e
+    // ID.
     @Override
     public boolean sessionExists(String type, Integer id) {
         return switch (type) {
@@ -46,34 +53,36 @@ public class AuthServiceImpl implements AuthService {
         };
     }
 
-    // Mensaje que se devuelve cuando un operador intenta acceder con su cuenta desactivada.
+    // Mensaje que se devuelve cuando un operador intenta acceder con su cuenta
+    // desactivada.
     private static final String INACTIVE_ACCOUNT_MESSAGE = "Tu cuenta está desactivada. Contacta al administrador.";
 
-    // Busca al usuario por correo y valida sus credenciales según su tipo de cuenta.
+    // Busca al usuario por correo y valida sus credenciales según su tipo de
+    // cuenta.
     @Override
+    @Transactional
     public LoginResponseDTO login(String email, String password) {
 
         // Primero busca un cliente. Si las credenciales no coinciden, devuelve null
         // para que el controlador gestione el mensaje de error de autenticación.
         Client client = clientService.findByEmail(email);
 
-        if (client != null) {
+                if (client != null) {
             return client.getPassword().equals(password)
                     ? new LoginResponseDTO(client.getId(), client.getName(),
-                            client.getLastName(), client.getAddress(), client.getRole())
+                            client.getLastName(), client.getRole())
                     : null;
         }
 
-        // Si no encuentra un cliente, busca un administrador por correo electrónico.
         Admin admin = adminService.findByEmail(email);
 
         if (admin != null) {
-            // El administrador no tiene dirección, por eso se envía null en ese campo.
             return admin.getPassword().equals(password)
                     ? new LoginResponseDTO(admin.getId(), admin.getName(),
-                            admin.getLastName(), null, admin.getRole())
+                            admin.getLastName(), admin.getRole())
                     : null;
         }
+
 
         // Si no encuentra un administrador, busca un operador.
         // Los operadores solo pueden iniciar sesión si su cuenta está activa.
@@ -91,8 +100,8 @@ public class AuthServiceImpl implements AuthService {
             }
 
             // El operador no tiene dirección, por eso se envía null en ese campo.
-            return new LoginResponseDTO(operator.getId(), operator.getName(),
-                    operator.getLastName(), null, operator.getRole());
+                        return new LoginResponseDTO(operator.getId(), operator.getName(),
+                    operator.getLastName(), operator.getRole());
         }
 
         // Devuelve null si no existe ninguna cuenta asociada al correo proporcionado.
