@@ -13,6 +13,7 @@ import { ButtonComponent } from '../../components/button/button.component';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { ToastService } from '../../services/toast.service';
 import { getErrorMessage } from '../../utils/http-error';
+import { AddressListComponent } from './components/address-list/address-list.component';
 
 @Component({
   selector: 'app-account',
@@ -25,6 +26,9 @@ import { getErrorMessage } from '../../utils/http-error';
     AccountActionsComponent,
     ButtonComponent,
     ModalComponent,
+    AccountActionsComponent,
+    AddressListComponent,
+    ButtonComponent,
   ],
   templateUrl: './account.component.html',
 })

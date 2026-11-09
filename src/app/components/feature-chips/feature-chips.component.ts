@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FEATURES, FeatureKey } from '../../models/feature';
+import { FEATURES, FeatureFlags } from '../../models/feature';
 import { FeatureIconComponent } from '../feature-icon/feature-icon.component';
 
 // Chips de características. El contenedor (flex, gap, alto mínimo) lo define
@@ -13,8 +13,7 @@ import { FeatureIconComponent } from '../feature-icon/feature-icon.component';
 })
 export class FeatureChipsComponent {
   // Producto (o cualquier objeto) con las características como true/false
-  @Input({ required: true }) product!: Record<FeatureKey, boolean>;
-
+  @Input({ required: true }) product!: FeatureFlags;
   // sm: tarjetas (etiquetas cortas) · md: detalle del plato (etiquetas completas)
   @Input() size: 'sm' | 'md' = 'sm';
 

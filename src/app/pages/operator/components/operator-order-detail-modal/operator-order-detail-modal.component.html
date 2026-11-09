@@ -15,14 +15,14 @@
         @if (order; as o) {
         <div class="flex items-center gap-3 mt-2">
           <span class="inline-block text-[11px] font-medium px-3 py-1 rounded-full whitespace-nowrap"
-            [style.color]="statusColors[o.status]" style="
+            [style.color]="statusColor(o.status)" style="
                 background-color: color-mix(
                   in srgb,
                   currentColor 12%,
                   transparent
                 );
               ">
-            {{ statusLabels[o.status] }}
+            {{ statusLabel(o.status) }}
           </span>
           <span class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
             {{ o.createdAt | date: "dd MMM yyyy, HH:mm" }}
@@ -66,7 +66,7 @@
           <span class="text-[10px] text-center leading-tight" [style.color]="
                     i <= stepIndex ? '#2c2c2c' : 'rgba(44, 44, 44, 0.4)'
                   ">
-            {{ statusLabels[step] }}
+            {{ statusLabel(step) }}
           </span>
         </div>
 

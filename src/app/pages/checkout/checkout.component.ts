@@ -17,7 +17,11 @@ import {
   CartService,
   unavailableMessage,
 } from '../../services/cart.service';
+import { CheckoutErrors, emptyErrors } from '../../models/checkout-errors';
+import { Address } from '../../models/address';
+import { AddressService } from '../../services/address.service';
 import { CheckoutDraftService } from '../../services/checkout-draft.service';
+
 
 // Paso 1 del checkout: dirección de entrega y método de pago
 @Component({
@@ -37,19 +41,21 @@ import { CheckoutDraftService } from '../../services/checkout-draft.service';
   templateUrl: './checkout.component.html',
 })
 export class CheckoutComponent implements OnInit {
-  // Dependencias inyectadas: formulario, navegación, sesión, carrito y borrador del checkout
+  // Dependencias inyectadas: formulario, navegación, sesión, carrito, borrador del checkout y direcciones
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
   private draftService = inject(CheckoutDraftService);
   private destroyRef = inject(DestroyRef);
+  private addressService = inject(AddressService);
 
-  // Dirección guardada en el perfil del cliente
-  savedAddress = '';
+  // Direcciones guardadas del cliente y si ya terminaron de cargar
+  addresses: Address[] = [];
+  addressesLoaded = false;
 
-  // Errores por campo: { address: '...', number: '...' }
-  errors: Record<string, string> = {};
+  // Errores por campo; cada uno es '' cuando el campo está bien
+  errors: CheckoutErrors = emptyErrors();
 
   // Una vez que se intentó continuar, los errores se actualizan mientras escribe
   private submitted = false;
@@ -72,6 +78,8 @@ export class CheckoutComponent implements OnInit {
   // Las validaciones no van aquí sino en validate(), para controlar cuándo se muestran.
   form = this.fb.nonNullable.group({
     address: [''],
+    saveAddress: [true],
+    addressName: [''],
     method: ['' as 'cash' | 'card' | ''],
     holder: [''],
     documentType: ['CC'],
@@ -94,14 +102,17 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    this.savedAddress = session.address ?? '';
-
     // Si el cliente vuelve desde el paso 2 (botón Editar) se recupera lo que
-    // había escrito; si no, la dirección guardada queda lista para editar.
-    const draft = this.draftService.draft;
-    this.form.patchValue({
-      ...draft,
-      address: draft.address || this.savedAddress,
+    // había escrito.
+    this.form.patchValue({ ...this.draftService.draft });
+
+    // Direcciones guardadas del cliente; si la carga falla, igual puede escribir una
+    this.addressService.getAddresses(session.id).subscribe({
+      next: (addresses) => this.setAddresses(addresses),
+      error: (error) => {
+        console.error('Error cargando direcciones:', error);
+        this.setAddresses([]);
+      },
     });
 
     // Tras el primer intento de continuar, revalida en vivo para que los errores
@@ -138,17 +149,21 @@ export class CheckoutComponent implements OnInit {
     return this.cartService.unitPrice(item);
   };
 
-  // Aviso de que la dirección del perfil se va a actualizar
-  get addressNotice(): string {
-    return this.draftService.addressNotice(
-      this.form.controls.address.value,
-      this.savedAddress,
-    );
+  // Guarda las direcciones y, si aún no hay una elegida, propone la predeterminada
+  private setAddresses(addresses: Address[]): void {
+    this.addresses = addresses;
+    this.addressesLoaded = true;
+
+    if (!this.form.controls.address.value.trim() && addresses.length > 0) {
+      const preferred = addresses.find((a) => a.defaultAddress) ?? addresses[0];
+      this.form.controls.address.setValue(preferred.label);
+    }
   }
 
-  // Botón "Usar mi dirección guardada": restaura la dirección del perfil en el formulario
-  useSavedAddress(): void {
-    this.form.controls.address.setValue(this.savedAddress);
+  // ¿La dirección ya está en las guardadas? (sin importar mayúsculas, como en el back)
+  private isSavedAddress(address: string): boolean {
+    const value = address.trim().toLowerCase();
+    return this.addresses.some((a) => a.label.trim().toLowerCase() === value);
   }
 
   // Solo para pruebas: llena la tarjeta con datos válidos
@@ -166,43 +181,64 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
-  // Devuelve los errores de cada campo (vacío = todo bien)
-  private validate(): Record<string, string> {
+  // ¿Hay al menos un campo con error?
+  private hasErrors(errors: CheckoutErrors): boolean {
+    return Object.values(errors).some((message) => message !== '');
+  }
+
+  // Devuelve los errores de cada campo ('' = todo bien)
+  private validate(): CheckoutErrors {
     // getRawValue() lee todos los campos del formulario
     const v = this.form.getRawValue();
-    const errors: Record<string, string> = {};
+    const errors = emptyErrors();
 
-    if (!v.address.trim()) {
-      errors['address'] =
-        'Escribe la dirección donde quieres recibir tu pedido.';
-    } else if (v.address.trim().length > this.draftService.addressMax) {
+    const address = v.address.trim();
+
+    if (!address) {
+      errors.address = 'Escribe la dirección donde quieres recibir tu pedido.';
+    } else if (address.length > this.draftService.addressMax) {
       // Puede pasar si la dirección guardada en el perfil es más larga
-      errors['address'] = 'La dirección no puede superar 120 caracteres.';
+      errors.address = 'La dirección no puede superar 120 caracteres.';
+    }
+
+    // Nombre de la dirección nueva: solo importa si se va a guardar en el perfil
+    const name = v.addressName.trim();
+    if (v.saveAddress && address && !this.isSavedAddress(address)) {
+      if (name.length > this.draftService.nameMax) {
+        errors.addressName = `El nombre no puede superar ${this.draftService.nameMax} caracteres.`;
+      } else if (
+        name &&
+        this.addresses.some(
+          (a) => a.name.trim().toLowerCase() === name.toLowerCase(),
+        )
+      ) {
+        errors.addressName = 'Ya tienes una dirección con ese nombre.';
+      }
     }
 
     // Método de pago obligatorio
     if (!v.method) {
-      errors['method'] = 'Elige cómo quieres pagar.';
+      errors.method = 'Elige cómo quieres pagar.';
     }
 
     // Los datos de tarjeta solo se validan si eligió pagar con tarjeta
     if (v.method === 'card') {
       if (v.holder.trim().length < 3) {
-        errors['holder'] = 'Escribe el nombre como aparece en la tarjeta.';
+        errors.holder = 'Escribe el nombre como aparece en la tarjeta.';
       }
       if (v.documentNumber.trim().length < 5) {
-        errors['documentNumber'] = 'Escribe tu número de documento.';
+        errors.documentNumber = 'Escribe tu número de documento.';
       }
       // Se quitan los espacios del formato antes de contar los 16 dígitos
       if (v.number.replace(/\s/g, '').length !== 16) {
-        errors['number'] = 'El número de la tarjeta debe tener 16 dígitos.';
+        errors.number = 'El número de la tarjeta debe tener 16 dígitos.';
       }
       // Vencimiento con formato MM/AA y mes entre 01 y 12
       if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(v.expiry)) {
-        errors['expiry'] = 'Escribe el vencimiento como MM/AA.';
+        errors.expiry = 'Escribe el vencimiento como MM/AA.';
       }
       if (v.cvv.length !== 3) {
-        errors['cvv'] = 'El código de seguridad debe tener 3 dígitos.';
+        errors.cvv = 'El código de seguridad debe tener 3 dígitos.';
       }
     }
 
@@ -214,16 +250,20 @@ export class CheckoutComponent implements OnInit {
     this.submitted = true;
     this.errors = this.validate();
 
-    if (Object.keys(this.errors).length > 0 || this.items.length === 0) {
+    if (this.hasErrors(this.errors) || this.items.length === 0) {
       return;
     }
 
     // Guarda lo elegido en el servicio (no en la URL) para que el paso 2 lo lea
     const v = this.form.getRawValue();
+    const address = v.address.trim();
 
     this.draftService.draft = {
       ...v,
-      address: v.address.trim(),
+      address,
+      addressName: v.addressName.trim(),
+      // Solo se guarda en el perfil si es una dirección nueva y el cliente lo pidió
+      saveAddress: v.saveAddress && !this.isSavedAddress(address),
     };
 
     // Con contra entrega no se guarda ningún dato de tarjeta

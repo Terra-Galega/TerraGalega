@@ -18,6 +18,8 @@
           <app-account-actions (logout)="logout()"></app-account-actions>
         </div>
 
+        <app-address-list [clientId]="client.id"></app-address-list>
+
         <section
           class="rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5"
           style="background: rgba(138, 34, 34, 0.05); border: 1px solid rgba(138, 34, 34, 0.18)"

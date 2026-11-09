@@ -43,7 +43,6 @@ export class AccountEditComponent implements OnInit {
     lastName: new FormControl(''),
     email: new FormControl(''),
     phone: new FormControl(''),
-    address: new FormControl(''),
   });
 
   // Controla la apertura del modal de cambio de contraseña y los mensajes de error
@@ -64,7 +63,6 @@ export class AccountEditComponent implements OnInit {
           lastName: client.lastName,
           email: client.email,
           phone: client.phone,
-          address: client.address,
         });
       },
       error: (error) => {
@@ -100,7 +98,6 @@ export class AccountEditComponent implements OnInit {
       email,
       phone: this.form.value.phone ?? '',
       password: '', // La contraseña no se modifica desde este formulario
-      address: this.form.value.address ?? '', // Incluye la dirección en los datos actualizados
     };
 
     // Envía los cambios al servidor y actualiza la sesión con la respuesta

@@ -4,43 +4,42 @@ import { finalize } from 'rxjs';
 import { OrderService } from '../../../../services/order.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
-import {
-  OrderStatus,
-  OrderSummary,
-  ORDER_STATUS_LABELS,
-} from '../../../../models/order';
+import { OrderStatus, OrderSummary } from '../../../../models/order';
 import { getErrorMessage } from '../../../../utils/http-error';
 
 // Define las acciones permitidas para avanzar un pedido según su estado actual.
 type OperatorAction = 'confirm' | 'cook' | 'send' | 'deliver';
 
-// Relaciona cada estado con su siguiente acción; los estados finales no tienen acción disponible.
-const NEXT_ACTION: Record<OrderStatus, OperatorAction | null> = {
-  PENDING: 'confirm',
-  CONFIRMED: 'cook',
-  PREPARING: 'send',
-  ON_THE_WAY: 'deliver',
-  DELIVERED: null,
-  CANCELLED: null,
-};
+// Siguiente acción según el estado del pedido; los estados finales no tienen ninguna.
+function nextAction(status: OrderStatus): OperatorAction | null {
+  switch (status) {
+    case 'PENDING':
+      return 'confirm';
+    case 'CONFIRMED':
+      return 'cook';
+    case 'PREPARING':
+      return 'send';
+    case 'ON_THE_WAY':
+      return 'deliver';
+    case 'DELIVERED':
+    case 'CANCELLED':
+      return null;
+  }
+}
 
-// Centraliza los textos de los botones para mantener coherencia entre los distintos estados.
-const ACTION_LABELS: Record<OperatorAction, string> = {
-  confirm: 'Confirmar',
-  cook: 'Cocinar',
-  send: 'Enviar',
-  deliver: 'Completar',
-};
-
-// Asigna un color específico a cada estado para identificar visualmente el progreso del pedido.
-const STATUS_COLORS: Record<OrderStatus, string> = {
-  PENDING: '#e15e40',
-  CONFIRMED: '#d99a21',
-  PREPARING: '#b2571f',
-  ON_THE_WAY: '#556141',
-  DELIVERED: '#94c04f',
-  CANCELLED: '#da5858',
-};
+// Texto del botón de cada acción, para mantener coherencia entre los estados.
+function actionText(action: OperatorAction): string {
+  switch (action) {
+    case 'confirm':
+      return 'Confirmar';
+    case 'cook':
+      return 'Cocinar';
+    case 'send':
+      return 'Enviar';
+    case 'deliver':
+      return 'Completar';
+  }
+}
 
 @Component({
   selector: 'app-operator-orders',
@@ -66,8 +65,6 @@ export class OperatorOrdersComponent {
   // Identifica el pedido cuya operación está en curso para impedir solicitudes simultáneas.
   busyOrderId: number | null = null;
 
-  statusLabels = ORDER_STATUS_LABELS;
-  statusColors = STATUS_COLORS;
 
   constructor() {
     this.loadOrders();
@@ -93,7 +90,8 @@ export class OperatorOrdersComponent {
 
   onAction(orderSummary: OrderSummary) {
     // Determina qué operación corresponde al estado actual del pedido.
-    const action = NEXT_ACTION[orderSummary.status];
+        // en onAction():
+    const action = nextAction(orderSummary.status);
 
     // Evita ejecutar acciones no permitidas o iniciar otra operación mientras hay una en curso.
     if (!action || this.busyOrderId !== null) {
@@ -162,8 +160,8 @@ export class OperatorOrdersComponent {
 
   actionLabel(orderSummary: OrderSummary): string | null {
     // Devuelve null cuando el estado no admite más acciones, permitiendo ocultar el botón.
-    const action = NEXT_ACTION[orderSummary.status];
-    return action ? ACTION_LABELS[action] : null;
+    const action = nextAction(orderSummary.status);
+    return action ? actionText(action) : null;
   }
 
   clientName(orderSummary: OrderSummary): string {

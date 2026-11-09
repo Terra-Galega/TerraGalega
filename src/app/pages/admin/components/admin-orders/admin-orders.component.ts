@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { OrderService } from '../../../../services/order.service';
 import { ProductService } from '../../../../services/product.service';
-import { OrderSummary, ORDER_STATUS_LABELS } from '../../../../models/order';
+import { OrderSummary, orderStatusLabel } from '../../../../models/order';
 import { ProductOption } from '../../../../models/product';
 import { getErrorMessage } from '../../../../utils/http-error';
 
@@ -26,7 +26,8 @@ export class AdminOrdersComponent {
   // Productos (solo id y nombre) para el desplegable de filtro.
   products: ProductOption[] = [];
   // Traduce cada estado del pedido al texto que se muestra en pantalla.
-  statusLabels = ORDER_STATUS_LABELS;
+  // Traduce cada estado del pedido al texto que se muestra en pantalla.
+  statusLabel = orderStatusLabel;
 
   // Filtros que se resuelven en el back
   dateFrom = '';

@@ -14,9 +14,9 @@ import {
   CartService,
   unavailableMessage,
 } from '../../../services/cart.service';
+import { AddressService } from '../../../services/address.service';
 import { CheckoutService } from '../../../services/checkout.service';
 import { CheckoutDraftService } from '../../../services/checkout-draft.service';
-import { ClientService } from '../../../services/client.service';
 import { OrderService } from '../../../services/order.service';
 import { CheckoutRequest, DELIVERY_FEE } from '../../../models/checkout';
 import { getErrorMessage } from '../../../utils/http-error';
@@ -39,18 +39,18 @@ const PAYMENT_DELAY_MS = 1500;
   templateUrl: './checkout-confirm.component.html',
 })
 export class CheckoutConfirmComponent implements OnInit {
-  // Dependencias inyectadas: navegación, sesión, carrito, servicios de checkout, perfil y pedidos
+  // Dependencias inyectadas: navegación, sesión, carrito, checkout, borrador, pedidos y direcciones
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
   private checkoutService = inject(CheckoutService);
   private draftService = inject(CheckoutDraftService);
-  private clientService = inject(ClientService);
   private orderService = inject(OrderService);
+  private addressService = inject(AddressService);
 
   // Id del cliente logueado; null hasta comprobar la sesión
   clientId: number | null = null;
-  savedAddress = '';
+
   // Costo fijo del domicilio, que se suma al total en el resumen
   deliveryFee = DELIVERY_FEE;
 
@@ -62,6 +62,7 @@ export class CheckoutConfirmComponent implements OnInit {
 
   // true mientras se procesa el pago: bloquea botones para evitar doble envío
   paying = false;
+
   // Mensaje de error del backend mostrado bajo el botón Confirmar
   serverError = '';
 
@@ -85,7 +86,6 @@ export class CheckoutConfirmComponent implements OnInit {
     }
 
     this.clientId = session.id;
-    this.savedAddress = session.address ?? '';
 
     // Si se llegó sin completar el paso 1 (por URL o al recargar la página),
     // se vuelve al inicio del checkout
@@ -116,14 +116,6 @@ export class CheckoutConfirmComponent implements OnInit {
   unitPrice = (item: CartItem): number => {
     return this.cartService.unitPrice(item);
   };
-
-  // Aviso de que la dirección del perfil se actualizará (si la del pedido es distinta)
-  get addressNotice(): string {
-    return this.draftService.addressNotice(
-      this.draft.address,
-      this.savedAddress,
-    );
-  }
 
   // "•••• 1111"
   get lastDigits(): string {
@@ -160,6 +152,8 @@ export class CheckoutConfirmComponent implements OnInit {
 
     const clientId = this.clientId;
     const address = this.draft.address;
+    const saveAddress = this.draft.saveAddress;
+    const addressName = this.draft.addressName;
 
     // Solicitud al backend: dirección y, por cada ítem, producto, cantidad e ids de adicionales.
     const request: CheckoutRequest = {
@@ -180,11 +174,12 @@ export class CheckoutConfirmComponent implements OnInit {
     timer(wait)
       .pipe(switchMap(() => this.checkoutService.checkout(clientId, request)))
       .subscribe({
-        // Éxito: se actualiza el perfil, se vacía el carrito, se limpia el borrador
-        // y se redirige a /orders (paid=true muestra el aviso verde de éxito)
+        // Éxito: se guarda la dirección nueva (si se pidió), se vacía el carrito,
+        // se limpia el borrador y se redirige a /orders (paid=true muestra el aviso verde)
         next: () => {
-          // La dirección del pedido pasa a ser la dirección del perfil
-          this.saveAddressInProfile(clientId, address);
+          if (saveAddress) {
+            this.saveNewAddress(clientId, address, addressName);
+          }
 
           this.cartService.clear();
           this.orderService.refresh();
@@ -222,29 +217,18 @@ export class CheckoutConfirmComponent implements OnInit {
       });
   }
 
-  // Si la dirección del pedido es distinta a la del perfil, se actualiza el
-  // perfil. Si esto falla, el pedido ya está creado y no se avisa de error.
-  // Guarda la dirección del pedido en el perfil: primero trae el cliente completo.
-  private saveAddressInProfile(clientId: number, address: string): void {
-    if (address.trim() === this.savedAddress.trim()) {
-      return;
-    }
-
-    this.clientService
-      .getClientById(clientId)
-      .pipe(
-        switchMap((client) =>
-          this.clientService.updateClient({
-            ...client,
-            address,
-            password: '', // la contraseña no se toca desde aquí
-          }),
-        ),
-      )
+  // Agrega la dirección nueva a las del cliente. Sin nombre, el back la llama "Casa".
+  // Si falla (por ejemplo, ya estaba guardada), el pedido ya está creado y no se avisa de error.
+  private saveNewAddress(
+    clientId: number,
+    address: string,
+    name: string,
+  ): void {
+    this.addressService
+      .addAddress(clientId, { label: address, name: name || undefined })
       .subscribe({
-        next: (saved) => this.auth.setSession(saved),
         error: (error) =>
-          console.error('No se pudo actualizar la dirección del perfil:', error),
+          console.error('No se pudo guardar la dirección en el perfil:', error),
       });
   }
 

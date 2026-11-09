@@ -11,21 +11,28 @@ import {
   Order,
   OrderDetail,
   OrderStatus,
-  ORDER_STATUS_LABELS,
+  orderStatusLabel,
   groupAddOns,
 } from '../../../../models/order';
 import { OrderService } from '../../../../services/order.service';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 
 // Asigna un color a cada estado para distinguir visualmente la situación actual del pedido.
-const STATUS_COLORS: Record<OrderStatus, string> = {
-  PENDING: '#d99a21',
-  CONFIRMED: '#d99a21',
-  PREPARING: '#b2571f',
-  ON_THE_WAY: '#556141',
-  DELIVERED: '#556141',
-  CANCELLED: '#da5858',
-};
+// Color de cada estado para distinguir visualmente la situación actual del pedido.
+function statusColor(status: OrderStatus): string {
+  switch (status) {
+    case 'PENDING':
+    case 'CONFIRMED':
+      return '#d99a21';
+    case 'PREPARING':
+      return '#b2571f';
+    case 'ON_THE_WAY':
+    case 'DELIVERED':
+      return '#556141';
+    case 'CANCELLED':
+      return '#da5858';
+  }
+}
 
 @Component({
   selector: 'app-operator-order-detail-modal',
@@ -43,8 +50,8 @@ export class OperatorOrderDetailModalComponent implements OnInit {
   loading = true;
   errorMessage = '';
 
-  statusLabels = ORDER_STATUS_LABELS;
-  statusColors = STATUS_COLORS;
+  statusLabel = orderStatusLabel;
+  statusColor = statusColor;
   groupAddOns = groupAddOns;
   // Define la secuencia de estados del flujo normal para calcular el progreso; los pedidos cancelados quedan fuera de esta secuencia.
   steps: OrderStatus[] = [

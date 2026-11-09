@@ -1,5 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  CheckoutErrors,
+  emptyErrors,
+} from '../../../../models/checkout-errors';
 
 // Selección del método de pago y datos de tarjeta. Trabaja sobre el formulario del padre,
 // que es quien valida y guarda.
@@ -13,9 +17,8 @@ export class PaymentFormComponent {
   // Formulario del padre (controles: method, holder, number, expiry, cvv...)
   @Input({ required: true }) form!: FormGroup;
 
-  // Errores por campo: { number: '...', cvv: '...' }
-  @Input() errors: Record<string, string> = {};
-
+  // Mensaje de error de cada campo del checkout
+  @Input() errors: CheckoutErrors = emptyErrors();
   // Avisa al padre que llene la tarjeta con datos de prueba
   @Output() fillTestData = new EventEmitter<void>();
 
@@ -42,10 +45,15 @@ export class PaymentFormComponent {
   }
 
   // Mensajes de error de la tarjeta, uno debajo del otro
+  // Mensajes de error de la tarjeta, uno debajo del otro
   get cardErrors(): string[] {
-    return ['holder', 'documentNumber', 'number', 'expiry', 'cvv']
-      .map((key) => this.errors[key])
-      .filter(Boolean);
+    return [
+      this.errors.holder,
+      this.errors.documentNumber,
+      this.errors.number,
+      this.errors.expiry,
+      this.errors.cvv,
+    ].filter(Boolean);
   }
 
   // 4111111111111111 -> 4111 1111 1111 1111

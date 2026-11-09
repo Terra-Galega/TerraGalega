@@ -3,7 +3,6 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import {
   Order,
   OrderDetail,
-  ORDER_STATUS_LABELS,
   groupAddOns,
 } from '../../../../models/order';
 
@@ -89,8 +88,7 @@ export class OrderedComponent {
     this.errorMessage = '';
   }
 
-  // Etiquetas en español de los estados, y agrupador de adicionales repetidos
-  statusLabels = ORDER_STATUS_LABELS;
+  // Agrupador de adicionales repetidos
   groupAddOns = groupAddOns;
   // Subtotal de una línea = (precio unitario + suma de adicionales) × cantidad
   itemSubtotal(item: OrderDetail): number {

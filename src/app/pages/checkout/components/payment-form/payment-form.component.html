@@ -35,8 +35,8 @@
   </div>
 
   <!-- Error si no eligió método de pago -->
-  @if (errors['method']) {
-  <p class="text-sm mt-2" style="color: #8a2222">{{ errors['method'] }}</p>
+  @if (errors.method) {
+  <p class="text-sm mt-2" style="color: #8a2222">{{ errors.method }}</p>
   }
 
   <!-- Contra entrega: solo un aviso, no se pide nada más -->
@@ -62,7 +62,7 @@
       style="background-color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(44, 44, 44, 0.12)">
       <label class="block px-4 pt-2.5 pb-2">
         <span class="block text-xs"
-          [style.color]="errors['holder'] ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Nombre del titular</span>
+          [style.color]="errors.holder ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Nombre del titular</span>
         <input type="text" formControlName="holder" placeholder="Como aparece en la tarjeta" autocomplete="cc-name"
           class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1" />
       </label>
@@ -81,7 +81,7 @@
 
         <label class="block px-4 pt-2.5 pb-2 col-span-2">
           <span class="block text-xs"
-            [style.color]="errors['documentNumber'] ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Número de documento</span>
+            [style.color]="errors.documentNumber ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Número de documento</span>
           <input type="text" formControlName="documentNumber" maxlength="12" placeholder="1020304050"
             class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1" />
         </label>
@@ -89,7 +89,7 @@
 
       <label class="block px-4 pt-2.5 pb-2">
         <span class="block text-xs"
-          [style.color]="errors['number'] ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Número de tarjeta</span>
+          [style.color]="errors.number ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Número de tarjeta</span>
         <input type="text" formControlName="number" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456"
           autocomplete="cc-number" class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
           (input)="formatCardNumber($event)" />
@@ -98,7 +98,7 @@
       <div class="grid grid-cols-2 divide-x divide-charcoal/10">
         <label class="block px-4 pt-2.5 pb-2">
           <span class="block text-xs"
-            [style.color]="errors['expiry'] ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Vencimiento</span>
+            [style.color]="errors.expiry ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Vencimiento</span>
           <input type="text" formControlName="expiry" inputmode="numeric" maxlength="5" placeholder="MM/AA"
             autocomplete="cc-exp" class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
             (input)="formatExpiry($event)" />
@@ -106,7 +106,7 @@
 
         <label class="block px-4 pt-2.5 pb-2">
           <span class="block text-xs"
-            [style.color]="errors['cvv'] ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Código de seguridad</span>
+            [style.color]="errors.cvv ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Código de seguridad</span>
           <input type="text" formControlName="cvv" inputmode="numeric" maxlength="3" placeholder="123"
             autocomplete="cc-csc" class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
             (input)="formatCvv($event)" />

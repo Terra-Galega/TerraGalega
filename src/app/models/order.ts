@@ -6,14 +6,23 @@ export type OrderStatus =
   | 'DELIVERED'
   | 'CANCELLED';
 
-export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  PENDING: 'Pendiente',
-  CONFIRMED: 'Confirmado',
-  PREPARING: 'Preparando',
-  ON_THE_WAY: 'En camino',
-  DELIVERED: 'Entregado',
-  CANCELLED: 'Cancelado',
-};
+// Texto en español de cada estado del pedido
+export function orderStatusLabel(status: OrderStatus): string {
+  switch (status) {
+    case 'PENDING':
+      return 'Pendiente';
+    case 'CONFIRMED':
+      return 'Confirmado';
+    case 'PREPARING':
+      return 'Preparando';
+    case 'ON_THE_WAY':
+      return 'En camino';
+    case 'DELIVERED':
+      return 'Entregado';
+    case 'CANCELLED':
+      return 'Cancelado';
+  }
+}
 
 export interface OrderAddOn {
   id: number;

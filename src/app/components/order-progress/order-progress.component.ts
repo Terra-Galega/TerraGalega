@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { OrderStatus, ORDER_STATUS_LABELS } from '../../models/order';
+import { OrderStatus, orderStatusLabel } from '../../models/order';
 
 // Estado visual de cada paso de la barra de progreso
 type StepState = 'done' | 'current' | 'upcoming';
@@ -33,7 +33,7 @@ export class OrderProgressComponent {
     const currentIndex = FLOW.indexOf(this.status);
 
     return FLOW.map((step, index) => ({
-      label: ORDER_STATUS_LABELS[step],
+          label: orderStatusLabel(step),
       // Antes del actual = completado. Si el pedido ya se entregó,
       // todos los pasos (incluido el último) cuentan como completados.
       state:

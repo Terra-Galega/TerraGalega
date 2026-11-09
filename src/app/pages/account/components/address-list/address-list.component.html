@@ -1,0 +1,131 @@
+<section class="glass-card rounded-3xl p-6 md:p-8">
+  <div class="mb-6">
+    <p class="text-[12px] tracking-widest uppercase mb-1" style="color: rgba(44, 44, 44, 0.38)">
+      Entrega
+    </p>
+    <h3 class="font-serif text-2xl font-semibold">Mis direcciones</h3>
+    <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.55)">
+      Los cambios se guardan al instante. La predeterminada se propone primero al pagar.
+    </p>
+  </div>
+
+  @if (loading) {
+  <p class="text-sm mb-6" style="color: rgba(44, 44, 44, 0.55)">Cargando direcciones...</p>
+  } @else if (addresses.length === 0) {
+  <p class="text-sm mb-6" style="color: rgba(44, 44, 44, 0.55)">
+    Aún no tienes direcciones guardadas.
+  </p>
+  } @else {
+  <ul class="space-y-3 mb-6">
+    @for (address of addresses; track address.id) {
+    <li class="relative overflow-hidden rounded-2xl"
+      style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(44, 44, 44, 0.06)">
+      @if (editingId === address.id) {
+      <!-- Modo edición: nombre y dirección -->
+      <div class="p-4 space-y-4">
+        <app-form-field label="Nombre">
+          <input type="text" [value]="editName" (input)="setEditName($event)" (keydown.enter)="saveEdit()"
+            [attr.maxlength]="nameMax" placeholder="Casa, Oficina..." aria-label="Nombre de la dirección"
+            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+        </app-form-field>
+
+        <app-form-field label="Dirección">
+          <input type="text" [value]="editLabel" (input)="setEditLabel($event)" (keydown.enter)="saveEdit()"
+            [attr.maxlength]="labelMax" placeholder="Calle 10 #5-20, Bogotá" aria-label="Dirección"
+            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+        </app-form-field>
+
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+          <app-button type="button" variant="neutral" size="md" (click)="cancelEdit()">
+            Cancelar
+          </app-button>
+          <app-button type="button" variant="primary" size="md" (click)="saveEdit()">
+            Guardar
+          </app-button>
+        </div>
+      </div>
+      } @else {
+      <!-- Etiqueta pegada a la esquina del recuadro -->
+      @if (address.defaultAddress) {
+      <span class="absolute top-0 right-0 rounded-bl-xl px-2.5 py-1 text-[11px] font-medium"
+        style="background: rgba(85, 97, 65, 0.14); color: #556141">
+        Predeterminada
+      </span>
+      }
+
+      <!-- Ícono, nombre y dirección -->
+      <div class="flex items-start gap-4 p-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
+          <app-address-icon [name]="address.name" />
+        </div>
+
+        <div class="min-w-0 flex-1" [class.pr-28]="address.defaultAddress">
+          <p class="text-[15px] font-semibold truncate">{{ address.name }}</p>
+          <p class="text-sm mt-0.5 break-words" style="color: rgba(44, 44, 44, 0.65)">
+            {{ address.label }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Acciones (cada botón mide al menos 44 px de alto) -->
+      <div class="flex flex-wrap items-center gap-x-1 px-2" style="border-top: 1px solid rgba(44, 44, 44, 0.06)">
+        @if (!address.defaultAddress) {
+        <button type="button" (click)="makeDefault(address)"
+          class="min-h-[44px] px-3 text-[13px] font-medium cursor-pointer transition-opacity hover:opacity-70"
+          style="color: #b2571f">
+          Hacer predeterminada
+        </button>
+        }
+        <button type="button" (click)="startEdit(address)"
+          class="min-h-[44px] px-3 text-[13px] font-medium cursor-pointer transition-opacity hover:opacity-70"
+          style="color: #556141">
+          Editar
+        </button>
+        <button type="button" (click)="askDelete(address)"
+          class="ml-auto min-h-[44px] px-3 text-[13px] font-medium cursor-pointer transition-opacity hover:opacity-70"
+          style="color: #8a2222">
+          Eliminar
+        </button>
+      </div>
+      }
+    </li>
+    }
+  </ul>
+  }
+
+  <!-- Agregar una dirección nueva -->
+  <div class="rounded-2xl p-4 space-y-4"
+    style="background: rgba(255, 255, 255, 0.35); border: 1px dashed rgba(44, 44, 44, 0.18)">
+    <p class="text-[13px] font-semibold">Agregar dirección</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <app-form-field label="Nombre (opcional)">
+        <input type="text" [value]="newName" (input)="setNewName($event)" (keydown.enter)="add()"
+          [attr.maxlength]="nameMax" placeholder="Casa" aria-label="Nombre de la nueva dirección"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+      </app-form-field>
+
+      <app-form-field label="Dirección" class="sm:col-span-2">
+        <input type="text" [value]="newLabel" (input)="setNewLabel($event)" (keydown.enter)="add()"
+          [attr.maxlength]="labelMax" placeholder="Calle 10 #5-20, Bogotá" aria-label="Nueva dirección"
+          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+      </app-form-field>
+    </div>
+
+    <div class="flex sm:justify-end">
+      <app-button type="button" variant="primary" size="md" (click)="add()">
+        Agregar dirección
+      </app-button>
+    </div>
+  </div>
+
+  @if (error) {
+  <p class="text-sm mt-3" style="color: #8a2222" role="alert">{{ error }}</p>
+  }
+</section>
+
+<!-- Modal para confirmar la eliminación de una dirección -->
+<app-modal [open]="addressToDelete !== null" title="Eliminar dirección" [message]="deleteMessage"
+  confirmLabel="Eliminar" cancelLabel="Cancelar" variant="danger" (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"></app-modal>

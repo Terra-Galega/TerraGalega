@@ -4,8 +4,12 @@ import { Injectable } from '@angular/core';
 export interface CheckoutDraft {
   // Dirección de entrega del pedido
   address: string;
+  // true = al confirmar, la dirección se agrega a las guardadas del perfil
+  saveAddress: boolean;
   // Forma de pago; vacío mientras el cliente no haya elegido
   method: 'cash' | 'card' | '';
+  // Nombre con el que se guarda la dirección nueva (vacío = el back usa "Casa")
+  addressName: string;
   // Datos de la tarjeta (simulados). Solo se usan si method es 'card'.
   holder: string;
   documentType: string;
@@ -21,8 +25,11 @@ export interface CheckoutDraft {
 // localStorage: si se recarga la página, el cliente vuelve al paso 1.
 @Injectable({ providedIn: 'root' })
 export class CheckoutDraftService {
+  
   // Máximo que admite la dirección del pedido en la base de datos
   readonly addressMax = 120;
+  // Máximo que admite el nombre de una dirección guardada
+  readonly nameMax = 40;
 
   draft: CheckoutDraft = this.emptyDraft();
 
@@ -30,6 +37,8 @@ export class CheckoutDraftService {
   emptyDraft(): CheckoutDraft {
     return {
       address: '',
+      addressName: '',
+      saveAddress: true,
       method: '',
       holder: '',
       documentType: 'CC',
@@ -44,23 +53,5 @@ export class CheckoutDraftService {
   // Borra el borrador (por ejemplo, al confirmar el pedido), para que los datos de la tarjeta no queden en memoria.
   reset(): void {
     this.draft = this.emptyDraft();
-  }
-
-  // Aviso para el cliente cuando la dirección del pedido es distinta a la de
-  // su perfil: al confirmar el pedido, el perfil se actualiza.
-  // Devuelve '' cuando no hay nada que avisar.
-  addressNotice(address: string, savedAddress: string): string {
-    const current = address.trim();
-    const registered = savedAddress.trim();
-
-    // Sin dirección escrita, o igual a la del perfil: no cambia nada
-    if (!current || current === registered) {
-      return '';
-    }
-
-    // Si ya tenía una dirección se reemplaza; si no, se guarda por primera vez
-    return registered
-      ? 'Al confirmar tu pedido, esta dirección reemplazará la que tienes registrada en tu perfil. Podrás cambiarla cuando quieras desde «Editar perfil».'
-      : 'Al confirmar tu pedido, esta dirección quedará guardada en tu perfil para tus próximos pedidos.';
   }
 }

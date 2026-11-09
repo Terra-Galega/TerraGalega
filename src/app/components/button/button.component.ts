@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 
 // Define las variantes visuales permitidas; cada una se corresponde con una clase .btn--<variante> en el SCSS.
 export type ButtonVariant =
@@ -48,7 +48,7 @@ export class ButtonComponent {
   // Si se define, se renderiza un <a> con routerLink en lugar de un <button>
   @Input() routerLink?: string | any[];
   // Parámetros de consulta (?clave=valor) que se añaden a la ruta cuando se usa routerLink.
-  @Input() queryParams?: Record<string, any>;
+  @Input() queryParams?: Params;
 
   // Construye la cadena de clases CSS del botón a partir del tamaño, la variante y el ancho completo.
   get classes(): string {

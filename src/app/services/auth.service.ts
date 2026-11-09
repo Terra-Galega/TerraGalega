@@ -31,12 +31,20 @@ export interface LoginResponse {
   role: string;
 }
 
-// Convierte los roles enviados por el backend en los tipos de sesión del frontend.
-const TYPES: Record<string, Session['type']> = {
-  ADMIN: 'admin',
-  CLIENT: 'client',
-  OPERATOR: 'operator',
-};
+// Convierte el rol enviado por el backend en el tipo de sesión del frontend.
+// Devuelve null si el rol no se reconoce.
+function sessionType(role: string): Session['type'] | null {
+  switch (role) {
+    case 'ADMIN':
+      return 'admin';
+    case 'CLIENT':
+      return 'client';
+    case 'OPERATOR':
+      return 'operator';
+    default:
+      return null;
+  }
+}
 
 // Clave utilizada para guardar y recuperar la sesión desde el navegador.
 const SESSION_KEY = 'terragalega_session';
@@ -87,7 +95,7 @@ export class AuthService {
   // Crea o actualiza la sesión a partir de los datos del usuario.
   // Se utiliza después del inicio de sesión, el registro o la edición del perfil.
   setSession(user: any) {
-    const type = TYPES[user.role];
+    const type = sessionType(user.role);
 
     // Si el rol no es reconocido, se elimina la sesión.
     if (!type) {

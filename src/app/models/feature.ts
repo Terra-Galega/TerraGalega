@@ -1,11 +1,16 @@
 // Características booleanas de un producto (se usan en el modal, filtros y chips)
-export type FeatureKey =
-  | 'vegetarian'
-  | 'spicyMild'
-  | 'spicyHot'
-  | 'containsNuts'
-  | 'containsSeafood'
-  | 'containsGluten';
+// Las características de un producto: cada una es true o false
+export interface FeatureFlags {
+  vegetarian: boolean;
+  spicyMild: boolean;
+  spicyHot: boolean;
+  containsNuts: boolean;
+  containsSeafood: boolean;
+  containsGluten: boolean;
+}
+
+// Nombre de cada característica (se usa en el modal, filtros y chips)
+export type FeatureKey = keyof FeatureFlags;
 
 // Una característica con el texto que se muestra en cada lugar de la app
 export interface Feature {

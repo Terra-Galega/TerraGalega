@@ -24,10 +24,12 @@
                 {{ draft.address }}
               </p>
 
-              <!-- Aviso de que la dirección del perfil se va a actualizar -->
-              @if (addressNotice) {
+              <!-- Aviso de que la dirección se guardará en el perfil -->
+              @if (draft.saveAddress) {
               <p class="text-sm mt-3" style="color: rgba(44, 44, 44, 0.7)">
-                {{ addressNotice }}
+                Esta dirección se guardará en tu perfil
+                @if (draft.addressName) { como «{{ draft.addressName }}» }
+                para tus próximos pedidos.
               </p>
               }
             </div>

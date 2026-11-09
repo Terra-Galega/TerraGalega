@@ -42,7 +42,7 @@ export class LoginComponent {
   signupPassword = '';
   signupPhone = '';
   signupAddress = '';
-// Servicios inyectados
+  // Servicios inyectados
   private clientService = inject(ClientService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -68,7 +68,7 @@ export class LoginComponent {
   toggleLoginPassword() {
     this.showLoginPassword = !this.showLoginPassword;
   }
-// Alterna la visibilidad de la contraseña en el formulario de signup
+  // Alterna la visibilidad de la contraseña en el formulario de signup
   toggleSignupPassword() {
     this.showSignupPassword = !this.showSignupPassword;
   }
@@ -78,7 +78,7 @@ export class LoginComponent {
 
     this.loginEmail = input.value;
   }
-// Maneja el inicio de sesión del usuario
+  // Maneja el inicio de sesión del usuario
   setLoginPassword(event: Event) {
     const input = event.target as HTMLInputElement;
 
@@ -180,7 +180,7 @@ export class LoginComponent {
       password: this.signupPassword,
       phone: this.signupPhone.trim(),
       role: Role.CLIENT,
-      address: this.signupAddress.trim(),
+      addresses: [{ label: this.signupAddress.trim() }],
     };
     //llama al servicio para crear un nuevo cliente
     this.clientService.addClient(newClient).subscribe({

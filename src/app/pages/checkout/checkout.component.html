@@ -7,88 +7,50 @@
 
     <!-- Sin productos en el carrito no tiene sentido pagar: se invita a ir a la carta -->
     @if (items.length === 0) {
-      <div class="glass-card rounded-3xl">
-        <app-empty-state
-          message="Tu carrito está vacío. Agrega algo de la carta antes de pagar."
-          actionLabel="Explorar la carta"
-          (action)="goToMenu()"
-        ></app-empty-state>
-      </div>
+    <div class="glass-card rounded-3xl">
+      <app-empty-state message="Tu carrito está vacío. Agrega algo de la carta antes de pagar."
+        actionLabel="Explorar la carta" (action)="goToMenu()"></app-empty-state>
+    </div>
     } @else {
-      <!-- Formulario reactivo; al enviarlo (Enter o botón Continuar) se ejecuta goToReview().
+    <!-- Formulario reactivo; al enviarlo (Enter o botón Continuar) se ejecuta goToReview().
         Los hijos reciben el mismo `form` y escriben directamente en él. -->
-      <form
-        [formGroup]="form"
-        (ngSubmit)="goToReview()"
-        class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start"
-      >
-        <!-- Izquierda: dirección y método de pago -->
-        <div class="md:col-span-3 flex flex-col gap-10">
-          <!-- Dirección: recibe el error del campo, el aviso de actualización del perfil y la dirección guardada -->
-          <app-delivery-address
-            [form]="form"
-            [error]="errors['address'] || ''"
-            [notice]="addressNotice"
-            [savedAddress]="savedAddress"
-            (useSavedAddress)="useSavedAddress()"
-          ></app-delivery-address>
+    <form [formGroup]="form" (ngSubmit)="goToReview()" class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
+      <!-- Izquierda: dirección y método de pago -->
+      <div class="md:col-span-3 flex flex-col gap-10">
+        <!-- Dirección: direcciones guardadas, error del campo y estado de carga -->
+        <!-- Dirección: direcciones guardadas, errores de los campos y estado de carga -->
+        <app-delivery-address [form]="form" [error]="errors.address" [nameError]="errors.addressName"
+          [addresses]="addresses" [loading]="!addressesLoaded"></app-delivery-address>
+        <!-- Método de pago y datos de tarjeta; le pasa todos los errores y escucha el botón Autocompletar -->
+        <app-payment-form [form]="form" [errors]="errors" (fillTestData)="fillTestData()"></app-payment-form>
+      </div>
 
-          <!-- Método de pago y datos de tarjeta; le pasa todos los errores y escucha el botón Autocompletar -->
-          <app-payment-form
-            [form]="form"
-            [errors]="errors"
-            (fillTestData)="fillTestData()"
-          ></app-payment-form>
-        </div>
+      <!-- Derecha: resumen y botón (queda fijo al hacer scroll en escritorio) -->
+      <aside class="md:col-span-2 md:sticky md:top-28">
+        <!-- El resumen proyecta aquí dentro (ng-content) los botones propios de esta página -->
+        <app-order-summary [items]="items" [total]="total" [unitPrice]="unitPrice">
+          <div class="mt-6 flex flex-col items-center gap-4">
+            <app-button type="submit" size="lg" [fullWidth]="true">
+              Continuar
+            </app-button>
 
-        <!-- Derecha: resumen y botón (queda fijo al hacer scroll en escritorio) -->
-        <aside class="md:col-span-2 md:sticky md:top-28">
-          <!-- El resumen proyecta aquí dentro (ng-content) los botones propios de esta página -->
-          <app-order-summary
-            [items]="items"
-            [total]="total"
-            [unitPrice]="unitPrice"
-          >
-            <div class="mt-6 flex flex-col items-center gap-4">
-              <app-button type="submit" size="lg" [fullWidth]="true">
-                Continuar
-              </app-button>
-
-              <button
-                type="button"
-                class="text-sm underline underline-offset-4 cursor-pointer"
-                style="color: rgba(44, 44, 44, 0.65)"
-                (click)="cancel()"
-              >
-                Cancelar compra
-              </button>
-            </div>
-          </app-order-summary>
-        </aside>
-      </form>
+            <button type="button" class="text-sm underline underline-offset-4 cursor-pointer"
+              style="color: rgba(44, 44, 44, 0.65)" (click)="cancel()">
+              Cancelar compra
+            </button>
+          </div>
+        </app-order-summary>
+      </aside>
+    </form>
     }
   </main>
 
   <app-footer></app-footer>
 </div>
 
-<app-modal
-  [open]="showCancelModal"
-  [title]="confirmTitle"
-  [message]="confirmMessage"
-  confirmLabel="Sí, cancelar compra"
-  cancelLabel="Continuar comprando"
-  variant="danger"
-  (confirm)="confirmCancel()"
-  (cancel)="closeCancelModal()"
-></app-modal>
+<app-modal [open]="showCancelModal" [title]="confirmTitle" [message]="confirmMessage" confirmLabel="Sí, cancelar compra"
+  cancelLabel="Continuar comprando" variant="danger" (confirm)="confirmCancel()"
+  (cancel)="closeCancelModal()"></app-modal>
 
-<app-modal
-  [open]="showErrorModal"
-  [title]="errorTitle"
-  [message]="errorMessage"
-  confirmLabel="Aceptar"
-  variant="error"
-  (confirm)="closeErrorModal()"
-  (cancel)="closeErrorModal()"
-></app-modal>
+<app-modal [open]="showErrorModal" [title]="errorTitle" [message]="errorMessage" confirmLabel="Aceptar" variant="error"
+  (confirm)="closeErrorModal()" (cancel)="closeErrorModal()"></app-modal>

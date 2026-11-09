@@ -100,7 +100,7 @@
     <!-- Etiqueta con el estado del pedido ya traducido. -->
     <span class="text-[11px] font-medium px-3 py-1 rounded-full"
       style="background-color: rgba(85, 97, 65, 0.12); color: #556141">
-      {{ statusLabels[orderSummary.status] }}
+      {{ statusLabel(orderSummary.status) }}
     </span>
     <!-- Total del pedido, sin decimales. -->
     <span class="font-bold" style="color: #b2571f">${{ orderSummary.total | number: "1.0-0" }}</span>
