@@ -63,28 +63,39 @@ class OrderServiceIntegrationTest {
         @Autowired
         private DeliveryPersonRepository deliveryPersonRepository;
 
-    // variables de prueba llenadas en setUp()
-    private Product tortilla;
-    private Product tortillaInactiva;
-    private AddOn quesoExtra;
-    private AddOn hielo;
-    private Client client;
-    private Client otroClient;
-    private Operator operator;
-    private DeliveryPerson deliveryPerson;
+        // variables de prueba llenadas en setUp()
+        private Product tortilla;
+        private Product tortillaInactiva;
+        private AddOn quesoExtra;
+        private AddOn hielo;
+        private Client client;
+        private Client otroClient;
+        private Operator operator;
+        private DeliveryPerson deliveryPerson;
 
-    // Construye y guarda un cliente válido; el sufijo hace únicos email y teléfono
-    private Client saveClient(String name, String suf) {
-        return clientRepository.save(Client.builder()
-                .name(name)
-                .lastName("Prueba")
-                .email("integracion" + suf + "@test.com")
-                .password("Clave123*")
-                .role(Role.CLIENT)
-                .phone("31000000" + suf)
-                .address("Calle 1 # 2-3")
-                .build());
-    }
+        // Construye y guarda un cliente válido con una dirección; el sufijo hace únicos
+        // email y teléfono
+        private Client saveClient(String name, String suf) {
+                Client newClient = Client.builder()
+                                .name(name)
+                                .lastName("Prueba")
+                                .email("integracion" + suf + "@test.com")
+                                .password("Clave123*")
+                                .role(Role.CLIENT)
+                                .phone("31000000" + suf)
+                                .build();
+
+                // La dirección se guarda junto con el cliente (cascade); la primera es la
+                // predeterminada
+                newClient.getAddresses().add(Address.builder()
+                                .name("Casa")
+                                .label("Calle 1 # 2-3")
+                                .defaultAddress(true)
+                                .client(newClient)
+                                .build());
+
+                return clientRepository.save(newClient);
+        }
 
         // (constructorr) Arma un carrito de un solo producto con la cantidad y
         // adicionales dados
@@ -100,30 +111,30 @@ class OrderServiceIntegrationTest {
                 return request;
         }
 
-    // Antes de cada prueba: categorías, productos, adicionales y personas.
-    @BeforeEach
-    void setUp() {
-        Category tortillas = categoryRepository.save(Category.builder().name("Tortillas Test").build());
-        Category bebidas = categoryRepository.save(Category.builder().name("Bebidas Test").build());
+        // Antes de cada prueba: categorías, productos, adicionales y personas.
+        @BeforeEach
+        void setUp() {
+                Category tortillas = categoryRepository.save(Category.builder().name("Tortillas Test").build());
+                Category bebidas = categoryRepository.save(Category.builder().name("Bebidas Test").build());
 
-        tortilla = productRepository.save(Product.builder()
-                .name("Tortilla Test").price(25000.0).category(tortillas)
-                .active(true).popular(false).build());
-        tortillaInactiva = productRepository.save(Product.builder()
-                .name("Tortilla Inactiva Test").price(20000.0).category(tortillas)
-                .active(false).popular(false).build());
+                tortilla = productRepository.save(Product.builder()
+                                .name("Tortilla Test").price(25000.0).category(tortillas)
+                                .active(true).popular(false).build());
+                tortillaInactiva = productRepository.save(Product.builder()
+                                .name("Tortilla Inactiva Test").price(20000.0).category(tortillas)
+                                .active(false).popular(false).build());
 
-        // El queso extra solo está permitido para la categoría Tortillas
-        quesoExtra = addOnRepository.save(AddOn.builder()
-                .name("Queso extra Test").price(3000.0).active(true)
-                .categories(Set.of(tortillas)).build());
-        // El hielo solo está permitido para la categoría Bebidas
-        hielo = addOnRepository.save(AddOn.builder()
-                .name("Hielo Test").price(500.0).active(true)
-                .categories(Set.of(bebidas)).build());
+                // El queso extra solo está permitido para la categoría Tortillas
+                quesoExtra = addOnRepository.save(AddOn.builder()
+                                .name("Queso extra Test").price(3000.0).active(true)
+                                .categories(Set.of(tortillas)).build());
+                // El hielo solo está permitido para la categoría Bebidas
+                hielo = addOnRepository.save(AddOn.builder()
+                                .name("Hielo Test").price(500.0).active(true)
+                                .categories(Set.of(bebidas)).build());
 
-        client = saveClient("Laura", "01");
-        otroClient = saveClient("Mateo", "02");
+                client = saveClient("Laura", "01");
+                otroClient = saveClient("Mateo", "02");
 
                 operator = operatorRepository.save(Operator.builder()
                                 .name("Olga").lastName("Prueba").email("operador.test@test.com")
@@ -137,10 +148,10 @@ class OrderServiceIntegrationTest {
                                 .available(true).active(true).build());
         }
 
-    @Test
-    void OrderService_Checkout_WithValidCart_CreatesPendingOrderWithCorrectTotal() {
-        // Arrange: 2 tortillas con queso extra permitido para su categoría
-        CheckoutRequestDTO request = buildRequest(tortilla.getId(), 2, List.of(quesoExtra.getId()));
+        @Test
+        void OrderService_Checkout_WithValidCart_CreatesPendingOrderWithCorrectTotal() {
+                // Arrange: 2 tortillas con queso extra permitido para su categoría
+                CheckoutRequestDTO request = buildRequest(tortilla.getId(), 2, List.of(quesoExtra.getId()));
 
                 // Act
                 Order created = orderService.checkout(client, request);
@@ -157,10 +168,10 @@ class OrderServiceIntegrationTest {
                 assertThat(created.getTotal()).isEqualTo(62000.0);
         }
 
-    @Test
-    void OrderService_Checkout_WithInactiveProduct_ThrowsConflict() {
-        // Arrange: el cliente guardó en su carrito un producto que luego se desactivó
-        CheckoutRequestDTO request = buildRequest(tortillaInactiva.getId(), 1, null);
+        @Test
+        void OrderService_Checkout_WithInactiveProduct_ThrowsConflict() {
+                // Arrange: el cliente guardó en su carrito un producto que luego se desactivó
+                CheckoutRequestDTO request = buildRequest(tortillaInactiva.getId(), 1, null);
 
                 // Act
                 ApiException error = assertThrows(ApiException.class,
@@ -170,10 +181,10 @@ class OrderServiceIntegrationTest {
                 assertThat(error.getStatus()).isEqualTo(HttpStatus.CONFLICT);
         }
 
-    @Test
-    void OrderService_Checkout_WithAddOnFromAnotherCategory_ThrowsBadRequest() {
-        // Arrange: se pide una tortilla con hielo, adicional que solo es de Bebidas
-        CheckoutRequestDTO request = buildRequest(tortilla.getId(), 1, List.of(hielo.getId()));
+        @Test
+        void OrderService_Checkout_WithAddOnFromAnotherCategory_ThrowsBadRequest() {
+                // Arrange: se pide una tortilla con hielo, adicional que solo es de Bebidas
+                CheckoutRequestDTO request = buildRequest(tortilla.getId(), 1, List.of(hielo.getId()));
 
                 // Act
                 ApiException error = assertThrows(ApiException.class,
@@ -217,16 +228,16 @@ class OrderServiceIntegrationTest {
                                 .contains(deliveryPerson.getId());
         }
 
-    @Test
-    void OrderService_CancelOrder_ByClientThatDoesNotOwnIt_ThrowsForbidden() {
-        // Arrange: el pedido es de "client", pero intenta cancelarlo "otroClient"
-        Order created = orderService.checkout(client, buildRequest(tortilla.getId(), 1, null));
-        Integer orderId = created.getId();
-        Integer otroClientId = otroClient.getId();
+        @Test
+        void OrderService_CancelOrder_ByClientThatDoesNotOwnIt_ThrowsForbidden() {
+                // Arrange: el pedido es de "client", pero intenta cancelarlo "otroClient"
+                Order created = orderService.checkout(client, buildRequest(tortilla.getId(), 1, null));
+                Integer orderId = created.getId();
+                Integer otroClientId = otroClient.getId();
 
-        // Act
-        ApiException error = assertThrows(ApiException.class,
-                () -> orderService.cancelOrder(orderId, otroClientId));
+                // Act
+                ApiException error = assertThrows(ApiException.class,
+                                () -> orderService.cancelOrder(orderId, otroClientId));
 
                 // Assert: 403 y el pedido sigue PENDING
                 assertThat(error.getStatus()).isEqualTo(HttpStatus.FORBIDDEN);

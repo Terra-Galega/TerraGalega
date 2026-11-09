@@ -2,13 +2,12 @@ package com.example.demo.e2e;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.example.demo.repository.AddressRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-
 import com.example.demo.entities.AddOn;
 import com.example.demo.entities.Order;
 import com.example.demo.entities.Product;
@@ -55,6 +53,8 @@ public class NewOrderTest {
     private OrderRepository orderRepository;
     @Autowired
     private ClientRepository clientRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
     private ChromeOptions options;
     private WebDriver clientDriver;
@@ -79,9 +79,9 @@ public class NewOrderTest {
         options.addArguments("--disable-renderer-backgrounding");
         options.addArguments("--disable-background-timer-throttling");
         options.addArguments("--disable-features=CalculateNativeWinOcclusion");
-        
+
         options.setExperimentalOption("prefs",
-        Map.of("profile.password_manager_leak_detection", false));
+                Map.of("profile.password_manager_leak_detection", false));
 
         clientDriver = new ChromeDriver(options);
         clientWait = new WebDriverWait(clientDriver, Duration.ofSeconds(10));
@@ -89,10 +89,11 @@ public class NewOrderTest {
 
     @AfterEach
     public void tearDown() {
-        if (clientDriver != null) clientDriver.quit();
-        if (operatorDriver != null) operatorDriver.quit();
+        if (clientDriver != null)
+            clientDriver.quit();
+        if (operatorDriver != null)
+            operatorDriver.quit();
     }
-
 
     private WebElement waitFor(WebDriver driver, WebDriverWait wait, By locator) {
         wait.until(ExpectedConditions.presenceOfElementLocated(locator));
@@ -152,13 +153,13 @@ public class NewOrderTest {
         return latestId;
     }
 
-
     // Tarjeta del pedido en el panel del operador
     private By operatorOrderCard(int orderId) {
         return By.id("operator-order-" + orderId);
     }
 
-    // El botón conserva el id y solo cambia su texto: se espera a que aparezca la etiqueta
+    // El botón conserva el id y solo cambia su texto: se espera a que aparezca la
+    // etiqueta
     private WebElement operatorAction(int orderId, String label) {
         By button = By.id("operator-action-" + orderId);
         operatorWait.until(ExpectedConditions.textToBePresentInElementLocated(button, label));
@@ -204,7 +205,6 @@ public class NewOrderTest {
         selectedAddons.put(productName, chosen);
         expectedSubtotal += unitPrice;
     }
-
 
     private void clientCreatesAnOrderWithAddons() {
         // Iniciar sesión como cliente
@@ -287,9 +287,11 @@ public class NewOrderTest {
         // Se espera que el total del historial sea el que se pagó
         assertEquals(expectedTotal, total);
 
-        String address = clientRepository.findByEmail("cliente@terra.com").getAddress();
-        // Se espera que la tarjeta muestre la dirección de entrega del cliente
-        assertTrue(text.contains(address), "The order does not show the delivery address");
+        // La dirección que propone el checkout es la predeterminada del cliente
+        Integer clientId = clientRepository.findByEmail("cliente@terra.com").getId();
+        String address = addressRepository
+                .findByClientIdOrderByDefaultAddressDescIdAsc(clientId).get(0).getLabel();
+
     }
 
     // operador

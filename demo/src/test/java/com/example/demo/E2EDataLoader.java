@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
+import com.example.demo.entities.Address;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -90,6 +91,21 @@ public class E2EDataLoader implements CommandLineRunner {
                 return new HashSet<>(Arrays.asList(categories));
         }
 
+        // Guarda un cliente junto con sus direcciones (se guardan por cascade).
+        // La primera se llama "Casa" y es la predeterminada.
+        private Client saveClient(Client client, String... addressLabels) {
+                String[] names = { "Casa", "Oficina", "Otra" };
+                for (int i = 0; i < addressLabels.length; i++) {
+                        client.getAddresses().add(Address.builder()
+                                        .name(i < names.length ? names[i] : "Dirección " + (i + 1))
+                                        .label(addressLabels[i])
+                                        .defaultAddress(i == 0)
+                                        .client(client)
+                                        .build());
+                }
+                return clientRepository.save(client);
+        }
+
         @Override
         @Transactional
         public void run(String... args) throws Exception {
@@ -98,49 +114,58 @@ public class E2EDataLoader implements CommandLineRunner {
                 // porque cada grupo depende de los anteriores.
                 Random random = new Random(42);
 
-                clientRepository.save(
+                saveClient(
                                 Client.builder().name("Juan").lastName("García").email("cliente@terra.com")
                                                 .password("cliente123").phone("+57 300 214 7788")
-                                                .role(Role.CLIENT).address("Calle 10 #5-20, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Calle 10 #5-20, Bogotá", "Carrera 9 #72-15, Bogotá");
+                saveClient(
                                 Client.builder().name("Marta").lastName("Souto").email("marta.souto@terra.com")
                                                 .password("marta123").phone("+57 310 555 1122")
-                                                .role(Role.CLIENT).address("Carrera 15 #45-10, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Carrera 15 #45-10, Bogotá");
+                saveClient(
                                 Client.builder().name("Diego").lastName("Pardo").email("diego.pardo@terra.com")
                                                 .password("diego123").phone("+57 320 444 9988")
-                                                .role(Role.CLIENT).address("Avenida 68 #20-33, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Avenida 68 #20-33, Bogotá");
+                saveClient(
                                 Client.builder().name("María").lastName("López").email("maria.lopez@terra.com")
                                                 .password("maria123").phone("+57 310 123 4567")
-                                                .role(Role.CLIENT).address("Calle 72 #10-34, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Calle 72 #10-34, Bogotá");
+                saveClient(
                                 Client.builder().name("Carlos").lastName("Rodríguez")
                                                 .email("carlos.rodriguez@terra.com")
                                                 .password("carlos123").phone("+57 315 987 6543")
-                                                .role(Role.CLIENT).address("Transversal 9 #100-2, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Transversal 9 #100-2, Bogotá");
+                saveClient(
                                 Client.builder().name("Andrés").lastName("Martínez").email("andres.martinez@terra.com")
                                                 .password("andres123").phone("+57 301 222 3344")
-                                                .role(Role.CLIENT).address("Carrera 7 #32-16, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Carrera 7 #32-16, Bogotá");
+                saveClient(
                                 Client.builder().name("Laura").lastName("Ramírez").email("laura.ramirez@terra.com")
                                                 .password("laura123").phone("+57 311 666 7788")
-                                                .role(Role.CLIENT).address("Calle 85 #15-25, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Calle 85 #15-25, Bogotá");
+                saveClient(
                                 Client.builder().name("Sebastián").lastName("Torres")
                                                 .email("sebastian.torres@terra.com")
                                                 .password("sebastian123").phone("+57 322 111 2233")
-                                                .role(Role.CLIENT).address("Carrera 30 #45-03, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Carrera 30 #45-03, Bogotá");
+                saveClient(
                                 Client.builder().name("Camila").lastName("Moreno").email("camila.moreno@terra.com")
                                                 .password("camila123").phone("+57 300 888 4455")
-                                                .role(Role.CLIENT).address("Calle 127 #19-60, Bogotá").build());
-                clientRepository.save(
+                                                .role(Role.CLIENT).build(),
+                                "Calle 127 #19-60, Bogotá");
+                saveClient(
                                 Client.builder().name("Felipe").lastName("Castro").email("felipe.castro@terra.com")
                                                 .password("felipe123").phone("+57 316 333 5566")
-                                                .role(Role.CLIENT).address("Carrera 13 #63-39, Bogotá").build());
-
+                                                .role(Role.CLIENT).build(),
+                                "Carrera 13 #63-39, Bogotá");
                 // admin
                 adminRepository.save(
                                 Admin.builder().name("Carlos").lastName("Martínez").email("admin@terra.com")
@@ -224,7 +249,6 @@ public class E2EDataLoader implements CommandLineRunner {
                 addonRepository.save(AddOn.builder().name("Picos Camperos")
                                 .description("Palitos de pan crujientes típicos, perfectos para picar.")
                                 .price(2000.0).active(true).categories(cats(starters)).build());
-                
 
                 // adicionales para mariscos
                 addonRepository.save(AddOn.builder().name("Ración de Cachelos")
@@ -260,15 +284,15 @@ public class E2EDataLoader implements CommandLineRunner {
                 addonRepository.save(AddOn.builder().name("Nata Montada Extra")
                                 .description("Nata fresca montada al momento, ideal para acompañar dulces.")
                                 .price(3000.0).active(true).categories(cats(desserts)).build());
-                
+
                 // adicionales para bebidas
                 addonRepository.save(AddOn.builder().name("Hielo extra")
-                        .description("Porción adicional de hielo.").price(1000.0).active(true)
-                        .categories(cats(drinks)).build());
+                                .description("Porción adicional de hielo.").price(1000.0).active(true)
+                                .categories(cats(drinks)).build());
 
                 addonRepository.save(AddOn.builder().name("Rodaja de naranja")
-                        .description("Rodaja de naranja fresca para la bebida.").price(1500.0).active(true)
-                        .categories(cats(drinks)).build());
+                                .description("Rodaja de naranja fresca para la bebida.").price(1500.0).active(true)
+                                .categories(cats(drinks)).build());
 
                 // Products
 
@@ -751,7 +775,7 @@ public class E2EDataLoader implements CommandLineRunner {
                                 .deliveredAt(now.minusDays(2).plusMinutes(45))
                                 .operator(operator1)
                                 .deliveryPerson(deliveryPerson1)
-                                .address(client1.getAddress())
+                                .address(client1.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order1Detail1 = OrderDetail.builder()
                                 .order(order1).product(tortilla).quantity(2)
@@ -775,7 +799,7 @@ public class E2EDataLoader implements CommandLineRunner {
                                 .createdAt(now.minusMinutes(35))
                                 .operator(operator2)
                                 .deliveryPerson(deliveryPerson2)
-                                .address(client2.getAddress())
+                                .address(client2.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order2Detail1 = OrderDetail.builder()
                                 .order(order2).product(pulpo).quantity(1)
@@ -798,7 +822,7 @@ public class E2EDataLoader implements CommandLineRunner {
                                 .status(OrderStatus.PREPARING)
                                 .createdAt(now.minusMinutes(20))
                                 .operator(operator3)
-                                .address(client3.getAddress())
+                                .address(client3.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order3Detail1 = OrderDetail.builder()
                                 .order(order3).product(cachopo).quantity(1)
@@ -821,7 +845,7 @@ public class E2EDataLoader implements CommandLineRunner {
                                 .status(OrderStatus.CONFIRMED)
                                 .createdAt(now.minusMinutes(5))
                                 .operator(operator4)
-                                .address(client4.getAddress())
+                                .address(client4.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order4Detail1 = OrderDetail.builder()
                                 .order(order4).product(patatasBravas).quantity(3)
@@ -844,7 +868,7 @@ public class E2EDataLoader implements CommandLineRunner {
                                 .status(OrderStatus.CANCELLED)
                                 .createdAt(now.minusDays(1))
                                 .operator(operator5)
-                                .address(client5.getAddress())
+                                .address(client5.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order5Detail1 = OrderDetail.builder()
                                 .order(order5).product(churros).quantity(1)
