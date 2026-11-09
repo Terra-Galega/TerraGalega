@@ -17,7 +17,6 @@
     <form [formGroup]="form" (ngSubmit)="goToReview()" class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
       <!-- Izquierda: dirección y método de pago -->
       <div class="md:col-span-3 flex flex-col gap-10">
-        <!-- Dirección: direcciones guardadas, error del campo y estado de carga -->
         <!-- Dirección: direcciones guardadas, errores de los campos y estado de carga -->
         <app-delivery-address [form]="form" [error]="errors.address" [nameError]="errors.addressName"
           [addresses]="addresses" [loading]="!addressesLoaded"></app-delivery-address>
@@ -30,7 +29,7 @@
         <!-- El resumen proyecta aquí dentro (ng-content) los botones propios de esta página -->
         <app-order-summary [items]="items" [total]="total" [unitPrice]="unitPrice">
           <div class="mt-6 flex flex-col items-center gap-4">
-            <app-button type="submit" size="lg" [fullWidth]="true">
+            <app-button id="btn-continue" type="submit" size="lg" [fullWidth]="true">
               Continuar
             </app-button>
 
