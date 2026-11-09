@@ -55,17 +55,17 @@ class DeliveryPersonRepositoryTest {
     @Test
     void DeliveryPersonRepository_Save_ReturnsSavedDeliveryPerson() {
         // Arrange: un domiciliario nuevo 
-        DeliveryPerson nuevo = buildDeliveryPerson(
+        DeliveryPerson newDeliveryPerson = buildDeliveryPerson(
                 "Pedro", "pedro@test.com", "1003", "3003333333");
 
         // Act
-        DeliveryPerson guardado = deliveryPersonRepository.save(nuevo);
+        DeliveryPerson saved = deliveryPersonRepository.save(newDeliveryPerson);
 
         // Assert: se generó el id y se conservaron los datos
-        assertThat(guardado).isNotNull();
-        assertThat(guardado.getId()).isNotNull();
-        assertThat(guardado.getName()).isEqualTo("Pedro");
-        assertThat(guardado.getEmail()).isEqualTo("pedro@test.com");
+        assertThat(saved).isNotNull();
+        assertThat(saved.getId()).isNotNull();
+        assertThat(saved.getName()).isEqualTo("Pedro");
+        assertThat(saved.getEmail()).isEqualTo("pedro@test.com");
     }
     //REad
     @Test
@@ -74,11 +74,11 @@ class DeliveryPersonRepositoryTest {
         Integer id = carlos.getId();
 
         // Act
-        Optional<DeliveryPerson> encontrado = deliveryPersonRepository.findById(id);
+        Optional<DeliveryPerson> found = deliveryPersonRepository.findById(id);
 
         // Assert
-        assertThat(encontrado).isNotNull();
-        assertThat(encontrado.get().getName()).isEqualTo("Carlos");
+        assertThat(found).isNotNull();
+        assertThat(found.get().getName()).isEqualTo("Carlos");
     }
     //Read
     @Test
@@ -86,12 +86,12 @@ class DeliveryPersonRepositoryTest {
         // Arrange: setUp() ya guardó 2 domiciliarios
 
         // Act
-        List<DeliveryPerson> todos = deliveryPersonRepository.findAll();
+        List<DeliveryPerson> all = deliveryPersonRepository.findAll();
 
         // Assert
-        assertThat(todos).isNotNull();
-        assertThat(todos).hasSize(2);
-        assertThat(todos).extracting(DeliveryPerson::getName)
+        assertThat(all).isNotNull();
+        assertThat(all).hasSize(2);
+        assertThat(all).extracting(DeliveryPerson::getName)
                 .containsExactlyInAnyOrder("Carlos", "Maria");
     }
     //Update
