@@ -1,11 +1,11 @@
 <!-- Fila del adicional; se resalta (clase "selected") si hay al menos una unidad elegida -->
 <div
-  class="addon flex items-center justify-between p-4 rounded-2xl"
+  class="addon-item addon flex items-center justify-between p-4 rounded-2xl"
   [class.selected]="quantity > 0"
 >
   <!-- Nombre y precio (sin decimales, con "+" delante porque es un extra) -->
   <div class="flex flex-col">
-    <span class="text-sm font-medium" style="color: rgba(44, 44, 44, 0.75)">{{
+    <span class="addon-item-name text-sm font-medium" style="color: rgba(44, 44, 44, 0.75)">{{
       addOn.name
     }}</span>
     <span class="text-sm" style="color: rgba(44, 44, 44, 0.45)"

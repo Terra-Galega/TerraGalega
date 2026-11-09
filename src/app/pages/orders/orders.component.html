@@ -3,7 +3,7 @@
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
     <!-- Aviso de éxito tras pagar -->
     @if (paidSuccess) {
-    <div class="glass-card rounded-2xl px-6 py-4 mb-8 flex items-center gap-3" style="
+    <div id="order-success" class="glass-card rounded-2xl px-6 py-4 mb-8 flex items-center gap-3" style="
           border: 1px solid rgba(85, 97, 65, 0.3);
           background-color: rgba(85, 97, 65, 0.08);
         ">
@@ -43,7 +43,7 @@
     </h2>
     <!-- Los pedidos activos permiten cancelar (orderCancelled recarga la lista) -->
     @if (activeOrders.length > 0) {
-    <app-ordered [orders]="activeOrders" (orderCancelled)="onOrderCancelled()"></app-ordered>
+    <app-ordered id="active-orders" [orders]="activeOrders" (orderCancelled)="onOrderCancelled()"></app-ordered>
     } @else {
     <p class="text-sm mb-5" style="color: rgba(44, 44, 44, 0.55)">
       No tienes pedidos activos en este momento.
@@ -55,7 +55,7 @@
     <h2 class="font-serif text-2xl font-semibold text-charcoal mt-14 mb-5">
       Pedidos pasados
     </h2>
-    <app-ordered [orders]="pastOrders"></app-ordered>
+    <app-ordered id="past-orders" [orders]="pastOrders"></app-ordered>
     }
     }
     }

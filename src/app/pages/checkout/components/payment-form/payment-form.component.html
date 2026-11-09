@@ -8,7 +8,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Método de pago">
     @for (option of methods; track option.value) {
     <label
-      class="flex items-start gap-3 rounded-2xl p-4 cursor-pointer has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-terra"
+      [id]="'payment-' + option.value" class="flex items-start gap-3 rounded-2xl p-4 cursor-pointer has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-terra"
       [style.background-color]="method === option.value ? 'rgba(178, 87, 31, 0.06)' : 'rgba(255, 255, 255, 0.85)'"
       [style.border]="method === option.value ? '1.5px solid #b2571f' : '1.5px solid rgba(44, 44, 44, 0.12)'">
       <input type="radio" formControlName="method" [value]="option.value" class="sr-only" />

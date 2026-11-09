@@ -28,7 +28,7 @@
 
     <!-- Botón de añadir visible cuando showAddButton está habilitado -->
     @if (showAddButton) {
-      <app-button size="sm" (click)="addClicked.emit()">
+      <app-button id="btn-add" size="sm" (click)="addClicked.emit()">
         <!-- Icono de suma del botón -->
         <svg
           width="15"

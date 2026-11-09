@@ -17,6 +17,8 @@ export class SearchInputComponent {
   @Input() placeholder = 'Buscar…';
   // Estilo visual del buscador
   @Input() variant: SearchInputVariant = 'glass';
+  // Id opcional para el <input> real (el id del host no sirve para escribir)
+  @Input() inputId: string | null = null;
 
   // Se emite el texto cada vez que el usuario escribe
   @Output() valueChange = new EventEmitter<string>();

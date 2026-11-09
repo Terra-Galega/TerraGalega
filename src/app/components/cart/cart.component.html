@@ -89,7 +89,7 @@
           <div class="space-y-3 rounded-full">
             @for (item of cartItems; track item.id) {
               <div
-                class="flex items-center gap-4 bg-white p-3"
+                [id]="'cart-item-' + item.product.id" class="flex items-center gap-4 bg-white p-3"
                 style="border-radius: 2px"
               >
                 <img
@@ -107,7 +107,7 @@
                   <!-- Adicionales agrupados, solo si el producto tiene -->
                   @if (item.addOns.length > 0) {
                     <p
-                      class="text-xs truncate"
+                      [id]="'cart-item-addons-' + item.product.id" class="text-xs truncate"
                       style="color: rgba(44, 44, 44, 0.5)"
                     >
                       @for (addOn of groupAddOns(item.addOns); track addOn.id) {
@@ -159,14 +159,14 @@
           <div class="flex justify-between items-center mb-4 rounded-full p-4">
             <span class="font-medium text-charcoal"> Total del pedido </span>
 
-            <span class="font-bold text-xl" style="color: #b2571f">
+            <span id="cart-total" class="font-bold text-xl" style="color: #b2571f">
               ${{ total | number }}
             </span>
           </div>
 
           <!-- Lleva al checkout, o al login si no hay sesión -->
           <button
-            class="w-full py-3 text-white font-medium rounded-full btn-terra"
+            id="btn-cart-checkout" class="w-full py-3 text-white font-medium rounded-full btn-terra"
             (click)="goToCheckout()"
           >
             Confirmar pedido

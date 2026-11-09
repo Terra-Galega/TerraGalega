@@ -98,13 +98,14 @@
 
       <!-- Error -->
       @if (loginError) {
-        <p class="text-xs" style="color: #8a2222">
+        <p id="login-error" class="text-xs" style="color: #8a2222">
           {{ loginError }}
         </p>
       }
 
       <!-- Botón -->
       <app-button
+        id="btn-login"
         type="submit"
         variant="primary"
         [fullWidth]="true"
