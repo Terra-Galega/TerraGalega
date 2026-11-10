@@ -292,6 +292,8 @@ public class NewOrderTest {
         String address = addressRepository
                 .findByClientIdOrderByDefaultAddressDescIdAsc(clientId).get(0).getLabel();
 
+        // Se espera que la tarjeta del pedido muestre esa dirección
+        assertTrue(text.contains(address), "Se perdió la dirección de entrega: " + address);
     }
 
     // operador

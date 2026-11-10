@@ -104,7 +104,7 @@ public class AddOnServiceImpl implements AddOnService {
         return result;
     }
 
-    // Crea un adicional nuevo. Se arma una entidad limpia (en vez de guardar la
+    // Crea un adicional newAddOn. Se arma una entidad limpia (en vez de guardar la
     // recibida) para que el front no pueda forzar un id ni otros campos.
     @Override
     @Transactional
@@ -112,15 +112,15 @@ public class AddOnServiceImpl implements AddOnService {
 
         validateAddOn(addOn);
 
-        AddOn nuevo = new AddOn();
-        nuevo.setName(addOn.getName().trim());
-        nuevo.setDescription(addOn.getDescription());
-        nuevo.setPrice(addOn.getPrice());
+        AddOn newAddOn = new AddOn();
+        newAddOn.setName(addOn.getName().trim());
+        newAddOn.setDescription(addOn.getDescription());
+        newAddOn.setPrice(addOn.getPrice());
         // Si no se indica el estado, el adicional nace activo
-        nuevo.setActive(addOn.getActive() == null ? true : addOn.getActive());
-        nuevo.setCategories(resolveCategories(addOn.getCategories()));
+        newAddOn.setActive(addOn.getActive() == null ? true : addOn.getActive());
+        newAddOn.setCategories(resolveCategories(addOn.getCategories()));
 
-        return repository.save(nuevo);
+        return repository.save(newAddOn);
     }
 
     // Actualiza un adicional existente. Se modifica la entidad guardada en vez

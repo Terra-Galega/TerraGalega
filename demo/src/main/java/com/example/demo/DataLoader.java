@@ -3,14 +3,13 @@ package com.example.demo;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Random;
-import com.example.demo.entities.Address;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import com.example.demo.entities.AddOn;
+import com.example.demo.entities.Address;
 import com.example.demo.entities.Admin;
 import com.example.demo.entities.Category;
 import com.example.demo.entities.Client;
@@ -53,7 +52,7 @@ public class DataLoader implements CommandLineRunner {
         private CategoryRepository categoryRepository;
 
         @Autowired
-        private AddOnRepository addonRepository;
+        private AddOnRepository addOnRepository;
 
         @Autowired
         private DeliveryPersonRepository deliveryPersonRepository;
@@ -63,12 +62,6 @@ public class DataLoader implements CommandLineRunner {
 
         @Autowired
         private OrderRepository orderRepository;
-
-        /*
-         * DataLoader(OrderController orderController) {
-         * this.orderController = orderController;
-         * }
-         */
 
         // --- Helpers para reutilizar los productos/addOns ya cargados arriba,
         // en vez de duplicar su creación ---
@@ -80,7 +73,7 @@ public class DataLoader implements CommandLineRunner {
         }
 
         private AddOn findAddOnByName(String name) {
-                return addonRepository.findAll().stream()
+                return addOnRepository.findAll().stream()
                                 .filter(a -> a.getName().equals(name))
                                 .findFirst()
                                 .orElseThrow();
@@ -108,10 +101,9 @@ public class DataLoader implements CommandLineRunner {
         @Override
         @Transactional
         public void run(String... args) throws Exception {
-                // Orden importante: categorías -> addOns -> productos -> domiciliarios ->
-                // operadores -> pedidos,
-                // porque cada grupo depende de los anteriores.
-                Random random = new Random(42);
+                // Orden importante: clientes -> admins -> categorías -> addOns -> productos ->
+                // domiciliarios -> operadores -> pedidos, porque cada grupo depende de los
+                // anteriores.
 
                 saveClient(
                                 Client.builder().name("Juan").lastName("García").email("cliente@terra.com")
@@ -210,77 +202,77 @@ public class DataLoader implements CommandLineRunner {
                 Category desserts = categoryRepository.findByName("Postres");
 
                 // AddOns
-                addonRepository.save(AddOn.builder().name("Ensalada verde")
-                                .description("Adicional para Empanada").price(5000.0).active(true)
+                addOnRepository.save(AddOn.builder().name("Ensalada verde")
+                                .description("Adicional para entradas").price(5000.0).active(true)
                                 .categories(cats(starters))
                                 .build());
-                addonRepository.save(AddOn.builder().name("Extra ajo")
+                addOnRepository.save(AddOn.builder().name("Extra ajo")
                                 .description("Adicional para mariscos").price(2000.0).active(true)
                                 .categories(cats(seafood))
                                 .build());
-                addonRepository.save(AddOn.builder().name("Salsa de limón")
+                addOnRepository.save(AddOn.builder().name("Salsa de limón")
                                 .description("Adicional para mariscos").price(3000.0).active(true)
                                 .categories(cats(seafood))
                                 .build());
 
-                addonRepository.save(AddOn.builder().name("Pan de millo")
-                                .description("Adicional para Lacón").price(3500.0).active(true).categories(cats(meats))
+                addOnRepository.save(AddOn.builder().name("Pan de millo")
+                                .description("Adicional para carnes").price(3500.0).active(true).categories(cats(meats))
                                 .build());
-                addonRepository.save(AddOn.builder().name("Cachelos")
-                                .description("Adicional para Lacón").price(6000.0).active(true).categories(cats(meats))
+                addOnRepository.save(AddOn.builder().name("Cachelos")
+                                .description("Adicional para carnes").price(6000.0).active(true).categories(cats(meats))
                                 .build());
 
-                addonRepository.save(AddOn.builder().name("Nata montada")
-                                .description("Adicional para Tarta de Santiago").price(3000.0).active(true)
+                addOnRepository.save(AddOn.builder().name("Nata montada")
+                                .description("Adicional para postres").price(3000.0).active(true)
                                 .categories(cats(desserts)).build());
-                addonRepository.save(AddOn.builder().name("Helado de vainilla")
-                                .description("Adicional para Tarta de Santiago").price(4000.0).active(true)
+                addOnRepository.save(AddOn.builder().name("Helado de vainilla")
+                                .description("Adicional para postres").price(4000.0).active(true)
                                 .categories(cats(desserts)).build());
 
-                addonRepository.save(AddOn.builder().name("Porción de Pan Rústico")
+                addOnRepository.save(AddOn.builder().name("Porción de Pan Rústico")
                                 .description("Pan gallego artesanal, ideal para acompañar tus entradas y mojar salsas.")
                                 .price(3500.0).active(true).categories(cats(starters)).build());
 
-                addonRepository.save(AddOn.builder().name("Extra Salsa Brava")
+                addOnRepository.save(AddOn.builder().name("Extra Salsa Brava")
                                 .description("Una porción extra de nuestra salsa brava ligeramente picante.")
                                 .price(2500.0).active(true).categories(cats(starters)).build());
 
-                addonRepository.save(AddOn.builder().name("Picos Camperos")
+                addOnRepository.save(AddOn.builder().name("Picos Camperos")
                                 .description("Palitos de pan crujientes típicos, perfectos para picar.")
                                 .price(2000.0).active(true).categories(cats(starters)).build());
 
                 // adicionales para mariscos
-                addonRepository.save(AddOn.builder().name("Ración de Cachelos")
+                addOnRepository.save(AddOn.builder().name("Ración de Cachelos")
                                 .description("Patatas cocidas con pimentón, el acompañante perfecto para el pulpo.")
                                 .price(6000.0).active(true).categories(cats(seafood)).build());
 
-                addonRepository.save(AddOn.builder().name("Salsa de Limón y Perejil")
-                                .description("Toque cítrico y fresco extra para tus marisco.categories(cats(meats))s y pescados.")
+                addOnRepository.save(AddOn.builder().name("Salsa de Limón y Perejil")
+                                .description("Toque cítrico y fresco extra para tus mariscos y pescados.")
                                 .price(3000.0).active(true).categories(cats(seafood)).build());
 
-                addonRepository.save(AddOn.builder().name("Mayonesa Casera Suave")
+                addOnRepository.save(AddOn.builder().name("Mayonesa Casera Suave")
                                 .description("Nuestra mayonesa tradicional hecha en casa, sin ajo.")
-                                .price(2500.0).active(true).categories(cats(seafood)).categories(cats(meats)).build());
+                                .price(2500.0).active(true).categories(cats(seafood)).build());
 
                 // adicionales para carnes
-                addonRepository.save(AddOn.builder().name("Ensalada Verde de Guarnición")
+                addOnRepository.save(AddOn.builder().name("Ensalada Verde de Guarnición")
                                 .description("Fresca mezcla de lechugas para equilibrar tus carnes.")
                                 .price(5000.0).active(true).categories(cats(meats)).build());
 
-                addonRepository.save(AddOn.builder().name("Patatas Panaderas")
+                addOnRepository.save(AddOn.builder().name("Patatas Panaderas")
                                 .description("Patatas horneadas lentamente a fuego lento, ideales para carnes asadas.")
                                 .price(6000.0).active(true).categories(cats(meats)).build());
 
-                addonRepository.save(AddOn.builder().name("Puré de Patatas Trufado")
+                addOnRepository.save(AddOn.builder().name("Puré de Patatas Trufado")
                                 .description("Cremoso puré de patata con un toque de aceite de trufa blanca.")
                                 .price(6500.0).active(true).categories(cats(meats)).build());
 
                 // adicionales para postres
-                addonRepository.save(AddOn.builder().name("Bola de Helado de Vainilla")
+                addOnRepository.save(AddOn.builder().name("Bola de Helado de Vainilla")
                                 .description("Combina perfecto con torrijas, tartas o postres calientes.")
                                 .price(4500.0).active(true).categories(cats(desserts)).build());
 
-                addonRepository.save(AddOn.builder().name("Nata Montada Extra")
+                addOnRepository.save(AddOn.builder().name("Nata Montada Extra")
                                 .description("Nata fresca montada al momento, ideal para acompañar dulces.")
                                 .price(3000.0).active(true).categories(cats(desserts)).build());
 
@@ -289,7 +281,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Tortilla Española")
                                                 .description("Tortilla tradicional de patatas y cebolla, jugosa por dentro y dorada por fuera.")
-                                                .price(18000.0)
+                                                .price(20000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://images.cookforyourlife.org/wp-content/uploads/2018/05/Tortilla-Espanola-1-696x464.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(false)
@@ -299,7 +291,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Patatas Bravas")
                                                 .description("Patatas crujientes acompañadas de salsa brava casera ligeramente picante.")
-                                                .price(16000.0)
+                                                .price(17500.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://www.deliciousmagazine.co.uk/wp-content/uploads/2018/09/patatas-bravas.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(true)
@@ -309,7 +301,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Gambas al Ajillo")
                                                 .description("Gambas salteadas en aceite de oliva con ajo, guindilla y perejil fresco.")
-                                                .price(32000.0)
+                                                .price(35000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://invitadoinvierno.com/wp-content/uploads/2019/07/receta-gambas-ajillo-0.jpg")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(true)
@@ -319,7 +311,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Calamares a la Romana")
                                                 .description("Anillas de calamar rebozadas y fritas hasta quedar doradas y crujientes.")
-                                                .price(28000.0)
+                                                .price(31000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://newluxbrand.com/recetas/wp-content/uploads/2022/02/calamares-a-la-romana-Newlux.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -329,7 +321,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Pulpo a la Brasa")
                                                 .description("Tentáculo de pulpo a la brasa acompañado de patatas confitadas y aceite de oliva.")
-                                                .price(42000.0)
+                                                .price(46000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://esenciadelmar.es/wp-content/uploads/2023/08/pulpo-brasa-parilla-1200x700.jpeg")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -339,7 +331,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Arroz Negro")
                                                 .description("Arroz meloso cocinado con tinta de calamar, sepia, gambas y alioli casero.")
-                                                .price(48000.0)
+                                                .price(53000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/f7f1b6c8-1a85-435e-b136-1e4cfa082903/Derivates/fbb52d55-2deb-4480-ac79-08b3522e4b09.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -349,7 +341,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Fideuá Valenciana")
                                                 .description("Fideos tostados cocinados con caldo de pescado, gambas, calamares y alioli.")
-                                                .price(52000.0)
+                                                .price(57000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://i0.wp.com/spainonafork.com/wp-content/uploads/2018/10/fideua3-11.png?fit=750%2C750&ssl=1")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -359,7 +351,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Bacalao al Pil Pil")
                                                 .description("Lomo de bacalao confitado en aceite de oliva con emulsión de ajo y guindilla.")
-                                                .price(46000.0)
+                                                .price(50500.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://www.aceitesdeolivadeespana.com/wp-content/uploads/2020/09/bacalao-al-pil-pil.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(true)
@@ -369,7 +361,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Merluza a la Vasca")
                                                 .description("Merluza fresca cocinada con salsa verde, almejas, espárragos y perejil.")
-                                                .price(44000.0)
+                                                .price(48500.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDV3yWMquqJyKwvVQG3hdrJ445tIeQrDw-3qUNt6Pox0VNHIWKldCADtz1&s=10")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -379,7 +371,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Dorada al Horno")
                                                 .description("Dorada fresca al horno con patatas, cebolla, limón y aceite de oliva virgen extra.")
-                                                .price(39000.0)
+                                                .price(43000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://lacocinadefrabisa.lavozdegalicia.es/wp-content/uploads/2016/03/dorada.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -389,7 +381,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Cochinillo Segoviano")
                                                 .description("Cochinillo asado lentamente hasta conseguir una piel crujiente y una carne tierna.")
-                                                .price(68000.0)
+                                                .price(75000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://www.tabladillo.es/wp-content/uploads/2024/07/Cochinillo-Tabladillo-Segovia-scaled.jpg")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -399,7 +391,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Cordero Asado")
                                                 .description("Pierna de cordero asada lentamente con hierbas aromáticas y patatas panaderas.")
-                                                .price(62000.0)
+                                                .price(68000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/1C6B162D-43E7-4A9B-8690-3F873A07ED29/Derivates/D494B6BC-3836-410B-8455-B4555AAA565C.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -409,7 +401,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Carrilleras de Cerdo")
                                                 .description("Carrilleras de cerdo cocinadas a fuego lento en salsa de vino tinto y verduras.")
-                                                .price(48000.0)
+                                                .price(53000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://recetasdecocina.elmundo.es/wp-content/uploads/2025/12/carrilleras-de-cerdo-al-vino-tinto-1024x683.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -419,7 +411,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Chorizo a la Sidra")
                                                 .description("Chorizo asturiano cocinado lentamente en sidra natural hasta quedar jugoso y aromático.")
-                                                .price(22000.0)
+                                                .price(24000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://www.carolinescooking.com/wp-content/uploads/2023/06/chorizo-in-cider-featured-pic-sq.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -429,7 +421,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Fabada Asturiana")
                                                 .description("Guiso tradicional de fabes asturianas con chorizo, morcilla y panceta.")
-                                                .price(38000.0)
+                                                .price(42000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://www.justspices.es/media/recipe/Fabada-asturiana.webp")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -439,7 +431,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Callos a la Madrileña")
                                                 .description("Guiso tradicional de callos de ternera con chorizo, morcilla y especias.")
-                                                .price(36000.0)
+                                                .price(39500.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://static.bainet.es/clip/9932fc94-4a07-48d9-b06d-eb170c7f222c_source-aspect-ratio_1600w_0.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -449,7 +441,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Rabo de Toro")
                                                 .description("Estofado de rabo de toro cocinado lentamente con vino tinto, verduras y especias.")
-                                                .price(58000.0)
+                                                .price(64000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://www.foodandwine.com/thmb/1qa4CivgyDuYGgHVAM_0GYXkQgw=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/rabo-de-toro-XL-RECIPE0917-5f241cba48de485b935f0e882b504fe5.jpg")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -459,7 +451,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Pollo al Ajillo")
                                                 .description("Pollo dorado en aceite de oliva con abundante ajo, vino blanco y perejil.")
-                                                .price(32000.0)
+                                                .price(35000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://cookingtheglobe.com/wp-content/uploads/2016/03/pollo-al-ajillo-garlic-chicken-recipe-2.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -469,7 +461,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Secreto Ibérico")
                                                 .description("Corte de cerdo ibérico a la parrilla servido con patatas y reducción de vino tinto.")
-                                                .price(55000.0)
+                                                .price(60500.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/58BEF3B8-6B5A-452E-9A4D-CEB1E38098A6/Derivates/c1a17709-3a16-4fa1-8c71-937c04747466.jpg")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -479,7 +471,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Migas Extremeñas")
                                                 .description("Migas de pan salteadas con ajo, pimentón, chorizo y panceta al estilo extremeño.")
-                                                .price(28000.0)
+                                                .price(31000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://recetasdecocina.elmundo.es/wp-content/uploads/2024/11/migas-extremenas-receta-1024x683.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -489,7 +481,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Gazpacho Andaluz")
                                                 .description("Sopa fría tradicional de tomate, pepino, pimiento, ajo y aceite de oliva.")
-                                                .price(15000.0)
+                                                .price(16500.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://es-mycooktouch.group-taurus.com/image/recipe/540x391/gazpacho-andaluz")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(false)
@@ -499,7 +491,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Salmorejo Cordobés")
                                                 .description("Crema fría de tomate y pan acompañada de huevo cocido y jamón serrano.")
-                                                .price(17000.0)
+                                                .price(18500.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://www.aceitesdeolivadeespana.com/wp-content/uploads/2024/04/salmorejo_jamon_iberico.jpeg")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -509,7 +501,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Pimientos del Piquillo Rellenos")
                                                 .description("Pimientos del piquillo rellenos de bacalao y cubiertos con salsa de pimientos.")
-                                                .price(26000.0)
+                                                .price(28500.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq0RRc3EIfGd43qP4eJR-7bikx3GGdDG02z0DZkU4mt9U1gMqEQRFKZ9u7&s=10")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -519,7 +511,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Berenjenas con Miel")
                                                 .description("Berenjenas crujientes acompañadas de miel de caña y una pizca de sal marina.")
-                                                .price(19000.0)
+                                                .price(21000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQq2dnL2PshnrGDZfPPIZG-9l5EhRmdsfVZkBUUmKoE3w&s=10")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(false)
@@ -529,7 +521,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Ensaladilla Rusa")
                                                 .description("Ensaladilla tradicional de patata, zanahoria, guisantes, huevo y atún con mayonesa casera.")
-                                                .price(18000.0)
+                                                .price(20000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://www.seriouseats.com/thmb/Qj2Ta8m0V7eHoqB0Z6Z1eFD3D-I=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/20260515-SEA-RussianSalad-AmandaSuarez-15-7f6b215dd4434cf7aec5f3095cd09ed1.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -539,7 +531,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Boquerones en Vinagre")
                                                 .description("Boquerones marinados en vinagre con ajo, perejil y aceite de oliva virgen extra.")
-                                                .price(21000.0)
+                                                .price(23000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://img.turkishstylecooking.com/wp-content/uploads/2025/01/boquerones_en_vinagre1.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -549,7 +541,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Pisto Manchego")
                                                 .description("Guiso de tomate, calabacín, pimiento, cebolla y berenjena con aceite de oliva.")
-                                                .price(22000.0)
+                                                .price(24000.0)
                                                 .category(categoryRepository.findByName("Entradas"))
                                                 .imageUrl("https://www.aceitesdeolivadeespana.com/wp-content/uploads/2021/02/pisto-manchego-receta.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(false)
@@ -559,7 +551,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Huevos Rotos con Jamón")
                                                 .description("Huevos fritos sobre patatas caseras acompañados de láminas de jamón ibérico.")
-                                                .price(29000.0)
+                                                .price(32000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSol8_W3dxVbXfF6nucJj4zoDIE2LXJwddqEjHa8WdfQw&s=10")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -569,7 +561,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Bocadillo de Calamares")
                                                 .description("Tradicional bocadillo madrileño de calamares fritos servido con alioli casero.")
-                                                .price(23000.0)
+                                                .price(25500.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://www.tiaalia.com/wp-content/uploads/2017/11/bocadillo-de-calamares.jpg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -579,7 +571,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Cachopo Asturiano")
                                                 .description("Filetes de ternera rellenos de jamón serrano y queso, empanados y fritos hasta quedar dorados.")
-                                                .price(52000.0)
+                                                .price(57000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
                                                 .imageUrl("https://tablasdelcampillin.com/wp-content/uploads/2023/05/cachopos-capsa_4aH-Editar.jpg")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -589,7 +581,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Crema Catalana")
                                                 .description("Postre tradicional catalán de crema suave con una fina capa de azúcar caramelizado.")
-                                                .price(16000.0)
+                                                .price(17500.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480/img/recipe/ras/Assets/2d814c07a2145d881d1e701d4b27c029/Derivates/93949c61852021496362279d132f6996ec0ac30b.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(false)
@@ -599,7 +591,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Arroz con Leche")
                                                 .description("Postre cremoso de arroz cocido lentamente con leche, canela y cáscara de limón.")
-                                                .price(14000.0)
+                                                .price(15500.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://recetasdecocina.elmundo.es/wp-content/uploads/2024/11/arroz-con-leche-1024x683.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(false)
@@ -609,7 +601,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Churros con Chocolate")
                                                 .description("Churros españoles crujientes acompañados de una taza de chocolate caliente y espeso.")
-                                                .price(18000.0)
+                                                .price(20000.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://www.realsimple.com/thmb/74r1RaSWyOqGyLD9vakiGkmyIYQ=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/churros-chocolate-0f3587a6a59f4696af610cafe100d1fe.jpg")
                                                 .active(true).popular(true).vegetarian(true).spicyMild(false)
@@ -619,7 +611,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Torrijas")
                                                 .description("Rebanadas de pan empapadas en leche aromatizada con canela y limón, doradas y espolvoreadas con azúcar.")
-                                                .price(15000.0)
+                                                .price(16500.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://images.aws.nestle.recipes/resized/2024_10_28T12_32_34_badun_images.badun.es_dd1722b7f5d9_torrija_con_helado_de_torrija_y_coulis_de_frutos_rojos_1290_742.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(false)
@@ -629,7 +621,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Tarta de Queso Vasca")
                                                 .description("Tarta de queso cremosa de interior suave y superficie caramelizada al estilo vasco.")
-                                                .price(19000.0)
+                                                .price(21000.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTPsxvBLFVs3SLnnc7A8F7_spaek91-Ghw1M3E8vb0ug&s=10")
                                                 .active(true).popular(true).vegetarian(true).spicyMild(false)
@@ -639,7 +631,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Flan de Huevo")
                                                 .description("Flan casero de huevo y leche servido con caramelo líquido y una textura delicadamente cremosa.")
-                                                .price(14000.0)
+                                                .price(15500.0)
                                                 .category(categoryRepository.findByName("Postres"))
                                                 .imageUrl("https://static.bainet.es/clip/9c993f21-16d2-4148-bece-ba68ae1e172a_source-aspect-ratio_1600w_0.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(false)
@@ -649,7 +641,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Sangría Española")
                                                 .description("Bebida tradicional española preparada con vino tinto, frutas frescas y un toque cítrico.")
-                                                .price(18000.0)
+                                                .price(20000.0)
                                                 .category(categoryRepository.findByName("Bebidas"))
                                                 .imageUrl("https://descorcha.com/cdn/shop/articles/17380724881149_089e6f94-47d6-4852-b73d-a147c7542d85.jpg?v=1765379043")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -659,7 +651,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Horchata de Chufa")
                                                 .description("Bebida tradicional valenciana elaborada a base de chufa, fresca y ligeramente dulce.")
-                                                .price(12000.0)
+                                                .price(13000.0)
                                                 .category(categoryRepository.findByName("Bebidas"))
                                                 .imageUrl("https://www.finedininglovers.es/sites/default/files/styles/1_1_768x768/public/recipe_content_images/horchata-de-chufa%C2%A9iStock.jpg.webp?itok=5pehvI1m")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -669,7 +661,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Tinto de Verano")
                                                 .description("Bebida refrescante preparada con vino tinto, gaseosa y un toque de limón.")
-                                                .price(14000.0)
+                                                .price(15500.0)
                                                 .category(categoryRepository.findByName("Bebidas"))
                                                 .imageUrl("https://www.pequerecetas.com/wp-content/uploads/2022/06/como-hacer-tinto-de-verano.jpeg")
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
@@ -679,7 +671,7 @@ public class DataLoader implements CommandLineRunner {
                 productRepository.save(
                                 Product.builder().name("Café Cortado")
                                                 .description("Café espresso servido con una pequeña cantidad de leche caliente.")
-                                                .price(8000.0)
+                                                .price(9000.0)
                                                 .category(categoryRepository.findByName("Bebidas"))
                                                 .imageUrl("https://blogdelcafe.com/wp-content/uploads/2025/08/cortado-1024x647.webp")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
@@ -757,7 +749,7 @@ public class DataLoader implements CommandLineRunner {
                 // pedido.getDetails()); el unitPrice se copia del producto al momento del
                 // pedido.
                 Product tortilla = findProductByName("Tortilla Española");
-                Product gambas = findProductByName("Gambas al Ajillo");
+                Product shrimp = findProductByName("Gambas al Ajillo");
                 Order order1 = Order.builder()
                                 .client(client1)
                                 .status(OrderStatus.DELIVERED)
@@ -771,8 +763,8 @@ public class DataLoader implements CommandLineRunner {
                                 .order(order1).product(tortilla).quantity(2)
                                 .unitPrice(tortilla.getPrice()).build();
                 OrderDetail order1Detail2 = OrderDetail.builder()
-                                .order(order1).product(gambas).quantity(1)
-                                .unitPrice(gambas.getPrice()).build();
+                                .order(order1).product(shrimp).quantity(1)
+                                .unitPrice(shrimp.getPrice()).build();
                 order1Detail2.getOrderDetailAddOns().add(
                                 OrderDetailAddOn.builder().orderDetail(order1Detail2)
                                                 .addOn(findAddOnByName("Extra ajo")).build());
@@ -781,7 +773,7 @@ public class DataLoader implements CommandLineRunner {
                 orderRepository.save(order1);
 
                 // Pedido 2 - en camino
-                Product pulpo = findProductByName("Pulpo a la Brasa");
+                Product octopus = findProductByName("Pulpo a la Brasa");
                 Product sangria = findProductByName("Sangría Española");
                 Order order2 = Order.builder()
                                 .client(client2)
@@ -792,8 +784,8 @@ public class DataLoader implements CommandLineRunner {
                                 .address(client2.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order2Detail1 = OrderDetail.builder()
-                                .order(order2).product(pulpo).quantity(1)
-                                .unitPrice(pulpo.getPrice()).build();
+                                .order(order2).product(octopus).quantity(1)
+                                .unitPrice(octopus.getPrice()).build();
                 OrderDetail order2Detail2 = OrderDetail.builder()
                                 .order(order2).product(sangria).quantity(2)
                                 .unitPrice(sangria.getPrice()).build();
@@ -805,8 +797,8 @@ public class DataLoader implements CommandLineRunner {
                 orderRepository.save(order2);
 
                 // Pedido 3 - en preparación (sin domiciliario asignado aún)
-                Product cachopo = findProductByName("Cachopo Asturiano");
-                Product cremaCatalana = findProductByName("Crema Catalana");
+                Product stuffedVealCutlet = findProductByName("Cachopo Asturiano");
+                Product catalanCream = findProductByName("Crema Catalana");
                 Order order3 = Order.builder()
                                 .client(client3)
                                 .status(OrderStatus.PREPARING)
@@ -815,11 +807,11 @@ public class DataLoader implements CommandLineRunner {
                                 .address(client3.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order3Detail1 = OrderDetail.builder()
-                                .order(order3).product(cachopo).quantity(1)
-                                .unitPrice(cachopo.getPrice()).build();
+                                .order(order3).product(stuffedVealCutlet).quantity(1)
+                                .unitPrice(stuffedVealCutlet.getPrice()).build();
                 OrderDetail order3Detail2 = OrderDetail.builder()
-                                .order(order3).product(cremaCatalana).quantity(2)
-                                .unitPrice(cremaCatalana.getPrice()).build();
+                                .order(order3).product(catalanCream).quantity(2)
+                                .unitPrice(catalanCream.getPrice()).build();
                 order3Detail1.getOrderDetailAddOns().add(
                                 OrderDetailAddOn.builder().orderDetail(order3Detail1)
                                                 .addOn(findAddOnByName("Pan de millo")).build());
@@ -828,8 +820,8 @@ public class DataLoader implements CommandLineRunner {
                 orderRepository.save(order3);
 
                 // Pedido 4 - confirmado (sin domiciliario asignado aún)
-                Product patatasBravas = findProductByName("Patatas Bravas");
-                Product cafeCortado = findProductByName("Café Cortado");
+                Product bravasPotatoes = findProductByName("Patatas Bravas");
+                Product cortadoCoffee = findProductByName("Café Cortado");
                 Order order4 = Order.builder()
                                 .client(client4)
                                 .status(OrderStatus.CONFIRMED)
@@ -838,11 +830,11 @@ public class DataLoader implements CommandLineRunner {
                                 .address(client4.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order4Detail1 = OrderDetail.builder()
-                                .order(order4).product(patatasBravas).quantity(3)
-                                .unitPrice(patatasBravas.getPrice()).build();
+                                .order(order4).product(bravasPotatoes).quantity(3)
+                                .unitPrice(bravasPotatoes.getPrice()).build();
                 OrderDetail order4Detail2 = OrderDetail.builder()
-                                .order(order4).product(cafeCortado).quantity(2)
-                                .unitPrice(cafeCortado.getPrice()).build();
+                                .order(order4).product(cortadoCoffee).quantity(2)
+                                .unitPrice(cortadoCoffee.getPrice()).build();
                 order4Detail1.getOrderDetailAddOns().add(
                                 OrderDetailAddOn.builder().orderDetail(order4Detail1)
                                                 .addOn(findAddOnByName("Ensalada verde")).build());

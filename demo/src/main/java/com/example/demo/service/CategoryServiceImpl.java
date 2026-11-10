@@ -91,7 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
-    // Crea una categoría nueva. Se arma una entidad limpia para que el front
+    // Crea una categoría newCategory. Se arma una entidad limpia para que el front
     // no pueda forzar un id ni la relación con adicionales o productos.
     @Override
     @Transactional
@@ -99,11 +99,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         validateCategory(category, null);
 
-        Category nueva = new Category();
-        nueva.setName(category.getName().trim());
-        nueva.setDescription(category.getDescription());
+        Category newCategory = new Category();
+        newCategory.setName(category.getName().trim());
+        newCategory.setDescription(category.getDescription());
 
-        return repository.save(nueva);
+        return repository.save(newCategory);
     }
 
     // Actualiza nombre y descripción de una categoría existente
