@@ -1,0 +1,123 @@
+package com.example.demo.movil.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.demo.movil.dto.DeliveryDTOs.ClientDeliveryDTO;
+import com.example.demo.movil.dto.DeliveryDTOs.DeliveryJobDTO;
+import com.example.demo.movil.entity.DeliveryTracking;
+import com.example.demo.dto.OrderDTO;
+import com.example.demo.entities.DeliveryPerson;
+import com.example.demo.entities.Order;
+import com.example.demo.entities.OrderStatus;
+import com.example.demo.errors.ApiException;
+import com.example.demo.repository.OrderRepository;
+import com.example.demo.service.OrderService;
+
+/**
+ * Une las dos bases: el pedido sale de H2 y el PIN/ubicación de Postgres.
+ * Sin @Transactional a propósito: no existe una transacción única que cubra
+ * dos bases; cada llamada abre la suya.
+ */
+@Service
+public class DeliveryFlowService {
+
+    @Autowired
+    private DeliveryTrackingService tracking;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    // ---------- CLIENTE ----------
+
+    public List<ClientDeliveryDTO> activeForClient(Integer clientId) {
+        return orderRepository.findByClientIdAndStatus(clientId, OrderStatus.ON_THE_WAY).stream()
+                .map(order -> toClientDTO(order, tracking.findOrCreate(order)))
+                .toList();
+    }
+
+    public ClientDeliveryDTO forClient(Integer clientId, Integer orderId) {
+        Order order = orderService.getOrderById(orderId);
+        if (order.getClient() == null || !order.getClient().getId().equals(clientId)) {
+            throw ApiException.forbidden("Este pedido no pertenece a este cliente.");
+        }
+        return toClientDTO(order, tracking.findOrCreate(order));
+    }
+
+    // ---------- REPARTIDOR ----------
+
+    public List<DeliveryJobDTO> activeForDeliveryPerson(Integer deliveryPersonId) {
+        return orderRepository.findByDeliveryPersonIdAndStatus(deliveryPersonId, OrderStatus.ON_THE_WAY).stream()
+                .map(order -> toJobDTO(order, tracking.findOrCreate(order)))
+                .toList();
+    }
+
+    public DeliveryJobDTO updateLocation(Integer deliveryPersonId, Integer orderId,
+            Double latitude, Double longitude) {
+        if (latitude == null || longitude == null
+                || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            throw ApiException.badRequest("Ubicación inválida.");
+        }
+        Order order = onTheWayOf(deliveryPersonId, orderId);
+        tracking.findOrCreate(order);
+        return toJobDTO(order, tracking.updateLocation(orderId, latitude, longitude));
+    }
+
+    // Valida el PIN, marca el pedido como entregado en H2 y cierra el
+    // seguimiento en Postgres.
+    public OrderDTO complete(Integer deliveryPersonId, Integer orderId, String pin) {
+        Order order = onTheWayOf(deliveryPersonId, orderId);
+        tracking.findOrCreate(order);
+        tracking.verifyPin(orderId, pin); // error si el PIN no coincide
+        Order delivered = orderService.deliverOrder(orderId); // H2: DELIVERED + libera al repartidor
+        tracking.markDelivered(orderId); // Postgres
+        return orderService.toDTO(delivered);
+    }
+
+    // ---------- helpers ----------
+
+    private Order onTheWayOf(Integer deliveryPersonId, Integer orderId) {
+        Order order = orderService.getOrderById(orderId);
+        if (order.getDeliveryPerson() == null || !order.getDeliveryPerson().getId().equals(deliveryPersonId)) {
+            throw ApiException.forbidden("Este pedido no está asignado a este domiciliario.");
+        }
+        if (order.getStatus() != OrderStatus.ON_THE_WAY) {
+            throw ApiException.conflict("El pedido ya no está en camino.");
+        }
+        return order;
+    }
+
+    private ClientDeliveryDTO toClientDTO(Order order, DeliveryTracking t) {
+        DeliveryPerson dp = order.getDeliveryPerson();
+        boolean onTheWay = order.getStatus() == OrderStatus.ON_THE_WAY;
+        return new ClientDeliveryDTO(
+                order.getId(),
+                order.getStatus().name(),
+                order.getAddress(),
+                onTheWay ? t.getPin() : null,
+                dp != null ? dp.getName() + " " + dp.getLastName() : null,
+                dp != null ? dp.getPhone() : null,
+                t.getLatitude(),
+                t.getLongitude(),
+                t.getLocationUpdatedAt());
+    }
+
+    private DeliveryJobDTO toJobDTO(Order order, DeliveryTracking t) {
+        var client = order.getClient();
+        return new DeliveryJobDTO(
+                order.getId(),
+                order.getStatus().name(),
+                order.getAddress(),
+                client != null ? client.getName() + " " + client.getLastName() : null,
+                client != null ? client.getPhone() : null,
+                t.getLatitude(),
+                t.getLongitude(),
+                t.getLocationUpdatedAt(),
+                Math.max(0, DeliveryTrackingService.MAX_PIN_ATTEMPTS - t.getFailedAttempts()));
+    }
+}

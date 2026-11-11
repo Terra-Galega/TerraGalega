@@ -18,49 +18,56 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
-    // Historial de un cliente, del pedido más reciente al más antiguo
-    List<Order> findByClientIdOrderByCreatedAtDesc(Integer clientId);
+        // Historial de un cliente, del pedido más reciente al más antiguo
+        List<Order> findByClientIdOrderByCreatedAtDesc(Integer clientId);
 
-    // ¿Algún pedido usó este adicional? (para impedir borrar un adicional en uso)
-    boolean existsByDetailsOrderDetailAddOnsAddOnId(Integer addOnId);
+        // ¿Algún pedido usó este adicional? (para impedir borrar un adicional en uso)
+        boolean existsByDetailsOrderDetailAddOnsAddOnId(Integer addOnId);
 
-    // ¿Hay pedidos con este producto que no estén en el estado indicado?
-    @Query("""
-            select count(o) > 0 from Order o
-            join o.details d
-            where d.product.id = :productId
-              and o.status <> :status
-            """)
-    boolean existsByDetailsProductIdAndStatusNot(
-            @Param("productId") Integer productId,
-            @Param("status") OrderStatus status);
+        // ¿Hay pedidos con este producto que no estén en el estado indicado?
+        @Query("""
+                        select count(o) > 0 from Order o
+                        join o.details d
+                        where d.product.id = :productId
+                          and o.status <> :status
+                        """)
+        boolean existsByDetailsProductIdAndStatusNot(
+                        @Param("productId") Integer productId,
+                        @Param("status") OrderStatus status);
 
-    // ¿Algún pedido contiene este producto? (para impedir borrar un producto en
-    // uso)
-    boolean existsByDetailsProductId(Integer productId);
+        // ¿Algún pedido contiene este producto? (para impedir borrar un producto en
+        // uso)
+        boolean existsByDetailsProductId(Integer productId);
 
-    // ¿Este operador ha cocinado algún pedido alguna vez?
-    boolean existsByOperatorId(Integer operatorId);
+        // ¿Este operador ha cocinado algún pedido alguna vez?
+        boolean existsByOperatorId(Integer operatorId);
 
-    // Pedidos que NO están en los estados dados, del más antiguo al más reciente.
-    // Se usa para la lista de pedidos activos del operador
-    List<Order> findByStatusNotInOrderByCreatedAtAsc(Collection<OrderStatus> statuses);
+        // Pedidos que NO están en los estados dados, del más antiguo al más reciente.
+        // Se usa para la lista de pedidos activos del operador
+        List<Order> findByStatusNotInOrderByCreatedAtAsc(Collection<OrderStatus> statuses);
 
-    // Todos los pedidos, del más reciente al más antiguo (vista del admin)
-    List<Order> findAllByOrderByCreatedAtDesc();
+        // Todos los pedidos, del más reciente al más antiguo (vista del admin)
+        List<Order> findAllByOrderByCreatedAtDesc();
 
-    // ¿Este domiciliario ha tenido algún pedido asignado alguna vez?
-    boolean existsByDeliveryPersonId(Integer deliveryPersonId);
+        // ¿Este domiciliario ha tenido algún pedido asignado alguna vez?
+        boolean existsByDeliveryPersonId(Integer deliveryPersonId);
 
-    // ¿Este operador tiene pedidos sin terminar? (bloquea su eliminación)
-    boolean existsByOperatorIdAndStatusNotIn(Integer operatorId, Collection<OrderStatus> statuses);
+        // ¿Este operador tiene pedidos sin terminar? (bloquea su eliminación)
+        boolean existsByOperatorIdAndStatusNotIn(Integer operatorId, Collection<OrderStatus> statuses);
 
-    // Todos los pedidos de un operador (para soltar la relación al eliminarlo)
-    List<Order> findByOperatorId(Integer operatorId);
+        // Todos los pedidos de un operador (para soltar la relación al eliminarlo)
+        List<Order> findByOperatorId(Integer operatorId);
 
-    // ¿Este domiciliario tiene pedidos sin terminar? (bloquea su eliminación)
-    boolean existsByDeliveryPersonIdAndStatusNotIn(Integer deliveryPersonId, Collection<OrderStatus> statuses);
+        // ¿Este domiciliario tiene pedidos sin terminar? (bloquea su eliminación)
+        boolean existsByDeliveryPersonIdAndStatusNotIn(Integer deliveryPersonId, Collection<OrderStatus> statuses);
 
-    // Todos los pedidos de un domiciliario (para soltar la relación al eliminarlo)
-    List<Order> findByDeliveryPersonId(Integer deliveryPersonId);
+        // Todos los pedidos de un domiciliario (para soltar la relación al eliminarlo)
+        List<Order> findByDeliveryPersonId(Integer deliveryPersonId);
+
+        // Pedidos de un cliente en un estado (ej. los que van en camino)
+        List<Order> findByClientIdAndStatus(Integer clientId, OrderStatus status);
+
+        // Pedidos de un domiciliario en un estado
+        List<Order> findByDeliveryPersonIdAndStatus(Integer deliveryPersonId, OrderStatus status);
+
 }

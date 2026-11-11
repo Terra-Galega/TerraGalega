@@ -14,6 +14,8 @@ import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
 import com.example.demo.repository.OperatorRepository;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.demo.entities.DeliveryPerson;
+import com.example.demo.repository.DeliveryPersonRepository;
 
 // Implementa la autenticación y las comprobaciones de existencia de cuentas.
 @Service
@@ -40,6 +42,11 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private OperatorRepository operatorRepository;
 
+    @Autowired
+    private DeliveryPersonService deliveryPersonService;
+
+    @Autowired
+    private DeliveryPersonRepository deliveryPersonRepository;
 
     // Comprueba si la cuenta de una sesión abierta sigue existiendo según su tipo e
     // ID.
@@ -49,6 +56,7 @@ public class AuthServiceImpl implements AuthService {
             case "client" -> clientRepository.existsById(id);
             case "admin" -> adminRepository.existsById(id);
             case "operator" -> operatorRepository.existsById(id);
+            case "delivery_person" -> deliveryPersonRepository.existsById(id);
             default -> false;
         };
     }
@@ -67,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
         // para que el controlador gestione el mensaje de error de autenticación.
         Client client = clientService.findByEmail(email);
 
-                if (client != null) {
+        if (client != null) {
             return client.getPassword().equals(password)
                     ? new LoginResponseDTO(client.getId(), client.getName(),
                             client.getLastName(), client.getRole())
@@ -82,7 +90,6 @@ public class AuthServiceImpl implements AuthService {
                             admin.getLastName(), admin.getRole())
                     : null;
         }
-
 
         // Si no encuentra un administrador, busca un operador.
         // Los operadores solo pueden iniciar sesión si su cuenta está activa.
@@ -100,10 +107,23 @@ public class AuthServiceImpl implements AuthService {
             }
 
             // El operador no tiene dirección, por eso se envía null en ese campo.
-                        return new LoginResponseDTO(operator.getId(), operator.getName(),
+            return new LoginResponseDTO(operator.getId(), operator.getName(),
                     operator.getLastName(), operator.getRole());
         }
 
+        // Domiciliarios (app móvil). Solo entran si el admin no los desactivó.
+        DeliveryPerson deliveryPerson = deliveryPersonService.findByEmail(email);
+
+        if (deliveryPerson != null) {
+            if (!deliveryPerson.getPassword().equals(password)) {
+                return null;
+            }
+            if (!Boolean.TRUE.equals(deliveryPerson.getActive())) {
+                throw ApiException.forbidden(INACTIVE_ACCOUNT_MESSAGE);
+            }
+            return new LoginResponseDTO(deliveryPerson.getId(), deliveryPerson.getName(),
+                    deliveryPerson.getLastName(), deliveryPerson.getRole());
+        }
         // Devuelve null si no existe ninguna cuenta asociada al correo proporcionado.
         return null;
     }
