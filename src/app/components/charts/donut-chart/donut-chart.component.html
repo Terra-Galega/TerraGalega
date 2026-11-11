@@ -1,0 +1,66 @@
+<!-- Gráfica circular con leyenda interactiva -->
+@if (segments.length === 0) {
+  <p class="py-10 text-center text-sm" style="color: rgba(44, 44, 44, 0.45)">
+    {{ emptyText }}
+  </p>
+} @else {
+  <div class="flex flex-col sm:flex-row items-center gap-6">
+    <!-- Anillo -->
+    <div class="relative w-44 h-44 flex-shrink-0">
+      <svg viewBox="0 0 200 200" class="w-full h-full -rotate-90">
+        <!-- Pista gris de fondo -->
+        <circle cx="100" cy="100" [attr.r]="R" fill="none" stroke="rgba(44, 44, 44, 0.06)" stroke-width="24" />
+        @for (s of segments; track s.label; let i = $index) {
+          <circle
+            cx="100"
+            cy="100"
+            [attr.r]="R"
+            fill="none"
+            [attr.stroke]="s.color"
+            [attr.stroke-width]="active === i ? 30 : 24"
+            [style.stroke-dasharray]="s.len + ' ' + C"
+            [style.stroke-dashoffset]="-s.offset + 'px'"
+            [style.opacity]="active === null || active === i ? 1 : 0.4"
+            [style.transition]="'stroke-dasharray 0.9s cubic-bezier(0.22, 1, 0.36, 1) ' + i * 90 + 'ms, stroke-width 0.2s, opacity 0.2s'"
+            class="cursor-pointer"
+            (mouseenter)="active = i"
+            (mouseleave)="active = null"
+          />
+        }
+      </svg>
+
+      <!-- Centro: total o detalle del arco activo -->
+      <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-6">
+        @if (activeSegment; as seg) {
+          <p class="font-serif font-bold text-xl" [style.color]="seg.color">
+            {{ seg.pct | number: '1.0-1' }}%
+          </p>
+          <p class="text-[11px] leading-tight truncate max-w-full" style="color: rgba(44, 44, 44, 0.6)">
+            {{ seg.label }}
+          </p>
+        } @else {
+          <p class="font-serif font-bold text-xl" style="color: #2c2c2c">{{ centerFormat(total) }}</p>
+          <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ centerLabel }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <ul class="flex-1 w-full space-y-1.5">
+      @for (s of segments; track s.label; let i = $index) {
+        <li
+          class="flex items-center gap-2 text-[13px] px-2 py-1.5 rounded-lg cursor-default"
+          [style.background-color]="active === i ? 'rgba(44, 44, 44, 0.06)' : 'transparent'"
+          style="transition: background-color 0.15s"
+          (mouseenter)="active = i"
+          (mouseleave)="active = null"
+        >
+          <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" [style.background-color]="s.color"></span>
+          <span class="truncate flex-1" style="color: #2c2c2c">{{ s.label }}</span>
+          <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.45)">{{ s.pct | number: '1.0-0' }}%</span>
+          <span class="font-semibold w-20 text-right">{{ format(s.value) }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+}

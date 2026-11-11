@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FEATURES, FeatureFlags } from '../../models/feature';
 import { FeatureIconComponent } from '../feature-icon/feature-icon.component';
-
 // Chips de características. El contenedor (flex, gap, alto mínimo) lo define
 // quien lo usa con clases sobre <app-feature-chips>.
 // Solo muestra los chips de las características que el producto tiene en true.

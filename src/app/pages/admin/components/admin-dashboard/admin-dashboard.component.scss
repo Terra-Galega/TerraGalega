@@ -1,0 +1,104 @@
+// Entrada escalonada de cada bloque del dashboard (el retraso se define en el HTML)
+.dash-in {
+  opacity: 0;
+  animation: dash-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes dash-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// Punto verde "en vivo" que late
+.live-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: #556141;
+}
+
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background-color: inherit;
+  animation: live-ping 1.8s ease-out infinite;
+}
+
+.live-dot-error,
+.live-dot-error::after {
+  background-color: #8a2222;
+}
+
+@keyframes live-ping {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+// Icono de actualizar girando mientras carga
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Menú de descarga
+.menu-pop {
+  animation: menu-pop 0.16s ease-out;
+  transform-origin: top right;
+}
+
+@keyframes menu-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  text-align: left;
+  color: #2c2c2c;
+  transition: background-color 0.15s ease;
+}
+
+.menu-item:hover {
+  background-color: rgba(44, 44, 44, 0.06);
+}
+
+.menu-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 6px;
+  min-width: 34px;
+  text-align: center;
+}

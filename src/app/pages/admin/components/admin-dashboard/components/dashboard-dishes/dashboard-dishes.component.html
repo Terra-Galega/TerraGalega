@@ -1,0 +1,80 @@
+<section class="glass-card rounded-2xl p-5">
+    <!-- Encabezado: título, explicación del margen y buscador -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+            <h3 class="font-serif font-semibold text-base">
+                Platos y ganancia
+                @if (rangeLabel) {
+                <span class="text-[12px] font-normal ml-1" style="color: rgba(44, 44, 44, 0.45)">· {{ rangeLabel
+                    }}</span>
+                }
+            </h3>
+            <p class="text-[11px] mt-0.5" style="color: rgba(44, 44, 44, 0.5)">
+                Cada precio ya incluye un {{ profitPct }} % de ganancia: costo = precio ÷ {{ 1 + profitPct / 100 }}.
+            </p>
+        </div>
+
+        <app-search-input class="w-52" variant="soft" placeholder="Buscar plato…" (valueChange)="onSearch($event)" />
+    </div>
+
+    <div class="overflow-x-auto rounded-xl" style="max-height: 460px; overflow-y: auto">
+        <table class="w-full text-sm" style="border-collapse: collapse">
+            <thead>
+                <tr style="background-color: rgba(44, 44, 44, 0.04)">
+                    @for (col of columns; track col.label) {
+                    <th class="font-medium uppercase tracking-wider py-3 px-4 whitespace-nowrap sticky top-0"
+                        [class.text-right]="col.right" [class.text-left]="!col.right"
+                        [class.cursor-pointer]="col.key !== null" style="font-size: 11px; background-color: #efece4"
+                        [style.color]="col.key === sortKey ? '#b2571f' : 'rgba(44, 44, 44, 0.45)'"
+                        (click)="sortBy(col.key)">
+                        {{ col.label }}
+                        @if (col.key === sortKey) {
+                        {{ sortDir === 1 ? '↑' : '↓' }}
+                        }
+                    </th>
+                    }
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (row of view; track row.id) {
+                <tr class="dish-row" [style.opacity]="row.active ? 1 : 0.55">
+                    <td class="py-2.5 px-4">
+                        <p class="font-medium">
+                            {{ row.name }}
+                            @if (!row.active) {
+                            <span class="text-[10px] ml-1 px-1.5 py-0.5 rounded"
+                                style="background-color: rgba(44, 44, 44, 0.08)">Oculto</span>
+                            }
+                        </p>
+                        <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.45)">{{ row.category }}</p>
+                    </td>
+                    <td class="py-2.5 px-4 text-right font-medium">{{ money(row.price) }}</td>
+                    <td class="py-2.5 px-4 text-right" style="color: rgba(44, 44, 44, 0.6)">{{ money(row.cost) }}</td>
+                    <td class="py-2.5 px-4 text-right font-medium" style="color: #556141">{{ money(row.unitProfit) }}
+                    </td>
+                    <td class="py-2.5 px-4 text-right">{{ row.units }}</td>
+                    <td class="py-2.5 px-4 text-right font-bold" style="color: #b2571f">{{ money(row.sales) }}</td>
+                    <td class="py-2.5 px-4 text-right font-bold" style="color: #556141">{{ money(row.profit) }}</td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="7" class="py-10 text-center text-sm" style="color: rgba(44, 44, 44, 0.45)">
+                        No se encontraron platos.
+                    </td>
+                </tr>
+                }
+            </tbody>
+
+            <!-- Totales de lo que se ve en la tabla -->
+            <tfoot>
+                <tr style="background-color: rgba(44, 44, 44, 0.04)">
+                    <td class="py-3 px-4 font-semibold" colspan="4">Total</td>
+                    <td class="py-3 px-4 text-right font-semibold">{{ totals.units }}</td>
+                    <td class="py-3 px-4 text-right font-bold" style="color: #b2571f">{{ money(totals.sales) }}</td>
+                    <td class="py-3 px-4 text-right font-bold" style="color: #556141">{{ money(totals.profit) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</section>

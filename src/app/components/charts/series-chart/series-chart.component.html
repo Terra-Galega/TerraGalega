@@ -1,0 +1,95 @@
+<p>series-chart works!</p>
+<!-- Gráfica de barras o líneas (SVG que se escala al ancho de la tarjeta) -->
+<div class="relative">
+    <svg [attr.viewBox]="'0 0 ' + W + ' ' + H" class="w-full h-auto select-none" role="img"
+        aria-label="Gráfica de ventas">
+        <defs>
+            <!-- Degradado bajo la línea principal -->
+            <linearGradient [attr.id]="gradId" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" [attr.stop-color]="mainColor" stop-opacity="0.28" />
+                <stop offset="100%" [attr.stop-color]="mainColor" stop-opacity="0" />
+            </linearGradient>
+        </defs>
+
+        <!-- Líneas guía y valores del eje Y -->
+        @for (t of ticks; track $index) {
+        <line [attr.x1]="padL" [attr.x2]="W - padR" [attr.y1]="t.y" [attr.y2]="t.y" stroke="rgba(44, 44, 44, 0.08)" />
+        <text [attr.x]="padL - 8" [attr.y]="t.y + 3" text-anchor="end" font-size="10" fill="rgba(44, 44, 44, 0.45)">
+            {{ t.label }}
+        </text>
+        }
+
+        <!-- Franja de resaltado de la posición bajo el mouse -->
+        @if (hover !== null) {
+        <rect [attr.x]="slots[hover].x" [attr.width]="slots[hover].w" [attr.y]="14" [attr.height]="H - 44" rx="6"
+            fill="rgba(178, 87, 31, 0.07)" />
+        }
+
+        <!-- Barras -->
+        @for (b of bars; track $index) {
+        <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h" rx="3" [attr.fill]="b.color"
+            [style.opacity]="hover === null || hover === b.i ? 1 : 0.45" style="transition: opacity 0.15s" />
+        }
+
+        <!-- Líneas: área solo de la primera serie, las demás van punteadas si se pide -->
+        @for (p of paths; track $index) {
+        @if ($index === 0) {
+        <path [attr.d]="p.area" [attr.fill]="'url(#' + gradId + ')'" />
+        }
+        <path [attr.d]="p.d" fill="none" [attr.stroke]="p.color" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round" [attr.stroke-dasharray]="p.dashed ? '6 5' : null" />
+        }
+
+        <!-- Puntos: solo se ven en la posición bajo el mouse -->
+        @if (hover !== null) {
+        @for (d of dots; track $index) {
+        @if (d.i === hover) {
+        <circle [attr.cx]="d.x" [attr.cy]="d.y" r="5" fill="#fff" [attr.stroke]="d.color" stroke-width="2.5" />
+        }
+        }
+        }
+
+        <!-- Etiquetas del eje X -->
+        @for (l of xLabels; track $index) {
+        <text [attr.x]="l.x" [attr.y]="H - 10" text-anchor="middle" font-size="10" fill="rgba(44, 44, 44, 0.5)">
+            {{ l.text }}
+        </text>
+        }
+
+        <!-- Zonas invisibles que detectan el mouse -->
+        @for (s of slots; track $index) {
+        <rect [attr.x]="s.x" [attr.y]="0" [attr.width]="s.w" [attr.height]="H" fill="transparent"
+            (mouseenter)="hover = $index" (mouseleave)="hover = null" (touchstart)="hover = $index" />
+        }
+    </svg>
+
+    <!-- Tooltip -->
+    @if (hover !== null) {
+    <div class="absolute top-0 pointer-events-none rounded-xl px-3 py-2 text-[12px] z-10 whitespace-nowrap"
+        [style.left.%]="tipLeft" style="
+        transform: translateX(-50%);
+        background-color: #2c2c2c;
+        color: #f5f2eb;
+        box-shadow: 0 8px 24px rgba(44, 44, 44, 0.25);
+      ">
+        <p class="font-semibold mb-1">{{ tipTitle }}</p>
+        @for (r of tipRows; track r.name) {
+        <p class="flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full" [style.background-color]="r.color"></span>
+            <span style="color: rgba(245, 242, 235, 0.65)">
+                {{ r.name }}@if (r.sub) { · {{ r.sub }} }
+            </span>
+            <span class="font-semibold ml-auto pl-3">{{ r.value }}</span>
+        </p>
+        }
+    </div>
+    }
+
+    <!-- Aviso cuando no hay datos -->
+    @if (!hasData) {
+    <div class="absolute inset-0 flex items-center justify-center text-sm pointer-events-none"
+        style="color: rgba(44, 44, 44, 0.45)">
+        {{ emptyText }}
+    </div>
+    }
+</div>

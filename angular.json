@@ -27,6 +27,15 @@
             "polyfills": [
               "zone.js"
             ],
+            "allowedCommonJsDependencies": [
+              "exceljs",
+              "html2canvas",
+              "canvg",
+              "core-js",
+              "raf",
+              "rgbcolor",
+              "dompurify"
+            ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [

@@ -1,0 +1,26 @@
+// Las filas se desplazan un poco al pasar el mouse
+.order-row {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.order-row:hover {
+  transform: translateX(3px);
+  box-shadow: 0 4px 14px rgba(44, 44, 44, 0.08);
+}
+
+// Latido de la etiqueta de espera cuando el pedido está muy atrasado
+.wait-pulse {
+  animation: wait-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes wait-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(138, 34, 34, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(138, 34, 34, 0);
+  }
+}

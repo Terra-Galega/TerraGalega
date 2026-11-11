@@ -1,0 +1,26 @@
+// Las tarjetas se elevan un poco al pasar el mouse
+.kpi-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(44, 44, 44, 0.12);
+}
+
+// Latido del icono cuando hay pedidos pendientes urgentes
+.kpi-pulse {
+  animation: kpi-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes kpi-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(138, 34, 34, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(138, 34, 34, 0);
+  }
+}

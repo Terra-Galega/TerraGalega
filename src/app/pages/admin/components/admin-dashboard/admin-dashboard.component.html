@@ -1,0 +1,202 @@
+<!-- Dashboard del administrador -->
+@if (!model) {
+<!-- Primera carga: esqueleto con el mismo diseño -->
+@if (errorMessage) {
+<p class="text-sm" style="color: #8a2222">{{ errorMessage }}</p>
+} @else {
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+    @for (n of [1, 2, 3, 4]; track n) {
+    <div class="glass-card rounded-2xl h-32 animate-pulse"></div>
+    }
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+    @for (n of [1, 2]; track n) {
+    <div class="glass-card rounded-2xl h-72 animate-pulse"></div>
+    }
+</div>
+}
+} @else {
+<div class="space-y-6">
+    <!-- Barra de control: periodo, estado "en vivo", actualizar y descargar -->
+    <div class="dash-in flex flex-wrap items-center justify-between gap-3" style="animation-delay: 0ms">
+        <div class="flex items-center gap-3">
+            <app-segmented-control [options]="rangeOptions" [value]="rangeKey" (valueChange)="setRange($event)" />
+
+            <!-- Indicador de autoactualización -->
+            <div class="flex items-center gap-2 text-[11px]" style="color: rgba(44, 44, 44, 0.5)">
+                <span class="live-dot" [class.live-dot-error]="errorMessage"></span>
+                @if (errorMessage) {
+                <span style="color: #8a2222">{{ errorMessage }}</span>
+                } @else {
+                <span>En vivo · actualizado hace {{ secondsAgo }} s</span>
+                }
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Actualizar ahora -->
+            <button type="button" class="w-9 h-9 rounded-xl flex items-center justify-center"
+                style="background-color: rgba(44, 44, 44, 0.06); color: rgba(44, 44, 44, 0.65)" title="Actualizar ahora"
+                aria-label="Actualizar ahora" (click)="refreshNow()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    [class.spin]="loadingNow">
+                    <path d="M21 12a9 9 0 11-3-6.7L21 8" />
+                    <path d="M21 3v5h-5" />
+                </svg>
+            </button>
+
+            <!-- Menú de descarga -->
+            <div class="relative">
+                <button type="button" id="btn-export"
+                    class="flex items-center gap-2 text-[12px] font-medium px-4 py-2.5 rounded-xl"
+                    style="background-color: #b2571f; color: #f5f2eb" [disabled]="exporting !== null"
+                    (click)="toggleExportMenu($event)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />
+                    </svg>
+                    {{ exporting ? "Generando…" : "Descargar reporte" }}
+                </button>
+
+                @if (exportOpen) {
+                <div class="menu-pop absolute right-0 mt-2 w-56 rounded-2xl p-1.5 z-30"
+                    style="background-color: #fff; box-shadow: 0 12px 32px rgba(44, 44, 44, 0.18)">
+                    <button type="button" class="menu-item" (click)="download('pdf')">
+                        <span class="menu-badge"
+                            style="background-color: rgba(138, 34, 34, 0.12); color: #8a2222">PDF</span>
+                        <span>Reporte con logo</span>
+                    </button>
+                    <button type="button" class="menu-item" (click)="download('excel')">
+                        <span class="menu-badge"
+                            style="background-color: rgba(85, 97, 65, 0.16); color: #556141">XLS</span>
+                        <span>Excel con 4 hojas</span>
+                    </button>
+                    <button type="button" class="menu-item" (click)="download('csv')">
+                        <span class="menu-badge"
+                            style="background-color: rgba(44, 44, 44, 0.1); color: #2c2c2c">CSV</span>
+                        <span>Datos en texto plano</span>
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de avance hacia la próxima actualización automática -->
+    <div class="h-[3px] rounded-full overflow-hidden -mt-3" style="background-color: rgba(44, 44, 44, 0.06)">
+        <div class="h-full" style="background-color: #556141; transition: width 1s linear" [style.width.%]="progress">
+        </div>
+    </div>
+
+    <!-- Indicadores del día -->
+    <div class="dash-in" style="animation-delay: 80ms">
+        <app-dashboard-kpis [kpis]="kpis" />
+    </div>
+
+    <!-- Ventas por periodo + comparación con el periodo anterior -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+        <!-- Ventas por día, semana o mes -->
+        <section class="dash-in glass-card rounded-2xl p-5" style="animation-delay: 160ms">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div>
+                    <h3 class="font-serif font-semibold text-base">Ventas y ganancia</h3>
+                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">
+                        {{ granularity === "day" ? "Últimos 14 días" : granularity === "week" ? "Últimas 8 semanas" :
+                        "Últimos 6 meses" }}
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <app-segmented-control [options]="granularityOptions" [value]="granularity"
+                        (valueChange)="setGranularity($event)" />
+                    <app-segmented-control [options]="typeOptions" [value]="salesType"
+                        (valueChange)="setSalesType($event)" />
+                </div>
+            </div>
+
+            <!-- Leyenda -->
+            <div class="flex items-center gap-4 text-[11px] mb-1" style="color: rgba(44, 44, 44, 0.6)">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full"
+                        style="background-color: #b2571f"></span>Ventas</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full"
+                        style="background-color: #556141"></span>Ganancia</span>
+            </div>
+
+            <app-series-chart [labels]="salesLabels" [titles]="salesTitles" [series]="salesData" [type]="salesType"
+                emptyText="Todavía no hay ventas en este periodo" />
+        </section>
+
+        <!-- Comparación con el periodo anterior -->
+        <section class="dash-in glass-card rounded-2xl p-5" style="animation-delay: 220ms">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div>
+                    <h3 class="font-serif font-semibold text-base">Comparación de ingresos</h3>
+                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">
+                        {{ pair.label }} frente a {{ pair.previousLabel }}
+                    </p>
+                </div>
+                <app-segmented-control [options]="typeOptions" [value]="compareType"
+                    (valueChange)="setCompareType($event)" />
+            </div>
+
+            <!-- Totales de cada periodo y variación -->
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-1 mb-1">
+                <div>
+                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.label }}</p>
+                    <p class="font-serif font-bold text-xl" style="color: #b2571f">{{ money(currentTotals.revenue) }}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.previousLabel }}</p>
+                    <p class="font-serif font-bold text-xl" style="color: rgba(44, 44, 44, 0.6)">{{
+                        money(previousTotals.revenue) }}</p>
+                </div>
+                <app-delta-badge [value]="revenueDelta" />
+            </div>
+
+            <app-series-chart [labels]="compareLabels" [series]="compareData" [type]="compareType"
+                emptyText="Sin ingresos en ninguno de los dos periodos" />
+        </section>
+    </div>
+
+    <!-- Productos más vendidos + categorías -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+        <section class="dash-in glass-card rounded-2xl p-5" style="animation-delay: 280ms">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+                <div>
+                    <h3 class="font-serif font-semibold text-base">Productos más vendidos</h3>
+                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.label }} · top 6</p>
+                </div>
+                <app-segmented-control [options]="productOptions" [value]="productMetric"
+                    (valueChange)="setProductMetric($event)" />
+            </div>
+
+            <app-hbar-chart [items]="topItems" [format]="productMetric === 'units' ? unitsText : money" />
+        </section>
+
+        <section class="dash-in glass-card rounded-2xl p-5" style="animation-delay: 340ms">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+                <div>
+                    <h3 class="font-serif font-semibold text-base">Ventas por categoría</h3>
+                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.label }}</p>
+                </div>
+                <app-segmented-control [options]="categoryOptions" [value]="categoryMetric"
+                    (valueChange)="setCategoryMetric($event)" />
+            </div>
+
+            <app-donut-chart [items]="categoryItems" [format]="categoryMetric === 'units' ? unitsText : money"
+                [centerFormat]="categoryMetric === 'units' ? plainNumber : compact"
+                [centerLabel]="categoryMetric === 'units' ? 'unidades' : 'ventas'" />
+        </section>
+    </div>
+
+    <!-- Últimos pedidos y pedidos con mucha espera -->
+    <div class="dash-in" style="animation-delay: 400ms">
+        <app-dashboard-orders [latest]="latest" [delayed]="delayed" [now]="now" [threshold]="delayThreshold"
+            (thresholdChange)="setThreshold($event)" />
+    </div>
+
+    <!-- Platos con su precio final y su ganancia del 20 % -->
+    <div class="dash-in" style="animation-delay: 460ms">
+        <app-dashboard-dishes [rows]="dishes" [rangeLabel]="pair.label" />
+    </div>
+</div>
+}

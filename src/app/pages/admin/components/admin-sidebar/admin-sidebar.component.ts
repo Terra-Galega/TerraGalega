@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 // Tipos de secciones disponibles en el panel administrativo.
 export type AdminTab =
+  | 'dashboard'
   | 'products'
   | 'categories'
   | 'addons'
@@ -17,8 +18,9 @@ export type AdminTab =
   styleUrl: './admin-sidebar.component.scss',
 })
 export class AdminSidebarComponent {
+  
   // Sección seleccionada actualmente en el panel.
-  @Input() activeTab: AdminTab = 'products';
+  @Input() activeTab: AdminTab = 'dashboard';
 
   // Eventos para comunicar el cambio de sección y la solicitud de cierre de sesión.
   @Output() tabChanged = new EventEmitter<AdminTab>();

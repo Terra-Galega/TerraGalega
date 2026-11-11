@@ -1,0 +1,98 @@
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+    <!-- Últimos pedidos recibidos -->
+    <section class="glass-card rounded-2xl p-5">
+        <h3 class="font-serif font-semibold text-base mb-4">Últimos pedidos recibidos</h3>
+
+        <div class="space-y-2">
+            @for (order of latest; track order.id) {
+            <div class="order-row flex items-center gap-3 px-4 py-3 rounded-xl"
+                style="background-color: rgba(255, 255, 255, 0.6)">
+                <span class="font-mono text-[12px] font-semibold w-12" style="color: rgba(44, 44, 44, 0.55)">#{{
+                    order.id }}</span>
+
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">{{ order.clientName }}</p>
+                    <p class="text-[11px] truncate" style="color: rgba(44, 44, 44, 0.45)">
+                        {{ order.items }} · {{ ago(order) }}
+                    </p>
+                </div>
+
+                <span class="text-[11px] font-medium px-3 py-1 rounded-full flex-shrink-0"
+                    [style.background-color]="statusStyle[order.status].bg"
+                    [style.color]="statusStyle[order.status].color">
+                    {{ statusLabel(order.status) }}
+                </span>
+
+                <span class="font-bold text-sm w-24 text-right" style="color: #b2571f">{{ money(order.total) }}</span>
+            </div>
+            } @empty {
+            <p class="py-10 text-center text-sm" style="color: rgba(44, 44, 44, 0.45)">
+                Todavía no hay pedidos.
+            </p>
+            }
+        </div>
+    </section>
+
+    <!-- Pedidos que llevan mucho tiempo sin terminar -->
+    <section class="glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between gap-3 mb-4">
+            <h3 class="font-serif font-semibold text-base">
+                Pedidos con mucha espera
+                @if (delayed.length) {
+                <span class="ml-2 text-[11px] font-semibold px-2 py-0.5 rounded-full align-middle"
+                    style="background-color: rgba(138, 34, 34, 0.12); color: #8a2222">{{ delayed.length }}</span>
+                }
+            </h3>
+
+            <!-- Umbral de espera -->
+            <label class="flex items-center gap-2 text-[11px]" style="color: rgba(44, 44, 44, 0.5)">
+                Más de
+                <select class="text-[12px] px-2 py-1.5 rounded-lg" style="background-color: rgba(44, 44, 44, 0.06)"
+                    (change)="onThreshold($event)">
+                    @for (t of thresholds; track t) {
+                    <option [value]="t" [selected]="t === threshold">{{ t }} min</option>
+                    }
+                </select>
+            </label>
+        </div>
+
+        <div class="space-y-2">
+            @for (order of delayed; track order.id) {
+            <div class="order-row flex items-center gap-3 px-4 py-3 rounded-xl"
+                [style.background-color]="isSevere(order) ? 'rgba(138, 34, 34, 0.07)' : 'rgba(217, 154, 33, 0.1)'">
+                <span class="font-mono text-[12px] font-semibold w-12" style="color: rgba(44, 44, 44, 0.55)">#{{
+                    order.id }}</span>
+
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate">{{ order.clientName }}</p>
+                    <p class="text-[11px] truncate" style="color: rgba(44, 44, 44, 0.45)">
+                        {{ statusLabel(order.status) }} · {{ dateLabel(order.date) }}
+                    </p>
+                </div>
+
+                <!-- Tiempo esperando -->
+                <span class="text-[12px] font-bold px-3 py-1 rounded-full flex-shrink-0"
+                    [class.wait-pulse]="isSevere(order)"
+                    [style.background-color]="isSevere(order) ? '#8a2222' : '#d99a21'" style="color: #f5f2eb">
+                    {{ wait(order.waitMin) }}
+                </span>
+
+                <span class="font-bold text-sm w-24 text-right" style="color: #b2571f">{{ money(order.total) }}</span>
+            </div>
+            } @empty {
+            <div class="py-10 text-center">
+                <span class="inline-flex w-10 h-10 rounded-full items-center justify-center mb-2"
+                    style="background-color: rgba(85, 97, 65, 0.14); color: #556141">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2">
+                        <path d="M5 13l4 4L19 7" />
+                    </svg>
+                </span>
+                <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
+                    Ningún pedido lleva más de {{ threshold }} min esperando.
+                </p>
+            </div>
+            }
+        </div>
+    </section>
+</div>

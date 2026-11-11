@@ -54,6 +54,11 @@ export class OrderService {
     return this.http.get<OrderSummary[]>(`${this.apiUrl}/active`);
   }
 
+    // Todos los pedidos con sus platos y adicionales (lo usa el dashboard del admin).
+  getAllOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(this.apiUrl);
+  }
+
   // Resumen de todos los pedidos, con filtros opcionales.
   getAllOrderSummaries(filters: OrderFilters = {}): Observable<OrderSummary[]> {
     let params = new HttpParams();

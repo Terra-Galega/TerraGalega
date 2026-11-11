@@ -1,0 +1,7 @@
+.dish-row {
+  transition: background-color 0.15s ease;
+}
+
+.dish-row:hover {
+  background-color: rgba(85, 97, 65, 0.08);
+}

@@ -12,6 +12,7 @@ import { AdminTopbarComponent } from './components/admin-topbar/admin-topbar.com
 import { AdminProductsComponent } from './components/admin-products/admin-products.component';
 import { AdminOrdersComponent } from './components/admin-orders/admin-orders.component';
 import { AdminUsersComponent } from './components/admin-users/admin-users.component';
+import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AdminOperatorsComponent } from './components/admin-operators/admin-operators.component';
 import { AdminProductModalComponent } from './components/admin-product-modal/admin-product-modal.component';
 import { AdminCategoriesComponent } from './components/admin-categories/admin-categories.component';
@@ -34,6 +35,7 @@ import { ToastService } from '../../services/toast.service';
   // Componentes utilizados para mostrar las secciones y sus respectivos modales.
   imports: [
     AdminSidebarComponent,
+    AdminDashboardComponent,
     AdminTopbarComponent,
     AdminProductsComponent,
     AdminOrdersComponent,
@@ -77,7 +79,7 @@ export class AdminComponent {
     );
 
   // Pestaña que se muestra actualmente en el panel.
-  activeTab: AdminTab = 'products';
+  activeTab: AdminTab = 'dashboard';
 
   // Control y selección de elementos para los modales de productos.
   productModalOpen = false;
@@ -127,6 +129,8 @@ export class AdminComponent {
   // Devuelve el título correspondiente a la pestaña seleccionada.
   get pageTitle() {
     switch (this.activeTab) {
+      case 'dashboard':
+        return 'Dashboard';
       case 'products':
         return 'Productos';
       case 'categories':

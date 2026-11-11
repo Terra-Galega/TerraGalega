@@ -1,78 +1,57 @@
 <!-- Contenedor general del panel de administración -->
-<div
-  class="min-h-screen flex font-sans text-charcoal"
-  style="background-color: #ece9e1"
->
+<div class="min-h-screen flex font-sans text-charcoal" style="background-color: #ece9e1">
   <!-- Barra lateral con navegación, administrador activo y cierre de sesión -->
-  <app-admin-sidebar
-    [activeTab]="activeTab"
-    [adminName]="adminName"
-    (tabChanged)="changeTab($event)"
-    (logoutClicked)="logout()"
-  ></app-admin-sidebar>
+  <app-admin-sidebar [activeTab]="activeTab" [adminName]="adminName" (tabChanged)="changeTab($event)"
+    (logoutClicked)="logout()"></app-admin-sidebar>
 
   <!-- Área principal que contiene la barra superior y el contenido de cada sección -->
   <div class="flex-1 flex flex-col" style="margin-left: 240px">
     <!-- Barra superior con título, búsqueda y botón para añadir elementos -->
-    <app-admin-topbar
-      [title]="pageTitle"
-      [showAddButton]="showAddButton"
-      [addLabel]="addLabel"
-      [showSearch]="activeTab !== 'orders'"
-      (addClicked)="onAddClicked()"
-      (searchChanged)="searchProducts($event)"
-    ></app-admin-topbar>
+    <app-admin-topbar [title]="pageTitle" [showAddButton]="showAddButton" [addLabel]="addLabel"
+      [showSearch]="activeTab !== 'orders' && activeTab !== 'dashboard'" (addClicked)="onAddClicked()"
+      (searchChanged)="searchProducts($event)"></app-admin-topbar>
 
     <!-- CArga el componente correspondiente a la pestaña seleccionada -->
     <div class="flex-1 p-8">
+
+      @if (activeTab === "dashboard") {
+      <app-admin-dashboard></app-admin-dashboard>
+      }
+      
       <!-- Sección de productos -->
       @if (activeTab === "products") {
-        <app-admin-products
-          [searchTerm]="searchTerm"
-          (editProduct)="openEditProduct($event)"
-        ></app-admin-products>
+      <app-admin-products [searchTerm]="searchTerm" (editProduct)="openEditProduct($event)"></app-admin-products>
       }
 
       <!-- Sección de categorías -->
       @if (activeTab === "categories") {
-        <app-admin-categories
-          [searchTerm]="searchTerm"
-          (editCategory)="openEditCategory($event)"
-        ></app-admin-categories>
+      <app-admin-categories [searchTerm]="searchTerm" (editCategory)="openEditCategory($event)"></app-admin-categories>
       }
 
       <!-- Sección de adicionales -->
       @if (activeTab === "addons") {
-        <app-admin-addons
-          [searchTerm]="searchTerm"
-          (editAddon)="openEditAddon($event)"
-        ></app-admin-addons>
+      <app-admin-addons [searchTerm]="searchTerm" (editAddon)="openEditAddon($event)"></app-admin-addons>
       }
 
       <!-- Sección de pedidos -->
       @if (activeTab === "orders") {
-        <app-admin-orders></app-admin-orders>
+      <app-admin-orders></app-admin-orders>
       }
 
       <!-- Sección de usuarios -->
       @if (activeTab === "users") {
-        <app-admin-users [searchTerm]="searchTerm"></app-admin-users>
+      <app-admin-users [searchTerm]="searchTerm"></app-admin-users>
       }
 
       <!-- Sección de operadores -->
       @if (activeTab === "operators") {
-        <app-admin-operators
-          [searchTerm]="searchTerm"
-          (editOperator)="openEditOperator($event)"
-        ></app-admin-operators>
+      <app-admin-operators [searchTerm]="searchTerm" (editOperator)="openEditOperator($event)"></app-admin-operators>
       }
 
       <!-- Sección de domiciliarios -->
       @if (activeTab === "deliveries") {
-        <app-admin-delivery-persons
-          [searchTerm]="searchTerm"
-          (editDeliveryPerson)="openEditDeliveryPerson($event)"
-        ></app-admin-delivery-persons>
+      <app-admin-delivery-persons [searchTerm]="searchTerm"
+        (editDeliveryPerson)="openEditDeliveryPerson($event)"></app-admin-delivery-persons>
       }
     </div>
   </div>
@@ -80,62 +59,40 @@
 
 <!-- Modal para crear o editar productos -->
 @if (productModalOpen) {
-  <app-admin-product-modal
-    [product]="selectedProduct"
-    (closed)="closeProductModal()"
-  ></app-admin-product-modal>
+<app-admin-product-modal [product]="selectedProduct" (closed)="closeProductModal()"></app-admin-product-modal>
 }
 
 <!-- Modal para crear o editar categorías -->
 @if (categoryModalOpen) {
-  <app-admin-category-modal
-    [category]="selectedCategory"
-    (closed)="closeCategoryModal()"
-  ></app-admin-category-modal>
+<app-admin-category-modal [category]="selectedCategory" (closed)="closeCategoryModal()"></app-admin-category-modal>
 }
 
 <!-- Modal para crear o editar adicionales -->
 @if (addonModalOpen) {
-  <app-admin-addon-modal
-    [addon]="selectedAddon"
-    (closed)="closeAddonModal()"
-  ></app-admin-addon-modal>
+<app-admin-addon-modal [addon]="selectedAddon" (closed)="closeAddonModal()"></app-admin-addon-modal>
 }
 
 <!-- Modal para crear o editar domiciliarios y solicitar el cambio de contraseña -->
 @if (deliveryModalOpen) {
-  <app-admin-delivery-person-modal
-    [deliveryPerson]="selectedDeliveryPerson"
-    (closed)="closeDeliveryModal()"
-    (changePassword)="openDeliveryPersonPassword()"
-  ></app-admin-delivery-person-modal>
+<app-admin-delivery-person-modal [deliveryPerson]="selectedDeliveryPerson" (closed)="closeDeliveryModal()"
+  (changePassword)="openDeliveryPersonPassword()"></app-admin-delivery-person-modal>
 }
 
 <!-- Modal para crear o editar operadores y solicitar el cambio de contraseña -->
 @if (operatorModalOpen) {
-  <app-admin-operator-modal
-    [operator]="selectedOperator"
-    (closed)="closeOperatorModal()"
-    (changePassword)="openOperatorPassword()"
-  ></app-admin-operator-modal>
+<app-admin-operator-modal [operator]="selectedOperator" (closed)="closeOperatorModal()"
+  (changePassword)="openOperatorPassword()"></app-admin-operator-modal>
 }
 
 <!-- Modal para cambiar la contraseña del operador seleccionado -->
 @if (passwordOperator) {
-  <app-change-password-modal
-    [userName]="passwordOperator.name + ' ' + passwordOperator.lastName"
-    [save]="saveOperatorPassword"
-    (closed)="passwordOperator = null"
-  />
+<app-change-password-modal [userName]="passwordOperator.name + ' ' + passwordOperator.lastName"
+  [save]="saveOperatorPassword" (closed)="passwordOperator = null" />
 }
 
 <!-- Modal para cambiar la contraseña del domiciliario seleccionado -->
 @if (passwordDeliveryPerson) {
-  <app-change-password-modal
-    [userName]="
+<app-change-password-modal [userName]="
       passwordDeliveryPerson.name + ' ' + passwordDeliveryPerson.lastName
-    "
-    [save]="saveDeliveryPersonPassword"
-    (closed)="passwordDeliveryPerson = null"
-  />
+    " [save]="saveDeliveryPersonPassword" (closed)="passwordDeliveryPerson = null" />
 }

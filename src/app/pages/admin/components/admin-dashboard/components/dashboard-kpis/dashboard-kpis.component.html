@@ -1,0 +1,92 @@
+<!-- Cuatro indicadores del día; cada cifra "corre" hasta su valor nuevo en cada actualización -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+    <!-- Ventas del día -->
+    <div class="glass-card rounded-2xl p-5 kpi-card">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
+                Ventas del día
+            </p>
+            <span class="w-8 h-8 rounded-xl flex items-center justify-center"
+                style="background-color: rgba(178, 87, 31, 0.12); color: #b2571f">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                </svg>
+            </span>
+        </div>
+        <p class="font-serif font-bold text-3xl mb-2" style="color: #b2571f">
+            <app-animated-number [value]="kpis.salesToday" kind="money" />
+        </p>
+        <div class="flex items-center gap-2 text-[11px]" style="color: rgba(44, 44, 44, 0.55)">
+            <app-delta-badge [value]="kpis.salesDelta" />
+            <span>vs ayer a esta hora · {{ kpis.ordersToday }} pedidos</span>
+        </div>
+    </div>
+
+    <!-- Pedidos pendientes: se resalta en rojo si alguno lleva mucho esperando -->
+    <div class="glass-card rounded-2xl p-5 kpi-card" [style.border-color]="urgent ? 'rgba(138, 34, 34, 0.45)' : ''">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
+                Pedidos pendientes
+            </p>
+            <span class="w-8 h-8 rounded-xl flex items-center justify-center" [class.kpi-pulse]="urgent"
+                [style.background-color]="kpis.pending > 0 ? 'rgba(217, 154, 33, 0.2)' : 'rgba(85, 97, 65, 0.14)'"
+                [style.color]="kpis.pending > 0 ? '#9a6a05' : '#556141'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 2" />
+                </svg>
+            </span>
+        </div>
+        <p class="font-serif font-bold text-3xl mb-2" [style.color]="urgent ? '#8a2222' : '#2c2c2c'">
+            <app-animated-number [value]="kpis.pending" />
+        </p>
+        <p class="text-[11px]" [style.color]="urgent ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">
+            {{ oldestText }} · {{ kpis.activeOrders }} en curso
+        </p>
+    </div>
+
+    <!-- Productos vendidos (unidades) -->
+    <div class="glass-card rounded-2xl p-5 kpi-card">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
+                Productos vendidos
+            </p>
+            <span class="w-8 h-8 rounded-xl flex items-center justify-center"
+                style="background-color: rgba(85, 97, 65, 0.14); color: #556141">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M20 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z" />
+                    <path d="M16 3H8a1 1 0 00-1 1v3h10V4a1 1 0 00-1-1z" />
+                </svg>
+            </span>
+        </div>
+        <p class="font-serif font-bold text-3xl mb-2" style="color: #2c2c2c">
+            <app-animated-number [value]="kpis.unitsToday" />
+        </p>
+        <div class="flex items-center gap-2 text-[11px]" style="color: rgba(44, 44, 44, 0.55)">
+            <app-delta-badge [value]="kpis.unitsDelta" />
+            <span>unidades vs ayer a esta hora</span>
+        </div>
+    </div>
+
+    <!-- Ganancia del día (el 20 % ya viene dentro del precio de cada plato) -->
+    <div class="glass-card rounded-2xl p-5 kpi-card">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
+                Ganancia del día
+            </p>
+            <span class="w-8 h-8 rounded-xl flex items-center justify-center"
+                style="background-color: rgba(217, 154, 33, 0.2); color: #9a6a05">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M3 17l6-6 4 4 8-8" />
+                    <path d="M15 7h6v6" />
+                </svg>
+            </span>
+        </div>
+        <p class="font-serif font-bold text-3xl mb-2" style="color: #556141">
+            <app-animated-number [value]="kpis.profitToday" kind="money" />
+        </p>
+        <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.55)">
+            Margen del {{ profitPct }} % incluido en cada plato
+        </p>
+    </div>
+</div>
