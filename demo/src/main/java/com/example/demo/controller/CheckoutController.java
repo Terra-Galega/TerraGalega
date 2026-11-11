@@ -26,7 +26,10 @@ public class CheckoutController {
     @Autowired
     private ClientService clientService;
 
-    // POST /checkout?clientId=X con el carrito en el cuerpo 
+    @Autowired
+    private com.example.demo.movil.service.CartService cartService;
+
+    // POST /checkout?clientId=X con el carrito en el cuerpo
     @Operation(summary = "Process checkout and create an order")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201 sin cuerpo: el pedido se creó
@@ -39,5 +42,11 @@ public class CheckoutController {
 
         // El pedido se guarda
         orderService.checkout(client, request);
+        // El carrito compartido (web + app) queda vacío. El pedido ya se creó, así que
+        // un fallo aquí no lo afecta.
+        try {
+            cartService.clear(clientId);
+        } catch (Exception ignored) {
+        }
     }
 }

@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.movil.service.DeliveryTrackingService;
+import com.example.demo.movil.service.OrderMirrorService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,6 +59,8 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private DeliveryTrackingService deliveryTrackingService;
 
+    @Autowired
+    private OrderMirrorService orderMirrorService;
     private static final List<OrderStatus> FINISHED_STATUSES = List.of(
             OrderStatus.DELIVERED,
             OrderStatus.CANCELLED);
@@ -89,6 +92,7 @@ public class OrderServiceImpl implements OrderService {
             order.setClient(null);
         }
         repository.saveAll(orders);
+        orders.forEach(orderMirrorService::sync);
     }
 
     // Antes de eliminar la cuenta: si algún pedido ya fue confirmado por el
@@ -118,6 +122,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         repository.saveAll(orders);
+        orders.forEach(orderMirrorService::sync);
     }
 
     // Busca un pedido o lanza 404 si no existe
@@ -217,7 +222,9 @@ public class OrderServiceImpl implements OrderService {
 
         order.setDetails(details);
 
-        return repository.save(order);
+        Order saved = repository.save(order);
+        orderMirrorService.sync(saved);
+        return saved;
     }
 
     // Pedidos activos sin entregar ni cancelar)
@@ -291,7 +298,9 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(OrderStatus.CANCELLED);
 
-        return repository.save(order);
+        Order saved = repository.save(order);
+        orderMirrorService.sync(saved);
+        return saved;
     }
 
     // Un operador activo empieza a cocinar y queda registrado en el pedido
@@ -319,7 +328,9 @@ public class OrderServiceImpl implements OrderService {
         order.setOperator(operator);
         order.setStatus(OrderStatus.PREPARING);
 
-        return repository.save(order);
+        Order saved = repository.save(order);
+        orderMirrorService.sync(saved);
+        return saved;
     }
 
     // Se asigna un domiciliario activo y disponible.
@@ -358,6 +369,7 @@ public class OrderServiceImpl implements OrderService {
         Order saved = repository.save(order);
         // Postgres: crea el PIN. Si Postgres falla, lanza excepción y H2 hace rollback.
         deliveryTrackingService.startTracking(saved);
+        orderMirrorService.sync(saved);
         return saved;
     }
 
@@ -382,7 +394,9 @@ public class OrderServiceImpl implements OrderService {
             deliveryPersonRepository.save(deliveryPerson);
         }
 
-        return repository.save(order);
+        Order savedO = repository.save(order);
+        orderMirrorService.sync(savedO);
+        return savedO;
     }
 
     // Convierte el pedido a DTO sin datos de contacto (listas y confirmaciones)
