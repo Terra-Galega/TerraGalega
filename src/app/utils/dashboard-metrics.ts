@@ -8,12 +8,9 @@ import { Product } from '../models/product';
 // Son funciones puras: reciben el modelo y una fecha, y devuelven datos.
 // =====================================================================
 
-// ---------------------------------------------------------------------
 // Constantes
-// ---------------------------------------------------------------------
-
 // El precio final de cada plato ya incluye un 20 % de ganancia sobre el costo:
-//   precio = costo × (1 + 0.20)   ->   costo = precio ÷ 1.2
+// precio = costo X (1 + 0.20)   ->   costo = precio ÷ 1.2
 export const PROFIT_MARKUP = 0.2;
 
 // Paleta de las gráficas (marca Terra Galega). El 0 y el 1 son los principales;
@@ -50,12 +47,10 @@ const ACTIVE_STATUSES: OrderStatus[] = [
 
 const MS_MIN = 60_000;
 const MS_HOUR = 3_600_000;
-
-// ---------------------------------------------------------------------
 // Tipos
-// ---------------------------------------------------------------------
-
 export type RangeKey = 'today' | '7d' | '30d';
+// Además de los tres rangos rápidos, el reporte puede ser de un día, una semana o un rango libre
+export type PairKey = RangeKey | 'day' | 'week' | 'custom';
 export type Granularity = 'day' | 'week' | 'month';
 
 // Intervalo de fechas: incluye `from` y NO incluye `to`
@@ -66,7 +61,7 @@ export interface DateRange {
 
 // Rango elegido junto con el periodo anterior de la misma duración
 export interface RangePair {
-  key: RangeKey;
+  key: PairKey;
   label: string;
   previousLabel: string;
   current: DateRange;
@@ -79,7 +74,7 @@ export interface DashOrder {
   date: Date;
   clientName: string;
   status: OrderStatus;
-  // Texto resumen: "2× Ajiaco, 1× Empanadas"
+  // Texto resumen: "2X Ajiaco, 1X Empanadas"
   items: string;
   units: number;
   total: number;
@@ -102,7 +97,7 @@ export interface DashLine {
   productId: number;
   name: string;
   units: number;
-  // Ventas de la línea: (precio + adicionales) × cantidad
+  // Ventas de la línea: (precio + adicionales) X cantidad
   revenue: number;
   profit: number;
 }
@@ -187,11 +182,7 @@ export interface DishRow {
   sales: number;
   profit: number;
 }
-
-// ---------------------------------------------------------------------
 // Formato de cifras y fechas
-// ---------------------------------------------------------------------
-
 const MONTHS = [
   'ene', 'feb', 'mar', 'abr', 'may', 'jun',
   'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
@@ -238,6 +229,11 @@ export function shortDate(d: Date): string {
   return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
+// 3 may 2026
+export function fmtDate(d: Date): string {
+  return `${shortDate(d)} ${d.getFullYear()}`;
+}
+
 // 3 may 2026, 14:30
 export function dateTimeLabel(d: Date): string {
   return `${shortDate(d)} ${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -264,11 +260,7 @@ export function pctChange(current: number, previous: number): number | null {
   if (previous === 0) return current === 0 ? 0 : null;
   return ((current - previous) / previous) * 100;
 }
-
-// ---------------------------------------------------------------------
 // Fechas
-// ---------------------------------------------------------------------
-
 // Mismo momento, `days` días después (negativo = antes). Respeta cambios de hora.
 export function addDays(date: Date, days: number): Date {
   const d = new Date(date);
@@ -276,14 +268,14 @@ export function addDays(date: Date, days: number): Date {
   return d;
 }
 
-function startOfDay(date: Date): Date {
+export function startOfDay(date: Date): Date {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   return d;
 }
 
 // Lunes de la semana de `date` (a las 00:00)
-function startOfWeek(date: Date): Date {
+export function startOfWeek(date: Date): Date {
   const d = startOfDay(date);
   d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
   return d;
@@ -329,11 +321,44 @@ export function rangePair(key: RangeKey, now: Date): RangePair {
   };
 }
 
-// ---------------------------------------------------------------------
-// Construcción del modelo
-// ---------------------------------------------------------------------
+// Periodo elegido a mano para el reporte: de `first` a `last` (ambos días incluidos).
+// El periodo anterior es el tramo inmediato de igual duración, para poder comparar.
+export function customPair(
+  key: 'day' | 'week' | 'custom',
+  first: Date,
+  last: Date,
+): RangePair {
+  const from = startOfDay(first);
+  const to = addDays(startOfDay(last), 1);
+  const days = Math.max(
+    1,
+    Math.round((to.getTime() - from.getTime()) / (24 * MS_HOUR)),
+  );
+  const prevFrom = addDays(from, -days);
 
-// Parte del precio final que es ganancia: precio × 0.2 ÷ 1.2
+  let label: string;
+  let previousLabel: string;
+  if (key === 'day') {
+    label = fmtDate(from);
+    previousLabel = fmtDate(prevFrom);
+  } else if (key === 'week') {
+    label = `Semana del ${shortDate(from)} al ${fmtDate(addDays(to, -1))}`;
+    previousLabel = 'Semana anterior';
+  } else {
+    label = `${fmtDate(from)} - ${fmtDate(addDays(to, -1))}`;
+    previousLabel = `${days} ${days === 1 ? 'día anterior' : 'días anteriores'}`;
+  }
+
+  return {
+    key,
+    label,
+    previousLabel,
+    current: { from, to },
+    previous: { from: prevFrom, to: from },
+  };
+}
+// Construcción del modelo
+// Parte del precio final que es ganancia: precio X 0.2 ÷ 1.2
 const PROFIT_SHARE = PROFIT_MARKUP / (1 + PROFIT_MARKUP);
 
 function num(value: unknown): number {
@@ -413,7 +438,7 @@ export function buildModel(
       date,
       clientName: clientName || 'Cliente',
       status: o.status,
-      items: details.map((d) => `${d.quantity}× ${d.product.name}`).join(', '),
+      items: details.map((d) => `${d.quantity}X ${d.product.name}`).join(', '),
       units,
       total,
       profit: total * PROFIT_SHARE,
@@ -423,11 +448,7 @@ export function buildModel(
 
   return { orders: dashOrders, lines, products: dashProducts };
 }
-
-// ---------------------------------------------------------------------
 // Totales e indicadores
-// ---------------------------------------------------------------------
-
 // Ventas, pedidos, unidades y ganancia de un intervalo (los cancelados no cuentan)
 export function totalsFor(
   model: DashboardModel,
@@ -482,11 +503,7 @@ export function computeKpis(model: DashboardModel, now: Date): Kpis {
     activeOrders: active,
   };
 }
-
-// ---------------------------------------------------------------------
 // Series para las gráficas
-// ---------------------------------------------------------------------
-
 // Ventas y ganancia por día (14), semana (8) o mes (6), terminando en el actual.
 export function salesSeries(
   model: DashboardModel,
@@ -551,14 +568,15 @@ export function compareSeries(
   const revenue = (from: Date, to: Date) =>
     totalsFor(model, { from, to }).revenue;
 
-  if (pair.key === 'today') {
-    const lastHour = Math.min(
-      23,
-      Math.max(
-        0,
-        Math.floor((Date.now() - pair.current.from.getTime()) / MS_HOUR),
-      ),
-    );
+  const spanDays = Math.round(
+    (pair.current.to.getTime() - pair.current.from.getTime()) / (24 * MS_HOUR),
+  );
+
+  // Un solo día (hoy, ayer o cualquier fecha): hora por hora. Si es hoy, solo hasta la hora actual.
+  if (spanDays === 1) {
+    const now = new Date();
+    const isToday = startOfDay(now).getTime() === pair.current.from.getTime();
+    const lastHour = isToday ? now.getHours() : 23;
     for (let h = 0; h <= lastHour; h++) {
       const cur = new Date(pair.current.from);
       cur.setHours(h);
@@ -572,10 +590,7 @@ export function compareSeries(
     return result;
   }
 
-  const days = Math.round(
-    (pair.current.to.getTime() - pair.current.from.getTime()) / (24 * MS_HOUR),
-  );
-  for (let i = 0; i < days; i++) {
+  for (let i = 0; i < spanDays; i++) {
     const cur = addDays(pair.current.from, i);
     const prev = addDays(pair.previous.from, i);
     result.labels.push(shortDate(cur));
@@ -586,10 +601,47 @@ export function compareSeries(
   return result;
 }
 
-// ---------------------------------------------------------------------
-// Productos, categorías y platos
-// ---------------------------------------------------------------------
+// Ventas y ganancia de cualquier intervalo, en barras de tamaño adecuado:
+// un día -> por hora - hasta 62 días -> por día - más -> por semana.
+export function rangeSeries(
+  model: DashboardModel,
+  range: DateRange,
+): { labels: string[]; revenue: number[]; profit: number[] } {
+  const out = {
+    labels: [] as string[],
+    revenue: [] as number[],
+    profit: [] as number[],
+  };
+  const push = (label: string, from: Date, to: Date) => {
+    const t = totalsFor(model, { from, to });
+    out.labels.push(label);
+    out.revenue.push(t.revenue);
+    out.profit.push(t.profit);
+  };
 
+  const days = Math.round(
+    (range.to.getTime() - range.from.getTime()) / (24 * MS_HOUR),
+  );
+  if (days <= 1) {
+    for (let h = 0; h < 24; h++) {
+      const from = new Date(range.from);
+      from.setHours(h);
+      push(`${pad(h)}:00`, from, new Date(from.getTime() + MS_HOUR));
+    }
+  } else if (days <= 62) {
+    for (let i = 0; i < days; i++) {
+      const from = addDays(range.from, i);
+      push(shortDate(from), from, addDays(from, 1));
+    }
+  } else {
+    for (let from = range.from; from < range.to; from = addDays(from, 7)) {
+      const to = addDays(from, 7);
+      push(shortDate(from), from, to < range.to ? to : range.to);
+    }
+  }
+  return out;
+}
+// Productos, categorías y platos
 interface DishAgg {
   units: number;
   revenue: number;
@@ -704,11 +756,7 @@ export function dishRows(model: DashboardModel, range: DateRange): DishRow[] {
   }
   return rows;
 }
-
-// ---------------------------------------------------------------------
 // Pedidos
-// ---------------------------------------------------------------------
-
 // Los `limit` pedidos más recientes (cancelados incluidos: el admin quiere verlos)
 export function latestOrders(
   model: DashboardModel,

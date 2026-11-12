@@ -60,45 +60,15 @@
   }
 }
 
-// Menú de descarga
-.menu-pop {
-  animation: menu-pop 0.16s ease-out;
-  transform-origin: top right;
+// Botón de descargar reporte
+.export-btn {
+  box-shadow: 0 4px 14px rgba(178, 87, 31, 0.3);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-@keyframes menu-pop {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 9px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  text-align: left;
-  color: #2c2c2c;
-  transition: background-color 0.15s ease;
-}
-
-.menu-item:hover {
-  background-color: rgba(44, 44, 44, 0.06);
-}
-
-.menu-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 3px 7px;
-  border-radius: 6px;
-  min-width: 34px;
-  text-align: center;
+.export-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(178, 87, 31, 0.4);
 }
