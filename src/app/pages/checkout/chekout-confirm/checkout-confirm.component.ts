@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { switchMap, timer } from 'rxjs';
@@ -17,8 +18,10 @@ import {
 import { AddressService } from '../../../services/address.service';
 import { CheckoutService } from '../../../services/checkout.service';
 import { CheckoutDraftService } from '../../../services/checkout-draft.service';
+import { CouponService } from '../../../services/coupon.service';
 import { OrderService } from '../../../services/order.service';
 import { CheckoutRequest, DELIVERY_FEE } from '../../../models/checkout';
+import { CouponDiscount } from '../../../models/coupon';
 import { getErrorMessage } from '../../../utils/http-error';
 
 // Lo que dura el "Procesando pago..." de la pasarela simulada (milisegundos)
@@ -28,6 +31,7 @@ const PAYMENT_DELAY_MS = 1500;
 @Component({
   selector: 'app-checkout-confirm',
   imports: [
+    DecimalPipe,
     NavbarComponent,
     FooterComponent,
     PageHeaderComponent,
@@ -39,7 +43,7 @@ const PAYMENT_DELAY_MS = 1500;
   templateUrl: './checkout-confirm.component.html',
 })
 export class CheckoutConfirmComponent implements OnInit {
-  // Dependencias inyectadas: navegación, sesión, carrito, checkout, borrador, pedidos y direcciones
+  // Dependencias inyectadas: navegación, sesión, carrito, checkout, borrador, pedidos, direcciones y cupones
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
@@ -47,15 +51,13 @@ export class CheckoutConfirmComponent implements OnInit {
   private draftService = inject(CheckoutDraftService);
   private orderService = inject(OrderService);
   private addressService = inject(AddressService);
+  private couponService = inject(CouponService);
 
   // Id del cliente logueado; null hasta comprobar la sesión
   clientId: number | null = null;
 
   // Costo fijo del domicilio, que se suma al total en el resumen
   deliveryFee = DELIVERY_FEE;
-
-  // Lo elegido en el paso 1
-  draft = this.draftService.draft;
 
   // false mientras se comprueba que el paso 1 esté completo
   ready = false;
@@ -96,12 +98,32 @@ export class CheckoutConfirmComponent implements OnInit {
 
     this.ready = true;
 
-    // Antes de confirmar se quitan los productos que ya no están disponibles
+    // Antes de confirmar se quitan los productos que ya no están disponibles.
+    // Si hay cupón, se revalida: el subtotal pudo cambiar o el cupón dejó de servir
     this.cartService.removeUnavailable().subscribe((removed) => {
-      if (removed.length > 0) {
-        this.showCartUpdated(removed);
-      }
+      this.revalidateCoupon((couponMessage) => {
+        if (removed.length > 0) {
+          this.showCartUpdated(removed, couponMessage);
+        } else if (couponMessage) {
+          this.showNotice('Quitamos tu cupón', couponMessage);
+        }
+      });
     });
+  }
+
+  // Lo elegido en el paso 1 (se lee siempre del servicio, porque el cupón puede cambiar aquí)
+  get draft() {
+    return this.draftService.draft;
+  }
+
+  // Cupón aplicado en el paso 1 (null = sin cupón)
+  get coupon(): CouponDiscount | null {
+    return this.draft.coupon;
+  }
+
+  // Descuento del cupón (0 si no hay)
+  get discount(): number {
+    return this.coupon?.discount ?? 0;
   }
 
   // Datos del carrito para el resumen (vienen del CartService)
@@ -134,11 +156,54 @@ export class CheckoutConfirmComponent implements OnInit {
     this.router.navigate(['/checkout']);
   }
 
-  // Reutiliza el modal de error para avisar qué productos se quitaron del carrito
-  private showCartUpdated(removed: string[]): void {
-    this.errorTitle = 'Actualizamos tu carrito';
-    this.errorMessage = unavailableMessage(removed);
+  // Cambia el cupón del borrador (null = quitarlo)
+  private setCoupon(coupon: CouponDiscount | null): void {
+    this.draftService.draft = { ...this.draftService.draft, coupon };
+  }
+
+  // Vuelve a validar el cupón con el subtotal actual. Si sigue sirviendo, se
+  // actualiza su descuento; si no, se quita y done() recibe el motivo.
+  // Sin cupón no hace nada y done() recibe ''.
+  private revalidateCoupon(done: (couponMessage: string) => void): void {
+    const coupon = this.coupon;
+
+    if (!coupon || this.clientId === null) {
+      done('');
+      return;
+    }
+
+    this.couponService
+      .validateCoupon(coupon.code, this.clientId, this.total)
+      .subscribe({
+        next: (result) => {
+          this.setCoupon(result);
+          done('');
+        },
+        error: (error) => {
+          this.setCoupon(null);
+          done(
+            `Quitamos el cupón ${coupon.code}. ` +
+              getErrorMessage(error, 'Ya no se puede aplicar.'),
+          );
+        },
+      });
+  }
+
+  // Abre el modal de error con el título y el texto que se le pasen
+  private showNotice(title: string, message: string): void {
+    this.errorTitle = title;
+    this.errorMessage = message;
     this.showErrorModal = true;
+  }
+
+  // Reutiliza el modal de error para avisar qué productos se quitaron del
+  // carrito (y, si también se quitó el cupón, por qué)
+  private showCartUpdated(removed: string[], couponMessage = ''): void {
+    const message = couponMessage
+      ? `${unavailableMessage(removed)}\n\n${couponMessage}`
+      : unavailableMessage(removed);
+
+    this.showNotice('Actualizamos tu carrito', message);
   }
 
   // Botón "Confirmar pedido": arma la solicitud, simula el pago y crea el pedido.
@@ -156,6 +221,7 @@ export class CheckoutConfirmComponent implements OnInit {
     const addressName = this.draft.addressName;
 
     // Solicitud al backend: dirección y, por cada ítem, producto, cantidad e ids de adicionales.
+    // Del cupón solo viaja el código: el back valida y calcula el descuento por su cuenta.
     const request: CheckoutRequest = {
       address,
       items: this.items.map((item) => ({
@@ -163,6 +229,7 @@ export class CheckoutConfirmComponent implements OnInit {
         quantity: item.quantity,
         addOnIds: item.addOns.map((addOn) => addOn.id),
       })),
+      couponCode: this.coupon?.code ?? null,
     };
 
     this.paying = true;
@@ -183,6 +250,8 @@ export class CheckoutConfirmComponent implements OnInit {
 
           this.cartService.clear();
           this.orderService.refresh();
+          // El cupón usado deja de estar disponible: las listas de cupones se recargan
+          this.couponService.refresh();
           this.draftService.reset();
 
           this.router.navigate(['/orders'], {
@@ -200,18 +269,27 @@ export class CheckoutConfirmComponent implements OnInit {
 
           this.paying = false;
 
-          // Si falló porque un producto dejó de estar disponible, se quita del
-          // carrito y se le avisa al cliente cuál fue
+          // El fallo puede venir de un producto que dejó de estar disponible o
+          // del cupón. Se revisan los dos: lo que ya no sirve se quita y se
+          // avisa cuál fue el motivo
           this.cartService.removeUnavailable().subscribe((removed) => {
-            if (removed.length > 0) {
-              this.showCartUpdated(removed);
-              return;
-            }
+            this.revalidateCoupon((couponMessage) => {
+              if (removed.length > 0) {
+                this.showCartUpdated(removed, couponMessage);
+                return;
+              }
 
-            this.errorTitle = 'No se pudo procesar el pedido';
-            this.serverError = serverMessage;
-            this.errorMessage = serverMessage;
-            this.showErrorModal = true;
+              if (couponMessage) {
+                this.serverError = couponMessage;
+                this.showNotice('Quitamos tu cupón', couponMessage);
+                return;
+              }
+
+              this.errorTitle = 'No se pudo procesar el pedido';
+              this.serverError = serverMessage;
+              this.errorMessage = serverMessage;
+              this.showErrorModal = true;
+            });
           });
         },
       });

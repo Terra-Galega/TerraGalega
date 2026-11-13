@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { CouponDiscount } from '../models/coupon';
 
 // Lo que el cliente elige en el paso 1 y se muestra en el paso 2
 export interface CheckoutDraft {
@@ -19,6 +20,8 @@ export interface CheckoutDraft {
   cvv: string;
   // Número de cuotas (1 = pago de contado)
   installments: number;
+  // Cupón aplicado en el paso 1 (null = sin cupón)
+  coupon: CouponDiscount | null;
 }
 
 // Guarda en memoria el borrador entre el paso 1 y el paso 2. No usa
@@ -47,6 +50,7 @@ export class CheckoutDraftService {
       expiry: '',
       cvv: '',
       installments: 1,
+      coupon: null,
     };
   }
 

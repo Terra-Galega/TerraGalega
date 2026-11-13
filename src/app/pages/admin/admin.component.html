@@ -33,6 +33,14 @@
       <app-admin-addons [searchTerm]="searchTerm" (editAddon)="openEditAddon($event)"></app-admin-addons>
       }
 
+      <!-- Sección de cupones -->
+      @if (activeTab === "coupons") {
+        <app-admin-coupons
+          [searchTerm]="searchTerm"
+          (editCoupon)="openEditCoupon($event)"
+        ></app-admin-coupons>
+      }
+
       <!-- Sección de pedidos -->
       @if (activeTab === "orders") {
       <app-admin-orders></app-admin-orders>
@@ -70,6 +78,14 @@
 <!-- Modal para crear o editar adicionales -->
 @if (addonModalOpen) {
 <app-admin-addon-modal [addon]="selectedAddon" (closed)="closeAddonModal()"></app-admin-addon-modal>
+}
+
+<!-- Modal para crear o editar cupones -->
+@if (couponModalOpen) {
+  <app-admin-coupon-modal
+    [coupon]="selectedCoupon"
+    (closed)="closeCouponModal()"
+  ></app-admin-coupon-modal>
 }
 
 <!-- Modal para crear o editar domiciliarios y solicitar el cambio de contraseña -->

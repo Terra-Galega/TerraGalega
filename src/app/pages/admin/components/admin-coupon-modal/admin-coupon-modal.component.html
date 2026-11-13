@@ -1,0 +1,273 @@
+<!-- Fondo oscuro que cubre toda la pantalla y centra la ventana -->
+<div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    style="background-color: rgba(44, 44, 44, 0.55)"
+>
+    <!-- Ventana: si el formulario es muy alto, se desplaza por dentro -->
+    <div
+        class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
+    >
+        <!-- Encabezado: el título cambia según se edite o se cree -->
+        <div class="flex items-center justify-between mb-7">
+            <h2 class="font-serif text-2xl font-semibold text-charcoal">
+                {{ coupon ? "Editar cupón" : "Añadir cupón" }}
+            </h2>
+
+            <!-- Botón X para cerrar -->
+            <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+                <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </app-icon-button>
+        </div>
+
+        <div class="space-y-4">
+            <!-- Código: el back lo guarda siempre en mayúsculas -->
+            <app-form-field label="Código">
+                <input
+                    id="coupon-code"
+                    type="text"
+                    [value]="code"
+                    (input)="setCode($event)"
+                    required
+                    placeholder="BIENVENIDA10"
+                    style="text-transform: uppercase"
+                    class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                />
+            </app-form-field>
+
+            <!-- Descripción -->
+            <app-form-field label="Descripción">
+                <textarea
+                    id="coupon-description"
+                    [value]="description"
+                    (input)="setDescription($event)"
+                    rows="2"
+                    placeholder="Descripción del cupón…"
+                    class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
+                ></textarea>
+            </app-form-field>
+
+            <!-- Tipo y valor del descuento, lado a lado -->
+            <div class="grid grid-cols-2 gap-3">
+                <app-form-field label="Tipo de descuento">
+                    <select
+                        (change)="setDiscountType($event)"
+                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                    >
+                        <option value="PERCENTAGE" [selected]="discountType === 'PERCENTAGE'">
+                            Porcentaje (%)
+                        </option>
+                        <option value="FIXED_AMOUNT" [selected]="discountType === 'FIXED_AMOUNT'">
+                            Monto fijo (COP)
+                        </option>
+                    </select>
+                </app-form-field>
+
+                <app-form-field
+                    [label]="discountType === 'PERCENTAGE' ? 'Valor (%)' : 'Valor (COP)'"
+                >
+                    <input
+                        id="coupon-value"
+                        type="number"
+                        min="0"
+                        [value]="discountValue ?? ''"
+                        (input)="setDiscountValue($event)"
+                        required
+                        [placeholder]="discountType === 'PERCENTAGE' ? '10' : '5000'"
+                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                    />
+                </app-form-field>
+            </div>
+
+            <!-- Tope (solo en porcentajes) y subtotal mínimo, lado a lado -->
+            <div class="grid grid-cols-2 gap-3">
+                @if (discountType === "PERCENTAGE") {
+                    <app-form-field label="Tope del descuento (COP, opcional)">
+                        <input
+                            id="coupon-max-discount"
+                            type="number"
+                            min="0"
+                            [value]="maxDiscount ?? ''"
+                            (input)="setMaxDiscount($event)"
+                            placeholder="8000"
+                            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                        />
+                    </app-form-field>
+                }
+
+                <app-form-field label="Subtotal mínimo (COP, opcional)">
+                    <input
+                        id="coupon-min-order"
+                        type="number"
+                        min="0"
+                        [value]="minOrderAmount ?? ''"
+                        (input)="setMinOrderAmount($event)"
+                        placeholder="20000"
+                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                    />
+                </app-form-field>
+            </div>
+
+            <!-- Vigencia: inicio y vencimiento, ambos opcionales -->
+            <div class="grid grid-cols-2 gap-3">
+                <app-form-field label="Inicio (opcional)">
+                    <input
+                        id="coupon-starts-at"
+                        type="datetime-local"
+                        [value]="startsAt"
+                        (input)="setStartsAt($event)"
+                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                    />
+                </app-form-field>
+
+                <app-form-field label="Vencimiento (opcional)">
+                    <input
+                        id="coupon-expires-at"
+                        type="datetime-local"
+                        [value]="expiresAt"
+                        [attr.min]="startsAt || null"
+                        (input)="setExpiresAt($event)"
+                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                    />
+                </app-form-field>
+            </div>
+
+            <!-- Usos máximos -->
+            <app-form-field label="Usos máximos (opcional)">
+                <input
+                    id="coupon-max-uses"
+                    type="number"
+                    min="1"
+                    [value]="maxUses ?? ''"
+                    (input)="setMaxUses($event)"
+                    placeholder="Ilimitado"
+                    class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                />
+            </app-form-field>
+
+            <!-- Dueño: casilla "para todos" y buscador de un cliente específico.
+                 Con la casilla marcada el buscador sigue visible pero gris y deshabilitado. -->
+            <app-form-field label="Dueño del cupón">
+                <div class="space-y-3">
+                    <app-check-option
+                        label="Para todos los clientes (cupón general)"
+                        [checked]="forEveryone"
+                        (changed)="setForEveryone($event)"
+                    />
+
+                    <div class="space-y-2" [class.opacity-50]="forEveryone">
+                        @if (selectedClient) {
+                            <!-- Cliente ya elegido -->
+                            <div
+                                class="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm text-charcoal"
+                                style="background-color: rgba(85, 97, 65, 0.12)"
+                            >
+                                <span class="font-medium">
+                                    {{ selectedClient.name }} {{ selectedClient.lastName }}
+                                </span>
+                                <button
+                                    type="button"
+                                    class="text-xs font-semibold hover:underline"
+                                    style="color: #a24a17"
+                                    (click)="clearClient()"
+                                >
+                                    Cambiar
+                                </button>
+                            </div>
+                        } @else {
+                            <!-- Buscador por nombre, apellido o correo -->
+                            <input
+                                id="coupon-client-search"
+                                type="text"
+                                [value]="clientSearch"
+                                (input)="setClientSearch($event)"
+                                [disabled]="forEveryone"
+                                [placeholder]="forEveryone
+                                    ? 'Desmarca la casilla para elegir un cliente'
+                                    : 'Buscar cliente por nombre…'"
+                                autocomplete="off"
+                                class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal disabled:cursor-not-allowed"
+                                [style.background-color]="forEveryone ? 'rgba(44, 44, 44, 0.08)' : null"
+                            />
+
+                            @if (!forEveryone && clientSearch.trim()) {
+                                <ul
+                                    class="rounded-xl overflow-hidden bg-white"
+                                    style="border: 1px solid rgba(44, 44, 44, 0.1)"
+                                >
+                                    @for (client of filteredClients; track client.id) {
+                                        <li>
+                                            <button
+                                                type="button"
+                                                class="w-full text-left px-4 py-2.5 text-sm text-charcoal hover:bg-black/5"
+                                                (click)="selectClient(client)"
+                                            >
+                                                {{ client.name }} {{ client.lastName }}
+                                                <span
+                                                    class="block text-xs"
+                                                    style="color: rgba(44, 44, 44, 0.55)"
+                                                >
+                                                    {{ client.email }}
+                                                </span>
+                                            </button>
+                                        </li>
+                                    } @empty {
+                                        <li
+                                            class="px-4 py-2.5 text-sm"
+                                            style="color: rgba(44, 44, 44, 0.55)"
+                                        >
+                                            Sin resultados
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        }
+                    </div>
+                </div>
+            </app-form-field>
+
+            <!-- Estado: si el cupón está activo (se puede usar en los pedidos) -->
+            <app-form-field label="Estado">
+                <app-check-option
+                    label="Activo"
+                    [checked]="active"
+                    (changed)="toggleActive()"
+                />
+            </app-form-field>
+
+            <!-- Error de validación o del servidor -->
+            @if (errorMessage) {
+                <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
+            }
+
+            <!-- Botones: Cancelar y Guardar -->
+            <div class="flex gap-3 pt-2">
+                <app-button
+                    class="flex-1"
+                    variant="neutral"
+                    [fullWidth]="true"
+                    (click)="close()"
+                >
+                    Cancelar
+                </app-button>
+
+                <app-button
+                    id="btn-save-coupon"
+                    class="flex-1"
+                    [fullWidth]="true"
+                    (click)="save()"
+                >
+                    {{ coupon ? "Guardar cambios" : "Añadir cupón" }}
+                </app-button>
+            </div>
+        </div>
+    </div>
+</div>

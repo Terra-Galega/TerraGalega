@@ -1,0 +1,103 @@
+<article
+    class="rounded-2xl overflow-hidden flex h-full"
+    [style.opacity]="isActive ? 1 : 0.7"
+    style="
+        background-color: #ffffff;
+        border: 1px solid rgba(44, 44, 44, 0.08);
+        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.06);
+    "
+>
+    <!-- Franja del descuento: siempre del mismo ancho (w-24), sin importar el valor.
+         Naranja si el cupón está activo, gris si ya no se puede usar -->
+    <div
+        class="w-24 shrink-0 px-2 py-4 flex flex-col items-center justify-center text-center"
+        [style.background]="isActive
+            ? 'linear-gradient(135deg, #d2691e 0%, #a24a17 100%)'
+            : 'rgba(44, 44, 44, 0.14)'"
+    >
+        <p
+            class="font-serif font-bold leading-none whitespace-nowrap"
+            [class]="valueSize"
+            [style.color]="isActive ? '#ffffff' : 'rgba(44, 44, 44, 0.6)'"
+        >
+            {{ valueText }}
+        </p>
+        <p
+            class="text-[10px] font-semibold uppercase tracking-wider leading-tight mt-1.5"
+            [style.color]="isActive ? 'rgba(255, 255, 255, 0.9)' : 'rgba(44, 44, 44, 0.55)'"
+        >
+            de descuento
+        </p>
+    </div>
+
+    <!-- Datos del cupón -->
+    <div class="flex-1 min-w-0 px-4 py-3.5 flex flex-col">
+        <!-- Código y etiquetas -->
+        <div class="flex items-start justify-between gap-2">
+            <p
+                class="font-semibold text-[15px] text-charcoal tracking-wide truncate"
+                [title]="coupon.code"
+            >
+                {{ coupon.code }}
+            </p>
+
+            <div class="flex items-center gap-1 shrink-0">
+                @if (coupon.general) {
+                    <span
+                        class="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap"
+                        style="color: #556141; background-color: rgba(85, 97, 65, 0.12)"
+                    >
+                        Para todos
+                    </span>
+                }
+                @if (!isActive) {
+                    <span
+                        class="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap"
+                        style="color: #8a2222; background-color: rgba(138, 34, 34, 0.1)"
+                    >
+                        {{ statusLabel }}
+                    </span>
+                }
+            </div>
+        </div>
+
+        <!-- Descripción: una sola línea -->
+        @if (coupon.description) {
+            <p
+                class="mt-0.5 text-[13px] line-clamp-1"
+                style="color: rgba(44, 44, 44, 0.7)"
+            >
+                {{ coupon.description }}
+            </p>
+        }
+
+        <!-- Condiciones en una línea -->
+        <p class="mt-1.5 text-xs" style="color: rgba(44, 44, 44, 0.6)">
+            {{ conditions }}
+        </p>
+
+        <!-- Vigencia y botón de copiar, siempre abajo -->
+        <div class="mt-auto pt-2 flex items-center justify-between gap-2">
+            <p class="text-xs font-medium" style="color: rgba(44, 44, 44, 0.55)">
+                @if (!coupon.expiresAt) {
+                    Sin vencimiento
+                } @else if (coupon.status === 'EXPIRED') {
+                    Venció el {{ coupon.expiresAt | date: "dd MMM yyyy" }}
+                } @else {
+                    Vence el {{ coupon.expiresAt | date: "dd MMM yyyy" }}
+                }
+            </p>
+
+            @if (isActive) {
+                <button
+                    type="button"
+                    class="text-xs font-semibold hover:underline whitespace-nowrap"
+                    style="color: #a24a17"
+                    (click)="copyCode()"
+                >
+                    Copiar código
+                </button>
+            }
+        </div>
+    </div>
+</article>

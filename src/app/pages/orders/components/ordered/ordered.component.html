@@ -68,6 +68,25 @@
             </span>
           </div>
         }
+
+        <!-- Cupón usado: solo aparece si el pedido tuvo descuento -->
+        @if (order.discount && order.couponCode) {
+          <div
+            class="flex items-center justify-between gap-5 pt-4"
+            style="border-top: 1px dashed rgba(44, 44, 44, 0.12)"
+          >
+            <p class="text-sm" style="color: #556141">
+              Descuento ({{ order.couponCode }})
+            </p>
+            <span
+              [id]="'order-discount-' + order.id"
+              class="font-semibold text-[15px] flex-shrink-0"
+              style="color: #556141"
+            >
+              −${{ order.discount | number: "1.0-0" }}
+            </span>
+          </div>
+        }
       </div>
 
       <!-- Dirección -->
