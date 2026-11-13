@@ -28,6 +28,9 @@ export class NavbarComponent implements OnDestroy {
   // Si es true, la barra se muestra con fondo de vidrio; si es false, es transparente sobre el hero.
   navBarStayed = false;
 
+  // Ruta actual (sin parámetros); sirve para resaltar el enlace de la página donde está el usuario.
+  currentUrl = '';
+
   // =========================
   // AUTENTICACIÓN
   // =========================
@@ -165,6 +168,7 @@ export class NavbarComponent implements OnDestroy {
   private updateNavbar(): void {
     // Obtiene la ruta actual sin parámetros de consulta ni fragmento.
     const currentUrl = this.router.url.split('?')[0].split('#')[0];
+    this.currentUrl = currentUrl;
 
     // Considera como inicio tanto '/home' como '/'.
     const isHome = currentUrl === '/home' || currentUrl === '/';
@@ -175,6 +179,16 @@ export class NavbarComponent implements OnDestroy {
     } else {
       this.navBarStayed = true;
     }
+  }
+
+  // Indica si la ruta actual es la de ese enlace (o una subruta de él).
+  isActive(path: string): boolean {
+    return this.currentUrl === path || this.currentUrl.startsWith(path + '/');
+  }
+
+  // El nombre del usuario se resalta en su panel: admin, operador o cuenta de cliente.
+  isProfileActive(): boolean {
+    return ['/admin', '/operator', '/account'].some((p) => this.isActive(p));
   }
 
   // =========================
