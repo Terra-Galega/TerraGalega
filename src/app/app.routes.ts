@@ -4,8 +4,6 @@ import { ContactComponent } from './pages/contact/contact.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { LoginComponent } from './pages/login/login.component';
 import { MenuComponent } from './pages/menu/menu.component';
-import { AdminComponent } from './pages/admin/admin.component';
-import { OperatorComponent } from './pages/operator/operator.component';
 import { AccountComponent } from './pages/account/account.component';
 import { AccountEditComponent } from './pages/account-edit/account-edit.component';
 import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
@@ -79,14 +77,20 @@ export const routes: Routes = [
   {
     // Panel de administración; ':id' es un parámetro dinámico con el identificador del administrador.
     path: 'admin/:id',
-    component: AdminComponent,
+    // Carga diferida: el panel (con Chart.js y el dashboard) solo se descarga cuando entra un administrador.
+    loadComponent: () =>
+      import('./pages/admin/admin.component').then((m) => m.AdminComponent),
     // Solo pueden entrar usuarios con rol de administrador.
     canActivate: [adminGuard],
   },
   {
     // Panel del operador; ':id' es el identificador del operador autenticado.
     path: 'operator/:id',
-    component: OperatorComponent,
+    // Carga diferida: solo se descarga cuando entra un operador.
+    loadComponent: () =>
+      import('./pages/operator/operator.component').then(
+        (m) => m.OperatorComponent,
+      ),
     // Solo pueden entrar usuarios con rol de operador.
     canActivate: [operatorGuard],
   },
