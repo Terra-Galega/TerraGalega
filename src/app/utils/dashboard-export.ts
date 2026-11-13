@@ -9,12 +9,16 @@ import {
   addDays,
   categoryStats,
   dateTimeLabel,
+  compareSeries,
   dishRows,
+  fmtDate,
   fmtMoney,
   pctChange,
-  shortDate,
+  rangeSeries,
+  topProducts,
   totalsFor,
 } from './dashboard-metrics';
+import { ChartImage, ReportCharts, renderCharts } from './dashboard-charts';
 
 // =====================================================================
 // Exportación del dashboard: CSV, Excel (.xlsx) y PDF.
@@ -33,10 +37,7 @@ const TERRA = '#b2571f';
 // Logo claro (crema): se coloca siempre sobre una franja charcoal
 const LOGO_URL = '/images/logo-hero.svg';
 
-// ---------------------------------------------------------------------
 // Datos del reporte
-// ---------------------------------------------------------------------
-
 export interface SummaryRow {
   label: string;
   current: number;
@@ -53,6 +54,8 @@ export interface ReportData {
   generatedAt: Date;
   fileBase: string;
   summary: SummaryRow[];
+  // Gráficas ya dibujadas; null si el usuario no las quiso (o el formato no las admite)
+  charts: ChartImage[] | null;
   categories: CategoryStat[];
   dishes: DishRow[];
   orders: DashOrder[];
@@ -63,6 +66,7 @@ export function buildReport(
   model: DashboardModel,
   pair: RangePair,
   now: Date,
+  includeCharts = false,
 ): ReportData {
   const cur = totalsFor(model, pair.current);
   const prev = totalsFor(model, pair.previous);
@@ -80,20 +84,47 @@ export function buildReport(
   });
 
   const lastDay = addDays(pair.current.to, -1);
-  const periodText =
-    pair.key === 'today'
-      ? shortDate(now)
-      : `${shortDate(pair.current.from)} - ${shortDate(lastDay)}`;
+  const singleDay = lastDay.getTime() < addDays(pair.current.from, 1).getTime();
+  const periodText = singleDay
+    ? fmtDate(pair.current.from)
+    : `${fmtDate(pair.current.from)} - ${fmtDate(lastDay)}`;
 
   const pad = (n: number) => String(n).padStart(2, '0');
-  const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const stamp = (d: Date) =>
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const fileBase = singleDay
+    ? `terragalega-reporte-${stamp(pair.current.from)}`
+    : `terragalega-reporte-${stamp(pair.current.from)}_a_${stamp(lastDay)}`;
+
+  const categories = categoryStats(model, pair.current);
+
+  let charts: ChartImage[] | null = null;
+  if (includeCharts) {
+    const sales = rangeSeries(model, pair.current);
+    const compare = compareSeries(model, pair);
+    const data: ReportCharts = {
+      sales,
+      compare: {
+        labels: compare.labels,
+        current: compare.current,
+        previous: compare.previous,
+        currentName: pair.label,
+        previousName: pair.previousLabel,
+      },
+      top: topProducts(model, pair.current, 'units')
+        .slice(0, 8)
+        .map((p) => ({ label: p.name, value: p.units })),
+      categories: categories.map((c) => ({ label: c.name, value: c.revenue })),
+    };
+    charts = renderCharts(data, periodText);
+  }
 
   return {
     rangeLabel: pair.label,
     periodText,
     previousLabel: pair.previousLabel,
     generatedAt: now,
-    fileBase: `terragalega-reporte-${stamp}-${pair.key}`,
+    fileBase,
     summary: [
       row('Ventas', 'revenue', 'money'),
       row('Pedidos', 'orders', 'int'),
@@ -104,7 +135,8 @@ export function buildReport(
         'money',
       ),
     ],
-    categories: categoryStats(model, pair.current),
+    charts,
+    categories,
     dishes: dishRows(model, pair.current).sort(
       (a, b) => b.sales - a.sales || a.name.localeCompare(b.name),
     ),
@@ -127,11 +159,7 @@ export async function exportReport(
   if (format === 'excel') return exportExcel(report);
   return exportPdf(report);
 }
-
-// ---------------------------------------------------------------------
 // Utilidades
-// ---------------------------------------------------------------------
-
 function download(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -141,6 +169,13 @@ function download(blob: Blob, filename: string) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// "7 días (3 may 2026 - 9 may 2026)"; si el nombre ya es el periodo no se repite
+function periodTitle(r: ReportData): string {
+  return r.rangeLabel === r.periodText
+    ? r.periodText
+    : `${r.rangeLabel} (${r.periodText})`;
 }
 
 function pctText(delta: number | null): string {
@@ -211,11 +246,7 @@ async function loadLogo(
     return null;
   }
 }
-
-// ---------------------------------------------------------------------
 // CSV
-// ---------------------------------------------------------------------
-
 // Separador ";" y BOM UTF-8: es lo que Excel en español abre bien con tildes y columnas.
 function csvCell(value: string | number): string {
   const text = String(value);
@@ -228,7 +259,7 @@ function exportCsv(r: ReportData) {
   const money = (n: number) => Math.round(n);
 
   lines.push(['TERRA GALEGA - Reporte de ventas']);
-  lines.push(['Periodo', `${r.rangeLabel} (${r.periodText})`]);
+  lines.push(['Periodo', periodTitle(r)]);
   lines.push(['Generado', dateTimeLabel(r.generatedAt)]);
   blank();
 
@@ -313,11 +344,7 @@ function exportCsv(r: ReportData) {
     `${r.fileBase}.csv`,
   );
 }
-
-// ---------------------------------------------------------------------
 // Excel
-// ---------------------------------------------------------------------
-
 const MONEY_FMT = '"$"#,##0';
 const INT_FMT = '#,##0';
 
@@ -366,7 +393,7 @@ async function exportExcel(r: ReportData) {
       color: { argb: 'FFF5F2EB' },
     };
     ws.getCell(3, 2).value =
-      `${r.rangeLabel} (${r.periodText}) · generado el ${dateTimeLabel(r.generatedAt)}`;
+      `${periodTitle(r)} · generado el ${dateTimeLabel(r.generatedAt)}`;
     ws.getCell(3, 2).font = {
       name: 'Calibri',
       size: 10,
@@ -437,6 +464,29 @@ async function exportExcel(r: ReportData) {
     }
     row.getCell(4).alignment = { horizontal: 'center' };
   });
+
+  // ---- Gráficas (imágenes dibujadas con los mismos datos de las tablas)
+  if (r.charts && r.charts.length) {
+    const s0 = sheet('Gráficas', 'Gráficas del periodo', Array(12).fill(14));
+    const px = 0.9; // escala de las imágenes dentro de la hoja
+    const ROW_PX = 20;
+    const place = (img: ChartImage, col: number, row: number) => {
+      const id = wb.addImage({ base64: img.dataUrl, extension: 'png' });
+      s0.addImage(id, {
+        tl: { col, row },
+        ext: { width: Math.round(img.w * px), height: Math.round(img.h * px) },
+      });
+      return Math.ceil((img.h * px) / ROW_PX) + 1;
+    };
+    const byKey = (k: ChartImage['key']) => r.charts!.find((c) => c.key === k)!;
+
+    let row = 5;
+    row += place(byKey('sales'), 0.12, row);
+    row += place(byKey('compare'), 0.12, row);
+    // Las dos gráficas pequeñas van lado a lado
+    place(byKey('top'), 0.12, row);
+    place(byKey('categories'), 5.4, row);
+  }
 
   // ---- Platos
   const s2 = sheet(
@@ -545,11 +595,7 @@ async function exportExcel(r: ReportData) {
     `${r.fileBase}.xlsx`,
   );
 }
-
-// ---------------------------------------------------------------------
 // PDF
-// ---------------------------------------------------------------------
-
 function rgb(hex: string): [number, number, number] {
   return [
     parseInt(hex.slice(1, 3), 16),
@@ -581,7 +627,7 @@ async function exportPdf(r: ReportData) {
   doc.text('Reporte de ventas', pageW - margin, 15, { align: 'right' });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  doc.text(`${r.rangeLabel} (${r.periodText})`, pageW - margin, 21, {
+  doc.text(periodTitle(r), pageW - margin, 21, {
     align: 'right',
   });
   doc.text(`Generado el ${dateTimeLabel(r.generatedAt)}`, pageW - margin, 26, {
@@ -648,6 +694,42 @@ async function exportPdf(r: ReportData) {
     ]),
     [1, 2, 3],
   );
+
+  // Gráficas
+  if (r.charts && r.charts.length) {
+    const find = (k: ChartImage['key']) => r.charts!.find((c) => c.key === k)!;
+    const fullW = pageW - margin * 2;
+    const halfW = (fullW - 6) / 2;
+
+    // Pone una imagen a todo el ancho, saltando de página si no cabe
+    const full = (img: ChartImage) => {
+      const h = (fullW * img.h) / img.w;
+      if (y + h > pageH - 16) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.addImage(img.dataUrl, 'PNG', margin, y, fullW, h);
+      y += h + 6;
+    };
+
+    section('Gráficas');
+    y += 2;
+    full(find('sales'));
+    full(find('compare'));
+
+    // Las dos pequeñas, lado a lado
+    const a = find('top');
+    const b = find('categories');
+    const ha = (halfW * a.h) / a.w;
+    const hb = (halfW * b.h) / b.w;
+    if (y + Math.max(ha, hb) > pageH - 16) {
+      doc.addPage();
+      y = 20;
+    }
+    doc.addImage(a.dataUrl, 'PNG', margin, y, halfW, ha);
+    doc.addImage(b.dataUrl, 'PNG', margin + halfW + 6, y, halfW, hb);
+    y += Math.max(ha, hb) + 10;
+  }
 
   // Categorías
   section('Ventas por categoría');

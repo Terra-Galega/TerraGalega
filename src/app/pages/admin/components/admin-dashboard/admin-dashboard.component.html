@@ -45,39 +45,15 @@
                 </svg>
             </button>
 
-            <!-- Menú de descarga -->
-            <div class="relative">
-                <button type="button" id="btn-export"
-                    class="flex items-center gap-2 text-[12px] font-medium px-4 py-2.5 rounded-xl"
-                    style="background-color: #b2571f; color: #f5f2eb" [disabled]="exporting !== null"
-                    (click)="toggleExportMenu($event)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />
-                    </svg>
-                    {{ exporting ? "Generando…" : "Descargar reporte" }}
-                </button>
-
-                @if (exportOpen) {
-                <div class="menu-pop absolute right-0 mt-2 w-56 rounded-2xl p-1.5 z-30"
-                    style="background-color: #fff; box-shadow: 0 12px 32px rgba(44, 44, 44, 0.18)">
-                    <button type="button" class="menu-item" (click)="download('pdf')">
-                        <span class="menu-badge"
-                            style="background-color: rgba(138, 34, 34, 0.12); color: #8a2222">PDF</span>
-                        <span>Reporte con logo</span>
-                    </button>
-                    <button type="button" class="menu-item" (click)="download('excel')">
-                        <span class="menu-badge"
-                            style="background-color: rgba(85, 97, 65, 0.16); color: #556141">XLS</span>
-                        <span>Excel con 4 hojas</span>
-                    </button>
-                    <button type="button" class="menu-item" (click)="download('csv')">
-                        <span class="menu-badge"
-                            style="background-color: rgba(44, 44, 44, 0.1); color: #2c2c2c">CSV</span>
-                        <span>Datos en texto plano</span>
-                    </button>
-                </div>
-                }
-            </div>
+            <!-- Descargar reporte: abre la ventana con periodo, formato y gráficas -->
+            <button type="button" id="btn-export"
+                class="export-btn flex items-center gap-2 text-[13px] font-semibold px-5 py-2.5 rounded-xl"
+                style="background-color: #b2571f; color: #f5f2eb" (click)="openExport()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />
+                </svg>
+                Descargar reporte
+            </button>
         </div>
     </div>
 
@@ -199,4 +175,9 @@
         <app-dashboard-dishes [rows]="dishes" [rangeLabel]="pair.label" />
     </div>
 </div>
+
+@if (exportOpen) {
+<app-dashboard-export-modal [model]="model" [now]="now" [exporting]="exporting" (closed)="closeExport()"
+    (confirmed)="download($event)" />
+}
 }

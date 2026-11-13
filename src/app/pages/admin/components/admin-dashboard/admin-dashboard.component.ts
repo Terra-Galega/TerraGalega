@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   EMPTY,
@@ -40,11 +40,7 @@ import {
   topProducts,
   totalsFor,
 } from '../../../../utils/dashboard-metrics';
-import {
-  ExportFormat,
-  buildReport,
-  exportReport,
-} from '../../../../utils/dashboard-export';
+import { buildReport, exportReport } from '../../../../utils/dashboard-export';
 import {
   ChartSeries,
   SeriesChartComponent,
@@ -65,6 +61,10 @@ import { DeltaBadgeComponent } from '../../../../components/delta-badge/delta-ba
 import { DashboardKpisComponent } from './components/dashboard-kpis/dashboard-kpis.component';
 import { DashboardOrdersComponent } from './components/dashboard-orders/dashboard-orders.component';
 import { DashboardDishesComponent } from './components/dashboard-dishes/dashboard-dishes.component';
+import {
+  DashboardExportModalComponent,
+  ExportRequest,
+} from './components/dashboard-export-modal/dashboard-export-modal.component';
 
 // Cada cuánto se vuelven a pedir los datos al servidor (en milisegundos).
 // Es el mismo valor y el mismo patrón que usa el menú del cliente.
@@ -83,6 +83,7 @@ const REFRESH_MS = 10_000;
     DashboardKpisComponent,
     DashboardOrdersComponent,
     DashboardDishesComponent,
+    DashboardExportModalComponent,
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss',
@@ -120,7 +121,7 @@ export class AdminDashboardComponent {
 
   // Exportación
   exportOpen = false;
-  exporting: ExportFormat | null = null;
+  exporting = false;
 
   // =========================
   // Datos ya calculados (se recalculan solo cuando llegan datos o cambia una selección)
@@ -277,25 +278,31 @@ export class AdminDashboardComponent {
     this.reload$.next();
   }
 
-  // Cierra el menú de descarga al hacer clic fuera de él
-  @HostListener('document:click')
-  closeExportMenu() {
-    this.exportOpen = false;
+  openExport() {
+    this.exportOpen = true;
   }
 
-  toggleExportMenu(event: Event) {
-    event.stopPropagation();
-    this.exportOpen = !this.exportOpen;
+  closeExport() {
+    if (!this.exporting) this.exportOpen = false;
   }
 
-  // Genera y descarga el reporte del rango elegido en el formato pedido
-  async download(format: ExportFormat) {
+  // Genera y descarga el reporte del periodo y formato elegidos en la ventana
+  async download(request: ExportRequest) {
     if (!this.model || this.exporting) return;
 
-    this.exporting = format;
+    this.exporting = true;
     try {
-      await exportReport(format, buildReport(this.model, this.pair, this.now));
+      await exportReport(
+        request.format,
+        buildReport(
+          this.model,
+          request.pair,
+          new Date(),
+          request.includeCharts,
+        ),
+      );
       this.toast.show('Reporte listo', 'El archivo se descargó correctamente.');
+      this.exportOpen = false;
     } catch (error) {
       console.error('Error exportando el reporte:', error);
       this.toast.show(
@@ -303,8 +310,7 @@ export class AdminDashboardComponent {
         'Inténtalo de nuevo en unos segundos.',
       );
     } finally {
-      this.exporting = null;
-      this.exportOpen = false;
+      this.exporting = false;
     }
   }
 

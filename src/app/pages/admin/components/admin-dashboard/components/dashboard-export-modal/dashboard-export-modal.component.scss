@@ -1,0 +1,27 @@
+.preset-chip {
+  background-color: rgba(44, 44, 44, 0.06);
+  color: rgba(44, 44, 44, 0.75);
+  transition: all 0.15s ease;
+}
+
+.preset-chip:hover {
+  background-color: rgba(85, 97, 65, 0.16);
+  color: #556141;
+}
+
+.format-card {
+  background-color: #fff;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 10px rgba(44, 44, 44, 0.06);
+  transition: all 0.18s ease;
+}
+
+.format-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(44, 44, 44, 0.12);
+}
+
+.format-card--on {
+  border-color: #b2571f;
+  box-shadow: 0 6px 18px rgba(178, 87, 31, 0.18);
+}
