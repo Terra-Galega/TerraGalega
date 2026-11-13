@@ -72,3 +72,23 @@ export const operatorGuard: CanActivateFn = (route) => {
   // Permite el acceso al panel del operador correspondiente.
   return true;
 };
+
+// Páginas exclusivas de clientes con sesión (ej. "Mis cupones").
+// Sin sesión va al login; admin y operador van a su propio panel.
+export const clientGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  const session = auth.session;
+
+  if (!session) {
+    return router.createUrlTree(['/login']);
+  }
+  if (session.type === 'admin') {
+    return router.createUrlTree(['/admin', session.id]);
+  }
+  if (session.type === 'operator') {
+    return router.createUrlTree(['/operator', session.id]);
+  }
+
+  return true;
+};

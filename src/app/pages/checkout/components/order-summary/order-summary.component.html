@@ -30,7 +30,7 @@
     }
   </div>
 
-  <!-- Totales: subtotal, domicilio (si aplica) y total final = subtotal + domicilio -->
+  <!-- Totales: subtotal, domicilio y descuento (si aplican) y total final = subtotal + domicilio − descuento -->
   <div class="pt-4 border-t space-y-2" style="border-color: rgba(44, 44, 44, 0.1)">
     <div class="flex items-center justify-between text-sm" style="color: rgba(44, 44, 44, 0.7)">
       <span>Subtotal</span>
@@ -44,10 +44,17 @@
     </div>
     }
 
+    @if (discount > 0) {
+    <div class="flex items-center justify-between text-sm" style="color: #556141">
+      <span>Descuento ({{ couponCode }})</span>
+      <span id="summary-discount">−${{ discount | number: "1.0-0" }}</span>
+    </div>
+    }
+
     <div class="flex items-center justify-between">
       <span class="font-medium text-charcoal">Total</span>
       <span id="summary-total" class="font-bold text-2xl" style="color: #b2571f">
-        ${{ total + deliveryFee | number: "1.0-0" }}
+        ${{ total + deliveryFee - discount | number: "1.0-0" }}
       </span>
     </div>
   </div>

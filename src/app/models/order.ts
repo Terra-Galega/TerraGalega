@@ -63,7 +63,11 @@ export interface Order {
   deliveredAt: string | null;
   address: string;
   details: OrderDetail[];
+  // Total que paga el cliente: productos + adicionales + domicilio − descuento
   total: number;
+  // Solo vienen si el pedido usó un cupón: valor descontado y código usado
+  discount?: number;
+  couponCode?: string;
 }
 export interface OrderSummary {
   id: number;

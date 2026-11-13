@@ -7,6 +7,7 @@ export interface CheckoutItem {
 export interface CheckoutRequest {
   address: string;
   items: CheckoutItem[];
+  couponCode?: string | null;
 }
 
 // Valor fijo del domicilio (el backend cobra el mismo valor al crear el pedido)

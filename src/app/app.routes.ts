@@ -7,6 +7,7 @@ import { MenuComponent } from './pages/menu/menu.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { OperatorComponent } from './pages/operator/operator.component';
 import { AccountComponent } from './pages/account/account.component';
+import { CouponsComponent } from './pages/coupons/coupons.component';
 import { AccountEditComponent } from './pages/account-edit/account-edit.component';
 import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
 import { AboutUsComponent } from './pages/about-us/about-us.component';
@@ -15,6 +16,7 @@ import { ErrorComponent } from './pages/error/error.component';
 import {
   adminGuard,
   clientAreaGuard,
+  clientGuard,
   operatorGuard,
 } from './guards/role.guards';
 import { CheckoutConfirmComponent } from './pages/checkout/chekout-confirm/checkout-confirm.component';
@@ -69,6 +71,12 @@ export const routes: Routes = [
     path: 'checkout/confirm',
     component: CheckoutConfirmComponent,
     canActivate: [clientAreaGuard],
+  },
+  {
+    // Cupones personales del cliente (activos y expirados).
+    path: 'coupons',
+    component: CouponsComponent,
+    canActivate: [clientGuard],
   },
   {
     // Inicio de sesión (clientes, operadores y administradores).

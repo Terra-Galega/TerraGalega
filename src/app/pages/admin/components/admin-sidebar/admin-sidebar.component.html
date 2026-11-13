@@ -77,6 +77,29 @@
       Adicionales
     </button>
 
+    <!-- Acceso a la sección de cupones -->
+    <button
+      id="tab-coupons"
+      type="button"
+      (click)="changeTab('coupons')"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [class.active]="activeTab === 'coupons'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+        <circle cx="7" cy="7" r="1" />
+      </svg>
+
+      Cupones
+    </button>
+
     <!-- Acceso a la sección de órdenes -->
     <button type="button" (click)="changeTab('orders')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"

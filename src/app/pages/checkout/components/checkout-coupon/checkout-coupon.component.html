@@ -1,0 +1,84 @@
+<section>
+  <h2 class="font-serif text-xl font-semibold text-charcoal">Cupón de descuento</h2>
+  <p class="text-[15px] mt-1 mb-4" style="color: rgba(44, 44, 44, 0.65)">
+    ¿Tienes un cupón? Escribe el código o elige uno de los tuyos.
+  </p>
+
+  @if (current) {
+  <!-- Cupón aplicado: código, cuánto ahorra y botón para quitarlo -->
+  <div id="coupon-applied" class="flex items-center justify-between gap-4 rounded-2xl px-4 py-3.5"
+    style="background-color: rgba(85, 97, 65, 0.08); border: 1.5px solid rgba(85, 97, 65, 0.4)">
+    <div class="flex items-center gap-3 min-w-0">
+      <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full" style="background: #556141">
+        <svg class="h-4 w-4" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+        </svg>
+      </span>
+
+      <div class="min-w-0">
+        <p class="text-[15px] font-semibold text-charcoal truncate">{{ current.code }}</p>
+        <p class="text-sm" style="color: #556141">
+          Ahorras ${{ current.discount | number: "1.0-0" }}
+        </p>
+        @if (current.description) {
+        <p class="text-xs mt-0.5 truncate" style="color: rgba(44, 44, 44, 0.6)">{{ current.description }}</p>
+        }
+      </div>
+    </div>
+
+    <button id="btn-remove-coupon" type="button"
+      class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0" style="color: #8a2222"
+      (click)="remove()">
+      Quitar cupón
+    </button>
+  </div>
+  } @else {
+  <!-- Campo del código y botón Aplicar -->
+  <div class="flex items-center gap-3">
+    <div class="flex-1 min-w-0 rounded-2xl overflow-hidden" style="background-color: rgba(255, 255, 255, 0.85)"
+      [style.border]="error ? '1px solid #8a2222' : '1px solid rgba(44, 44, 44, 0.12)'">
+      <label class="block px-4 pt-2.5 pb-2">
+        <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Código del cupón</span>
+        <input id="coupon-code" type="text" [value]="code" (input)="setCode($event)" (keydown.enter)="onEnter($event)"
+          maxlength="40" placeholder="Ej: BIENVENIDA-1" autocomplete="off"
+          class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1 uppercase" />
+      </label>
+    </div>
+
+    <app-button id="btn-apply-coupon" type="button" variant="outline" size="md" [disabled]="applying"
+      (click)="apply()">
+      {{ applying ? "Aplicando..." : "Aplicar" }}
+    </app-button>
+  </div>
+
+  <!-- Error del cupón (no existe, vencido, ya usado, mínimo no alcanzado...) -->
+  @if (error) {
+  <p id="coupon-error" class="text-sm mt-2" style="color: #8a2222">{{ error }}</p>
+  }
+
+  <!-- Cupones del cliente que puede usar ahora. Los que piden un mínimo que el
+       carrito no alcanza se ven apagados y no se pueden elegir -->
+  @if (available.length > 0) {
+  <p class="text-sm mt-5 mb-2" style="color: rgba(44, 44, 44, 0.65)">O elige uno de tus cupones:</p>
+
+  <div class="flex flex-wrap gap-2.5">
+    @for (coupon of available; track coupon.id) {
+    <button type="button" [id]="'coupon-option-' + coupon.id" [disabled]="applying || !isEligible(coupon)"
+      class="text-left rounded-xl px-3.5 py-2.5 cursor-pointer disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-terra"
+      [style.opacity]="isEligible(coupon) ? 1 : 0.5"
+      style="background-color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(178, 87, 31, 0.35)"
+      (click)="choose(coupon)">
+      <span class="block text-sm font-semibold text-charcoal">{{ coupon.code }}</span>
+      <span class="block text-xs" style="color: #b2571f">{{ valueText(coupon) }} de descuento</span>
+      @if (!isEligible(coupon)) {
+      <span class="block text-[11px] mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
+        Mínimo ${{ coupon.minOrderAmount | number: "1.0-0" }}
+      </span>
+      }
+    </button>
+    }
+  </div>
+  }
+  }
+</section>

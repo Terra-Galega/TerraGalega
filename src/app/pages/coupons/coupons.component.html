@@ -1,0 +1,43 @@
+<app-navbar></app-navbar>
+<div class="min-h-screen bg-cream font-sans text-charcoal" style="background-color: #f5f2eb">
+<main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
+    <app-page-header eyebrow="Tus beneficios" title="Mis cupones"></app-page-header>
+
+    @if (loading) {
+    <p class="text-center py-10">Cargando tus cupones...</p>
+    } @else {
+    <!-- ACTIVOS -->
+    <h2 class="font-serif text-2xl font-semibold text-charcoal mb-5">Activos</h2>
+    @if (activeCoupons.length > 0) {
+        <div id="active-coupons" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        @for (coupon of activeCoupons; track coupon.id) {
+            <app-coupon-card [coupon]="coupon"></app-coupon-card>
+        }
+        </div>
+    } @else {
+        <app-empty-state
+        [compact]="true"
+        message="No tienes cupones activos en este momento."
+        actionLabel="Explorar la carta"
+        (action)="goToMenu()"
+        ></app-empty-state>
+    }
+
+    <!-- EXPIRADOS -->
+    <h2 class="font-serif text-2xl font-semibold text-charcoal mt-14 mb-5">Expirados</h2>
+    @if (expiredCoupons.length > 0) {
+        <div id="expired-coupons" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        @for (coupon of expiredCoupons; track coupon.id) {
+            <app-coupon-card [coupon]="coupon"></app-coupon-card>
+        }
+        </div>
+    } @else {
+        <app-empty-state
+        [compact]="true"
+        message="Aún no tienes cupones expirados."
+        ></app-empty-state>
+    }
+    }
+</main>
+</div>
+<app-footer></app-footer>

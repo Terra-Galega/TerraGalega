@@ -1,0 +1,212 @@
+<!-- Contenedor de la tabla: tarjeta con fondo translúcido y sombra suave -->
+<div
+    class="rounded-2xl overflow-hidden"
+    style="
+        background-color: rgba(255, 255, 255, 0.6);
+        box-shadow: 0 2px 12px rgba(44, 44, 44, 0.05);
+    "
+    >
+    <!-- Permite desplazar la tabla de lado en pantallas pequeñas -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm" style="border-collapse: collapse">
+        <!-- Encabezados (salen de la lista "columns" del .ts) -->
+        <thead>
+            <tr style="background-color: rgba(44, 44, 44, 0.04)">
+            @for (column of columns; track column) {
+                <th
+                class="text-left font-medium uppercase tracking-wider py-3 px-5"
+                style="font-size: 11px; color: rgba(44, 44, 44, 0.45)"
+                >
+                {{ column }}
+                </th>
+            }
+            </tr>
+        </thead>
+
+        <tbody>
+            <!-- Una fila por cupón filtrado -->
+            @for (coupon of filteredCoupons; track coupon.id) {
+            <tr>
+                <!-- Columna "Cupón": código y descripción (recortada a 2 líneas) -->
+                <td class="py-3 px-5">
+                <p
+                    class="font-semibold text-charcoal font-mono"
+                    style="font-size: 15px"
+                >
+                    {{ coupon.code }}
+                </p>
+                <p
+                    class="line-clamp-2 mt-0.5"
+                    style="
+                    font-size: 13px;
+                    color: rgba(44, 44, 44, 0.6);
+                    max-width: 280px;
+                    "
+                >
+                    {{ coupon.description }}
+                </p>
+                </td>
+
+                <!-- Columna "Descuento": valor y condiciones debajo -->
+                <td class="py-3 px-5">
+                <p class="font-bold whitespace-nowrap" style="color: #b2571f">
+                    @if (coupon.discountType === "PERCENTAGE") {
+                    {{ coupon.discountValue }} %
+                    } @else {
+                    ${{ coupon.discountValue | number: "1.0-0" }}
+                    }
+                </p>
+                <p
+                    class="mt-0.5 whitespace-nowrap"
+                    style="font-size: 12px; color: rgba(44, 44, 44, 0.5)"
+                >
+                    {{ conditions(coupon) }}
+                </p>
+                </td>
+
+                <!-- Columna "Vigencia": inicio (si tiene) y vencimiento.
+                    Si ya venció, se muestra en rojo -->
+                <td
+                class="py-3 px-5 whitespace-nowrap"
+                style="font-size: 13px; color: rgba(44, 44, 44, 0.7)"
+                >
+                @if (coupon.startsAt) {
+                    <p>Desde {{ coupon.startsAt | date: "dd MMM yyyy, HH:mm" }}</p>
+                }
+                @if (coupon.expiresAt) {
+                    <p [style.color]="isExpired(coupon) ? '#da5858' : null">
+                    {{ isExpired(coupon) ? "Venció" : "Vence" }}
+                    {{ coupon.expiresAt | date: "dd MMM yyyy, HH:mm" }}
+                    </p>
+                } @else {
+                    <p>Sin vencimiento</p>
+                }
+                </td>
+
+                <!-- Columna "Dueño": el cliente, o "General" si es para todos -->
+                <td class="py-3 px-5">
+                @if (coupon.client) {
+                    <span
+                    class="text-[12px] font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+                    style="
+                        background-color: rgba(178, 87, 31, 0.09);
+                        color: #b2571f;
+                    "
+                    >
+                    {{ coupon.client.name }} {{ coupon.client.lastName }}
+                    </span>
+                } @else {
+                    <span style="font-size: 12px; color: rgba(44, 44, 44, 0.4)"
+                    >General</span
+                    >
+                }
+                </td>
+
+                <!-- Columna "Estado": botón que activa o desactiva el cupón.
+                    Verde si está activo, gris si está inactivo -->
+                <td class="py-3 px-5">
+                <button
+                    type="button"
+                    class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap"
+                    [style.background-color]="
+                    coupon.active ? 'rgba(85,97,65,0.1)' : 'rgba(44,44,44,0.06)'
+                    "
+                    [style.color]="coupon.active ? '#556141' : 'rgba(44,44,44,0.4)'"
+                    (click)="toggleCoupon(coupon)"
+                >
+                    {{ coupon.active ? "Activo" : "Inactivo" }}
+                </button>
+                </td>
+
+                <!-- Columna "Acciones": editar y eliminar -->
+                <td class="py-3 px-5">
+                <div class="flex items-center gap-2">
+                    <!-- Editar (ícono de lápiz) -->
+                    <app-icon-button
+                    variant="ghost"
+                    label="Editar"
+                    (click)="openEdit(coupon)"
+                    >
+                    <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                        d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                        />
+                        <path
+                        d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                        />
+                    </svg>
+                    </app-icon-button>
+
+                    <!-- Eliminar (ícono de caneca de basura) -->
+                    <app-icon-button
+                    variant="ghost"
+                    label="Eliminar"
+                    (click)="removeCoupon(coupon)"
+                    >
+                    <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                    </svg>
+                    </app-icon-button>
+                </div>
+                </td>
+            </tr>
+            } @empty {
+            <!-- Sin resultados: una sola celda que ocupa todas las columnas -->
+            <tr>
+                <td [attr.colspan]="columns.length">
+                <app-empty-state
+                    [compact]="true"
+                    message="No se encontraron cupones"
+                />
+                </td>
+            </tr>
+            }
+        </tbody>
+        </table>
+    </div>
+</div>
+
+    <!-- Confirmación para eliminar un cupón -->
+<app-modal
+    [open]="showDeleteModal"
+    [title]="confirmTitle"
+    [message]="confirmMessage"
+    confirmLabel="Eliminar cupón"
+    cancelLabel="Cancelar"
+    variant="danger"
+    (confirm)="confirmDelete()"
+    (cancel)="cancelDelete()"
+></app-modal>
+
+    <!-- Ventana de error (por ejemplo, si el servidor no deja eliminar un cupón
+        ya usado). Solo tiene botón "Aceptar", por eso confirmar y cancelar
+        hacen lo mismo -->
+<app-modal
+    [open]="showErrorModal"
+    [title]="errorTitle"
+    [message]="errorMessage"
+    confirmLabel="Aceptar"
+    variant="error"
+    (confirm)="closeErrorModal()"
+    (cancel)="closeErrorModal()"
+></app-modal>

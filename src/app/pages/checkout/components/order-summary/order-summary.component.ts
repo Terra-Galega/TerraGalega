@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { groupAddOns } from '../../../../models/order';
-// Resumen del pedido (productos, subtotal, domicilio y total). Lo comparten el paso 1 y el paso 2.
+// Resumen del pedido (productos, subtotal, domicilio, descuento y total). Lo comparten el paso 1 y el paso 2.
 @Component({
   selector: 'app-order-summary',
   standalone: true,
@@ -15,6 +15,10 @@ export class OrderSummaryComponent {
   @Input() total = 0;
   // Costo del domicilio; si es 0 (paso 1) la línea no se muestra
   @Input() deliveryFee = 0;
+  // Descuento del cupón; si es 0 (sin cupón) la línea no se muestra
+  @Input() discount = 0;
+  // Código del cupón aplicado, para mostrarlo en la línea del descuento
+  @Input() couponCode = '';
   // Función del padre que calcula el precio unitario de un ítem (producto + adicionales)
   @Input() unitPrice: (item: any) => number = () => 0;
   // Se expone al HTML para agrupar adicionales repetidos (queso, queso → x2 queso)

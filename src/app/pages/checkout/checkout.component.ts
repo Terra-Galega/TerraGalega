@@ -11,6 +11,7 @@ import { ModalComponent } from '../../components/modal/modal.component';
 import { OrderSummaryComponent } from './components/order-summary/order-summary.component';
 import { DeliveryAddressComponent } from './components/delivery-address/delivery-address.component';
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
+import { CheckoutCouponComponent } from './components/checkout-coupon/checkout-coupon.component';
 import { AuthService } from '../../services/auth.service';
 import {
   CartItem,
@@ -19,11 +20,12 @@ import {
 } from '../../services/cart.service';
 import { CheckoutErrors, emptyErrors } from '../../models/checkout-errors';
 import { Address } from '../../models/address';
+import { CouponDiscount } from '../../models/coupon';
 import { AddressService } from '../../services/address.service';
 import { CheckoutDraftService } from '../../services/checkout-draft.service';
 
 
-// Paso 1 del checkout: dirección de entrega y método de pago
+// Paso 1 del checkout: dirección de entrega, cupón y método de pago
 @Component({
   selector: 'app-checkout',
   imports: [
@@ -37,6 +39,7 @@ import { CheckoutDraftService } from '../../services/checkout-draft.service';
     OrderSummaryComponent,
     DeliveryAddressComponent,
     PaymentFormComponent,
+    CheckoutCouponComponent,
   ],
   templateUrl: './checkout.component.html',
 })
@@ -49,6 +52,13 @@ export class CheckoutComponent implements OnInit {
   private draftService = inject(CheckoutDraftService);
   private destroyRef = inject(DestroyRef);
   private addressService = inject(AddressService);
+
+  // Id del cliente con sesión (null hasta comprobarla); lo necesita el cupón
+  clientId: number | null = null;
+
+  // Cupón aplicado ahora mismo (null = ninguno). Arranca en null: si el cliente
+  // vuelve del paso 2, el componente del cupón lo revalida y lo emite de nuevo
+  coupon: CouponDiscount | null = null;
 
   // Direcciones guardadas del cliente y si ya terminaron de cargar
   addresses: Address[] = [];
@@ -102,8 +112,10 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    this.clientId = session.id;
+
     // Si el cliente vuelve desde el paso 2 (botón Editar) se recupera lo que
-    // había escrito.
+    // había escrito. El cupón no va en el formulario: se reaplica aparte.
     this.form.patchValue({ ...this.draftService.draft });
 
     // Direcciones guardadas del cliente; si la carga falla, igual puede escribir una
@@ -144,10 +156,25 @@ export class CheckoutComponent implements OnInit {
     return this.cartService.total;
   }
 
+  // Descuento del cupón aplicado (0 si no hay)
+  get discount(): number {
+    return this.coupon?.discount ?? 0;
+  }
+
+  // Código guardado en el borrador, para reaplicar el cupón al volver del paso 2
+  get initialCouponCode(): string {
+    return this.draftService.draft.coupon?.code ?? '';
+  }
+
   // Arrow function para poder pasarla como @Input al resumen sin perder el `this`
   unitPrice = (item: CartItem): number => {
     return this.cartService.unitPrice(item);
   };
+
+  // El componente del cupón avisa cuando se aplica, cambia o se quita (null)
+  onCouponChange(coupon: CouponDiscount | null): void {
+    this.coupon = coupon;
+  }
 
   // Guarda las direcciones y, si aún no hay una elegida, propone la predeterminada
   private setAddresses(addresses: Address[]): void {
@@ -264,6 +291,8 @@ export class CheckoutComponent implements OnInit {
       addressName: v.addressName.trim(),
       // Solo se guarda en el perfil si es una dirección nueva y el cliente lo pidió
       saveAddress: v.saveAddress && !this.isSavedAddress(address),
+      // Cupón aplicado (null si no hay): el paso 2 lo muestra y lo envía
+      coupon: this.coupon,
     };
 
     // Con contra entrega no se guarda ningún dato de tarjeta
