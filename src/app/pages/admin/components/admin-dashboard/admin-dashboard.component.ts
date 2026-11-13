@@ -70,6 +70,18 @@ import {
 // Es el mismo valor y el mismo patrón que usa el menú del cliente.
 const REFRESH_MS = 10_000;
 
+// Equivalencia entre el periodo de cada tarjeta (Día / Semana / Mes) y el rango que se calcula
+const PERIOD_TO_RANGE: Record<Granularity, RangeKey> = {
+  day: 'today',
+  week: '7d',
+  month: '30d',
+};
+const RANGE_TO_PERIOD: Record<RangeKey, Granularity> = {
+  today: 'day',
+  '7d': 'week',
+  '30d': 'month',
+};
+
 // Dashboard del administrador: indicadores del día, gráficas, últimos pedidos,
 // pedidos con mucha espera, tabla de platos con su ganancia y descarga de reportes.
 @Component({
@@ -119,6 +131,12 @@ export class AdminDashboardComponent {
   categoryMetric: 'revenue' | 'units' = 'revenue';
   delayThreshold = 30;
 
+  // Periodo propio (Día / Semana / Mes) de cada tarjeta. Siguen al selector
+  // general cuando este cambia, pero se pueden ajustar una por una.
+  comparePeriod: Granularity = 'day';
+  productPeriod: Granularity = 'day';
+  categoryPeriod: Granularity = 'day';
+
   // Exportación
   exportOpen = false;
   exporting = false;
@@ -128,6 +146,9 @@ export class AdminDashboardComponent {
   // =========================
 
   pair: RangePair = rangePair('today', new Date());
+  comparePair: RangePair = this.pair;
+  productPair: RangePair = this.pair;
+  categoryPair: RangePair = this.pair;
   kpis!: Kpis;
   currentTotals!: PeriodTotals;
   previousTotals!: PeriodTotals;
@@ -243,6 +264,26 @@ export class AdminDashboardComponent {
 
   setRange(value: string) {
     this.rangeKey = value as RangeKey;
+    // Las tarjetas con selector propio pasan al periodo equivalente
+    const period = RANGE_TO_PERIOD[this.rangeKey];
+    this.comparePeriod = period;
+    this.productPeriod = period;
+    this.categoryPeriod = period;
+    this.recompute();
+  }
+
+  setComparePeriod(value: string) {
+    this.comparePeriod = value as Granularity;
+    this.recompute();
+  }
+
+  setProductPeriod(value: string) {
+    this.productPeriod = value as Granularity;
+    this.recompute();
+  }
+
+  setCategoryPeriod(value: string) {
+    this.categoryPeriod = value as Granularity;
     this.recompute();
   }
 
@@ -325,13 +366,17 @@ export class AdminDashboardComponent {
     const now = this.now;
     this.pair = rangePair(this.rangeKey, now);
     const pair = this.pair;
+    this.comparePair = rangePair(PERIOD_TO_RANGE[this.comparePeriod], now);
+    this.productPair = rangePair(PERIOD_TO_RANGE[this.productPeriod], now);
+    this.categoryPair = rangePair(PERIOD_TO_RANGE[this.categoryPeriod], now);
+    const cmp = this.comparePair;
 
     // Indicadores del día (no dependen del rango elegido)
     this.kpis = computeKpis(model, now);
 
-    // Totales del rango frente al periodo anterior
-    this.currentTotals = totalsFor(model, pair.current);
-    this.previousTotals = totalsFor(model, pair.previous);
+    // Totales del periodo de la comparación frente al anterior
+    this.currentTotals = totalsFor(model, cmp.current);
+    this.previousTotals = totalsFor(model, cmp.previous);
     this.revenueDelta = pctChange(
       this.currentTotals.revenue,
       this.previousTotals.revenue,
@@ -355,12 +400,12 @@ export class AdminDashboardComponent {
     ];
 
     // Ingresos del periodo actual frente al anterior
-    const compare = compareSeries(model, pair);
+    const compare = compareSeries(model, cmp);
     this.compareLabels = compare.labels;
     this.compareData = [
-      { name: pair.label, values: compare.current, color: CHART_COLORS[0] },
+      { name: cmp.label, values: compare.current, color: CHART_COLORS[0] },
       {
-        name: pair.previousLabel,
+        name: cmp.previousLabel,
         values: compare.previous,
         color: CHART_COLORS[5],
         labels: compare.previousLabels,
@@ -369,7 +414,7 @@ export class AdminDashboardComponent {
     ];
 
     // Productos más vendidos y reparto por categoría
-    this.topItems = topProducts(model, pair.current, this.productMetric)
+    this.topItems = topProducts(model, this.productPair.current, this.productMetric)
       .slice(0, 6)
       .map((p) => ({
         label: p.name,
@@ -377,7 +422,7 @@ export class AdminDashboardComponent {
         sub: p.category,
       }));
 
-    this.categoryItems = categoryStats(model, pair.current).map((c, i) => ({
+    this.categoryItems = categoryStats(model, this.categoryPair.current).map((c, i) => ({
       label: c.name,
       value: c[this.categoryMetric],
       color: CHART_COLORS[i % CHART_COLORS.length],

@@ -3,7 +3,7 @@
     <!-- Ventas del día -->
     <div class="glass-card rounded-2xl p-5 kpi-card">
         <div class="flex items-center justify-between mb-3">
-            <p class="text-[11px] uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
+            <p class="text-(length:--dfs-11) uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
                 Ventas del día
             </p>
             <span class="w-8 h-8 rounded-xl flex items-center justify-center"
@@ -13,19 +13,19 @@
                 </svg>
             </span>
         </div>
-        <p class="font-serif font-bold text-3xl mb-2" style="color: #b2571f">
+        <p class="font-serif font-bold text-(length:--dfs-30) leading-[1.2] mb-2" style="color: #b2571f">
             <app-animated-number [value]="kpis.salesToday" kind="money" />
         </p>
-        <div class="flex items-center gap-2 text-[11px]" style="color: rgba(44, 44, 44, 0.55)">
+        <div class="flex items-center gap-2 text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.55)">
             <app-delta-badge [value]="kpis.salesDelta" />
-            <span>vs ayer a esta hora · {{ kpis.ordersToday }} pedidos</span>
+            <span>vs ayer a esta hora - {{ kpis.ordersToday }} pedidos</span>
         </div>
     </div>
 
     <!-- Pedidos pendientes: se resalta en rojo si alguno lleva mucho esperando -->
     <div class="glass-card rounded-2xl p-5 kpi-card" [style.border-color]="urgent ? 'rgba(138, 34, 34, 0.45)' : ''">
         <div class="flex items-center justify-between mb-3">
-            <p class="text-[11px] uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
+            <p class="text-(length:--dfs-11) uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
                 Pedidos pendientes
             </p>
             <span class="w-8 h-8 rounded-xl flex items-center justify-center" [class.kpi-pulse]="urgent"
@@ -37,18 +37,18 @@
                 </svg>
             </span>
         </div>
-        <p class="font-serif font-bold text-3xl mb-2" [style.color]="urgent ? '#8a2222' : '#2c2c2c'">
+        <p class="font-serif font-bold text-(length:--dfs-30) leading-[1.2] mb-2" [style.color]="urgent ? '#8a2222' : '#2c2c2c'">
             <app-animated-number [value]="kpis.pending" />
         </p>
-        <p class="text-[11px]" [style.color]="urgent ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">
-            {{ oldestText }} · {{ kpis.activeOrders }} en curso
+        <p class="text-(length:--dfs-11)" [style.color]="urgent ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">
+            {{ oldestText }} - {{ kpis.activeOrders }} en curso
         </p>
     </div>
 
     <!-- Productos vendidos (unidades) -->
     <div class="glass-card rounded-2xl p-5 kpi-card">
         <div class="flex items-center justify-between mb-3">
-            <p class="text-[11px] uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
+            <p class="text-(length:--dfs-11) uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
                 Productos vendidos
             </p>
             <span class="w-8 h-8 rounded-xl flex items-center justify-center"
@@ -59,10 +59,10 @@
                 </svg>
             </span>
         </div>
-        <p class="font-serif font-bold text-3xl mb-2" style="color: #2c2c2c">
+        <p class="font-serif font-bold text-(length:--dfs-30) leading-[1.2] mb-2" style="color: #2c2c2c">
             <app-animated-number [value]="kpis.unitsToday" />
         </p>
-        <div class="flex items-center gap-2 text-[11px]" style="color: rgba(44, 44, 44, 0.55)">
+        <div class="flex items-center gap-2 text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.55)">
             <app-delta-badge [value]="kpis.unitsDelta" />
             <span>unidades vs ayer a esta hora</span>
         </div>
@@ -71,7 +71,7 @@
     <!-- Ganancia del día (el 20 % ya viene dentro del precio de cada plato) -->
     <div class="glass-card rounded-2xl p-5 kpi-card">
         <div class="flex items-center justify-between mb-3">
-            <p class="text-[11px] uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
+            <p class="text-(length:--dfs-11) uppercase tracking-wider font-medium" style="color: rgba(44, 44, 44, 0.5)">
                 Ganancia del día
             </p>
             <span class="w-8 h-8 rounded-xl flex items-center justify-center"
@@ -82,10 +82,10 @@
                 </svg>
             </span>
         </div>
-        <p class="font-serif font-bold text-3xl mb-2" style="color: #556141">
+        <p class="font-serif font-bold text-(length:--dfs-30) leading-[1.2] mb-2" style="color: #556141">
             <app-animated-number [value]="kpis.profitToday" kind="money" />
         </p>
-        <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.55)">
+        <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.55)">
             Margen del {{ profitPct }} % incluido en cada plato
         </p>
     </div>

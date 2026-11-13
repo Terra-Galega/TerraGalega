@@ -7,7 +7,7 @@ import { fmtPct } from '../../utils/dashboard-metrics';
   selector: 'app-delta-badge',
   template: `
     <span
-      class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+      class="inline-flex items-center gap-1 text-(length:--dfs-11) font-semibold px-2 py-0.5 rounded-full"
       [style.background-color]="style.bg"
       [style.color]="style.color"
     >

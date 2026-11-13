@@ -130,7 +130,7 @@ export class SeriesChartComponent implements OnChanges {
           border: { display: false },
           ticks: {
             color: TICK_COLOR,
-            font: chartFont(10),
+            font: () => chartFont(10),
             autoSkip: true,
             maxTicksLimit: 8,
             maxRotation: 0,
@@ -142,7 +142,7 @@ export class SeriesChartComponent implements OnChanges {
           grid: { color: GRID_COLOR },
           ticks: {
             color: TICK_COLOR,
-            font: chartFont(10),
+            font: () => chartFont(10),
             maxTicksLimit: 5,
             padding: 8,
             callback: (value) => this.axisFormat(Number(value)),
@@ -162,7 +162,7 @@ export class SeriesChartComponent implements OnChanges {
               const s = this.series[item.datasetIndex];
               const sub = s?.labels?.[item.dataIndex];
               const value = this.format(Number(item.raw));
-              return `${s?.name ?? ''}${sub ? ' · ' + sub : ''}:  ${value}`;
+              return `${s?.name ?? ''}${sub ? ' - ' + sub : ''}:  ${value}`;
             },
             labelColor: (item) => {
               const color = this.series[item.datasetIndex]?.color ?? '#b2571f';

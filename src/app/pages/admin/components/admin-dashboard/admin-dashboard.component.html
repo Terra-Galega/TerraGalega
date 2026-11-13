@@ -2,7 +2,7 @@
 @if (!model) {
 <!-- Primera carga: esqueleto con el mismo diseño -->
 @if (errorMessage) {
-<p class="text-sm" style="color: #8a2222">{{ errorMessage }}</p>
+<p class="text-(length:--dfs-14) leading-[1.43]" style="color: #8a2222">{{ errorMessage }}</p>
 } @else {
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
     @for (n of [1, 2, 3, 4]; track n) {
@@ -23,12 +23,12 @@
             <app-segmented-control [options]="rangeOptions" [value]="rangeKey" (valueChange)="setRange($event)" />
 
             <!-- Indicador de autoactualización -->
-            <div class="flex items-center gap-2 text-[11px]" style="color: rgba(44, 44, 44, 0.5)">
+            <div class="flex items-center gap-2 text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">
                 <span class="live-dot" [class.live-dot-error]="errorMessage"></span>
                 @if (errorMessage) {
                 <span style="color: #8a2222">{{ errorMessage }}</span>
                 } @else {
-                <span>En vivo · actualizado hace {{ secondsAgo }} s</span>
+                <span>En vivo - actualizado hace {{ secondsAgo }} s</span>
                 }
             </div>
         </div>
@@ -47,7 +47,7 @@
 
             <!-- Descargar reporte: abre la ventana con periodo, formato y gráficas -->
             <button type="button" id="btn-export"
-                class="export-btn flex items-center gap-2 text-[13px] font-semibold px-5 py-2.5 rounded-xl"
+                class="export-btn flex items-center gap-2 text-(length:--dfs-13) font-semibold px-5 py-2.5 rounded-xl"
                 style="background-color: #b2571f; color: #f5f2eb" (click)="openExport()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />
@@ -74,8 +74,8 @@
         <section class="dash-in glass-card rounded-2xl p-5" style="animation-delay: 160ms">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <div>
-                    <h3 class="font-serif font-semibold text-base">Ventas y ganancia</h3>
-                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">
+                    <h3 class="font-serif font-semibold text-(length:--dfs-16) leading-[1.5]">Ventas y ganancia</h3>
+                    <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">
                         {{ granularity === "day" ? "Últimos 14 días" : granularity === "week" ? "Últimas 8 semanas" :
                         "Últimos 6 meses" }}
                     </p>
@@ -89,7 +89,7 @@
             </div>
 
             <!-- Leyenda -->
-            <div class="flex items-center gap-4 text-[11px] mb-1" style="color: rgba(44, 44, 44, 0.6)">
+            <div class="flex items-center gap-4 text-(length:--dfs-11) mb-1" style="color: rgba(44, 44, 44, 0.6)">
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full"
                         style="background-color: #b2571f"></span>Ventas</span>
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full"
@@ -104,25 +104,29 @@
         <section class="dash-in glass-card rounded-2xl p-5" style="animation-delay: 220ms">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <div>
-                    <h3 class="font-serif font-semibold text-base">Comparación de ingresos</h3>
-                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">
-                        {{ pair.label }} frente a {{ pair.previousLabel }}
+                    <h3 class="font-serif font-semibold text-(length:--dfs-16) leading-[1.5]">Comparación de ingresos</h3>
+                    <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">
+                        {{ comparePair.label }} frente a {{ comparePair.previousLabel }}
                     </p>
                 </div>
-                <app-segmented-control [options]="typeOptions" [value]="compareType"
-                    (valueChange)="setCompareType($event)" />
+                <div class="flex flex-wrap items-center gap-2">
+                    <app-segmented-control [options]="granularityOptions" [value]="comparePeriod"
+                        (valueChange)="setComparePeriod($event)" />
+                    <app-segmented-control [options]="typeOptions" [value]="compareType"
+                        (valueChange)="setCompareType($event)" />
+                </div>
             </div>
 
             <!-- Totales de cada periodo y variación -->
             <div class="flex flex-wrap items-center gap-x-5 gap-y-1 mb-1">
                 <div>
-                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.label }}</p>
-                    <p class="font-serif font-bold text-xl" style="color: #b2571f">{{ money(currentTotals.revenue) }}
+                    <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">{{ comparePair.label }}</p>
+                    <p class="font-serif font-bold text-(length:--dfs-20) leading-[1.4]" style="color: #b2571f">{{ money(currentTotals.revenue) }}
                     </p>
                 </div>
                 <div>
-                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.previousLabel }}</p>
-                    <p class="font-serif font-bold text-xl" style="color: rgba(44, 44, 44, 0.6)">{{
+                    <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">{{ comparePair.previousLabel }}</p>
+                    <p class="font-serif font-bold text-(length:--dfs-20) leading-[1.4]" style="color: rgba(44, 44, 44, 0.6)">{{
                         money(previousTotals.revenue) }}</p>
                 </div>
                 <app-delta-badge [value]="revenueDelta" />
@@ -138,11 +142,15 @@
         <section class="dash-in glass-card rounded-2xl p-5" style="animation-delay: 280ms">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
                 <div>
-                    <h3 class="font-serif font-semibold text-base">Productos más vendidos</h3>
-                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.label }} · top 6</p>
+                    <h3 class="font-serif font-semibold text-(length:--dfs-16) leading-[1.5]">Productos más vendidos</h3>
+                    <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">{{ productPair.label }} - top 6</p>
                 </div>
-                <app-segmented-control [options]="productOptions" [value]="productMetric"
-                    (valueChange)="setProductMetric($event)" />
+                <div class="flex flex-wrap items-center gap-2">
+                    <app-segmented-control [options]="granularityOptions" [value]="productPeriod"
+                        (valueChange)="setProductPeriod($event)" />
+                    <app-segmented-control [options]="productOptions" [value]="productMetric"
+                        (valueChange)="setProductMetric($event)" />
+                </div>
             </div>
 
             <app-hbar-chart [items]="topItems" [format]="productMetric === 'units' ? unitsText : money" />
@@ -151,11 +159,15 @@
         <section class="dash-in glass-card rounded-2xl p-5" style="animation-delay: 340ms">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
                 <div>
-                    <h3 class="font-serif font-semibold text-base">Ventas por categoría</h3>
-                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.label }}</p>
+                    <h3 class="font-serif font-semibold text-(length:--dfs-16) leading-[1.5]">Ventas por categoría</h3>
+                    <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">{{ categoryPair.label }}</p>
                 </div>
-                <app-segmented-control [options]="categoryOptions" [value]="categoryMetric"
-                    (valueChange)="setCategoryMetric($event)" />
+                <div class="flex flex-wrap items-center gap-2">
+                    <app-segmented-control [options]="granularityOptions" [value]="categoryPeriod"
+                        (valueChange)="setCategoryPeriod($event)" />
+                    <app-segmented-control [options]="categoryOptions" [value]="categoryMetric"
+                        (valueChange)="setCategoryMetric($event)" />
+                </div>
             </div>
 
             <app-donut-chart [items]="categoryItems" [format]="categoryMetric === 'units' ? unitsText : money"

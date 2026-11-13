@@ -14,7 +14,7 @@ export interface SegmentOption {
       @for (option of options; track option.value) {
         <button
           type="button"
-          class="text-[12px] font-medium px-3 py-1.5 rounded-lg"
+          class="text-(length:--dfs-12) font-medium px-3 py-1.5 rounded-lg"
           style="transition: all 0.2s ease"
           [style.background-color]="value === option.value ? '#556141' : 'transparent'"
           [style.color]="value === option.value ? '#f5f2eb' : 'rgba(44, 44, 44, 0.55)'"

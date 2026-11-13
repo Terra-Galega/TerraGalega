@@ -438,7 +438,7 @@ export function buildModel(
       date,
       clientName: clientName || 'Cliente',
       status: o.status,
-      items: details.map((d) => `${d.quantity}X ${d.product.name}`).join(', '),
+      items: details.map((d) => `${d.quantity}× ${d.product.name}`).join(', '),
       units,
       total,
       profit: total * PROFIT_SHARE,

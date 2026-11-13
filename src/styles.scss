@@ -15,6 +15,39 @@ body {
   color: #2c2c2c;
 }
 
+// ESCALA DE FUENTE DEL DASHBOARD
+// --dash-k multiplica todos los tamaños de texto del dashboard (y de sus gráficas)
+// según el ancho de pantalla. Cada --dfs-N es el tamaño "de diseño" N px ya escalado.
+:root {
+  --dash-k: 1.1; // móvil
+  --dfs-10: calc(10px * var(--dash-k));
+  --dfs-11: calc(11px * var(--dash-k));
+  --dfs-12: calc(12px * var(--dash-k));
+  --dfs-13: calc(13px * var(--dash-k));
+  --dfs-14: calc(14px * var(--dash-k));
+  --dfs-16: calc(16px * var(--dash-k));
+  --dfs-18: calc(18px * var(--dash-k));
+  --dfs-20: calc(20px * var(--dash-k));
+  --dfs-24: calc(24px * var(--dash-k));
+  --dfs-30: calc(30px * var(--dash-k));
+}
+// Tablet
+@media (min-width: 768px) {
+  :root { --dash-k: 1.15; }
+}
+// Portátil
+@media (min-width: 1280px) {
+  :root { --dash-k: 1.2; }
+}
+// Monitor grande
+@media (min-width: 1536px) {
+  :root { --dash-k: 1.3; }
+}
+// Monitor muy grande (2K / 4K)
+@media (min-width: 1920px) {
+  :root { --dash-k: 1.4; }
+}
+
 // Barra de desplazamiento
 * {
   scrollbar-width: thin;

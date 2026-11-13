@@ -12,13 +12,23 @@ type TooltipOptions = NonNullable<
   NonNullable<ChartOptions['plugins']>['tooltip']
 >;
 
-// Misma tipografía que el resto de la app (la hereda del <body>)
+// Factor de tamaño de texto del dashboard según la pantalla (--dash-k en styles.scss)
+export function dashScale(): number {
+  if (typeof document === 'undefined') return 1;
+  const k = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--dash-k'),
+  );
+  return Number.isFinite(k) && k > 0 ? k : 1;
+}
+
+// Misma tipografía que el resto de la app (la hereda del <body>), escalada
+// con el mismo factor que el texto del dashboard
 export function chartFont(size = 11, weight: 'normal' | 'bold' = 'normal') {
   const family =
     typeof document !== 'undefined'
       ? getComputedStyle(document.body).fontFamily
       : 'sans-serif';
-  return { family, size, weight };
+  return { family, size: Math.round(size * dashScale() * 10) / 10, weight };
 }
 
 // "#b2571f" + 0.28 → "rgba(178, 87, 31, 0.28)"
@@ -40,8 +50,8 @@ export function tooltipStyle(): TooltipOptions {
     backgroundColor: INK,
     titleColor: '#f5f2eb',
     bodyColor: 'rgba(245, 242, 235, 0.85)',
-    titleFont: chartFont(12, 'bold'),
-    bodyFont: chartFont(12),
+    titleFont: () => chartFont(12, 'bold'),
+    bodyFont: () => chartFont(12),
     padding: { top: 8, bottom: 8, left: 12, right: 12 },
     cornerRadius: 12,
     boxWidth: 8,

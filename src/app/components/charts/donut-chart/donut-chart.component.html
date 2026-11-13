@@ -1,27 +1,27 @@
 <!-- Gráfica circular con leyenda interactiva -->
 @if (segments.length === 0) {
-<p class="py-10 text-center text-sm" style="color: rgba(44, 44, 44, 0.45)">
+<p class="py-10 text-center text-(length:--dfs-14) leading-[1.43]" style="color: rgba(44, 44, 44, 0.45)">
   {{ emptyText }}
 </p>
 } @else {
 <div class="flex flex-col sm:flex-row items-center gap-6">
   <!-- Anillo -->
-  <div class="relative w-44 h-44 flex-shrink-0">
+  <div class="relative w-44 h-44 2xl:w-52 2xl:h-52 flex-shrink-0">
     <canvas baseChart [type]="'doughnut'" [data]="data" [options]="options" role="img" aria-label="Ventas por categoría"
       (chartHover)="onChartHover($event)"></canvas>
 
     <!-- Centro: total o detalle del arco activo -->
     <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-6">
       @if (activeSegment; as seg) {
-      <p class="font-serif font-bold text-xl" [style.color]="seg.color">
+      <p class="font-serif font-bold text-(length:--dfs-20) leading-[1.4]" [style.color]="seg.color">
         {{ seg.pct | number: '1.0-1' }}%
       </p>
-      <p class="text-[11px] leading-tight truncate max-w-full" style="color: rgba(44, 44, 44, 0.6)">
+      <p class="text-(length:--dfs-11) leading-tight truncate max-w-full" style="color: rgba(44, 44, 44, 0.6)">
         {{ seg.label }}
       </p>
       } @else {
-      <p class="font-serif font-bold text-xl" style="color: #2c2c2c">{{ centerFormat(total) }}</p>
-      <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ centerLabel }}</p>
+      <p class="font-serif font-bold text-(length:--dfs-20) leading-[1.4]" style="color: #2c2c2c">{{ centerFormat(total) }}</p>
+      <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">{{ centerLabel }}</p>
       }
     </div>
   </div>
@@ -29,12 +29,12 @@
   <!-- Leyenda -->
   <ul class="flex-1 w-full space-y-1.5">
     @for (s of segments; track s.label; let i = $index) {
-    <li class="flex items-center gap-2 text-[13px] px-2 py-1.5 rounded-lg cursor-default"
+    <li class="flex items-center gap-2 text-(length:--dfs-13) px-2 py-1.5 rounded-lg cursor-default"
       [style.background-color]="active === i ? 'rgba(44, 44, 44, 0.06)' : 'transparent'"
       style="transition: background-color 0.15s" (mouseenter)="highlight(i)" (mouseleave)="highlight(null)">
       <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" [style.background-color]="s.color"></span>
       <span class="truncate flex-1" style="color: #2c2c2c">{{ s.label }}</span>
-      <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.45)">{{ s.pct | number: '1.0-0' }}%</span>
+      <span class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.45)">{{ s.pct | number: '1.0-0' }}%</span>
       <span class="font-semibold w-20 text-right">{{ format(s.value) }}</span>
     </li>
     }

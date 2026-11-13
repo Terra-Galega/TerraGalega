@@ -125,7 +125,7 @@ export class HbarChartComponent implements OnChanges {
           grid: { display: false },
           ticks: {
             color: INK,
-            font: chartFont(12),
+            font: () => chartFont(12),
             padding: 8,
             callback: (_value, index) =>
               truncate(`${index + 1}  ${this.items[index]?.label ?? ''}`, 24),
@@ -142,7 +142,7 @@ export class HbarChartComponent implements OnChanges {
             title: (items) => this.items[items[0]?.dataIndex ?? 0]?.label ?? '',
             label: (item) => {
               const it = this.items[item.dataIndex];
-              return `${this.format(it?.value ?? 0)}${it?.sub ? ' · ' + it.sub : ''}`;
+              return `${this.format(it?.value ?? 0)}${it?.sub ? ' - ' + it.sub : ''}`;
             },
             labelColor: () => ({
               borderColor: '#b2571f',

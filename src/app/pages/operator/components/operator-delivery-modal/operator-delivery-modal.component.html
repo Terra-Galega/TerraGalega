@@ -36,7 +36,7 @@
           <!-- Genera una opción por cada domiciliario y utiliza su identificador como valor de selección. -->
           @for (person of deliveryPersons; track person.id) {
           <option [value]="person.id">
-            {{ person.name }} {{ person.lastName }} · {{ person.phone }}
+            {{ person.name }} {{ person.lastName }} - {{ person.phone }}
           </option>
           }
         </select>
