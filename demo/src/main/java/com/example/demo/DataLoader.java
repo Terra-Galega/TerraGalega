@@ -13,7 +13,9 @@ import com.example.demo.entities.Address;
 import com.example.demo.entities.Admin;
 import com.example.demo.entities.Category;
 import com.example.demo.entities.Client;
+import com.example.demo.entities.Coupon;
 import com.example.demo.entities.DeliveryPerson;
+import com.example.demo.entities.DiscountType;
 import com.example.demo.entities.Operator;
 import com.example.demo.entities.Order;
 import com.example.demo.entities.OrderDetail;
@@ -25,6 +27,7 @@ import com.example.demo.repository.AddOnRepository;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ClientRepository;
+import com.example.demo.repository.CouponRepository;
 import com.example.demo.repository.DeliveryPersonRepository;
 import com.example.demo.repository.OperatorRepository;
 import com.example.demo.repository.OrderRepository;
@@ -62,6 +65,9 @@ public class DataLoader implements CommandLineRunner {
 
         @Autowired
         private OrderRepository orderRepository;
+
+        @Autowired
+        private CouponRepository couponRepository;
 
         // --- Helpers para reutilizar los productos/addOns ya cargados arriba,
         // en vez de duplicar su creación ---
@@ -864,5 +870,32 @@ public class DataLoader implements CommandLineRunner {
                 order5.getDetails().add(order5Detail1);
                 order5.getDetails().add(order5Detail2);
                 orderRepository.save(order5);
+
+                // Cupones generales de demostración
+                couponRepository.save(Coupon.builder().code("TERRA10")
+                                .description("10 % de descuento en tu pedido")
+                                .discountType(DiscountType.PERCENTAGE).discountValue(10.0)
+                                .maxDiscount(8000.0).minOrderAmount(20000.0).active(true).build());
+                couponRepository.save(Coupon.builder().code("DOMI5000")
+                                .description("$5.000 de descuento")
+                                .discountType(DiscountType.FIXED_AMOUNT).discountValue(5000.0)
+                                .active(true).build());
+                // Cupones personales de demostración para el cliente 1 (Juan)
+                couponRepository.save(Coupon.builder().code("BIENVENIDA-" + client1.getId())
+                                .description("Descuento de bienvenida")
+                                .discountType(DiscountType.PERCENTAGE).discountValue(10.0)
+                                .expiresAt(now.plusDays(30)).maxUses(1).active(true)
+                                .client(client1).build());
+                couponRepository.save(Coupon.builder().code("JUAN15K")
+                                .description("$15.000 de descuento para ti")
+                                .discountType(DiscountType.FIXED_AMOUNT).discountValue(15000.0)
+                                .minOrderAmount(50000.0).expiresAt(now.plusDays(10)).active(true)
+                                .client(client1).build());
+                // Ya vencido: sirve para probar la sección "Expirados"
+                couponRepository.save(Coupon.builder().code("VERANO15")
+                                .description("15 % de descuento de temporada")
+                                .discountType(DiscountType.PERCENTAGE).discountValue(15.0)
+                                .startsAt(now.minusDays(40)).expiresAt(now.minusDays(5)).active(true)
+                                .client(client1).build());
         }
 }

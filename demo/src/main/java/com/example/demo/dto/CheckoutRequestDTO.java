@@ -16,4 +16,6 @@ public class CheckoutRequestDTO {
     private String address;
     // Productos del carrito (no puede estar vacío)
     private List<CheckoutItemDTO> items;
+    // Código del cupón (opcional). El descuento se calcula en el servidor.
+    private String couponCode;
 }

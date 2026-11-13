@@ -69,5 +69,14 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
         // Pedidos de un domiciliario en un estado
         List<Order> findByDeliveryPersonIdAndStatus(Integer deliveryPersonId, OrderStatus status);
+        
+        // ¿Algún pedido usó este cupón? (para impedir borrar un cupón en uso)
+        boolean existsByCouponId(Integer couponId);
+
+        // Cuántos pedidos usan el cupón, sin contar los del estado indicado (CANCELLED)
+        long countByCouponIdAndStatusNot(Integer couponId, OrderStatus status);
+
+        // ¿Este cliente ya usó el cupón en un pedido que no esté en ese estado?
+        boolean existsByCouponIdAndClientIdAndStatusNot(Integer couponId, Integer clientId, OrderStatus status);
 
 }
