@@ -1,32 +1,11 @@
-<!-- Ranking de barras horizontales -->
-<div class="space-y-3">
-    @for (item of items; track item.label; let i = $index) {
-    <div class="cursor-default" (mouseenter)="hover = i" (mouseleave)="hover = null">
-        <div class="flex items-baseline justify-between gap-3 mb-1">
-            <p class="text-[13px] font-medium truncate" style="color: #2c2c2c">
-                <span class="font-mono text-[11px] mr-2" style="color: rgba(44, 44, 44, 0.4)">{{ i + 1 }}</span>{{
-                item.label }}
-                @if (item.sub) {
-                <span class="text-[11px] ml-1" style="color: rgba(44, 44, 44, 0.4)">{{ item.sub }}</span>
-                }
-            </p>
-            <p class="text-[13px] font-bold flex-shrink-0" style="color: #b2571f">
-                {{ format(item.value) }}
-            </p>
-        </div>
-
-        <!-- Pista gris + barra que crece con degradado de la paleta -->
-        <div class="h-2.5 rounded-full overflow-hidden" style="background-color: rgba(44, 44, 44, 0.07)">
-            <div class="h-full rounded-full" [style.width.%]="width(item)"
-                [style.transition]="'width 0.9s cubic-bezier(0.22, 1, 0.36, 1) ' + i * 70 + 'ms, filter 0.2s'"
-                [style.filter]="hover === i ? 'brightness(1.12)' : 'none'"
-                [style.background]="i === 0 ? 'linear-gradient(90deg, #b2571f, #d99a21)' : 'linear-gradient(90deg, #556141, #8a9a6b)'">
-            </div>
-        </div>
-    </div>
-    } @empty {
-    <p class="py-10 text-center text-sm" style="color: rgba(44, 44, 44, 0.45)">
-        {{ emptyText }}
-    </p>
-    }
+<!-- Ranking de barras horizontales (Chart.js) -->
+@if (items.length) {
+<div class="relative w-full" [style.height.px]="height">
+    <canvas baseChart [type]="chartType" [data]="data" [options]="options" [plugins]="plugins" role="img"
+        aria-label="Ranking de productos"></canvas>
 </div>
+} @else {
+<p class="py-10 text-center text-(length:--dfs-14) leading-[1.43]" style="color: rgba(44, 44, 44, 0.45)">
+    {{ emptyText }}
+</p>
+}

@@ -29,7 +29,7 @@ export class ContactInfoComponent {
     },
     {
       title: 'Horario',
-      value: 'Lun – Sáb: 12:00 – 22:00 · Dom: 12:00 – 20:00',
+      value: 'Lun – Sáb: 12:00 – 22:00 - Dom: 12:00 – 20:00',
       icon: 'clock',
     },
     {

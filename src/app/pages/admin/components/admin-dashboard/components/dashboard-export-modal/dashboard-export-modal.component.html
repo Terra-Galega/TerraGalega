@@ -7,10 +7,10 @@
         <!-- Encabezado -->
         <div class="flex items-start justify-between gap-4 mb-6">
             <div>
-                <h2 class="font-serif text-2xl font-semibold text-charcoal">
+                <h2 class="font-serif text-(length:--dfs-24) leading-[1.33] font-semibold text-charcoal">
                     Descargar reporte
                 </h2>
-                <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.6)">
+                <p class="text-(length:--dfs-14) leading-[1.43] mt-1" style="color: rgba(44, 44, 44, 0.6)">
                     Elige el periodo, el formato y si quieres las gráficas.
                 </p>
             </div>
@@ -23,38 +23,38 @@
 
         <!-- 1. Periodo -->
         <section class="mb-6">
-            <h3 class="text-[13px] font-semibold mb-3 text-charcoal">1 · Periodo</h3>
+            <h3 class="text-(length:--dfs-13) font-semibold mb-3 text-charcoal">1 - Periodo</h3>
 
             <app-segmented-control [options]="modeOptions" [value]="mode" (valueChange)="setMode($event)" />
 
             <div class="mt-4">
                 @if (mode === "day") {
-                <label class="block text-[12px] mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
+                <label class="block text-(length:--dfs-12) mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
                     for="export-day">Fecha</label>
                 <input id="export-day" type="date"
-                    class="input-field px-4 py-3 rounded-xl text-sm text-charcoal w-full sm:w-64" [value]="dayValue"
+                    class="input-field px-4 py-3 rounded-xl text-(length:--dfs-14) leading-[1.43] text-charcoal w-full sm:w-64" [value]="dayValue"
                     [max]="maxDate" (input)="onDay($event)" />
                 } @else if (mode === "week") {
-                <label class="block text-[12px] mb-1.5" style="color: rgba(44, 44, 44, 0.6)" for="export-week">
+                <label class="block text-(length:--dfs-12) mb-1.5" style="color: rgba(44, 44, 44, 0.6)" for="export-week">
                     Cualquier día de la semana (de lunes a domingo)
                 </label>
                 <input id="export-week" type="date"
-                    class="input-field px-4 py-3 rounded-xl text-sm text-charcoal w-full sm:w-64" [value]="weekValue"
+                    class="input-field px-4 py-3 rounded-xl text-(length:--dfs-14) leading-[1.43] text-charcoal w-full sm:w-64" [value]="weekValue"
                     [max]="maxDate" (input)="onWeek($event)" />
                 } @else {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[12px] mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
+                        <label class="block text-(length:--dfs-12) mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
                             for="export-from">Desde</label>
                         <input id="export-from" type="date"
-                            class="input-field px-4 py-3 rounded-xl text-sm text-charcoal w-full" [value]="fromValue"
+                            class="input-field px-4 py-3 rounded-xl text-(length:--dfs-14) leading-[1.43] text-charcoal w-full" [value]="fromValue"
                             [max]="maxDate" (input)="onFrom($event)" />
                     </div>
                     <div>
-                        <label class="block text-[12px] mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
+                        <label class="block text-(length:--dfs-12) mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
                             for="export-to">Hasta</label>
                         <input id="export-to" type="date"
-                            class="input-field px-4 py-3 rounded-xl text-sm text-charcoal w-full" [value]="toValue"
+                            class="input-field px-4 py-3 rounded-xl text-(length:--dfs-14) leading-[1.43] text-charcoal w-full" [value]="toValue"
                             [max]="maxDate" (input)="onTo($event)" />
                     </div>
                 </div>
@@ -64,7 +64,7 @@
             <!-- Atajos -->
             <div class="flex flex-wrap gap-2 mt-3">
                 @for (preset of presets; track preset.label) {
-                <button type="button" class="text-[12px] font-medium px-3 py-1.5 rounded-full preset-chip"
+                <button type="button" class="text-(length:--dfs-12) font-medium px-3 py-1.5 rounded-full preset-chip"
                     (click)="preset.apply()">
                     {{ preset.label }}
                 </button>
@@ -74,23 +74,23 @@
             <!-- Vista previa de lo que se va a descargar -->
             <div class="mt-4 rounded-2xl p-4" style="background-color: rgba(85, 97, 65, 0.08)">
                 @if (error) {
-                <p class="text-sm" style="color: #8a2222">{{ error }}</p>
+                <p class="text-(length:--dfs-14) leading-[1.43]" style="color: #8a2222">{{ error }}</p>
                 } @else if (pair && totals) {
-                <p class="text-[12px] mb-2" style="color: rgba(44, 44, 44, 0.6)">
-                    {{ periodText }} · {{ days }} {{ days === 1 ? "día" : "días" }}
+                <p class="text-(length:--dfs-12) mb-2" style="color: rgba(44, 44, 44, 0.6)">
+                    {{ periodText }} - {{ days }} {{ days === 1 ? "día" : "días" }}
                 </p>
                 <div class="grid grid-cols-3 gap-3">
                     <div>
-                        <p class="font-serif font-bold text-lg" style="color: #b2571f">{{ money(totals.revenue) }}</p>
-                        <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.55)">Ventas</p>
+                        <p class="font-serif font-bold text-(length:--dfs-18) leading-[1.56]" style="color: #b2571f">{{ money(totals.revenue) }}</p>
+                        <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.55)">Ventas</p>
                     </div>
                     <div>
-                        <p class="font-serif font-bold text-lg text-charcoal">{{ totals.orders }}</p>
-                        <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.55)">Pedidos</p>
+                        <p class="font-serif font-bold text-(length:--dfs-18) leading-[1.56] text-charcoal">{{ totals.orders }}</p>
+                        <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.55)">Pedidos</p>
                     </div>
                     <div>
-                        <p class="font-serif font-bold text-lg" style="color: #556141">{{ money(totals.profit) }}</p>
-                        <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.55)">Ganancia</p>
+                        <p class="font-serif font-bold text-(length:--dfs-18) leading-[1.56]" style="color: #556141">{{ money(totals.profit) }}</p>
+                        <p class="text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.55)">Ganancia</p>
                     </div>
                 </div>
                 }
@@ -99,16 +99,16 @@
 
         <!-- 2. Formato -->
         <section class="mb-6">
-            <h3 class="text-[13px] font-semibold mb-3 text-charcoal">2 · Formato</h3>
+            <h3 class="text-(length:--dfs-13) font-semibold mb-3 text-charcoal">2 - Formato</h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 @for (f of formats; track f.value) {
                 <button type="button" class="format-card text-left rounded-2xl p-4"
                     [class.format-card--on]="format === f.value" [attr.aria-pressed]="format === f.value"
                     (click)="setFormat(f.value)">
-                    <span class="inline-block text-[11px] font-bold px-2 py-1 rounded-md mb-2"
+                    <span class="inline-block text-(length:--dfs-11) font-bold px-2 py-1 rounded-md mb-2"
                         [style.background-color]="f.bg" [style.color]="f.color">{{ f.badge }}</span>
-                    <span class="block text-sm font-semibold text-charcoal">{{ f.title }}</span>
-                    <span class="block text-[12px] mt-0.5" style="color: rgba(44, 44, 44, 0.6)">{{ f.text }}</span>
+                    <span class="block text-(length:--dfs-14) leading-[1.43] font-semibold text-charcoal">{{ f.title }}</span>
+                    <span class="block text-(length:--dfs-12) mt-0.5" style="color: rgba(44, 44, 44, 0.6)">{{ f.text }}</span>
                 </button>
                 }
             </div>
@@ -116,12 +116,12 @@
 
         <!-- 3. Gráficas -->
         <section class="mb-7">
-            <h3 class="text-[13px] font-semibold mb-3 text-charcoal">3 · Contenido</h3>
+            <h3 class="text-(length:--dfs-13) font-semibold mb-3 text-charcoal">3 - Contenido</h3>
             @if (canCharts) {
             <app-check-option label="Incluir las gráficas (ventas, comparación, más vendidos y categorías)"
                 [checked]="includeCharts" (changed)="setIncludeCharts($event)" />
             } @else {
-            <p class="text-[12px]" style="color: rgba(44, 44, 44, 0.55)">
+            <p class="text-(length:--dfs-12)" style="color: rgba(44, 44, 44, 0.55)">
                 El CSV es texto plano y no admite gráficas. Elige PDF o Excel para incluirlas.
             </p>
             }

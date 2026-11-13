@@ -41,7 +41,7 @@
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
             <p class="text-xs font-medium" style="color: rgba(44, 44, 44, 0.5)">
-              Pedido #{{ order.id }} · {{ order.createdAt | date: "dd MMM, HH:mm" }}
+              Pedido #{{ order.id }} - {{ order.createdAt | date: "dd MMM, HH:mm" }}
             </p>
             <h2 [id]="'operator-order-client-' + order.id" class="mt-1 text-lg font-semibold text-charcoal truncate">
               {{ clientName(order) }}

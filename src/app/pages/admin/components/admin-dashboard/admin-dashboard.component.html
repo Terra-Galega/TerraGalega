@@ -2,7 +2,7 @@
 @if (!model) {
 <!-- Primera carga: esqueleto con el mismo diseño -->
 @if (errorMessage) {
-<p class="text-sm" style="color: #8a2222">{{ errorMessage }}</p>
+<p class="text-(length:--dfs-14) leading-[1.43]" style="color: #8a2222">{{ errorMessage }}</p>
 } @else {
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
     @for (n of [1, 2, 3, 4]; track n) {
@@ -139,7 +139,7 @@
             <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
                 <div>
                     <h3 class="font-serif font-semibold text-base">Productos más vendidos</h3>
-                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.label }} · top 6</p>
+                    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ pair.label }} - Top 6</p>
                 </div>
                 <app-segmented-control [options]="productOptions" [value]="productMetric"
                     (valueChange)="setProductMetric($event)" />

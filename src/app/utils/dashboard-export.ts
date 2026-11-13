@@ -393,7 +393,7 @@ async function exportExcel(r: ReportData) {
       color: { argb: 'FFF5F2EB' },
     };
     ws.getCell(3, 2).value =
-      `${periodTitle(r)} · generado el ${dateTimeLabel(r.generatedAt)}`;
+      `${periodTitle(r)} - generado el ${dateTimeLabel(r.generatedAt)}`;
     ws.getCell(3, 2).font = {
       name: 'Calibri',
       size: 10,
