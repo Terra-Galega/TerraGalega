@@ -13,7 +13,7 @@ object ApiClient {
 
     // Emulador de Android: 10.0.2.2 es tu PC (donde corre el backend).
     // Celular real: pon la IP de tu PC en el wifi, ej. "http://192.168.1.20:8080/"
-    const val BASE_URL = "http://localhost:8080/"
+    const val BASE_URL = "http://10.195.69.182:8080/"
 
     private val okHttp = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })

@@ -1,5 +1,7 @@
 package com.example.terragalegamovile.ui.components
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -80,7 +82,31 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.terragalegamovile.R
 // Logo "Terra" (Pinyon Script) + "GALEGA" (serifa), como en la navbar de la web
 @Composable
 fun TerraLogo(
@@ -290,11 +316,34 @@ fun TerraScaffold(
     role: String,
     name: String,
     onLogout: () -> Unit,
+    cartCount: Int? = null,
+    onCart: (() -> Unit)? = null,
+    bottomBar: (@Composable (HazeState) -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
+
+    val blur by animateDpAsState(if (FilterUi.open) 5.dp else 0.dp, label = "blur")
+    val dim by animateFloatAsState(if (FilterUi.open) 0.16f else 0f, label = "dim")
     val hazeState = rememberHazeState()
     val density = LocalDensity.current
-    var barHeight by remember { mutableStateOf(96.dp) }
+    val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val topArea = statusTop + 80.dp          // el contenido empieza más abajo (antes 52)
+    val fadeEnd = statusTop + 96.dp          // hasta dónde llega el difuminado
+    val solidUntil = ((statusTop + 54.dp) / fadeEnd).coerceIn(0f, 1f)   // crema sólido detrás del logo
+    // Degradado con curva suave (smoothstep) en vez de lineal, para que no se note el corte
+    val fadeStops = remember(solidUntil) {
+        buildList {
+            add(0f to Cream)
+            add(solidUntil to Cream)
+            val steps = 10
+            for (i in 1..steps) {
+                val t = i / steps.toFloat()
+                val alpha = 1f - (t * t * (3f - 2f * t))
+                add((solidUntil + (1f - solidUntil) * t) to Cream.copy(alpha = alpha))
+            }
+        }.toTypedArray()
+    }
+    var bottomHeight by remember { mutableStateOf(0.dp) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -302,18 +351,72 @@ fun TerraScaffold(
                 .fillMaxSize()
                 .background(Cream)
                 .hazeSource(hazeState)
+                .blur(blur, BlurredEdgeTreatment.Rectangle)   // <-- NUEVO
+
         ) {
-            content(PaddingValues(top = barHeight))
+            content(PaddingValues(top = topArea, bottom = bottomHeight))
         }
-        TerraTopBar(
-            role = role,
-            name = name,
-            onLogout = onLogout,
-            hazeState = hazeState,
+
+        // Difuminado crema para que el contenido no se cruce con el logo al hacer scroll
+        // Difuminado crema: sólido detrás del logo y se desvanece suave hacia el contenido
+        Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .onSizeChanged { barHeight = with(density) { it.height.toDp() } }
+                .fillMaxWidth()
+                .height(fadeEnd)
+                .background(Brush.verticalGradient(*fadeStops))
         )
+
+        // Solo el logo, en la esquina
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 20.dp, top = statusTop + 10.dp)
+        ) {
+            TerraLogo(
+                scale = 0.8f,
+                terraColor = Terra,
+                galegaColor = Color(0xFF1A1A1A)
+            )
+        }
+
+        if (bottomBar != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .onSizeChanged { bottomHeight = with(density) { it.height.toDp() } }
+            ) {
+                bottomBar(hazeState)
+            }
+        } else {
+            // Pantallas sin barra inferior: botones sueltos arriba a la derecha
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = 16.dp, top = statusTop + 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (onCart != null) {
+                    CartButton(count = cartCount ?: 0, onClick = onCart)
+                    Spacer(Modifier.width(8.dp))
+                }
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .border(1.dp, Burgundy, CircleShape)
+                        .semantics { contentDescription = "Cerrar sesión" }
+                        .clickable(onClick = onLogout),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LogoutIcon(bracket = Burgundy, arrow = Terra, modifier = Modifier.size(22.dp))
+                    if (dim > 0f) {
+                        Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = dim)))
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -324,9 +427,27 @@ fun TerraTopBar(
     name: String,
     onLogout: () -> Unit,
     hazeState: HazeState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cartCount: Int? = null,
+    onCart: (() -> Unit)? = null
 ) {
     val pill = RoundedCornerShape(50)
+    var menuOpen by remember { mutableStateOf(false) }
+    val gapPx = with(LocalDensity.current) { 12.dp.roundToPx() }
+    // El menú sale pegado a la derecha, debajo del nombre
+    val below = remember(gapPx) {
+        object : PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize
+            ) = IntOffset(
+                x = anchorBounds.right - popupContentSize.width,
+                y = anchorBounds.bottom + gapPx
+            )
+        }
+    }
 
     Row(
         modifier = modifier
@@ -373,79 +494,124 @@ fun TerraTopBar(
             galegaColor = Color(0xFF1A1A1A)
         )
         Spacer(Modifier.width(12.dp))
-
         Row(
             modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Chip de usuario
-            Row(
-                modifier = Modifier
-                    .weight(1f, fill = false)
-                    .clip(pill)
-                    .background(Color.White)
-                    .border(1.dp, Color.White, pill)
-                    .padding(start = 5.dp, end = 14.dp, top = 5.dp, bottom = 5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
+            // Nombre: solo texto, pegado a la derecha. Al tocarlo se despliega el menú
+            Box(modifier = Modifier.weight(1f, fill = false)) {
+                Row(
                     modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(Brush.linearGradient(listOf(Terra, Burgundy))),
-                    contentAlignment = Alignment.Center
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { menuOpen = !menuOpen }
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        name.trim().firstOrNull()?.uppercase() ?: "?",
-                        color = Color.White,
-                        fontFamily = Playfair,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    )
+                    Column(
+                        modifier = Modifier.weight(1f, fill = false),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(
+                            role.uppercase(),
+                            fontFamily = SourceSans,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Medium,
+                            letterSpacing = 1.8.sp,
+                            color = Terra,
+                            textAlign = TextAlign.End
+                        )
+                        Text(
+                            name,
+                            fontFamily = SourceSans,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Charcoal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.End
+                        )
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Text(if (menuOpen) "▴" else "▾", color = Terra, fontSize = 12.sp)
                 }
-                Spacer(Modifier.width(8.dp))
-                Column(modifier = Modifier.weight(1f, fill = false)) {
-                    Text(
-                        role.uppercase(),
-                        fontFamily = SourceSans,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Medium,
-                        letterSpacing = 1.8.sp,
-                        color = Terra
-                    )
-                    Text(
-                        name,
-                        fontFamily = SourceSans,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Charcoal,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+
+                if (menuOpen) {
+                    Popup(
+                        popupPositionProvider = below,
+                        onDismissRequest = { menuOpen = false }
+                    ) {
+                        Box(modifier = Modifier.padding(12.dp)) {
+                            val card = RoundedCornerShape(22.dp)
+                            Column(
+                                modifier = Modifier
+                                    .shadow(
+                                        14.dp, card,
+                                        ambientColor = Color.Black.copy(alpha = 0.15f),
+                                        spotColor = Color.Black.copy(alpha = 0.15f)
+                                    )
+                                    .clip(card)
+                                    .background(Color.White)
+                                    .padding(vertical = 6.dp)
+                            ) {
+                                if (onCart != null) {
+                                    val openCart = { menuOpen = false; onCart() }
+                                    Row(
+                                        modifier = Modifier
+                                            .clickable(onClick = openCart)
+                                            .padding(horizontal = 14.dp, vertical = 6.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        CartButton(count = cartCount ?: 0, onClick = openCart)
+                                        Spacer(Modifier.width(12.dp))
+                                        Text(
+                                            "Carrito",
+                                            fontFamily = SourceSans,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Charcoal,
+                                            modifier = Modifier.padding(end = 8.dp)
+                                        )
+                                    }
+                                }
+                                val doLogout = { menuOpen = false; onLogout() }
+                                Row(
+                                    modifier = Modifier
+                                        .clickable(onClick = doLogout)
+                                        .padding(horizontal = 14.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                            .background(Color.White)
+                                            .border(1.dp, Burgundy, CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        LogoutIcon(
+                                            bracket = Burgundy,
+                                            arrow = Terra,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    }
+                                    Spacer(Modifier.width(12.dp))
+                                    Text(
+                                        "Salir",
+                                        fontFamily = SourceSans,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Burgundy,
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-
-            Spacer(Modifier.width(8.dp))
-
-            // Botón Salir (estilo "danger" de la web; al presionar se rellena)
-            val interaction = remember { MutableInteractionSource() }
-            val pressed by interaction.collectIsPressedAsState()
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(if (pressed) Burgundy else Color.White)
-                    .border(1.dp, Burgundy, CircleShape)
-                    .semantics { contentDescription = "Cerrar sesión" }
-                    .clickable(interactionSource = interaction, indication = null, onClick = onLogout),
-                contentAlignment = Alignment.Center
-            ) {
-                LogoutIcon(
-                    bracket = if (pressed) Color.White else Burgundy,
-                    arrow = if (pressed) Color.White else Terra,
-                    modifier = Modifier.size(22.dp)
-                )
             }
         }
     }
@@ -477,5 +643,291 @@ fun LogoutIcon(bracket: Color, arrow: Color, modifier: Modifier = Modifier) {
             lineTo(w * 0.68f, h * 0.70f)
         }
         drawPath(arrowPath, arrow, style = stroke)
+    }
+}
+
+// Botón redondo del carrito con insignia de cantidad (como el de la navbar de la web)
+@Composable
+fun CartButton(count: Int, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+
+    Box(contentAlignment = Alignment.TopEnd) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(if (pressed) Terra else Color.White)
+                .border(1.dp, Terra, CircleShape)
+                .semantics { contentDescription = "Carrito" }
+                .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            CartIcon(color = if (pressed) Color.White else Terra, modifier = Modifier.size(22.dp))
+        }
+        if (count > 0) {
+            Box(
+                modifier = Modifier
+                    .offset(x = 4.dp, y = (-4).dp)
+                    .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
+                    .clip(CircleShape)
+                    .background(Burgundy),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    if (count > 99) "99+" else "$count",
+                    color = Color.White,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CartIcon(color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val stroke = Stroke(width = w * 0.09f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val path = Path().apply {
+            moveTo(w * 0.04f, h * 0.08f)
+            lineTo(w * 0.20f, h * 0.08f)
+            lineTo(w * 0.34f, h * 0.60f)
+            lineTo(w * 0.84f, h * 0.60f)
+            lineTo(w * 0.96f, h * 0.26f)
+            lineTo(w * 0.24f, h * 0.26f)
+        }
+        drawPath(path, color, style = stroke)
+        drawCircle(color, radius = w * 0.06f, center = Offset(w * 0.40f, h * 0.84f))
+        drawCircle(color, radius = w * 0.06f, center = Offset(w * 0.80f, h * 0.84f))
+    }
+}
+
+// Barra inferior de pestañas con el mismo vidrio de la barra superior
+@Composable
+fun TerraBottomBar(
+    hazeState: HazeState,
+    labels: List<String>,
+    selected: Int,
+    onSelect: (Int) -> Unit
+) {
+    val navInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 10.dp,
+                ambientColor = Color.Black.copy(alpha = 0.08f),
+                spotColor = Color.Black.copy(alpha = 0.08f)
+            )
+            .hazeEffect(state = hazeState) {
+                blurRadius = 40.dp
+                noiseFactor = 0.02f
+                backgroundColor = Cream
+                tints = listOf(HazeTint(Forest.copy(alpha = 0.30f)))
+            }
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color.White.copy(alpha = 0.0f), Color.White.copy(alpha = 0.22f))
+                )
+            )
+            .drawBehind {
+                val line = 1.dp.toPx()
+                drawLine(
+                    Color.White.copy(alpha = 0.9f),
+                    Offset(0f, line / 2), Offset(size.width, line / 2), line
+                )
+            }.padding(bottom = navInset),   // <-- NUEVO: el vidrio se extiende hasta abajo
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        labels.forEachIndexed { index, label ->
+            val active = index == selected
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { onSelect(index) }
+                    .padding(vertical = 14.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    label.uppercase(),
+                    fontFamily = SourceSans,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.8.sp,
+                    color = if (active) Terra else Charcoal.copy(alpha = 0.7f)
+                )
+                Spacer(Modifier.height(5.dp))
+                Box(
+                    modifier = Modifier
+                        .width(if (active) 22.dp else 0.dp)
+                        .height(2.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(Terra)
+                )
+            }
+        }
+    }
+}
+
+// Barra inferior flotante tipo píldora, de vidrio, solo con íconos.
+// selected: 0 = Carta, 1 = Órdenes, -1 = ninguno
+@Composable
+fun ClientBottomBar(
+    hazeState: HazeState,
+    selected: Int,
+    cartCount: Int,
+    onMenu: () -> Unit,
+    onCart: () -> Unit,
+    onOrders: () -> Unit,
+    onLogout: () -> Unit
+) {
+    val pill = RoundedCornerShape(50)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 12.dp)
+            .shadow(
+                16.dp, pill,
+                ambientColor = Color.Black.copy(alpha = 0.18f),
+                spotColor = Color.Black.copy(alpha = 0.18f)
+            )
+            .clip(pill)
+            .hazeEffect(state = hazeState) {
+                blurRadius = 40.dp
+                noiseFactor = 0.02f
+                backgroundColor = Cream
+                tints = listOf(HazeTint(Forest.copy(alpha = 0.55f)))
+            }
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color.White.copy(alpha = 0.28f), Color.White.copy(alpha = 0.04f))
+                )
+            )
+            .border(
+                1.dp,
+                Brush.verticalGradient(
+                    listOf(Color.White.copy(alpha = 0.7f), Color.White.copy(alpha = 0.15f))
+                ),
+                pill
+            )
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        NavItem(selected == 0, "Carta", onMenu) {
+            Image(
+                painter = painterResource(
+                    if (selected == 0) R.drawable.selected else R.drawable.unselected
+                ),
+                contentDescription = null,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+        NavItem(false, "Carrito", onCart, badge = cartCount) { NavIcon(1, it) }
+        NavItem(selected == 1, "Órdenes", onOrders) { NavIcon(2, it) }
+        NavItem(false, "Cerrar sesión", onLogout) {
+            LogoutIcon(bracket = it, arrow = it, modifier = Modifier.size(26.dp))
+        }
+    }
+}
+
+@Composable
+private fun RowScope.NavItem(
+    selected: Boolean,
+    label: String,
+    onClick: () -> Unit,
+    badge: Int = 0,
+    icon: @Composable (Color) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(22.dp))
+            .background(if (selected) Color.White.copy(alpha = 0.25f) else Color.Transparent)
+            .clickable(onClick = onClick)
+            .padding(vertical = 7.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(modifier = Modifier.height(30.dp), contentAlignment = Alignment.Center) {
+            icon(if (selected) Color.White else Color.White.copy(alpha = 0.8f))
+            if (badge > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 8.dp, y = (-2).dp)
+                        .size(16.dp)
+                        .clip(CircleShape)
+                        .background(Terra),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        if (badge > 9) "9+" else "$badge",
+                        color = Color.White,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(
+            label,
+            fontFamily = SourceSans,
+            fontSize = 10.sp,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            color = if (selected) Color.White else Color.White.copy(alpha = 0.8f),
+            maxLines = 1
+        )
+    }
+}
+
+// Íconos de la barra: 0 = carta, 1 = carrito, 2 = órdenes
+@Composable
+private fun NavIcon(kind: Int, color: Color) {
+    Canvas(modifier = Modifier.size(26.dp)) {
+        val w = size.width
+        val h = size.height
+        val sw = w * 0.085f
+        val stroke = Stroke(width = sw, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        when (kind) {
+            0 -> { // carta con tenedor y cuchillo
+                drawRoundRect(
+                    color, topLeft = Offset(w * 0.20f, h * 0.08f), size = Size(w * 0.60f, h * 0.84f),
+                    cornerRadius = CornerRadius(w * 0.10f), style = stroke
+                )
+                drawLine(color, Offset(w * 0.38f, h * 0.28f), Offset(w * 0.38f, h * 0.72f), sw, StrokeCap.Round)
+                drawLine(color, Offset(w * 0.31f, h * 0.26f), Offset(w * 0.31f, h * 0.40f), sw, StrokeCap.Round)
+                drawLine(color, Offset(w * 0.45f, h * 0.26f), Offset(w * 0.45f, h * 0.40f), sw, StrokeCap.Round)
+                drawLine(color, Offset(w * 0.63f, h * 0.28f), Offset(w * 0.63f, h * 0.72f), sw, StrokeCap.Round)
+            }
+            1 -> { // carrito
+                val cart = Path().apply {
+                    moveTo(w * 0.06f, h * 0.14f)
+                    lineTo(w * 0.20f, h * 0.14f)
+                    lineTo(w * 0.32f, h * 0.62f)
+                    lineTo(w * 0.80f, h * 0.62f)
+                    lineTo(w * 0.92f, h * 0.28f)
+                    lineTo(w * 0.24f, h * 0.28f)
+                }
+                drawPath(cart, color, style = stroke)
+                drawCircle(color, w * 0.065f, Offset(w * 0.38f, h * 0.82f))
+                drawCircle(color, w * 0.065f, Offset(w * 0.76f, h * 0.82f))
+            }
+            else -> { // órdenes
+                drawRoundRect(
+                    color, topLeft = Offset(w * 0.20f, h * 0.08f), size = Size(w * 0.60f, h * 0.84f),
+                    cornerRadius = CornerRadius(w * 0.10f), style = stroke
+                )
+                listOf(0.34f, 0.54f, 0.74f).forEach { y ->
+                    drawLine(color, Offset(w * 0.34f, h * y), Offset(w * 0.66f, h * y), sw, StrokeCap.Round)
+                }
+            }
+        }
     }
 }

@@ -49,10 +49,11 @@ import com.example.terragalegamovile.ui.components.TerraScaffold
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-fun ClientScreen(user: LoginResponse, onLogout: () -> Unit) {
-    var delivery by remember { mutableStateOf<ClientDelivery?>(null) }
+fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) {    var delivery by remember { mutableStateOf<ClientDelivery?>(null) }
     var loaded by remember { mutableStateOf(false) }
     var delivered by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -111,6 +112,14 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit) {
                 .verticalScroll(rememberScrollState())
                 .padding(top = padding.calculateTopPadding())
         ) {
+            Text(
+                "← Mis pedidos",
+                color = Terra,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .clickable(onClick = onBack)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
+            )
             val current = delivery
 
             if (current == null) {

@@ -1,0 +1,353 @@
+package com.example.terragalegamovile.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.terragalegamovile.data.ApiClient
+import com.example.terragalegamovile.data.ClientUi
+import com.example.terragalegamovile.data.Format
+import com.example.terragalegamovile.data.LoginResponse
+import com.example.terragalegamovile.data.Order
+import com.example.terragalegamovile.data.toUserMessage
+import com.example.terragalegamovile.ui.components.AddressIcon
+import com.example.terragalegamovile.ui.components.ButtonStyle
+import com.example.terragalegamovile.ui.components.GlassCard
+import com.example.terragalegamovile.ui.components.OrderProgress
+import com.example.terragalegamovile.ui.components.PageHeader
+import com.example.terragalegamovile.ui.components.TerraButton
+import com.example.terragalegamovile.ui.components.TerraDialog
+import com.example.terragalegamovile.ui.theme.BorderSoft
+import com.example.terragalegamovile.ui.theme.Burgundy
+import com.example.terragalegamovile.ui.theme.Charcoal
+import com.example.terragalegamovile.ui.theme.Cream
+import com.example.terragalegamovile.ui.theme.Forest
+import com.example.terragalegamovile.ui.theme.Playfair
+import com.example.terragalegamovile.ui.theme.Terra
+import com.example.terragalegamovile.ui.theme.TextSoft
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+// Pestaña "Mis pedidos": los mismos pedidos que ve el cliente en la web
+@Composable
+fun OrdersTab(
+    user: LoginResponse,
+    padding: PaddingValues,
+    onTrack: () -> Unit,
+    onGoMenu: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
+    var loading by remember { mutableStateOf(true) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var reload by remember { mutableStateOf(0) }
+    var toCancel by remember { mutableStateOf<Order?>(null) }
+    var cancelError by remember { mutableStateOf<String?>(null) }
+
+    // El aviso verde de "pedido creado" se apaga al salir de esta pestaña
+    DisposableEffect(Unit) { onDispose { ClientUi.paid = false } }
+
+    // Carga al abrir y refresca cada 6 s: si el operador cambia el estado, se ve solo
+    LaunchedEffect(reload) {
+        while (true) {
+            try {
+                orders = ApiClient.api.myOrders(user.id)
+                error = null
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (loading) error = e.toUserMessage()
+            }
+            loading = false
+            delay(6_000)
+        }
+    }
+
+    val active = orders.filter { it.status != "DELIVERED" && it.status != "CANCELLED" }
+    val past = orders.filter { it.status == "DELIVERED" || it.status == "CANCELLED" }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 20.dp,
+            end = 20.dp,
+            top = padding.calculateTopPadding() + 16.dp,
+            bottom = padding.calculateBottomPadding() + 24.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        if (ClientUi.paid) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Forest.copy(alpha = 0.08f))
+                        .border(1.dp, Forest.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                        .padding(horizontal = 20.dp, vertical = 14.dp)
+                ) {
+                    Text(
+                        "✓  ¡Tu orden fue añadida con éxito! Ya quedó registrada y está pendiente.",
+                        color = Forest,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+
+        item {
+            Column {
+                PageHeader("Tu historial", "Mis pedidos")
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    "Hola, esto es todo lo que has pedido en Terra Galega.",
+                    color = Charcoal.copy(alpha = 0.7f),
+                    fontSize = 15.sp
+                )
+                if (orders.isNotEmpty()) {
+                    Spacer(Modifier.height(16.dp))
+                    TerraButton("Pedir de nuevo", onClick = onGoMenu, modifier = Modifier.fillMaxWidth())
+                }
+            }
+        }
+
+        when {
+            loading -> item { Text("Cargando tus pedidos...", color = TextSoft) }
+
+            error != null && orders.isEmpty() -> item { Text(error ?: "", color = Burgundy) }
+
+            orders.isEmpty() -> item {
+                GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 32.dp) {
+                    Text(
+                        "Todavía no has hecho ningún pedido.",
+                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "Cuando hagas tu primer pedido aparecerá aquí.",
+                        color = TextSoft,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    TerraButton("Explorar la carta", onClick = onGoMenu, modifier = Modifier.fillMaxWidth())
+                }
+            }
+
+            else -> {
+                item { SectionTitle("Pedidos activos") }
+                if (active.isEmpty()) {
+                    item {
+                        Text(
+                            "No tienes pedidos activos en este momento.",
+                            fontSize = 14.sp,
+                            color = Charcoal.copy(alpha = 0.55f)
+                        )
+                    }
+                } else {
+                    items(active.size) { i ->
+                        OrderCard(active[i], onCancel = { toCancel = active[i] }, onTrack = onTrack)
+                    }
+                }
+                if (past.isNotEmpty()) {
+                    item { SectionTitle("Pedidos pasados") }
+                    items(past.size) { i ->
+                        OrderCard(past[i], onCancel = null, onTrack = onTrack)
+                    }
+                }
+            }
+        }
+    }
+
+    toCancel?.let { order ->
+        TerraDialog(
+            title = "Cancelar pedido",
+            message = "¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.",
+            confirmLabel = "Sí, cancelar pedido",
+            cancelLabel = "Volver",
+            danger = true,
+            onConfirm = {
+                toCancel = null
+                scope.launch {
+                    try {
+                        ApiClient.api.cancelOrder(order.id, user.id).close()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        cancelError = e.toUserMessage()
+                    }
+                    reload++ // recarga la lista de inmediato (también si falló, por si el estado cambió)
+                }
+            },
+            onCancel = { toCancel = null }
+        )
+    }
+
+    cancelError?.let {
+        TerraDialog(
+            title = "No se pudo cancelar el pedido",
+            message = it,
+            confirmLabel = "Aceptar",
+            onConfirm = { cancelError = null }
+        )
+    }
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(text, fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 24.sp, color = Charcoal)
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit) {
+    val shape = RoundedCornerShape(24.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Color.White)
+            .border(1.dp, Charcoal.copy(alpha = 0.08f), shape)
+    ) {
+        // Número, fecha y total
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text("Pedido #${order.id}", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
+                Text(Format.dateTime(order.createdAt), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.55f))
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text("Total", fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
+                Text(Format.money(order.total), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Terra)
+            }
+        }
+
+        Box(Modifier.padding(horizontal = 20.dp, vertical = 20.dp)) { OrderProgress(order.status) }
+
+        Box(Modifier.fillMaxWidth().height(1.dp).background(Charcoal.copy(alpha = 0.08f)))
+
+        // Productos
+        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            order.details.forEach { line ->
+                val lineTotal = (line.unitPrice + line.addOns.sumOf { it.price }) * line.quantity
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row {
+                            Text("${line.quantity}×", color = Terra, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                            Spacer(Modifier.width(6.dp))
+                            Text(line.product.name, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = Charcoal)
+                        }
+                        if (line.addOns.isNotEmpty()) {
+                            Spacer(Modifier.height(6.dp))
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Format.group(line.addOns.map { it.name }).forEach { (name, count) ->
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(50))
+                                            .background(Forest.copy(alpha = 0.10f))
+                                            .padding(horizontal = 10.dp, vertical = 2.dp)
+                                    ) {
+                                        Text("x$count $name", color = Forest, fontSize = 12.sp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        Format.money(lineTotal),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp,
+                        color = Charcoal.copy(alpha = 0.8f)
+                    )
+                }
+            }
+        }
+
+        // Dirección
+        if (!order.address.isNullOrBlank()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().background(Cream).padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                AddressIcon(plus = false, color = Forest, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text("Entrega en", fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
+                    Text(order.address, fontSize = 15.sp, color = Charcoal)
+                }
+            }
+        }
+
+        // Seguimiento con mapa (solo cuando el domiciliario ya salió)
+        if (order.status == "ON_THE_WAY") {
+            Box(Modifier.fillMaxWidth().height(1.dp).background(Charcoal.copy(alpha = 0.08f)))
+            Column(modifier = Modifier.padding(20.dp)) {
+                TerraButton(
+                    "Seguir mi pedido en el mapa",
+                    onClick = onTrack,
+                    style = ButtonStyle.Sage,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        // Cancelar: solo mientras está PENDIENTE
+        if (order.status == "PENDING" && onCancel != null) {
+            Box(Modifier.fillMaxWidth().height(1.dp).background(Charcoal.copy(alpha = 0.08f)))
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    "Puedes cancelarlo mientras el restaurante no lo confirme.",
+                    fontSize = 14.sp,
+                    color = Charcoal.copy(alpha = 0.55f)
+                )
+                Spacer(Modifier.height(12.dp))
+                TerraButton(
+                    "Cancelar pedido",
+                    onClick = onCancel,
+                    style = ButtonStyle.Danger,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}

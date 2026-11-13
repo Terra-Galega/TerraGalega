@@ -74,4 +74,7 @@ dependencies {
     implementation("org.maplibre.gl:android-sdk:11.8.0")
     // Blur real para el efecto liquid glass
     implementation("dev.chrisbanes.haze:haze:1.7.2")
+    // Imágenes de los platos (las mismas URLs que usa la web)
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
 }
