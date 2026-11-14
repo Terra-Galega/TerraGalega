@@ -59,6 +59,16 @@ public class DeliveryTracking {
     @Column(name = "location_updated_at")
     private LocalDateTime locationUpdatedAt;
 
+    // Momento en que el repartidor pulsó "Iniciar entrega".
+    // Es diferente del momento en que el operador asignó el pedido.
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
+
+    // Ruta compartida: lat,lon;lat,lon;...
+    // Usamos TEXT porque una ruta puede contener muchos puntos.
+    @Column(name = "route_path", columnDefinition = "text")
+    private String routePath;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

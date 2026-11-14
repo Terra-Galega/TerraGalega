@@ -16,6 +16,13 @@ import com.example.demo.entities.Order;
 import com.example.demo.entities.OrderStatus;
 import com.example.demo.errors.ApiException;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import com.example.demo.movil.dto.DeliveryDTOs.MapPointDTO;
+
 @Service
 public class DeliveryTrackingService {
 
@@ -50,6 +57,8 @@ public class DeliveryTrackingService {
         tracking.setLatitude(null);
         tracking.setLongitude(null);
         tracking.setLocationUpdatedAt(null);
+        tracking.setStartedAt(null);
+        tracking.setRoutePath(null);
         if (tracking.getCreatedAt() == null) {
             tracking.setCreatedAt(LocalDateTime.now());
         }
@@ -71,6 +80,14 @@ public class DeliveryTrackingService {
     @Transactional(TX)
     public DeliveryTracking updateLocation(Integer orderId, Double latitude, Double longitude) {
         DeliveryTracking tracking = get(orderId);
+        if (tracking.getStartedAt() == null) {
+            throw ApiException.conflict(
+                    "Debes iniciar la entrega antes de enviar tu ubicación.");
+        }
+
+        if (tracking.getStatus() != DeliveryTrackingStatus.IN_PROGRESS) {
+            throw ApiException.conflict("El seguimiento ya no está activo.");
+        }
         tracking.setLatitude(latitude);
         tracking.setLongitude(longitude);
         tracking.setLocationUpdatedAt(LocalDateTime.now());
@@ -120,5 +137,82 @@ public class DeliveryTrackingService {
     // PIN de 4 dígitos, con ceros a la izquierda (0042)
     private String newPin() {
         return String.format("%04d", RANDOM.nextInt(10_000));
+    }
+
+    // Registra el inicio real del recorrido.
+    // Reintentar la misma solicitud no reinicia una entrega ya iniciada.
+    @Transactional(TX)
+    public DeliveryTracking beginTrip(
+            Integer orderId,
+            List<MapPointDTO> route) {
+
+        DeliveryTracking tracking = get(orderId);
+
+        if (tracking.getStatus() != DeliveryTrackingStatus.IN_PROGRESS) {
+            throw ApiException.conflict("El seguimiento ya no está activo.");
+        }
+
+        if (tracking.getStartedAt() != null) {
+            return tracking;
+        }
+
+        validateRoute(route);
+
+        String encoded = route.stream()
+                .map(point -> point.lat() + "," + point.lon())
+                .collect(Collectors.joining(";"));
+
+        tracking.setRoutePath(encoded);
+        tracking.setStartedAt(LocalDateTime.now());
+
+        return repository.save(tracking);
+    }
+
+    // Consulta sin crear seguimientos nuevos.
+    @Transactional(value = TX, readOnly = true)
+    public Optional<DeliveryTracking> findStarted(Integer orderId) {
+        return repository.findByOrderId(orderId)
+                .filter(tracking -> tracking.getStartedAt() != null);
+    }
+
+    // Convierte la ruta almacenada en puntos para los DTO.
+    public List<MapPointDTO> routeOf(DeliveryTracking tracking) {
+        String encoded = tracking.getRoutePath();
+
+        if (encoded == null || encoded.isBlank()) {
+            return List.of();
+        }
+
+        return Arrays.stream(encoded.split(";"))
+                .map(value -> {
+                    String[] coordinates = value.split(",");
+                    return new MapPointDTO(
+                            Double.valueOf(coordinates[0]),
+                            Double.valueOf(coordinates[1]));
+                })
+                .toList();
+    }
+
+    private void validateRoute(List<MapPointDTO> route) {
+        if (route == null || route.size() < 2 || route.size() > 10000) {
+            throw ApiException.badRequest(
+                    "La ruta debe contener entre 2 y 10000 puntos.");
+        }
+
+        for (MapPointDTO point : route) {
+            if (point == null
+                    || point.lat() == null
+                    || point.lon() == null
+                    || !Double.isFinite(point.lat())
+                    || !Double.isFinite(point.lon())
+                    || point.lat() < -90
+                    || point.lat() > 90
+                    || point.lon() < -180
+                    || point.lon() > 180) {
+
+                throw ApiException.badRequest(
+                        "La ruta contiene coordenadas inválidas.");
+            }
+        }
     }
 }

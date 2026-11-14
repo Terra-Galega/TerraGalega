@@ -22,6 +22,9 @@ import com.example.demo.security.AuthenticatedUser;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+import com.example.demo.movil.dto.DeliveryDTOs.OperatorDeliveryDTO;
+import com.example.demo.movil.dto.DeliveryDTOs.StartDeliveryRequestDTO;
+
 // Seguimiento de domicilios.
 // SecurityConfig controla los roles y aquí comprobamos que el ID
 // recibido corresponde a la persona identificada por el JWT.
@@ -122,5 +125,25 @@ public class DeliveryTrackingController {
             throw ApiException.forbidden(
                     "No puedes consultar ni modificar los domicilios de otro repartidor.");
         }
+    }
+
+    @Operation(summary = "Delivery person: start an assigned delivery")
+    @PostMapping("/person/{deliveryPersonId}/orders/{orderId}/start")
+    public DeliveryJobDTO start(
+            @PathVariable Integer deliveryPersonId,
+            @PathVariable Integer orderId,
+            @RequestBody StartDeliveryRequestDTO body) {
+
+        requireCurrentDeliveryPerson(deliveryPersonId);
+
+        return flow.start(deliveryPersonId, orderId, body.route());
+    }
+
+    @Operation(summary = "Operator: deliveries whose routes have started")
+    @GetMapping("/operator/active")
+    public List<OperatorDeliveryDTO> activeForOperator() {
+        authenticatedUser.operator();
+
+        return flow.activeForOperator();
     }
 }

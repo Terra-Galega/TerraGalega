@@ -150,6 +150,15 @@ public class SecurityConfig {
 
                                                 // Cualquier otra ruta o método de delivery queda bloqueado
                                                 // hasta que tenga una autorización explícita.
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/delivery/person/*/orders/*/start")
+                                                .hasAuthority(DELIVERY_PERSON)
+
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/delivery/operator/active")
+                                                .hasAuthority(OPERATOR)
                                                 .requestMatchers("/delivery/**")
                                                 .denyAll()
 

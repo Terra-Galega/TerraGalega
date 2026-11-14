@@ -1,41 +1,67 @@
 package com.example.demo.movil.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public final class DeliveryDTOs {
 
-    private DeliveryDTOs() {
-    }
+        private DeliveryDTOs() {
+        }
 
-    /** Lo que ve el CLIENTE: su PIN y dónde va el repartidor. */
-    public record ClientDeliveryDTO(
-            Integer orderId,
-            String status,
-            String address,
-            String pin, // solo mientras va en camino
-            String deliveryPersonName,
-            String deliveryPersonPhone,
-            Double latitude,
-            Double longitude,
-            LocalDateTime locationUpdatedAt) {
-    }
+        // Punto compartido con LatLon de Android.
+        public record MapPointDTO(Double lat, Double lon) {
+        }
 
-    /** Lo que ve el REPARTIDOR: nunca incluye el PIN. */
-    public record DeliveryJobDTO(
-            Integer orderId,
-            String status,
-            String address,
-            String clientName,
-            String clientPhone,
-            Double latitude,
-            Double longitude,
-            LocalDateTime locationUpdatedAt,
-            int attemptsLeft) {
-    }
+        // Datos enviados al pulsar "Iniciar entrega".
+        public record StartDeliveryRequestDTO(List<MapPointDTO> route) {
+        }
 
-    public record LocationRequestDTO(Double latitude, Double longitude) {
-    }
+        // Cliente: incluye su PIN.
+        public record ClientDeliveryDTO(
+                        Integer orderId,
+                        String status,
+                        String address,
+                        String pin,
+                        String deliveryPersonName,
+                        String deliveryPersonPhone,
+                        Double latitude,
+                        Double longitude,
+                        LocalDateTime locationUpdatedAt,
+                        LocalDateTime startedAt,
+                        List<MapPointDTO> route) {
+        }
 
-    public record CompleteDeliveryRequestDTO(String pin) {
-    }
+        // Repartidor: nunca recibe el PIN.
+        public record DeliveryJobDTO(
+                        Integer orderId,
+                        String status,
+                        String address,
+                        String clientName,
+                        String clientPhone,
+                        Double latitude,
+                        Double longitude,
+                        LocalDateTime locationUpdatedAt,
+                        int attemptsLeft,
+                        LocalDateTime startedAt,
+                        List<MapPointDTO> route) {
+        }
+
+        // Operador: seguimiento sin PIN.
+        public record OperatorDeliveryDTO(
+                        Integer orderId,
+                        String address,
+                        String deliveryPersonName,
+                        String deliveryPersonPhone,
+                        Double latitude,
+                        Double longitude,
+                        LocalDateTime locationUpdatedAt,
+                        LocalDateTime startedAt,
+                        List<MapPointDTO> route) {
+        }
+
+        public record LocationRequestDTO(Double latitude, Double longitude) {
+        }
+
+        public record CompleteDeliveryRequestDTO(String pin) {
+        }
 }

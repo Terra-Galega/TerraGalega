@@ -16,6 +16,9 @@ import com.example.demo.errors.ApiException;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.service.OrderService;
 
+import com.example.demo.movil.dto.DeliveryDTOs.MapPointDTO;
+import com.example.demo.movil.dto.DeliveryDTOs.OperatorDeliveryDTO;
+
 /**
  * Une las dos bases: el pedido sale de H2 y el PIN/ubicación de Postgres.
  * Sin @Transactional a propósito: no existe una transacción única que cubra
@@ -95,6 +98,7 @@ public class DeliveryFlowService {
     private ClientDeliveryDTO toClientDTO(Order order, DeliveryTracking t) {
         DeliveryPerson dp = order.getDeliveryPerson();
         boolean onTheWay = order.getStatus() == OrderStatus.ON_THE_WAY;
+
         return new ClientDeliveryDTO(
                 order.getId(),
                 order.getStatus().name(),
@@ -104,11 +108,14 @@ public class DeliveryFlowService {
                 dp != null ? dp.getPhone() : null,
                 t.getLatitude(),
                 t.getLongitude(),
-                t.getLocationUpdatedAt());
+                t.getLocationUpdatedAt(),
+                t.getStartedAt(),
+                tracking.routeOf(t));
     }
 
     private DeliveryJobDTO toJobDTO(Order order, DeliveryTracking t) {
         var client = order.getClient();
+
         return new DeliveryJobDTO(
                 order.getId(),
                 order.getStatus().name(),
@@ -118,6 +125,59 @@ public class DeliveryFlowService {
                 t.getLatitude(),
                 t.getLongitude(),
                 t.getLocationUpdatedAt(),
-                Math.max(0, DeliveryTrackingService.MAX_PIN_ATTEMPTS - t.getFailedAttempts()));
+                Math.max(
+                        0,
+                        DeliveryTrackingService.MAX_PIN_ATTEMPTS
+                                - t.getFailedAttempts()),
+                t.getStartedAt(),
+                tracking.routeOf(t));
+    }
+
+    // El repartidor inicia únicamente un pedido asignado a él.
+    public DeliveryJobDTO start(
+            Integer deliveryPersonId,
+            Integer orderId,
+            List<MapPointDTO> route) {
+
+        Order order = onTheWayOf(deliveryPersonId, orderId);
+
+        tracking.findOrCreate(order);
+
+        DeliveryTracking updated = tracking.beginTrip(orderId, route);
+
+        return toJobDTO(order, updated);
+    }
+
+    // Igual que la pantalla actual del operador:
+    // puede consultar los pedidos activos del restaurante.
+    public List<OperatorDeliveryDTO> activeForOperator() {
+        return orderRepository
+                .findByStatusOrderByCreatedAtAsc(OrderStatus.ON_THE_WAY)
+                .stream()
+                .flatMap(order -> tracking.findStarted(order.getId())
+                        .filter(t -> order.getDeliveryPerson() != null
+                                && order.getDeliveryPerson().getId()
+                                        .equals(t.getDeliveryPersonId()))
+                        .map(t -> toOperatorDTO(order, t))
+                        .stream())
+                .toList();
+    }
+
+    private OperatorDeliveryDTO toOperatorDTO(
+            Order order,
+            DeliveryTracking trackingData) {
+
+        DeliveryPerson person = order.getDeliveryPerson();
+
+        return new OperatorDeliveryDTO(
+                order.getId(),
+                order.getAddress(),
+                person.getName() + " " + person.getLastName(),
+                person.getPhone(),
+                trackingData.getLatitude(),
+                trackingData.getLongitude(),
+                trackingData.getLocationUpdatedAt(),
+                trackingData.getStartedAt(),
+                tracking.routeOf(trackingData));
     }
 }
