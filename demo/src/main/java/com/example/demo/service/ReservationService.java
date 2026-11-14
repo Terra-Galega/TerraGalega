@@ -19,6 +19,6 @@ public interface ReservationService {
     // Sin reembolso del anticipo
     void deleteReservation(Integer clientId);
 
-    // Mesas ya reservadas por OTROS clientes en esa fecha y hora
-    List<String> getTakenTables(Integer clientId, LocalDate date, LocalTime time);
+    // Números de las mesas ya reservadas por OTROS clientes en esa fecha y hora
+    List<Integer> getTakenTables(Integer clientId, LocalDate date, LocalTime time);
 }

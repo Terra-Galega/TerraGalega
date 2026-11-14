@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// Reserva del cliente. Al crear o editar se usan name, tableLabel, date, time,
+// Reserva del cliente. Al crear o editar se usan name, tableId, date, time,
 // seats y theme (el id y el cliente los asigna el back). Al crear, además,
 // depositAccepted debe ser true. depositAmount solo sale en las respuestas.
 @Getter
@@ -26,8 +26,11 @@ public class ReservationDTO {
 
     private String name;
 
-    // Mesa con su piso; en salas de celebración incluye cuál de las dos es
-    private String tableLabel;
+    // Número de la mesa del plano (101, 231...)
+    private Integer tableId;
+
+    // Piso de la mesa (solo respuesta)
+    private Integer floor;
 
     private LocalDate date;
 

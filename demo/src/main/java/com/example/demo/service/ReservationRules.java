@@ -21,7 +21,6 @@ public final class ReservationRules {
             LocalTime.of(21, 0));
 
     public static final int NAME_MAX = 60;
-    public static final int TABLE_MAX = 80;
     // Mesas de celebración: hasta 20 sillas
     public static final int MIN_SEATS = 1;
     public static final int MAX_SEATS = 20;
@@ -38,17 +37,6 @@ public final class ReservationRules {
         if (clean.length() > NAME_MAX) {
             throw ApiException.badRequest(
                     "El nombre de la reserva no puede superar " + NAME_MAX + " caracteres.");
-        }
-        return clean;
-    }
-
-    public static String cleanTable(String table) {
-        if (table == null || table.trim().isEmpty()) {
-            throw ApiException.badRequest("Elige una mesa.");
-        }
-        String clean = table.trim();
-        if (clean.length() > TABLE_MAX) {
-            throw ApiException.badRequest("La mesa no es válida.");
         }
         return clean;
     }

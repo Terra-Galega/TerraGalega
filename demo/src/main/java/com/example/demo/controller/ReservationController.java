@@ -56,7 +56,7 @@ public class ReservationController {
 
     @Operation(summary = "Tables already reserved by other clients at a date and time")
     @GetMapping("/taken")
-    public List<String> getTakenTables(
+    public List<Integer> getTakenTables(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime time) {
         return reservationService.getTakenTables(authenticatedUser.client().getId(), date, time);

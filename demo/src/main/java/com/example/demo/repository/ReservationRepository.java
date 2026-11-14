@@ -22,6 +22,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     List<Reservation> findByDateAndTime(LocalDate date, LocalTime time);
 
     // ¿Esa mesa ya está reservada en esa fecha y hora?
-    Optional<Reservation> findByTableLabelIgnoreCaseAndDateAndTime(String tableLabel, LocalDate date,
-            LocalTime time);
+    Optional<Reservation> findByTableIdAndDateAndTime(Integer tableId, LocalDate date, LocalTime time);
 }

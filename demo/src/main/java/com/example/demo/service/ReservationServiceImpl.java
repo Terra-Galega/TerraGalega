@@ -10,10 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.ReservationDTO;
 import com.example.demo.entities.Client;
+import com.example.demo.entities.DiningTable;
 import com.example.demo.entities.Reservation;
 import com.example.demo.entities.ReservationTheme;
 import com.example.demo.errors.ApiException;
 import com.example.demo.repository.ClientRepository;
+import com.example.demo.repository.DiningTableRepository;
 import com.example.demo.repository.ReservationRepository;
 
 @Service
@@ -24,6 +26,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private DiningTableRepository diningTableRepository;
 
     @Override
     @Transactional
@@ -48,15 +53,15 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         String name = ReservationRules.cleanName(dto.getName());
-        String table = ReservationRules.cleanTable(dto.getTableLabel());
         Integer seats = ReservationRules.cleanSeats(dto.getSeats());
+        DiningTable table = findTable(dto.getTableId(), seats);
         ReservationRules.checkSchedule(dto.getDate(), dto.getTime());
         checkTableFree(table, dto.getDate(), dto.getTime(), null);
 
         Reservation reservation = Reservation.builder()
                 .client(client)
                 .name(name)
-                .tableLabel(table)
+                .table(table)
                 .date(dto.getDate())
                 .time(dto.getTime())
                 .seats(seats)
@@ -75,14 +80,14 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = findOwned(clientId);
 
         String name = ReservationRules.cleanName(dto.getName());
-        String table = ReservationRules.cleanTable(dto.getTableLabel());
         Integer seats = ReservationRules.cleanSeats(dto.getSeats());
+        DiningTable table = findTable(dto.getTableId(), seats);
         ReservationRules.checkSchedule(dto.getDate(), dto.getTime());
         checkTableFree(table, dto.getDate(), dto.getTime(), reservation.getId());
 
         // La entidad está gestionada: se guarda sola al terminar la transacción
         reservation.setName(name);
-        reservation.setTableLabel(table);
+        reservation.setTable(table);
         reservation.setDate(dto.getDate());
         reservation.setTime(dto.getTime());
         reservation.setSeats(seats);
@@ -105,14 +110,14 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public List<String> getTakenTables(Integer clientId, LocalDate date, LocalTime time) {
+    public List<Integer> getTakenTables(Integer clientId, LocalDate date, LocalTime time) {
         if (date == null || time == null) {
             throw ApiException.badRequest("Elige la fecha y la hora.");
         }
         // La mesa del propio cliente no cuenta, así puede conservarla al editar
         return reservationRepository.findByDateAndTime(date, time).stream()
                 .filter(r -> !r.getClient().getId().equals(clientId))
-                .map(Reservation::getTableLabel)
+                .map(r -> r.getTable().getId())
                 .toList();
     }
 
@@ -121,9 +126,26 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> ApiException.notFound("Aún no tienes una reserva."));
     }
 
+    // La mesa debe existir en el plano, estar en servicio y tener sillas suficientes
+    private DiningTable findTable(Integer tableId, Integer seats) {
+        if (tableId == null) {
+            throw ApiException.badRequest("Elige una mesa.");
+        }
+        DiningTable table = diningTableRepository.findById(tableId)
+                .orElseThrow(() -> ApiException.badRequest("La mesa no es válida."));
+        if (!Boolean.TRUE.equals(table.getAvailable())) {
+            throw ApiException.conflict("Esa mesa no está disponible.");
+        }
+        if (seats > table.getSeats()) {
+            throw ApiException.badRequest(
+                    "Esa mesa admite como máximo " + table.getSeats() + " sillas.");
+        }
+        return table;
+    }
+
     // ignoreId: al editar, la propia reserva no cuenta como ocupada
-    private void checkTableFree(String table, LocalDate date, LocalTime time, Integer ignoreId) {
-        reservationRepository.findByTableLabelIgnoreCaseAndDateAndTime(table, date, time)
+    private void checkTableFree(DiningTable table, LocalDate date, LocalTime time, Integer ignoreId) {
+        reservationRepository.findByTableIdAndDateAndTime(table.getId(), date, time)
                 .filter(r -> !r.getId().equals(ignoreId))
                 .ifPresent(r -> {
                     throw ApiException.conflict("Esa mesa ya está reservada en esa fecha y hora.");
@@ -135,7 +157,8 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setId(r.getId());
         dto.setClientId(r.getClient().getId());
         dto.setName(r.getName());
-        dto.setTableLabel(r.getTableLabel());
+        dto.setTableId(r.getTable().getId());
+        dto.setFloor(r.getTable().getFloor());
         dto.setDate(r.getDate());
         dto.setTime(r.getTime());
         dto.setSeats(r.getSeats());

@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -25,9 +26,11 @@ import lombok.ToString;
 // Reserva de mesa de un cliente. La relación con Client es 1 a 1 en ambos
 // sentidos: un cliente tiene como máximo una reserva y cada reserva es de un
 // solo cliente. La FK (unique) vive aquí, en client_id.
+// Con DiningTable es N a 1: cada reserva tiene una mesa y una mesa puede tener
+// de 0 a muchas reservas en distintas fechas y horas.
 @Getter
 @Setter
-@ToString(exclude = "client")
+@ToString(exclude = { "client", "table" })
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -52,10 +55,12 @@ public class Reservation {
     @Column(nullable = false, length = 60)
     private String name;
 
-    // Mesa con su piso, ej. "Piso 1 - Mesa 112" o, en las salas de celebración,
-    // "Piso 2 - Mesa de celebración 231 (Sala 1)"
-    @Column(nullable = false, length = 80)
-    private String tableLabel;
+    // Mesa reservada (FK dining_table_id). Se ignora en el JSON; el DTO envía
+    // su id y su piso.
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "dining_table_id", nullable = false)
+    private DiningTable table;
 
     @Column(nullable = false)
     private LocalDate date;
