@@ -210,7 +210,7 @@ public class NewOrderTest {
         // Iniciar sesión como cliente
         clientDriver.get(FRONT + "/");
         clientElement(By.id("nav-login")).click();
-        clientElement(By.id("login-email")).sendKeys("cliente@terra.com");
+        clientElement(By.id("login-email")).sendKeys("juan.garcia@gmail.com");
         clientDriver.findElement(By.id("login-password")).sendKeys("cliente123");
         clientDriver.findElement(By.id("btn-login")).click();
         // Al iniciar sesión, el cliente llega a su perfil
@@ -288,7 +288,7 @@ public class NewOrderTest {
         assertEquals(expectedTotal, total);
 
         // La dirección que propone el checkout es la predeterminada del cliente
-        Integer clientId = clientRepository.findByEmail("cliente@terra.com").getId();
+        Integer clientId = clientRepository.findByEmail("juan.garcia@gmail.com").getId();
         String address = addressRepository
                 .findByClientIdOrderByDefaultAddressDescIdAsc(clientId).get(0).getLabel();
 

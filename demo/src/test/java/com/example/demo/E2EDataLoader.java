@@ -149,54 +149,54 @@ public class E2EDataLoader implements CommandLineRunner {
                 Random random = new Random(42);
 
                 saveClient(
-                                Client.builder().name("Juan").lastName("García").email("cliente@terra.com")
+                                Client.builder().name("Juan").lastName("García").email("juan.garcia@gmail.com")
                                                 .password("cliente123").phone("+57 300 214 7788")
                                                 .role(Role.CLIENT).build(),
                                 "Calle 10 #5-20, Bogotá", "Carrera 9 #72-15, Bogotá");
                 saveClient(
-                                Client.builder().name("Marta").lastName("Souto").email("marta.souto@terra.com")
+                                Client.builder().name("Marta").lastName("Souto").email("marta.souto@outlook.com")
                                                 .password("marta123").phone("+57 310 555 1122")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 15 #45-10, Bogotá");
                 saveClient(
-                                Client.builder().name("Diego").lastName("Pardo").email("diego.pardo@terra.com")
+                                Client.builder().name("Diego").lastName("Pardo").email("diego.pardo@gmail.com")
                                                 .password("diego123").phone("+57 320 444 9988")
                                                 .role(Role.CLIENT).build(),
                                 "Avenida 68 #20-33, Bogotá");
                 saveClient(
-                                Client.builder().name("María").lastName("López").email("maria.lopez@terra.com")
+                                Client.builder().name("María").lastName("López").email("maria.lopez@hotmail.com")
                                                 .password("maria123").phone("+57 310 123 4567")
                                                 .role(Role.CLIENT).build(),
                                 "Calle 72 #10-34, Bogotá");
                 saveClient(
                                 Client.builder().name("Carlos").lastName("Rodríguez")
-                                                .email("carlos.rodriguez@terra.com")
+                                                .email("carlos.rodriguez@gmail.com")
                                                 .password("carlos123").phone("+57 315 987 6543")
                                                 .role(Role.CLIENT).build(),
                                 "Transversal 9 #100-2, Bogotá");
                 saveClient(
-                                Client.builder().name("Andrés").lastName("Martínez").email("andres.martinez@terra.com")
+                                Client.builder().name("Andrés").lastName("Martínez").email("andres.martinez@outlook.com")
                                                 .password("andres123").phone("+57 301 222 3344")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 7 #32-16, Bogotá");
                 saveClient(
-                                Client.builder().name("Laura").lastName("Ramírez").email("laura.ramirez@terra.com")
+                                Client.builder().name("Laura").lastName("Ramírez").email("laura.ramirez@gmail.com")
                                                 .password("laura123").phone("+57 311 666 7788")
                                                 .role(Role.CLIENT).build(),
                                 "Calle 85 #15-25, Bogotá");
                 saveClient(
                                 Client.builder().name("Sebastián").lastName("Torres")
-                                                .email("sebastian.torres@terra.com")
+                                                .email("sebastian.torres@yahoo.com")
                                                 .password("sebastian123").phone("+57 322 111 2233")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 30 #45-03, Bogotá");
                 saveClient(
-                                Client.builder().name("Camila").lastName("Moreno").email("camila.moreno@terra.com")
+                                Client.builder().name("Camila").lastName("Moreno").email("camila.moreno@gmail.com")
                                                 .password("camila123").phone("+57 300 888 4455")
                                                 .role(Role.CLIENT).build(),
                                 "Calle 127 #19-60, Bogotá");
                 saveClient(
-                                Client.builder().name("Felipe").lastName("Castro").email("felipe.castro@terra.com")
+                                Client.builder().name("Felipe").lastName("Castro").email("felipe.castro@gmail.com")
                                                 .password("felipe123").phone("+57 316 333 5566")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 13 #63-39, Bogotá");
@@ -786,11 +786,11 @@ public class E2EDataLoader implements CommandLineRunner {
                 // Orders (usando los clientes, productos, addOns, operadores y
                 // domiciliarios ya existentes)
                 // Se recuperan por email (único) para obtener las entidades ya guardadas.
-                Client client1 = clientRepository.findByEmail("cliente@terra.com");
-                Client client2 = clientRepository.findByEmail("marta.souto@terra.com");
-                Client client3 = clientRepository.findByEmail("diego.pardo@terra.com");
-                Client client4 = clientRepository.findByEmail("maria.lopez@terra.com");
-                Client client5 = clientRepository.findByEmail("carlos.rodriguez@terra.com");
+                Client client1 = clientRepository.findByEmail("juan.garcia@gmail.com");
+                Client client2 = clientRepository.findByEmail("marta.souto@outlook.com");
+                Client client3 = clientRepository.findByEmail("diego.pardo@gmail.com");
+                Client client4 = clientRepository.findByEmail("maria.lopez@hotmail.com");
+                Client client5 = clientRepository.findByEmail("carlos.rodriguez@gmail.com");
 
                 // Las fechas son relativas a hoy para que los estados tengan sentido (un pedido
                 // "en camino" es de hace minutos, no de meses).
