@@ -97,7 +97,7 @@ fun ProfileScreen(
     // Trae el correo y el teléfono del backend
     LaunchedEffect(Unit) {
         try {
-            val c = ApiClient.api.getClient(user.id)
+            val c = ApiClient.api.getClient()
             email = c.email
             phone = c.phone
             loaded = true
@@ -140,11 +140,14 @@ fun ProfileScreen(
                 saving = true
                 scope.launch {
                     try {
-                        val saved = ApiClient.api.updateClient(user.id, ClientUpdate(n, l, em, ph))
-                        current = current.copy(name = saved.name, lastName = saved.lastName)
-                        email = saved.email
-                        phone = saved.phone
-                        Session.user = current          // el resto de la app ya ve el nombre nuevo
+                        // El back devuelve un token nuevo (por si cambió el correo) y el nombre actualizado
+                        val saved = ApiClient.api.updateClient(ClientUpdate(n, l, em, ph))
+                        current = saved
+                        // El correo y el teléfono no vienen en la respuesta:
+                        // si el back aceptó el cambio, son los que se acaban de enviar
+                        email = em
+                        phone = ph
+                        Session.user = saved          // guarda el token nuevo; el resto de la app ve el nombre nuevo
                         editing = false
                         toast = "Cambios guardados correctamente"
                     } catch (ex: CancellationException) {
@@ -322,7 +325,6 @@ fun ProfileScreen(
 
     if (showPassword) {
         PasswordDialog(
-            userId = user.id,
             onClose = { showPassword = false },
             onSaved = {
                 showPassword = false
@@ -342,7 +344,7 @@ fun ProfileScreen(
                 confirmDelete = false
                 scope.launch {
                     try {
-                        ApiClient.api.deleteClient(user.id).close()
+                        ApiClient.api.deleteClient().close()
                         onLogout()   // limpia la sesión y vuelve al login
                     } catch (ex: CancellationException) {
                         throw ex
@@ -366,8 +368,12 @@ fun ProfileScreen(
 }
 
 // Cambio de contraseña: pide la actual y la nueva dos veces (mínimo 6 caracteres, como la web)
+
+
+
+// Cambio de contraseña: pide la actual y la nueva dos veces (mínimo 6 caracteres, como la web)
 @Composable
-private fun PasswordDialog(userId: Int, onClose: () -> Unit, onSaved: () -> Unit) {
+private fun PasswordDialog(onClose: () -> Unit, onSaved: () -> Unit) {
     val scope = rememberCoroutineScope()
     var cur by remember { mutableStateOf("") }
     var nw by remember { mutableStateOf("") }
@@ -423,7 +429,7 @@ private fun PasswordDialog(userId: Int, onClose: () -> Unit, onSaved: () -> Unit
                     error = null
                     scope.launch {
                         try {
-                            ApiClient.api.changePassword(userId, ChangePasswordRequest(cur, nw)).close()
+                            ApiClient.api.changePassword( ChangePasswordRequest(cur, nw)).close()
                             onSaved()
                         } catch (ex: CancellationException) {
                             throw ex

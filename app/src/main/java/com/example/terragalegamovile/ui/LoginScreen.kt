@@ -111,7 +111,8 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                 error = null
                 scope.launch {
                     try {
-                        val created = ApiClient.api.register(
+                        // El back crea la cuenta y devuelve el token: el cliente queda con la sesión iniciada
+                        val user = ApiClient.api.register(
                             ClientCreate(
                                 name = n,
                                 lastName = l,
@@ -120,13 +121,6 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                                 phone = ph,
                                 addresses = listOf(NewClientAddress(ad))
                             )
-                        )
-                        // Entra directo con la cuenta recién creada, como la web
-                        val user = LoginResponse(
-                            id = created.id,
-                            name = created.name,
-                            lastName = created.lastName,
-                            role = "CLIENT"
                         )
                         Session.user = user
                         onLoggedIn(user)
