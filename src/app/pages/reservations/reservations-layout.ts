@@ -51,7 +51,7 @@ const DIAGONAL = 46;
 // - Junto a los ventanales (piso 1) y en el balcón (piso 2) solo hay mesas rectangulares.
 // - Las mesas de arco van contra paredes interiores, sin tapar las puertas de las salas.
 // Giros de "booth": 0 respaldo arriba, 90 a la derecha, 180 abajo, 270 a la izquierda,
-// 226 contra la pared diagonal de la cocina o de las salas.
+// 226 contra la pared diagonal de la cocina.
 export const FLOOR_TABLES: Record<Floor, readonly DiningTable[]> = {
   1: [
     // Zona de ventanales: solo mesas rectangulares, de 2 y 4 puestos
@@ -109,22 +109,26 @@ export const FLOOR_TABLES: Record<Floor, readonly DiningTable[]> = {
     { number: 215, x: 500, y: 170, seats: 2, area: 'Salón alto' },
     { number: 216, x: 200, y: 255, seats: BOOTH_SEATS, area: 'Salón alto', booth: 180 },
     { number: 217, x: 300, y: 255, seats: BOOTH_SEATS, area: 'Salón alto', booth: 180 },
-    { number: 218, x: 421, y: 278, seats: BOOTH_SEATS, area: 'Salón alto', booth: 226 },
-    { number: 219, x: 535, y: 255, seats: 4, area: 'Salón alto' },
-    { number: 220, x: 625, y: 255, seats: 4, area: 'Salón alto' },
-    // Galería: mesas de arco contra los muros (sin tapar las puertas de las salas) y mesas de 4 y 6
-    { number: 221, x: 507, y: 367, seats: BOOTH_SEATS, area: 'Galería', booth: 226 },
-    { number: 222, x: 610, y: 360, seats: 4, area: 'Galería' },
-    { number: 223, x: 705, y: 360, seats: 4, area: 'Galería' },
-    { number: 224, x: 568, y: 432, seats: BOOTH_SEATS, area: 'Galería', booth: 226 },
-    { number: 225, x: 680, y: 455, seats: 6, area: 'Galería' },
-    { number: 226, x: 645, y: 560, seats: BOOTH_SEATS, area: 'Galería', booth: 270 },
-    { number: 227, x: 722, y: 560, seats: 6, area: 'Galería' },
-    { number: 228, x: 645, y: 650, seats: BOOTH_SEATS, area: 'Galería', booth: 270 },
-    { number: 229, x: 722, y: 650, seats: 6, area: 'Galería' },
-    { number: 230, x: 700, y: 735, seats: BOOTH_SEATS, area: 'Galería', booth: 180 },
-    // Salas de celebración, separadas del resto del comedor
-    { number: 231, x: 210, y: 366, seats: 15, area: 'Sala de celebración 1', special: true, room: 'Sala 1' },
-    { number: 232, x: 270, y: 496, seats: 15, area: 'Sala de celebración 2', special: true, room: 'Sala 2' },
+    { number: 218, x: 400, y: 255, seats: BOOTH_SEATS, area: 'Salón alto', booth: 180 },
+    { number: 219, x: 535, y: 260, seats: 4, area: 'Salón alto' },
+    { number: 220, x: 625, y: 260, seats: 4, area: 'Salón alto' },
+    // Galería: cuadrícula uniforme (filas cada 88 unidades). Las de arco van contra la pared
+    // de la Sala 2 y contra el muro inferior; se deja libre el paso a la salida del balcón
+    // (x 765, y 432-484) y a la puerta de la Sala 2 (x 450, y 572-604).
+    { number: 221, x: 495, y: 350, seats: BOOTH_SEATS, area: 'Galería', booth: 270 },
+    { number: 222, x: 590, y: 350, seats: 4, area: 'Galería' },
+    { number: 223, x: 685, y: 350, seats: 4, area: 'Galería' },
+    { number: 224, x: 495, y: 438, seats: BOOTH_SEATS, area: 'Galería', booth: 270 },
+    { number: 225, x: 590, y: 438, seats: 4, area: 'Galería' },
+    { number: 226, x: 495, y: 526, seats: BOOTH_SEATS, area: 'Galería', booth: 270 },
+    { number: 227, x: 590, y: 526, seats: 4, area: 'Galería' },
+    { number: 228, x: 690, y: 526, seats: 6, area: 'Galería' },
+    { number: 229, x: 645, y: 650, seats: BOOTH_SEATS, area: 'Galería', booth: 270 },
+    { number: 230, x: 722, y: 650, seats: 6, area: 'Galería' },
+    { number: 231, x: 645, y: 738, seats: BOOTH_SEATS, area: 'Galería', booth: 270 },
+    { number: 232, x: 722, y: 738, seats: 6, area: 'Galería' },
+    // Salas de celebración: dos salas verticales del mismo tamaño, con la mesa en vertical
+    { number: 233, x: 247, y: 455, seats: 15, area: 'Sala de celebración 1', special: true, room: 'Sala 1' },
+    { number: 234, x: 382, y: 455, seats: 15, area: 'Sala de celebración 2', special: true, room: 'Sala 2' },
   ],
 };

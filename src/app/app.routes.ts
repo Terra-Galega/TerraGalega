@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
-import { ReservationsComponent } from './pages/reservations/reservations.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { LoginComponent } from './pages/login/login.component';
 import { MenuComponent } from './pages/menu/menu.component';
@@ -71,8 +70,19 @@ export const routes: Routes = [
   },
   {
     // Página de reservas.
+    // Carga diferida: el plano es pesado y no hace falta en la carga inicial.
     path: 'reservations',
-    component: ReservationsComponent,
+    loadComponent: () =>
+      import('./pages/reservations/reservations.component').then((m) => m.ReservationsComponent),
+    canActivate: [clientAreaGuard],
+  },
+  {
+    // Vuelta desde Stripe tras pagar el anticipo: /reservations/result?reservation=ID[&canceled=true]
+    path: 'reservations/result',
+    loadComponent: () =>
+      import('./pages/reservations/reservation-result/reservation-result.component').then(
+        (m) => m.ReservationResultComponent,
+      ),
     canActivate: [clientAreaGuard],
   },
   {

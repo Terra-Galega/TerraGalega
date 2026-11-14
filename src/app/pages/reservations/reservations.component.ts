@@ -1,7 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { Reservation, ReservationInput, ReservationTheme, RESERVATION_THEMES } from '../../models/reservation';
+import { ReservationService } from '../../services/reservation.service';
+import { ToastService } from '../../services/toast.service';
+import { getErrorMessage } from '../../utils/http-error';
 import {
   BOOTH_SEATS,
   DiningTable,
@@ -15,18 +19,23 @@ import {
 // PÁGINA DE RESERVAS
 // Cómo funciona:
 // 1. El cliente elige fecha, hora (turnos cada hora y media) y número de comensales.
-// 2. El plano muestra las mesas del piso activo (datos en reservations-layout.ts) y cada una
-//    se pinta según su estado: disponible, reservada (rayada con candado) o con cupo insuficiente.
+// 2. El plano muestra las mesas del piso activo (datos en reservations-layout.ts; el back
+//    tiene las mismas en la entidad DiningTable) y cada una se pinta según su estado:
+//    disponible, reservada (rayada con candado) o con cupo insuficiente. Las reservadas
+//    llegan del back (GET /clients/me/reservation/taken), que devuelve sus números.
 // 3. Al pulsar una mesa disponible queda seleccionada y su información aparece en "Tu mesa".
 //    En las mesas de celebración se pueden añadir o quitar sillas.
-// 4. "Reservar mesa" guarda la reserva y muestra el mensaje de confirmación.
-// Por ahora las reservas solo viven en memoria (se pierden al recargar) y la ocupación es
-// simulada; el punto donde conectar la API está indicado en stateOf() y reserve().
+// 4. Se escribe el nombre y la temática y se acepta el anticipo. "Reservar y pagar" crea la
+//    reserva en el back (queda PENDING y la mesa apartada) y lleva a la pasarela de Stripe.
+//    Al volver, /reservations/result confirma el pago (ReservationResultComponent).
+// 5. Cada cliente tiene UNA reserva (1 a 1). Si ya la tiene, la página muestra "Tu reserva":
+//    - pagada: botones Editar (vuelve al plano con los datos cargados) y Eliminar (sin reembolso);
+//    - con el pago pendiente: botones Ir a pagar y Cancelar (no se cobra nada).
 
 /** Estado de una mesa para la fecha, hora y grupo elegidos. */
 type TableState = 'available' | 'occupied' | 'small';
 
-/** Posición de una silla dentro del SVG de la mesa de celebración (viewBox 260 x 84). */
+/** Posición de una silla dentro del SVG de la mesa de celebración (viewBox 84 x 236, en vertical). */
 interface Chair {
   x: number;
   y: number;
@@ -46,12 +55,15 @@ function localDate(date: Date): string {
   templateUrl: './reservations.component.html',
   styleUrl: './reservations.component.scss',
 })
-export class ReservationsComponent {
+export class ReservationsComponent implements OnInit {
+  private reservationService = inject(ReservationService);
+  private toast = inject(ToastService);
+
   // --- Datos fijos de la página ---
   readonly floors: readonly Floor[] = [1, 2];
   readonly floorNames: Record<Floor, string> = {
     1: 'Piso 1 - Salón principal, barra y cocina',
-    2: 'Piso 2 - Salón alto, balcón y salas de celebración',
+    2: 'Piso 2 - Salón alto, galería, balcón y salas de celebración',
   };
   // Turnos de reserva cada hora y media.
   readonly times = ['12:00', '13:30', '15:00', '16:30', '18:00', '19:30', '21:00'];
@@ -60,6 +72,8 @@ export class ReservationsComponent {
   readonly maxSeats = SPECIAL_MAX_SEATS;
   readonly minSeats = SPECIAL_MIN_SEATS;
   readonly boothSeats = BOOTH_SEATS;
+  // Anticipo obligatorio de toda reserva (el back cobra este mismo valor).
+  readonly deposit = 50000;
   // Hoy: no se permite reservar en fechas anteriores.
   readonly today = localDate(new Date());
   readonly stateLabels: Record<TableState, string> = {
@@ -67,40 +81,265 @@ export class ReservationsComponent {
     occupied: 'Reservada',
     small: 'Cupo insuficiente',
   };
+  readonly themes = RESERVATION_THEMES;
 
-  // --- Estado de la página ---
+  // --- Estado de la reserva del cliente ---
+  reservation: Reservation | null = null; // reserva actual del cliente (null = no tiene)
+  loading = true; // cargando la reserva al entrar
+  editing = false; // true al editar la reserva existente
+  confirmingDelete = false; // muestra el aviso de eliminación
+  saving = false; // petición en curso
+  reservationName = '';
+  theme: ReservationTheme = 'NONE';
+  acceptDeposit = false; // aceptar el anticipo (solo al crear)
+  /** Números de las mesas reservadas por otros clientes en la fecha y hora elegidas. */
+  private taken = new Set<number>();
+
+  // --- Estado del plano ---
   floor: Floor = 1; // piso que se ve en el plano
   date = this.today;
   time = '19:30';
   party = 2; // número de comensales
   selected: DiningTable | null = null; // mesa elegida, o null si no hay ninguna
-  feedback = ''; // mensaje tras reservar
+  feedback = ''; // mensaje de error al reservar
   /** Sillas elegidas para cada mesa de celebración (por número de mesa). */
   private readonly specialSeats = new Map<number, number>();
-  /** Reservas hechas en esta visita a la página, guardadas como "fecha/hora/mesa". */
-  private readonly bookings = new Set<string>();
 
   /** Mínimo de sillas de una mesa de celebración: nunca menos que el grupo. */
   get specialMin(): number {
     return Math.max(SPECIAL_MIN_SEATS, this.party);
   }
 
-  /** El botón "Reservar mesa" solo se activa con una mesa disponible y una fecha válida. */
+  /** El botón se activa con mesa disponible, fecha válida, nombre y (al crear) anticipo aceptado. */
   get canReserve(): boolean {
-    return !!this.selected && this.date >= this.today && this.stateOf(this.selected) === 'available';
+    return (
+      !!this.selected &&
+      !this.saving &&
+      this.date >= this.today &&
+      this.stateOf(this.selected) === 'available' &&
+      this.reservationName.trim().length > 0 &&
+      (this.editing || this.acceptDeposit)
+    );
+  }
+
+  /** true si la reserva existe pero el anticipo aún no se pagó. */
+  get paymentPending(): boolean {
+    return this.reservation?.paymentState === 'PENDING';
+  }
+
+  ngOnInit(): void {
+    this.reservationService.getReservation().subscribe({
+      next: (reservation) => {
+        this.reservation = reservation;
+        this.loading = false;
+      },
+      // 404 = el cliente aún no tiene reserva: se muestra el plano para crearla
+      error: () => {
+        this.reservation = null;
+        this.loading = false;
+        this.loadTaken();
+      },
+    });
+  }
+
+  // --- Textos ---
+
+  /** Texto de dinero, ej. "$50.000". */
+  money(value: number): string {
+    return `$${value.toLocaleString('es-CO')}`;
+  }
+
+  themeLabel(theme: ReservationTheme): string {
+    return this.themes.find((t) => t.value === theme)?.label ?? theme;
+  }
+
+  /** Fecha legible, ej. "sábado, 14 de noviembre de 2026" (se arma sin zona horaria). */
+  dateLabel(date: string): string {
+    const [y, m, d] = date.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('es-CO', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  }
+
+  /** Hora HH:mm a partir de HH:mm:ss. */
+  timeLabel(time: string): string {
+    return time.slice(0, 5);
+  }
+
+  /** Mesa de la reserva con su piso, ej. "Piso 2 - Mesa de celebración - Sala 1". */
+  reservationTableLabel(reservation: Reservation): string {
+    const found = this.findTable(reservation.tableId);
+    return `Piso ${reservation.floor} - ${found ? this.nameOf(found.table) : 'Mesa ' + reservation.tableId}`;
+  }
+
+  /** Busca en el plano la mesa con ese número. */
+  private findTable(number: number): { table: DiningTable; floor: Floor } | null {
+    for (const floor of this.floors) {
+      const table = FLOOR_TABLES[floor].find((t) => t.number === number);
+      if (table) return { table, floor };
+    }
+    return null;
+  }
+
+  /** Pide al back las mesas ocupadas por otros clientes en la fecha y hora elegidas. */
+  private loadTaken(onDone?: () => void): void {
+    this.reservationService.getTakenTables(this.date, this.time).subscribe({
+      next: (numbers) => {
+        this.taken = new Set(numbers);
+        onDone?.();
+      },
+      error: () => {
+        this.taken = new Set();
+        onDone?.();
+      },
+    });
+  }
+
+  // --- CRUD de la reserva ---
+
+  /** Editar: vuelve al plano con los datos de la reserva cargados y su mesa seleccionada. */
+  startEdit(): void {
+    const r = this.reservation;
+    if (!r) return;
+    this.editing = true;
+    this.confirmingDelete = false;
+    this.feedback = '';
+    this.date = r.date;
+    this.time = this.timeLabel(r.time);
+    this.reservationName = r.name;
+    this.theme = r.theme;
+    this.party = Math.min(r.seats, MAX_PARTY);
+    this.selected = null;
+    const found = this.findTable(r.tableId);
+    if (found) {
+      this.floor = found.floor;
+      if (found.table.special) this.specialSeats.set(found.table.number, r.seats);
+    }
+    this.loadTaken(() => {
+      if (found) this.selected = found.table;
+    });
+  }
+
+  cancelEdit(): void {
+    this.editing = false;
+    this.selected = null;
+    this.feedback = '';
+  }
+
+  /** Vuelve a la pasarela para pagar el anticipo pendiente. */
+  payNow(): void {
+    if (this.reservation) this.reservationService.redirectToStripe(this.reservation);
+  }
+
+  /** Eliminar o cancelar: primero pide confirmar. */
+  askDelete(): void {
+    this.confirmingDelete = true;
+  }
+
+  cancelDelete(): void {
+    this.confirmingDelete = false;
+  }
+
+  confirmDelete(): void {
+    const wasPending = this.paymentPending;
+    this.saving = true;
+    this.reservationService.deleteReservation().subscribe({
+      next: () => {
+        this.saving = false;
+        this.reservation = null;
+        this.confirmingDelete = false;
+        this.reservationName = '';
+        this.theme = 'NONE';
+        this.acceptDeposit = false;
+        this.toast.show(
+          wasPending ? 'Reserva cancelada' : 'Reserva eliminada',
+          wasPending ? 'No se hizo ningún cobro.' : 'El anticipo no se reembolsa.',
+        );
+        this.loadTaken();
+      },
+      error: (error) => {
+        this.saving = false;
+        this.confirmingDelete = false;
+        this.toast.show('No se pudo eliminar', getErrorMessage(error));
+        // Puede que el pago se haya completado justo antes: se recarga la reserva
+        this.reservationService.getReservation().subscribe({
+          next: (reservation) => (this.reservation = reservation),
+          error: () => (this.reservation = null),
+        });
+      },
+    });
   }
 
   /**
+   * Crear: guarda la reserva (PENDING) y lleva a Stripe a pagar el anticipo.
+   * Editar: guarda los cambios (el anticipo ya está pagado).
+   */
+  reserve(): void {
+    const table = this.selected;
+    if (!table || !this.canReserve) return;
+    const data: ReservationInput = {
+      name: this.reservationName.trim(),
+      tableId: table.number,
+      date: this.date,
+      time: this.time,
+      // Mesas de celebración: las sillas elegidas; en las demás, los comensales
+      seats: table.special ? this.seatsOf(table) : this.party,
+      theme: this.theme,
+    };
+    this.saving = true;
+    this.feedback = '';
+
+    if (!this.editing) {
+      this.reservationService.createReservation({ ...data, depositAccepted: this.acceptDeposit }).subscribe({
+        next: (reservation) => {
+          // Se queda "guardando" mientras el navegador va a la pasarela
+          this.reservation = reservation;
+          this.reservationService.redirectToStripe(reservation);
+        },
+        error: (error) => this.saveFailed(error),
+      });
+      return;
+    }
+
+    this.reservationService.updateReservation(data).subscribe({
+      next: (reservation) => {
+        this.saving = false;
+        this.toast.show(
+          'Reserva actualizada',
+          `${this.reservationTableLabel(reservation)} a las ${this.timeLabel(reservation.time)}.`,
+        );
+        this.reservation = reservation;
+        this.editing = false;
+        this.selected = null;
+      },
+      error: (error) => this.saveFailed(error),
+    });
+  }
+
+  private saveFailed(error: unknown): void {
+    this.saving = false;
+    this.feedback = getErrorMessage(error, 'No se pudo guardar la reserva.');
+    // Si la mesa se ocupó mientras tanto, se refresca el plano
+    this.loadTaken();
+  }
+
+  // --- Plano ---
+
+  /**
    * Posición de las sillas de una mesa de celebración según los puestos elegidos:
-   * la mitad (redondeando hacia arriba) va arriba y el resto abajo, centradas en la mesa.
+   * la mitad (redondeando hacia arriba) va a la izquierda y el resto a la derecha,
+   * centradas a lo largo de la mesa.
    */
   chairsOf(table: DiningTable): readonly Chair[] {
     const seats = this.seatsOf(table);
-    const top = Math.ceil(seats / 2);
-    const bottom = seats - top;
-    const row = (count: number, y: number): Chair[] =>
-      Array.from({ length: count }, (_, i) => ({ x: 130 - (count * 24 - 6) / 2 + i * 24, y }));
-    return [...row(top, 3), ...row(bottom, 67)];
+    const left = Math.ceil(seats / 2);
+    const right = seats - left;
+    const column = (count: number, x: number): Chair[] =>
+      Array.from({ length: count }, (_, i) => ({ x, y: 118 - (count * 21 - 5) / 2 + i * 21 }));
+    return [...column(left, 2), ...column(right, 68)];
   }
 
   /** Mesas de un piso. */
@@ -120,9 +359,8 @@ export class ReservationsComponent {
   }
 
   /** Ubicación extra que se indica para las mesas de arco. */
-  placeOf(table: DiningTable, level: Floor): string {
-    if (table.booth === undefined) return '';
-    return 'Contra la pared';
+  placeOf(table: DiningTable): string {
+    return table.booth === undefined ? '' : 'Contra la pared';
   }
 
   /** Texto del número de comensales: el último valor de la lista significa "7 o más". */
@@ -137,8 +375,8 @@ export class ReservationsComponent {
   }
 
   /** Descripción completa de la mesa para lectores de pantalla (aria-label del botón). */
-  labelOf(table: DiningTable, level: Floor, state: TableState): string {
-    const place = this.placeOf(table, level);
+  labelOf(table: DiningTable, state: TableState): string {
+    const place = this.placeOf(table);
     const capacity = table.booth !== undefined ? `capacidad máxima ${BOOTH_SEATS}` : `${this.seatsOf(table)} puestos`;
     return `${this.nameOf(table)}, ${capacity}, ${table.area}${place ? ', ' + place.toLowerCase() : ''}, ${this.stateLabels[state]}`;
   }
@@ -154,11 +392,13 @@ export class ReservationsComponent {
   changeDate(date: string): void {
     this.date = date;
     this.clearSelection();
+    this.loadTaken();
   }
 
   changeTime(time: string): void {
     this.time = time;
     this.clearSelection();
+    this.loadTaken();
   }
 
   changeParty(party: string): void {
@@ -178,17 +418,12 @@ export class ReservationsComponent {
 
   /**
    * Estado de una mesa para la fecha, hora y grupo elegidos:
-   * - occupied: ya reservada (simulado con una fórmula, o reservada en esta visita).
+   * - occupied: ya reservada por otro cliente (pagada o esperando pago).
    * - small: libre, pero no caben todos los comensales.
    * - available: se puede reservar.
    */
   stateOf(table: DiningTable): TableState {
-    // Disponibilidad provisional: reemplázala por la respuesta de tu API de reservas.
-    const day = Number(this.date.slice(-2));
-    const slot = this.times.indexOf(this.time);
-    if ((table.number + day + slot) % 5 === 0 || this.bookings.has(this.bookingKey(table))) {
-      return 'occupied';
-    }
+    if (this.taken.has(table.number)) return 'occupied';
     const capacity = table.special ? SPECIAL_MAX_SEATS : table.seats;
     return capacity < this.party ? 'small' : 'available';
   }
@@ -203,20 +438,6 @@ export class ReservationsComponent {
       if (table.special) this.specialSeats.set(table.number, Math.max(this.seatsOf(table), this.party));
     }
     this.feedback = '';
-  }
-
-  /** Confirma la reserva de la mesa seleccionada. Aquí iría la llamada a la API. */
-  reserve(): void {
-    const table = this.selected;
-    if (!table || !this.canReserve) return;
-    this.bookings.add(this.bookingKey(table));
-    this.selected = null;
-    this.feedback = `Reserva confirmada: ${this.nameOf(table).toLowerCase()} a las ${this.time}.`;
-  }
-
-  /** Clave única de una reserva: la misma mesa puede reservarse en otra fecha u hora. */
-  private bookingKey(table: DiningTable): string {
-    return `${this.date}/${this.time}/${table.number}`;
   }
 
   private clearSelection(): void {

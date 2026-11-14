@@ -4,6 +4,64 @@
   <!-- Encabezado con el mismo estilo que la carta y el resto de páginas -->
   <app-page-header eyebrow="Tu visita" title="Reserva tu mesa" />
 
+  @if (loading) {
+  <p class="note" role="status">Cargando tu reserva...</p>
+  } @else if (reservation && !editing) {
+  <!-- TU RESERVA: cada cliente tiene como máximo una. Si el anticipo está pendiente se puede ir
+       a pagar o cancelar; si está pagada, editar o eliminar (sin reembolso). -->
+  <section class="summary-card my-reservation" aria-labelledby="my-reservation-heading">
+    <h2 id="my-reservation-heading">Tu reserva</h2>
+    @if (paymentPending) {
+    <p class="status-pill pending">Pago del anticipo pendiente</p>
+    } @else {
+    <p class="status-pill paid">Confirmada</p>
+    }
+    <p class="table-title">{{ reservation.name }}</p>
+    <dl class="reservation-details">
+      <div><dt>Mesa</dt><dd>{{ reservationTableLabel(reservation) }}</dd></div>
+      <div><dt>Fecha</dt><dd>{{ dateLabel(reservation.date) }}</dd></div>
+      <div><dt>Hora</dt><dd>{{ timeLabel(reservation.time) }}</dd></div>
+      <div><dt>Sillas</dt><dd>{{ reservation.seats }}</dd></div>
+      <div><dt>Temática</dt><dd>{{ themeLabel(reservation.theme) }}</dd></div>
+      <div>
+        <dt>{{ paymentPending ? 'Anticipo por pagar' : 'Anticipo pagado' }}</dt>
+        <dd>{{ money(reservation.depositAmount) }}</dd>
+      </div>
+    </dl>
+    @if (paymentPending) {
+    <p class="note highlight">
+      La mesa está apartada mientras completas el pago. Si no pagas en unos 30 minutos, la reserva
+      se cancela sola y la mesa se libera.
+    </p>
+    }
+    @if (confirmingDelete) {
+    <p class="note highlight" role="alert">
+      @if (paymentPending) {
+      Se cancelará la reserva y no se hará ningún cobro. ¿Quieres continuar?
+      } @else {
+      Si eliminas la reserva NO se reembolsa el anticipo de {{ money(reservation.depositAmount) }}. ¿Quieres continuar?
+      }
+    </p>
+    <div class="reservation-actions">
+      <button class="danger-button" type="button" [disabled]="saving" (click)="confirmDelete()">
+        {{ paymentPending ? 'Sí, cancelar' : 'Sí, eliminar' }}
+      </button>
+      <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelDelete()">Conservar</button>
+    </div>
+    } @else if (paymentPending) {
+    <div class="reservation-actions">
+      <button class="reserve-button" type="button" (click)="payNow()">Ir a pagar el anticipo</button>
+      <button class="secondary-button" type="button" (click)="askDelete()">Cancelar reserva</button>
+    </div>
+    } @else {
+    <div class="reservation-actions">
+      <button class="reserve-button" type="button" (click)="startEdit()">Editar reserva</button>
+      <button class="secondary-button" type="button" (click)="askDelete()">Eliminar reserva</button>
+    </div>
+    }
+  </section>
+  } @else {
+
   <!-- Filtros de la visita: al cambiar fecha, hora o comensales se recalcula el estado de cada mesa
        y se quita la mesa seleccionada (changeDate, changeTime, changeParty). -->
   <div class="reservation-filters" role="group" aria-label="Datos de la visita">
@@ -47,6 +105,31 @@
         </div>
       </header>
 
+      <!-- Leyenda (encima del plano): explica colores e iconos; la muestra de "Balcón" solo aparece en el piso 2. -->
+      <ul class="legend" aria-label="Leyenda del plano">
+        <li><span class="key free" aria-hidden="true"></span> Disponible</li>
+        <li>
+          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#check-badge" /></svg>
+          Seleccionada
+        </li>
+        <li>
+          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#lock-badge" /></svg>
+          Reservada
+        </li>
+        <li><span class="key too-small" aria-hidden="true"></span> Cupo insuficiente</li>
+        <li>
+          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="key-sofa" d="M3 15A9 9 0 0 1 21 15H18A6 6 0 0 0 6 15Z" />
+            <circle class="key-table" cx="12" cy="15" r="4" />
+          </svg>
+          Mesa de arco (máx. {{ boothSeats }})
+        </li>
+        <li><span class="key edge" aria-hidden="true"></span> Ventanal</li>
+        @if (floor === 2) {
+        <li><span class="key deck" aria-hidden="true"></span> Balcón</li>
+        }
+      </ul>
+
       <!-- PLANO
            El plano tiene dos capas, una por piso, apiladas en el mismo sitio. Cada capa tiene:
            1. Un SVG con la arquitectura (muros, escalera, barra, salas, ventanales...) en un viewBox
@@ -62,7 +145,7 @@
               <!-- Contorno completo del edificio y suelo del comedor de cada piso -->
               <path id="shell" d="M40 30H600L860 300V780H600V610H40Z" />
               <path id="dining-1" d="M40 30H600L860 300V780H600V530L476 400H40Z" />
-              <path id="dining-2" d="M40 30H600L860 300V780H600V530L380 300H40Z" />
+              <path id="dining-2" d="M40 30H600L860 300V780H600V610H450V300H40Z" />
               <pattern id="flagstone" width="44" height="44" patternUnits="userSpaceOnUse">
                 <path d="M0 .5H44M.5 0V44" fill="none" stroke="#e8dec9" stroke-width="1" />
               </pattern>
@@ -155,19 +238,27 @@
               <text class="plan-label muted" x="400" y="218" text-anchor="middle">Salón principal</text>
               <text class="plan-label muted" x="690" y="516" text-anchor="middle">Salón lateral</text>
               } @else {
-              <!-- Salas de celebración separadas del comedor -->
-              <path class="room-floor" d="M40 300H380L504 430H40Z" />
-              <path class="room-floor" d="M40 430H504L600 530V560H40Z" />
-              <path class="celebration-room" d="M40 300H380L504 430H40Z" />
-              <path class="celebration-room" d="M40 430H504L600 530V560H40Z" />
-              <path class="inner-wall" d="M40 300H380L418 340M457 381L546 474M581 511L600 530V610" />
-              <path class="inner-wall" d="M40 430H504M40 560H600M140 560V610" />
-              <text class="room-label" x="470" y="421" text-anchor="end">Sala 1</text>
-              <text class="room-label" x="584" y="551" text-anchor="end">Sala 2</text>
+              <!-- Baños: igual que en el piso 1, junto a la escalera -->
+              <rect fill="url(#hatch)" x="40" y="300" width="100" height="100" />
+              <path class="inner-wall" d="M40 300H140V330M140 370V400" />
+              <rect class="service-item" x="56" y="318" width="22" height="22" rx="6" />
+              <rect class="service-item" x="96" y="318" width="22" height="22" rx="6" />
+              <text class="plan-label" x="88" y="372" text-anchor="middle">Baños</text>
 
-              <!-- Servicio y baños en la franja inferior -->
-              <text class="plan-label" x="90" y="590" text-anchor="middle">Baños</text>
-              <text class="plan-label" x="370" y="590" text-anchor="middle">Servicio</text>
+              <!-- Servicio bajo los baños; un pasillo (x 140-180) da acceso a baños, servicio y Sala 1 -->
+              <rect fill="url(#hatch)" x="40" y="400" width="100" height="210" />
+              <path class="inner-wall" d="M40 400H140V480M140 520V610" />
+              <text class="plan-label" x="90" y="560" text-anchor="middle">Servicio</text>
+
+              <!-- Salas de celebración: dos salas verticales del mismo tamaño (135 x 310), una junto a otra.
+                   La Sala 1 se abre al pasillo y la Sala 2 a la Galería. -->
+              <path class="room-floor" d="M180 300H315V610H180Z" />
+              <path class="room-floor" d="M315 300H450V610H315Z" />
+              <path class="celebration-room" d="M180 300H315V610H180Z" />
+              <path class="celebration-room" d="M315 300H450V610H315Z" />
+              <path class="inner-wall" d="M180 330V300H450V572M450 604V610M180 370V610M315 300V610" />
+              <text class="room-label" x="247" y="328" text-anchor="middle">Sala 1</text>
+              <text class="room-label" x="382" y="328" text-anchor="middle">Sala 2</text>
 
               <!-- Balcón: terraza exterior con otro suelo, separada del salón por el ventanal (línea azul) -->
               <path class="balcony-zone" fill="url(#deck)" d="M140 34H602L856 297V776H765V338L560 125H140Z" />
@@ -188,8 +279,7 @@
               <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">Balcón</text>
               <text class="plan-label muted" transform="translate(154 214) rotate(-90)" text-anchor="middle">Salón
                 alto</text>
-              <text class="plan-label muted" transform="translate(620 500) rotate(-90)"
-                text-anchor="middle">Galería</text>
+              <text class="plan-label muted" x="525" y="594" text-anchor="middle">Galería</text>
               }
 
               <use href="#shell" class="wall-outer" />
@@ -228,19 +318,22 @@
               [class.booth]="table.booth !== undefined" [class.occupied]="state === 'occupied'"
               [class.small]="state === 'small'" [style.left.%]="table.x / 9" [style.top.%]="table.y / 8"
               [attr.aria-disabled]="state !== 'available'" [attr.aria-pressed]="selected === table"
-              [attr.aria-label]="labelOf(table, level, state)" (click)="selectTable(table)">
+              [attr.aria-label]="labelOf(table, state)" (click)="selectTable(table)">
               @if (table.special) {
-              <svg viewBox="0 0 260 84" aria-hidden="true">
+              <!-- Mesa de celebración en vertical: sillas a los lados y el texto girado -->
+              <svg viewBox="0 0 84 236" aria-hidden="true">
                 @for (chair of chairsOf(table); track $index) {
-                <rect class="chair" [attr.x]="chair.x" [attr.y]="chair.y" width="18" height="14" rx="5" />
+                <rect class="chair" [attr.x]="chair.x" [attr.y]="chair.y" width="14" height="16" rx="5" />
                 }
-                <rect class="tabletop" x="14" y="20" width="232" height="44" rx="14" />
-                <text class="special-title" x="122" y="38" text-anchor="middle">Mesa de celebración</text>
-                <text class="special-sub" x="122" y="54" text-anchor="middle">{{ seatsOf(table) }} puestos</text>
+                <rect class="tabletop" x="18" y="8" width="48" height="220" rx="14" />
+                <g transform="rotate(-90 42 108)">
+                  <text class="special-title" x="42" y="104" text-anchor="middle">Mesa de celebración</text>
+                  <text class="special-sub" x="42" y="120" text-anchor="middle">{{ seatsOf(table) }} puestos</text>
+                </g>
                 @if (state === 'occupied') {
-                <use href="#lock-badge" x="216" y="30" width="24" height="24" />
+                <use href="#lock-badge" x="30" y="196" width="24" height="24" />
                 } @else if (selected === table) {
-                <use href="#check-badge" x="216" y="30" width="24" height="24" />
+                <use href="#check-badge" x="30" y="196" width="24" height="24" />
                 }
               </svg>
               } @else if (table.booth !== undefined) {
@@ -300,30 +393,6 @@
       </div>
       <p class="pan-hint">Desliza horizontalmente para recorrer el plano.</p>
 
-      <!-- Leyenda: explica colores e iconos; la muestra de "Balcón" solo aparece en el piso 2. -->
-      <ul class="legend" aria-label="Leyenda del plano">
-        <li><span class="key free" aria-hidden="true"></span> Disponible</li>
-        <li>
-          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#check-badge" /></svg>
-          Seleccionada
-        </li>
-        <li>
-          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#lock-badge" /></svg>
-          Reservada
-        </li>
-        <li><span class="key too-small" aria-hidden="true"></span> Cupo insuficiente</li>
-        <li>
-          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path class="key-sofa" d="M3 15A9 9 0 0 1 21 15H18A6 6 0 0 0 6 15Z" />
-            <circle class="key-table" cx="12" cy="15" r="4" />
-          </svg>
-          Mesa de arco (máx. {{ boothSeats }})
-        </li>
-        <li><span class="key edge" aria-hidden="true"></span> Ventanal</li>
-        @if (floor === 2) {
-        <li><span class="key deck" aria-hidden="true"></span> Balcón</li>
-        }
-      </ul>
     </section>
 
     <!-- RESUMEN "Tu mesa": datos de la mesa elegida, sillas de las mesas de celebración y botón de reserva.
@@ -341,7 +410,7 @@
           @if (table.booth !== undefined) {
           <div>
             <dt>Tipo</dt>
-            <dd>Mesa de arco, {{ placeOf(table, floor).toLowerCase() }}</dd>
+            <dd>Mesa de arco, {{ placeOf(table).toLowerCase() }}</dd>
           </div>
           <div>
             <dt>Capacidad máxima</dt>
@@ -376,15 +445,46 @@
         <p>Selecciona una mesa disponible en el plano para ver su ubicación y capacidad.</p>
         }
       </div>
+      <!-- Datos de la reserva: nombre, temática y (solo al crear) aceptar el anticipo -->
+      <div class="reservation-fields">
+        <label>
+          <span>Nombre de la reserva</span>
+          <input type="text" maxlength="60" placeholder="Ej. Cena de grado" [value]="reservationName"
+            (input)="reservationName = $any($event.target).value" />
+        </label>
+        <label>
+          <span>Temática</span>
+          <select (change)="theme = $any($event.target).value">
+            @for (option of themes; track option.value) {
+            <option [value]="option.value" [selected]="option.value === theme">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+        @if (!editing) {
+        <label class="deposit-check">
+          <input type="checkbox" [checked]="acceptDeposit" (change)="acceptDeposit = $any($event.target).checked" />
+          <span>Acepto pagar un anticipo de {{ money(deposit) }} en la pasarela de pago. No se reembolsa si elimino
+            la reserva.</span>
+        </label>
+        }
+      </div>
       <button class="reserve-button" type="button" [disabled]="!canReserve" (click)="reserve()">
-        Reservar mesa
+        @if (saving) {
+        {{ editing ? 'Guardando...' : 'Abriendo la pasarela...' }}
+        } @else {
+        {{ editing ? 'Guardar cambios' : 'Reservar y pagar ' + money(deposit) }}
+        }
       </button>
+      @if (editing) {
+      <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelEdit()">Cancelar edición</button>
+      }
       @if (!date || date < today) {
       <p class="note" role="status">Elige la fecha de hoy o una posterior.</p>
       }
-      <p class="feedback" role="status" [hidden]="!feedback">{{ feedback }}</p>
+      <p class="feedback error" role="alert" [hidden]="!feedback">{{ feedback }}</p>
     </aside>
   </div>
+  }
 </main>
 
 <app-footer />

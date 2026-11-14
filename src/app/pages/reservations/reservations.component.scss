@@ -511,10 +511,11 @@ button {
   transition: scale .2s ease;
 }
 
+// Mesa de celebración en vertical: 84 x 236 unidades del plano (84 / 9 = 9.33% de ancho).
 .table-marker.special {
-  width: 28.9%;
-  min-width: 190px;
-  aspect-ratio: 260 / 84;
+  width: 9.33%;
+  min-width: 62px;
+  aspect-ratio: 84 / 236;
 }
 
 .table-marker.booth {
@@ -671,11 +672,12 @@ button {
   display: none;
 }
 
+// Leyenda encima del plano
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: .5rem 1rem;
-  margin-top: .9rem;
+  margin-bottom: .9rem;
   color: var(--muted);
   font-size: .9rem;
 }
@@ -921,4 +923,129 @@ button {
   .reservation-filters label:first-child {
     grid-column: 1 / -1;
   }
+}
+
+
+// --- CRUD de la reserva: tarjeta "Tu reserva", campos del formulario y botones secundarios ---
+.my-reservation {
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+// Estado de la reserva: pago pendiente o confirmada
+.status-pill {
+  display: inline-block;
+  margin: .6rem 0 .4rem;
+  padding: .2rem .7rem;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.status-pill.pending {
+  background: rgb(217 166 60 / .18);
+  color: #7a5714;
+}
+
+.status-pill.paid {
+  background: rgb(85 97 65 / .14);
+  color: var(--olive);
+}
+
+.reservation-details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .55rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.reservation-details dt {
+  font-weight: 600;
+}
+
+.reservation-details dd {
+  text-align: right;
+  color: var(--muted);
+}
+
+.reservation-actions {
+  display: grid;
+  gap: .6rem;
+  margin-top: 1.1rem;
+}
+
+.reservation-fields {
+  display: grid;
+  gap: .7rem;
+  margin-bottom: .85rem;
+}
+
+.reservation-fields label {
+  display: grid;
+  gap: .3rem;
+  font-weight: 600;
+}
+
+.reservation-fields input[type="text"],
+.reservation-fields select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: .65rem;
+  background: white;
+  padding: .5rem .65rem;
+  font-weight: 400;
+}
+
+.reservation-fields .deposit-check {
+  display: flex;
+  align-items: flex-start;
+  gap: .55rem;
+  font-weight: 400;
+  font-size: .88rem;
+  color: var(--muted);
+}
+
+.reservation-fields .deposit-check input {
+  margin-top: .2rem;
+}
+
+.secondary-button,
+.danger-button {
+  min-height: 44px;
+  width: 100%;
+  margin-top: .5rem;
+  border-radius: .75rem;
+  padding: .55rem .9rem;
+  font-weight: 600;
+}
+
+.reservation-actions .secondary-button,
+.reservation-actions .danger-button {
+  margin-top: 0;
+}
+
+.secondary-button {
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--ink);
+}
+
+.secondary-button:hover:not(:disabled) {
+  border-color: var(--terracotta);
+}
+
+.danger-button {
+  background: #9c2f1f;
+  color: white;
+}
+
+.danger-button:hover:not(:disabled) {
+  background: #7a2216;
+}
+
+// Error al reservar (mesa ocupada, pasarela caída...)
+.feedback.error {
+  color: #8a2222;
 }
