@@ -29,6 +29,9 @@ export interface Session {
   lastName: string;
   address?: string;
   type: SessionType;
+  // false = cuenta creada con Google a la que le faltan teléfono, apellido o
+  // dirección. Mientras tanto se le muestra "Completa tu perfil".
+  profileComplete?: boolean;
 }
 
 // Respuesta del back al iniciar sesión, registrarse o editar el perfil.
@@ -38,6 +41,7 @@ export interface LoginResponse {
   name: string;
   lastName: string;
   role: string;
+  profileComplete?: boolean;
 }
 
 // Respuesta del back al registrarse, confirmar el correo o pedir un reenvío:
@@ -54,8 +58,9 @@ interface JwtPayload {
   exp: number; // fecha de vencimiento, en segundos
 }
 
-// URL del back. El interceptor solo agrega el token a las peticiones hacia aquí.
-export const API_URL = 'http://localhost:8080';
+// URL del back (se calcula en api-url.ts). Se reexporta aquí porque otros archivos la importan de este servicio.
+import { API_URL } from '../api-url';
+export { API_URL };
 
 const SESSION_KEY = 'terragalega_session';
 const TOKEN_KEY = 'terragalega_token';
@@ -124,6 +129,17 @@ export class AuthService {
     });
   }
 
+  // "Continuar con Google": el back verifica el token de Google y crea la
+  // cuenta o inicia sesión. Si profileComplete es false hay que completar el perfil.
+  googleLogin(idToken: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/google`, { idToken });
+  }
+
+  // ¿El cliente con sesión debe completar su perfil antes de seguir?
+  get needsProfile(): boolean {
+    return this.session?.type === 'client' && this.session.profileComplete === false;
+  }
+
   // Registra un cliente. No inicia sesión: el back envía un correo y la cuenta
   // solo entra después de confirmarlo.
   signup(client: CreateClient): Observable<MessageResponse> {
@@ -169,6 +185,8 @@ export class AuthService {
       lastName: user.lastName,
       type,
       address: user.address,
+      // Las respuestas que no traen el dato (p. ej. cuentas normales) cuentan como completas
+      profileComplete: user.profileComplete !== false,
     });
   }
 

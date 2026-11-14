@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { Admin } from '../models/admin';
 import { Role } from '../models/role';
@@ -41,7 +42,7 @@ export class AdminService {
 
   // Consulta al backend la lista de clientes en formato DTO para el panel de administración.
   getClientDTOAdmins() {
-    return this.http.get<ClientDTO[]>('http://localhost:8080/products/clients');
+    return this.http.get<ClientDTO[]>(`${API_URL}/products/clients`);
   }
 
 }

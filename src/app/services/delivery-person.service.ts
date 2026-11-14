@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
@@ -11,7 +12,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class DeliveryPersonService {
   // URL base de los endpoints de domiciliarios en Spring Boot.
-  private apiUrl = 'http://localhost:8080/delivery-persons';
+  private apiUrl = `${API_URL}/delivery-persons`;
 
   // Avisa a la lista del admin que debe volver a cargar los domiciliarios
   private refreshSubject = new Subject<void>();

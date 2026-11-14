@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
@@ -18,7 +19,7 @@ import {
 })
 export class CouponService {
   // Dirección base de los endpoints de cupones en el back
-  private apiUrl = 'http://localhost:8080/coupons';
+  private apiUrl = `${API_URL}/coupons`;
 
   // Aviso de "los cupones cambiaron": quien modifica un cupón llama a
   // refresh() y los componentes que escuchan refresh$ recargan su lista

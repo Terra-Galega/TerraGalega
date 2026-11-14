@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { Order, OrderSummary } from '../models/order';
@@ -19,7 +20,7 @@ export interface OrderFilters {
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   // URL base de los endpoints de pedidos en Spring Boot.
-  private apiUrl = 'http://localhost:8080/orders';
+  private apiUrl = `${API_URL}/orders`;
 
   // Notifica a los componentes cuando necesitan volver a cargar los pedidos.
   private refreshSubject = new Subject<void>();

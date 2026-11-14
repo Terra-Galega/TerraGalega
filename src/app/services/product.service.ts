@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
@@ -17,7 +18,7 @@ import {
 })
 export class ProductService {
   // Dirección base de los endpoints de productos en el back
-  private apiUrl = 'http://localhost:8080/products';
+  private apiUrl = `${API_URL}/products`;
 
   // Aviso de "los productos cambiaron": quien modifica un producto llama a
   // refresh() y los componentes que escuchan refresh$ recargan su lista

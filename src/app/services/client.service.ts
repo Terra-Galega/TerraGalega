@@ -45,6 +45,17 @@ export class ClientService {
     return this.http.put<LoginResponse>(`${this.apiUrl}/me`, client);
   }
 
+  // Cuenta creada con Google: guarda lo que Google no da (apellido, teléfono y
+  // la primera dirección). Devuelve la sesión con profileComplete actualizado.
+  completeProfile(data: {
+    name: string;
+    lastName: string;
+    phone: string;
+    address?: { label: string; name?: string };
+  }): Observable<LoginResponse> {
+    return this.http.put<LoginResponse>(`${this.apiUrl}/me/complete-profile`, data);
+  }
+
   // Elimina su cuenta.
   deleteMe(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/me`);

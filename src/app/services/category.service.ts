@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
@@ -12,7 +13,7 @@ import { Category, CreateCategory } from '../models/category';
 })
 export class CategoryService {
   // Dirección base de los endpoints de categorías en el back
-  private apiUrl = 'http://localhost:8080/categories';
+  private apiUrl = `${API_URL}/categories`;
 
   // Aviso de "las categorías cambiaron": quien modifica una categoría llama a
   // refresh() y los componentes que escuchan refresh$ recargan su lista

@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
@@ -10,7 +11,7 @@ import { Operator, CreateOperator } from '../models/operator';
 })
 export class OperatorService {
   // URL base del recurso de operadores en la API de Spring Boot.
-  private apiUrl = 'http://localhost:8080/operators';
+  private apiUrl = `${API_URL}/operators`;
 
   // =========================
   // Actualización de operadores

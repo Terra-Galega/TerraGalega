@@ -7,6 +7,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
+import { GoogleButtonComponent } from '../../components/google-button/google-button.component';
 import { ToastService } from '../../services/toast.service';
 import { AuthService, LoginResponse } from '../../services/auth.service';
 import { getErrorMessage } from '../../utils/http-error';
@@ -25,6 +26,7 @@ const EMAIL_NOT_VERIFIED_CODE = 'EMAIL_NOT_VERIFIED';
     FooterComponent,
     LoginHeaderComponent,
     LoginFormsComponent,
+    GoogleButtonComponent,
   ],
   templateUrl: './login.component.html',
 })
@@ -122,6 +124,34 @@ export class LoginComponent implements OnDestroy {
     }
     this.router.navigate([this.auth.homeRoute()]);
   }
+  // Error de "Continuar con Google"
+  googleError = '';
+
+  // Google entregó el ID token: el back crea la cuenta o inicia sesión.
+  // Si a la cuenta le faltan datos (teléfono, dirección...) se piden antes de seguir.
+  googleLogin(idToken: string) {
+    this.googleError = '';
+    this.auth.googleLogin(idToken).subscribe({
+      next: (user) => {
+        this.auth.setSession(user);
+        if (user.profileComplete === false) {
+          const redirect = this.route.snapshot.queryParamMap.get('redirect');
+          this.router.navigate(['/complete-profile'], {
+            queryParams: redirect ? { redirect } : {},
+          });
+          return;
+        }
+        this.goByRole(user);
+      },
+      error: (error) => {
+        this.googleError = getErrorMessage(
+          error,
+          'No se pudo continuar con Google. Inténtalo de nuevo.',
+        );
+      },
+    });
+  }
+
   // Maneja el inicio de sesión del usuario
   login() {
     this.loginError = '';

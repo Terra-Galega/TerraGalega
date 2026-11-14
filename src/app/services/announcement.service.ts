@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
@@ -12,7 +13,7 @@ import { Announcement, CreateAnnouncement } from '../models/announcement';
 })
 export class AnnouncementService {
     // Dirección base de los endpoints de anuncios en el back
-    private apiUrl = 'http://localhost:8080/announcements';
+    private apiUrl = `${API_URL}/announcements`;
 
     // Aviso de "los anuncios cambiaron": quien modifica uno llama a refresh()
     // y los componentes que escuchan refresh$ recargan su lista

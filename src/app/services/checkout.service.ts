@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,7 +8,7 @@ import { CheckoutRequest } from '../models/checkout';
 @Injectable({ providedIn: 'root' })
 export class CheckoutService {
     // URL del endpoint de checkout en Spring Boot.
-    private apiUrl = 'http://localhost:8080/checkout';
+    private apiUrl = `${API_URL}/checkout`;
 
     // Inyecta el cliente HTTP para realizar solicitudes al backend.
     constructor(private http: HttpClient) {}

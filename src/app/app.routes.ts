@@ -16,11 +16,13 @@ import {
   adminGuard,
   clientAreaGuard,
   clientGuard,
+  completeProfileGuard,
   operatorGuard,
   redirectByRoleGuard,
 } from './guards/role.guards';
 import { CheckoutConfirmComponent } from './pages/checkout/chekout-confirm/checkout-confirm.component';
 import { CheckoutResultComponent } from './pages/checkout/checkout-result/checkout-result.component';
+import { CompleteProfileComponent } from './pages/complete-profile/complete-profile.component';
 
 // Las rutas del usuario no llevan su id: el back lo identifica por el token,
 // así nadie puede cambiar un número en la URL para ver la cuenta de otra persona.
@@ -48,6 +50,12 @@ export const routes: Routes = [
     // Sin guard: debe abrir igual con o sin sesión iniciada.
     path: 'verify-email',
     component: VerifyEmailComponent,
+  },
+  {
+    // Después de crear la cuenta con Google: pide teléfono, apellido y dirección
+    path: 'complete-profile',
+    component: CompleteProfileComponent,
+    canActivate: [completeProfileGuard],
   },
   {
     // Página "Sobre nosotros".

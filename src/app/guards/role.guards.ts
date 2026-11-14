@@ -33,6 +33,25 @@ export const clientAreaGuard: CanActivateFn = () => {
     return router.createUrlTree([auth.homeRoute()]);
   }
 
+  // Cuenta de Google sin terminar: primero completa su perfil
+  if (auth.needsProfile) {
+    return router.createUrlTree(['/complete-profile']);
+  }
+
+  return true;
+};
+
+// "Completa tu perfil": solo clientes a los que les faltan datos
+export const completeProfileGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (!auth.isLoggedIn) {
+    return router.createUrlTree(['/login']);
+  }
+  if (!auth.needsProfile) {
+    return router.createUrlTree([auth.homeRoute()]);
+  }
   return true;
 };
 
@@ -49,6 +68,10 @@ function requireRole(type: SessionType): CanActivateFn {
 
     if (auth.session!.type !== type) {
       return router.createUrlTree([auth.homeRoute()]);
+    }
+
+    if (auth.needsProfile) {
+      return router.createUrlTree(['/complete-profile']);
     }
 
     return true;

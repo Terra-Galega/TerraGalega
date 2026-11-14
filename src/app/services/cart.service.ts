@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
@@ -34,7 +35,7 @@ export function unavailableMessage(names: string[]): string {
 // Carrito de quien aún no ha iniciado sesión
 const GUEST_KEY = 'terragalega_cart';
 // Carrito compartido con la app (vive en Postgres)
-const CART_API = 'http://localhost:8080/cart';
+const CART_API = `${API_URL}/cart`;
 // Cada cuánto se revisa si el carrito cambió desde otro dispositivo
 const REFRESH_MS = 10_000;
 

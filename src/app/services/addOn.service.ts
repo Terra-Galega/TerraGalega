@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
@@ -12,7 +13,7 @@ import { AddOn, AddOnOption, CreateAddOn } from '../models/addOn';
 })
 export class AddOnService {
   // Dirección base de los endpoints de adicionales en el back
-  private apiUrl = 'http://localhost:8080/addons';
+  private apiUrl = `${API_URL}/addons`;
 
   // Aviso de "los adicionales cambiaron": quien modifica un adicional llama a
   // refresh() y los componentes que escuchan refresh$ recargan su lista

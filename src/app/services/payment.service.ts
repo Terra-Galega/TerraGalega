@@ -1,3 +1,4 @@
+import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,7 +14,7 @@ const PENDING_KEY = 'terra.pendingPayment';
 // escriben en la página de Stripe: nunca pasan por esta app ni por el back.
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
-  private apiUrl = 'http://localhost:8080/payments';
+  private apiUrl = `${API_URL}/payments`;
 
   constructor(private http: HttpClient) {}
 

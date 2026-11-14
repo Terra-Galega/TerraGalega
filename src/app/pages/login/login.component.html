@@ -43,6 +43,19 @@
       (signupAddressChange)="setSignupAddress($event)"
       (signupSubmit)="signup()"
     ></app-login-forms>
+
+    <!-- Crear cuenta o entrar con Google (oculto mientras se espera la confirmación del correo).
+         Se recrea al cambiar de pestaña para que el texto del botón cambie. -->
+    @if (!pendingEmail) {
+      @if (activeTab === "login") {
+        <app-google-button mode="login" (credential)="googleLogin($event)"></app-google-button>
+      } @else {
+        <app-google-button mode="signup" (credential)="googleLogin($event)"></app-google-button>
+      }
+      @if (googleError) {
+        <p id="google-error" class="text-sm text-center mt-3" style="color: #8a2222">{{ googleError }}</p>
+      }
+    }
   </div>
 </main>
 
