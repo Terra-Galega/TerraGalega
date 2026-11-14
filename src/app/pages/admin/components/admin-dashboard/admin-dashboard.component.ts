@@ -331,8 +331,31 @@ export class AdminDashboardComponent {
   async download(request: ExportRequest) {
     if (!this.model || this.exporting) return;
 
+    let previewWindow: Window | null = null;
     this.exporting = true;
+
     try {
+      // Abre la pestaña directamente desde el clic,
+      // antes de generar las gráficas o cargar las librerías.
+      if (request.format === 'pdf') {
+        previewWindow = window.open('about:blank', '_blank');
+
+        if (!previewWindow) {
+          throw new Error(
+            'El navegador bloqueó la vista previa. ' +
+              'Permite las ventanas emergentes para este sitio ' +
+              'y vuelve a intentarlo.',
+          );
+        }
+
+        previewWindow.opener = null;
+
+        previewWindow.document.title = 'Generando reporte — Terra Galega';
+
+        previewWindow.document.body.textContent =
+          'Generando vista previa del PDF…';
+      }
+
       await exportReport(
         request.format,
         buildReport(
@@ -341,14 +364,30 @@ export class AdminDashboardComponent {
           new Date(),
           request.includeCharts,
         ),
+        previewWindow,
       );
-      this.toast.show('Reporte listo', 'El archivo se descargó correctamente.');
+
+      this.toast.show(
+        'Reporte listo',
+        request.format === 'pdf'
+          ? 'El PDF se abrió en otra pestaña. Desde allí puedes descargarlo o imprimirlo.'
+          : 'El archivo se descargó correctamente.',
+      );
+
       this.exportOpen = false;
     } catch (error) {
+      // Si la generación falla, no deja una pestaña vacía abierta.
+      if (previewWindow && !previewWindow.closed) {
+        previewWindow.close();
+      }
+
       console.error('Error exportando el reporte:', error);
+
       this.toast.show(
         'No se pudo exportar',
-        'Inténtalo de nuevo en unos segundos.',
+        error instanceof Error
+          ? error.message
+          : 'Inténtalo de nuevo en unos segundos.',
       );
     } finally {
       this.exporting = false;
@@ -414,7 +453,11 @@ export class AdminDashboardComponent {
     ];
 
     // Productos más vendidos y reparto por categoría
-    this.topItems = topProducts(model, this.productPair.current, this.productMetric)
+    this.topItems = topProducts(
+      model,
+      this.productPair.current,
+      this.productMetric,
+    )
       .slice(0, 6)
       .map((p) => ({
         label: p.name,
@@ -422,11 +465,13 @@ export class AdminDashboardComponent {
         sub: p.category,
       }));
 
-    this.categoryItems = categoryStats(model, this.categoryPair.current).map((c, i) => ({
-      label: c.name,
-      value: c[this.categoryMetric],
-      color: CHART_COLORS[i % CHART_COLORS.length],
-    }));
+    this.categoryItems = categoryStats(model, this.categoryPair.current).map(
+      (c, i) => ({
+        label: c.name,
+        value: c[this.categoryMetric],
+        color: CHART_COLORS[i % CHART_COLORS.length],
+      }),
+    );
 
     // Pedidos y platos
     this.latest = latestOrders(model, 8);
