@@ -56,7 +56,7 @@ export class AddressListComponent implements OnInit {
   // Trae la lista del back. Se vuelve a llamar tras cada cambio porque el back
   // puede mover la marca de predeterminada y el orden.
   private load(): void {
-    this.addressService.getAddresses(this.clientId).subscribe({
+    this.addressService.getAddresses().subscribe({
       next: (addresses) => {
         this.addresses = addresses;
         this.loading = false;
@@ -106,7 +106,7 @@ export class AddressListComponent implements OnInit {
 
     this.error = '';
     this.addressService
-      .addAddress(this.clientId, { label, name: this.newName.trim() })
+      .addAddress({ label, name: this.newName.trim() })
       .subscribe({
         next: () => {
           this.newName = '';
@@ -158,7 +158,7 @@ export class AddressListComponent implements OnInit {
 
     this.error = '';
     this.addressService
-      .updateAddress(this.clientId, address.id, {
+      .updateAddress(address.id, {
         name,
         label,
         defaultAddress: address.defaultAddress,
@@ -182,7 +182,7 @@ export class AddressListComponent implements OnInit {
   makeDefault(address: Address): void {
     this.error = '';
     this.addressService
-      .updateAddress(this.clientId, address.id, {
+      .updateAddress(address.id, {
         name: address.name,
         label: address.label,
         defaultAddress: true,
@@ -219,7 +219,7 @@ export class AddressListComponent implements OnInit {
       return;
     }
 
-    this.addressService.deleteAddress(this.clientId, address.id).subscribe({
+    this.addressService.deleteAddress(address.id).subscribe({
       next: () => {
         this.toast.show('Dirección eliminada correctamente');
         this.load();

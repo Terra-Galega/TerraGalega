@@ -68,7 +68,7 @@ export class OrderedComponent {
     const orderId = this.selectedOrderId;
     this.closeCancelModal();
 
-    this.orderService.cancelOrder(orderId, session.id).subscribe({
+    this.orderService.cancelOrder(orderId).subscribe({
       next: () => this.orderCancelled.emit(),
       error: (error) => {
         console.error('Error cancelando pedido:', error);

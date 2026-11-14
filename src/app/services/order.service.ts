@@ -39,9 +39,9 @@ export class OrderService {
   // Consultas
   // =========================
 
-  // Pedidos de un cliente (pantalla "Mis pedidos").
-  getOrdersByClient(clientId: number): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/client/${clientId}`);
+  // Pedidos del cliente con sesión iniciada (pantalla "Mis pedidos").
+  getMyOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/me`);
   }
 
   // Detalle completo de un pedido: productos, adicionales y repartidor.
@@ -84,12 +84,10 @@ export class OrderService {
     return this.http.put<Order>(`${this.apiUrl}/${orderId}/confirm`, {});
   }
 
-  // Pasa el pedido a preparación y registra qué operador lo cocina (CONFIRMED -> PREPARING).
-  cookOrder(orderId: number, operatorId: number): Observable<Order> {
-    return this.http.put<Order>(
-      `${this.apiUrl}/${orderId}/cook/${operatorId}`,
-      {},
-    );
+  // Pasa el pedido a preparación (CONFIRMED -> PREPARING).
+  // Queda a cargo del operador con sesión iniciada.
+  cookOrder(orderId: number): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${orderId}/cook`, {});
   }
 
   // Despacha el pedido y le asigna un domiciliario (PREPARING -> ON_THE_WAY).
@@ -105,12 +103,8 @@ export class OrderService {
     return this.http.put<Order>(`${this.apiUrl}/${orderId}/deliver`, {});
   }
 
-  // Cancela un pedido. Se envía el id del cliente para que el backend verifique que el pedido le pertenece.
-  cancelOrder(orderId: number, clientId: number): Observable<Order> {
-    return this.http.put<Order>(
-      `${this.apiUrl}/${orderId}/cancel`,
-      {},
-      { params: { clientId } },
-    );
+  // Cancela un pedido. El back verifica que sea del cliente con sesión iniciada.
+  cancelOrder(orderId: number): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${orderId}/cancel`, {});
   }
 }

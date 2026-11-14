@@ -6,16 +6,16 @@
     style="grid-template-columns: 1fr auto 1fr">
     <!-- ========================================================== COLUMNA IZQUIERDA ========================================================== -->
     <div class="flex items-center justify-evenly w-full">
-      <a class="link-nav text-xs lg:text-sm xl:text-base font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+      <a class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/aboutUs')" (click)="goToAboutUs()">
         NOSOTROS
       </a>
       <a id="nav-menu"
-        class="link-nav text-xs lg:text-sm xl:text-base font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/menu')" (click)="goToMenu()">
         MENÚ
       </a>
-      <a class="link-nav text-xs lg:text-sm xl:text-base font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+      <a class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/reservations')" (click)="goToReservations()">
         RESERVAS
       </a>
@@ -36,26 +36,26 @@
     <!-- ========================================================== COLUMNA DERECHA Pedidos - sesión - carrito ========================================================== -->
     <div class="flex items-center justify-evenly w-full">
       <a id="nav-orders"
-        class="link-nav text-xs lg:text-sm xl:text-base font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/orders')" (click)="goToOrders()">
         {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
       </a>
       @if (!isLoggedIn) {
       <a id="nav-login"
-        class="link-nav text-xs lg:text-sm xl:text-base font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/login')" (click)="goToLogin()">
         INICIAR SESIÓN
       </a>
       } @else {
       @if (isLoggedAdmin || isClient) {
       <a id="nav-user"
-        class="link-nav text-xs lg:text-sm xl:text-base font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer max-w-[160px] xl:max-w-[240px] truncate"
+        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer max-w-[160px] xl:max-w-[240px] truncate"
         [class.active]="isProfileActive()" (click)="goToProfile()">
         {{ fullName }}
       </a>
       } @else {
       <span
-        class="link-nav text-xs lg:text-sm xl:text-base font-medium tracking-[0.18em] leading-none whitespace-nowrap max-w-[160px] xl:max-w-[240px] truncate"
+        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] leading-none whitespace-nowrap max-w-[160px] xl:max-w-[240px] truncate"
         [class.active]="isProfileActive()">
         {{ fullName }}
       </span>
@@ -64,7 +64,7 @@
       <!-- ======================================================== CARRITO ======================================================== -->
       <button id="nav-cart" class="link-nav relative flex items-center justify-center p-2" aria-label="Carrito"
         [class.active]="cartOpen" (click)="openCart()">
-        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>

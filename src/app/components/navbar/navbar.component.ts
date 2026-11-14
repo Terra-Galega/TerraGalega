@@ -134,24 +134,16 @@ export class NavbarComponent implements OnDestroy {
     this.closeMobileMenu();
   }
 
-  // Lleva al perfil que corresponde al rol del usuario: panel de admin, panel de operador o cuenta de cliente.
+  // Lleva a la página de su rol: panel de admin, panel de operador o cuenta.
+  // La ruta de cada rol se define en AuthService.homeRoute().
   goToProfile(): void {
     // Sin sesión no hay perfil al que ir, así que no hace nada.
-    if (this.userId === null) {
+    if (!this.isLoggedIn) {
       return;
     }
 
-    if (this.isLoggedAdmin) {
-      this.router.navigate(['/admin', this.userId]);
-      this.navBarStayed = true;
-    } else if (this.isOperator) {
-      this.router.navigate(['/operator', this.userId]);
-      this.navBarStayed = true;
-    } else {
-      this.router.navigate(['/account', this.userId]);
-      this.navBarStayed = true;
-    }
-
+    this.router.navigate([this.auth.homeRoute()]);
+    this.navBarStayed = true;
     this.closeMobileMenu();
   }
 

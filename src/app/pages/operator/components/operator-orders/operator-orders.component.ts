@@ -109,7 +109,7 @@ export class OperatorOrdersComponent {
       action === 'confirm'
         ? this.orderService.confirmOrder(orderSummary.id)
         : action === 'cook'
-          ? this.orderService.cookOrder(orderSummary.id, this.operatorId)
+          ? this.orderService.cookOrder(orderSummary.id)
           : this.orderService.deliverOrder(orderSummary.id);
 
     this.errorMessage = '';

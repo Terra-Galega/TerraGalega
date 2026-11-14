@@ -5,11 +5,10 @@ import { Role } from '../../models/role';
 import { CreateClient } from '../../models/client';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { ClientService } from '../../services/client.service';
 import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
 import { ToastService } from '../../services/toast.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, LoginResponse } from '../../services/auth.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
 
@@ -43,22 +42,21 @@ export class LoginComponent {
   signupPhone = '';
   signupAddress = '';
   // Servicios inyectados
-  private clientService = inject(ClientService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
 
   // Si llegaron desde /checkout sin sesión, después de entrar vuelven allí
-  private goAfterClientAuth(clientId: number): void {
+  private goAfterClientAuth(): void {
     const redirect = this.route.snapshot.queryParamMap.get('redirect');
     // Si venían de checkout, los redirigimos allí
     if (redirect === 'checkout') {
       this.router.navigate(['/checkout']);
       return;
     }
-    // Si no, van a su perfil
-    this.router.navigate(['/account', clientId]);
+    // Si no, van a su cuenta
+    this.router.navigate(['/account']);
   }
   // Cambia la pestaña activa entre login y signup
   selectTab(tab: 'login' | 'signup') {
@@ -91,24 +89,13 @@ export class LoginComponent {
     this.loginError = '';
   }
 
-  // Redirección según el rol del usuario que devolvió el back
-  private goByRole(user: any): void {
-    switch (user.role) {
-      case Role.ADMIN:
-        this.router.navigate(['/admin', user.id]);
-        break;
-
-      case Role.CLIENT:
-        this.goAfterClientAuth(user.id);
-        break;
-
-      case Role.OPERATOR:
-        this.router.navigate(['/operator', user.id]);
-        break;
-
-      default:
-        this.router.navigate(['/home']);
+  // Redirección según el rol del usuario (la ruta de cada rol se define en AuthService)
+  private goByRole(user: LoginResponse): void {
+    if (user.role === Role.CLIENT) {
+      this.goAfterClientAuth();
+      return;
     }
+    this.router.navigate([this.auth.homeRoute()]);
   }
   // Maneja el inicio de sesión del usuario
   login() {
@@ -182,18 +169,15 @@ export class LoginComponent {
       role: Role.CLIENT,
       addresses: [{ label: this.signupAddress.trim() }],
     };
-    //llama al servicio para crear un nuevo cliente
-    this.clientService.addClient(newClient).subscribe({
-      next: (createdClient) => {
-        console.log('Cliente creado:', createdClient);
-
-        this.auth.setSession(createdClient);
+    // El back crea la cuenta y devuelve el token: el cliente queda con la sesión iniciada
+    this.auth.signup(newClient).subscribe({
+      next: (response) => {
+        this.auth.setSession(response);
         this.toast.show('Cuenta creada correctamente');
-        this.goByRole(createdClient);
+        this.goByRole(response);
       },
       error: (error) => {
         console.error('Error creando cuenta:', error);
-
         this.signupError = getErrorMessage(
           error,
           'No se pudo crear la cuenta. Inténtalo de nuevo.',

@@ -16,17 +16,30 @@ import {
   clientAreaGuard,
   clientGuard,
   operatorGuard,
+  redirectByRoleGuard,
 } from './guards/role.guards';
 import { CheckoutConfirmComponent } from './pages/checkout/chekout-confirm/checkout-confirm.component';
 
+// Las rutas del usuario no llevan su id: el back lo identifica por el token,
+// así nadie puede cambiar un número en la URL para ver la cuenta de otra persona.
 export const routes: Routes = [
   {
-    // Ruta raíz ('/'): muestra la página de inicio.
+    // Ruta raíz: con sesión redirige a la página del rol; sin sesión muestra el inicio.
     path: '',
     component: HomeComponent,
-
-    // Solo accesible si el guard de zona cliente lo permite.
-    canActivate: [clientAreaGuard],
+    canActivate: [redirectByRoleGuard],
+  },
+  {
+    // Alias de la raíz, con la misma regla.
+    path: 'home',
+    component: HomeComponent,
+    canActivate: [redirectByRoleGuard],
+  },
+  {
+    // Login: con sesión iniciada se va a la página del rol.
+    path: 'login',
+    component: LoginComponent,
+    canActivate: [redirectByRoleGuard],
   },
   {
     // Página "Sobre nosotros".
@@ -47,89 +60,73 @@ export const routes: Routes = [
     canActivate: [clientAreaGuard],
   },
   {
-    // Alias de la ruta raíz: también muestra la página de inicio.
-    path: 'home',
-    component: HomeComponent,
-    canActivate: [clientAreaGuard],
-  },
-  {
     // Historial de pedidos del cliente.
     path: 'orders',
     component: OrdersComponent,
     canActivate: [clientAreaGuard],
   },
   {
-    // Paso de compra: carrito y datos de envío/pago.
+    // Carrito y datos de envío/pago.
     path: 'checkout',
     component: CheckoutComponent,
     canActivate: [clientAreaGuard],
   },
   {
-    // Pantalla de confirmación del pedido tras finalizar la compra.
+    // Confirmación del pedido tras finalizar la compra.
     path: 'checkout/confirm',
     component: CheckoutConfirmComponent,
     canActivate: [clientAreaGuard],
   },
   {
-    // Cupones personales del cliente (activos y expirados).
-    path: 'coupons',
-    component: CouponsComponent,
-    canActivate: [clientGuard],
-  },
-  {
-    // Inicio de sesión (clientes, operadores y administradores).
-    path: 'login',
-    component: LoginComponent,
-    canActivate: [clientAreaGuard],
-  },
-  {
-    // Panel de administración; ':id' es un parámetro dinámico con el identificador del administrador.
-    path: 'admin/:id',
-    // Carga diferida: el panel (con Chart.js y el dashboard) solo se descarga cuando entra un administrador.
-    loadComponent: () =>
-      import('./pages/admin/admin.component').then((m) => m.AdminComponent),
-    // Solo pueden entrar usuarios con rol de administrador.
-    canActivate: [adminGuard],
-  },
-  {
-    // Panel del operador; ':id' es el identificador del operador autenticado.
-    path: 'operator/:id',
-    // Carga diferida: solo se descarga cuando entra un operador.
-    loadComponent: () =>
-      import('./pages/operator/operator.component').then(
-        (m) => m.OperatorComponent,
-      ),
-    // Solo pueden entrar usuarios con rol de operador.
-    canActivate: [operatorGuard],
-  },
-  {
-    // Perfil de la cuenta del cliente; ':id' identifica al cliente.
-    path: 'account/:id',
-    component: AccountComponent,
-    canActivate: [clientAreaGuard],
-  },
-  {
-    // Edición de los datos de la cuenta del cliente.
-    path: 'account/:id/edit',
-    component: AccountEditComponent,
-    canActivate: [clientAreaGuard],
-  },
-  {
-    // Detalle de un producto; ':id' es el identificador del producto.
+    // Detalle de un producto; ':id' es el id del producto.
     path: 'productDetails/:id',
     component: ProductDetailComponent,
     canActivate: [clientAreaGuard],
   },
   {
-    // Página de error genérica; recibe estado y mensaje mediante parámetros de consulta (queryParams).
+    // Cupones personales del cliente.
+    path: 'coupons',
+    component: CouponsComponent,
+    canActivate: [clientGuard],
+  },
+  {
+    // Cuenta del cliente con sesión iniciada.
+    path: 'account',
+    component: AccountComponent,
+    canActivate: [clientGuard],
+  },
+  {
+    // Edición de los datos de la cuenta del cliente.
+    path: 'account/edit',
+    component: AccountEditComponent,
+    canActivate: [clientGuard],
+  },
+  {
+    // Panel de administración. Carga diferida: el panel (con Chart.js)
+    // solo se descarga cuando entra un administrador.
+    path: 'admin',
+    loadComponent: () =>
+      import('./pages/admin/admin.component').then((m) => m.AdminComponent),
+    canActivate: [adminGuard],
+  },
+  {
+    // Panel del operador. Carga diferida.
+    path: 'operator',
+    loadComponent: () =>
+      import('./pages/operator/operator.component').then(
+        (m) => m.OperatorComponent,
+      ),
+    canActivate: [operatorGuard],
+  },
+  {
+    // Página de error genérica; recibe estado y mensaje por queryParams.
     path: 'error',
     component: ErrorComponent,
   },
   {
-    // Ruta comodín: captura cualquier URL no definida arriba (debe ir siempre al final).
+    // Ruta comodín: cualquier URL no definida arriba (debe ir siempre al final).
     path: '**',
     component: ErrorComponent,
-    // Datos estáticos que la página de error lee para mostrar el código 404 y su mensaje.
     data: { status: 404, message: 'La página que buscas no existe.' },
   },
 ];

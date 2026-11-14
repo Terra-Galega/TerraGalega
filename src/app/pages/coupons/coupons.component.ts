@@ -40,7 +40,7 @@ export class CouponsComponent implements OnInit {
             return;
         }
 
-        this.couponService.getClientCoupons(session.id).subscribe({
+        this.couponService.getClientCoupons().subscribe({
             next: (coupons) => {
                 this.coupons = coupons;
                 this.loading = false;

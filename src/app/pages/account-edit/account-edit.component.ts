@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Client } from '../../models/client';
@@ -29,7 +29,6 @@ import { getErrorMessage } from '../../utils/http-error';
 export class AccountEditComponent implements OnInit {
   // Servicios utilizados para consultar y actualizar los datos del cliente
   private clientService = inject(ClientService);
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
@@ -49,11 +48,9 @@ export class AccountEditComponent implements OnInit {
   passwordModalOpen = false;
   errorMessage = '';
 
-  // Obtiene el cliente por su ID y carga sus datos en el formulario
+  // Obtiene el cliente con sesión iniciada y carga sus datos en el formulario
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-
-    this.clientService.getClientById(id).subscribe({
+    this.clientService.getMe().subscribe({
       next: (client) => {
         this.client = client;
 
@@ -68,7 +65,7 @@ export class AccountEditComponent implements OnInit {
       error: (error) => {
         console.error('Error cargando cliente:', error);
         // Si no se pueden cargar los datos, vuelve a la cuenta del cliente
-        this.router.navigate(['/account', id]);
+        this.router.navigate(['/account']);
       },
     });
   }
@@ -101,12 +98,13 @@ export class AccountEditComponent implements OnInit {
     };
 
     // Envía los cambios al servidor y actualiza la sesión con la respuesta
-    this.clientService.updateClient(updatedClient).subscribe({
+    this.clientService.updateMe(updatedClient).subscribe({
       next: (savedClient) => {
+        // La respuesta trae un token nuevo, así la sesión sigue funcionando si cambió el correo
         this.auth.setSession(savedClient);
         this.toast.show('Cambios guardados correctamente');
         // Redirige al perfil después de guardar los cambios
-        this.router.navigate(['/account', this.client!.id]);
+        this.router.navigate(['/account']);
       },
       error: (error) => {
         console.error('Error actualizando cliente:', error);
@@ -125,10 +123,10 @@ export class AccountEditComponent implements OnInit {
       return;
     }
 
-    this.router.navigate(['/account', this.client.id]);
+    this.router.navigate(['/account']);
   }
 
-  // Solicita al servicio el cambio de contraseña del cliente
+  // Solicita al back el cambio de contraseña del cliente con sesión iniciada
   savePassword = (current: string, next: string) =>
-    this.clientService.changePassword(this.client!.id, current, next);
+    this.clientService.changeMyPassword(current, next);
 }

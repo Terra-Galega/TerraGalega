@@ -92,7 +92,7 @@ export class CartService {
 
     if (this.clientId !== null) {
       this.sync(
-        this.http.post<CartItem[]>(`${CART_API}/${this.clientId}/items`, {
+        this.http.post<CartItem[]>(`${CART_API}/me/items`, {
           productId: product.id,
           quantity,
           addOnIds: addOns.map((addOn) => addOn.id),
@@ -130,7 +130,7 @@ export class CartService {
     if (this.clientId !== null) {
       this.sync(
         this.http.delete<CartItem[]>(
-          `${CART_API}/${this.clientId}/items/${encodeURIComponent(id)}`,
+          `${CART_API}/me/items/${encodeURIComponent(id)}`,
         ),
       );
     }
@@ -141,7 +141,7 @@ export class CartService {
     this.setItems([]);
 
     if (this.clientId !== null) {
-      this.sync(this.http.delete<CartItem[]>(`${CART_API}/${this.clientId}`));
+      this.sync(this.http.delete<CartItem[]>(`${CART_API}/me`));
     }
   }
 
@@ -151,7 +151,7 @@ export class CartService {
     if (id === null || this.pending > 0) return;
 
     this.http
-      .get<CartItem[]>(`${CART_API}/${id}`)
+      .get<CartItem[]>(`${CART_API}/me`)
       .pipe(catchError(() => EMPTY))
       .subscribe((items) => {
         // Si mientras tanto cambió de dueño o hay cambios en vuelo, esta lectura ya no sirve
@@ -242,7 +242,7 @@ export class CartService {
       if (toUpload.length > 0) {
         this.sync(
           this.http.post<CartItem[]>(
-            `${CART_API}/${this.clientId}/items/bulk`,
+            `${CART_API}/me/items/bulk`,
             toUpload.map((item) => ({
               productId: item.product.id,
               quantity: item.quantity,

@@ -39,6 +39,11 @@ export class OperatorService {
     return this.http.get<Operator[]>(this.apiUrl);
   }
 
+  // GET: el operador con sesión iniciada (el back lo identifica por el token).
+  getMe(): Observable<Operator> {
+    return this.http.get<Operator>(`${this.apiUrl}/me`);
+  }
+
   // GET: obtiene un operador concreto a partir de su identificador.
   getOperatorById(id: number): Observable<Operator> {
     return this.http.get<Operator>(`${this.apiUrl}/${id}`);

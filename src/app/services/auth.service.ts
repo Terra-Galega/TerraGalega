@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
   BehaviorSubject,
@@ -12,28 +12,60 @@ import {
   switchMap,
   timer,
 } from 'rxjs';
+import { CreateClient } from '../models/client';
 
-// Representa la información de la sesión activa en el frontend.
+// Maneja la sesión y el JWT en el front: lo guarda al iniciar sesión, lo entrega
+// al interceptor, revisa si venció y lo borra al cerrar sesión.
+// El front no puede verificar la firma del token (eso lo hace el back);
+// solo lee sus datos para saber si venció y qué rol tiene el usuario.
+
+// Tipos de sesión de la web (el domiciliario usa la app móvil).
+export type SessionType = 'admin' | 'client' | 'operator';
+
+// Datos de la sesión que usa el front para mostrar el nombre y decidir rutas.
 export interface Session {
   id: number;
   name: string;
   lastName: string;
   address?: string;
-  type: 'admin' | 'client' | 'operator';
+  type: SessionType;
 }
 
-// Define los datos que devuelve el backend al iniciar sesión.
+// Respuesta del back al iniciar sesión, registrarse o editar el perfil.
 export interface LoginResponse {
+  token: string;
   id: number;
   name: string;
   lastName: string;
-  address?: string; // Solo los clientes tienen dirección.
   role: string;
 }
 
-// Convierte el rol enviado por el backend en el tipo de sesión del frontend.
-// Devuelve null si el rol no se reconoce.
-function sessionType(role: string): Session['type'] | null {
+// Datos que vienen dentro del JWT.
+interface JwtPayload {
+  sub: string; // correo del usuario
+  roles?: string[];
+  iat: number; // fecha de creación, en segundos
+  exp: number; // fecha de vencimiento, en segundos
+}
+
+// URL del back. El interceptor solo agrega el token a las peticiones hacia aquí.
+export const API_URL = 'http://localhost:8080';
+
+const SESSION_KEY = 'terragalega_session';
+const TOKEN_KEY = 'terragalega_token';
+
+// Cada cuánto se revisa que el token siga vigente y que la cuenta exista.
+const SESSION_CHECK_MS = 15_000;
+
+// Página principal de cada rol.
+const HOME_BY_TYPE: Record<SessionType, string> = {
+  admin: '/admin',
+  operator: '/operator',
+  client: '/account',
+};
+
+// Convierte el rol del back en el tipo de sesión del front.
+function sessionType(role: string | undefined): SessionType | null {
   switch (role) {
     case 'ADMIN':
       return 'admin';
@@ -46,45 +78,39 @@ function sessionType(role: string): Session['type'] | null {
   }
 }
 
-// Clave utilizada para guardar y recuperar la sesión desde el navegador.
-const SESSION_KEY = 'terragalega_session';
-
-// Intervalo entre verificaciones de existencia de la cuenta.
-const SESSION_CHECK_MS = 15_000;
-
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // Servicios necesarios para realizar solicitudes HTTP y navegar entre páginas.
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  // Evita iniciar más de una vez la verificación periódica de la sesión.
+  // Evita iniciar más de una vez la revisión periódica.
   private watching = false;
 
-  // URL base de los endpoints de autenticación del backend.
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = `${API_URL}/auth`;
 
-  // Mantiene la sesión actual y permite recuperarla al recargar la página.
-  // Solo almacena información básica del usuario, nunca su contraseña.
+  // Al recargar la página, la sesión solo se recupera si hay un token vigente.
   private sessionSubject = new BehaviorSubject<Session | null>(
     this.loadSession(),
   );
 
-  // Expone los cambios de sesión como un observable para otros componentes.
   session$ = this.sessionSubject.asObservable();
 
-  // Devuelve la sesión actual.
   get session(): Session | null {
     return this.sessionSubject.value;
   }
 
-  // Indica si existe una sesión activa.
+  // Si el token venció, la sesión se cierra en este momento.
   get isLoggedIn(): boolean {
+    if (this.session && !this.getToken()) {
+      this.logout();
+    }
     return this.session !== null;
   }
 
-  // Envía el correo y la contraseña al backend para iniciar sesión.
-  // La respuesta o el error se gestionan en el componente que realiza la llamada.
+  // =========================
+  // Peticiones de autenticación
+  // =========================
+
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
       email,
@@ -92,18 +118,29 @@ export class AuthService {
     });
   }
 
-  // Crea o actualiza la sesión a partir de los datos del usuario.
-  // Se utiliza después del inicio de sesión, el registro o la edición del perfil.
-  setSession(user: any) {
-    const type = sessionType(user.role);
+  // Registra un cliente y lo deja con la sesión iniciada.
+  signup(client: CreateClient): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/signup`, client);
+  }
 
-    // Si el rol no es reconocido, se elimina la sesión.
-    if (!type) {
-      this.updateSession(null);
+  // =========================
+  // Sesión y token
+  // =========================
+
+  // Crea o actualiza la sesión. Si la respuesta trae un token lo guarda;
+  // si no lo trae, se conserva el que ya había.
+  setSession(user: any) {
+    if (user?.token) {
+      this.saveToken(user.token);
+    }
+
+    const type = sessionType(user?.role);
+
+    if (!type || !this.getToken()) {
+      this.logout();
       return;
     }
 
-    // Guarda los datos necesarios para identificar al usuario en el frontend.
     this.updateSession({
       id: user.id,
       name: user.name,
@@ -113,64 +150,83 @@ export class AuthService {
     });
   }
 
-  // Finaliza la sesión y elimina sus datos guardados.
+  // Devuelve el token solo si existe y no ha vencido.
+  getToken(): string | null {
+    const token = this.readToken();
+    if (!token) {
+      return null;
+    }
+    const payload = this.decode(token);
+    // exp está en segundos y Date.now() en milisegundos
+    if (!payload || payload.exp * 1000 <= Date.now()) {
+      return null;
+    }
+    return token;
+  }
+
+  // Página a la que va cada rol; sin sesión, el inicio.
+  homeRoute(type: SessionType | undefined = this.session?.type): string {
+    return type ? HOME_BY_TYPE[type] : '/home';
+  }
+
+  // Con JWT el servidor no guarda la sesión: basta con borrar el token del navegador.
   logout() {
+    this.removeToken();
     this.updateSession(null);
   }
 
-  // Comprueba periódicamente que la cuenta asociada a la sesión siga existiendo.
-  // También realiza una verificación al iniciar y al volver a la pestaña.
+  // Cada cierto tiempo, y al volver a la pestaña, revisa que el token siga vigente
+  // y que la cuenta exista. Si no, cierra la sesión.
   startSessionWatch() {
-    // Evita crear suscripciones de vigilancia duplicadas.
     if (this.watching) {
       return;
     }
     this.watching = true;
 
-    // Reacciona a los cambios de sesión para iniciar o detener la vigilancia.
     this.session$
       .pipe(
         switchMap((session) => {
-          // Si no hay una sesión activa, no se realizan verificaciones.
           if (!session) {
             return EMPTY;
           }
 
-          // Genera verificaciones periódicas y escucha cuando cambia la visibilidad
-          // de la pestaña del navegador.
           return merge(
             timer(0, SESSION_CHECK_MS),
             fromEvent(document, 'visibilitychange'),
           ).pipe(
-            // Solo verifica la cuenta cuando la pestaña está visible.
             filter(() => document.visibilityState === 'visible'),
-
-            // Consulta al backend para comprobar si la cuenta sigue existiendo.
-            switchMap(() =>
-              this.http
-                .get<{
-                  exists: boolean;
-                }>(`${this.apiUrl}/session/${session.type}/${session.id}`)
-                .pipe(catchError(() => EMPTY)),
-            ),
-
-            // Continúa únicamente cuando el backend indica que la cuenta no existe.
-            filter((response) => response.exists === false),
+            switchMap(() => {
+              if (!this.getToken()) {
+                this.endSession();
+                return EMPTY;
+              }
+              // El back responde 401 si el token no es válido o la cuenta ya no existe
+              return this.http.get(`${this.apiUrl}/me`).pipe(
+                catchError((error: HttpErrorResponse) => {
+                  if (error.status === 401) {
+                    this.endSession();
+                  }
+                  return EMPTY;
+                }),
+              );
+            }),
           );
         }),
       )
-      .subscribe(() => {
-        // Cierra la sesión y redirige al inicio si la cuenta fue eliminada.
-        this.logout();
-        this.router.navigate(['/home'], { replaceUrl: true });
-      });
+      .subscribe();
   }
 
-  // Centraliza las actualizaciones de la sesión y notifica a sus suscriptores.
+  // =========================
+  // Privados
+  // =========================
+
+  private endSession() {
+    this.logout();
+    this.router.navigate(['/login'], { replaceUrl: true });
+  }
+
   private updateSession(session: Session | null) {
     this.sessionSubject.next(session);
-
-    // Persiste la sesión en el navegador o elimina los datos si se cerró.
     try {
       if (session) {
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));
@@ -182,23 +238,67 @@ export class AuthService {
     }
   }
 
-  // Recupera la sesión almacenada y valida sus datos básicos.
+  // Recupera la sesión guardada solo si hay un token vigente y el rol coincide
+  // con el del token (así no sirve editar el localStorage a mano).
   private loadSession(): Session | null {
     try {
-      const raw = localStorage.getItem(SESSION_KEY);
+      const token = this.getToken();
+      if (!token) {
+        localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+        return null;
+      }
 
-      // Si no existe información guardada, no hay una sesión que recuperar.
+      const raw = localStorage.getItem(SESSION_KEY);
       if (!raw) return null;
 
       const parsed = JSON.parse(raw);
+      const tokenType = sessionType(this.decode(token)?.roles?.[0]);
 
-      // Comprueba que el tipo de usuario sea válido y que el identificador sea numérico.
-      const validType = ['admin', 'client', 'operator'].includes(parsed?.type);
+      const valid =
+        tokenType !== null &&
+        parsed?.type === tokenType &&
+        typeof parsed.id === 'number';
 
-      return validType && typeof parsed.id === 'number' ? parsed : null;
+      return valid ? parsed : null;
     } catch {
-      // Si los datos no se pueden leer o interpretar, devuelve una sesión vacía.
       return null;
     }
+  }
+
+  // Lee los datos del JWT (la parte del medio, en Base64URL). No verifica la firma.
+  private decode(token: string): JwtPayload | null {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join(''),
+      );
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
+  private readToken(): string | null {
+    try {
+      return localStorage.getItem(TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  private saveToken(token: string) {
+    try {
+      localStorage.setItem(TOKEN_KEY, token);
+    } catch {}
+  }
+
+  private removeToken() {
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+    } catch {}
   }
 }

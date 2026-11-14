@@ -20,7 +20,6 @@ export class ErrorComponent {
   // Información del rol y del panel al que pertenece el usuario autenticado
   isAdmin = false;
   isOperator = false;
-  panelId: number | null = null;
 
   constructor(
     private router: Router,
@@ -32,7 +31,6 @@ export class ErrorComponent {
 
     this.isAdmin = session?.type === 'admin';
     this.isOperator = session?.type === 'operator';
-    this.panelId = session?.id ?? null;
 
     // Obtiene el mensaje de error desde los parámetros de la URL o los datos de la ruta
     const message =
@@ -59,7 +57,7 @@ export class ErrorComponent {
 
   // Redirige al panel correspondiente según el rol del usuario
   goToPanel() {
-    this.router.navigate([this.isAdmin ? '/admin' : '/operator', this.panelId]);
+    this.router.navigate([this.isAdmin ? '/admin' : '/operator']);
   }
 
   // Redirige a la página principal del sitio

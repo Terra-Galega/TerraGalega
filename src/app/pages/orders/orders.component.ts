@@ -82,13 +82,13 @@ export class OrdersComponent implements OnInit {
     }
 
     this.isLoggedIn = true;
-    this.watchOrders(session.id);
+    this.watchOrders();
   }
 
   // Carga los pedidos al abrir, los actualiza cada REFRESH_MS, al volver a la
   // pestaña y cuando se pide recargar. Así, cuando el operador cambia el estado
   // de un pedido, se ve sin recargar la página.
-  private watchOrders(clientId: number): void {
+  private watchOrders(): void {
     // Tres disparadores: temporizador periódico, cambio de visibilidad de la pestaña y recarga manual.
     merge(
       timer(0, REFRESH_MS),
@@ -98,7 +98,7 @@ export class OrdersComponent implements OnInit {
       .pipe(
         filter(() => document.visibilityState === 'visible'),
         switchMap(() =>
-          this.orderService.getOrdersByClient(clientId).pipe(
+          this.orderService.getMyOrders().pipe(
             catchError((error) => {
               this.handleLoadError(error);
               return EMPTY; // se queda la lista que ya se veía
@@ -139,8 +139,8 @@ export class OrdersComponent implements OnInit {
   }
 
   // Carga única de pedidos.
-  loadOrders(clientId: number) {
-    this.orderService.getOrdersByClient(clientId).subscribe({
+  loadOrders() {
+    this.orderService.getMyOrders().subscribe({
       next: (orders) => {
         this.orders = orders;
         this.loading = false;

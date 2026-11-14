@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
@@ -35,7 +35,6 @@ import { AddressListComponent } from './components/address-list/address-list.com
 export class AccountComponent implements OnInit {
   //Injextar los servicios que se van a usar
   private clientService = inject(ClientService);
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
@@ -56,9 +55,8 @@ export class AccountComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    //traer el cliente
-    this.clientService.getClientById(id).subscribe({
+    //traer el cliente (el back lo identifica por el token)
+    this.clientService.getMe().subscribe({
       next: (client) => {
         this.client = client;
       },
@@ -75,7 +73,7 @@ export class AccountComponent implements OnInit {
       return;
     }
 
-    this.router.navigate(['/account', this.client.id, 'edit']);
+    this.router.navigate(['/account', 'edit']);
   }
   //cerrar sesion
   logout() {
@@ -102,7 +100,7 @@ export class AccountComponent implements OnInit {
 
     this.showDeleteModal = false;
     // MANDAR AL SERVICE -> BACKK  a  borrar 
-    this.clientService.deleteClient(this.client.id).subscribe({
+    this.clientService.deleteMe().subscribe({
       next: () => {
         this.auth.logout();
         this.toast.show('Cuenta eliminada correctamente');

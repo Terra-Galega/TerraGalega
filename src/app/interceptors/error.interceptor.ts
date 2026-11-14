@@ -5,11 +5,10 @@ import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { getErrorMessage } from '../utils/http-error';
 
-/*
-Estas peticiones muestran su propio error en pantalla: un 401 en el login
-significa "contraseña incorrecta" y la revisión de
-sesión se repite cada pocos segundos.*/ 
-const IGNORED_URLS = ['/auth/login', '/auth/session'];
+// Peticiones cuyo error NO maneja este interceptor:
+// /auth/login: un 401 significa "contraseña incorrecta" (lo muestra el formulario).
+// /auth/me: la revisión periódica maneja su propio 401 en AuthService.
+const IGNORED_URLS = ['/auth/login', '/auth/me'];
 
 // Atiende en un solo lugar los errores que ninguna pantalla debería resolver
 // sola: 401 cierra la sesión y 403 lleva a la página de error.

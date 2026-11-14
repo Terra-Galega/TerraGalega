@@ -49,7 +49,7 @@ export class OperatorComponent {
     this.operatorName = `${session.name} ${session.lastName}`.trim();
 
     // Solicita al servicio la información del operador utilizando su identificador.
-    this.operatorService.getOperatorById(session.id).subscribe({
+    this.operatorService.getMe().subscribe({
       next: (operator) => (this.operatorUsername = operator.username),
       error: (error) => {
         console.error('Error cargando el operador:', error);

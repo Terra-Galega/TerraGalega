@@ -1,6 +1,390 @@
-<!--Barra de navegación-->
 <app-navbar />
-<!--Contenido de reservas (pendiente)-->
-<main class="min-h-screen pt-32 pb-28 max-w-6xl mx-auto px-6"></main>
-<!--Barra de footer-->
+
+<main class="reservations-page min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8">
+  <!-- Encabezado con el mismo estilo que la carta y el resto de páginas -->
+  <app-page-header eyebrow="Tu visita" title="Reserva tu mesa" />
+
+  <!-- Filtros de la visita: al cambiar fecha, hora o comensales se recalcula el estado de cada mesa
+       y se quita la mesa seleccionada (changeDate, changeTime, changeParty). -->
+  <div class="reservation-filters" role="group" aria-label="Datos de la visita">
+    <label>
+      <span>Fecha</span>
+      <input type="date" required [min]="today" [value]="date" (input)="changeDate($any($event.target).value)" />
+    </label>
+    <label>
+      <span>Hora</span>
+      <select (change)="changeTime($any($event.target).value)">
+        @for (option of times; track option) {
+        <option [value]="option" [selected]="option === time">{{ option }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Comensales</span>
+      <select (change)="changeParty($any($event.target).value)">
+        @for (option of parties; track option) {
+        <option [value]="option" [selected]="option === party">{{ partyLabel(option) }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <!-- Dos columnas: el plano a la izquierda y el resumen "Tu mesa" a la derecha (una sola en móvil). -->
+  <div class="reservation-layout">
+    <section class="map-card" aria-labelledby="map-heading">
+      <!-- Título del plano y selector de piso (la píldora verde se desliza con data-floor). -->
+      <header class="map-heading">
+        <div>
+          <h2 id="map-heading">Plano del restaurante</h2>
+          <p aria-live="polite">{{ floorNames[floor] }}</p>
+        </div>
+        <div class="floor-control" role="group" aria-label="Cambiar de piso" [attr.data-floor]="floor">
+          @for (option of floors; track option) {
+          <button type="button" [attr.aria-pressed]="floor === option" (click)="changeFloor(option)">
+            Piso {{ option }}
+          </button>
+          }
+        </div>
+      </header>
+
+      <!-- PLANO
+           El plano tiene dos capas, una por piso, apiladas en el mismo sitio. Cada capa tiene:
+           1. Un SVG con la arquitectura (muros, escalera, barra, salas, ventanales...) en un viewBox
+              de 900 x 800.
+           2. Encima, un botón por mesa colocado con left/top en porcentaje (x / 9 y y / 8), así las
+              mesas siguen alineadas con el dibujo al cambiar el tamaño de la pantalla.
+           En pantallas estrechas el plano mantiene un ancho mínimo y se desplaza en horizontal. -->
+      <div class="map-viewport" tabindex="0" aria-label="Plano desplazable">
+        <div class="plan">
+          <!-- Piezas reutilizables (contornos, texturas e iconos) que las capas usan con <use> o url(#...). -->
+          <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+            <defs>
+              <!-- Contorno completo del edificio y suelo del comedor de cada piso -->
+              <path id="shell" d="M40 30H600L860 300V780H600V610H40Z" />
+              <path id="dining-1" d="M40 30H600L860 300V780H600V530L476 400H40Z" />
+              <path id="dining-2" d="M40 30H600L860 300V780H600V530L380 300H40Z" />
+              <pattern id="flagstone" width="44" height="44" patternUnits="userSpaceOnUse">
+                <path d="M0 .5H44M.5 0V44" fill="none" stroke="#e8dec9" stroke-width="1" />
+              </pattern>
+              <pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse">
+                <rect width="10" height="10" fill="#f1e9d9" />
+                <path d="M-2 2l4-4M0 10L10 0M8 12l4-4" stroke="#dacfb9" stroke-width="1.2" />
+              </pattern>
+              <!-- Rayado suave de las mesas reservadas -->
+              <pattern id="busy" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="8" height="8" fill="#e8e2d6" />
+                <path d="M0 0V8" stroke="#d6cdbd" stroke-width="3.5" />
+              </pattern>
+              <!-- Suelo de madera del balcón -->
+              <pattern id="deck" width="40" height="14" patternUnits="userSpaceOnUse">
+                <rect width="40" height="14" fill="#eadbbd" />
+                <path d="M0 13.5H40M20 0V14" stroke="#d6c39d" stroke-width="1" />
+              </pattern>
+              <!-- Distintivo de mesa reservada: candado -->
+              <symbol id="lock-badge" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10.5" fill="#8d7c64" stroke="#fdfbf7" stroke-width="2" />
+                <path d="M9 11.2V9.4a3 3 0 0 1 6 0v1.8" fill="none" stroke="#fff" stroke-width="1.7"
+                  stroke-linecap="round" />
+                <rect x="7.6" y="11" width="8.8" height="6.6" rx="1.8" fill="#fff" />
+              </symbol>
+              <!-- Distintivo de mesa seleccionada -->
+              <symbol id="check-badge" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10.5" fill="#fff" stroke="#83390f" stroke-width="1.5" />
+                <path d="m7.6 12.4 3 3 5.8-6.4" fill="none" stroke="#b2571f" stroke-width="2.4"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </symbol>
+            </defs>
+          </svg>
+
+          <!-- Una capa por piso: solo la activa es visible e interactiva; la otra queda inerte y
+               se desplaza hacia arriba o abajo con la animación de cambio de piso. -->
+          @for (level of floors; track level) {
+          <div class="level" [class.active]="level === floor" [class.below]="level < floor"
+            [class.above]="level > floor" [attr.inert]="level === floor ? null : ''">
+            <!-- Arquitectura del piso: es decorativa (aria-hidden); lo interactivo son los botones de mesa. -->
+            <svg class="architecture" viewBox="0 0 900 800" aria-hidden="true">
+              <use href="#shell" class="drop" transform="translate(7 9)" />
+              <use href="#shell" fill="url(#hatch)" />
+              <use [attr.href]="'#dining-' + level" class="floor-fill" />
+              <use [attr.href]="'#dining-' + level" fill="url(#flagstone)" />
+
+              <!-- Escalera con una flecha recta que indica el sentido -->
+              <path class="partition" d="M140 40V292" />
+              <rect class="stair-box" x="54" y="58" width="76" height="230" rx="4" />
+              <path class="stair-steps"
+                d="M54 72h76M54 88h76M54 104h76M54 120h76M54 136h76M54 152h76M54 168h76M54 184h76M54 200h76M54 216h76M54 232h76M54 248h76M54 264h76M54 280h76" />
+              @if (level === 1) {
+              <path class="stair-trail" d="M92 236V116" />
+              <path class="stair-flow" d="M92 236V116" />
+              <path class="stair-head" d="M80 114 92 90 104 114Q92 107 80 114Z" />
+              <text class="plan-label" x="92" y="49" text-anchor="middle">Subir</text>
+              } @else {
+              <path class="stair-trail" d="M92 106V234" />
+              <path class="stair-flow" d="M92 106V234" />
+              <path class="stair-head" d="M80 232 92 256 104 232Q92 239 80 232Z" />
+              <text class="plan-label" x="92" y="49" text-anchor="middle">Bajar</text>
+              }
+
+              @if (level === 1) {
+              <!-- Baños -->
+              <rect fill="url(#hatch)" x="40" y="300" width="100" height="100" />
+              <path class="inner-wall" d="M40 300H140V330M140 370V400" />
+              <rect class="service-item" x="56" y="318" width="22" height="22" rx="6" />
+              <rect class="service-item" x="96" y="318" width="22" height="22" rx="6" />
+              <text class="plan-label" x="88" y="372" text-anchor="middle">Baños</text>
+
+              <!-- Barra en el comedor, con los taburetes hacia la sala -->
+              @for (stool of [185, 225, 265, 305, 345, 385, 425]; track stool) {
+              <circle class="stool" [attr.cx]="stool" cy="346" r="7.5" />
+              }
+              <rect class="bar" x="160" y="364" width="290" height="26" rx="13" />
+              <text class="counter-label" x="305" y="381" text-anchor="middle">Barra libre, sin reserva</text>
+
+              <!-- Cocina: solo el nombre -->
+              <path class="inner-wall" d="M40 400H476L600 530V610" />
+              <text class="room-name" x="300" y="515" text-anchor="middle">Cocina</text>
+
+              <text class="plan-label" x="796" y="124" text-anchor="end">Entrada</text>
+
+              <!-- Recepción: un solo círculo -->
+              <circle class="reception" cx="704" cy="204" r="20" />
+              <text class="plan-label" x="684" y="244" text-anchor="middle">Recepción</text>
+
+              <text class="plan-label" x="370" y="19" text-anchor="middle">Ventanales</text>
+              <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">Ventanales</text>
+              <text class="plan-label muted" x="400" y="218" text-anchor="middle">Salón principal</text>
+              <text class="plan-label muted" x="690" y="516" text-anchor="middle">Salón lateral</text>
+              } @else {
+              <!-- Salas de celebración separadas del comedor -->
+              <path class="room-floor" d="M40 300H380L504 430H40Z" />
+              <path class="room-floor" d="M40 430H504L600 530V560H40Z" />
+              <path class="celebration-room" d="M40 300H380L504 430H40Z" />
+              <path class="celebration-room" d="M40 430H504L600 530V560H40Z" />
+              <path class="inner-wall" d="M40 300H380L418 340M457 381L546 474M581 511L600 530V610" />
+              <path class="inner-wall" d="M40 430H504M40 560H600M140 560V610" />
+              <text class="room-label" x="470" y="421" text-anchor="end">Sala 1</text>
+              <text class="room-label" x="584" y="551" text-anchor="end">Sala 2</text>
+
+              <!-- Servicio y baños en la franja inferior -->
+              <text class="plan-label" x="90" y="590" text-anchor="middle">Baños</text>
+              <text class="plan-label" x="370" y="590" text-anchor="middle">Servicio</text>
+
+              <!-- Balcón: terraza exterior con otro suelo, separada del salón por el ventanal (línea azul) -->
+              <path class="balcony-zone" fill="url(#deck)" d="M140 34H602L856 297V776H765V338L560 125H140Z" />
+              <path class="rail-band" d="M150 42H599L851 303.5V766" />
+              <path class="rail" d="M150 42H599L851 303.5V766" />
+              <path class="rail-posts" d="M150 42H599L851 303.5V766" />
+              <!-- Ventanal con dos salidas al balcón -->
+              <path class="windows" d="M144 125H328M372 125H560L765 338V432M765 484V772" />
+              <path class="glass" d="M144 125H328M372 125H560L765 338V432M765 484V772" />
+              <path class="balcony-door" d="M328 125h44M765 432v52" />
+              <text class="plan-label exit-label" x="350" y="146" text-anchor="middle">Salida</text>
+              <text class="plan-label exit-label" transform="translate(748 458) rotate(-90)"
+                text-anchor="middle">Salida</text>
+              <text class="plan-label balcony-tag" transform="translate(154 80) rotate(-90)"
+                text-anchor="middle">Balcón</text>
+              <text class="plan-label" x="370" y="19" text-anchor="middle">Balcón</text>
+              <text class="plan-label" transform="translate(742 152) rotate(46)" text-anchor="middle">Balcón</text>
+              <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">Balcón</text>
+              <text class="plan-label muted" transform="translate(154 214) rotate(-90)" text-anchor="middle">Salón
+                alto</text>
+              <text class="plan-label muted" transform="translate(620 500) rotate(-90)"
+                text-anchor="middle">Galería</text>
+              }
+
+              <use href="#shell" class="wall-outer" />
+              <use href="#shell" class="wall-inner" />
+              @if (level === 1) {
+              <!-- Ventanales: líneas azules sobre el borde del local, con el hueco de la entrada -->
+              <path class="entry-gap" d="M713 147L759 195" />
+              <path class="windows" d="M150 30H600L713 147M759 195L860 300V780" />
+              <path class="glass" d="M150 30H600L713 147M759 195L860 300V780" />
+              }
+
+              <text class="cartouche-title" x="64" y="708">Terra Galega</text>
+              @if (level === 1) {
+              <text class="cartouche-sub" x="64" y="732">Planta primera, plano de sala</text>
+              } @else {
+              <text class="cartouche-sub" x="64" y="732">Planta segunda, plano de sala</text>
+              }
+              <path class="cartouche-rule" d="M64 748h190M64 742v12M254 742v12" />
+              <g transform="translate(470 712)">
+                <circle class="compass-ring" r="27" />
+                <path class="compass-star" d="M0 -23L5 0 0 23-5 0ZM-23 0L0 5 23 0 0-5Z" />
+                <text class="plan-label" y="-35" text-anchor="middle">N</text>
+              </g>
+            </svg>
+
+            <!-- MESAS
+                 Cada mesa es un botón con su propio SVG. Hay tres dibujos:
+                 - Mesa de celebración (special): mesa larga con las sillas elegidas en "Tu mesa".
+                 - Mesa de arco (booth): sofá curvo girado para que el respaldo toque la pared.
+                 - Mesa rectangular: 2, 4 o 6 sillas según sus puestos; puede girarse (rotate).
+                 Las clases occupied / small cambian el aspecto, y el candado o el check se
+                 dibujan con los símbolos #lock-badge y #check-badge. -->
+            @for (table of tablesOf(level); track table.number) {
+            @let state = stateOf(table);
+            <button type="button" class="table-marker" [class.special]="table.special"
+              [class.booth]="table.booth !== undefined" [class.occupied]="state === 'occupied'"
+              [class.small]="state === 'small'" [style.left.%]="table.x / 9" [style.top.%]="table.y / 8"
+              [attr.aria-disabled]="state !== 'available'" [attr.aria-pressed]="selected === table"
+              [attr.aria-label]="labelOf(table, level, state)" (click)="selectTable(table)">
+              @if (table.special) {
+              <svg viewBox="0 0 260 84" aria-hidden="true">
+                @for (chair of chairsOf(table); track $index) {
+                <rect class="chair" [attr.x]="chair.x" [attr.y]="chair.y" width="18" height="14" rx="5" />
+                }
+                <rect class="tabletop" x="14" y="20" width="232" height="44" rx="14" />
+                <text class="special-title" x="122" y="38" text-anchor="middle">Mesa de celebración</text>
+                <text class="special-sub" x="122" y="54" text-anchor="middle">{{ seatsOf(table) }} puestos</text>
+                @if (state === 'occupied') {
+                <use href="#lock-badge" x="216" y="30" width="24" height="24" />
+                } @else if (selected === table) {
+                <use href="#check-badge" x="216" y="30" width="24" height="24" />
+                }
+              </svg>
+              } @else if (table.booth !== undefined) {
+              <!-- Mesa de arco: sofá curvo contra la pared, mesa redonda y dos sillas -->
+              <svg viewBox="0 0 88 88" aria-hidden="true">
+                <g [attr.transform]="'rotate(' + table.booth + ' 44 44)'">
+                  <path class="arch" d="M2 44A42 42 0 0 1 86 44" />
+                  <path class="sofa" d="M6 44A38 38 0 0 1 82 44H71A27 27 0 0 0 17 44Z" />
+                  <rect class="chair" x="27" y="67" width="14" height="11" rx="4" />
+                  <rect class="chair" x="47" y="67" width="14" height="11" rx="4" />
+                </g>
+                <circle class="tabletop" cx="44" cy="44" r="18" />
+                <text x="44" y="45" text-anchor="middle" dominant-baseline="middle">{{ table.number }}</text>
+                @if (state === 'occupied') {
+                <use href="#lock-badge" x="60" y="22" width="22" height="22" />
+                } @else if (selected === table) {
+                <use href="#check-badge" x="60" y="22" width="22" height="22" />
+                }
+              </svg>
+              } @else {
+              <svg viewBox="0 0 88 76" aria-hidden="true">
+                <g [attr.transform]="table.rotate ? 'rotate(' + table.rotate + ' 44 38)' : null">
+                @if (table.seats === 6) {
+                <rect class="chair" x="20" y="2" width="16" height="11" rx="4" />
+                <rect class="chair" x="52" y="2" width="16" height="11" rx="4" />
+                <rect class="chair" x="20" y="63" width="16" height="11" rx="4" />
+                <rect class="chair" x="52" y="63" width="16" height="11" rx="4" />
+                } @else {
+                <rect class="chair" x="36" y="2" width="16" height="11" rx="4" />
+                <rect class="chair" x="36" y="63" width="16" height="11" rx="4" />
+                }
+                @if (table.seats >= 4) {
+                <rect class="chair" x="6" y="31" width="11" height="14" rx="4" />
+                <rect class="chair" x="71" y="31" width="11" height="14" rx="4" />
+                }
+                <rect class="tabletop" x="19" y="16" width="50" height="44" rx="14" />
+                </g>
+                <text x="44" y="39" text-anchor="middle" dominant-baseline="middle">{{ table.number }}</text>
+                @if (state === 'occupied') {
+                <use href="#lock-badge" x="56" y="6" width="22" height="22" />
+                } @else if (selected === table) {
+                <use href="#check-badge" x="56" y="6" width="22" height="22" />
+                }
+              </svg>
+              }
+            </button>
+            }
+
+            <!-- Zona clicable sobre la escalera: lleva al otro piso y muestra un aviso al pasar el ratón. -->
+            <button type="button" class="stairs" [attr.aria-label]="stairLabel(level)"
+              (click)="changeFloor(level === 1 ? 2 : 1)">
+              <span class="tip">{{ stairLabel(level) }}</span>
+            </button>
+          </div>
+          }
+        </div>
+      </div>
+      <p class="pan-hint">Desliza horizontalmente para recorrer el plano.</p>
+
+      <!-- Leyenda: explica colores e iconos; la muestra de "Balcón" solo aparece en el piso 2. -->
+      <ul class="legend" aria-label="Leyenda del plano">
+        <li><span class="key free" aria-hidden="true"></span> Disponible</li>
+        <li>
+          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#check-badge" /></svg>
+          Seleccionada
+        </li>
+        <li>
+          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#lock-badge" /></svg>
+          Reservada
+        </li>
+        <li><span class="key too-small" aria-hidden="true"></span> Cupo insuficiente</li>
+        <li>
+          <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="key-sofa" d="M3 15A9 9 0 0 1 21 15H18A6 6 0 0 0 6 15Z" />
+            <circle class="key-table" cx="12" cy="15" r="4" />
+          </svg>
+          Mesa de arco (máx. {{ boothSeats }})
+        </li>
+        <li><span class="key edge" aria-hidden="true"></span> Ventanal</li>
+        @if (floor === 2) {
+        <li><span class="key deck" aria-hidden="true"></span> Balcón</li>
+        }
+      </ul>
+    </section>
+
+    <!-- RESUMEN "Tu mesa": datos de la mesa elegida, sillas de las mesas de celebración y botón de reserva.
+         aria-live hace que los lectores de pantalla anuncien los cambios. -->
+    <aside class="summary-card" aria-labelledby="selection-heading">
+      <h2 id="selection-heading">Tu mesa</h2>
+      <div class="summary-body" aria-live="polite">
+        @if (selected; as table) {
+        <p class="table-title">{{ nameOf(table) }}</p>
+        <dl>
+          <div>
+            <dt>Ubicación</dt>
+            <dd>Piso {{ floor }} - {{ table.area }}</dd>
+          </div>
+          @if (table.booth !== undefined) {
+          <div>
+            <dt>Tipo</dt>
+            <dd>Mesa de arco, {{ placeOf(table, floor).toLowerCase() }}</dd>
+          </div>
+          <div>
+            <dt>Capacidad máxima</dt>
+            <dd>{{ boothSeats }} personas</dd>
+          </div>
+          } @else {
+          <div>
+            <dt>Capacidad</dt>
+            <dd>{{ seatsOf(table) }} puestos</dd>
+          </div>
+          }
+          <div>
+            <dt>Hora y grupo</dt>
+            <dd>{{ time }} - {{ partyLabel(party) }}</dd>
+          </div>
+        </dl>
+        @if (table.booth !== undefined) {
+        <p class="note highlight">La capacidad máxima de esta mesa es de {{ boothSeats }} personas.</p>
+        }
+        @if (table.special) {
+        <div class="seat-stepper" role="group" aria-label="Sillas de la mesa">
+          <span>Sillas</span>
+          <button type="button" aria-label="Quitar una silla" [disabled]="seatsOf(table) <= specialMin"
+            (click)="adjustSeats(table, -1)">−</button>
+          <output aria-live="polite">{{ seatsOf(table) }}</output>
+          <button type="button" aria-label="Añadir una silla" [disabled]="seatsOf(table) >= maxSeats"
+            (click)="adjustSeats(table, 1)">+</button>
+        </div>
+        <p class="note">Sala privada para grupos de {{ minSeats }} a {{ maxSeats }} personas.</p>
+        }
+        } @else {
+        <p>Selecciona una mesa disponible en el plano para ver su ubicación y capacidad.</p>
+        }
+      </div>
+      <button class="reserve-button" type="button" [disabled]="!canReserve" (click)="reserve()">
+        Reservar mesa
+      </button>
+      @if (!date || date < today) {
+      <p class="note" role="status">Elige la fecha de hoy o una posterior.</p>
+      }
+      <p class="feedback" role="status" [hidden]="!feedback">{{ feedback }}</p>
+    </aside>
+  </div>
+</main>
+
 <app-footer />

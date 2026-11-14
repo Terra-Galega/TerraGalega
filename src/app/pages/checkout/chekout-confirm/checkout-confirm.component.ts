@@ -173,7 +173,7 @@ export class CheckoutConfirmComponent implements OnInit {
     }
 
     this.couponService
-      .validateCoupon(coupon.code, this.clientId, this.total)
+      .validateCoupon(coupon.code, this.total)
       .subscribe({
         next: (result) => {
           this.setCoupon(result);
@@ -215,7 +215,6 @@ export class CheckoutConfirmComponent implements OnInit {
 
     this.serverError = '';
 
-    const clientId = this.clientId;
     const address = this.draft.address;
     const saveAddress = this.draft.saveAddress;
     const addressName = this.draft.addressName;
@@ -239,13 +238,13 @@ export class CheckoutConfirmComponent implements OnInit {
 
     // timer espera y luego switchMap lanza la petición real de checkout
     timer(wait)
-      .pipe(switchMap(() => this.checkoutService.checkout(clientId, request)))
+      .pipe(switchMap(() => this.checkoutService.checkout(request)))
       .subscribe({
         // Éxito: se guarda la dirección nueva (si se pidió), se vacía el carrito,
         // se limpia el borrador y se redirige a /orders (paid=true muestra el aviso verde)
         next: () => {
           if (saveAddress) {
-            this.saveNewAddress(clientId, address, addressName);
+            this.saveNewAddress(address, addressName);
           }
 
           this.cartService.clear();
@@ -297,13 +296,9 @@ export class CheckoutConfirmComponent implements OnInit {
 
   // Agrega la dirección nueva a las del cliente. Sin nombre, el back la llama "Casa".
   // Si falla (por ejemplo, ya estaba guardada), el pedido ya está creado y no se avisa de error.
-  private saveNewAddress(
-    clientId: number,
-    address: string,
-    name: string,
-  ): void {
+  private saveNewAddress(address: string, name: string): void {
     this.addressService
-      .addAddress(clientId, { label: address, name: name || undefined })
+      .addAddress({ label: address, name: name || undefined })
       .subscribe({
         error: (error) =>
           console.error('No se pudo guardar la dirección en el perfil:', error),

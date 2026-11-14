@@ -13,9 +13,9 @@ export class CheckoutService {
     constructor(private http: HttpClient) {}
 
     // Crea el pedido del cliente con la dirección y los productos del carrito.
-    // El clientId viaja como parámetro de la URL y el resto en el cuerpo.
+    // El back identifica al cliente por el token.
     // El servidor responde 201 sin cuerpo: solo importa si el pedido se creó
-    checkout(clientId: number, request: CheckoutRequest): Observable<void> {
-        return this.http.post<void>(this.apiUrl, request, { params: { clientId } });
+    checkout(request: CheckoutRequest): Observable<void> {
+        return this.http.post<void>(this.apiUrl, request);
     }
 }

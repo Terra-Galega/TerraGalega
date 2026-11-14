@@ -119,7 +119,7 @@ export class CheckoutComponent implements OnInit {
     this.form.patchValue({ ...this.draftService.draft });
 
     // Direcciones guardadas del cliente; si la carga falla, igual puede escribir una
-    this.addressService.getAddresses(session.id).subscribe({
+    this.addressService.getAddresses().subscribe({
       next: (addresses) => this.setAddresses(addresses),
       error: (error) => {
         console.error('Error cargando direcciones:', error);

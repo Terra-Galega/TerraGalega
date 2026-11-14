@@ -53,27 +53,23 @@ export class CouponService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // Cupones personales del cliente con su estado (para "Mis cupones")
-  getClientCoupons(clientId: number): Observable<ClientCoupon[]> {
-    return this.http.get<ClientCoupon[]>(`${this.apiUrl}/client/${clientId}/all`);
+  // Cupones del cliente con sesión iniciada y su estado (para "Mis cupones")
+  getClientCoupons(): Observable<ClientCoupon[]> {
+    return this.http.get<ClientCoupon[]>(`${this.apiUrl}/me/all`);
   }
 
   // Cupones (personales y generales) que el cliente puede usar ahora mismo
   // (para el selector del checkout)
-  getAvailableCoupons(clientId: number): Observable<Coupon[]> {
-    return this.http.get<Coupon[]>(`${this.apiUrl}/client/${clientId}`);
+  getAvailableCoupons(): Observable<Coupon[]> {
+    return this.http.get<Coupon[]>(`${this.apiUrl}/me`);
   }
 
   // Comprueba un código y devuelve cuánto descontaría sobre el subtotal. Es solo
   // para mostrarlo antes de pagar: el back vuelve a validar al confirmar el pedido.
   // Si el cupón no sirve, responde con un error cuyo mensaje explica el motivo.
-  validateCoupon(
-    code: string,
-    clientId: number,
-    subtotal: number,
-  ): Observable<CouponDiscount> {
+  validateCoupon(code: string, subtotal: number): Observable<CouponDiscount> {
     return this.http.get<CouponDiscount>(`${this.apiUrl}/validate`, {
-      params: { code, clientId, subtotal },
+      params: { code, subtotal },
     });
   }
 

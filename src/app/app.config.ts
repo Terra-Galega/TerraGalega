@@ -2,6 +2,7 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './interceptors/error.interceptor';
+import { authInterceptor } from './interceptors/auth.interceptor';
 import { routes } from './app.routes';
 import {
   ArcElement,
@@ -30,8 +31,9 @@ export const appConfig: ApplicationConfig = {
       // al cambiar de página siempre se empieza desde arriba
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
     ),
-    // Activa HttpClient para consumir la API y le añade el interceptor de errores a todas las peticiones.
-    provideHttpClient(withInterceptors([errorInterceptor])),
+    // Activa HttpClient para consumir la API con dos interceptores, que se ejecutan en orden:
+    // authInterceptor agrega el JWT a cada petición; errorInterceptor maneja los 401/403.
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     // Chart.js: se registran solo las piezas que usa el dashboard (barras, líneas,
     // dona, ejes y tooltip) para no cargar toda la librería en el bundle.
     provideCharts({

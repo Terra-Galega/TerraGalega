@@ -56,7 +56,7 @@ export class CheckoutCouponComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     // Si falla la carga, igual puede escribir el código a mano
-    this.couponService.getAvailableCoupons(this.clientId).subscribe({
+    this.couponService.getAvailableCoupons().subscribe({
       next: (coupons) => (this.available = coupons),
       error: (error) => console.error('Error cargando cupones:', error),
     });
@@ -105,7 +105,7 @@ export class CheckoutCouponComponent implements OnInit, OnChanges {
     this.error = '';
 
     this.couponService
-      .validateCoupon(code, this.clientId, this.subtotal)
+      .validateCoupon(code, this.subtotal)
       .subscribe({
         next: (result) => {
           this.applying = false;
@@ -148,7 +148,7 @@ export class CheckoutCouponComponent implements OnInit, OnChanges {
     const code = this.current.code;
 
     this.couponService
-      .validateCoupon(code, this.clientId, this.subtotal)
+      .validateCoupon(code, this.subtotal)
       .subscribe({
         next: (result) => {
           this.current = result;

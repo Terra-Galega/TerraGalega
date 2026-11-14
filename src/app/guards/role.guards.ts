@@ -1,94 +1,65 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthService, SessionType } from '../services/auth.service';
 
-// Páginas generales: impide que administradores y operadores accedan a áreas que no les corresponden.
+// Los guards deciden si se puede entrar a una ruta o a dónde redirigir.
+// Solo controlan lo que se muestra en el front; los permisos reales los valida
+// el back con el token en cada petición.
+
+// Inicio y login: si ya hay una sesión, se va directo a la página del rol.
+export const redirectByRoleGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  if (auth.isLoggedIn) {
+    return router.createUrlTree([auth.homeRoute()]);
+  }
+
+  return true;
+};
+
+// Páginas públicas (menú, nosotros, pedidos, checkout...): cualquiera entra,
+// pero el admin y el operador se mandan a su propio panel.
 export const clientAreaGuard: CanActivateFn = () => {
-  // Obtiene el servicio de autenticación y el enrutador.
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  // Consulta la sesión activa para determinar el tipo de usuario.
-  const session = auth.session;
-
-  // Redirige al administrador a su propio panel.
-  if (session && session.type === 'admin') {
-    return router.createUrlTree(['/admin', session.id]);
+  if (!auth.isLoggedIn) {
+    return true;
   }
 
-  // Redirige al operador a su propio panel.
-  if (session && session.type === 'operator') {
-    return router.createUrlTree(['/operator', session.id]);
-  }
-
-  // Permite el acceso si no se requiere una redirección.
-  return true;
-};
-
-// Protege el panel de administración y restringe el acceso a su propietario.
-export const adminGuard: CanActivateFn = (route) => {
-  // Obtiene los servicios necesarios para validar la sesión y redirigir.
-  const auth = inject(AuthService);
-  const router = inject(Router);
-
-  // Consulta la sesión activa.
-  const session = auth.session;
-
-  // Si no hay sesión o el usuario no es administrador, lo envía al inicio de sesión.
-  if (!session || session.type !== 'admin') {
-    return router.createUrlTree(['/login']);
-  }
-
-  // Si el identificador de la ruta no coincide con el del administrador autenticado,
-  // lo redirige a su propio panel.
-  if (Number(route.paramMap.get('id')) !== session.id) {
-    return router.createUrlTree(['/admin', session.id]);
-  }
-
-  // Permite el acceso al panel correspondiente.
-  return true;
-};
-
-// Protege el panel del operador y restringe el acceso a su propietario.
-export const operatorGuard: CanActivateFn = (route) => {
-  // Obtiene los servicios de autenticación y navegación.
-  const auth = inject(AuthService);
-  const router = inject(Router);
-
-  // Consulta la sesión activa.
-  const session = auth.session;
-
-  // Si no hay sesión o el usuario no es operador, lo envía al inicio de sesión.
-  if (!session || session.type !== 'operator') {
-    return router.createUrlTree(['/login']);
-  }
-
-  // Si el identificador de la ruta no corresponde al operador autenticado,
-  // lo redirige a su propio panel.
-  if (Number(route.paramMap.get('id')) !== session.id) {
-    return router.createUrlTree(['/operator', session.id]);
-  }
-
-  // Permite el acceso al panel del operador correspondiente.
-  return true;
-};
-
-// Páginas exclusivas de clientes con sesión (ej. "Mis cupones").
-// Sin sesión va al login; admin y operador van a su propio panel.
-export const clientGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
-  const router = inject(Router);
-  const session = auth.session;
-
-  if (!session) {
-    return router.createUrlTree(['/login']);
-  }
-  if (session.type === 'admin') {
-    return router.createUrlTree(['/admin', session.id]);
-  }
-  if (session.type === 'operator') {
-    return router.createUrlTree(['/operator', session.id]);
+  const type = auth.session!.type;
+  if (type === 'admin' || type === 'operator') {
+    return router.createUrlTree([auth.homeRoute()]);
   }
 
   return true;
 };
+
+// Crea un guard que exige un rol: sin sesión va al login
+// y con otro rol va a la página de su rol.
+function requireRole(type: SessionType): CanActivateFn {
+  return () => {
+    const auth = inject(AuthService);
+    const router = inject(Router);
+
+    if (!auth.isLoggedIn) {
+      return router.createUrlTree(['/login']);
+    }
+
+    if (auth.session!.type !== type) {
+      return router.createUrlTree([auth.homeRoute()]);
+    }
+
+    return true;
+  };
+}
+
+// Panel de administración
+export const adminGuard = requireRole('admin');
+
+// Panel del operador
+export const operatorGuard = requireRole('operator');
+
+// Páginas del cliente con sesión (cuenta, editar cuenta, cupones)
+export const clientGuard = requireRole('client');

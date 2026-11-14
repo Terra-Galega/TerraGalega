@@ -33,15 +33,16 @@
 
   // Flotante: separada de los bordes y centrada. Casi todo el ancho de la pantalla.
   position: fixed;
-  top: 16px;
+  top: 12px;
   left: 0;
   right: 0;
   margin-inline: auto;
-  width: calc(100% - 24px);
+  // Deja 24px a cada lado para que no quede pegada al borde de la pantalla.
+  width: calc(100% - 48px);
   z-index: 50;
 
-  // Píldora (radio = mitad del alto de la barra en modo vidrio, 80px).
-  border-radius: 40px;
+  // Píldora (radio = mitad del alto de la barra en modo vidrio, 68px).
+  border-radius: 34px;
 
   // En escritorio NO se recorta, para que el logo agrandado no se corte (solo móvil recorta, ver abajo).
   overflow: visible;
@@ -99,12 +100,12 @@
  */
 
 .nav-row {
-  height: 6.5rem;
+  height: 6rem;
   transition: height 0.4s ease;
 }
 
 .nav-bar.nav-bar--stayed .nav-row {
-  height: 5rem;
+  height: 4.25rem;
 }
 
 /*
@@ -125,17 +126,17 @@
 }
 
 .nav-bar.nav-bar--stayed .logo-wrap {
-  transform: translateY(7px) scale(1);
+  transform: translateY(6px) scale(0.9);
 }
 
 // Móvil: misma idea, más discreta.
 .nav-row-mobile {
-  height: 5rem;
+  height: 4.5rem;
   transition: height 0.4s ease;
 }
 
 .nav-bar.nav-bar--stayed .nav-row-mobile {
-  height: 4rem;
+  height: 3.5rem;
 }
 
 .logo-wrap-mobile {
@@ -145,15 +146,15 @@
 }
 
 .nav-bar.nav-bar--stayed .logo-wrap-mobile {
-  transform: scale(1);
+  transform: scale(0.92);
 }
 
-// Móvil: radio y márgenes algo menores (alto 64px en modo vidrio). Aquí sí se recorta el menú desplegado.
+// Móvil: radio y márgenes algo menores (alto 56px en modo vidrio). Aquí sí se recorta el menú desplegado.
 @media (max-width: 767px) {
   .nav-bar {
-    top: 12px;
+    top: 10px;
     width: calc(100% - 20px);
-    border-radius: 32px;
+    border-radius: 28px;
     overflow: hidden;
   }
 }
@@ -242,7 +243,7 @@
 
   .nav-row a.link-nav,
   .nav-row span.link-nav {
-    padding: 0.65rem 1.1rem;
+    padding: 0.55rem 1rem;
   }
 }
 
@@ -250,7 +251,7 @@
 
   .nav-row a.link-nav,
   .nav-row span.link-nav {
-    padding: 0.7rem 1.4rem;
+    padding: 0.6rem 1.25rem;
   }
 }
 
