@@ -11,8 +11,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.example.demo.security.AuthenticatedUser;
 import com.example.demo.service.OrderService;
+import com.example.demo.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
-
 
 // API REST de pedidos. Ruta: /orders.
 
@@ -23,6 +23,10 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+    // Cancela pedidos pagados en línea (con reembolso) y también en efectivo
+    @Autowired
+    private PaymentService paymentService;
 
     @Autowired
     private AuthenticatedUser authenticatedUser;
@@ -100,7 +104,9 @@ public class OrderController {
     @Operation(summary = "Cancel a pending order of the logged-in client")
     @PutMapping("/{id}/cancel")
     public OrderDTO cancelOrder(@PathVariable Integer id) {
-        return orderService.toDTO(orderService.cancelOrder(id, authenticatedUser.client().getId()));
+        paymentService.cancel(id, authenticatedUser.client().getId());
+
+        return orderService.toDTO(orderService.getOrderById(id));
     }
 
     // GET /orders/all?from=&to=&productId=&orderId=: resúmenes para el admin.

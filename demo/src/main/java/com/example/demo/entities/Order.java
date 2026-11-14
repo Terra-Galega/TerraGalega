@@ -106,15 +106,60 @@ public class Order {
     @Column(nullable = true)
     private Double discountAmount;
 
+    // Referencia estable para que un reintento no cree otro pago.
+    @Column(unique = true, length = 100)
+    private String paymentReference;
+
+    private String paymentRequestHash;
+
+    // URL de vuelta de Stripe sin el id del pedido (web o app móvil)
+    @Column(length = 300)
+    private String paymentReturnUrl;
+    private String paymentState;
+    private Long paymentAmount;
+    private Long paymentExpiresAt;
+
+    @Column(unique = true)
+    private String stripeSessionId;
+
+    @Column(length = 4096)
+    private String stripeCheckoutUrl;
+
+    private String stripePaymentIntent;
+    private String stripeRefundId;
+
+    // Conserva el subtotal calculado al crear el pedido.
+    private Double checkoutSubtotal;
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean isVisibleOrder() {
+        return paymentReference == null
+                || !("PENDING".equals(paymentState)
+                        || "EXPIRED".equals(paymentState));
+    }
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean isProcessable() {
+        return paymentReference == null || "PAID".equals(paymentState);
+    }
+
     // Suma de los productos y adicionales, sin domicilio
     // Fórmula por línea: (precio unitario + suma de adicionales) * cantidad
     public Double getSubtotal() {
+        if (checkoutSubtotal != null) {
+            return checkoutSubtotal;
+        }
+
         return details.stream()
-                .mapToDouble(d -> {
-                    double addOnsPrice = d.getAddOns().stream()
-                            .mapToDouble(AddOn::getPrice)
+                .mapToDouble(detail -> {
+                    double addOnsPrice = detail.getOrderDetailAddOns().stream()
+                            .mapToDouble(link -> link.getUnitPrice() != null
+                                    ? link.getUnitPrice()
+                                    : link.getAddOn().getPrice())
                             .sum();
-                    return (d.getUnitPrice() + addOnsPrice) * d.getQuantity();
+
+                    return (detail.getUnitPrice() + addOnsPrice)
+                            * detail.getQuantity();
                 })
                 .sum();
     }

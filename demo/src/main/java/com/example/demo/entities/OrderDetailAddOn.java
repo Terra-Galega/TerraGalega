@@ -45,4 +45,8 @@ public class OrderDetailAddOn {
     @ManyToOne
     @JoinColumn(name = "add_on_id", nullable = false)
     private AddOn addOn;
+
+    // Precio del adicional cuando se realizó el pedido.
+    private Double unitPrice;
+
 }

@@ -80,4 +80,13 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
   boolean existsByCouponIdAndClientIdAndStatusNot(Integer couponId, Integer clientId, OrderStatus status);
 
   List<Order> findByStatusOrderByCreatedAtAsc(OrderStatus status);
+
+  java.util.Optional<Order> findByPaymentReference(String reference);
+
+  List<Order> findByPaymentStateIn(Collection<String> states);
+
+  @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+  @Query("select o from Order o where o.id = :id")
+  java.util.Optional<Order> lockById(@Param("id") Integer id);
+
 }

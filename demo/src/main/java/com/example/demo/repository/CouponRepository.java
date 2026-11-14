@@ -12,6 +12,8 @@ import java.util.List;
 public interface CouponRepository extends JpaRepository<Coupon, Integer> {
 
     // Búsqueda por código (ya en mayúsculas). Devuelve null si no existe.
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+
     Coupon findByCode(String code);
 
     // Cupones personales de un cliente
@@ -23,4 +25,5 @@ public interface CouponRepository extends JpaRepository<Coupon, Integer> {
 
     // Se usa al eliminar la cuenta de un cliente
     void deleteByClientId(Integer clientId);
+
 }

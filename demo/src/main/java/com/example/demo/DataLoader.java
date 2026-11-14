@@ -108,21 +108,22 @@ public class DataLoader implements CommandLineRunner {
         // rol), la asocia por OneToOne y después guarda la entidad.
         // El .password(...) del builder es @Transient: solo sirve para crear el user.
         private Admin saveAdmin(Admin admin) {
-                admin.setUser(userAccountService.createUser(admin.getEmail(), admin.getPassword(), Role.ADMIN,true));
+                admin.setUser(userAccountService.createUser(admin.getEmail(), admin.getPassword(), Role.ADMIN, true));
                 return adminRepository.save(admin);
         }
 
         private Operator saveOperator(Operator operator) {
                 operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(),
-                                Role.OPERATOR,true));
+                                Role.OPERATOR, true));
                 return operatorRepository.save(operator);
         }
 
         private DeliveryPerson saveDeliveryPerson(DeliveryPerson deliveryPerson) {
                 deliveryPerson.setUser(userAccountService.createUser(deliveryPerson.getEmail(),
-                                deliveryPerson.getPassword(), Role.DELIVERY_PERSON,true));
+                                deliveryPerson.getPassword(), Role.DELIVERY_PERSON, true));
                 return deliveryPersonRepository.save(deliveryPerson);
         }
+
         // Guarda un cliente junto con sus direcciones (se guardan por cascade).
         // La primera se llama "Casa" y es la predeterminada.
         private Client saveClient(Client client, String... addressLabels) {
@@ -135,7 +136,8 @@ public class DataLoader implements CommandLineRunner {
                                         .client(client)
                                         .build());
                 }
-                client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT,true));
+                client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT,
+                                true));
                 return clientRepository.save(client);
         }
 

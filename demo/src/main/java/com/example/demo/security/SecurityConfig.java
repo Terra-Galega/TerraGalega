@@ -73,6 +73,14 @@ public class SecurityConfig {
                                                 .requestMatchers("/auth/login", "/auth/signup",
                                                                 "/auth/verify-email", "/auth/resend-verification")
                                                 .permitAll()
+                                                // Stripe llama al webhook sin JWT: se protege con la firma
+                                                // Stripe-Signature, que se valida en PaymentService.
+                                                .requestMatchers(HttpMethod.POST, "/payments/webhook").permitAll()
+                                                // Página puente: el navegador del celular vuelve de Stripe
+                                                // sin token y esta página reabre la app
+                                                .requestMatchers(HttpMethod.GET, "/payments/app-return").permitAll()
+                                                // Iniciar, consultar y cancelar pagos: solo el cliente dueño
+                                                .requestMatchers("/payments/**").hasAuthority(CLIENT)
                                                 // Página de error de Spring, consola H2 y documentación Swagger
                                                 .requestMatchers("/error", "/h2/**", "/swagger-ui/**",
                                                                 "/swagger-ui.html",
