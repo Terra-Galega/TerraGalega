@@ -82,6 +82,15 @@ public class SecurityConfig {
                                                                 "/productDetail/**", "/css/**", "/js/**", "/assets/**",
                                                                 "/favicon.ico")
                                                 .permitAll()
+                                                // Selección de dirección durante el checkout.
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/maps/search",
+                                                                "/maps/reverse")
+                                                .hasAuthority(CLIENT)
+
+                                                .requestMatchers("/maps/**")
+                                                .denyAll()
 
                                                 // ================= PRODUCTOS / CARTA =================
 

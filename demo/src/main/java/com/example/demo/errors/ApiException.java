@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus;
 public class ApiException extends RuntimeException {
 
     private final HttpStatus status;
-    //Evalua que tipo de error es
+
+    // Evalua que tipo de error es
     private ApiException(HttpStatus status, String message) {
         super(message);
         this.status = status;
@@ -35,8 +36,13 @@ public class ApiException extends RuntimeException {
         return new ApiException(HttpStatus.NOT_FOUND, message);
     }
 
-    // 409: la acción choca con el estado actual (duplicados, estados de pedido, etc.)
+    // 409: la acción choca con el estado actual (duplicados, estados de pedido,
+    // etc.)
     public static ApiException conflict(String message) {
         return new ApiException(HttpStatus.CONFLICT, message);
+    }
+
+    public static ApiException serviceUnavailable(String message) {
+        return new ApiException(HttpStatus.SERVICE_UNAVAILABLE, message);
     }
 }
