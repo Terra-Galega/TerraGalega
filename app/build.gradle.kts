@@ -81,5 +81,9 @@ dependencies {
     implementation("io.coil-kt:coil-svg:2.7.0")
     // Abre la pasarela de Stripe en una pestaña del navegador dentro de la app
     implementation("androidx.browser:browser:1.4.0")
+    // "Continuar con Google" con Credential Manager
+    implementation("androidx.credentials:credentials:1.6.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.6.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.2.0")
 
 }

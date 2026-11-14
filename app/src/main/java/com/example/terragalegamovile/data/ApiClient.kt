@@ -29,7 +29,8 @@ object ApiClient {
 
             val isAuthRequest =
                 url.encodedPath == "/auth/login" ||
-                        url.encodedPath == "/auth/signup"
+                        url.encodedPath == "/auth/signup" ||
+                        url.encodedPath == "/auth/google"
 
             val token = if (isBackend && !isAuthRequest) {
                 Session.validToken()
@@ -64,6 +65,16 @@ object ApiClient {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(ApiService::class.java)
+}
+
+// Código de error del backend (ej. "EMAIL_NOT_VERIFIED"), o null si no trae.
+// Lee el cuerpo, así que se usa en lugar de toUserMessage(), no además.
+fun Throwable.apiError(): ApiErrorBody? = (this as? HttpException)?.let {
+    try {
+        Gson().fromJson(it.response()?.errorBody()?.string(), ApiErrorBody::class.java)
+    } catch (_: Exception) {
+        null
+    }
 }
 
 // Convierte un error de red o del backend en un texto para mostrar en pantalla.

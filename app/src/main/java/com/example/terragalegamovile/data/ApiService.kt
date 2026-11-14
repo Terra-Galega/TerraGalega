@@ -17,9 +17,22 @@ interface ApiService {
     @POST("auth/login")
     suspend fun login(@Body body: LoginRequest): LoginResponse
 
-    // Registra un cliente y lo deja con la sesión iniciada (también devuelve el token)
+    // Registra un cliente. NO inicia sesión: el back envía un correo y la cuenta
+    // solo puede entrar después de confirmarlo (igual que en la web)
     @POST("auth/signup")
-    suspend fun register(@Body body: ClientCreate): LoginResponse
+    suspend fun register(@Body body: ClientCreate): MessageResponse
+
+    // Vuelve a enviar el correo de confirmación (responde igual exista o no la cuenta)
+    @POST("auth/resend-verification")
+    suspend fun resendVerification(@Body body: EmailRequest): MessageResponse
+
+    // "Continuar con Google": crea la cuenta o inicia sesión con el ID token de Google
+    @POST("auth/google")
+    suspend fun googleLogin(@Body body: GoogleLoginRequest): LoginResponse
+
+    // Cuenta creada con Google: guarda apellido, teléfono y la primera dirección
+    @PUT("clients/me/complete-profile")
+    suspend fun completeProfile(@Body body: CompleteProfileRequest): LoginResponse
 
     // Comprueba que el token y la cuenta siguen siendo válidos.
     @GET("auth/me")

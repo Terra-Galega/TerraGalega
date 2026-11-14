@@ -8,7 +8,21 @@ data class LoginResponse(
     val name: String,
     val lastName: String,
     val address: String? = null,
-    val role: String
+    val role: String,
+    // false = cuenta creada con Google a la que le faltan teléfono, apellido o
+    // dirección (se muestra "Completa tu perfil"). null en sesiones antiguas = completa.
+    val profileComplete: Boolean? = null
+)
+
+// POST /auth/google
+data class GoogleLoginRequest(val idToken: String)
+
+// PUT /clients/me/complete-profile. address solo si aún no tiene ninguna.
+data class CompleteProfileRequest(
+    val name: String,
+    val lastName: String,
+    val phone: String,
+    val address: NewClientAddress?
 )
 
 // Lo que ve el cliente: su PIN y dónde va el repartidor
@@ -46,7 +60,14 @@ data class LocationRequest(val latitude: Double, val longitude: Double)
 data class CompleteRequest(val pin: String)
 
 // Forma en que el backend devuelve los errores
-data class ApiErrorBody(val message: String?)
+// code: p. ej. "EMAIL_NOT_VERIFIED" cuando la contraseña es correcta pero falta confirmar el correo
+data class ApiErrorBody(val message: String?, val code: String? = null)
+
+// Respuesta de /auth/signup y /auth/resend-verification: solo un texto
+data class MessageResponse(val message: String?)
+
+// POST /auth/resend-verification
+data class EmailRequest(val email: String)
 // ---------- Menú, carrito y pedidos (mismos datos que la web) ----------
 
 data class CategoryRef(val id: Int, val name: String)

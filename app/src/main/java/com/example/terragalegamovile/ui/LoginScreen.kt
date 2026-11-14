@@ -3,7 +3,18 @@ package com.example.terragalegamovile.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.platform.LocalContext
+import com.example.terragalegamovile.data.GOOGLE_WEB_CLIENT_ID
+import com.example.terragalegamovile.data.GoogleLoginRequest
+import com.example.terragalegamovile.data.EmailRequest
+import com.example.terragalegamovile.data.apiError
+import com.example.terragalegamovile.ui.theme.Forest
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import com.example.terragalegamovile.data.requestGoogleIdToken
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -70,7 +81,22 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
 
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+
+    // Confirmación de correo: correo al que hay que confirmar (null = nada pendiente)
+    var pendingEmail by remember { mutableStateOf<String?>(null) }
+    var pendingText by remember { mutableStateOf("") }
+    var resendMessage by remember { mutableStateOf<String?>(null) }
+    // Segundos para poder reenviar otra vez (el back usa el mismo límite)
+    var resendCooldown by remember { mutableStateOf(0) }
+
+    LaunchedEffect(resendCooldown) {
+        if (resendCooldown > 0) {
+            delay(1_000)
+            resendCooldown -= 1
+        }
+    }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     fun login() {
         loading = true
@@ -79,6 +105,60 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
             try {
                 val user = ApiClient.api.login(LoginRequest(email.trim(), password))
                 if (user.role == "CLIENT" || user.role == "DELIVERY_PERSON") {
+                    Session.user = user
+                    onLoggedIn(user)
+                } else {
+                    error = "Esta app es solo para clientes y repartidores."
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                val body = e.apiError()
+                if (body?.code == "EMAIL_NOT_VERIFIED") {
+                    // Contraseña correcta, pero falta confirmar el correo
+                    pendingEmail = email.trim()
+                    pendingText = body.message ?: "Debes confirmar tu correo antes de iniciar sesión."
+                    resendMessage = null
+                } else {
+                    error = body?.message ?: e.toUserMessage()
+                }
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    // Reenvía el correo de confirmación a pendingEmail
+    fun resend() {
+        val target = pendingEmail ?: return
+        if (resendCooldown > 0 || loading) return
+        loading = true
+        resendMessage = null
+        scope.launch {
+            try {
+                resendMessage = ApiClient.api.resendVerification(EmailRequest(target)).message
+                    ?: "Te enviamos un nuevo correo."
+                resendCooldown = 60
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                resendMessage = e.toUserMessage()
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    // "Continuar con Google": Google da el ID token y el back crea la cuenta o
+    // inicia sesión. Si faltan datos, la app muestra "Completa tu perfil".
+    fun googleLogin() {
+        loading = true
+        error = null
+        scope.launch {
+            try {
+                val idToken = requestGoogleIdToken(context) ?: return@launch // la cerró
+                val user = ApiClient.api.googleLogin(GoogleLoginRequest(idToken))
+                if (user.role == "CLIENT") {
                     Session.user = user
                     onLoggedIn(user)
                 } else {
@@ -111,8 +191,9 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                 error = null
                 scope.launch {
                     try {
-                        // El back crea la cuenta y devuelve el token: el cliente queda con la sesión iniciada
-                        val user = ApiClient.api.register(
+                        // El back crea la cuenta y envía un correo de confirmación.
+                        // No hay sesión todavía: entra después de confirmar.
+                        val result = ApiClient.api.register(
                             ClientCreate(
                                 name = n,
                                 lastName = l,
@@ -122,8 +203,13 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                                 addresses = listOf(NewClientAddress(ad))
                             )
                         )
-                        Session.user = user
-                        onLoggedIn(user)
+                        pendingEmail = em
+                        pendingText = result.message ?: "Cuenta creada. Te enviamos un correo para confirmarla."
+                        resendMessage = null
+                        resendCooldown = 60
+                        // Al volver al login ya tiene el correo escrito
+                        signup = false
+                        password = ""
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
@@ -161,8 +247,43 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
             AuthTabs(signup = signup) {
                 signup = it
                 error = null
+                pendingEmail = null
             }
             Spacer(Modifier.height(20.dp))
+
+            // Revisa tu correo: tras registrarse o al intentar entrar sin confirmar
+            pendingEmail?.let { target ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Forest.copy(alpha = 0.08f))
+                        .border(1.dp, Forest.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                        .padding(16.dp)
+                ) {
+                    Text("Revisa tu correo", fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
+                    Text(
+                        "$pendingText\n\nEnviamos el enlace a $target. Ábrelo para confirmar tu cuenta y luego inicia sesión aquí.",
+                        fontSize = 14.sp,
+                        color = Charcoal.copy(alpha = 0.75f),
+                        modifier = Modifier.padding(top = 6.dp)
+                    )
+                    resendMessage?.let {
+                        Text(it, fontSize = 13.sp, color = Forest, modifier = Modifier.padding(top = 8.dp))
+                    }
+                    Text(
+                        if (resendCooldown > 0) "Reenviar correo (${resendCooldown}s)" else "Reenviar correo",
+                        color = if (resendCooldown > 0) Charcoal.copy(alpha = 0.4f) else Terra,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .clickable(enabled = resendCooldown == 0 && !loading) { resend() }
+                            .padding(vertical = 4.dp)
+                    )
+                }
+                Spacer(Modifier.height(20.dp))
+            }
 
             if (signup) {
                 TerraTextField(
@@ -228,6 +349,7 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth()
                 )
+                GoogleButton("Registrarse con Google", enabled = !loading) { googleLogin() }
             } else {
                 TerraButton(
                     text = if (loading) "Entrando..." else "Iniciar sesión",
@@ -235,6 +357,7 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                     enabled = !loading && email.isNotBlank() && password.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()
                 )
+                GoogleButton("Continuar con Google", enabled = !loading) { googleLogin() }
 
                 Spacer(Modifier.height(20.dp))
 
@@ -256,6 +379,41 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                 }
             }
         }
+    }
+}
+
+// Separador "o" y botón de Google. No aparece si falta GOOGLE_WEB_CLIENT_ID.
+@Composable
+private fun GoogleButton(text: String, enabled: Boolean, onClick: () -> Unit) {
+    if (GOOGLE_WEB_CLIENT_ID.isBlank()) return
+    Spacer(Modifier.height(16.dp))
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Box(Modifier.weight(1f).height(1.dp).background(Charcoal.copy(alpha = 0.12f)))
+        Text("o", fontSize = 12.sp, color = Charcoal.copy(alpha = 0.45f), modifier = Modifier.padding(horizontal = 12.dp))
+        Box(Modifier.weight(1f).height(1.dp).background(Charcoal.copy(alpha = 0.12f)))
+    }
+    Spacer(Modifier.height(16.dp))
+    val shape = RoundedCornerShape(50)
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Color.White)
+            .border(1.dp, Charcoal.copy(alpha = 0.2f), shape)
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(vertical = 14.dp)
+    ) {
+        // "G" con los colores de Google
+        Text(
+            buildAnnotatedString {
+                withStyle(SpanStyle(color = Color(0xFF4285F4), fontWeight = FontWeight.Bold)) { append("G") }
+            },
+            fontSize = 18.sp
+        )
+        Spacer(Modifier.width(10.dp))
+        Text(text, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Charcoal.copy(alpha = if (enabled) 0.85f else 0.4f))
     }
 }
 

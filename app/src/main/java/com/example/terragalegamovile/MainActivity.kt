@@ -37,6 +37,7 @@ import com.example.terragalegamovile.data.Session
 import com.example.terragalegamovile.ui.CartSheet
 import com.example.terragalegamovile.ui.CategoryScreen
 import com.example.terragalegamovile.ui.CheckoutConfirmScreen
+import com.example.terragalegamovile.ui.CompleteProfileScreen
 import com.example.terragalegamovile.ui.CheckoutScreen
 import com.example.terragalegamovile.ui.ClientHomeScreen
 import com.example.terragalegamovile.ui.ClientScreen
@@ -225,6 +226,12 @@ fun AppNav(lifecycle: Lifecycle) {
 
         composable("client") {
             session?.let { user ->
+                // Cuenta creada con Google sin terminar: primero completa su perfil.
+                // Al guardar cambia Session.user y aquí se muestra el inicio.
+                if (user.profileComplete == false) {
+                    CompleteProfileScreen(user = user, onLogout = logout)
+                    return@let
+                }
                 ClientHomeScreen(
                     user = user,
                     onLogout = logout,
