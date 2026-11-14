@@ -1,69 +1,87 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ChangePasswordRequestDTO;
-import com.example.demo.entities.Client;
-import com.example.demo.service.ClientService;
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.demo.dto.AuthResponseDTO;
+import com.example.demo.dto.ChangePasswordRequestDTO;
+import com.example.demo.dto.ClientProfileDTO;
+import com.example.demo.dto.ClientUpdateDTO;
+import com.example.demo.entities.Client;
+import com.example.demo.entities.Role;
+import com.example.demo.security.AuthenticatedUser;
+import com.example.demo.security.JwtGenerator;
+import com.example.demo.service.ClientService;
+
 import io.swagger.v3.oas.annotations.Operation;
 
-import java.util.Collection;
-
+// El registro de clientes se hace en /auth/signup.
 @RestController
 @RequestMapping("/clients")
 @CrossOrigin(origins = "http://localhost:4200")
 public class ClientController {
 
-    // Servicio encargado de gestionar las operaciones relacionadas con los
-    // clientes.
     @Autowired
     private ClientService clientService;
 
-    // Endpoint para obtener la lista de todos los clientes registrados.
-    @Operation(summary = "Get all clients")
+    @Autowired
+    private AuthenticatedUser authenticatedUser;
+
+    @Autowired
+    private JwtGenerator jwtGenerator;
+
+    // =========================
+    // ADMIN
+    // =========================
+
+    @Operation(summary = "Get all clients (admin)")
     @GetMapping
-    public Collection<Client> getAllClients() {
-        return clientService.getAllClients();
+    public Collection<ClientProfileDTO> getAllClients() {
+        return clientService.getAllClients().stream().map(ClientProfileDTO::from).toList();
     }
 
-    // Endpoint para consultar un cliente específico mediante su identificador.
-    @Operation(summary = "Get client by ID")
+    @Operation(summary = "Get client by ID (admin)")
     @GetMapping("/{id}")
-    public Client getClientById(@PathVariable Integer id) {
-        return clientService.getClientById(id);
+    public ClientProfileDTO getClientById(@PathVariable Integer id) {
+        return ClientProfileDTO.from(clientService.getClientById(id));
     }
 
-    // Endpoint para registrar un nuevo cliente con los datos recibidos en el cuerpo
-    // de la petición.
-    @Operation(summary = "Add a new client for registration from client UI")
-    @PostMapping
-    public Client addClient(@RequestBody Client client) {
-        return clientService.addClient(client);
+    // =========================
+    // CLIENTE CON SESIÓN
+    // El cliente se obtiene del token, nunca de un id en la URL,
+    // así nadie puede consultar o modificar la cuenta de otra persona.
+    // =========================
+
+    @Operation(summary = "Get the logged-in client")
+    @GetMapping("/me")
+    public ClientProfileDTO getMe() {
+        return ClientProfileDTO.from(authenticatedUser.client());
     }
 
-    // Endpoint para actualizar los datos de un cliente existente.
-    @Operation(summary = "Update a client by ID from client UI")
-    @PutMapping("/{id}")
-    public Client updateClient(
-            @PathVariable Integer id,
-            @RequestBody Client client) {
+    // Devuelve un token nuevo, porque si el cliente cambió su correo el anterior deja de servir
+    @Operation(summary = "Update the logged-in client and return a fresh JWT")
+    @PutMapping("/me")
+    public AuthResponseDTO updateMe(@RequestBody ClientUpdateDTO request) {
+        Integer id = authenticatedUser.client().getId();
+        Client saved = clientService.updateClient(id, request.toEntity());
 
-        return clientService.updateClient(id, client);
+        String token = jwtGenerator.generateToken(saved.getEmail(), List.of(Role.CLIENT.name()));
+        return new AuthResponseDTO(token, saved.getId(), saved.getName(), saved.getLastName(), saved.getRole());
     }
 
-    // Endpoint para eliminar un cliente mediante su identificador.
-    @Operation(summary = "Delete a client by ID from client UI")
-    @DeleteMapping("/{id}")
-    public void deleteClient(@PathVariable Integer id) {
-        clientService.deleteClient(id);
+    @Operation(summary = "Delete the logged-in client account")
+    @DeleteMapping("/me")
+    public void deleteMe() {
+        clientService.deleteClient(authenticatedUser.client().getId());
     }
 
-    // Endpoint para cambiar la contraseña de un cliente utilizando su contraseña
-    // actual y la nueva.
-    @Operation(summary = "Change password (requires current password)")
-    @PutMapping("/{id}/password")
-    public void changePassword(@PathVariable Integer id,
-            @RequestBody ChangePasswordRequestDTO request) {
-        clientService.changePassword(id, request.getCurrentPassword(), request.getNewPassword());
+    @Operation(summary = "Change the logged-in client's password (requires current password)")
+    @PutMapping("/me/password")
+    public void changeMyPassword(@RequestBody ChangePasswordRequestDTO request) {
+        clientService.changePassword(authenticatedUser.client().getId(),
+                request.getCurrentPassword(), request.getNewPassword());
     }
 }

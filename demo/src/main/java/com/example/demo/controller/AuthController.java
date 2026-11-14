@@ -1,47 +1,52 @@
 package com.example.demo.controller;
 
-import com.example.demo.errors.ApiException;
-import com.example.demo.dto.LoginRequestDTO;
-import com.example.demo.service.AuthService;
-import io.swagger.v3.oas.annotations.Operation;
-import java.util.Map;
-import com.example.demo.dto.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.demo.dto.AuthResponseDTO;
+import com.example.demo.dto.LoginRequestDTO;
+import com.example.demo.dto.LoginResponseDTO;
+import com.example.demo.dto.SignupRequestDTO;
+import com.example.demo.entities.Client;
+import com.example.demo.security.AuthenticatedUser;
+import com.example.demo.service.AuthService;
+import com.example.demo.service.ClientService;
+
+import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
 
-    // Servicio encargado de gestionar la autenticación y validar las sesiones.
     @Autowired
     private AuthService authService;
 
-    // Endpoint para iniciar sesión mediante el correo electrónico y la contraseña.
-    @Operation(summary = "Login with email and password")
+    @Autowired
+    private ClientService clientService;
+
+    @Autowired
+    private AuthenticatedUser authenticatedUser;
+
+    // Devuelve el JWT y los datos básicos si el correo y la contraseña son correctos
+    @Operation(summary = "Login with email and password, returns a JWT")
     @PostMapping("/login")
-    public LoginResponseDTO login(@RequestBody LoginRequestDTO request) {
-
-        // Delega la validación de las credenciales al servicio de autenticación.
-        LoginResponseDTO user = authService.login(request.getEmail(), request.getPassword());
-
-        // Si las credenciales no son válidas, devuelve un error de acceso no autorizado.
-        if (user == null) {
-            throw ApiException.unauthorized("Correo o contraseña incorrectos.");
-        }
-
-        // Retorna los datos del usuario autenticado.
-        return user;
+    public AuthResponseDTO login(@RequestBody LoginRequestDTO request) {
+        return authService.login(request.getEmail(), request.getPassword());
     }
 
-    // Endpoint para comprobar si la cuenta asociada a una sesión todavía existe.
-    @Operation(summary = "Check that a logged-in account still exists")
-    @GetMapping("/session/{type}/{id}")
-    public Map<String, Boolean> sessionExists(@PathVariable String type,
-            @PathVariable Integer id) {
+    // Registra un cliente y lo deja con la sesión iniciada
+    @Operation(summary = "Register a new client and return a JWT")
+    @PostMapping("/signup")
+    public AuthResponseDTO signup(@RequestBody SignupRequestDTO request) {
+        Client saved = clientService.addClient(request.toEntity());
+        return authService.login(saved.getEmail(), request.getPassword());
+    }
 
-        // Retorna un mapa con el resultado de la verificación de existencia de la cuenta.
-        return Map.of("exists", authService.sessionExists(type, id));
+    // Datos del usuario con sesión iniciada, según el token que envía
+    @Operation(summary = "Get the logged-in user from the JWT")
+    @GetMapping("/me")
+    public LoginResponseDTO me() {
+        return authService.currentUser(authenticatedUser.email());
     }
 }

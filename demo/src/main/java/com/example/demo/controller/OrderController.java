@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.example.demo.security.AuthenticatedUser;
 import com.example.demo.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -23,6 +24,9 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private AuthenticatedUser authenticatedUser;
+
     // GET /orders
     @Operation(summary = "Get all orders for admin UI")
     @GetMapping
@@ -33,12 +37,11 @@ public class OrderController {
                 .toList();
     }
 
-    // GET /orders/client/{clientId}: historial del cliente
-    @Operation(summary = "Get all orders for a specific client")
-    @GetMapping("/client/{clientId}")
-    public Collection<OrderDTO> getOrdersByClient(
-            @PathVariable Integer clientId) {
-        return orderService.getOrdersByClientId(clientId)
+    // GET /orders/me: historial del cliente con sesión iniciada
+    @Operation(summary = "Get the orders of the logged-in client")
+    @GetMapping("/me")
+    public Collection<OrderDTO> getMyOrders() {
+        return orderService.getOrdersByClientId(authenticatedUser.client().getId())
                 .stream()
                 .map(orderService::toDTO)
                 .toList();
@@ -65,14 +68,13 @@ public class OrderController {
         return orderService.toDTO(orderService.confirmOrder(id));
     }
 
-    // PUT /orders/{id}/cook/{operatorId}: CONFIRMED pasa a PREPARING
-    @Operation(summary = "Start preparing an order")
-    @PutMapping("/{id}/cook/{operatorId}")
-    public OrderDTO cookOrder(
-            @PathVariable Integer id,
-            @PathVariable Integer operatorId) {
+    // PUT /orders/{id}/cook: CONFIRMED pasa a PREPARING.
+    // El pedido queda a cargo del operador que hace la petición.
+    @Operation(summary = "Start preparing an order (logged-in operator)")
+    @PutMapping("/{id}/cook")
+    public OrderDTO cookOrder(@PathVariable Integer id) {
         return orderService.toDTO(
-                orderService.cookOrder(id, operatorId));
+                orderService.cookOrder(id, authenticatedUser.operator().getId()));
     }
 
     // PUT /orders/{id}/send/{deliveryPersonId}: PREPARING pasa a ON_THE_WAY
@@ -93,14 +95,12 @@ public class OrderController {
                 orderService.deliverOrder(id));
     }
 
-    // PUT /orders/{id}/cancel?clientId=X: PENDING pasa a CANCELLED
-    // El clientId permite al servicio comprobar que el pedido es del cliente
-    @Operation(summary = "Cancel a pending order (only by its client)")
+    // PUT /orders/{id}/cancel: PENDING pasa a CANCELLED.
+    // El servicio comprueba que el pedido sea del cliente que hace la petición.
+    @Operation(summary = "Cancel a pending order of the logged-in client")
     @PutMapping("/{id}/cancel")
-    public OrderDTO cancelOrder(
-            @PathVariable Integer id,
-            @RequestParam Integer clientId) {
-        return orderService.toDTO(orderService.cancelOrder(id, clientId));
+    public OrderDTO cancelOrder(@PathVariable Integer id) {
+        return orderService.toDTO(orderService.cancelOrder(id, authenticatedUser.client().getId()));
     }
 
     // GET /orders/all?from=&to=&productId=&orderId=: resúmenes para el admin.

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
 /**
  * Una línea de un pedido: un producto, su cantidad y su precio en el momento
@@ -51,6 +52,8 @@ public class OrderDetail {
     private Order order;
 
     // Producto que se pidió
+    // Del producto solo se envía lo que el pedido necesita mostrar
+    @JsonIncludeProperties({ "id", "name", "imageUrl" })
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;

@@ -179,7 +179,7 @@ public class ClientServiceImpl implements ClientService {
         userAccountService.updateUsername(actual.getUser(), client.getEmail());
         client.setUser(actual.getUser());
 
-        // Las direcciones se gestionan solo por /clients/{id}/addresses;
+        // Las direcciones se gestionan solo por /clients/me/addresses;
         // si no se conservan, orphanRemoval las borraría todas al guardar.
         client.setAddresses(actual.getAddresses());
 

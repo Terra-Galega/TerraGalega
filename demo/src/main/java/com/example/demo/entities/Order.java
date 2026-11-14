@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
 //Entidad que representa un pedido realizado por un cliente.
@@ -49,7 +48,7 @@ public class Order {
     // "user" = "client" en la tabla Order.
     // Es nullable porque al eliminar la cuenta de un cliente el pedido se
     // conserva en el historial pero sin cliente
-    @JsonIgnoreProperties("password")
+    @JsonIncludeProperties({ "id", "name", "lastName" })
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = true)
     private Client client;
@@ -71,13 +70,13 @@ public class Order {
 
     // Nullable: se asigna después de creado el pedido, no al momento de
     // pedir
-    @JsonIgnoreProperties("password")
+    @JsonIncludeProperties({ "id", "name", "lastName" })
     @ManyToOne
     @JoinColumn(name = "operator_id", nullable = true)
     private Operator operator;
 
     // Nullable: se asigna cuando el operador envía el pedido (estado ON_THE_WAY)
-    @JsonIgnoreProperties("password")
+    @JsonIncludeProperties({ "id", "name", "lastName" })
     @ManyToOne
     @JoinColumn(name = "delivery_person_id", nullable = true)
     private DeliveryPerson deliveryPerson;

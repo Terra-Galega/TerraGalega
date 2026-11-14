@@ -1,8 +1,12 @@
 package com.example.demo.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -10,36 +14,133 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// @Configuration: en esta clase se crean beans.
-// @EnableWebSecurity: aquí se configura toda la seguridad web.
+import com.example.demo.entities.Role;
+
+// Configuración general de seguridad: qué filtros pasan las peticiones, qué rol
+// puede entrar a cada ruta, cómo se responden los errores de acceso y cómo se
+// cifran las contraseñas.
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Cadena de filtros por la que pasa cada petición antes de llegar al controlador.
+    // Nombres de los roles tomados del enum Role
+    private static final String CLIENT = Role.CLIENT.name();
+    private static final String ADMIN = Role.ADMIN.name();
+    private static final String OPERATOR = Role.OPERATOR.name();
+    private static final String DELIVERY_PERSON = Role.DELIVERY_PERSON.name();
+
+    @Autowired
+    private JwtGenerator jwtGenerator;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtAuthEntryPoint jwtAuthEntryPoint;
+
+    @Autowired
+    private JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF solo aplica a apps con front y back en el mismo nodo (Thymeleaf
-                // con sesión). Con Angular + API REST se puede desactivar.
+                // CSRF protege a las aplicaciones que usan cookies de sesión.
+                // Aquí el usuario se identifica con el JWT en un header, así que no hace falta.
                 .csrf(AbstractHttpConfigurer::disable)
-                // Usa el bean corsConfigurationSource de CorsConfig
+                // Usa la configuración de CorsConfig para aceptar peticiones del front
                 .cors(Customizer.withDefaults())
-                // Necesario para que la consola de H2 (usa iframes) cargue bien
+                // Permite que la consola de H2 se muestre dentro de un iframe
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-                // No usamos el formulario de login ni el popup de Spring
+                // No usamos el formulario de login ni la autenticación básica de Spring
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                // El servidor no guarda sesión: más adelante cada petición traerá su JWT
+                // El servidor no guarda sesiones: cada petición se identifica con su token
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Mientras configuramos, todo público (como recomienda el profe)
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+                // Respuestas en JSON para 401 (sin sesión) y 403 (sin permiso)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler))
+                // Las reglas se revisan en orden y se aplica la primera que coincide,
+                // por eso las rutas más específicas van antes que las generales
+                .authorizeHttpRequests(auth -> auth
+
+                        // ================= PÚBLICO =================
+                        // Peticiones previas de CORS (el navegador las envía sin token)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/auth/login", "/auth/signup").permitAll()
+                        // Página de error de Spring, consola H2 y documentación Swagger
+                        .requestMatchers("/error", "/h2/**", "/swagger-ui/**", "/swagger-ui.html",
+                                "/v3/api-docs/**", "/actuator/health").permitAll()
+                        // Páginas de Thymeleaf y sus archivos estáticos
+                        .requestMatchers(HttpMethod.GET, "/", "/home", "/menu", "/aboutUs", "/contact",
+                                "/productDetail/**", "/css/**", "/js/**", "/assets/**", "/favicon.ico").permitAll()
+
+                        // ================= PRODUCTOS / CARTA =================
+                        // Estas dos rutas de /products son del admin y deben ir antes del GET público
+                        .requestMatchers(HttpMethod.GET, "/products/clients", "/products/options").hasAuthority(ADMIN)
+                        // La carta la puede ver cualquiera
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/addons/active/category/**").permitAll()
+                        // Crear, editar, borrar o activar/desactivar: solo el admin
+                        .requestMatchers("/products/**", "/categories/**", "/addons/**").hasAuthority(ADMIN)
+
+                        // ================= SESIÓN =================
+                        // /auth/me: cualquier usuario con un token válido
+                        .requestMatchers("/auth/**").authenticated()
+
+                        // ================= CLIENTE =================
+                        .requestMatchers("/clients/me/**").hasAuthority(CLIENT)
+                        .requestMatchers("/cart/**", "/checkout/**").hasAuthority(CLIENT)
+                        .requestMatchers(HttpMethod.GET, "/coupons/me/**", "/coupons/validate").hasAuthority(CLIENT)
+                        .requestMatchers(HttpMethod.GET, "/orders/me").hasAuthority(CLIENT)
+                        .requestMatchers(HttpMethod.PUT, "/orders/*/cancel").hasAuthority(CLIENT)
+                        .requestMatchers("/delivery/client/**").hasAuthority(CLIENT)
+
+                        // ================= OPERADOR =================
+                        .requestMatchers(HttpMethod.GET, "/operators/me").hasAuthority(OPERATOR)
+                        .requestMatchers(HttpMethod.GET, "/orders/active").hasAuthority(OPERATOR)
+                        .requestMatchers(HttpMethod.PUT, "/orders/*/confirm", "/orders/*/cook",
+                                "/orders/*/send/*", "/orders/*/deliver").hasAuthority(OPERATOR)
+                        .requestMatchers(HttpMethod.GET, "/delivery-persons/available").hasAuthority(OPERATOR)
+
+                        // ================= DOMICILIARIO (app móvil) =================
+                        .requestMatchers("/delivery/person/**").hasAuthority(DELIVERY_PERSON)
+
+                        // ================= PEDIDOS =================
+                        // Los listados completos son del admin. Van antes del detalle
+                        // porque "/orders/*" también coincide con "/orders/all".
+                        .requestMatchers(HttpMethod.GET, "/orders", "/orders/all").hasAuthority(ADMIN)
+                        // Detalle de un pedido: operador y admin
+                        .requestMatchers(HttpMethod.GET, "/orders/*").hasAnyAuthority(OPERATOR, ADMIN)
+
+                        // ================= ADMIN =================
+                        .requestMatchers("/clients/**", "/orders/**", "/coupons/**", "/operators/**",
+                                "/delivery-persons/**", "/sync/**").hasAuthority(ADMIN)
+
+                        // Cualquier otra ruta exige al menos haber iniciado sesión
+                        .anyRequest().authenticated())
+                // El filtro JWT se ejecuta antes del filtro de usuario y contraseña de Spring
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // Bean para cifrar contraseñas con BCrypt. Se inyecta donde se necesite.
+    private JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtGenerator, userDetailsService);
+    }
+
+    // Valida correo y contraseña usando CustomUserDetailsService y el PasswordEncoder.
+    // Si los datos son correctos, devuelve la autenticación con los roles del usuario.
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+            throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    // Cifra las contraseñas con BCrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

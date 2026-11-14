@@ -83,6 +83,8 @@ public class Client {
     // Direcciones guardadas del cliente. La FK vive en Address.client.
     // cascade + orphanRemoval: al borrar el cliente o quitar una dirección
     // de la lista, se borra también en la base de datos.
+    // No se envían en el JSON: tienen su propio endpoint (/clients/me/addresses)
+    @JsonIgnore
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Address> addresses = new ArrayList<>();

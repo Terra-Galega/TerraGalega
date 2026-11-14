@@ -101,6 +101,9 @@ public class OperatorServiceImpl implements OperatorService {
         if (operator.getActive() == null) {
             operator.setActive(true);
         }
+        // El rol lo define el servidor y las credenciales van a users
+        operator.setRole(Role.OPERATOR);
+        operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(), Role.OPERATOR));
 
         return repository.save(operator);
     }
@@ -125,10 +128,7 @@ public class OperatorServiceImpl implements OperatorService {
         if (operator.getActive() != null) {
             existing.setActive(operator.getActive());
         }
-        // El rol lo define el servidor y las credenciales van a users
-        operator.setRole(Role.OPERATOR);
-        operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(), Role.OPERATOR));
-        
+
         return repository.save(existing);
     }
 

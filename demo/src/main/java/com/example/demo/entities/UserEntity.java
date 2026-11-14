@@ -51,6 +51,7 @@ public class UserEntity {
     // Un usuario puede tener varios roles y un rol pertenece a muchos usuarios.
     // EAGER: al traer el usuario siempre se traen sus roles (Spring Security los necesita).
     // Sin cascade: borrar un usuario solo borra sus filas en user_roles, no el rol.
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

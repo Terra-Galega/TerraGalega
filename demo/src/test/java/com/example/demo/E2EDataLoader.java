@@ -22,6 +22,7 @@ import com.example.demo.entities.OrderDetailAddOn;
 import com.example.demo.entities.OrderStatus;
 import com.example.demo.entities.Product;
 import com.example.demo.entities.Role;
+import com.example.demo.entities.RoleEntity;
 import com.example.demo.repository.AddOnRepository;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.CategoryRepository;
@@ -30,6 +31,8 @@ import com.example.demo.repository.DeliveryPersonRepository;
 import com.example.demo.repository.OperatorRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.RoleRepository;
+import com.example.demo.service.UserAccountService;
 
 import jakarta.transaction.Transactional;
 
@@ -65,6 +68,12 @@ public class E2EDataLoader implements CommandLineRunner {
         @Autowired
         private OrderRepository orderRepository;
 
+        @Autowired
+        private RoleRepository roleRepository;
+
+        @Autowired
+        private UserAccountService userAccountService;
+
         /*
          * DataLoader(OrderController orderController) {
          * this.orderController = orderController;
@@ -91,6 +100,25 @@ public class E2EDataLoader implements CommandLineRunner {
                 return new HashSet<>(Arrays.asList(categories));
         }
 
+        // Cada usuario se guarda primero en la tabla users (con la contraseña cifrada y
+        // su rol) y después en la tabla de su tipo, enlazado a ese usuario.
+        private Admin saveAdmin(Admin admin) {
+                admin.setUser(userAccountService.createUser(admin.getEmail(), admin.getPassword(), Role.ADMIN));
+                return adminRepository.save(admin);
+        }
+
+        private Operator saveOperator(Operator operator) {
+                operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(),
+                                Role.OPERATOR));
+                return operatorRepository.save(operator);
+        }
+
+        private DeliveryPerson saveDeliveryPerson(DeliveryPerson deliveryPerson) {
+                deliveryPerson.setUser(userAccountService.createUser(deliveryPerson.getEmail(),
+                                deliveryPerson.getPassword(), Role.DELIVERY_PERSON));
+                return deliveryPersonRepository.save(deliveryPerson);
+        }
+
         // Guarda un cliente junto con sus direcciones (se guardan por cascade).
         // La primera se llama "Casa" y es la predeterminada.
         private Client saveClient(Client client, String... addressLabels) {
@@ -103,12 +131,18 @@ public class E2EDataLoader implements CommandLineRunner {
                                         .client(client)
                                         .build());
                 }
+                client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT));
                 return clientRepository.save(client);
         }
 
         @Override
         @Transactional
         public void run(String... args) throws Exception {
+                // Los roles deben existir antes de crear cualquier usuario
+                for (Role role : Role.values()) {
+                        roleRepository.save(new RoleEntity(role.name()));
+                }
+
                 // Orden importante: categorías -> addOns -> productos -> domiciliarios ->
                 // operadores -> pedidos,
                 // porque cada grupo depende de los anteriores.
@@ -167,19 +201,19 @@ public class E2EDataLoader implements CommandLineRunner {
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 13 #63-39, Bogotá");
                 // admin
-                adminRepository.save(
+                saveAdmin(
                                 Admin.builder().name("Carlos").lastName("Martínez").email("admin@terra.com")
                                                 .password("admin123").role(Role.ADMIN).build());
-                adminRepository.save(
+                saveAdmin(
                                 Admin.builder().name("Ana").lastName("Fernández").email("ana.fernandez@terra.com")
                                                 .password("ana123").role(Role.ADMIN).build());
-                adminRepository.save(
+                saveAdmin(
                                 Admin.builder().name("Roberto").lastName("Silva").email("roberto.silva@terra.com")
                                                 .password("roberto123").role(Role.ADMIN).build());
-                adminRepository.save(
+                saveAdmin(
                                 Admin.builder().name("Patricia").lastName("Gómez").email("patricia.gomez@terra.com")
                                                 .password("patricia123").role(Role.ADMIN).build());
-                adminRepository.save(
+                saveAdmin(
                                 Admin.builder().name("Javier").lastName("Ortiz").email("javier.ortiz@terra.com")
                                                 .password("javier123").role(Role.ADMIN).build());
 
@@ -699,27 +733,27 @@ public class E2EDataLoader implements CommandLineRunner {
                 // DeliveryPersons
                 // available=false solo si llevan un pedido en camino (Luisa); un repartidor
                 // inactivo (Tomás) tampoco está disponible.
-                DeliveryPerson deliveryPerson1 = deliveryPersonRepository.save(
+                DeliveryPerson deliveryPerson1 = saveDeliveryPerson(
                                 DeliveryPerson.builder().name("Pedro").lastName("Sánchez")
                                                 .email("pedro.sanchez@terra.com").password("pedro123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234567")
                                                 .phone("+57 301 500 1001").available(true).active(true).build());
-                DeliveryPerson deliveryPerson2 = deliveryPersonRepository.save(
+                DeliveryPerson deliveryPerson2 = saveDeliveryPerson(
                                 DeliveryPerson.builder().name("Luisa").lastName("Fernández")
                                                 .email("luisa.fernandez@terra.com").password("luisa123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234568")
                                                 .phone("+57 301 500 1002").available(false).active(true).build());
-                deliveryPersonRepository.save(
+                saveDeliveryPerson(
                                 DeliveryPerson.builder().name("Miguel Ángel").lastName("Ruiz")
                                                 .email("miguel.ruiz@terra.com").password("miguel123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234569")
                                                 .phone("+57 301 500 1003").available(true).active(true).build());
-                deliveryPersonRepository.save(
+                saveDeliveryPerson(
                                 DeliveryPerson.builder().name("Daniela").lastName("Vargas")
                                                 .email("daniela.vargas@terra.com").password("daniela123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234570")
                                                 .phone("+57 301 500 1004").available(true).active(true).build());
-                deliveryPersonRepository.save(
+                saveDeliveryPerson(
                                 DeliveryPerson.builder().name("Tomás").lastName("Herrera")
                                                 .email("tomas.herrera@terra.com").password("tomas123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234571")
@@ -728,23 +762,23 @@ public class E2EDataLoader implements CommandLineRunner {
                 // Los operadores deben existir antes de los pedidos, que los referencian.
                 // operator5 está inactivo (active=false).
                 // Operators
-                Operator operator1 = operatorRepository.save(
+                Operator operator1 = saveOperator(
                                 Operator.builder().name("Sofía").lastName("Jiménez")
                                                 .email("sofia.jimenez@terra.com").password("sofia123")
                                                 .role(Role.OPERATOR).username("sofiaj").active(true).build());
-                Operator operator2 = operatorRepository.save(
+                Operator operator2 = saveOperator(
                                 Operator.builder().name("Mateo").lastName("Restrepo")
                                                 .email("mateo.restrepo@terra.com").password("mateo123")
                                                 .role(Role.OPERATOR).username("mateor").active(true).build());
-                Operator operator3 = operatorRepository.save(
+                Operator operator3 = saveOperator(
                                 Operator.builder().name("Valentina").lastName("Cruz")
                                                 .email("valentina.cruz@terra.com").password("valentina123")
                                                 .role(Role.OPERATOR).username("valentinac").active(true).build());
-                Operator operator4 = operatorRepository.save(
+                Operator operator4 = saveOperator(
                                 Operator.builder().name("Nicolás").lastName("Peña")
                                                 .email("nicolas.pena@terra.com").password("nicolas123")
                                                 .role(Role.OPERATOR).username("nicolasp").active(true).build());
-                Operator operator5 = operatorRepository.save(
+                Operator operator5 = saveOperator(
                                 Operator.builder().name("Isabella").lastName("Mendoza")
                                                 .email("isabella.mendoza@terra.com").password("isabella123")
                                                 .role(Role.OPERATOR).username("isabellam").active(false).build());

@@ -1,18 +1,20 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.CheckoutRequestDTO;
-import com.example.demo.entities.Client;
-import com.example.demo.service.ClientService;
-import com.example.demo.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.dto.CheckoutRequestDTO;
+import com.example.demo.entities.Client;
+import com.example.demo.movil.service.CartService;
+import com.example.demo.security.AuthenticatedUser;
+import com.example.demo.service.OrderService;
+
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
@@ -24,28 +26,23 @@ public class CheckoutController {
     private OrderService orderService;
 
     @Autowired
-    private ClientService clientService;
+    private CartService cartService;
 
     @Autowired
-    private com.example.demo.movil.service.CartService cartService;
+    private AuthenticatedUser authenticatedUser;
 
-    // POST /checkout?clientId=X con el carrito en el cuerpo
-    @Operation(summary = "Process checkout and create an order")
+    // POST /checkout con el carrito en el cuerpo. El cliente se obtiene del token.
+    @Operation(summary = "Process checkout for the logged-in client")
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED) // 201 sin cuerpo: el pedido se creó
-    public void checkout(
-            @RequestParam Integer clientId,
-            @RequestBody CheckoutRequestDTO request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public void checkout(@RequestBody CheckoutRequestDTO request) {
+        Client client = authenticatedUser.client();
 
-        // Busca al cliente (lanza 404 si no existe)
-        Client client = clientService.getClientById(clientId);
-
-        // El pedido se guarda
         orderService.checkout(client, request);
-        // El carrito compartido (web + app) queda vacío. El pedido ya se creó, así que
-        // un fallo aquí no lo afecta.
+
+        // Se vacía el carrito compartido (web y app). Si falla, el pedido ya quedó creado.
         try {
-            cartService.clear(clientId);
+            cartService.clear(client.getId());
         } catch (Exception ignored) {
         }
     }

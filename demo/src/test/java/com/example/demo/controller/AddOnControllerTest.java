@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,6 +31,8 @@ import tools.jackson.databind.ObjectMapper;
     Pruebas del AddOnController simulando peticiones HTTP con MockMvc.
  
  */
+// Prueba solo la lógica del controlador, sin los filtros de seguridad (JWT y roles)
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(AddOnController.class)
 class AddOnControllerTest {
 

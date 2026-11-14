@@ -1,5 +1,7 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +34,9 @@ public class OrderDetailAddOn {
     @Column(unique = true, nullable = false)
     private Integer id;
 
-    // Línea del pedido a la que pertenece el adicional
+    // Línea del pedido a la que pertenece el adicional.
+    // @JsonIgnore evita el bucle OrderDetail -> OrderDetailAddOn -> OrderDetail
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "order_detail_id", nullable = false)
     private OrderDetail orderDetail;

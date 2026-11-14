@@ -4,7 +4,7 @@ import com.example.demo.dto.ClientCouponDTO;
 import com.example.demo.dto.CouponDiscountDTO;
 import com.example.demo.entities.Client;
 import com.example.demo.entities.Coupon;
-import com.example.demo.service.ClientService;
+import com.example.demo.security.AuthenticatedUser;
 import com.example.demo.service.CouponService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +22,9 @@ public class CouponController {
     @Autowired
     private CouponService couponService;
 
-    // Para cargar al cliente que valida un cupón (lanza 404 si no existe)
+    // Cliente que hace la petición, obtenido del token
     @Autowired
-    private ClientService clientService;
+    private AuthenticatedUser authenticatedUser;
 
     // GET /coupons -> todos los cupones (activos e inactivos), para el admin
     @Operation(summary = "Get all coupons")
@@ -33,33 +33,32 @@ public class CouponController {
         return couponService.getAllCoupons();
     }
 
-    // GET /coupons/client/{clientId} -> cupones (personales y generales) que el
-    // cliente puede usar ahora (para el selector del checkout)
-    @Operation(summary = "Get the coupons a client can use right now")
-    @GetMapping("/client/{clientId}")
-    public Collection<Coupon> getAvailableCouponsByClient(@PathVariable Integer clientId) {
-        return couponService.getAvailableCouponsByClient(clientId);
+    // GET /coupons/me -> cupones (personales y generales) que el cliente puede
+    // usar ahora, para el selector del checkout
+    @Operation(summary = "Get the coupons the logged-in client can use right now")
+    @GetMapping("/me")
+    public Collection<Coupon> getMyAvailableCoupons() {
+        return couponService.getAvailableCouponsByClient(authenticatedUser.client().getId());
     }
 
-    // GET /coupons/client/{clientId}/all -> cupones (personales y generales) del
-    // cliente con su estado (activo, vencido, usado, agotado), para "Mis cupones"
-    @Operation(summary = "Get all coupons of a client with their status")
-    @GetMapping("/client/{clientId}/all")
-    public Collection<ClientCouponDTO> getAllCouponsByClient(@PathVariable Integer clientId) {
-        return couponService.getAllCouponsByClient(clientId);
+    // GET /coupons/me/all -> todos los cupones del cliente con su estado
+    // (activo, vencido, usado, agotado), para "Mis cupones"
+    @Operation(summary = "Get all coupons of the logged-in client with their status")
+    @GetMapping("/me/all")
+    public Collection<ClientCouponDTO> getAllMyCoupons() {
+        return couponService.getAllCouponsByClient(authenticatedUser.client().getId());
     }
 
-    // GET /coupons/validate?code=X&clientId=Y&subtotal=Z -> cuánto descontaría el
-    // cupón. Es solo para mostrarlo antes de pagar: el checkout vuelve a validar
+    // GET /coupons/validate?code=X&subtotal=Z -> cuánto descontaría el cupón.
+    // Es solo para mostrarlo antes de pagar: el checkout vuelve a validar
     // y a calcular todo en el servidor, sin confiar en este subtotal.
-    @Operation(summary = "Validate a coupon and preview its discount")
+    @Operation(summary = "Validate a coupon for the logged-in client and preview its discount")
     @GetMapping("/validate")
     public CouponDiscountDTO validateCoupon(
             @RequestParam String code,
-            @RequestParam Integer clientId,
             @RequestParam Double subtotal) {
 
-        Client client = clientService.getClientById(clientId);
+        Client client = authenticatedUser.client();
         Coupon coupon = couponService.findValidCoupon(code, client, subtotal);
 
         CouponDiscountDTO dto = new CouponDiscountDTO();

@@ -1,14 +1,15 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.AuthResponseDTO;
 import com.example.demo.dto.LoginResponseDTO;
 
-// Define las operaciones relacionadas con la autenticación y la validación de sesiones.
+// Operaciones de autenticación
 public interface AuthService {
 
-    // Autentica al usuario mediante su correo electrónico y contraseña.
-    LoginResponseDTO login(String email, String password);
+    // Valida correo y contraseña. Si son correctos devuelve el JWT y los datos básicos;
+    // si no, responde 401 (o 403 si la cuenta está desactivada).
+    AuthResponseDTO login(String email, String password);
 
-    // Comprueba si la cuenta asociada al tipo y al identificador indicados todavía existe.
-    boolean sessionExists(String type, Integer id);
-
+    // Datos básicos (id, nombre, apellido y rol) del perfil que tiene ese correo
+    LoginResponseDTO currentUser(String email);
 }
