@@ -46,6 +46,11 @@
       <app-admin-announcements [searchTerm]="searchTerm" (editAnnouncement)="openEditAnnouncement($event)"></app-admin-announcements>
       }
 
+      <!-- Sección de reseñas de los clientes -->
+      @if (activeTab === "reviews") {
+      <app-admin-reviews [searchTerm]="searchTerm"></app-admin-reviews>
+      }
+
       <!-- Sección de pedidos -->
       @if (activeTab === "orders") {
       <app-admin-orders></app-admin-orders>

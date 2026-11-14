@@ -1,0 +1,133 @@
+<!-- Fondo oscuro que cubre toda la pantalla y centra la ventana -->
+<div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    style="background-color: rgba(44, 44, 44, 0.55)"
+>
+<div
+        class="bg-cream w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="review-modal-title"
+    >
+    <!-- Encabezado: el título cambia según se edite o se escriba una nueva -->
+    <div class="flex items-center justify-between mb-7">
+        <h2
+            id="review-modal-title"
+            class="font-serif text-2xl font-semibold text-charcoal"
+        >
+            {{ review ? "Editar mi reseña" : "Escribir una reseña" }}
+        </h2>
+
+        <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+            <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            >
+            <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </app-icon-button>
+        </div>
+
+        <div class="space-y-5">
+        <!-- Calificación: cinco estrellas enteras; al pasar el mouse se ve una vista previa -->
+        <app-form-field label="Calificación">
+            <div
+            class="flex items-center gap-1"
+            role="radiogroup"
+            aria-label="Calificación de 1 a 5 estrellas"
+            (mouseleave)="hovered = 0"
+            >
+            @for (star of stars; track star) {
+            <button
+                type="button"
+                role="radio"
+                class="p-1 rounded transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                [class.opacity-25]="star > shown"
+                [attr.aria-checked]="rating === star"
+                [attr.aria-label]="star + (star === 1 ? ' estrella' : ' estrellas')"
+                (mouseenter)="hovered = star"
+                (click)="setRating(star)"
+            >
+                <app-star-icon size="w-8 h-8" />
+            </button>
+            }
+            <span class="ml-3 text-sm" style="color: rgba(44, 44, 44, 0.6)">
+                {{ ratingLabel }}
+            </span>
+            </div>
+        </app-form-field>
+
+        <!-- Comentario -->
+        <app-form-field label="Comentario">
+            <textarea
+            [value]="comment"
+            (input)="setComment($event)"
+            [attr.maxlength]="commentMax"
+            rows="5"
+            required
+            placeholder="Cuéntanos cómo fue tu experiencia…"
+            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
+            ></textarea>
+            <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
+            {{ comment.length }}/{{ commentMax }}
+            </p>
+        </app-form-field>
+
+        <!-- Error de validación o del servidor -->
+        @if (errorMessage) {
+        <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
+        }
+
+        <!-- Botones: Cancelar y Guardar -->
+        <div class="flex gap-3 pt-2">
+            <app-button
+            class="flex-1"
+            variant="neutral"
+            [fullWidth]="true"
+            (click)="close()"
+            >
+            Cancelar
+            </app-button>
+
+            <app-button
+            class="flex-1"
+            [fullWidth]="true"
+            [disabled]="saving"
+            (click)="save()"
+            >
+            {{ review ? "Guardar cambios" : "Publicar reseña" }}
+            </app-button>
+        </div>
+
+        <!-- Eliminar: solo si ya tiene una reseña -->
+        @if (review) {
+        <div class="text-center pt-1">
+            <button
+            type="button"
+            class="text-xs underline cursor-pointer"
+            style="color: #8a2222"
+            (click)="confirmDelete = true"
+            >
+            Eliminar mi reseña
+            </button>
+        </div>
+        }
+        </div>
+    </div>
+</div>
+
+<!-- Confirmación antes de eliminar -->
+<app-modal
+    [open]="confirmDelete"
+    title="Eliminar reseña"
+    message="Tu reseña dejará de aparecer en la página. Esta acción no se puede deshacer."
+    confirmLabel="Eliminar"
+    cancelLabel="Cancelar"
+    variant="danger"
+    (confirm)="remove()"
+    (cancel)="confirmDelete = false"
+/>

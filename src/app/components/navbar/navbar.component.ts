@@ -98,7 +98,7 @@ export class NavbarComponent implements OnDestroy {
 
   // Los métodos goTo... navegan a su página, dejan la barra en modo vidrio y cierran el menú móvil.
   goToHome(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/']);
     this.navBarStayed = true;
     this.closeMobileMenu();
   }

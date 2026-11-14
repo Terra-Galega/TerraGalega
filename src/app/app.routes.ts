@@ -37,7 +37,7 @@ export const routes: Routes = [
     // Alias de la raíz, con la misma regla.
     path: 'home',
     component: HomeComponent,
-    canActivate: [redirectByRoleGuard],
+    canActivate: [clientAreaGuard],
   },
   {
     // Login: con sesión iniciada se va a la página del rol.

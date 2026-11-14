@@ -26,6 +26,7 @@ import { Coupon } from '../../models/coupon';
 import { AdminAnnouncementsComponent } from './components/admin-announcements/admin-announcements.component';
 import { AdminAnnouncementModalComponent } from './components/admin-announcement-modal/admin-announcement-modal.component';
 import { Announcement } from '../../models/announcement';
+import { AdminReviewsComponent } from './components/admin-reviews/admin-reviews.component';
 import { AdminOperatorModalComponent } from './components/admin-operator-modal/admin-operator-modal.component';
 import { Operator } from '../../models/operator';
 import { Category } from '../../models/category';
@@ -56,6 +57,7 @@ import { ToastService } from '../../services/toast.service';
     AdminCouponModalComponent,
     AdminAnnouncementsComponent,
     AdminAnnouncementModalComponent,
+    AdminReviewsComponent,
     AdminAddonsComponent,
     AdminAddonModalComponent,
     AdminOperatorModalComponent,
@@ -159,6 +161,8 @@ export class AdminComponent {
         return 'Cupones';
       case 'announcements':
         return 'Anuncios';
+      case 'reviews':
+        return 'Reseñas';
       case 'orders':
         return 'Ordenes';
       case 'users':

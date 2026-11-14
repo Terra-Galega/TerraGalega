@@ -1,0 +1,16 @@
+<!-- Botón para opinar: lo ven los visitantes y los clientes (admin y operador no opinan). -->
+@if (!loggedIn || isClient) {
+<app-button variant="outline" (click)="onWrite()">
+    {{ buttonLabel }}
+</app-button>
+@if (!loggedIn) {
+<p class="text-xs mt-3" style="color: rgba(44, 44, 44, 0.55)">
+    Necesitas una cuenta para compartir tu opinión.
+</p>
+}
+}
+
+<!-- Ventana para escribir o editar la reseña -->
+@if (modalOpen) {
+<app-review-modal [review]="myReview" (closed)="closeModal()" />
+}

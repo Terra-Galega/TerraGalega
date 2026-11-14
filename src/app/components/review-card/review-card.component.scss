@@ -1,0 +1,5 @@
+// Ocupa todo el alto de su contenedor para que las tarjetas de una fila midan lo mismo
+:host {
+  display: block;
+  height: 100%;
+}

@@ -112,6 +112,17 @@
       Anuncios
     </button>
 
+    <!-- Acceso a la sección de reseñas -->
+    <button id="tab-reviews" type="button" (click)="changeTab('reviews')"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [class.active]="activeTab === 'reviews'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+
+      Reseñas
+    </button>
+
     <!-- Acceso a la sección de órdenes -->
     <button type="button" (click)="changeTab('orders')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"

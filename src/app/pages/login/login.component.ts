@@ -67,6 +67,12 @@ export class LoginComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+  constructor() {
+    // /login?tab=signup abre directo la pestaña de crear cuenta
+    if (this.route.snapshot.queryParamMap.get('tab') === 'signup') {
+      this.activeTab = 'signup';
+    }
+  }
 
   // Si llegaron desde /checkout sin sesión, después de entrar vuelven allí
   private goAfterClientAuth(): void {
@@ -74,6 +80,10 @@ export class LoginComponent implements OnDestroy {
     // Si venían de checkout, los redirigimos allí
     if (redirect === 'checkout') {
       this.router.navigate(['/checkout']);
+      return;
+    }
+    if (redirect === 'home' || redirect === 'aboutUs') {
+      this.router.navigate(['/aboutUs']);
       return;
     }
     // Si no, van a su cuenta

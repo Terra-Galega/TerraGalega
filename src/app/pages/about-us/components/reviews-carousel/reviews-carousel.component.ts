@@ -1,18 +1,14 @@
 import { Component } from '@angular/core';
 import { SectionHeadingComponent } from '../../../../components/section-heading/section-heading.component';
-import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
+import { ReviewsTrackComponent } from '../../../../components/reviews-track/reviews-track.component';
+import { ReviewCtaComponent } from '../../../../components/review-cta/review-cta.component';
 
-// Carrusel de opiniones de la página Nosotros. Las opiniones todavía no se
-// cargan, así que se muestran tarjetas de espera que se desplazan solas.
+// Opiniones de la página Nosotros: encabezado, carrusel de reseñas reales y el
+// botón para escribir (o editar) la propia.
 @Component({
   selector: 'app-reviews-carousel',
-  imports: [SectionHeadingComponent, StarIconComponent],
+  imports: [SectionHeadingComponent, ReviewsTrackComponent, ReviewCtaComponent],
   templateUrl: './reviews-carousel.component.html',
   styleUrl: './reviews-carousel.component.scss',
 })
-export class ReviewsCarouselComponent {
-  // Número de tarjetas de espera
-  readonly cards = [1, 2, 3, 4, 5, 6];
-  // La lista se repite dos veces para que el desplazamiento sea continuo
-  readonly loop = [...this.cards, ...this.cards];
-}
+export class ReviewsCarouselComponent {}

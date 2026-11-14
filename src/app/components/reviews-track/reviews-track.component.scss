@@ -1,0 +1,58 @@
+:host {
+  display: block;
+}
+
+// Ventana del carrusel: oculta lo que sale por los lados y lo difumina
+.carousel {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+// Fila de tarjetas. Contiene la lista dos veces: al llegar a la mitad
+// vuelve al inicio sin que se note el salto. La duración la fija el componente.
+.track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  padding: 0.5rem 0;
+  animation: reviews-scroll 40s linear infinite;
+}
+
+// El carrusel se detiene mientras el mouse está encima
+.carousel:hover .track {
+  animation-play-state: paused;
+}
+
+.card {
+  width: 320px;
+  max-width: 100%;
+  flex-shrink: 0;
+}
+
+@keyframes reviews-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    // -50% de la fila menos medio hueco, para que la segunda copia encaje
+    transform: translateX(calc(-50% - 1rem));
+  }
+}
+
+// Si el sistema tiene activado "reducir movimiento" (en Windows: Accesibilidad >
+// Efectos visuales > Efectos de animación), el carrusel no se mueve solo. En su
+// lugar se puede deslizar con el dedo o el mouse, y se ocultan las copias
+// repetidas. Para que se mueva siempre, borra este bloque.
+@media (prefers-reduced-motion: reduce) {
+  .carousel {
+    overflow-x: auto;
+  }
+
+  .track {
+    animation: none;
+  }
+
+  .copy {
+    display: none;
+  }
+}

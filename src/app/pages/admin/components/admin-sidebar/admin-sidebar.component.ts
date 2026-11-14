@@ -8,6 +8,7 @@ export type AdminTab =
   | 'addons'
   | 'coupons'
   | 'announcements'
+  | 'reviews'
   | 'orders'
   | 'users'
   | 'operators'
