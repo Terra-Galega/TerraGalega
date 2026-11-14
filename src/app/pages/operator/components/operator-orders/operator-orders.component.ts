@@ -114,19 +114,6 @@ export class OperatorOrdersComponent {
     });
   }
 
-  loadOrders() {
-    this.orderService.getActiveOrders().subscribe({
-      next: (orders) => {
-        this.orders = orders;
-        this.errorMessage = '';
-      },
-      error: (error) => {
-        console.error('Error loading active orders:', error);
-        this.errorMessage = 'No se pudieron cargar los pedidos.';
-      },
-    });
-  }
-
   onAction(orderSummary: OrderSummary) {
     // Determina qué operación corresponde al estado actual del pedido.
     // en onAction():
