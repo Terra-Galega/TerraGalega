@@ -50,6 +50,10 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private UserAccountService userAccountService;
 
+    // Envía el correo para confirmar la cuenta de los clientes nuevos
+    @Autowired
+    private EmailVerificationService emailVerificationService;
+
     // Obtiene todos los clientes registrados en la base de datos.
     @Override
     @Transactional
@@ -120,13 +124,15 @@ public class ClientServiceImpl implements ClientService {
         client.setRole(Role.CLIENT);
 
         // Crea la cuenta en users (correo + contraseña cifrada + rol CLIENT)
-        client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT));
-
+        client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT, false));
         // Guarda el cliente en la base de datos
         Client saved = repository.save(client);
 
         // Toda cuenta nueva recibe su cupón de bienvenida
         couponService.createWelcomeCoupon(saved);
+
+        // Envía el correo de confirmación (sale cuando la transacción se guarda)
+        emailVerificationService.sendVerification(saved.getUser(), saved.getEmail(), saved.getName());
 
         return saved;
     }

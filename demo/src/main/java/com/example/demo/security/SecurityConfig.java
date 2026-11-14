@@ -70,7 +70,9 @@ public class SecurityConfig {
                                                 // ================= PÚBLICO =================
                                                 // Peticiones previas de CORS (el navegador las envía sin token)
                                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                                .requestMatchers("/auth/login", "/auth/signup").permitAll()
+                                                .requestMatchers("/auth/login", "/auth/signup",
+                                                                "/auth/verify-email", "/auth/resend-verification")
+                                                .permitAll()
                                                 // Página de error de Spring, consola H2 y documentación Swagger
                                                 .requestMatchers("/error", "/h2/**", "/swagger-ui/**",
                                                                 "/swagger-ui.html",

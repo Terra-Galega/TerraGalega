@@ -6,11 +6,14 @@ import org.springframework.web.bind.annotation.*;
 import com.example.demo.dto.AuthResponseDTO;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
+import com.example.demo.dto.MessageDTO;
+import com.example.demo.dto.ResendVerificationRequestDTO;
 import com.example.demo.dto.SignupRequestDTO;
-import com.example.demo.entities.Client;
+import com.example.demo.dto.VerifyEmailRequestDTO;
 import com.example.demo.security.AuthenticatedUser;
 import com.example.demo.service.AuthService;
 import com.example.demo.service.ClientService;
+import com.example.demo.service.EmailVerificationService;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -28,6 +31,9 @@ public class AuthController {
     @Autowired
     private AuthenticatedUser authenticatedUser;
 
+    @Autowired
+    private EmailVerificationService emailVerificationService;
+
     // Devuelve el JWT y los datos básicos si el correo y la contraseña son correctos
     @Operation(summary = "Login with email and password, returns a JWT")
     @PostMapping("/login")
@@ -35,12 +41,29 @@ public class AuthController {
         return authService.login(request.getEmail(), request.getPassword());
     }
 
-    // Registra un cliente y lo deja con la sesión iniciada
-    @Operation(summary = "Register a new client and return a JWT")
+    // Registra un cliente. No inicia sesión: primero debe confirmar su correo
+    // con el enlace que se le envía.
+    @Operation(summary = "Register a new client and send the confirmation email")
     @PostMapping("/signup")
-    public AuthResponseDTO signup(@RequestBody SignupRequestDTO request) {
-        Client saved = clientService.addClient(request.toEntity());
-        return authService.login(saved.getEmail(), request.getPassword());
+    public MessageDTO signup(@RequestBody SignupRequestDTO request) {
+        clientService.addClient(request.toEntity());
+        return new MessageDTO("Cuenta creada. Te enviamos un correo para confirmarla.");
+    }
+
+    // Confirma el correo con el token del enlace
+    @Operation(summary = "Confirm the email address with the token from the email link")
+    @PostMapping("/verify-email")
+    public MessageDTO verifyEmail(@RequestBody VerifyEmailRequestDTO request) {
+        emailVerificationService.verify(request.getToken());
+        return new MessageDTO("Correo confirmado. Ya puedes iniciar sesión.");
+    }
+
+    // Reenvía el correo de confirmación. Responde igual exista o no la cuenta.
+    @Operation(summary = "Resend the confirmation email")
+    @PostMapping("/resend-verification")
+    public MessageDTO resendVerification(@RequestBody ResendVerificationRequestDTO request) {
+        emailVerificationService.resend(request.getEmail());
+        return new MessageDTO("Si la cuenta existe y falta confirmarla, te enviamos un nuevo correo.");
     }
 
     // Datos del usuario con sesión iniciada, según el token que envía

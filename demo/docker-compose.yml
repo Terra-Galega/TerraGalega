@@ -12,5 +12,14 @@ services:
     volumes:
       - terragalega_pgdata:/var/lib/postgresql/data
 
+  # Servidor de correo de prueba: recibe los correos sin enviarlos de verdad
+  mailpit:
+    image: axllent/mailpit
+    container_name: terragalega-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP (el back envía aquí)
+      - "8025:8025" # bandeja web: http://localhost:8025
+
 volumes:
   terragalega_pgdata:

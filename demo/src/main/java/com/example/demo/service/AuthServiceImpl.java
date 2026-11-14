@@ -16,11 +16,13 @@ import com.example.demo.entities.Admin;
 import com.example.demo.entities.Client;
 import com.example.demo.entities.DeliveryPerson;
 import com.example.demo.entities.Operator;
+import com.example.demo.entities.UserEntity;
 import com.example.demo.errors.ApiException;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
 import com.example.demo.repository.DeliveryPersonRepository;
 import com.example.demo.repository.OperatorRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtGenerator;
 
 // Inicio de sesión con el AuthenticationManager de Spring Security y JWT.
@@ -30,6 +32,10 @@ import com.example.demo.security.JwtGenerator;
 public class AuthServiceImpl implements AuthService {
 
     private static final String INACTIVE_ACCOUNT_MESSAGE = "Tu cuenta está desactivada. Contacta al administrador.";
+    private static final String EMAIL_NOT_VERIFIED_MESSAGE = "Debes confirmar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.";
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -63,6 +69,14 @@ public class AuthServiceImpl implements AuthService {
             // Mismo mensaje si el correo no existe o la contraseña es incorrecta,
             // para no revelar qué correos están registrados
             throw ApiException.unauthorized("Correo o contraseña incorrectos.");
+        }
+
+        // La contraseña es correcta, pero la cuenta no entra hasta confirmar el correo.
+        // Se revisa después de la contraseña para no revelar qué correos existen.
+        UserEntity user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> ApiException.unauthorized("Correo o contraseña incorrectos."));
+        if (!user.isEmailVerified()) {
+            throw ApiException.emailNotVerified(EMAIL_NOT_VERIFIED_MESSAGE);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

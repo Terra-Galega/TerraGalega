@@ -4,16 +4,34 @@ import org.springframework.http.HttpStatus;
 
 public class ApiException extends RuntimeException {
 
+    // Código legible por el front para distinguir errores con el mismo estado HTTP
+    public static final String EMAIL_NOT_VERIFIED = "EMAIL_NOT_VERIFIED";
+
     private final HttpStatus status;
+    private final String code;
 
     // Evalua que tipo de error es
     private ApiException(HttpStatus status, String message) {
+        this(status, message, null);
+    }
+
+    private ApiException(HttpStatus status, String message, String code) {
         super(message);
         this.status = status;
+        this.code = code;
     }
 
     public HttpStatus getStatus() {
         return status;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    // 403 con código: la contraseña es correcta pero el correo aún no se confirmó
+    public static ApiException emailNotVerified(String message) {
+        return new ApiException(HttpStatus.FORBIDDEN, message, EMAIL_NOT_VERIFIED);
     }
 
     // 400: los datos enviados no son válidos o están incompletos

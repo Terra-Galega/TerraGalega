@@ -48,6 +48,9 @@ public class UserEntity {
     @Column(nullable = false, length = 100)
     private String password;
 
+    @Column (nullable = false)
+    private boolean emailVerified;
+
     // Un usuario puede tener varios roles y un rol pertenece a muchos usuarios.
     // EAGER: al traer el usuario siempre se traen sus roles (Spring Security los necesita).
     // Sin cascade: borrar un usuario solo borra sus filas en user_roles, no el rol.

@@ -31,7 +31,7 @@ public class UserAccountService {
 
     // Crea y guarda la fila en users con el correo, la contraseña cifrada y el rol.
     @Transactional
-    public UserEntity createUser(String email, String rawPassword, Role role) {
+    public UserEntity createUser(String email, String rawPassword, Role role, boolean emailVerified) {
         if (rawPassword == null || rawPassword.isBlank()) {
             throw ApiException.badRequest("La contraseña es obligatoria.");
         }
@@ -53,6 +53,7 @@ public class UserAccountService {
                 .username(email)
                 .password(passwordEncoder.encode(rawPassword))
                 .roles(roles)
+                .emailVerified(emailVerified)
                 .build();
 
         return userRepository.save(user);

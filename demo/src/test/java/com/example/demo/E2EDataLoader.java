@@ -103,19 +103,19 @@ public class E2EDataLoader implements CommandLineRunner {
         // Cada usuario se guarda primero en la tabla users (con la contraseña cifrada y
         // su rol) y después en la tabla de su tipo, enlazado a ese usuario.
         private Admin saveAdmin(Admin admin) {
-                admin.setUser(userAccountService.createUser(admin.getEmail(), admin.getPassword(), Role.ADMIN));
+                admin.setUser(userAccountService.createUser(admin.getEmail(), admin.getPassword(), Role.ADMIN,true));
                 return adminRepository.save(admin);
         }
 
         private Operator saveOperator(Operator operator) {
                 operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(),
-                                Role.OPERATOR));
+                                Role.OPERATOR,true));
                 return operatorRepository.save(operator);
         }
 
         private DeliveryPerson saveDeliveryPerson(DeliveryPerson deliveryPerson) {
                 deliveryPerson.setUser(userAccountService.createUser(deliveryPerson.getEmail(),
-                                deliveryPerson.getPassword(), Role.DELIVERY_PERSON));
+                                deliveryPerson.getPassword(), Role.DELIVERY_PERSON,true));
                 return deliveryPersonRepository.save(deliveryPerson);
         }
 
@@ -131,7 +131,7 @@ public class E2EDataLoader implements CommandLineRunner {
                                         .client(client)
                                         .build());
                 }
-                client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT));
+                client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT,true));
                 return clientRepository.save(client);
         }
 

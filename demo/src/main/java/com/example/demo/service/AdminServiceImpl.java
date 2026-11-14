@@ -39,13 +39,13 @@ public class AdminServiceImpl implements AdminService {
 
     // Valida el correo electrónico antes de guardar el nuevo administrador.
         // Valida el correo, fija el rol y crea sus credenciales en users.
-    @Override
+        @Override
     @Transactional
     public Admin addAdmin(Admin admin) {
         EmailRules.validate(admin.getEmail());
         admin.setId(null);
         admin.setRole(Role.ADMIN);
-        admin.setUser(userAccountService.createUser(admin.getEmail(), admin.getPassword(), Role.ADMIN));
+        admin.setUser(userAccountService.createUser(admin.getEmail(), admin.getPassword(), Role.ADMIN, true));
         return repository.save(admin);
     }
 

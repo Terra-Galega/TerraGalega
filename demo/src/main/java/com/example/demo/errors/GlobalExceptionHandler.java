@@ -20,7 +20,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // Errores de negocio lanzados por los servicios: traen su propio código
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiError> handleApi(ApiException e, WebRequest request) {
-        return build(e.getStatus(), e.getMessage(), request);
+        return ResponseEntity.status(e.getStatus())
+                .body(ApiError.of(e.getStatus(), e.getMessage(), path(request), e.getCode()));
     }
  
     // 404: el producto ya no existe o no está disponible

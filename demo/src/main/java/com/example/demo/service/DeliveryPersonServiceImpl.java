@@ -128,9 +128,8 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
             deliveryPerson.setActive(true);
         }
 
-        // Credenciales en users con rol DELIVERY_PERSON
-        deliveryPerson.setUser(userAccountService.createUser(
-        deliveryPerson.getEmail(), deliveryPerson.getPassword(), Role.DELIVERY_PERSON));
+        // Credenciales en users con rol DELIVERY_PERSON    
+        deliveryPerson.setUser(userAccountService.createUser(deliveryPerson.getEmail(), deliveryPerson.getPassword(), Role.DELIVERY_PERSON, true));
 
         return repository.save(deliveryPerson);
     }

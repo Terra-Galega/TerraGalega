@@ -103,8 +103,7 @@ public class OperatorServiceImpl implements OperatorService {
         }
         // El rol lo define el servidor y las credenciales van a users
         operator.setRole(Role.OPERATOR);
-        operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(), Role.OPERATOR));
-
+        operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(), Role.OPERATOR, true));
         return repository.save(operator);
     }
 
