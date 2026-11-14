@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+// Ventana del carrusel: oculta lo que sale por los lados y lo difumina
+.carousel {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+// Fila de tarjetas. Contiene la lista dos veces: al llegar a la mitad
+// vuelve al inicio sin que se note el salto.
+.track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  padding: 0.5rem 0;
+  animation: reviews-scroll 40s linear infinite;
+}
+
+.carousel:hover .track {
+  animation-play-state: paused;
+}
+
+.card {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+@keyframes reviews-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    // -50% de la fila menos medio hueco, para que la segunda copia encaje
+    transform: translateX(calc(-50% - 1rem));
+  }
+}
+
+// Sin animación para quien la tiene desactivada en su sistema
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

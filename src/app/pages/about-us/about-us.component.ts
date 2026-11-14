@@ -5,6 +5,7 @@ import { AboutHeroSectionComponent } from './components/about-hero-section/about
 import { HistorySectionComponent } from './components/history-section/history-section.component';
 import { QuoteBannerComponent } from './components/quote-banner/quote-banner.component';
 import { LocationSectionComponent } from './components/location-section/location-section.component';
+import { ReviewsCarouselComponent } from './components/reviews-carousel/reviews-carousel.component';
 
 @Component({
   selector: 'app-about-us',
@@ -16,6 +17,7 @@ import { LocationSectionComponent } from './components/location-section/location
     HistorySectionComponent,
     QuoteBannerComponent,
     LocationSectionComponent,
+    ReviewsCarouselComponent,
   ],
   templateUrl: './about-us.component.html',
 })

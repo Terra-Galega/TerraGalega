@@ -1,0 +1,42 @@
+<div class="max-w-7xl mx-auto px-6">
+  <!-- Encabezado con etiqueta superior y título -->
+  <app-section-heading
+    eyebrow="Opiniones"
+    title="Lo que dicen nuestros clientes"
+  />
+</div>
+
+<!-- Pista del carrusel: se desplaza sola y se detiene al pasar el ratón -->
+<div class="carousel" aria-label="Opiniones de clientes (cargando)">
+  <div class="track">
+    @for (card of loop; track $index) {
+    <!-- Tarjeta de espera con la misma forma que una opinión -->
+    <div
+      class="card p-8 shadow-sm"
+      style="background-color: rgb(251, 247, 242); border-radius: 2px"
+      [attr.aria-hidden]="$index >= cards.length"
+    >
+      <!-- Estrellas -->
+      <div class="flex gap-1 mb-5 opacity-40">
+        @for (star of [1, 2, 3, 4, 5]; track star) {
+        <app-star-icon size="w-4 h-4" />
+        }
+      </div>
+
+      <!-- Líneas del texto de la opinión -->
+      <div class="space-y-2.5 mb-6 animate-pulse">
+        <div class="h-3 rounded-full w-full" style="background-color: rgba(44, 44, 44, 0.08)"></div>
+        <div class="h-3 rounded-full w-11/12" style="background-color: rgba(44, 44, 44, 0.08)"></div>
+        <div class="h-3 rounded-full w-4/5" style="background-color: rgba(44, 44, 44, 0.08)"></div>
+        <div class="h-3 rounded-full w-2/3" style="background-color: rgba(44, 44, 44, 0.08)"></div>
+      </div>
+
+      <!-- Autor -->
+      <div class="pt-5 border-t animate-pulse" style="border-color: rgba(44, 44, 44, 0.1)">
+        <div class="h-3 rounded-full w-1/3 mb-2" style="background-color: rgba(44, 44, 44, 0.1)"></div>
+        <div class="h-2.5 rounded-full w-1/4" style="background-color: rgba(44, 44, 44, 0.06)"></div>
+      </div>
+    </div>
+    }
+  </div>
+</div>

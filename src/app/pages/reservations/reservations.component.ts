@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { ContactSectionComponent } from './components/contact-section/contact-section.component';
 
+// Página de reservas (por ahora vacía: solo navbar y footer).
 @Component({
-  selector: 'app-contact',
-  imports: [NavbarComponent, FooterComponent, ContactSectionComponent],
-  templateUrl: './contact.component.html',
+  selector: 'app-reservations',
+  imports: [NavbarComponent, FooterComponent],
+  templateUrl: './reservations.component.html',
 })
-export class ContactComponent {}
+export class ReservationsComponent {}

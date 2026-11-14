@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
-import { ContactComponent } from './pages/contact/contact.component';
+import { ReservationsComponent } from './pages/reservations/reservations.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { LoginComponent } from './pages/login/login.component';
 import { MenuComponent } from './pages/menu/menu.component';
@@ -41,9 +41,9 @@ export const routes: Routes = [
     canActivate: [clientAreaGuard],
   },
   {
-    // Página de contacto.
-    path: 'contact',
-    component: ContactComponent,
+    // Página de reservas.
+    path: 'reservations',
+    component: ReservationsComponent,
     canActivate: [clientAreaGuard],
   },
   {

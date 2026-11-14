@@ -1,21 +1,30 @@
 <!-- Barra de navegación principal -->
 <app-navbar />
 
-<!-- Sección de presentación e introducción del restaurante -->
+<!-- Portada: "Un pedazo de Galicia en cada plato" -->
 <app-about-hero-section />
 
-<!-- Sección que presenta la historia del restaurante -->
-<app-history-section />
+<!-- Historia con sus tres cifras + frase con imagen -->
+<section class="py-20" style="background-color: #ede9e0">
+  <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-stretch">
+    <app-history-section />
+    <app-quote-banner
+      [quote]="quote"
+      [image]="quoteImage"
+      imageAlt="Ambiente Terra Galega"
+    />
+  </div>
+</section>
 
-<!-- Banner que muestra una frase representativa junto con una imagen -->
-<app-quote-banner
-  [quote]="quote"
-  [image]="quoteImage"
-  imageAlt="Ambiente Terra Galega"
-/>
+<!-- Datos de contacto (dirección, teléfono, correo y horario) + mapa -->
+<section class="py-20" style="background-color: #f7f4ec">
+  <app-location-section />
+</section>
 
-<!-- Sección con información sobre la ubicación del restaurante -->
-<app-location-section />
+<!-- Opiniones de los clientes (aún sin cargar: tarjetas animadas en carrusel) -->
+<section class="py-20" style="background-color: #ede9e0">
+  <app-reviews-carousel />
+</section>
 
 <!-- Pie de página del sitio web -->
 <app-footer />

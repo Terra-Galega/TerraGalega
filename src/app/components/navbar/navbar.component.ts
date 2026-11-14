@@ -115,8 +115,9 @@ export class NavbarComponent implements OnDestroy {
     this.closeMobileMenu();
   }
 
-  goToContact(): void {
-    this.router.navigate(['/contact']);
+  goToReservations(): void {
+
+    this.router.navigate(['/reservations']);
     this.navBarStayed = true;
     this.closeMobileMenu();
   }

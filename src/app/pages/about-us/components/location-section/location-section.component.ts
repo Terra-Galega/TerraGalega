@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { ButtonComponent } from '../../../../components/button/button.component';
 import {
   ContactInfoComponent,
   ContactInfo,
@@ -8,8 +7,8 @@ import { LocationMapComponent } from '../../../../components/location-map/locati
 
 @Component({
   selector: 'app-location-section',
-  // Componentes utilizados para mostrar los datos de contacto, el mapa y el botón de navegación
-  imports: [ButtonComponent, ContactInfoComponent, LocationMapComponent],
+  // Componentes utilizados para mostrar los datos de contacto y el mapa
+  imports: [ContactInfoComponent, LocationMapComponent],
   templateUrl: './location-section.component.html',
   styleUrl: './location-section.component.scss',
 })
@@ -26,6 +25,16 @@ export class LocationSectionComponent {
       title: 'Teléfono',
       value: '+57 601 456 7890',
       icon: 'phone',
+    },
+    {
+      title: 'Correo',
+      value: 'contacto@terragalega.co',
+      icon: 'email',
+    },
+    {
+      title: 'Horario',
+      value: 'Lun – Sáb: 12:00 – 22:00 - Dom: 12:00 – 20:00',
+      icon: 'clock',
     },
   ];
 
