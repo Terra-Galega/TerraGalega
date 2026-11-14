@@ -97,6 +97,21 @@ public class SecurityConfig {
                                                 // Crear, editar, borrar o activar/desactivar: solo el admin
                                                 .requestMatchers("/products/**", "/categories/**", "/addons/**")
                                                 .hasAuthority(ADMIN)
+                                                // ================= PRODUCTOS / CARTA =================
+                                                // Estas dos rutas de /products son del admin y deben ir antes del GET público
+                                                .requestMatchers(HttpMethod.GET, "/products/clients", "/products/options").hasAuthority(ADMIN)
+                                                // La carta la puede ver cualquiera
+                                                .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/addons/active/category/**").permitAll()
+                                                // Crear, editar, borrar o activar/desactivar: solo el admin
+                                                .requestMatchers("/products/**", "/categories/**", "/addons/**").hasAuthority(ADMIN)
+
+                                                // ================= ANUNCIOS DEL HOME =================
+                                                // El carrusel del inicio lo ve cualquiera, incluso sin sesión
+                                                .requestMatchers(HttpMethod.GET, "/announcements").permitAll()
+                                                // Crear, editar o borrar anuncios: solo el admin
+                                                .requestMatchers("/announcements/**").hasAuthority(ADMIN)
 
                                                 // ================= SESIÓN =================
                                                 // /auth/me: cualquier usuario con un token válido

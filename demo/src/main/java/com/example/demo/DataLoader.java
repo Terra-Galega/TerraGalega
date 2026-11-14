@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.example.demo.entities.AddOn;
 import com.example.demo.entities.Address;
 import com.example.demo.entities.Admin;
+import com.example.demo.entities.Announcement;
 import com.example.demo.entities.Category;
 import com.example.demo.entities.Client;
 import com.example.demo.entities.Coupon;
@@ -28,6 +29,7 @@ import com.example.demo.repository.RoleRepository;
 import com.example.demo.service.UserAccountService;
 import com.example.demo.repository.AddOnRepository;
 import com.example.demo.repository.AdminRepository;
+import com.example.demo.repository.AnnouncementRepository;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.repository.ClientRepository;
 import com.example.demo.repository.CouponRepository;
@@ -71,6 +73,9 @@ public class DataLoader implements CommandLineRunner {
 
         @Autowired
         private CouponRepository couponRepository;
+
+        @Autowired
+        private AnnouncementRepository announcementRepository;
 
         @Autowired
         private RoleRepository roleRepository;
@@ -333,7 +338,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .description("Patatas crujientes acompañadas de salsa brava casera ligeramente picante.")
                                                 .price(17500.0)
                                                 .category(categoryRepository.findByName("Entradas"))
-                                                .imageUrl("https://www.deliciousmagazine.co.uk/wp-content/uploads/2018/09/patatas-bravas.jpg")
+                                                .imageUrl("https://www.foxandbriar.com/wp-content/uploads/2016/03/patatas-bravas-4-of-10.jpg")
                                                 .active(true).popular(false).vegetarian(true).spicyMild(true)
                                                 .spicyHot(false).containsNuts(false).containsSeafood(false)
                                                 .containsGluten(false).build());
@@ -462,7 +467,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .description("Guiso tradicional de fabes asturianas con chorizo, morcilla y panceta.")
                                                 .price(42000.0)
                                                 .category(categoryRepository.findByName("Carnes"))
-                                                .imageUrl("https://www.justspices.es/media/recipe/Fabada-asturiana.webp")
+                                                .imageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbZY74kJkgVjohhJe6QHd8CaUV_q-J4ZjYtVNbUX7JgiDvQMDbrUbPh04&s=10")
                                                 .active(true).popular(true).vegetarian(false).spicyMild(false)
                                                 .spicyHot(false).containsNuts(false).containsSeafood(false)
                                                 .containsGluten(false).build());
@@ -930,5 +935,12 @@ public class DataLoader implements CommandLineRunner {
                                 .discountType(DiscountType.PERCENTAGE).discountValue(15.0)
                                 .startsAt(now.minusDays(40)).expiresAt(now.minusDays(5)).active(true)
                                 .client(client1).build());
+
+                // Anuncios de demostración para el home
+                announcementRepository.save(Announcement.builder()
+                                .title("¡Bienvenidos a Terra Galega!")
+                                .description("Descubre nuestra carta de platos tradicionales y disfruta de la auténtica gastronomía gallega.")
+                                .imageUrl("https://png.pngtree.com/thumb_back/fh260/background/20240425/pngtree-top-desk-with-blur-restaurant-background-wooden-table-image_15665383.jpg")
+                                .build());
         }
 }
