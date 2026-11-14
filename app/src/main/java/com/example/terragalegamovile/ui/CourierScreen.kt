@@ -79,7 +79,7 @@ import com.example.terragalegamovile.ui.components.TerraScaffold
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import com.example.terragalegamovile.ui.components.PinInput
-
+import com.example.terragalegamovile.data.StartDeliveryRequest
 @SuppressLint("MissingPermission")
 @Composable
 fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
@@ -99,6 +99,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
 
     // Recorrido
     var started by remember { mutableStateOf(false) }
+    var starting by remember { mutableStateOf(false) }
     var arrived by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0) }
     var myPos by remember { mutableStateOf<Pair<Double, Double>?>(null) }
@@ -134,13 +135,18 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
             try {
                 val fetched = ApiClient.api.courierActive(user.id).firstOrNull()
                 if (fetched != null) {
-                    // Si el backend no tiene ninguna ubicación, es un pedido nuevo:
-                    // se descarta lo que quedó guardado de un pedido anterior con el mismo número
-                    if (fetched.latitude == null && fetched.longitude == null) {
+                    // El servidor decide si la entrega ya empezó.
+                    started = fetched.startedAt != null
+
+                    if (!started) {
                         AppStorage.clearTrip(fetched.orderId)
+                    } else {
+                        AppStorage.setTripStarted(fetched.orderId, true)
                     }
-                    started = AppStorage.isTripStarted(fetched.orderId)
+                } else {
+                    started = false
                 }
+
                 job = fetched
             } catch (e: Exception) {
                 loadError = e.toUserMessage()
@@ -153,15 +159,57 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
     // Botón "Iniciar entrega"
     fun startTrip() {
         val current = job ?: return
-        AppStorage.setTripStarted(current.orderId, true)
-        started = true
-        if (!hasPermission) {
+        val to = destination ?: return
+
+        if (starting || started || !routeReady) return
+
+        if (Simulation.USE_REAL_GPS && !hasPermission) {
+            locationError = "Autoriza la ubicación y vuelve a pulsar Iniciar entrega."
+
             permissionLauncher.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
+            return
+        }
+
+        val sharedRoute = if (route.size > 1) {
+            route
+        } else {
+            listOf(Restaurant.location, to)
+        }
+
+        starting = true
+        locationError = null
+
+        scope.launch {
+            try {
+                val updated = ApiClient.api.startDelivery(
+                    user.id,
+                    current.orderId,
+                    StartDeliveryRequest(sharedRoute)
+                )
+
+                // Conserva la ruta aceptada por el servidor.
+                updated.route?.takeIf { it.size > 1 }?.let {
+                    route = it
+                }
+
+                job = updated
+                AppStorage.setTripStarted(current.orderId, true)
+
+                // Los efectos de simulación/GPS arrancan después
+                // de que el servidor confirme el inicio.
+                started = true
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                locationError = e.toUserMessage()
+            } finally {
+                starting = false
+            }
         }
     }
 
@@ -213,25 +261,37 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
         }
     }
 
-    // La dirección del pedido se convierte en un punto del mapa (con memoria y reintentos)
-    LaunchedEffect(job?.address, retry) {
-        val address = job?.address
-        if (address != null) {
-            destination = MapService.destinationFor(address)
-            geocodeDone = true
+    LaunchedEffect(job?.orderId, job?.address, job?.route, retry) {
+        val current = job ?: return@LaunchedEffect
+        val savedRoute = current.route.orEmpty()
+
+        destination = if (savedRoute.size > 1) {
+            savedRoute.last()
+        } else {
+            current.address?.let { MapService.destinationFor(it) }
         }
+
+        geocodeDone = true
     }
 
-    // Ruta fija: del restaurante al destino
-    LaunchedEffect(destination) {
+    LaunchedEffect(job?.orderId, destination, job?.route) {
         val to = destination
         val address = job?.address
+
+        routeReady = false
+
         if (to != null && address != null) {
-            route = MapService.routeFor(address, to)
+            val savedRoute = job?.route.orEmpty()
+
+            route = if (savedRoute.size > 1) {
+                savedRoute
+            } else {
+                MapService.routeFor(address, to)
+            }
+
             routeReady = true
         }
     }
-
     // Si no se pudo calcular la ruta, se usa una línea recta
     val shownRoute = if (route.size > 1) route
     else (destination?.let { listOf(Restaurant.location, it) } ?: emptyList())
@@ -433,9 +493,13 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                         if (!started) {
                             // Botón "Iniciar entrega"
                             TerraButton(
-                                text = if (routeReady) "Iniciar entrega" else "Preparando ruta...",
+                                text = when {
+                                    starting -> "Iniciando entrega..."
+                                    !routeReady -> "Preparando ruta..."
+                                    else -> "Iniciar entrega"
+                                },
                                 onClick = { startTrip() },
-                                enabled = routeReady,
+                                enabled = routeReady && !starting,
                                 modifier = Modifier.fillMaxWidth()
                             )
                             if (geocodeDone && destination == null) {

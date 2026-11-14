@@ -52,6 +52,14 @@ interface ApiService {
         @Body body: CompleteRequest
     ): ResponseBody
 
+
+    @POST("delivery/person/{id}/orders/{orderId}/start")
+    suspend fun startDelivery(
+        @Path("id") id: Int,
+        @Path("orderId") orderId: Int,
+        @Body body: StartDeliveryRequest
+    ): DeliveryJob
+
     // ---------- Menú (público, no necesita sesión) ----------
     @GET("products/active")
     suspend fun products(): List<Product>

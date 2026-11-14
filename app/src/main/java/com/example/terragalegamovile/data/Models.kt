@@ -21,7 +21,9 @@ data class ClientDelivery(
     val deliveryPersonPhone: String?,
     val latitude: Double?,
     val longitude: Double?,
-    val locationUpdatedAt: String?
+    val locationUpdatedAt: String?,
+    val startedAt: String? = null,
+    val route: List<LatLon>? = null
 )
 
 // Lo que ve el repartidor (nunca trae el PIN)
@@ -34,7 +36,9 @@ data class DeliveryJob(
     val latitude: Double?,
     val longitude: Double?,
     val locationUpdatedAt: String?,
-    val attemptsLeft: Int
+    val attemptsLeft: Int,
+    val startedAt: String? = null,
+    val route: List<LatLon>? = null
 )
 
 data class LocationRequest(val latitude: Double, val longitude: Double)
@@ -48,6 +52,10 @@ data class ApiErrorBody(val message: String?)
 data class CategoryRef(val id: Int, val name: String)
 
 data class Category(val id: Int, val name: String, val description: String?)
+
+data class StartDeliveryRequest(
+    val route: List<LatLon>
+)
 
 data class Product(
     val id: Int,

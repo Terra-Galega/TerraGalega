@@ -81,23 +81,48 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
 
     // Ubica el restaurante con el mismo geocodificador que los destinos
     // La dirección escrita se convierte en un punto del mapa (una sola vez)
-    LaunchedEffect(delivery?.address) {
-        val address = delivery?.address
-        if (address != null) destination = MapService.destinationFor(address)
-    }
+
 
     val serverCourier = delivery?.let { d ->
         d.latitude?.let { lat -> d.longitude?.let { lon -> LatLon(lat, lon) } }
     }
     // Mientras el repartidor no reporte posición, se asume que sigue en el restaurante
     val courier = serverCourier ?: Restaurant.location
+    LaunchedEffect(
+        delivery?.orderId,
+        delivery?.address,
+        delivery?.route
+    ) {
+        val current = delivery
 
-    // Ruta fija: del restaurante al destino
-    LaunchedEffect(destination) {
-        val to = destination
-        val address = delivery?.address
-        if (to != null && address != null) route = MapService.routeFor(address, to)
+        if (current == null) {
+            destination = null
+            route = emptyList()
+            return@LaunchedEffect
+        }
+
+        val sharedRoute = current.route.orEmpty()
+
+        if (sharedRoute.size > 1) {
+            // Misma ruta que utiliza el operador.
+            destination = sharedRoute.last()
+            route = sharedRoute
+        } else {
+            // Antes del inicio mantiene la vista previa actual.
+            destination = null
+            route = emptyList()
+
+            val address = current.address
+            val to = address?.let { MapService.destinationFor(it) }
+
+            destination = to
+
+            if (address != null && to != null) {
+                route = MapService.routeFor(address, to)
+            }
+        }
     }
+
     // Si no se pudo calcular la ruta, se dibuja una línea recta (mejor que nada)
     val shownRoute = if (route.size > 1) route
     else (destination?.let { listOf(Restaurant.location, it) } ?: emptyList())
