@@ -58,6 +58,12 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private EmailVerificationService emailVerificationService;
 
+    @Autowired
+    private AddressService addressService;
+
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
+
     // Obtiene todos los clientes registrados en la base de datos.
     @Override
     @Transactional
@@ -90,6 +96,9 @@ public class ClientServiceImpl implements ClientService {
             throw ApiException.conflict(
                     "Ya existe una cuenta registrada con ese correo electrónico.");
         }
+
+        // El teléfono es obligatorio (solo las cuentas de Google lo dejan para después)
+        requirePhone(client);
 
         // Comprueba que el número de teléfono no esté registrado por otro cliente.
         if (repository.findByPhone(client.getPhone()) != null) {
@@ -141,6 +150,64 @@ public class ClientServiceImpl implements ClientService {
         return saved;
     }
 
+    // Sin esto, findByPhone(null) encontraría las cuentas de Google sin teléfono
+    private static void requirePhone(Client client) {
+        if (client.getPhone() == null || client.getPhone().isBlank()) {
+            throw ApiException.badRequest("Escribe tu número de teléfono.");
+        }
+        client.setPhone(client.getPhone().trim());
+    }
+
+    // Completa una cuenta creada con Google. Reutiliza las mismas reglas de
+    // "Editar cuenta" (teléfono único) y de "Agregar dirección".
+    @Override
+    @Transactional
+    public Client completeProfile(Integer id, com.example.demo.dto.CompleteProfileDTO data) {
+        Client actual = repository.findById(id)
+                .orElseThrow(() -> ApiException.notFound("El cliente no existe."));
+
+        if (data == null) {
+            throw ApiException.badRequest("Faltan los datos del perfil.");
+        }
+
+        String name = data.name() == null ? "" : data.name().trim();
+        String lastName = data.lastName() == null ? "" : data.lastName().trim();
+        String phone = data.phone() == null ? "" : data.phone().trim();
+
+        if (name.isEmpty() || name.length() > 70) {
+            throw ApiException.badRequest("Escribe tu nombre (máximo 70 caracteres).");
+        }
+        if (lastName.isEmpty() || lastName.length() > 70) {
+            throw ApiException.badRequest("Escribe tu apellido (máximo 70 caracteres).");
+        }
+        if (phone.isEmpty() || phone.length() > 25) {
+            throw ApiException.badRequest("Escribe tu número de teléfono.");
+        }
+
+        boolean needsAddress = actual.getAddresses().isEmpty();
+        if (needsAddress && (data.address() == null
+                || data.address().getLabel() == null
+                || data.address().getLabel().isBlank())) {
+            throw ApiException.badRequest("Agrega la dirección donde quieres recibir tus pedidos.");
+        }
+
+        Client saved = updateClient(id, Client.builder()
+                .name(name)
+                .lastName(lastName)
+                .email(actual.getEmail())
+                .phone(phone)
+                .build());
+
+        if (needsAddress) {
+            addressService.addAddress(id, data.address());
+            // La dirección se guardó por su repositorio: se recarga el cliente
+            // para que isProfileComplete() la vea
+            entityManager.flush();
+            entityManager.refresh(saved);
+        }
+        return saved;
+    }
+
     // Actualiza la información de un cliente existente.
     @Override
     @Transactional
@@ -152,6 +219,7 @@ public class ClientServiceImpl implements ClientService {
 
         // Valida el formato del correo recibido.
         EmailRules.validate(client.getEmail());
+        requirePhone(client);
 
         // Consulta si el correo o el teléfono ya están registrados en otro cliente.
         Client emailClient = repository.findByEmail(client.getEmail());

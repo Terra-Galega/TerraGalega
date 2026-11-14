@@ -51,6 +51,12 @@ public class UserEntity {
     @Column (nullable = false)
     private boolean emailVerified;
 
+    // Id de la cuenta de Google ("sub" del token) si inicia sesión con Google.
+    // null = solo correo y contraseña.
+    @JsonIgnore
+    @Column(unique = true, length = 255)
+    private String googleSubject;
+
     // Un usuario puede tener varios roles y un rol pertenece a muchos usuarios.
     // EAGER: al traer el usuario siempre se traen sus roles (Spring Security los necesita).
     // Sin cascade: borrar un usuario solo borra sus filas en user_roles, no el rol.

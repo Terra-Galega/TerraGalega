@@ -1,7 +1,6 @@
 package com.example.demo.dto;
 
 import com.example.demo.entities.Role;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -23,4 +22,18 @@ public class AuthResponseDTO {
     private String lastName;
 
     private Role role;
+
+    // false = cuenta creada con Google a la que le faltan datos (teléfono,
+    // apellido o dirección). El front la lleva a "Completa tu perfil".
+    private boolean profileComplete;
+
+    // Para cuentas que siempre tienen el perfil completo
+    public AuthResponseDTO(String token, Integer id, String name, String lastName, Role role) {
+        this(token, id, name, lastName, role, true);
+    }
+
+    public AuthResponseDTO(String token, LoginResponseDTO profile) {
+        this(token, profile.getId(), profile.getName(), profile.getLastName(),
+                profile.getRole(), profile.isProfileComplete());
+    }
 }

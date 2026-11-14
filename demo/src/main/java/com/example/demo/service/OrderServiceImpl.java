@@ -76,15 +76,42 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<Order> getOrdersByClientId(Integer clientId) {
-        return repository.findByClientIdOrderByCreatedAtDesc(clientId);
+        return repository.findByClientIdOrderByCreatedAtDesc(clientId)
+                .stream()
+                .filter(Order::isVisibleOrder)
+                .toList();
     }
 
-    // Todos los pedidos ordenados por fecha de creación descendente
     @Override
     @Transactional
     public List<Order> getAllOrders() {
-        return repository.findAll(org.springframework.data.domain.Sort
-                .by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
+        return repository.findAll(
+                org.springframework.data.domain.Sort.by(
+                        org.springframework.data.domain.Sort.Direction.DESC,
+                        "createdAt"))
+                .stream()
+                .filter(Order::isVisibleOrder)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public List<OrderSummaryDTO> getActiveOrders() {
+        return repository.findByStatusNotInOrderByCreatedAtAsc(FINISHED_STATUSES)
+                .stream()
+                .filter(Order::isProcessable)
+                .map(this::toSummary)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public List<OrderSummaryDTO> getAllOrderSummaries() {
+        return repository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .filter(Order::isVisibleOrder)
+                .map(this::toSummary)
+                .toList();
     }
 
     // Pone client = null en todos los pedidos del cliente, para poder borrar su
@@ -111,6 +138,17 @@ public class OrderServiceImpl implements OrderService {
         // Primera pasada: solo validar
         for (Order order : orders) {
             OrderStatus status = order.getStatus();
+
+            if (order.getPaymentReference() != null
+                    && ("PENDING".equals(order.getPaymentState())
+                            || "REFUND_PENDING".equals(order.getPaymentState())
+                            || "REFUND_FAILED".equals(order.getPaymentState())
+                            || ("PAID".equals(order.getPaymentState())
+                                    && status == OrderStatus.PENDING))) {
+
+                throw ApiException.conflict(
+                        "Finaliza o cancela tus pagos antes de eliminar la cuenta.");
+            }
 
             if (status != OrderStatus.PENDING && !FINISHED_STATUSES.contains(status)) {
                 throw ApiException.conflict(
@@ -152,6 +190,42 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order checkout(Client client, CheckoutRequestDTO request) {
+        return buildCheckout(client, request, false);
+    }
+
+    @Override
+    @Transactional
+    public Order checkoutForPayment(
+            Client client,
+            CheckoutRequestDTO request) {
+
+        return buildCheckout(client, request, true);
+    }
+
+    private Order buildCheckout(
+            Client client,
+            CheckoutRequestDTO request,
+            boolean online) {
+
+        // Cuentas creadas con Google: sin teléfono ni dirección el restaurante
+        // no puede entregar el pedido
+        if (!client.isProfileComplete()) {
+            throw ApiException.conflict(
+                    "Completa tu perfil (teléfono y dirección) antes de hacer un pedido.");
+        }
+
+        if (request == null
+                || request.getAddress() == null
+                || request.getAddress().isBlank()
+                || request.getAddress().trim().length() > 120) {
+            throw ApiException.badRequest("Dirección inválida.");
+        }
+
+        if (request.getItems() != null && request.getItems().size() > 100) {
+            throw ApiException.badRequest("Demasiadas líneas en el carrito.");
+        }
+
+        // Aquí continúa el contenido que tenía checkout().
 
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw ApiException.badRequest("El carrito está vacío.");
@@ -162,7 +236,7 @@ public class OrderServiceImpl implements OrderService {
                 .client(client)
                 .status(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
-                .address(request.getAddress())
+                .address(request.getAddress().trim())
                 .deliveryFee(DELIVERY_FEE)
                 .build();
 
@@ -171,8 +245,13 @@ public class OrderServiceImpl implements OrderService {
         // Se crea una línea (OrderDetail) por cada producto del carrito
         for (CheckoutItemDTO item : request.getItems()) {
 
+            if (item == null || item.getProductId() == null) {
+                throw ApiException.badRequest("Producto inválido.");
+            }
+
             Integer quantity = item.getQuantity();
-            if (quantity == null || quantity < 1) {
+
+            if (quantity == null || quantity < 1 || quantity > 99) {
                 throw ApiException.badRequest(
                         "Cantidad inválida para el producto " + item.getProductId());
             }
@@ -217,7 +296,9 @@ public class OrderServiceImpl implements OrderService {
                             OrderDetailAddOn.builder()
                                     .orderDetail(detail)
                                     .addOn(addOn)
+                                    .unitPrice(addOn.getPrice())
                                     .build());
+
                 }
             }
 
@@ -226,6 +307,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setDetails(details);
+
+        order.setCheckoutSubtotal(order.getSubtotal());
+        order.setPaymentState(online ? "PENDING" : "CASH");
 
         // Cupón opcional: se valida y se calcula el descuento aquí, en el servidor.
         // Si algo falla, la transacción se revierte y el pedido no se crea.
@@ -237,26 +321,12 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order saved = repository.save(order);
-        orderMirrorService.sync(saved);
+
+        if (!online) {
+            orderMirrorService.sync(saved);
+        }
+
         return saved;
-    }
-
-    // Pedidos activos sin entregar ni cancelar)
-    @Override
-    @Transactional
-    public List<OrderSummaryDTO> getActiveOrders() {
-        return repository.findByStatusNotInOrderByCreatedAtAsc(FINISHED_STATUSES).stream()
-                .map(this::toSummary)
-                .toList();
-    }
-
-    // Resumen de todos los pedidos
-    @Override
-    @Transactional
-    public List<OrderSummaryDTO> getAllOrderSummaries() {
-        return repository.findAllByOrderByCreatedAtDesc().stream()
-                .map(this::toSummary)
-                .toList();
     }
 
     // Datos para la tabla del operador
@@ -281,7 +351,12 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order confirmOrder(Integer orderId) {
 
-        Order order = getOrderById(orderId);
+        Order order = repository.lockById(orderId)
+                .orElseThrow(() -> ApiException.notFound("El pedido no existe."));
+
+        if (!order.isProcessable()) {
+            throw ApiException.conflict("El pago aún no está aprobado.");
+        }
 
         if (order.getStatus() != OrderStatus.PENDING) {
             throw ApiException.conflict("Solo se pueden confirmar pedidos pendientes.");
@@ -298,8 +373,13 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order cancelOrder(Integer orderId, Integer clientId) {
 
-        Order order = getOrderById(orderId);
+        Order order = repository.lockById(orderId)
+                .orElseThrow(() -> ApiException.notFound("El pedido no existe."));
 
+        if (order.getPaymentReference() != null) {
+            throw ApiException.conflict(
+                    "Cancela este pedido mediante el servicio de pagos.");
+        }
         // Solo el dueño del pedido puede cancelarlo
         if (order.getClient() == null || !order.getClient().getId().equals(clientId)) {
             throw ApiException.forbidden("Este pedido no te pertenece.");
@@ -442,6 +522,7 @@ public class OrderServiceImpl implements OrderService {
         dto.setDeliveredAt(order.getDeliveredAt());
         dto.setAddress(order.getAddress());
         dto.setTotal(order.getTotal());
+        dto.setPaymentState(order.getPaymentState());
         dto.setDiscount(order.getDiscountAmount());
         dto.setCouponCode(order.getCoupon() != null ? order.getCoupon().getCode() : null);
 
@@ -488,11 +569,17 @@ public class OrderServiceImpl implements OrderService {
             // Adicionales seleccionados para este producto
             List<AddOnOrderDTO> addOnDTOs = new ArrayList<>();
 
-            for (AddOn addOn : detail.getAddOns()) {
+            for (OrderDetailAddOn link : detail.getOrderDetailAddOns()) {
+                AddOn addOn = link.getAddOn();
+
                 AddOnOrderDTO addOnDTO = new AddOnOrderDTO();
                 addOnDTO.setId(addOn.getId());
                 addOnDTO.setName(addOn.getName());
-                addOnDTO.setPrice(addOn.getPrice());
+                addOnDTO.setPrice(
+                        link.getUnitPrice() != null
+                                ? link.getUnitPrice()
+                                : addOn.getPrice());
+
                 addOnDTOs.add(addOnDTO);
             }
 
@@ -520,11 +607,12 @@ public class OrderServiceImpl implements OrderService {
         LocalDateTime start = from != null ? from.atStartOfDay() : null;
         LocalDateTime end = to != null ? to.plusDays(1).atStartOfDay() : null;
 
-        return repository.findAllByOrderByCreatedAtDesc().stream()
+        return repository.findAllByOrderByCreatedAtDesc().stream().filter(Order::isVisibleOrder)
                 .filter(o -> orderId == null || o.getId().equals(orderId))
                 .filter(o -> start == null || !o.getCreatedAt().isBefore(start))
                 .filter(o -> end == null || o.getCreatedAt().isBefore(end))
                 .filter(o -> productId == null || o.getDetails().stream()
+
                         .anyMatch(d -> d.getProduct().getId().equals(productId)))
                 .map(this::toSummary)
                 .toList();

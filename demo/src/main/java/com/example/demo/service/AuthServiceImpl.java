@@ -84,8 +84,7 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtGenerator.generateToken(authentication);
 
         LoginResponseDTO profile = currentUser(email);
-        return new AuthResponseDTO(token, profile.getId(), profile.getName(),
-                profile.getLastName(), profile.getRole());
+        return new AuthResponseDTO(token, profile);
     }
 
     // Cada tipo de usuario tiene su propia tabla, así que se busca en cada una
@@ -94,7 +93,8 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponseDTO currentUser(String email) {
         Client client = clientRepository.findByEmail(email);
         if (client != null) {
-            return new LoginResponseDTO(client.getId(), client.getName(), client.getLastName(), client.getRole());
+            return new LoginResponseDTO(client.getId(), client.getName(), client.getLastName(), client.getRole(),
+                    client.isProfileComplete());
         }
 
         Admin admin = adminRepository.findByEmail(email);

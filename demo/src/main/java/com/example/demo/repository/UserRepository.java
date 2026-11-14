@@ -15,4 +15,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
     // Verifica si ya existe una cuenta con ese correo, sin importar el tipo
     boolean existsByUsername(String username);
+
+    // Cuenta enlazada a una cuenta de Google (por el "sub" del token de Google)
+    Optional<UserEntity> findByGoogleSubject(String googleSubject);
 }

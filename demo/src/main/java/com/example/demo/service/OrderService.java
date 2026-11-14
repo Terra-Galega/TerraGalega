@@ -48,4 +48,6 @@ public interface OrderService {
     // ON_THE_WAY -> DELIVERED
     Order deliverOrder(Integer orderId);
 
+    Order checkoutForPayment(Client client, CheckoutRequestDTO request);
+
 }

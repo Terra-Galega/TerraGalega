@@ -19,6 +19,9 @@ public interface ClientService {
     // Actualiza los datos de un cliente existente.
     Client updateClient(Integer id, Client client);
 
+    // Cuenta creada con Google: guarda apellido, teléfono y la primera dirección
+    Client completeProfile(Integer id, com.example.demo.dto.CompleteProfileDTO data);
+
     // Elimina un cliente por su identificador.
     void deleteClient(Integer id);
 

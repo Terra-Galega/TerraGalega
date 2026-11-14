@@ -10,6 +10,7 @@ import com.example.demo.dto.AuthResponseDTO;
 import com.example.demo.dto.ChangePasswordRequestDTO;
 import com.example.demo.dto.ClientProfileDTO;
 import com.example.demo.dto.ClientUpdateDTO;
+import com.example.demo.dto.CompleteProfileDTO;
 import com.example.demo.entities.Client;
 import com.example.demo.entities.Role;
 import com.example.demo.security.AuthenticatedUser;
@@ -69,7 +70,21 @@ public class ClientController {
         Client saved = clientService.updateClient(id, request.toEntity());
 
         String token = jwtGenerator.generateToken(saved.getEmail(), List.of(Role.CLIENT.name()));
-        return new AuthResponseDTO(token, saved.getId(), saved.getName(), saved.getLastName(), saved.getRole());
+        return new AuthResponseDTO(token, saved.getId(), saved.getName(), saved.getLastName(), saved.getRole(),
+                saved.isProfileComplete());
+    }
+
+    // Cuentas creadas con Google: guarda lo que Google no da (apellido,
+    // teléfono y la primera dirección) con las mismas reglas del registro
+    @Operation(summary = "Complete the profile of an account created with Google")
+    @PutMapping("/me/complete-profile")
+    public AuthResponseDTO completeProfile(@RequestBody CompleteProfileDTO request) {
+        Integer id = authenticatedUser.client().getId();
+        Client saved = clientService.completeProfile(id, request);
+
+        String token = jwtGenerator.generateToken(saved.getEmail(), List.of(Role.CLIENT.name()));
+        return new AuthResponseDTO(token, saved.getId(), saved.getName(), saved.getLastName(), saved.getRole(),
+                saved.isProfileComplete());
     }
 
     @Operation(summary = "Delete the logged-in client account")
