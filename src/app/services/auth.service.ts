@@ -40,6 +40,12 @@ export interface LoginResponse {
   role: string;
 }
 
+// Respuesta del back al registrarse, confirmar el correo o pedir un reenvío:
+// solo un texto para mostrar al usuario.
+export interface MessageResponse {
+  message: string;
+}
+
 // Datos que vienen dentro del JWT.
 interface JwtPayload {
   sub: string; // correo del usuario
@@ -118,9 +124,25 @@ export class AuthService {
     });
   }
 
-  // Registra un cliente y lo deja con la sesión iniciada.
-  signup(client: CreateClient): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/signup`, client);
+  // Registra un cliente. No inicia sesión: el back envía un correo y la cuenta
+  // solo entra después de confirmarlo.
+  signup(client: CreateClient): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/signup`, client);
+  }
+
+  // Confirma el correo con el token que llegó en el enlace.
+  verifyEmail(token: string): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/verify-email`, {
+      token,
+    });
+  }
+
+  // Pide un nuevo correo de confirmación (el back responde igual exista o no la cuenta).
+  resendVerification(email: string): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
+      `${this.apiUrl}/resend-verification`,
+      { email },
+    );
   }
 
   // =========================

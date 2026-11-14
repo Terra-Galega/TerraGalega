@@ -103,6 +103,33 @@
         </p>
       }
 
+      <!-- Correo sin confirmar: reenviar el enlace -->
+      @if (emailNotVerified) {
+        <div class="space-y-1.5">
+          <button
+            type="button"
+            id="btn-resend-login"
+            (click)="resend()"
+            [disabled]="resendCooldown > 0"
+            class="text-[13px] font-medium underline underline-offset-2 disabled:opacity-50 disabled:no-underline"
+            style="color: #b2571f"
+          >
+            @if (resendCooldown > 0) {
+              Reenviar correo de confirmación ({{ resendCooldown }}s)
+            } @else {
+              Reenviar correo de confirmación
+            }
+          </button>
+
+          @if (resendMessage) {
+            <p class="text-xs" style="color: #4a6b3a">{{ resendMessage }}</p>
+          }
+          @if (resendError) {
+            <p class="text-xs" style="color: #8a2222">{{ resendError }}</p>
+          }
+        </div>
+      }
+
       <!-- Botón -->
       <app-button
         id="btn-login"
@@ -175,9 +202,77 @@
     </form>
   }
 
+  <!-- REGISTRO COMPLETADO: pedir que revise el correo -->
+  @if (activeTab === "signup" && pendingEmail) {
+    <div id="signup-pending" class="text-center space-y-4">
+      <div
+        class="w-14 h-14 mx-auto rounded-full flex items-center justify-center"
+        style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%)"
+      >
+        <svg
+          class="w-7 h-7 text-cream"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.8"
+            d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+          />
+        </svg>
+      </div>
+
+      <h2 class="font-serif text-2xl font-semibold text-charcoal">
+        Revisa tu correo
+      </h2>
+
+      <p
+        class="text-sm leading-relaxed"
+        style="color: rgba(44, 44, 44, 0.62)"
+      >
+        Enviamos un enlace de confirmación a
+        <span class="font-semibold text-charcoal">{{ pendingEmail }}</span
+        >. Abre el enlace para activar tu cuenta; vence en 24 horas.
+      </p>
+
+      @if (resendMessage) {
+        <p class="text-xs" style="color: #4a6b3a">{{ resendMessage }}</p>
+      }
+      @if (resendError) {
+        <p class="text-xs" style="color: #8a2222">{{ resendError }}</p>
+      }
+
+      <button
+        type="button"
+        id="btn-resend-signup"
+        (click)="resend()"
+        [disabled]="resendCooldown > 0"
+        class="text-[13px] font-medium underline underline-offset-2 disabled:opacity-50 disabled:no-underline"
+        style="color: #b2571f"
+      >
+        @if (resendCooldown > 0) {
+          ¿No te llegó? Reenviar ({{ resendCooldown }}s)
+        } @else {
+          ¿No te llegó? Reenviar correo
+        }
+      </button>
+
+      <app-button
+        type="button"
+        variant="primary"
+        [fullWidth]="true"
+        (click)="goBackToLogin()"
+      >
+        Ir a iniciar sesión
+      </app-button>
+    </div>
+  }
+
   <!-- REGISTRO -->
 
-  @if (activeTab === "signup") {
+  @if (activeTab === "signup" && !pendingEmail) {
     <form
       id="signup-form"
       class="space-y-4"

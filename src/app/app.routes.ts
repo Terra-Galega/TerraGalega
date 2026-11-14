@@ -11,6 +11,7 @@ import { ProductDetailComponent } from './pages/product-detail/product-detail.co
 import { AboutUsComponent } from './pages/about-us/about-us.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { ErrorComponent } from './pages/error/error.component';
+import { VerifyEmailComponent } from './pages/verify-email/verify-email.component';
 import {
   adminGuard,
   clientAreaGuard,
@@ -40,6 +41,12 @@ export const routes: Routes = [
     path: 'login',
     component: LoginComponent,
     canActivate: [redirectByRoleGuard],
+  },
+  {
+    // Destino del enlace del correo de confirmación: /verify-email?token=...
+    // Sin guard: debe abrir igual con o sin sesión iniciada.
+    path: 'verify-email',
+    component: VerifyEmailComponent,
   },
   {
     // Página "Sobre nosotros".

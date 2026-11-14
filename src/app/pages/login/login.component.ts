@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { Role } from '../../models/role';
@@ -12,6 +12,12 @@ import { AuthService, LoginResponse } from '../../services/auth.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
 
+// Segundos que el botón de reenviar queda bloqueado (el back usa el mismo límite).
+const RESEND_COOLDOWN_SECONDS = 60;
+
+// Código con el que el back avisa que la contraseña es correcta pero falta confirmar el correo.
+const EMAIL_NOT_VERIFIED_CODE = 'EMAIL_NOT_VERIFIED';
+
 @Component({
   selector: 'app-login',
   imports: [
@@ -22,7 +28,7 @@ import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
   ],
   templateUrl: './login.component.html',
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
   activeTab: 'login' | 'signup' = 'login';
   // Controla la visibilidad de las contraseñas en los formularios
   showLoginPassword = false;
@@ -41,6 +47,19 @@ export class LoginComponent {
   signupPassword = '';
   signupPhone = '';
   signupAddress = '';
+
+  // Confirmación de correo
+  // Correo al que se envió el enlace tras registrarse (muestra la pantalla "revisa tu correo")
+  pendingEmail = '';
+  // true si el login falló porque el correo aún no está confirmado
+  emailNotVerified = false;
+  // Texto que se muestra después de pedir un reenvío
+  resendMessage = '';
+  resendError = '';
+  // Segundos que faltan para poder reenviar otra vez (0 = ya se puede)
+  resendCooldown = 0;
+  private cooldownTimer: ReturnType<typeof setInterval> | null = null;
+
   // Servicios inyectados
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -61,6 +80,12 @@ export class LoginComponent {
   // Cambia la pestaña activa entre login y signup
   selectTab(tab: 'login' | 'signup') {
     this.activeTab = tab;
+    this.loginError = '';
+    this.signupError = '';
+    this.emailNotVerified = false;
+    this.pendingEmail = '';
+    this.resendMessage = '';
+    this.resendError = '';
   }
   // Alterna la visibilidad de la contraseña en el formulario de login
   toggleLoginPassword() {
@@ -100,6 +125,9 @@ export class LoginComponent {
   // Maneja el inicio de sesión del usuario
   login() {
     this.loginError = '';
+    this.emailNotVerified = false;
+    this.resendMessage = '';
+    this.resendError = '';
     if (!isValidEmail(this.loginEmail)) {
       this.loginError = EMAIL_ERROR_MESSAGE;
       return;
@@ -114,8 +142,66 @@ export class LoginComponent {
           error,
           'No se pudo conectar con el servidor.',
         );
+        // Contraseña correcta pero correo sin confirmar: se ofrece reenviar el enlace
+        if (error?.error?.code === EMAIL_NOT_VERIFIED_CODE) {
+          this.emailNotVerified = true;
+          this.pendingEmail = this.loginEmail.trim();
+        }
       },
     });
+  }
+
+  // Pide otro correo de confirmación para pendingEmail
+  resendVerification() {
+    if (!this.pendingEmail || this.resendCooldown > 0) {
+      return;
+    }
+    this.resendMessage = '';
+    this.resendError = '';
+
+    this.auth.resendVerification(this.pendingEmail).subscribe({
+      next: () => {
+        this.resendMessage = 'Te enviamos un nuevo correo. Revisa tu bandeja de entrada.';
+        this.startCooldown();
+      },
+      error: (error) => {
+        this.resendError = getErrorMessage(
+          error,
+          'No se pudo reenviar el correo. Inténtalo de nuevo.',
+        );
+      },
+    });
+  }
+
+  // Vuelve al formulario de inicio de sesión desde la pantalla "revisa tu correo"
+  backToLogin() {
+    const email = this.pendingEmail;
+    this.selectTab('login');
+    this.loginEmail = email;
+    this.loginPassword = '';
+  }
+
+  private startCooldown() {
+    this.stopCooldown();
+    this.resendCooldown = RESEND_COOLDOWN_SECONDS;
+    this.cooldownTimer = setInterval(() => {
+      this.resendCooldown--;
+      if (this.resendCooldown <= 0) {
+        this.stopCooldown();
+      }
+    }, 1000);
+  }
+
+  private stopCooldown() {
+    if (this.cooldownTimer) {
+      clearInterval(this.cooldownTimer);
+      this.cooldownTimer = null;
+    }
+    this.resendCooldown = 0;
+  }
+
+  ngOnDestroy() {
+    this.stopCooldown();
   }
   // Maneja el registro de un nuevo cliente
   setSignupName(value: string) {
@@ -169,12 +255,24 @@ export class LoginComponent {
       role: Role.CLIENT,
       addresses: [{ label: this.signupAddress.trim() }],
     };
-    // El back crea la cuenta y devuelve el token: el cliente queda con la sesión iniciada
+    // El back crea la cuenta y envía el correo de confirmación.
+    // No devuelve token: el cliente entra después de confirmar su correo.
     this.auth.signup(newClient).subscribe({
-      next: (response) => {
-        this.auth.setSession(response);
-        this.toast.show('Cuenta creada correctamente');
-        this.goByRole(response);
+      next: () => {
+        this.pendingEmail = newClient.email;
+        this.signupName = '';
+        this.signupLastName = '';
+        this.signupEmail = '';
+        this.signupPassword = '';
+        this.signupPhone = '';
+        this.signupAddress = '';
+        this.resendMessage = '';
+        this.resendError = '';
+        this.startCooldown();
+        this.toast.show(
+          'Cuenta creada',
+          'Revisa tu correo para confirmarla.',
+        );
       },
       error: (error) => {
         console.error('Error creando cuenta:', error);

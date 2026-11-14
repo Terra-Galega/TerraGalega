@@ -82,7 +82,7 @@ export class AdminCouponModalComponent {
 
     readonly descriptionMax = DESCRIPTION_MAX;
     readonly maxAmount = MAX_AMOUNT;
-    readonly maxUsesLimit = MAX_USES;
+    readonly maxUsesLimit = MAX_USES;       
     saving = false;
 
     constructor() {

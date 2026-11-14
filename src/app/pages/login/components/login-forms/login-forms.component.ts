@@ -21,6 +21,15 @@ export class LoginFormsComponent {
   @Input() signupPhone = '';
   @Input() signupAddress = '';
 
+  // Confirmación de correo
+  @Input() pendingEmail = '';
+  @Input() emailNotVerified = false;
+  @Input() resendMessage = '';
+  @Input() resendError = '';
+  @Input() resendCooldown = 0;
+  @Output() resendVerification = new EventEmitter<void>();
+  @Output() backToLogin = new EventEmitter<void>();
+
   @Input() showLoginPassword = false;
   @Input() showSignupPassword = false;
   //eventos de salida (info del cliente)
@@ -98,5 +107,13 @@ export class LoginFormsComponent {
 
   signup() {
     this.signupSubmit.emit();
+  }
+
+  resend() {
+    this.resendVerification.emit();
+  }
+
+  goBackToLogin() {
+    this.backToLogin.emit();
   }
 }

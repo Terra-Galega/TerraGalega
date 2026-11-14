@@ -1,0 +1,119 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen flex items-center justify-center px-6 py-32">
+  <div class="w-full max-w-md mx-auto text-center">
+    <div class="glass-card rounded-3xl p-10">
+      @switch (state) {
+        <!-- Confirmando -->
+        @case ("loading") {
+          <p
+            class="text-[12px] tracking-widest uppercase mb-3"
+            style="color: rgba(44, 44, 44, 0.38)"
+          >
+            Un momento
+          </p>
+          <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
+            Confirmando tu correo…
+          </h1>
+          <p class="text-sm" style="color: rgba(44, 44, 44, 0.62)">
+            Estamos validando tu enlace.
+          </p>
+        }
+
+        <!-- Correo confirmado -->
+        @case ("success") {
+          <div
+            class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center"
+            style="background: linear-gradient(135deg, #5f7f4f 0%, #3f5c33 100%)"
+          >
+            <svg
+              class="w-8 h-8 text-cream"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4.5 12.75l6 6 9-13.5"
+              />
+            </svg>
+          </div>
+          <p
+            class="text-[12px] tracking-widest uppercase mb-3"
+            style="color: rgba(44, 44, 44, 0.38)"
+          >
+            Cuenta activada
+          </p>
+          <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
+            ¡Correo confirmado!
+          </h1>
+          <p
+            id="verify-message"
+            class="text-sm leading-relaxed mb-8"
+            style="color: rgba(44, 44, 44, 0.62)"
+          >
+            {{ message }}
+          </p>
+          <app-button size="lg" [fullWidth]="true" (click)="goLogin()"
+            >Iniciar sesión</app-button
+          >
+        }
+
+        <!-- Enlace inválido, vencido o ya usado -->
+        @case ("error") {
+          <div
+            class="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center"
+            style="
+              background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+              box-shadow: 0 4px 20px rgba(178, 87, 31, 0.3);
+            "
+          >
+            <svg
+              class="w-8 h-8 text-cream"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+                d="M12 9v3.75m0 3.75h.008v.008H12v-.008zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <p
+            class="text-[12px] tracking-widest uppercase mb-3"
+            style="color: rgba(44, 44, 44, 0.38)"
+          >
+            No pudimos confirmar
+          </p>
+          <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
+            Enlace no válido
+          </h1>
+          <p
+            id="verify-message"
+            class="text-sm leading-relaxed mb-8"
+            style="color: rgba(44, 44, 44, 0.62)"
+          >
+            {{ message }}
+          </p>
+          <app-button size="lg" [fullWidth]="true" (click)="goLogin()"
+            >Ir a iniciar sesión</app-button
+          >
+          <button
+            type="button"
+            (click)="goHome()"
+            class="inline-flex items-center gap-2 text-[13px] font-medium text-charcoal/45 hover:text-charcoal mt-5 transition-colors"
+          >
+            Volver al inicio
+          </button>
+        }
+      }
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>
