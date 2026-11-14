@@ -339,16 +339,6 @@ public class DataLoader implements CommandLineRunner {
                                                 .containsGluten(false).build());
 
                 productRepository.save(
-                                Product.builder().name("Gambas al Ajillo")
-                                                .description("Gambas salteadas en aceite de oliva con ajo, guindilla y perejil fresco.")
-                                                .price(35000.0)
-                                                .category(categoryRepository.findByName("Mariscos"))
-                                                .imageUrl("https://invitadoinvierno.com/wp-content/uploads/2019/07/receta-gambas-ajillo-0.jpg")
-                                                .active(true).popular(true).vegetarian(false).spicyMild(true)
-                                                .spicyHot(true).containsNuts(false).containsSeafood(true)
-                                                .containsGluten(false).build());
-
-                productRepository.save(
                                 Product.builder().name("Calamares a la Romana")
                                                 .description("Anillas de calamar rebozadas y fritas hasta quedar doradas y crujientes.")
                                                 .price(31000.0)
@@ -357,6 +347,15 @@ public class DataLoader implements CommandLineRunner {
                                                 .active(true).popular(false).vegetarian(false).spicyMild(false)
                                                 .spicyHot(false).containsNuts(false).containsSeafood(true)
                                                 .containsGluten(true).build());
+                productRepository.save(
+                                Product.builder().name("Gambas al Ajillo")
+                                                .description("Gambas salteadas en aceite de oliva con ajo, guindilla y perejil fresco.")
+                                                .price(35000.0)
+                                                .category(categoryRepository.findByName("Mariscos"))
+                                                .imageUrl("https://invitadoinvierno.com/wp-content/uploads/2019/07/receta-gambas-ajillo-0.jpg")
+                                                .active(true).popular(true).vegetarian(false).spicyMild(true)
+                                                .spicyHot(true).containsNuts(false).containsSeafood(true)
+                                                .containsGluten(false).build());
 
                 productRepository.save(
                                 Product.builder().name("Pulpo a la Brasa")
