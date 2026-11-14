@@ -8,23 +8,49 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 object ApiClient {
 
     // Emulador de Android: 10.0.2.2 es tu PC (donde corre el backend).
     // Celular real: pon la IP de tu PC en el wifi, ej. "http://192.168.1.20:8080/"
     const val BASE_URL = "http://10.195.23.83:8080/"
-
+    private val backendUrl = BASE_URL.toHttpUrl()
     private val okHttp = OkHttpClient.Builder()
         //Agrega el JWT a cada peticion si hay sesion
-        .addInterceptor{ chain ->
-            val token = Session.user?.token
-            val request = if (token != null)
-                chain.request().newBuilder().header("Authorization", "Bearer $token").build()
-            else chain.request()
+        .addInterceptor { chain ->
+            val original = chain.request()
+            val url = original.url
+
+            val isBackend =
+                url.scheme == backendUrl.scheme &&
+                        url.host == backendUrl.host &&
+                        url.port == backendUrl.port
+
+            val isAuthRequest =
+                url.encodedPath == "/auth/login" ||
+                        url.encodedPath == "/auth/signup"
+
+            val token = if (isBackend && !isAuthRequest) {
+                Session.validToken()
+            } else {
+                null
+            }
+
+            val request = if (token != null) {
+                original.newBuilder()
+                    .header("Authorization", "Bearer $token")
+                    .build()
+            } else {
+                original
+            }
+
             val response = chain.proceed(request)
-            // Token vencido o cuenta eliminada/desactivada: se cierra la sesión
-            if (response.code == 401 && token != null) Session.user = null
+
+            if (response.code == 401 && token != null) {
+                Session.clearIfTokenMatches(token)
+            }
+
             response
         }
         .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })

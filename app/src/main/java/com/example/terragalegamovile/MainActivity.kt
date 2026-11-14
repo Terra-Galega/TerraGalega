@@ -1,75 +1,95 @@
 package com.example.terragalegamovile
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.terragalegamovile.data.AppStorage
-import com.example.terragalegamovile.data.MapService
-import com.example.terragalegamovile.data.Session
-import com.example.terragalegamovile.ui.ClientScreen
-import com.example.terragalegamovile.ui.CourierScreen
-import com.example.terragalegamovile.ui.LoginScreen
-import com.example.terragalegamovile.ui.theme.TerraGalegaMovileTheme
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.runtime.LaunchedEffect
-import com.example.terragalegamovile.data.CartStore
-import kotlinx.coroutines.delay
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.terragalegamovile.data.ApiClient
+import com.example.terragalegamovile.data.AppStorage
+import com.example.terragalegamovile.data.CartStore
 import com.example.terragalegamovile.data.CheckoutDraft
 import com.example.terragalegamovile.data.ClientUi
+import com.example.terragalegamovile.data.MapService
+import com.example.terragalegamovile.data.Session
 import com.example.terragalegamovile.ui.CartSheet
+import com.example.terragalegamovile.ui.CategoryScreen
 import com.example.terragalegamovile.ui.CheckoutConfirmScreen
 import com.example.terragalegamovile.ui.CheckoutScreen
 import com.example.terragalegamovile.ui.ClientHomeScreen
+import com.example.terragalegamovile.ui.ClientScreen
+import com.example.terragalegamovile.ui.CourierScreen
+import com.example.terragalegamovile.ui.LoginScreen
 import com.example.terragalegamovile.ui.ProductScreen
-import android.net.Uri
-import androidx.compose.runtime.DisposableEffect
-import com.example.terragalegamovile.ui.CategoryScreen
 import com.example.terragalegamovile.ui.ProfileScreen
 import com.example.terragalegamovile.ui.components.ProfileNav
-import androidx.compose.foundation.layout.imePadding
+import com.example.terragalegamovile.ui.theme.TerraGalegaMovileTheme
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Recupera la sesión guardada antes de dibujar nada
+        // Inicializa el almacenamiento y recupera una sesión vigente.
         AppStorage.init(applicationContext)
         MapService.init(applicationContext)
         Session.restore()
-        CartStore.bind(Session.user?.takeIf { it.role == "CLIENT" }?.id)
+
+        CartStore.bind(
+            Session.user?.takeIf { it.role == "CLIENT" }?.id
+        )
+
         enableEdgeToEdge()
+
         setContent {
             TerraGalegaMovileTheme {
-                // Si el carrito cambió en la web, aquí se refleja (también actualiza la cifra del carrito)
-                LaunchedEffect(Unit) {
-                    while (true) {
-                        delay(6000)
-                        CartStore.refresh()
+
+                // Sincroniza el carrito mientras la actividad está visible.
+                LaunchedEffect(lifecycle) {
+                    lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        while (isActive) {
+                            delay(6_000)
+                            CartStore.refresh()
+                        }
                     }
                 }
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
-                        AppNav()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding()
+                            .imePadding()
+                    ) {
+                        AppNav(lifecycle = lifecycle)
                     }
                 }
             }
@@ -78,145 +98,284 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNav() {
+fun AppNav(lifecycle: Lifecycle) {
     val nav = rememberNavController()
+
+    // Las pantallas se actualizan cuando cambia la sesión.
+    val session by Session.state.collectAsState()
+
     var showCart by remember { mutableStateOf(false) }
 
-    // Si ya hay sesión guardada, abre directo la pantalla de su rol
+    // Se calcula una sola vez para inicializar la navegación.
     val startDestination = remember {
-        when (Session.user?.role) {
+        when (session?.role) {
             "CLIENT" -> "client"
             "DELIVERY_PERSON" -> "courier"
             else -> "login"
         }
     }
 
-    val logout = {
-        showCart = false
-        CartStore.bind(null)
-        CheckoutDraft.reset()
-        ClientUi.tab = 0
-        ClientUi.paid = false
+    // El efecto de cierre de sesión se encarga de limpiar y navegar.
+    val logout: () -> Unit = {
         Session.user = null
-        nav.navigate("login") { popUpTo(nav.graph.id) { inclusive = true } }
     }
 
-    // Vuelve a la pestaña "Carta" del inicio del cliente
-    val goMenu = {
+    // Vuelve a la pestaña Carta del inicio del cliente.
+    val goMenu: () -> Unit = {
         showCart = false
         ClientUi.tab = 0
         nav.popBackStack("client", false)
     }
 
-    // La inicial de la barra de arriba abre el perfil (solo para clientes)
+    // La inicial de la barra superior abre el perfil.
+    // El callback consulta la sesión vigente al pulsar el botón.
     DisposableEffect(Unit) {
         ProfileNav.open = {
-            if (Session.user?.role == "CLIENT" && nav.currentDestination?.route != "profile") {
+            if (
+                Session.user?.role == "CLIENT" &&
+                nav.currentDestination?.route != "profile"
+            ) {
                 nav.navigate("profile")
             }
         }
-        onDispose { ProfileNav.open = null }
+
+        onDispose {
+            ProfileNav.open = null
+        }
     }
 
-    NavHost(navController = nav, startDestination = startDestination) {
-        composable("login") {
-            LoginScreen { user ->
-                if (user.role == "CLIENT") CartStore.bind(user.id)
-                val destination = if (user.role == "CLIENT") "client" else "courier"
-                nav.navigate(destination) { popUpTo("login") { inclusive = true } }
+    // Cierre manual o automático:
+    // limpia los datos de pantalla y elimina la navegación privada.
+    LaunchedEffect(session == null) {
+        if (session == null) {
+            showCart = false
+            CartStore.bind(null)
+            CheckoutDraft.reset()
+            ClientUi.tab = 0
+            ClientUi.paid = false
+
+            if (nav.currentDestination?.route != "login") {
+                nav.navigate("login") {
+                    popUpTo(nav.graph.id) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
             }
         }
+    }
+
+    // Comprueba la sesión mientras la actividad está visible.
+    // Al volver a la app se comprueba de nuevo inmediatamente.
+    LaunchedEffect(session?.token, lifecycle) {
+        if (session == null) return@LaunchedEffect
+
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (isActive) {
+                // Detecta el vencimiento incluso sin conexión.
+                if (Session.validToken() == null) {
+                    break
+                }
+
+                try {
+                    ApiClient.api.checkSession().close()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    // ApiClient procesa los 401 y elimina la sesión.
+                    // Un fallo de conexión o un error del servidor
+                    // no deben cerrar la sesión por sí solos.
+                }
+
+                delay(15_000)
+            }
+        }
+    }
+
+    NavHost(
+        navController = nav,
+        startDestination = startDestination
+    ) {
+
+        composable("login") {
+            LoginScreen { user ->
+                // LoginScreen ya guarda el usuario en Session.user.
+                CartStore.bind(
+                    user.takeIf { it.role == "CLIENT" }?.id
+                )
+
+                val destination = when (user.role) {
+                    "CLIENT" -> "client"
+                    "DELIVERY_PERSON" -> "courier"
+                    else -> null
+                }
+
+                if (destination != null) {
+                    nav.navigate(destination) {
+                        popUpTo("login") {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                } else {
+                    Session.user = null
+                }
+            }
+        }
+
         composable("client") {
-            Session.user?.let { user ->
+            session?.let { user ->
                 ClientHomeScreen(
                     user = user,
                     onLogout = logout,
-                    onOpenProduct = { id -> nav.navigate("product/$id") },
-                    onOpenCategory = { name -> nav.navigate("category/${Uri.encode(name)}") },
-                    onOpenCart = { showCart = true },
-                    onTrack = { nav.navigate("tracking") }
+                    onOpenProduct = { id ->
+                        nav.navigate("product/$id")
+                    },
+                    onOpenCategory = { name ->
+                        nav.navigate("category/${Uri.encode(name)}")
+                    },
+                    onOpenCart = {
+                        showCart = true
+                    },
+                    onTrack = {
+                        nav.navigate("tracking")
+                    }
                 )
             }
         }
 
         composable(
-            "category/{name}",
-            arguments = listOf(navArgument("name") { type = NavType.StringType })
+            route = "category/{name}",
+            arguments = listOf(
+                navArgument("name") {
+                    type = NavType.StringType
+                }
+            )
         ) { entry ->
             val name = entry.arguments?.getString("name")
-            val user = Session.user
+            val user = session
+
             if (name != null && user != null) {
                 CategoryScreen(
                     user = user,
                     category = name,
-                    onBack = { nav.popBackStack() },
-                    onOpenProduct = { id -> nav.navigate("product/$id") },
-                    onOpenCart = { showCart = true },
+                    onBack = {
+                        nav.popBackStack()
+                    },
+                    onOpenProduct = { id ->
+                        nav.navigate("product/$id")
+                    },
+                    onOpenCart = {
+                        showCart = true
+                    },
                     onLogout = logout
                 )
             }
         }
+
         composable(
-            "product/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
+            route = "product/{id}",
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                }
+            )
         ) { entry ->
             val id = entry.arguments?.getInt("id")
-            val user = Session.user
+            val user = session
+
             if (id != null && user != null) {
                 ProductScreen(
                     user = user,
                     productId = id,
-                    onBack = { nav.popBackStack() },                    onOpenProduct = { other -> nav.navigate("product/$other") },
-                    onOpenCart = { showCart = true },
+                    onBack = {
+                        nav.popBackStack()
+                    },
+                    onOpenProduct = { other ->
+                        nav.navigate("product/$other")
+                    },
+                    onOpenCart = {
+                        showCart = true
+                    },
                     onLogout = logout
                 )
             }
         }
+
         composable("tracking") {
-            Session.user?.let { ClientScreen(it, logout, onBack = { nav.popBackStack() }) }
-        }
-        composable("checkout") {
-            Session.user?.let { user ->
-                CheckoutScreen(
-                    user = user,
-                    onLogout = logout,
-                    onContinue = { nav.navigate("checkout/confirm") },
-                    onExit = { goMenu() }
+            session?.let { user ->
+                ClientScreen(
+                    user,
+                    logout,
+                    onBack = {
+                        nav.popBackStack()
+                    }
                 )
             }
         }
+
+        composable("checkout") {
+            session?.let { user ->
+                CheckoutScreen(
+                    user = user,
+                    onLogout = logout,
+                    onContinue = {
+                        nav.navigate("checkout/confirm")
+                    },
+                    onExit = goMenu
+                )
+            }
+        }
+
         composable("checkout/confirm") {
-            Session.user?.let { user ->
+            session?.let { user ->
                 CheckoutConfirmScreen(
                     user = user,
                     onLogout = logout,
-                    onEdit = { nav.popBackStack() },
-                    onDone = { nav.popBackStack("client", false) },
-                    onExit = { goMenu() }
+                    onEdit = {
+                        nav.popBackStack()
+                    },
+                    onDone = {
+                        nav.popBackStack("client", false)
+                    },
+                    onExit = goMenu
                 )
             }
         }
 
         composable("profile") {
-            Session.user?.let { user ->
+            session?.let { user ->
                 ProfileScreen(
                     user = user,
-                    onBack = { nav.popBackStack() },
+                    onBack = {
+                        nav.popBackStack()
+                    },
                     onLogout = logout
                 )
             }
         }
+
         composable("courier") {
-            Session.user?.let { CourierScreen(it, logout) }
+            session?.let { user ->
+                CourierScreen(
+                    user,
+                    logout
+                )
+            }
         }
     }
 
-    // El carrito se abre encima de cualquier pantalla del cliente
-    if (showCart) {
+    // El carrito solo puede mostrarse con una sesión de cliente.
+    if (showCart && session?.role == "CLIENT") {
         CartSheet(
-            onClose = { showCart = false },
-            onCheckout = { showCart = false; nav.navigate("checkout") },
-            onGoMenu = { goMenu() }
+            onClose = {
+                showCart = false
+            },
+            onCheckout = {
+                showCart = false
+                nav.navigate("checkout")
+            },
+            onGoMenu = goMenu
         )
     }
 }

@@ -21,6 +21,9 @@ interface ApiService {
     @POST("auth/signup")
     suspend fun register(@Body body: ClientCreate): LoginResponse
 
+    // Comprueba que el token y la cuenta siguen siendo válidos.
+    @GET("auth/me")
+    suspend fun checkSession(): ResponseBody
     // ---------- Seguimiento del cliente ----------
     @GET("delivery/client/{clientId}/active")
     suspend fun clientActive(@Path("clientId") clientId: Int): List<ClientDelivery>
