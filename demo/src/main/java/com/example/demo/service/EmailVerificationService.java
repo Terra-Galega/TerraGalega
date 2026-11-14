@@ -54,8 +54,9 @@ public class EmailVerificationService {
     @Autowired
     private EmailService emailService;
 
-    // URL del front: el enlace del correo apunta aquí
-    @Value("${terra.frontend-url}")
+    // URL del front a la que apunta el enlace del correo. Usa la IP del PC para
+    // que abra también en el celular; sin ella, la URL normal del front.
+    @Value("${terra.email-link-url:${terra.frontend-url}}")
     private String frontendUrl;
 
     // Cuánto dura el enlace; si no se define en application.properties son 24 horas

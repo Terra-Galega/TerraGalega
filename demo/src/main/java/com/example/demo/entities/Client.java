@@ -76,8 +76,9 @@ public class Client {
     @Column(nullable = false, length = 20)
     private Role role;
 
-    // Almacena el número de teléfono; debe ser único y no puede estar vacío.
-    @Column(unique = true, nullable = false, length = 25)
+    // Almacena el número de teléfono; debe ser único.
+    // Puede faltar solo en cuentas creadas con Google hasta que completen el perfil.
+    @Column(unique = true, length = 25)
     private String phone;
 
     // Direcciones guardadas del cliente. La FK vive en Address.client.
@@ -103,4 +104,14 @@ public class Client {
     @JsonIgnore
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Reservation reservation;
+
+    // false solo en cuentas creadas con Google a las que aún les falta algo que
+    // el registro normal exige: apellido, teléfono o al menos una dirección.
+    // Sin perfil completo no se pueden hacer pedidos.
+    @JsonIgnore
+    public boolean isProfileComplete() {
+        return phone != null && !phone.isBlank()
+                && lastName != null && !lastName.isBlank()
+                && addresses != null && !addresses.isEmpty();
+    }
 }

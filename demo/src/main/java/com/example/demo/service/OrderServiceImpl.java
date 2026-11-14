@@ -207,6 +207,13 @@ public class OrderServiceImpl implements OrderService {
             CheckoutRequestDTO request,
             boolean online) {
 
+        // Cuentas creadas con Google: sin teléfono ni dirección el restaurante
+        // no puede entregar el pedido
+        if (!client.isProfileComplete()) {
+            throw ApiException.conflict(
+                    "Completa tu perfil (teléfono y dirección) antes de hacer un pedido.");
+        }
+
         if (request == null
                 || request.getAddress() == null
                 || request.getAddress().isBlank()

@@ -168,6 +168,12 @@
 			<version>0.12.6</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- Verifica la firma de los tokens de "Iniciar sesión con Google" (JWKS de Google).
+		     La versión la fija Spring Boot. -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-jose</artifactId>
+		</dependency>
 		<!-- Integración con la API de Stripe -->
 		<dependency>
 			<groupId>com.stripe</groupId>

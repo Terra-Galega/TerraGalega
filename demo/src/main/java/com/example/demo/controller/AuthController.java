@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.AuthResponseDTO;
+import com.example.demo.dto.GoogleLoginRequestDTO;
+import com.example.demo.service.GoogleAuthService;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
 import com.example.demo.dto.MessageDTO;
@@ -35,6 +37,9 @@ public class AuthController {
     @Autowired
     private EmailVerificationService emailVerificationService;
 
+    @Autowired
+    private GoogleAuthService googleAuthService;
+
     // Devuelve el JWT y los datos básicos si el correo y la contraseña son
     // correctos
     @SecurityRequirements
@@ -42,6 +47,15 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponseDTO login(@RequestBody LoginRequestDTO request) {
         return authService.login(request.getEmail(), request.getPassword());
+    }
+
+    // "Continuar con Google": crea la cuenta o inicia sesión con el ID token de
+    // Google. Si profileComplete es false, el front pide los datos que faltan.
+    @SecurityRequirements
+    @Operation(summary = "Sign up or log in with a Google ID token, returns a JWT")
+    @PostMapping("/google")
+    public AuthResponseDTO google(@RequestBody GoogleLoginRequestDTO request) {
+        return googleAuthService.login(request == null ? null : request.idToken());
     }
 
     // Registra un cliente. No inicia sesión: primero debe confirmar su correo

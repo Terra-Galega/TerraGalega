@@ -21,4 +21,12 @@ public class LoginResponseDTO {
 
     // Rol del usuario, utilizado por el frontend para identificar su tipo de cuenta.
     private Role role;
+
+    // false = cuenta de Google con datos pendientes (ver Client.isProfileComplete)
+    private boolean profileComplete;
+
+    // Admins, operadores y domiciliarios siempre tienen el perfil completo
+    public LoginResponseDTO(Integer id, String name, String lastName, Role role) {
+        this(id, name, lastName, role, true);
+    }
 }
