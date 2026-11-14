@@ -115,7 +115,7 @@ public class ClientServiceImpl implements ClientService {
 
             address.setClient(client);
         }
-                // El id y el rol los decide el servidor: así nadie se registra como ADMIN
+        // El id y el rol los decide el servidor: así nadie se registra como ADMIN
         client.setId(null);
         client.setRole(Role.CLIENT);
 
@@ -182,6 +182,9 @@ public class ClientServiceImpl implements ClientService {
         // Las direcciones se gestionan solo por /clients/me/addresses;
         // si no se conservan, orphanRemoval las borraría todas al guardar.
         client.setAddresses(actual.getAddresses());
+
+        // Igual con la reserva (1 a 1): se gestiona solo por /clients/me/reservation
+        client.setReservation(actual.getReservation());
 
         // Guarda los datos actualizados del cliente.
         return repository.save(client);
