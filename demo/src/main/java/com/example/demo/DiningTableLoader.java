@@ -59,10 +59,10 @@ public class DiningTableLoader implements CommandLineRunner {
         add(tables, 2, 2, 212, 213, 214, 215); // salón alto
         add(tables, 2, BOOTH, 216, 217, 218);
         add(tables, 2, 4, 219, 220);
-        add(tables, 2, BOOTH, 221, 224, 226, 228, 230); // galería, de arco
-        add(tables, 2, 4, 222, 223);
-        add(tables, 2, 6, 225, 227, 229);
-        add(tables, 2, CELEBRATION, 231, 232); // salas de celebración 1 y 2
+        add(tables, 2, BOOTH, 221, 224, 226, 229, 231); // galería, de arco
+        add(tables, 2, 4, 222, 223, 225, 227);
+        add(tables, 2, 6, 228, 230, 232);
+        add(tables, 2, CELEBRATION, 233, 234); // salas de celebración 1 y 2
 
         return tables;
     }

@@ -46,4 +46,11 @@ public class ReservationDTO {
 
     // Anticipo de la reserva (solo respuesta)
     private Double depositAmount;
+
+    // Estado del pago del anticipo (solo respuesta): PENDING, PAID o EXPIRED
+    // (EXPIRED solo aparece al consultar un pago que caducó: la reserva ya no existe)
+    private String paymentState;
+
+    // Página de Stripe donde se paga el anticipo (solo mientras está PENDING)
+    private String checkoutUrl;
 }

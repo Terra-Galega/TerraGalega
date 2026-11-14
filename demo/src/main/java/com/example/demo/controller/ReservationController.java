@@ -34,11 +34,17 @@ public class ReservationController {
         return reservationService.getReservation(authenticatedUser.client().getId());
     }
 
-    @Operation(summary = "Create the reservation of the logged-in client (requires accepting the deposit)")
+    @Operation(summary = "Create the reservation of the logged-in client and open the Stripe deposit payment")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ReservationDTO createReservation(@RequestBody ReservationDTO dto) {
         return reservationService.createReservation(authenticatedUser.client().getId(), dto);
+    }
+
+    @Operation(summary = "Deposit payment status of the reservation (PENDING, PAID or EXPIRED)")
+    @GetMapping("/payment")
+    public ReservationDTO getPayment() {
+        return reservationService.refreshPayment(authenticatedUser.client().getId());
     }
 
     @Operation(summary = "Update the reservation of the logged-in client")

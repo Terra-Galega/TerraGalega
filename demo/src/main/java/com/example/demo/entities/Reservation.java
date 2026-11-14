@@ -75,4 +75,32 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ReservationTheme theme;
+
+    // --- Pago del anticipo con Stripe Checkout ---
+    // PENDING: creada, esperando el pago (la mesa queda apartada mientras tanto).
+    // PAID: anticipo pagado, reserva confirmada.
+    // Si la sesión de Stripe caduca sin pagar, la reserva se elimina y la mesa se libera.
+    @Column(nullable = false, length = 20)
+    private String paymentState;
+
+    // Referencia propia enviada a Stripe como client_reference_id ("tgr:...")
+    @Column(unique = true, length = 80)
+    private String paymentReference;
+
+    private String stripeSessionId;
+
+    @Column(length = 1000)
+    private String stripeCheckoutUrl;
+
+    private String stripePaymentIntent;
+
+    // Segundos epoch en que caduca la sesión de Stripe
+    private Long paymentExpiresAt;
+
+    public boolean isPaid() {
+        return PAID.equals(paymentState);
+    }
+
+    public static final String PENDING = "PENDING";
+    public static final String PAID = "PAID";
 }

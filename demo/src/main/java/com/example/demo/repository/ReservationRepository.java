@@ -22,5 +22,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     List<Reservation> findByDateAndTime(LocalDate date, LocalTime time);
 
     // ¿Esa mesa ya está reservada en esa fecha y hora?
+    Optional<Reservation> findByPaymentReference(String paymentReference);
+
+    List<Reservation> findByPaymentState(String paymentState);
+
     Optional<Reservation> findByTableIdAndDateAndTime(Integer tableId, LocalDate date, LocalTime time);
 }

@@ -1,10 +1,17 @@
 package com.example.demo.service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +24,28 @@ import com.example.demo.errors.ApiException;
 import com.example.demo.repository.ClientRepository;
 import com.example.demo.repository.DiningTableRepository;
 import com.example.demo.repository.ReservationRepository;
+import com.stripe.StripeClient;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.stripe.net.RequestOptions;
+import com.stripe.param.checkout.SessionCreateParams;
 
+// Reservas con anticipo obligatorio por Stripe Checkout:
+// 1. createReservation valida mesa, sillas, fecha y disponibilidad, guarda la reserva en
+//    PENDING (la mesa queda apartada) y abre una sesión de Stripe por el anticipo.
+// 2. El cliente paga en Stripe y vuelve a /reservations/result del front.
+// 3. refreshPayment (o el webhook, o la tarea programada) consulta Stripe: si se pagó, la
+//    reserva pasa a PAID; si la sesión caducó, la reserva se elimina y la mesa se libera.
 @Service
 public class ReservationServiceImpl implements ReservationService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReservationServiceImpl.class);
+
+    // Prefijo de las referencias de reservas en Stripe (los pedidos usan "tg:")
+    public static final String REFERENCE_PREFIX = "tgr:";
+
+    // Tiempo que la mesa queda apartada esperando el pago. Stripe exige al menos 30 min.
+    private static final long PAYMENT_WINDOW_SECONDS = 31 * 60;
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -30,13 +56,21 @@ public class ReservationServiceImpl implements ReservationService {
     @Autowired
     private DiningTableRepository diningTableRepository;
 
+    @Autowired
+    private StripeClient stripe;
+
+    // Stripe devuelve al cliente a esta app de Angular al pagar o al cancelar
+    @Value("${terra.frontend-url}")
+    private String frontendUrl;
+
     @Override
     @Transactional
     public ReservationDTO getReservation(Integer clientId) {
         return toDTO(findOwned(clientId));
     }
 
-    // Crea la reserva del cliente: solo puede tener una y debe aceptar el anticipo
+    // Crea la reserva PENDING y la sesión de pago del anticipo. Si Stripe falla, la
+    // transacción se deshace y no queda ninguna reserva a medias.
     @Override
     @Transactional
     public ReservationDTO createReservation(Integer clientId, ReservationDTO dto) {
@@ -66,18 +100,26 @@ public class ReservationServiceImpl implements ReservationService {
                 .time(dto.getTime())
                 .seats(seats)
                 .theme(dto.getTheme() != null ? dto.getTheme() : ReservationTheme.NONE)
+                .paymentState(Reservation.PENDING)
+                .paymentReference(REFERENCE_PREFIX + clientId + ":" + UUID.randomUUID())
+                .paymentExpiresAt(Instant.now().getEpochSecond() + PAYMENT_WINDOW_SECONDS)
                 .build();
         // Se enlaza también por el lado del cliente para mantener el 1 a 1 coherente
         client.setReservation(reservation);
-        return toDTO(reservationRepository.save(reservation));
+        reservation = reservationRepository.save(reservation);
+
+        openStripeSession(reservation);
+        return toDTO(reservation);
     }
 
-    // Cambia los datos de la reserva (el anticipo ya está pagado, no se vuelve a
-    // pedir)
+    // Cambia los datos de la reserva (el anticipo ya está pagado, no se vuelve a pedir)
     @Override
     @Transactional
     public ReservationDTO updateReservation(Integer clientId, ReservationDTO dto) {
         Reservation reservation = findOwned(clientId);
+        if (!reservation.isPaid()) {
+            throw ApiException.conflict("Termina de pagar el anticipo antes de editar la reserva.");
+        }
 
         String name = ReservationRules.cleanName(dto.getName());
         Integer seats = ReservationRules.cleanSeats(dto.getSeats());
@@ -95,17 +137,64 @@ public class ReservationServiceImpl implements ReservationService {
         return toDTO(reservation);
     }
 
-    // Elimina la reserva. El anticipo NO se reembolsa.
+    // Elimina la reserva. Si estaba pagada, el anticipo NO se reembolsa. Si el pago
+    // seguía pendiente, se cierra la sesión de Stripe para que ya no se pueda pagar.
     @Override
     @Transactional
     public void deleteReservation(Integer clientId) {
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> ApiException.notFound("No se encontró el cliente solicitado."));
         Reservation reservation = findOwned(clientId);
 
-        // orphanRemoval en Client.reservation la borra de la BD
-        client.setReservation(null);
-        reservationRepository.delete(reservation);
+        if (!reservation.isPaid()) {
+            Session session = retrieveSession(reservation);
+            if (session != null && "open".equals(session.getStatus())) {
+                try {
+                    session = stripe.v1().checkout().sessions().expire(session.getId());
+                } catch (StripeException e) {
+                    throw unavailable();
+                }
+            }
+            if (session != null && isPaid(session)) {
+                markPaid(reservation, session);
+                throw ApiException.conflict(
+                        "El anticipo ya se había pagado: tu reserva quedó confirmada.");
+            }
+        }
+        remove(reservation);
+    }
+
+    // Estado del pago del anticipo; consulta a Stripe por si el webhook aún no llegó
+    @Override
+    @Transactional
+    public ReservationDTO refreshPayment(Integer clientId) {
+        Reservation reservation = findOwned(clientId);
+        if (reservation.isPaid()) {
+            return toDTO(reservation);
+        }
+        return syncWithStripe(reservation, retrieveSession(reservation));
+    }
+
+    // Webhook de Stripe (lo llama PaymentService para las referencias "tgr:")
+    @Override
+    @Transactional
+    public void handleStripeSession(Session session) {
+        reservationRepository.findByPaymentReference(session.getClientReferenceId())
+                .filter(r -> !r.isPaid())
+                .ifPresent(r -> syncWithStripe(r, session));
+    }
+
+    // Recupera pagos pendientes aunque el cliente cierre la pestaña y libera las mesas
+    // de las reservas que caducaron sin pagar.
+    @Override
+    @Scheduled(fixedDelay = 60000, initialDelay = 60000)
+    @Transactional
+    public void reconcile() {
+        for (Reservation reservation : reservationRepository.findByPaymentState(Reservation.PENDING)) {
+            try {
+                syncWithStripe(reservation, retrieveSession(reservation));
+            } catch (RuntimeException e) {
+                log.warn("Pago de la reserva {} pendiente de reconciliación", reservation.getId());
+            }
+        }
     }
 
     @Override
@@ -114,11 +203,123 @@ public class ReservationServiceImpl implements ReservationService {
         if (date == null || time == null) {
             throw ApiException.badRequest("Elige la fecha y la hora.");
         }
-        // La mesa del propio cliente no cuenta, así puede conservarla al editar
+        // Cuentan las pagadas y las que esperan pago. La mesa del propio cliente no
+        // cuenta, así puede conservarla al editar.
         return reservationRepository.findByDateAndTime(date, time).stream()
                 .filter(r -> !r.getClient().getId().equals(clientId))
                 .map(r -> r.getTable().getId())
                 .toList();
+    }
+
+    // --- Stripe ---
+
+    private void openStripeSession(Reservation reservation) {
+        DiningTable table = reservation.getTable();
+        String returnUrl = frontendUrl + "/reservations/result?reservation=" + reservation.getId();
+
+        var price = SessionCreateParams.LineItem.PriceData.builder()
+                .setCurrency("cop")
+                .setUnitAmount(depositInCents())
+                .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                        .setName("Anticipo de reserva TerraGalega - Mesa " + table.getId())
+                        .setDescription("Piso " + table.getFloor() + ", " + reservation.getDate()
+                                + " a las " + reservation.getTime() + ". No reembolsable.")
+                        .build())
+                .build();
+
+        var params = SessionCreateParams.builder()
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setClientReferenceId(reservation.getPaymentReference())
+                .setSuccessUrl(returnUrl)
+                .setCancelUrl(returnUrl + "&canceled=true")
+                .setExpiresAt(reservation.getPaymentExpiresAt())
+                .addLineItem(SessionCreateParams.LineItem.builder()
+                        .setPriceData(price)
+                        .setQuantity(1L)
+                        .build())
+                .build();
+
+        try {
+            Session session = stripe.v1().checkout().sessions().create(params,
+                    RequestOptions.builder()
+                            .setIdempotencyKey("reservation:" + reservation.getPaymentReference())
+                            .build());
+            reservation.setStripeSessionId(session.getId());
+            reservation.setStripeCheckoutUrl(session.getUrl());
+        } catch (StripeException e) {
+            throw unavailable();
+        }
+    }
+
+    // El anticipo en centavos, como lo pide Stripe para COP (igual que los pedidos)
+    private static long depositInCents() {
+        return Math.round(ReservationRules.DEPOSIT_AMOUNT * 100);
+    }
+
+    private Session retrieveSession(Reservation reservation) {
+        if (reservation.getStripeSessionId() == null) {
+            return null;
+        }
+        try {
+            return stripe.v1().checkout().sessions().retrieve(reservation.getStripeSessionId());
+        } catch (StripeException e) {
+            throw unavailable();
+        }
+    }
+
+    // Aplica el estado de la sesión de Stripe: pagada -> PAID; caducada -> se elimina.
+    private ReservationDTO syncWithStripe(Reservation reservation, Session session) {
+        if (session != null) {
+            checkSessionMatches(reservation, session);
+            if (isPaid(session)) {
+                markPaid(reservation, session);
+                return toDTO(reservation);
+            }
+        }
+        boolean expired = session != null
+                ? "expired".equals(session.getStatus())
+                : Instant.now().getEpochSecond() >= reservation.getPaymentExpiresAt();
+        if (expired) {
+            ReservationDTO dto = toDTO(reservation);
+            dto.setPaymentState("EXPIRED");
+            dto.setCheckoutUrl(null);
+            remove(reservation);
+            return dto;
+        }
+        return toDTO(reservation);
+    }
+
+    private void checkSessionMatches(Reservation reservation, Session session) {
+        if (!Boolean.FALSE.equals(session.getLivemode())
+                || !Objects.equals(reservation.getPaymentReference(), session.getClientReferenceId())
+                || !Objects.equals(depositInCents(), session.getAmountTotal())
+                || !"cop".equals(session.getCurrency())) {
+            throw ApiException.conflict("La transacción no coincide con la reserva.");
+        }
+    }
+
+    private static boolean isPaid(Session session) {
+        return "complete".equals(session.getStatus()) && "paid".equals(session.getPaymentStatus());
+    }
+
+    private void markPaid(Reservation reservation, Session session) {
+        reservation.setPaymentState(Reservation.PAID);
+        reservation.setStripePaymentIntent(session.getPaymentIntent());
+        reservation.setStripeCheckoutUrl(null);
+    }
+
+    private RuntimeException unavailable() {
+        return ApiException.serviceUnavailable(
+                "No se pudo conectar con la pasarela de pago. Inténtalo de nuevo en unos minutos.");
+    }
+
+    // --- Utilidades ---
+
+    private void remove(Reservation reservation) {
+        // orphanRemoval en Client.reservation la borra de la BD
+        reservation.getClient().setReservation(null);
+        reservation.getTable().getReservations().remove(reservation);
+        reservationRepository.delete(reservation);
     }
 
     private Reservation findOwned(Integer clientId) {
@@ -143,7 +344,7 @@ public class ReservationServiceImpl implements ReservationService {
         return table;
     }
 
-    // ignoreId: al editar, la propia reserva no cuenta como ocupada
+    // Verifica la disponibilidad. ignoreId: al editar, la propia reserva no cuenta.
     private void checkTableFree(DiningTable table, LocalDate date, LocalTime time, Integer ignoreId) {
         reservationRepository.findByTableIdAndDateAndTime(table.getId(), date, time)
                 .filter(r -> !r.getId().equals(ignoreId))
@@ -164,6 +365,8 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setSeats(r.getSeats());
         dto.setTheme(r.getTheme());
         dto.setDepositAmount(ReservationRules.DEPOSIT_AMOUNT);
+        dto.setPaymentState(r.getPaymentState());
+        dto.setCheckoutUrl(r.isPaid() ? null : r.getStripeCheckoutUrl());
         return dto;
     }
 }

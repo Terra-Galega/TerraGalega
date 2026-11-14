@@ -49,6 +49,10 @@ public class PaymentService {
     @Autowired
     private OrderMirrorService mirror;
 
+    // Los anticipos de reservas también llegan por el mismo webhook de Stripe
+    @Autowired
+    private ReservationService reservations;
+
     @PersistenceContext
     private EntityManager em;
 
@@ -460,6 +464,11 @@ public class PaymentService {
                     .retrieve(sessionId);
 
             if (session.getClientReferenceId() == null) {
+                return;
+            }
+
+            if (session.getClientReferenceId().startsWith(ReservationServiceImpl.REFERENCE_PREFIX)) {
+                reservations.handleStripeSession(session);
                 return;
             }
 
