@@ -1,12 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   CheckoutErrors,
   emptyErrors,
 } from '../../../../models/checkout-errors';
 
-// Selección del método de pago y datos de tarjeta. Trabaja sobre el formulario del padre,
-// que es quien valida y guarda.
+// Selección del método de pago. Trabaja sobre el formulario del padre, que es
+// quien valida y guarda. Con tarjeta no se piden datos aquí: el cliente los
+// escribe en la página segura de Stripe al confirmar el pedido.
 @Component({
   selector: 'app-payment-form',
   standalone: true,
@@ -14,13 +15,11 @@ import {
   templateUrl: './payment-form.component.html',
 })
 export class PaymentFormComponent {
-  // Formulario del padre (controles: method, holder, number, expiry, cvv...)
+  // Formulario del padre (control: method)
   @Input({ required: true }) form!: FormGroup;
 
   // Mensaje de error de cada campo del checkout
   @Input() errors: CheckoutErrors = emptyErrors();
-  // Avisa al padre que llene la tarjeta con datos de prueba
-  @Output() fillTestData = new EventEmitter<void>();
 
   // Opciones de pago que se pintan como tarjetas seleccionables
   methods = [
@@ -32,55 +31,12 @@ export class PaymentFormComponent {
     {
       value: 'card',
       title: 'Tarjeta',
-      description: 'Crédito o débito, con pasarela de pago segura.',
+      description: 'Crédito o débito, en la pasarela segura de Stripe.',
     },
   ];
-
-  // Cuotas disponibles (1 = pago de contado)
-  installments = [1, 3, 6, 12, 24, 36];
 
   // Método elegido actualmente ('cash' | 'card' | '')
   get method(): string {
     return this.form.get('method')?.value ?? '';
-  }
-
-  // Mensajes de error de la tarjeta, uno debajo del otro
-  // Mensajes de error de la tarjeta, uno debajo del otro
-  get cardErrors(): string[] {
-    return [
-      this.errors.holder,
-      this.errors.documentNumber,
-      this.errors.number,
-      this.errors.expiry,
-      this.errors.cvv,
-    ].filter(Boolean);
-  }
-
-  // 4111111111111111 -> 4111 1111 1111 1111
-  formatCardNumber(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, '').slice(0, 16);
-    input.value = digits.replace(/(.{4})/g, '$1 ').trim();
-
-    this.form.get('number')?.setValue(input.value, { emitEvent: false });
-  }
-
-  // 1228 -> 12/28
-  formatExpiry(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, '').slice(0, 4);
-    input.value =
-      digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
-
-    this.form.get('expiry')?.setValue(input.value, { emitEvent: false });
-  }
-
-  // Solo números, máximo 3 dígitos.
-  // Los tres formateadores usan emitEvent:false para no revalidar en cada tecla.
-  formatCvv(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    input.value = input.value.replace(/\D/g, '').slice(0, 3);
-
-    this.form.get('cvv')?.setValue(input.value, { emitEvent: false });
   }
 }

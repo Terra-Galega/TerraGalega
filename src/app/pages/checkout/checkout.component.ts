@@ -86,18 +86,12 @@ export class CheckoutComponent implements OnInit {
   // Formulario único que comparten los componentes hijos (dirección y pago).
   // nonNullable evita valores null: los campos vacíos son ''.
   // Las validaciones no van aquí sino en validate(), para controlar cuándo se muestran.
+  // No hay campos de tarjeta: con 'card' el cliente paga en la página de Stripe.
   form = this.fb.nonNullable.group({
     address: [''],
     saveAddress: [true],
     addressName: [''],
     method: ['' as 'cash' | 'card' | ''],
-    holder: [''],
-    documentType: ['CC'],
-    documentNumber: [''],
-    number: [''],
-    expiry: [''],
-    cvv: [''],
-    installments: [1],
   });
 
   // Al abrir la página: exige sesión de cliente, precarga el formulario y
@@ -116,7 +110,8 @@ export class CheckoutComponent implements OnInit {
 
     // Si el cliente vuelve desde el paso 2 (botón Editar) se recupera lo que
     // había escrito. El cupón no va en el formulario: se reaplica aparte.
-    this.form.patchValue({ ...this.draftService.draft });
+    const { address, saveAddress, addressName, method } = this.draftService.draft;
+    this.form.patchValue({ address, saveAddress, addressName, method });
 
     // Direcciones guardadas del cliente; si la carga falla, igual puede escribir una
     this.addressService.getAddresses().subscribe({
@@ -193,21 +188,6 @@ export class CheckoutComponent implements OnInit {
     return this.addresses.some((a) => a.label.trim().toLowerCase() === value);
   }
 
-  // Solo para pruebas: llena la tarjeta con datos válidos
-  fillTestData(): void {
-    this.form.patchValue({
-      method: 'card',
-      address: this.form.controls.address.value || 'Calle 123 #45-67, apto 8',
-      holder: 'Juan García',
-      documentType: 'CC',
-      documentNumber: '1020304050',
-      number: '4111 1111 1111 1111',
-      expiry: '12/28',
-      cvv: '123',
-      installments: 1,
-    });
-  }
-
   // ¿Hay al menos un campo con error?
   private hasErrors(errors: CheckoutErrors): boolean {
     return Object.values(errors).some((message) => message !== '');
@@ -248,27 +228,6 @@ export class CheckoutComponent implements OnInit {
       errors.method = 'Elige cómo quieres pagar.';
     }
 
-    // Los datos de tarjeta solo se validan si eligió pagar con tarjeta
-    if (v.method === 'card') {
-      if (v.holder.trim().length < 3) {
-        errors.holder = 'Escribe el nombre como aparece en la tarjeta.';
-      }
-      if (v.documentNumber.trim().length < 5) {
-        errors.documentNumber = 'Escribe tu número de documento.';
-      }
-      // Se quitan los espacios del formato antes de contar los 16 dígitos
-      if (v.number.replace(/\s/g, '').length !== 16) {
-        errors.number = 'El número de la tarjeta debe tener 16 dígitos.';
-      }
-      // Vencimiento con formato MM/AA y mes entre 01 y 12
-      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(v.expiry)) {
-        errors.expiry = 'Escribe el vencimiento como MM/AA.';
-      }
-      if (v.cvv.length !== 3) {
-        errors.cvv = 'El código de seguridad debe tener 3 dígitos.';
-      }
-    }
-
     return errors;
   }
 
@@ -286,6 +245,8 @@ export class CheckoutComponent implements OnInit {
     const address = v.address.trim();
 
     this.draftService.draft = {
+      // Conserva el intento de pago anterior (el paso 2 decide si sirve)
+      ...this.draftService.draft,
       ...v,
       address,
       addressName: v.addressName.trim(),
@@ -294,19 +255,6 @@ export class CheckoutComponent implements OnInit {
       // Cupón aplicado (null si no hay): el paso 2 lo muestra y lo envía
       coupon: this.coupon,
     };
-
-    // Con contra entrega no se guarda ningún dato de tarjeta
-    if (v.method === 'cash') {
-      this.draftService.draft = {
-        ...this.draftService.draft,
-        holder: '',
-        documentNumber: '',
-        number: '',
-        expiry: '',
-        cvv: '',
-        installments: 1,
-      };
-    }
 
     this.router.navigate(['/checkout/confirm']);
   }

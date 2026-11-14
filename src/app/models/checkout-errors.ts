@@ -1,13 +1,9 @@
-// Mensaje de error de cada campo del checkout ('' = sin error)
+// Mensaje de error de cada campo del checkout ('' = sin error).
+// La tarjeta no se valida aquí: se escribe en la página de Stripe.
 export interface CheckoutErrors {
   address: string;
   addressName: string;
   method: string;
-  holder: string;
-  documentNumber: string;
-  number: string;
-  expiry: string;
-  cvv: string;
 }
 
 // Errores en blanco: ningún campo tiene error
@@ -16,10 +12,5 @@ export function emptyErrors(): CheckoutErrors {
     address: '',
     addressName: '',
     method: '',
-    holder: '',
-    documentNumber: '',
-    number: '',
-    expiry: '',
-    cvv: '',
   };
 }

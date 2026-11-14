@@ -1,0 +1,81 @@
+<!-- Página a la que vuelve Stripe después de pagar o de cancelar -->
+<div style="min-height: 100vh; background: #f5f2eb">
+  <app-navbar></app-navbar>
+
+  <main class="min-h-screen pt-32 pb-28 max-w-2xl mx-auto px-6 md:px-8">
+    <app-page-header eyebrow="Pasarela de pago" title="Estado de tu pago" />
+
+    <section id="payment-result" class="glass-card rounded-3xl p-8 text-center" aria-live="polite">
+      @switch (view) {
+      @case ('checking') {
+      <div class="mx-auto w-10 h-10 rounded-full border-4 animate-spin"
+        style="border-color: rgba(178, 87, 31, 0.2); border-top-color: #b2571f" aria-hidden="true"></div>
+      <p class="text-[15px] text-charcoal mt-5">Confirmando tu pago con Stripe…</p>
+      <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.6)">No cierres esta página.</p>
+      }
+
+      @case ('abandoned') {
+      <h2 class="font-serif text-xl font-semibold text-charcoal">No completaste el pago</h2>
+      <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
+        Tu pedido aún no se ha enviado al restaurante. Puedes volver a la pasarela o cancelarlo;
+        tu carrito se conserva.
+      </p>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+        <app-button id="btn-pay-again" [disabled]="busy" (click)="payAgain()">Volver a pagar</app-button>
+        <app-button variant="neutral" [disabled]="busy" (click)="cancelPayment()">
+          {{ busy ? 'Cancelando…' : 'Cancelar pedido' }}
+        </app-button>
+      </div>
+      }
+
+      @case ('waiting') {
+      <h2 class="font-serif text-xl font-semibold text-charcoal">Seguimos esperando a Stripe</h2>
+      <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
+        Si ya pagaste, la confirmación puede tardar un poco. Si no terminaste, puedes volver a la pasarela.
+      </p>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+        <app-button (click)="check()">Consultar de nuevo</app-button>
+        <app-button variant="neutral" (click)="payAgain()">Ir a la pasarela</app-button>
+      </div>
+      }
+
+      @case ('expired') {
+      <h2 class="font-serif text-xl font-semibold text-charcoal">El pago se canceló</h2>
+      <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
+        No se hizo ningún cobro. Tu carrito sigue intacto para que lo intentes de nuevo.
+      </p>
+      <div class="mt-6">
+        <app-button (click)="goToCheckout()">Volver al checkout</app-button>
+      </div>
+      }
+
+      @case ('refunded') {
+      <h2 class="font-serif text-xl font-semibold text-charcoal">Pedido cancelado</h2>
+      <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
+        @if (payment?.state === 'REFUNDED') {
+        Te devolvimos el dinero a tu tarjeta.
+        } @else if (payment?.state === 'REFUND_FAILED') {
+        No pudimos hacer el reembolso automático. Contáctanos y lo resolvemos.
+        } @else {
+        Estamos procesando el reembolso a tu tarjeta.
+        }
+      </p>
+      <div class="mt-6">
+        <app-button (click)="goToOrders()">Ver mis pedidos</app-button>
+      </div>
+      }
+
+      @case ('error') {
+      <h2 class="font-serif text-xl font-semibold text-charcoal">Algo salió mal</h2>
+      <p class="text-[15px] mt-2" style="color: #8a2222">{{ errorMessage }}</p>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+        <app-button (click)="check()">Reintentar</app-button>
+        <app-button variant="neutral" (click)="goToOrders()">Ver mis pedidos</app-button>
+      </div>
+      }
+      }
+    </section>
+  </main>
+
+  <app-footer></app-footer>
+</div>

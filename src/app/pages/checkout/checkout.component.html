@@ -27,8 +27,8 @@
           (couponChange)="onCouponChange($event)"></app-checkout-coupon>
         }
 
-        <!-- Método de pago y datos de tarjeta; le pasa todos los errores y escucha el botón Autocompletar -->
-        <app-payment-form [form]="form" [errors]="errors" (fillTestData)="fillTestData()"></app-payment-form>
+        <!-- Método de pago: efectivo o tarjeta (la tarjeta se escribe en Stripe) -->
+        <app-payment-form [form]="form" [errors]="errors"></app-payment-form>
       </div>
 
       <!-- Derecha: resumen y botón (queda fijo al hacer scroll en escritorio) -->

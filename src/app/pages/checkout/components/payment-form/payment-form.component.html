@@ -46,89 +46,18 @@
   </p>
   }
 
-  <!-- Tarjeta: datos en un solo bloque, filas separadas por líneas finas.
-       Fondo uniforme: los errores se marcan con la etiqueta en rojo. -->
+  <!-- Tarjeta: los datos se escriben en la página de Stripe, no aquí -->
   @if (method === 'card') {
-  <div class="mt-6">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-[15px] font-semibold text-charcoal">Datos de la tarjeta</h3>
-      <button type="button" class="text-sm font-medium underline underline-offset-4 cursor-pointer"
-        style="color: #b2571f" (click)="fillTestData.emit()">
-        Autocompletar
-      </button>
-    </div>
-
-    <div class="rounded-2xl overflow-hidden divide-y divide-charcoal/10"
-      style="background-color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(44, 44, 44, 0.12)">
-      <label class="block px-4 pt-2.5 pb-2">
-        <span class="block text-xs"
-          [style.color]="errors.holder ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Nombre del titular</span>
-        <input type="text" formControlName="holder" placeholder="Como aparece en la tarjeta" autocomplete="cc-name"
-          class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1" />
-      </label>
-
-      <div class="grid grid-cols-3 divide-x divide-charcoal/10">
-        <label class="block px-4 pt-2.5 pb-2">
-          <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Documento</span>
-          <select formControlName="documentType"
-            class="input-field w-full mt-1 px-3 py-2.5 rounded-xl text-sm text-charcoal">
-            <option value="CC">CC</option>
-            <option value="CE">CE</option>
-            <option value="PAS">Pasaporte</option>
-            <option value="NIT">NIT</option>
-          </select>
-        </label>
-
-        <label class="block px-4 pt-2.5 pb-2 col-span-2">
-          <span class="block text-xs"
-            [style.color]="errors.documentNumber ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Número de documento</span>
-          <input type="text" formControlName="documentNumber" maxlength="12" placeholder="1020304050"
-            class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1" />
-        </label>
-      </div>
-
-      <label class="block px-4 pt-2.5 pb-2">
-        <span class="block text-xs"
-          [style.color]="errors.number ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Número de tarjeta</span>
-        <input type="text" formControlName="number" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456"
-          autocomplete="cc-number" class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
-          (input)="formatCardNumber($event)" />
-      </label>
-
-      <div class="grid grid-cols-2 divide-x divide-charcoal/10">
-        <label class="block px-4 pt-2.5 pb-2">
-          <span class="block text-xs"
-            [style.color]="errors.expiry ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Vencimiento</span>
-          <input type="text" formControlName="expiry" inputmode="numeric" maxlength="5" placeholder="MM/AA"
-            autocomplete="cc-exp" class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
-            (input)="formatExpiry($event)" />
-        </label>
-
-        <label class="block px-4 pt-2.5 pb-2">
-          <span class="block text-xs"
-            [style.color]="errors.cvv ? '#8a2222' : 'rgba(44, 44, 44, 0.55)'">Código de seguridad</span>
-          <input type="text" formControlName="cvv" inputmode="numeric" maxlength="3" placeholder="123"
-            autocomplete="cc-csc" class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
-            (input)="formatCvv($event)" />
-        </label>
-      </div>
-
-      <label class="block px-4 pt-2.5 pb-2">
-        <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Cuotas</span>
-        <select formControlName="installments"
-          class="input-field w-full mt-1 px-4 py-3 rounded-xl text-sm text-charcoal">
-          @for (n of installments; track n) {
-          <option [ngValue]="n">{{ n === 1 ? 'Pago de contado' : n + ' cuotas' }}</option>
-          }
-        </select>
-      </label>
-    </div>
-
-    <!-- Errores de la tarjeta, uno debajo del otro -->
-    @for (message of cardErrors; track message) {
-    <p class="text-sm mt-2" style="color: #8a2222">{{ message }}</p>
-    }
-
+  <div class="mt-4 rounded-2xl px-4 py-3 flex items-start gap-3"
+    style="background-color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(44, 44, 44, 0.12)">
+    <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#556141" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+    </svg>
+    <p class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
+      Al confirmar el pedido te llevaremos a la pasarela segura de Stripe para
+      ingresar los datos de tu tarjeta. TerraGalega nunca ve ni guarda tu tarjeta.
+    </p>
   </div>
   }
 </section>

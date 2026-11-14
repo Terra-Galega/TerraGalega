@@ -20,6 +20,7 @@ import {
   redirectByRoleGuard,
 } from './guards/role.guards';
 import { CheckoutConfirmComponent } from './pages/checkout/chekout-confirm/checkout-confirm.component';
+import { CheckoutResultComponent } from './pages/checkout/checkout-result/checkout-result.component';
 
 // Las rutas del usuario no llevan su id: el back lo identifica por el token,
 // así nadie puede cambiar un número en la URL para ver la cuenta de otra persona.
@@ -82,6 +83,12 @@ export const routes: Routes = [
     // Confirmación del pedido tras finalizar la compra.
     path: 'checkout/confirm',
     component: CheckoutConfirmComponent,
+    canActivate: [clientAreaGuard],
+  },
+  {
+    // Vuelta desde Stripe: /checkout/result?order=ID[&canceled=true]
+    path: 'checkout/result',
+    component: CheckoutResultComponent,
     canActivate: [clientAreaGuard],
   },
   {

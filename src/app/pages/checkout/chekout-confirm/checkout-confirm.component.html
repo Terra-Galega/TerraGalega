@@ -71,12 +71,11 @@
             <div class="min-w-0">
               <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Método de pago</p>
 
-              <!-- Tarjeta: solo se muestran los últimos 4 dígitos y las cuotas.
-                  Contra entrega: mensaje de pago en efectivo. -->
+              <!-- Tarjeta: se paga en Stripe. Contra entrega: pago en efectivo. -->
               @if (draft.method === 'card') {
-              <p class="text-[15px] font-medium text-charcoal mt-1">Tarjeta {{ lastDigits }}</p>
+              <p class="text-[15px] font-medium text-charcoal mt-1">Tarjeta de crédito o débito</p>
               <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
-                {{ installmentsText }}
+                Ingresarás los datos en la pasarela segura de Stripe.
               </p>
               } @else {
               <p class="text-[15px] font-medium text-charcoal mt-1">Contra entrega</p>
@@ -103,11 +102,9 @@
             <!-- El texto cambia según el estado -->
             <app-button id="btn-confirm-order" size="lg" [fullWidth]="true" [disabled]="paying" (click)="confirm()">
               {{
-              paying
-              ? draft.method === "card"
-              ? "Procesando pago..."
-              : "Confirmando pedido..."
-              : "Confirmar pedido"
+              draft.method === "card"
+              ? (paying ? "Abriendo la pasarela..." : "Pagar con tarjeta")
+              : (paying ? "Confirmando pedido..." : "Confirmar pedido")
               }}
             </app-button>
 

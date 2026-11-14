@@ -1,7 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { switchMap, timer } from 'rxjs';
 import { NavbarComponent } from '../../../components/navbar/navbar.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
@@ -20,12 +19,11 @@ import { CheckoutService } from '../../../services/checkout.service';
 import { CheckoutDraftService } from '../../../services/checkout-draft.service';
 import { CouponService } from '../../../services/coupon.service';
 import { OrderService } from '../../../services/order.service';
+import { PaymentService } from '../../../services/payment.service';
 import { CheckoutRequest, DELIVERY_FEE } from '../../../models/checkout';
 import { CouponDiscount } from '../../../models/coupon';
+import { Payment } from '../../../models/payment';
 import { getErrorMessage } from '../../../utils/http-error';
-
-// Lo que dura el "Procesando pago..." de la pasarela simulada (milisegundos)
-const PAYMENT_DELAY_MS = 1500;
 
 // Paso 2 del checkout: borrador del pedido y confirmación
 @Component({
@@ -52,6 +50,7 @@ export class CheckoutConfirmComponent implements OnInit {
   private orderService = inject(OrderService);
   private addressService = inject(AddressService);
   private couponService = inject(CouponService);
+  private paymentService = inject(PaymentService);
 
   // Id del cliente logueado; null hasta comprobar la sesión
   clientId: number | null = null;
@@ -139,18 +138,6 @@ export class CheckoutConfirmComponent implements OnInit {
     return this.cartService.unitPrice(item);
   };
 
-  // "•••• 1111"
-  get lastDigits(): string {
-    return '•••• ' + this.draft.number.slice(-4);
-  }
-
-  // Texto de las cuotas: 1 = contado, más de 1 = "N cuotas"
-  get installmentsText(): string {
-    return this.draft.installments === 1
-      ? 'Pago de contado'
-      : this.draft.installments + ' cuotas';
-  }
-
   // Vuelve al paso 1 con todo lo escrito conservado
   edit(): void {
     this.router.navigate(['/checkout']);
@@ -206,7 +193,8 @@ export class CheckoutConfirmComponent implements OnInit {
     this.showNotice('Actualizamos tu carrito', message);
   }
 
-  // Botón "Confirmar pedido": arma la solicitud, simula el pago y crea el pedido.
+  // Botón "Confirmar pedido": arma la solicitud y, según el método, crea el
+  // pedido en efectivo o lleva al cliente a pagar en Stripe.
   // No hace nada si ya se está pagando, si falta el cliente o si el carrito está vacío.
   confirm(): void {
     if (this.paying || this.clientId === null || this.items.length === 0) {
@@ -233,12 +221,14 @@ export class CheckoutConfirmComponent implements OnInit {
 
     this.paying = true;
 
-    // Con tarjeta se simula lo que tarda la pasarela; contra entrega confirma ya
-    const wait = this.draft.method === 'card' ? PAYMENT_DELAY_MS : 0;
+    if (this.draft.method === 'card') {
+      this.payWithCard(request);
+      return;
+    }
 
-    // timer espera y luego switchMap lanza la petición real de checkout
-    timer(wait)
-      .pipe(switchMap(() => this.checkoutService.checkout(request)))
+    // Contra entrega: el pedido se crea ya
+    this.checkoutService
+      .checkout(request)
       .subscribe({
         // Éxito: se guarda la dirección nueva (si se pidió), se vacía el carrito,
         // se limpia el borrador y se redirige a /orders (paid=true muestra el aviso verde)
@@ -257,41 +247,103 @@ export class CheckoutConfirmComponent implements OnInit {
             queryParams: { paid: true },
           });
         },
-        // Fallo: se reactiva el botón y se muestra el motivo
-        error: (error) => {
-          console.error('Error en el checkout:', error);
-
-          const serverMessage = getErrorMessage(
-            error,
-            'No se pudo procesar el pedido. Inténtalo de nuevo.',
-          );
-
-          this.paying = false;
-
-          // El fallo puede venir de un producto que dejó de estar disponible o
-          // del cupón. Se revisan los dos: lo que ya no sirve se quita y se
-          // avisa cuál fue el motivo
-          this.cartService.removeUnavailable().subscribe((removed) => {
-            this.revalidateCoupon((couponMessage) => {
-              if (removed.length > 0) {
-                this.showCartUpdated(removed, couponMessage);
-                return;
-              }
-
-              if (couponMessage) {
-                this.serverError = couponMessage;
-                this.showNotice('Quitamos tu cupón', couponMessage);
-                return;
-              }
-
-              this.errorTitle = 'No se pudo procesar el pedido';
-              this.serverError = serverMessage;
-              this.errorMessage = serverMessage;
-              this.showErrorModal = true;
-            });
-          });
-        },
+        error: (error) => this.onCheckoutError(error),
       });
+  }
+
+  // Tarjeta: el back crea el pedido (oculto hasta que se pague) y una sesión de
+  // Stripe; luego el navegador va a la página de pago de Stripe. Al terminar,
+  // Stripe vuelve a /checkout/result, que confirma el pago y vacía el carrito.
+  private payWithCard(request: CheckoutRequest): void {
+    // Mismo carrito = mismo requestId: reintentar tras un fallo de red no crea
+    // otro pedido. Si el carrito cambió, se usa un intento nuevo.
+    const body = JSON.stringify(request);
+
+    if (!this.draft.paymentRequestId || this.draft.paymentRequestBody !== body) {
+      this.draftService.draft = {
+        ...this.draftService.draft,
+        paymentRequestId: crypto.randomUUID(),
+        paymentRequestBody: body,
+      };
+    }
+
+    this.paymentService
+      .start({ requestId: this.draft.paymentRequestId, checkout: request })
+      .subscribe({
+        next: (payment) => this.goToStripe(payment),
+        error: (error) => this.onCheckoutError(error),
+      });
+  }
+
+  private goToStripe(payment: Payment): void {
+    // Ese intento ya se pagó (p. ej. se volvió atrás después de pagar)
+    if (payment.state === 'PAID') {
+      this.router.navigate(['/checkout/result'], {
+        queryParams: { order: payment.orderId },
+      });
+      return;
+    }
+
+    // El intento anterior caducó o se canceló: se prepara uno nuevo
+    if (payment.state !== 'PENDING' || !payment.checkoutUrl) {
+      this.draftService.draft = {
+        ...this.draftService.draft,
+        paymentRequestId: '',
+        paymentRequestBody: '',
+      };
+      this.paying = false;
+      this.showNotice(
+        'El pago anterior caducó',
+        'Vuelve a pulsar «Pagar con tarjeta» para generar un pago nuevo.',
+      );
+      return;
+    }
+
+    // Lo que hay que hacer cuando vuelva de Stripe con el pago aprobado
+    this.paymentService.savePending({
+      orderId: payment.orderId,
+      address: this.draft.address,
+      saveAddress: this.draft.saveAddress,
+      addressName: this.draft.addressName,
+    });
+
+    // `paying` queda en true: el botón sigue bloqueado hasta salir de la página
+    this.paymentService.redirectToStripe(payment);
+  }
+
+  // Fallo al crear el pedido o el pago: se reactiva el botón y se muestra el motivo
+  private onCheckoutError(error: unknown): void {
+    console.error('Error en el checkout:', error);
+
+    const serverMessage = getErrorMessage(
+      error,
+      'No se pudo procesar el pedido. Inténtalo de nuevo.',
+    );
+
+    this.paying = false;
+
+    // El fallo puede venir de un producto que dejó de estar disponible o
+    // del cupón. Se revisan los dos: lo que ya no sirve se quita y se
+    // avisa cuál fue el motivo
+    this.cartService.removeUnavailable().subscribe((removed) => {
+      this.revalidateCoupon((couponMessage) => {
+        if (removed.length > 0) {
+          this.showCartUpdated(removed, couponMessage);
+          return;
+        }
+
+        if (couponMessage) {
+          this.serverError = couponMessage;
+          this.showNotice('Quitamos tu cupón', couponMessage);
+          return;
+        }
+
+        this.errorTitle = 'No se pudo procesar el pedido';
+        this.serverError = serverMessage;
+        this.errorMessage = serverMessage;
+        this.showErrorModal = true;
+      });
+    });
   }
 
   // Agrega la dirección nueva a las del cliente. Sin nombre, el back la llama "Casa".
