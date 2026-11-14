@@ -1,0 +1,59 @@
+<p class="hint">
+  Mueve el mapa hasta la entrada o haz clic en el lugar de entrega.
+</p>
+
+<div class="map-frame">
+  <div
+    data-address-map
+    class="map"
+    aria-label="Seleccionar dirección de entrega"
+  ></div>
+
+  <!-- La punta del marcador queda en el centro del mapa. -->
+  <svg class="pin" viewBox="0 0 32 44" aria-hidden="true">
+    <path
+      d="M16 43C13 36 1 24 1 16a15 15 0 1 1 30 0c0 8-12 20-15 27Z"
+      fill="#b2571f"
+      stroke="white"
+      stroke-width="2"
+    />
+    <circle cx="16" cy="16" r="5" fill="white" />
+  </svg>
+</div>
+
+<div class="status" aria-live="polite">
+  @if (loadingMap) {
+    <p>Cargando mapa…</p>
+  }
+
+  @if (resolving) {
+    <p>Buscando la dirección…</p>
+  }
+
+  @if (mapError) {
+    <p class="error">{{ mapError }}</p>
+  }
+
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+
+  @if (address) {
+    <p class="address">{{ address }}</p>
+  }
+</div>
+
+<p class="hint">
+  Revisa la nomenclatura y añade apartamento o torre en “Escribirla”.
+</p>
+
+<p class="credit">
+  Direcciones:
+  <a
+    href="https://www.openstreetmap.org/copyright"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    © OpenStreetMap contributors </a
+  >.
+</p>

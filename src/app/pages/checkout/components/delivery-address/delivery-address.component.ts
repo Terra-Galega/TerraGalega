@@ -9,12 +9,17 @@ import {
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Address } from '../../../../models/address';
 import { AddressIconComponent } from '../../../../components/address-icon/address-icon.component';
+import { AddressMapPickerComponent } from '../../../../components/address-map-picker/address-map-picker.component';
 
 // Dirección de entrega del checkout: elegir una guardada o escribir otra.
 @Component({
   selector: 'app-delivery-address',
   standalone: true,
-    imports: [ReactiveFormsModule, AddressIconComponent],
+  imports: [
+    ReactiveFormsModule,
+    AddressIconComponent,
+    AddressMapPickerComponent,
+  ],
   templateUrl: './delivery-address.component.html',
 })
 export class DeliveryAddressComponent implements OnChanges {
@@ -38,6 +43,23 @@ export class DeliveryAddressComponent implements OnChanges {
   // true = el cliente está escribiendo una dirección que no está en su lista
   newMode = false;
 
+  entryMode: 'text' | 'map' = 'text';
+
+  setEntryMode(mode: 'text' | 'map'): void {
+    this.entryMode = mode;
+
+    if (mode === 'text') {
+      setTimeout(() => this.newAddressInput?.nativeElement.focus());
+    }
+  }
+
+  onMapPicked(address: string): void {
+    const control = this.form.get('address');
+
+    control?.setValue(address);
+    control?.markAsDirty();
+    control?.markAsTouched();
+  }
   // Cuando llegan las direcciones se decide si se muestra el campo de texto
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['addresses'] || changes['loading']) {
@@ -84,9 +106,12 @@ export class DeliveryAddressComponent implements OnChanges {
   // Pasa a escribir otra dirección (por defecto se ofrece guardarla)
   chooseNew(): void {
     this.newMode = true;
+    this.entryMode = 'text';
+
     this.form.get('address')?.setValue('');
     this.form.get('addressName')?.setValue('');
     this.form.get('saveAddress')?.setValue(true);
+
     setTimeout(() => this.newAddressInput?.nativeElement.focus());
   }
 
