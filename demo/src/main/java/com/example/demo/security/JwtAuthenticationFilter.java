@@ -15,6 +15,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import io.jsonwebtoken.JwtException;
+
 // Filtro que se ejecuta una vez en cada petición, antes de llegar al controlador.
 // Si la petición trae un JWT válido, deja al usuario autenticado en el
 // SecurityContextHolder. Si no trae token, la petición sigue como anónima y son
@@ -32,29 +34,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
         String token = getJWT(request);
 
-        if (token != null && jwtGenerator.validateToken(token)) {
-            String username = jwtGenerator.extractUsername(token);
+        if (token != null) {
             try {
-                // Se consulta la base de datos para tener los roles actuales
-                // y saber si la cuenta sigue activa
+                // extractUsername ya verifica la firma y el vencimiento
+                // mediante el parser de JwtGenerator.
+                String username = jwtGenerator.extractUsername(token);
+
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 if (userDetails.isEnabled()) {
-                    // Las credenciales van en null porque el usuario ya se identificó con el token
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
 
-                    // A partir de aquí, cualquier parte del código puede saber quién hizo la petición
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request));
+
+                    SecurityContextHolder.getContext()
+                            .setAuthentication(authentication);
                 }
-            } catch (UsernameNotFoundException e) {
-                // La cuenta fue eliminada: la petición sigue sin autenticar
+            } catch (JwtException | IllegalArgumentException | UsernameNotFoundException e) {
+
+                // La petición continúa sin autenticar.
+                // SecurityConfig rechazará las rutas protegidas.
+                SecurityContextHolder.clearContext();
             }
         }
 
