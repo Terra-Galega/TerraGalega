@@ -115,6 +115,24 @@ data class QuantityRequest(val quantity: Int)
 
 data class CheckoutRequest(val address: String, val items: List<CheckoutItemRequest>)
 
+// POST /payments/start. channel = "app" hace que Stripe vuelva a la app.
+data class StartPaymentRequest(
+    val requestId: String,
+    val checkout: CheckoutRequest,
+    val channel: String = "app"
+)
+
+// Respuesta de /payments/*. state: PENDING | PAID | EXPIRED |
+// REFUND_PENDING | REFUNDED | REFUND_FAILED
+data class Payment(
+    val orderId: Int,
+    val state: String,
+    // Página de Stripe donde se paga; solo viene mientras está PENDING
+    val checkoutUrl: String?,
+    val amountInCents: Long,
+    val currency: String
+)
+
 data class Address(
     val id: Int,
     val name: String?,

@@ -79,5 +79,7 @@ dependencies {
     // Imágenes de los platos (las mismas URLs que usa la web)
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("io.coil-kt:coil-svg:2.7.0")
+    // Abre la pasarela de Stripe en una pestaña del navegador dentro de la app
+    implementation("androidx.browser:browser:1.4.0")
 
 }

@@ -8,24 +8,24 @@ import androidx.compose.runtime.setValue
 object CheckoutDraft {
     const val ADDRESS_MAX = 120
     const val NAME_MAX = 40
-    val INSTALLMENTS = listOf(1, 3, 6, 12, 24, 36)
 
     var address by mutableStateOf("")
     var saveAddress by mutableStateOf(true)
     var addressName by mutableStateOf("")
-    var method by mutableStateOf("") // "cash" | "card" | ""
-    var holder by mutableStateOf("")
-    var documentType by mutableStateOf("CC")
-    var documentNumber by mutableStateOf("")
-    var number by mutableStateOf("")
-    var expiry by mutableStateOf("")
-    var cvv by mutableStateOf("")
-    var installments by mutableStateOf(1)
+    // "cash" | "card" | "". Con "card" los datos de la tarjeta se escriben en
+    // la página de Stripe: la app nunca los ve.
+    var method by mutableStateOf("")
+
+    // Intento de pago con tarjeta. Mismo carrito = mismo id, así reintentar
+    // tras un fallo de red no crea otro pedido (igual que la web).
+    var paymentRequestId = ""
+    var paymentRequestBody = ""
+    // Pedido que se está pagando en Stripe (null = ninguno)
+    var pendingOrderId by mutableStateOf<Int?>(null)
 
     fun reset() {
         address = ""; saveAddress = true; addressName = ""; method = ""
-        holder = ""; documentType = "CC"; documentNumber = ""
-        number = ""; expiry = ""; cvv = ""; installments = 1
+        paymentRequestId = ""; paymentRequestBody = ""; pendingOrderId = null
     }
 }
 

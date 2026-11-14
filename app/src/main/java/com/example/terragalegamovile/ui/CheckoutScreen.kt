@@ -20,13 +20,6 @@ import com.example.terragalegamovile.ui.components.*
 import com.example.terragalegamovile.ui.theme.*
 import kotlinx.coroutines.CancellationException
 
-private fun formatCard(raw: String) = raw.filter(Char::isDigit).take(16).chunked(4).joinToString(" ")
-
-private fun formatExpiry(raw: String): String {
-    val digits = raw.filter(Char::isDigit).take(4)
-    return if (digits.length > 2) digits.take(2) + "/" + digits.drop(2) else digits
-}
-
 @Composable
 private fun FieldError(text: String?) {
     if (text != null) Text(text, color = Burgundy, fontSize = 14.sp, modifier = Modifier.padding(top = 6.dp))
@@ -87,13 +80,7 @@ fun CheckoutScreen(
                 e["addressName"] = "Ya tienes una dirección con ese nombre."
         }
         if (d.method.isEmpty()) e["method"] = "Elige cómo quieres pagar."
-        if (d.method == "card") {
-            if (d.holder.trim().length < 3) e["holder"] = "Escribe el nombre como aparece en la tarjeta."
-            if (d.documentNumber.trim().length < 5) e["documentNumber"] = "Escribe tu número de documento."
-            if (d.number.replace(" ", "").length != 16) e["number"] = "El número de la tarjeta debe tener 16 dígitos."
-            if (!Regex("^(0[1-9]|1[0-2])/\\d{2}\$").matches(d.expiry)) e["expiry"] = "Escribe el vencimiento como MM/AA."
-            if (d.cvv.length != 3) e["cvv"] = "El código de seguridad debe tener 3 dígitos."
-        }
+        // La tarjeta no se valida aquí: se escribe en la página de Stripe
         return e
     }
 
@@ -105,20 +92,8 @@ fun CheckoutScreen(
         d.address = d.address.trim()
         d.addressName = d.addressName.trim()
         d.saveAddress = d.saveAddress && !isSaved(d.address)
-        if (d.method == "cash") {
-            d.holder = ""; d.documentNumber = ""; d.number = ""; d.expiry = ""; d.cvv = ""; d.installments = 1
-        }
         onContinue()
     }
-
-    fun fillTestData() {
-        d.method = "card"
-        if (d.address.isBlank()) d.address = "Calle 123 #45-67, apto 8"
-        d.holder = "Juan García"; d.documentType = "CC"; d.documentNumber = "1020304050"
-        d.number = "4111 1111 1111 1111"; d.expiry = "12/28"; d.cvv = "123"; d.installments = 1
-    }
-
-    val numberKeyboard = KeyboardOptions(keyboardType = KeyboardType.Number)
 
     TerraScaffold(role = "Cliente", name = "${user.name} ${user.lastName}", onLogout = onLogout) { padding ->
         Column(
@@ -226,7 +201,7 @@ fun CheckoutScreen(
             Spacer(Modifier.height(10.dp))
             SelectCard(selected = d.method == "card", onClick = { d.method = "card" }) {
                 Text("Tarjeta", fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
-                Text("Crédito o débito, con pasarela de pago segura.", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
+                Text("Crédito o débito, en la pasarela segura de Stripe.", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
             }
             FieldError(errors["method"])
 
@@ -240,98 +215,13 @@ fun CheckoutScreen(
             }
 
             if (d.method == "card") {
-                Spacer(Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    Text("Datos de la tarjeta", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
-                    Text(
-                        "Autocompletar",
-                        color = Terra,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.clickable { fillTestData() }
-                    )
-                }
-                Spacer(Modifier.height(12.dp))
-                TerraTextField(
-                    label = "Nombre del titular",
-                    value = d.holder,
-                    onValueChange = { d.holder = it },
-                    placeholder = "Como aparece en la tarjeta"
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    "Al confirmar el pedido abriremos la pasarela segura de Stripe para que " +
+                        "ingreses tu tarjeta. TerraGalega nunca ve ni guarda sus datos.",
+                    fontSize = 14.sp,
+                    color = Charcoal.copy(alpha = 0.7f)
                 )
-                FieldError(errors["holder"])
-                Spacer(Modifier.height(12.dp))
-
-                SectionLabel("Documento")
-                Spacer(Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    listOf("CC", "CE", "PAS", "NIT").forEach { type ->
-                        PillChip(type, d.documentType == type) { d.documentType = type }
-                    }
-                }
-                Spacer(Modifier.height(8.dp))
-                TerraTextField(
-                    label = "Número de documento",
-                    value = d.documentNumber,
-                    onValueChange = { d.documentNumber = it.filter(Char::isDigit).take(12) },
-                    placeholder = "1020304050",
-                    keyboardOptions = numberKeyboard
-                )
-                FieldError(errors["documentNumber"])
-                Spacer(Modifier.height(12.dp))
-
-                TerraTextField(
-                    label = "Número de tarjeta",
-                    value = d.number,
-                    onValueChange = { d.number = formatCard(it) },
-                    placeholder = "1234 5678 9012 3456",
-                    keyboardOptions = numberKeyboard
-                )
-                FieldError(errors["number"])
-                Spacer(Modifier.height(12.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        TerraTextField(
-                            label = "Vencimiento",
-                            value = d.expiry,
-                            onValueChange = { d.expiry = formatExpiry(it) },
-                            placeholder = "MM/AA",
-                            keyboardOptions = numberKeyboard
-                        )
-                        FieldError(errors["expiry"])
-                    }
-                    Column(modifier = Modifier.weight(1f)) {
-                        TerraTextField(
-                            label = "Código de seguridad",
-                            value = d.cvv,
-                            onValueChange = { d.cvv = it.filter(Char::isDigit).take(3) },
-                            placeholder = "123",
-                            keyboardOptions = numberKeyboard
-                        )
-                        FieldError(errors["cvv"])
-                    }
-                }
-                Spacer(Modifier.height(12.dp))
-
-                SectionLabel("Cuotas")
-                Spacer(Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    CheckoutDraft.INSTALLMENTS.forEach { n ->
-                        PillChip(if (n == 1) "Pago de contado" else "$n cuotas", d.installments == n) {
-                            d.installments = n
-                        }
-                    }
-                }
             }
 
             // ---------- Resumen ----------

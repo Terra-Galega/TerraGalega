@@ -19,6 +19,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:label="@string/app_name"
             android:theme="@style/Theme.TerraGalegaMovile"
             android:windowSoftInputMode="adjustResize">
@@ -26,6 +27,16 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Vuelta desde Stripe: el back redirige a terragalega://pago?order=ID.
+                 singleTask reutiliza esta actividad y cierra la pestaña de Stripe;
+                 la pantalla de pago consulta el estado al volver a primer plano. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="terragalega" android:host="pago" />
             </intent-filter>
         </activity>
     </application>

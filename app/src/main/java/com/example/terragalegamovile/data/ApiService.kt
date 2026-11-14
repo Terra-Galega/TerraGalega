@@ -105,6 +105,19 @@ interface ApiService {
     @POST("checkout")
     suspend fun checkout(@Body body: CheckoutRequest): ResponseBody
 
+    // ---------- Pago con tarjeta (Stripe Checkout, los mismos endpoints de la web) ----------
+    // Crea el pedido (oculto hasta que se pague) y la página de pago de Stripe
+    @POST("payments/start")
+    suspend fun startPayment(@Body body: StartPaymentRequest): Payment
+
+    // Estado real: el back también consulta a Stripe
+    @GET("payments/{orderId}")
+    suspend fun paymentStatus(@Path("orderId") orderId: Int): Payment
+
+    // Sin pagar: cierra la página de pago. Pagado y sin confirmar: reembolsa.
+    @POST("payments/{orderId}/cancel")
+    suspend fun cancelPayment(@Path("orderId") orderId: Int): Payment
+
     @GET("orders/me")
     suspend fun myOrders(): List<Order>
 
