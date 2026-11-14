@@ -25,124 +25,174 @@ import com.example.demo.entities.Role;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Nombres de los roles tomados del enum Role
-    private static final String CLIENT = Role.CLIENT.name();
-    private static final String ADMIN = Role.ADMIN.name();
-    private static final String OPERATOR = Role.OPERATOR.name();
-    private static final String DELIVERY_PERSON = Role.DELIVERY_PERSON.name();
+        // Nombres de los roles tomados del enum Role
+        private static final String CLIENT = Role.CLIENT.name();
+        private static final String ADMIN = Role.ADMIN.name();
+        private static final String OPERATOR = Role.OPERATOR.name();
+        private static final String DELIVERY_PERSON = Role.DELIVERY_PERSON.name();
 
-    @Autowired
-    private JwtGenerator jwtGenerator;
+        @Autowired
+        private JwtGenerator jwtGenerator;
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+        @Autowired
+        private CustomUserDetailsService userDetailsService;
 
-    @Autowired
-    private JwtAuthEntryPoint jwtAuthEntryPoint;
+        @Autowired
+        private JwtAuthEntryPoint jwtAuthEntryPoint;
 
-    @Autowired
-    private JwtAccessDeniedHandler jwtAccessDeniedHandler;
+        @Autowired
+        private JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                // CSRF protege a las aplicaciones que usan cookies de sesión.
-                // Aquí el usuario se identifica con el JWT en un header, así que no hace falta.
-                .csrf(AbstractHttpConfigurer::disable)
-                // Usa la configuración de CorsConfig para aceptar peticiones del front
-                .cors(Customizer.withDefaults())
-                // Permite que la consola de H2 se muestre dentro de un iframe
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-                // No usamos el formulario de login ni la autenticación básica de Spring
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                // El servidor no guarda sesiones: cada petición se identifica con su token
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Respuestas en JSON para 401 (sin sesión) y 403 (sin permiso)
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(jwtAuthEntryPoint)
-                        .accessDeniedHandler(jwtAccessDeniedHandler))
-                // Las reglas se revisan en orden y se aplica la primera que coincide,
-                // por eso las rutas más específicas van antes que las generales
-                .authorizeHttpRequests(auth -> auth
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                // CSRF protege a las aplicaciones que usan cookies de sesión.
+                                // Aquí el usuario se identifica con el JWT en un header, así que no hace falta.
+                                .csrf(AbstractHttpConfigurer::disable)
+                                // Usa la configuración de CorsConfig para aceptar peticiones del front
+                                .cors(Customizer.withDefaults())
+                                // Permite que la consola de H2 se muestre dentro de un iframe
+                                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                                // No usamos el formulario de login ni la autenticación básica de Spring
+                                .formLogin(AbstractHttpConfigurer::disable)
+                                .httpBasic(AbstractHttpConfigurer::disable)
+                                // El servidor no guarda sesiones: cada petición se identifica con su token
+                                .sessionManagement(session -> session.sessionCreationPolicy(
+                                                SessionCreationPolicy.STATELESS))
+                                // Respuestas en JSON para 401 (sin sesión) y 403 (sin permiso)
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(jwtAuthEntryPoint)
+                                                .accessDeniedHandler(jwtAccessDeniedHandler))
+                                // Las reglas se revisan en orden y se aplica la primera que coincide,
+                                // por eso las rutas más específicas van antes que las generales
+                                .authorizeHttpRequests(auth -> auth
 
-                        // ================= PÚBLICO =================
-                        // Peticiones previas de CORS (el navegador las envía sin token)
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/login", "/auth/signup").permitAll()
-                        // Página de error de Spring, consola H2 y documentación Swagger
-                        .requestMatchers("/error", "/h2/**", "/swagger-ui/**", "/swagger-ui.html",
-                                "/v3/api-docs/**", "/actuator/health").permitAll()
-                        // Páginas de Thymeleaf y sus archivos estáticos
-                        .requestMatchers(HttpMethod.GET, "/", "/home", "/menu", "/aboutUs", "/contact",
-                                "/productDetail/**", "/css/**", "/js/**", "/assets/**", "/favicon.ico").permitAll()
+                                                // ================= PÚBLICO =================
+                                                // Peticiones previas de CORS (el navegador las envía sin token)
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                                .requestMatchers("/auth/login", "/auth/signup").permitAll()
+                                                // Página de error de Spring, consola H2 y documentación Swagger
+                                                .requestMatchers("/error", "/h2/**", "/swagger-ui/**",
+                                                                "/swagger-ui.html",
+                                                                "/v3/api-docs/**", "/actuator/health")
+                                                .permitAll()
+                                                // Páginas de Thymeleaf y sus archivos estáticos
+                                                .requestMatchers(HttpMethod.GET, "/", "/home", "/menu", "/aboutUs",
+                                                                "/contact",
+                                                                "/productDetail/**", "/css/**", "/js/**", "/assets/**",
+                                                                "/favicon.ico")
+                                                .permitAll()
 
-                        // ================= PRODUCTOS / CARTA =================
-                        // Estas dos rutas de /products son del admin y deben ir antes del GET público
-                        .requestMatchers(HttpMethod.GET, "/products/clients", "/products/options").hasAuthority(ADMIN)
-                        // La carta la puede ver cualquiera
-                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/addons/active/category/**").permitAll()
-                        // Crear, editar, borrar o activar/desactivar: solo el admin
-                        .requestMatchers("/products/**", "/categories/**", "/addons/**").hasAuthority(ADMIN)
+                                                // ================= PRODUCTOS / CARTA =================
+                                                // Estas dos rutas de /products son del admin y deben ir antes del GET
+                                                // público
+                                                .requestMatchers(HttpMethod.GET, "/products/clients",
+                                                                "/products/options")
+                                                .hasAuthority(ADMIN)
+                                                // La carta la puede ver cualquiera
+                                                .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/addons/active/category/**")
+                                                .permitAll()
+                                                // Crear, editar, borrar o activar/desactivar: solo el admin
+                                                .requestMatchers("/products/**", "/categories/**", "/addons/**")
+                                                .hasAuthority(ADMIN)
 
-                        // ================= SESIÓN =================
-                        // /auth/me: cualquier usuario con un token válido
-                        .requestMatchers("/auth/**").authenticated()
+                                                // ================= SESIÓN =================
+                                                // /auth/me: cualquier usuario con un token válido
+                                                .requestMatchers("/auth/**").authenticated()
 
-                        // ================= CLIENTE =================
-                        .requestMatchers("/clients/me/**").hasAuthority(CLIENT)
-                        .requestMatchers("/cart/**", "/checkout/**").hasAuthority(CLIENT)
-                        .requestMatchers(HttpMethod.GET, "/coupons/me/**", "/coupons/validate").hasAuthority(CLIENT)
-                        .requestMatchers(HttpMethod.GET, "/orders/me").hasAuthority(CLIENT)
-                        .requestMatchers(HttpMethod.PUT, "/orders/*/cancel").hasAuthority(CLIENT)
-                        .requestMatchers("/delivery/client/**").hasAuthority(CLIENT)
+                                                // ================= CLIENTE =================
+                                                .requestMatchers("/clients/me/**").hasAuthority(CLIENT)
+                                                .requestMatchers("/cart/**", "/checkout/**").hasAuthority(CLIENT)
+                                                .requestMatchers(HttpMethod.GET, "/coupons/me/**", "/coupons/validate")
+                                                .hasAuthority(CLIENT)
+                                                .requestMatchers(HttpMethod.GET, "/orders/me").hasAuthority(CLIENT)
+                                                .requestMatchers(HttpMethod.PUT, "/orders/*/cancel")
+                                                .hasAuthority(CLIENT)
 
-                        // ================= OPERADOR =================
-                        .requestMatchers(HttpMethod.GET, "/operators/me").hasAuthority(OPERATOR)
-                        .requestMatchers(HttpMethod.GET, "/orders/active").hasAuthority(OPERATOR)
-                        .requestMatchers(HttpMethod.PUT, "/orders/*/confirm", "/orders/*/cook",
-                                "/orders/*/send/*", "/orders/*/deliver").hasAuthority(OPERATOR)
-                        .requestMatchers(HttpMethod.GET, "/delivery-persons/available").hasAuthority(OPERATOR)
+                                                // ================= OPERADOR =================
+                                                .requestMatchers(HttpMethod.GET, "/operators/me").hasAuthority(OPERATOR)
+                                                .requestMatchers(HttpMethod.GET, "/orders/active")
+                                                .hasAuthority(OPERATOR)
+                                                .requestMatchers(HttpMethod.PUT, "/orders/*/confirm", "/orders/*/cook",
+                                                                "/orders/*/send/*", "/orders/*/deliver")
+                                                .hasAuthority(OPERATOR)
+                                                .requestMatchers(HttpMethod.GET, "/delivery-persons/available")
+                                                .hasAuthority(OPERATOR)
 
-                        // ================= DOMICILIARIO (app móvil) =================
-                        .requestMatchers("/delivery/person/**").hasAuthority(DELIVERY_PERSON)
+                                                // ================= SEGUIMIENTO DE DOMICILIOS =================
 
-                        // ================= PEDIDOS =================
-                        // Los listados completos son del admin. Van antes del detalle
-                        // porque "/orders/*" también coincide con "/orders/all".
-                        .requestMatchers(HttpMethod.GET, "/orders", "/orders/all").hasAuthority(ADMIN)
-                        // Detalle de un pedido: operador y admin
-                        .requestMatchers(HttpMethod.GET, "/orders/*").hasAnyAuthority(OPERATOR, ADMIN)
+                                                // Cliente: consultar sus domicilios.
+                                                // El controlador comprueba que el ID corresponda al JWT.
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/delivery/client/**")
+                                                .hasAuthority(CLIENT)
 
-                        // ================= ADMIN =================
-                        .requestMatchers("/clients/**", "/orders/**", "/coupons/**", "/operators/**",
-                                "/delivery-persons/**", "/sync/**").hasAuthority(ADMIN)
+                                                // Repartidor: consultar los pedidos que tiene asignados.
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/delivery/person/*/active")
+                                                .hasAuthority(DELIVERY_PERSON)
 
-                        // Cualquier otra ruta exige al menos haber iniciado sesión
-                        .anyRequest().authenticated())
-                // El filtro JWT se ejecuta antes del filtro de usuario y contraseña de Spring
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                                                // Repartidor: actualizar su ubicación en un pedido asignado.
+                                                .requestMatchers(
+                                                                HttpMethod.PUT,
+                                                                "/delivery/person/*/orders/*/location")
+                                                .hasAuthority(DELIVERY_PERSON)
 
-        return http.build();
-    }
+                                                // Repartidor: completar un pedido asignado mediante el PIN.
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/delivery/person/*/orders/*/complete")
+                                                .hasAuthority(DELIVERY_PERSON)
 
-    private JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtGenerator, userDetailsService);
-    }
+                                                // Cualquier otra ruta o método de delivery queda bloqueado
+                                                // hasta que tenga una autorización explícita.
+                                                .requestMatchers("/delivery/**")
+                                                .denyAll()
 
-    // Valida correo y contraseña usando CustomUserDetailsService y el PasswordEncoder.
-    // Si los datos son correctos, devuelve la autenticación con los roles del usuario.
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-            throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+                                                // ================= PEDIDOS =================
+                                                // Los listados completos son del admin. Van antes del detalle
+                                                // porque "/orders/*" también coincide con "/orders/all".
+                                                .requestMatchers(HttpMethod.GET, "/orders", "/orders/all")
+                                                .hasAuthority(ADMIN)
+                                                // Detalle de un pedido: operador y admin
+                                                .requestMatchers(HttpMethod.GET, "/orders/*")
+                                                .hasAnyAuthority(OPERATOR, ADMIN)
 
-    // Cifra las contraseñas con BCrypt
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+                                                // ================= ADMIN =================
+                                                .requestMatchers("/clients/**", "/orders/**", "/coupons/**",
+                                                                "/operators/**",
+                                                                "/delivery-persons/**", "/sync/**")
+                                                .hasAuthority(ADMIN)
+
+                                                // Cualquier otra ruta exige al menos haber iniciado sesión
+                                                .anyRequest().authenticated())
+                                // El filtro JWT se ejecuta antes del filtro de usuario y contraseña de Spring
+                                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+                return http.build();
+        }
+
+        private JwtAuthenticationFilter jwtAuthenticationFilter() {
+                return new JwtAuthenticationFilter(jwtGenerator, userDetailsService);
+        }
+
+        // Valida correo y contraseña usando CustomUserDetailsService y el
+        // PasswordEncoder.
+        // Si los datos son correctos, devuelve la autenticación con los roles del
+        // usuario.
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+                        throws Exception {
+                return configuration.getAuthenticationManager();
+        }
+
+        // Cifra las contraseñas con BCrypt
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 }

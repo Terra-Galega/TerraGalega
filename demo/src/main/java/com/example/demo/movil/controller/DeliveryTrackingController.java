@@ -11,16 +11,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.OrderDTO;
+import com.example.demo.errors.ApiException;
 import com.example.demo.movil.dto.DeliveryDTOs.ClientDeliveryDTO;
 import com.example.demo.movil.dto.DeliveryDTOs.CompleteDeliveryRequestDTO;
 import com.example.demo.movil.dto.DeliveryDTOs.DeliveryJobDTO;
 import com.example.demo.movil.dto.DeliveryDTOs.LocationRequestDTO;
 import com.example.demo.movil.service.DeliveryFlowService;
-import com.example.demo.dto.OrderDTO;
+import com.example.demo.security.AuthenticatedUser;
 
 import io.swagger.v3.oas.annotations.Operation;
 
-// API REST del seguimiento de domicilios (app móvil). Ruta base: /delivery.
+// Seguimiento de domicilios.
+// SecurityConfig controla los roles y aquí comprobamos que el ID
+// recibido corresponde a la persona identificada por el JWT.
 @RestController
 @RequestMapping("/delivery")
 public class DeliveryTrackingController {
@@ -28,39 +32,95 @@ public class DeliveryTrackingController {
     @Autowired
     private DeliveryFlowService flow;
 
-    // ---------- CLIENTE ----------
+    @Autowired
+    private AuthenticatedUser authenticatedUser;
 
-    @Operation(summary = "Client: active deliveries with PIN and courier location")
+    // ================= CLIENTE =================
+
+    @Operation(summary = "Client: own active deliveries with PIN and courier location")
     @GetMapping("/client/{clientId}/active")
-    public List<ClientDeliveryDTO> activeForClient(@PathVariable Integer clientId) {
+    public List<ClientDeliveryDTO> activeForClient(
+            @PathVariable Integer clientId) {
+
+        requireCurrentClient(clientId);
+
         return flow.activeForClient(clientId);
     }
 
-    @Operation(summary = "Client: one delivery (poll this to move the courier on the map)")
+    @Operation(summary = "Client: tracking of one of their own deliveries")
     @GetMapping("/client/{clientId}/orders/{orderId}")
-    public ClientDeliveryDTO forClient(@PathVariable Integer clientId, @PathVariable Integer orderId) {
+    public ClientDeliveryDTO forClient(
+            @PathVariable Integer clientId,
+            @PathVariable Integer orderId) {
+
+        requireCurrentClient(clientId);
+
+        // El servicio también comprueba que el pedido pertenezca al cliente.
         return flow.forClient(clientId, orderId);
     }
 
-    // ---------- REPARTIDOR ----------
+    // ================= REPARTIDOR =================
 
-    @Operation(summary = "Delivery person: orders being delivered")
+    @Operation(summary = "Delivery person: own assigned active deliveries")
     @GetMapping("/person/{deliveryPersonId}/active")
-    public List<DeliveryJobDTO> activeForDeliveryPerson(@PathVariable Integer deliveryPersonId) {
+    public List<DeliveryJobDTO> activeForDeliveryPerson(
+            @PathVariable Integer deliveryPersonId) {
+
+        requireCurrentDeliveryPerson(deliveryPersonId);
+
         return flow.activeForDeliveryPerson(deliveryPersonId);
     }
 
-    @Operation(summary = "Delivery person: report current GPS position")
+    @Operation(summary = "Delivery person: report location for an assigned order")
     @PutMapping("/person/{deliveryPersonId}/orders/{orderId}/location")
-    public DeliveryJobDTO updateLocation(@PathVariable Integer deliveryPersonId,
-            @PathVariable Integer orderId, @RequestBody LocationRequestDTO body) {
-        return flow.updateLocation(deliveryPersonId, orderId, body.latitude(), body.longitude());
+    public DeliveryJobDTO updateLocation(
+            @PathVariable Integer deliveryPersonId,
+            @PathVariable Integer orderId,
+            @RequestBody LocationRequestDTO body) {
+
+        requireCurrentDeliveryPerson(deliveryPersonId);
+
+        // El servicio comprueba la asignación del pedido,
+        // su estado y la validez de las coordenadas.
+        return flow.updateLocation(
+                deliveryPersonId,
+                orderId,
+                body.latitude(),
+                body.longitude());
     }
 
-    @Operation(summary = "Delivery person: finish the order with the client's PIN")
+    @Operation(summary = "Delivery person: complete an assigned order using the client's PIN")
     @PostMapping("/person/{deliveryPersonId}/orders/{orderId}/complete")
-    public OrderDTO complete(@PathVariable Integer deliveryPersonId,
-            @PathVariable Integer orderId, @RequestBody CompleteDeliveryRequestDTO body) {
+    public OrderDTO complete(
+            @PathVariable Integer deliveryPersonId,
+            @PathVariable Integer orderId,
+            @RequestBody CompleteDeliveryRequestDTO body) {
+
+        requireCurrentDeliveryPerson(deliveryPersonId);
+
+        // El servicio comprueba la asignación, el estado y el PIN.
         return flow.complete(deliveryPersonId, orderId, body.pin());
+    }
+
+    // ================= VALIDACIONES DE IDENTIDAD =================
+
+    // Tener rol CLIENT no permite consultar los domicilios de otro cliente.
+    private void requireCurrentClient(Integer clientId) {
+        Integer authenticatedId = authenticatedUser.client().getId();
+
+        if (!authenticatedId.equals(clientId)) {
+            throw ApiException.forbidden(
+                    "No puedes consultar los domicilios de otro cliente.");
+        }
+    }
+
+    // Tener rol DELIVERY_PERSON no permite actuar como otro repartidor.
+    private void requireCurrentDeliveryPerson(Integer deliveryPersonId) {
+        Integer authenticatedId = authenticatedUser.deliveryPerson().getId();
+
+        if (!authenticatedId.equals(deliveryPersonId)) {
+            throw ApiException.forbidden(
+                    "No puedes consultar ni modificar los domicilios de otro repartidor.");
+        }
     }
 }
