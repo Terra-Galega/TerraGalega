@@ -7,6 +7,7 @@ export type AdminTab =
   | 'categories'
   | 'addons'
   | 'coupons'
+  | 'announcements'
   | 'orders'
   | 'users'
   | 'operators'

@@ -1,0 +1,113 @@
+<!-- Fondo oscuro que cubre toda la pantalla y centra la ventana -->
+<div
+class="fixed inset-0 z-50 flex items-center justify-center p-4"
+style="background-color: rgba(44, 44, 44, 0.55)"
+>
+    <div
+        class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
+    >
+        <!-- Encabezado: el título cambia según se edite o se cree -->
+        <div class="flex items-center justify-between mb-7">
+        <h2 class="font-serif text-2xl font-semibold text-charcoal">
+            {{ announcement ? "Editar anuncio" : "Añadir anuncio" }}
+        </h2>
+
+        <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+            <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            >
+            <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </app-icon-button>
+        </div>
+
+        <div class="space-y-4">
+        <!-- Título -->
+        <app-form-field label="Título">
+            <input
+            type="text"
+            [value]="title"
+            (input)="setTitle($event)"
+            [attr.maxlength]="titleMax"
+            required
+            placeholder="Título del anuncio"
+            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+            />
+            <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
+                {{ title.length }}/{{ titleMax }}
+            </p>
+        </app-form-field>
+
+        <!-- Descripción -->
+        <app-form-field label="Descripción">
+            <textarea
+            [value]="description"
+            (input)="setDescription($event)"
+            [attr.maxlength]="descriptionMax"
+            rows="3"
+            required
+            placeholder="Descripción del anuncio…"
+            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
+            ></textarea>
+            <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
+                {{ description.length }}/{{ descriptionMax }}
+            </p>
+        </app-form-field>
+
+        <!-- URL de la imagen, con vista previa solo si la URL es válida -->
+        <app-form-field label="URL de imagen">
+            <input
+            type="url"
+            [value]="imageUrl"
+            (input)="setImageUrl($event)"
+            [attr.maxlength]="urlMax"
+            required
+            placeholder="https://images.unsplash.com/…"
+            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+            />
+
+            @if (canPreview) {
+                <img
+                    [src]="imageUrl.trim()"
+                    alt="preview"
+                    class="mt-2 w-full h-28 object-cover rounded-xl"
+                    [class.hidden]="previewFailed"
+                    (load)="previewFailed = false"
+                    (error)="previewFailed = true"
+                />
+                @if (previewFailed) {
+                    <p class="text-xs mt-2" style="color: #da5858">
+                        No se pudo cargar la imagen de esa URL.
+                    </p>
+                }
+            }
+        </app-form-field>
+
+        <!-- Error de validación o del servidor (incluye "máximo 3 anuncios") -->
+        @if (errorMessage) {
+            <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
+        }
+
+        <!-- Botones: Cancelar y Guardar -->
+        <div class="flex gap-3 pt-2">
+            <app-button
+            class="flex-1"
+            variant="neutral"
+            [fullWidth]="true"
+            (click)="close()"
+            >
+            Cancelar
+            </app-button>
+
+            <app-button class="flex-1" [fullWidth]="true" (click)="save()">
+            {{ announcement ? "Guardar cambios" : "Añadir anuncio" }}
+            </app-button>
+        </div>
+        </div>
+    </div>
+</div>

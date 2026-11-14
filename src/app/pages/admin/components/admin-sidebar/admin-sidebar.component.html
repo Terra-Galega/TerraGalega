@@ -99,6 +99,18 @@
 
       Cupones
     </button>
+    
+    <!-- Acceso a la sección de anuncios del inicio -->
+    <button id="tab-announcements" type="button" (click)="changeTab('announcements')"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      [class.active]="activeTab === 'announcements'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 11v2a1 1 0 001 1h2l5 4V6L6 10H4a1 1 0 00-1 1z" />
+        <path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13" />
+      </svg>
+
+      Anuncios
+    </button>
 
     <!-- Acceso a la sección de órdenes -->
     <button type="button" (click)="changeTab('orders')"

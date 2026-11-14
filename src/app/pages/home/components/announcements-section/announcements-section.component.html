@@ -1,0 +1,121 @@
+<!-- Carrusel de anuncios: solo existe si hay al menos uno -->
+@if (announcements.length > 0) {
+<section
+    class="py-20"
+    style="background-color: #f7f4ec"
+    aria-roledescription="carousel"
+    aria-label="Anuncios"
+>
+    <div class="max-w-7xl mx-auto px-6">
+    <p
+        class="text-[11px] font-semibold tracking-[0.2em] uppercase mb-6 text-center"
+        style="color: #b2571f"
+    >
+        Novedades
+    </p>
+
+    <!-- Marco del carrusel: recorta lo que queda fuera de la diapositiva -->
+    <div
+        class="relative overflow-hidden rounded-3xl"
+        style="
+        background-color: rgba(255, 255, 255, 0.7);
+        box-shadow: 0 8px 32px rgba(44, 44, 44, 0.08);
+        "
+        (mouseenter)="paused = true"
+        (mouseleave)="paused = false"
+        (focusin)="paused = true"
+        (focusout)="paused = false"
+    >
+        <!-- Pista horizontal: se desplaza 100% por cada anuncio -->
+        <div
+        class="flex"
+        style="transition: transform 0.7s ease"
+        [style.transform]="'translateX(-' + current * 100 + '%)'"
+        >
+        @for (announcement of announcements; track announcement.id; let i = $index) {
+            <article
+            class="w-full flex-shrink-0 grid md:grid-cols-2"
+            [attr.aria-hidden]="i !== current"
+            [attr.aria-label]="i + 1 + ' de ' + announcements.length"
+            role="group"
+            >
+            <!-- Imagen -->
+            <img
+                [src]="announcement.imageUrl"
+                [alt]="announcement.title"
+                class="w-full h-64 md:h-[26rem] object-cover"
+            />
+
+            <!-- Texto -->
+            <div class="flex flex-col justify-center p-8 md:p-12">
+                <h2
+                class="font-serif text-3xl md:text-4xl font-semibold text-charcoal mb-4"
+                >
+                {{ announcement.title }}
+                </h2>
+                <p
+                class="text-base leading-relaxed"
+                style="color: rgba(44, 44, 44, 0.7)"
+                >
+                {{ announcement.description }}
+                </p>
+            </div>
+            </article>
+        }
+        </div>
+
+        <!-- Flechas: solo si hay más de un anuncio -->
+        @if (announcements.length > 1) {
+        <button
+            type="button"
+            aria-label="Anuncio anterior"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center"
+            style="
+            background-color: rgba(245, 242, 235, 0.92);
+            box-shadow: 0 4px 16px rgba(44, 44, 44, 0.15);
+            color: #2c2c2c;
+            "
+            (click)="prev()"
+        >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+            </svg>
+        </button>
+
+        <button
+            type="button"
+            aria-label="Anuncio siguiente"
+            class="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center"
+            style="
+            background-color: rgba(245, 242, 235, 0.92);
+            box-shadow: 0 4px 16px rgba(44, 44, 44, 0.15);
+            color: #2c2c2c;
+            "
+            (click)="next()"
+        >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6" />
+            </svg>
+        </button>
+
+        <!-- Puntos indicadores -->
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            @for (announcement of announcements; track announcement.id; let i = $index) {
+            <button
+                type="button"
+                [attr.aria-label]="'Ir al anuncio ' + (i + 1)"
+                class="h-2 rounded-full"
+                style="transition: all 0.3s ease"
+                [style.width]="i === current ? '24px' : '8px'"
+                [style.background-color]="
+                i === current ? '#b2571f' : 'rgba(44, 44, 44, 0.25)'
+                "
+                (click)="goTo(i)"
+            ></button>
+            }
+        </div>
+        }
+    </div>
+    </div>
+</section>
+}

@@ -41,6 +41,11 @@
         ></app-admin-coupons>
       }
 
+      <!-- Sección de anuncios del inicio -->
+      @if (activeTab === "announcements") {
+      <app-admin-announcements [searchTerm]="searchTerm" (editAnnouncement)="openEditAnnouncement($event)"></app-admin-announcements>
+      }
+
       <!-- Sección de pedidos -->
       @if (activeTab === "orders") {
       <app-admin-orders></app-admin-orders>
@@ -86,6 +91,11 @@
     [coupon]="selectedCoupon"
     (closed)="closeCouponModal()"
   ></app-admin-coupon-modal>
+}
+
+<!-- Modal para crear o editar anuncios -->
+@if (announcementModalOpen) {
+<app-admin-announcement-modal [announcement]="selectedAnnouncement" (closed)="closeAnnouncementModal()"></app-admin-announcement-modal>
 }
 
 <!-- Modal para crear o editar domiciliarios y solicitar el cambio de contraseña -->

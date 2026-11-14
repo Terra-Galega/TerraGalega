@@ -24,6 +24,11 @@ import { getErrorMessage } from '../../../../utils/http-error';
  * específico, que se busca por nombre, apellido o correo. Valida el formulario
  * y llama al servicio correspondiente. Avisa al padre con "saved" y "closed".
  */
+
+const CODE_PATTERN = /^[A-Za-z0-9_-]{3,40}$/;
+const MAX_AMOUNT = 10_000_000;
+const MAX_USES = 1_000_000;
+
 @Component({
     selector: 'app-admin-coupon-modal',
     imports: [
@@ -74,6 +79,8 @@ export class AdminCouponModalComponent {
     // Mensaje de error que se muestra dentro del formulario
     errorMessage = '';
 
+    saving = false;
+
     constructor() {
         // Se cargan los clientes una sola vez para poder buscarlos
         this.clientService.getClients().subscribe({
@@ -95,6 +102,8 @@ export class AdminCouponModalComponent {
 
         this.errorMessage = '';
         this.clientSearch = '';
+
+        this.saving = false;
 
         if (this.coupon) {
             this.code = this.coupon.code;
@@ -227,30 +236,87 @@ export class AdminCouponModalComponent {
         return value.trim() === '' ? null : Number(value);
     }
 
+        // true si es un número entero finito
+    private isWholeNumber(value: number | null): value is number {
+        return value !== null && Number.isFinite(value) && Number.isInteger(value);
+    }
+
     // Revisa los campos. Devuelve el mensaje del primer error,
     // o un texto vacío si todo está bien
     private validate(): string {
-        if (!this.code.trim()) return 'El código del cupón es obligatorio.';
-        if (!this.discountValue || this.discountValue <= 0)
-            return 'El valor del descuento debe ser mayor que cero.';
-        if (this.discountType === 'PERCENTAGE' && this.discountValue > 100)
+        const code = this.code.trim();
+
+        // Código
+        if (!code) return 'El código del cupón es obligatorio.';
+        if (!CODE_PATTERN.test(code))
+            return 'El código debe tener entre 3 y 40 caracteres y solo puede incluir letras, números, guion (-) y guion bajo (_), sin espacios.';
+
+        // Valor del descuento
+        const value = this.discountValue;
+        if (value === null || !Number.isFinite(value) || value <= 0)
+            return 'El valor del descuento es obligatorio y debe ser mayor que cero.';
+        if (this.discountType === 'PERCENTAGE' && value > 100)
             return 'El porcentaje no puede ser mayor que 100.';
-        if (this.maxDiscount !== null && this.maxDiscount <= 0)
-            return 'El tope del descuento debe ser mayor que cero.';
-        if (this.minOrderAmount !== null && this.minOrderAmount < 0)
-            return 'El subtotal mínimo no puede ser negativo.';
-        if (this.maxUses !== null && this.maxUses < 1)
-            return 'Los usos máximos deben ser al menos 1.';
-        // Las dos fechas tienen el mismo formato, así que se pueden comparar como texto
-        if (this.startsAt && this.expiresAt && this.expiresAt <= this.startsAt)
+        if (this.discountType === 'FIXED_AMOUNT') {
+            if (!Number.isInteger(value))
+                return 'El monto fijo debe ser un número entero de pesos.';
+            if (value > MAX_AMOUNT)
+                return `El monto fijo no puede superar $${MAX_AMOUNT.toLocaleString('es-CO')}.`;
+        }
+
+        // Tope: solo existe (y solo se valida) en los cupones de porcentaje
+        if (this.discountType === 'PERCENTAGE' && this.maxDiscount !== null) {
+            if (!this.isWholeNumber(this.maxDiscount) || this.maxDiscount <= 0)
+                return 'El tope del descuento debe ser un número entero mayor que cero.';
+            if (this.maxDiscount > MAX_AMOUNT)
+                return `El tope del descuento no puede superar $${MAX_AMOUNT.toLocaleString('es-CO')}.`;
+        }
+
+        // Subtotal mínimo
+        if (this.minOrderAmount !== null) {
+            if (!this.isWholeNumber(this.minOrderAmount) || this.minOrderAmount < 0)
+                return 'El subtotal mínimo debe ser un número entero de cero o más.';
+            if (this.minOrderAmount > MAX_AMOUNT)
+                return `El subtotal mínimo no puede superar $${MAX_AMOUNT.toLocaleString('es-CO')}.`;
+        }
+
+        // Usos máximos
+        if (this.maxUses !== null) {
+            if (!this.isWholeNumber(this.maxUses) || this.maxUses < 1)
+                return 'Los usos máximos deben ser un número entero de al menos 1.';
+            if (this.maxUses > MAX_USES)
+                return `Los usos máximos no pueden superar ${MAX_USES.toLocaleString('es-CO')}.`;
+        }
+
+        // Fechas
+        const starts = this.startsAt ? new Date(this.startsAt) : null;
+        const expires = this.expiresAt ? new Date(this.expiresAt) : null;
+
+        if (starts && isNaN(starts.getTime())) return 'La fecha de inicio no es válida.';
+        if (expires && isNaN(expires.getTime()))
+            return 'La fecha de vencimiento no es válida.';
+        if (starts && expires && expires <= starts)
             return 'El vencimiento debe ser posterior al inicio.';
+
+        // Un vencimiento en el pasado solo se rechaza si es nuevo o cambió; así
+        // se puede seguir editando (o desactivando) un cupón que ya venció
+        const originalExpires = this.coupon?.expiresAt?.slice(0, 16) ?? '';
+        if (expires && this.expiresAt !== originalExpires && expires <= new Date())
+            return 'El vencimiento debe ser una fecha futura.';
+
+        // Dueño
         if (!this.forEveryone && !this.selectedClient)
             return 'Busca y elige un cliente, o marca "Para todos los clientes".';
+
         return '';
     }
 
     // Botón "Guardar cambios" / "Añadir cupón"
     save() {
+        if (this.saving) {
+            return;
+        }
+
         // Si hay un error de validación, se muestra y no se envía nada
         this.errorMessage = this.validate();
 
@@ -261,7 +327,7 @@ export class AdminCouponModalComponent {
         // Lo que se envía al back. El tope solo aplica a los porcentajes.
         // Del dueño solo se manda el id (null = cupón general).
         const payload: CouponPayload = {
-            code: this.code.trim(),
+            code: this.code.trim().toUpperCase(),
             description: this.description.trim() || null,
             discountType: this.discountType,
             discountValue: this.discountValue!,
@@ -276,6 +342,8 @@ export class AdminCouponModalComponent {
                     ? { id: this.selectedClient.id }
                     : null,
         };
+
+        this.saving = true;
 
         // EDITAR
         if (this.coupon) {
@@ -295,6 +363,13 @@ export class AdminCouponModalComponent {
         });
     }
 
+    // Error al guardar: se muestra dentro del formulario y la ventana sigue abierta
+    private onError(error: any) {
+        console.error('Error guardando cupón:', error);
+        this.saving = false;
+        this.errorMessage = getErrorMessage(error, 'No se pudo guardar el cupón.');
+    }
+
     // Guardado exitoso: refresca la tabla, avisa al usuario y cierra la ventana
     private onSuccess(message: string) {
         this.couponService.refresh();
@@ -303,11 +378,6 @@ export class AdminCouponModalComponent {
         this.closed.emit();
     }
 
-    // Error al guardar: se muestra dentro del formulario y la ventana sigue abierta
-    private onError(error: any) {
-        console.error('Error guardando cupón:', error);
-        this.errorMessage = getErrorMessage(error, 'No se pudo guardar el cupón.');
-    }
 
     // Botón "Cancelar" y la X: pide al padre cerrar la ventana
     close() {

@@ -29,7 +29,8 @@
         </div>
 
         <div class="space-y-4">
-            <!-- Código: el back lo guarda siempre en mayúsculas -->
+            <!-- Código: 3 a 40 caracteres, solo letras, números, - y _.
+                 El back lo guarda siempre en mayúsculas -->
             <app-form-field label="Código">
                 <input
                     id="coupon-code"
@@ -37,22 +38,34 @@
                     [value]="code"
                     (input)="setCode($event)"
                     required
+                    maxlength="40"
+                    autocomplete="off"
                     placeholder="BIENVENIDA10"
                     style="text-transform: uppercase"
                     class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
                 />
+                <p class="text-[11px] mt-1" style="color: rgba(44, 44, 44, 0.45)">
+                    Entre 3 y 40 caracteres: letras, números, guion (-) y guion bajo (_), sin espacios.
+                </p>
             </app-form-field>
 
-            <!-- Descripción -->
-            <app-form-field label="Descripción">
+            <!-- Descripción (opcional, máximo 255 caracteres) -->
+            <app-form-field label="Descripción (opcional)">
                 <textarea
                     id="coupon-description"
                     [value]="description"
                     (input)="setDescription($event)"
+                    [attr.maxlength]="descriptionMax"
                     rows="2"
                     placeholder="Descripción del cupón…"
                     class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
                 ></textarea>
+                <p
+                    class="text-[11px] mt-1 text-right"
+                    style="color: rgba(44, 44, 44, 0.45)"
+                >
+                    {{ description.length }}/{{ descriptionMax }}
+                </p>
             </app-form-field>
 
             <!-- Tipo y valor del descuento, lado a lado -->
@@ -71,6 +84,8 @@
                     </select>
                 </app-form-field>
 
+                <!-- Porcentaje: hasta 100 y admite decimales.
+                     Monto fijo: número entero de pesos -->
                 <app-form-field
                     [label]="discountType === 'PERCENTAGE' ? 'Valor (%)' : 'Valor (COP)'"
                 >
@@ -78,6 +93,8 @@
                         id="coupon-value"
                         type="number"
                         min="0"
+                        [attr.max]="discountType === 'PERCENTAGE' ? 100 : maxAmount"
+                        [attr.step]="discountType === 'PERCENTAGE' ? 'any' : 1"
                         [value]="discountValue ?? ''"
                         (input)="setDiscountValue($event)"
                         required
@@ -94,7 +111,9 @@
                         <input
                             id="coupon-max-discount"
                             type="number"
-                            min="0"
+                            min="1"
+                            [attr.max]="maxAmount"
+                            step="1"
                             [value]="maxDiscount ?? ''"
                             (input)="setMaxDiscount($event)"
                             placeholder="8000"
@@ -108,6 +127,8 @@
                         id="coupon-min-order"
                         type="number"
                         min="0"
+                        [attr.max]="maxAmount"
+                        step="1"
                         [value]="minOrderAmount ?? ''"
                         (input)="setMinOrderAmount($event)"
                         placeholder="20000"
@@ -146,6 +167,8 @@
                     id="coupon-max-uses"
                     type="number"
                     min="1"
+                    [attr.max]="maxUsesLimit"
+                    step="1"
                     [value]="maxUses ?? ''"
                     (input)="setMaxUses($event)"
                     placeholder="Ilimitado"

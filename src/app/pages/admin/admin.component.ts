@@ -23,6 +23,9 @@ import { Product } from '../../models/product';
 import { AdminCouponsComponent } from './components/admin-coupons/admin-coupons.component';
 import { AdminCouponModalComponent } from './components/admin-coupon-modal/admin-coupon-modal.component';
 import { Coupon } from '../../models/coupon'; 
+import { AdminAnnouncementsComponent } from './components/admin-announcements/admin-announcements.component';
+import { AdminAnnouncementModalComponent } from './components/admin-announcement-modal/admin-announcement-modal.component';
+import { Announcement } from '../../models/announcement';
 import { AdminOperatorModalComponent } from './components/admin-operator-modal/admin-operator-modal.component';
 import { Operator } from '../../models/operator';
 import { Category } from '../../models/category';
@@ -51,6 +54,8 @@ import { ToastService } from '../../services/toast.service';
     AdminCategoryModalComponent,
     AdminCouponsComponent,
     AdminCouponModalComponent,
+    AdminAnnouncementsComponent,
+    AdminAnnouncementModalComponent,
     AdminAddonsComponent,
     AdminAddonModalComponent,
     AdminOperatorModalComponent,
@@ -102,6 +107,10 @@ export class AdminComponent {
   couponModalOpen = false;
   selectedCoupon: Coupon | null = null;
 
+  // Control y selección de elementos para los modales de anuncios.
+  announcementModalOpen = false;
+  selectedAnnouncement: Announcement | null = null;
+
   // Control y selección de elementos para los modales de domiciliarios.
   deliveryModalOpen = false;
   selectedDeliveryPerson: DeliveryPerson | null = null;
@@ -148,6 +157,8 @@ export class AdminComponent {
         return 'Adicionales';
       case 'coupons':
         return 'Cupones';
+      case 'announcements':
+        return 'Anuncios';
       case 'orders':
         return 'Ordenes';
       case 'users':
@@ -168,6 +179,7 @@ export class AdminComponent {
       this.activeTab === 'categories' ||
       this.activeTab === 'addons' ||
       this.activeTab === 'coupons' ||
+      this.activeTab === 'announcements' ||
       this.activeTab === 'deliveries' ||
       this.activeTab === 'operators'
     );
@@ -182,6 +194,8 @@ export class AdminComponent {
         return 'Añadir adicional';
       case 'coupons':
         return 'Añadir cupón';
+      case 'announcements':
+        return 'Añadir anuncio';
       case 'deliveries':
         return 'Añadir domiciliario';
       case 'operators':
@@ -205,7 +219,9 @@ export class AdminComponent {
     } else if (this.activeTab === 'addons') {
       this.openAddAddon();
     } else if (this.activeTab === 'coupons') {
-      this.openAddCoupon();   
+      this.openAddCoupon();  
+    } else if (this.activeTab === 'announcements')  {
+      this.openAddAnnouncement();
     } else if (this.activeTab === 'deliveries') {
       this.openAddDeliveryPerson();
     } else if (this.activeTab === 'operators') {
@@ -291,6 +307,26 @@ export class AdminComponent {
   closeCouponModal() {
     this.couponModalOpen = false;
     this.selectedCoupon = null;
+  }
+
+  // Anuncios
+
+  // Prepara el modal para crear un anuncio nuevo.
+  openAddAnnouncement() {
+    this.selectedAnnouncement = null;
+    this.announcementModalOpen = true;
+  }
+
+  // Abre el modal con los datos del anuncio seleccionado.
+  openEditAnnouncement(announcement: Announcement) {
+    this.selectedAnnouncement = announcement;
+    this.announcementModalOpen = true;
+  }
+
+  // Cierra el modal de anuncios y limpia la selección.
+  closeAnnouncementModal() {
+    this.announcementModalOpen = false;
+    this.selectedAnnouncement = null;
   }
 
   // Domiciliarios
