@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Admin;
+import com.example.demo.entities.Role;
 import com.example.demo.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,10 @@ public class AdminServiceImpl implements AdminService {
     // Repositorio encargado de acceder a los datos de los administradores.
     @Autowired
     private AdminRepository repository;
+
+        // Maneja las credenciales en la tabla users
+    @Autowired
+    private UserAccountService userAccountService;
 
     // Obtiene todos los administradores registrados en el repositorio.
     @Override
@@ -33,10 +38,14 @@ public class AdminServiceImpl implements AdminService {
     }
 
     // Valida el correo electrónico antes de guardar el nuevo administrador.
+        // Valida el correo, fija el rol y crea sus credenciales en users.
     @Override
     @Transactional
     public Admin addAdmin(Admin admin) {
         EmailRules.validate(admin.getEmail());
+        admin.setId(null);
+        admin.setRole(Role.ADMIN);
+        admin.setUser(userAccountService.createUser(admin.getEmail(), admin.getPassword(), Role.ADMIN));
         return repository.save(admin);
     }
 

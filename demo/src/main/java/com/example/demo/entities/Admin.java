@@ -1,5 +1,10 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Getter
 @Setter
 // Genera el método toString(), excluyendo la contraseña para evitar mostrarla.
-@ToString(exclude = "password")
+@ToString(exclude = { "password", "user" })
 // Genera un constructor con todos los atributos.
 @AllArgsConstructor
 // Genera un constructor sin argumentos.
@@ -53,10 +58,9 @@ public class Admin {
     @Column(unique = true, nullable = false, length = 120)
     private String email;
 
-    // Permite recibir la contraseña en solicitudes, pero evita incluirla en las respuestas JSON.
+    // Se recibe al crear la cuenta pero no se guarda aquí: vive cifrada en users.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    // Define la contraseña como un campo obligatorio de hasta 70 caracteres.
-    @Column(nullable = false, length = 70)
+    @Transient
     private String password;
 
     // Guarda el rol como texto en lugar de utilizar el valor numérico del enumerado.
@@ -64,4 +68,10 @@ public class Admin {
     // Establece el rol como obligatorio, con un máximo de 20 caracteres.
     @Column(nullable = false, length = 20)
     private Role role;
+
+        // Credenciales del admin en la tabla users.
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", unique = true)
+    private UserEntity user;
 }

@@ -1,7 +1,11 @@
 package com.example.demo.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,7 +23,7 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = { "password", "user" })
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -41,10 +45,9 @@ public class Operator {
     @Column(unique = true, nullable = false, length = 120)
     private String email;
 
-    // WRITE_ONLY: la contraseña se acepta en las peticiones pero nunca se devuelve
-    // en las respuestas JSON.
+    // Se recibe al crear la cuenta pero no se guarda aquí: vive cifrada en users.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(nullable = false, length = 70)
+    @Transient
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -58,4 +61,10 @@ public class Operator {
     // Boolean (no boolean) para poder distinguir 'no enviado' (null) de false; el
     // servicio usa true por defecto al crear.
     private Boolean active;
+
+    // Credenciales del operador en la tabla users.
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", unique = true)
+    private UserEntity user;
 }

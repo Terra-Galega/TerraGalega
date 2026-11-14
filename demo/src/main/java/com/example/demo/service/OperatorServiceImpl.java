@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Order;
+import com.example.demo.entities.Role;
 import com.example.demo.entities.OrderStatus;
 import java.util.List;
 import com.example.demo.entities.Operator;
@@ -33,6 +34,10 @@ public class OperatorServiceImpl implements OperatorService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    // Maneja las credenciales en la tabla users
+    @Autowired
+    private UserAccountService userAccountService;
 
     // Los repositorios de los demás roles se necesitan porque el correo debe ser
     // único entre todos los tipos de usuario.
@@ -112,15 +117,18 @@ public class OperatorServiceImpl implements OperatorService {
 
         existing.setName(operator.getName());
         existing.setLastName(operator.getLastName());
+        // Si cambió el correo, también cambia el username con el que inicia sesión
+        userAccountService.updateUsername(existing.getUser(), operator.getEmail());
         existing.setEmail(operator.getEmail());
         existing.setUsername(operator.getUsername());
         // La contraseña no se copia a propósito: solo cambia mediante changePassword.
-        existing.setRole(operator.getRole());
-
         if (operator.getActive() != null) {
             existing.setActive(operator.getActive());
         }
-
+        // El rol lo define el servidor y las credenciales van a users
+        operator.setRole(Role.OPERATOR);
+        operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(), Role.OPERATOR));
+        
         return repository.save(existing);
     }
 
@@ -173,13 +181,8 @@ public class OperatorServiceImpl implements OperatorService {
         Operator operator = repository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("No se encontró el operador solicitado."));
 
-        // Lanza ApiException si la contraseña actual no coincide o la nueva no cumple
-        // las reglas.
-        PasswordRules.validateChange(operator.getPassword(), currentPassword, newPassword);
-
-        // Nota: la contraseña se guarda en texto plano (sin hash).
-        operator.setPassword(newPassword);
-        repository.save(operator);
+        // Valida la actual y guarda la nueva cifrada en users
+        userAccountService.changePassword(operator.getUser(), currentPassword, newPassword);
     }
 
 }

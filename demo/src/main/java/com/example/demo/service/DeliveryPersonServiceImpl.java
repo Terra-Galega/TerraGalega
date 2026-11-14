@@ -35,6 +35,11 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     @Autowired
     private OrderRepository orderRepository;
 
+     // Maneja las credenciales en la tabla users
+    @Autowired
+    private UserAccountService userAccountService;
+
+
     // Un pedido deja de estar activo cuando se entrega o se cancela
     private static final List<OrderStatus> FINISHED_STATUSES = List.of(
             OrderStatus.DELIVERED,
@@ -123,6 +128,10 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
             deliveryPerson.setActive(true);
         }
 
+        // Credenciales en users con rol DELIVERY_PERSON
+        deliveryPerson.setUser(userAccountService.createUser(
+        deliveryPerson.getEmail(), deliveryPerson.getPassword(), Role.DELIVERY_PERSON));
+
         return repository.save(deliveryPerson);
     }
 
@@ -139,6 +148,8 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
 
         existing.setName(deliveryPerson.getName());
         existing.setLastName(deliveryPerson.getLastName());
+        // Si cambió el correo, también cambia el username con el que inicia sesión
+        userAccountService.updateUsername(existing.getUser(), deliveryPerson.getEmail());
         existing.setEmail(deliveryPerson.getEmail());
         existing.setIdentification(deliveryPerson.getIdentification());
         existing.setPhone(deliveryPerson.getPhone());
@@ -201,15 +212,13 @@ public class DeliveryPersonServiceImpl implements DeliveryPersonService {
     }
 
     // Cambia la contraseña. PasswordRules comprueba que la actual sea correcta
+        // Cambia la contraseña en users. Se comprueba primero que la actual sea correcta
     @Override
     @Transactional
     public void changePassword(Integer id, String currentPassword, String newPassword) {
         DeliveryPerson deliveryPerson = repository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("No se encontró el domiciliario solicitado."));
 
-        PasswordRules.validateChange(deliveryPerson.getPassword(), currentPassword, newPassword);
-
-        deliveryPerson.setPassword(newPassword);
-        repository.save(deliveryPerson);
+        userAccountService.changePassword(deliveryPerson.getUser(), currentPassword, newPassword);
     }
 }

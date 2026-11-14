@@ -132,6 +132,11 @@
 			<artifactId>selenium-chrome-driver</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Spring Security (por ahora solo para cifrar contraseñas; todo queda público) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 
 		<!-- WebDriverManager -->
 		<dependency>
@@ -140,7 +145,24 @@
 			<version>5.4.1</version>
 			<scope>test</scope>
 		</dependency>
-
+		<!-- JWT (jjwt 0.12): crear, firmar y validar tokens -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.12.6</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.12.6</version>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

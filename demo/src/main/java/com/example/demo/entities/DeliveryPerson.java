@@ -1,7 +1,11 @@
 package com.example.demo.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,7 +27,7 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@ToString
+@ToString(exclude = { "password", "user" })
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -47,10 +51,9 @@ public class DeliveryPerson {
     @Column(unique = true, nullable = false, length = 120)
     private String email;
 
-    // WRITE_ONLY: la contraseña se puede recibir en un JSON (al crear la cuenta)
-    // pero nunca se devuelve en las respuestas de la API
+    // Se recibe al crear la cuenta pero no se guarda aquí: vive cifrada en users.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(nullable = false, length = 70)
+    @Transient
     private String password;
 
     // Rol del usuario; para esta entidad siempre es DELIVERY_PERSON.  
@@ -74,4 +77,10 @@ public class DeliveryPerson {
     // Un repartidor inactivo no puede recibir pedidos.
     @Column(nullable = false)
     private Boolean active;
+
+        // Credenciales del domiciliario en la tabla users.
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", unique = true)
+    private UserEntity user;
 }

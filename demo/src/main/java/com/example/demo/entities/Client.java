@@ -1,5 +1,10 @@
 package com.example.demo.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,7 +29,7 @@ import lombok.ToString;
 @Getter
 @Setter
 // Genera el método toString(), excluyendo la contraseña para evitar mostrarla.
-@ToString(exclude = { "password", "addresses" })
+@ToString(exclude = { "password", "addresses", "user" })
 // Genera un constructor con todos los atributos.
 @AllArgsConstructor
 // Genera un constructor sin argumentos.
@@ -59,11 +64,10 @@ public class Client {
     @Column(unique = true, nullable = false, length = 120)
     private String email;
 
-    // Permite recibir la contraseña en las solicitudes, pero evita incluirla en las
-    // respuestas JSON.
+    // Se recibe en el registro pero NO se guarda en esta tabla (@Transient):
+    // la contraseña cifrada vive en users. Nunca sale en las respuestas.
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    // Define la contraseña como obligatoria, con un máximo de 70 caracteres.
-    @Column(nullable = false, length = 70)
+    @Transient
     private String password;
 
     // Indica el rol del usuario y lo almacena como texto en la base de datos.
@@ -82,4 +86,11 @@ public class Client {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Address> addresses = new ArrayList<>();
+
+        // Credenciales del cliente en la tabla users (correo + contraseña + roles).
+    // cascade ALL: al borrar el cliente se borra también su usuario.
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", unique = true)
+    private UserEntity user;
 }

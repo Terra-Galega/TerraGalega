@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.entities.Address;
 import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Client;
+import com.example.demo.entities.Role;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
 
@@ -44,6 +45,10 @@ public class ClientServiceImpl implements ClientService {
     // Servicio encargado de gestionar los pedidos asociados a los clientes.
     @Autowired
     private OrderService orderService;
+
+    // Maneja las credenciales en la tabla users
+    @Autowired
+    private UserAccountService userAccountService;
 
     // Obtiene todos los clientes registrados en la base de datos.
     @Override
@@ -110,6 +115,12 @@ public class ClientServiceImpl implements ClientService {
 
             address.setClient(client);
         }
+                // El id y el rol los decide el servidor: así nadie se registra como ADMIN
+        client.setId(null);
+        client.setRole(Role.CLIENT);
+
+        // Crea la cuenta en users (correo + contraseña cifrada + rol CLIENT)
+        client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT));
 
         // Guarda el cliente en la base de datos
         Client saved = repository.save(client);
@@ -163,8 +174,10 @@ public class ClientServiceImpl implements ClientService {
         // igual que se preserva la contraseña cuando viene vacía.
         client.setRole(actual.getRole());
 
-        // La contraseña solo se cambia por /clients/{id}/password (exige la actual).
-        client.setPassword(actual.getPassword());
+        // Se conserva el mismo usuario de la tabla users; si cambió el correo,
+        // también se actualiza su username (que es con lo que inicia sesión).
+        userAccountService.updateUsername(actual.getUser(), client.getEmail());
+        client.setUser(actual.getUser());
 
         // Las direcciones se gestionan solo por /clients/{id}/addresses;
         // si no se conservan, orphanRemoval las borraría todas al guardar.
@@ -205,19 +218,14 @@ public class ClientServiceImpl implements ClientService {
 
     // Cambia la contraseña después de comprobar que el cliente existe y validar las
     // credenciales.
+    // Cambia la contraseña en la tabla users (comprueba primero la actual)
     @Override
     @Transactional
     public void changePassword(Integer id, String currentPassword, String newPassword) {
-        // Busca al cliente que solicita el cambio de contraseña.
         Client client = repository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("No se encontró el cliente solicitado."));
 
-        // Verifica la contraseña actual y las condiciones para establecer la nueva.
-        PasswordRules.validateChange(client.getPassword(), currentPassword, newPassword);
-
-        // Asigna la nueva contraseña y guarda los cambios.
-        client.setPassword(newPassword);
-        repository.save(client);
+        userAccountService.changePassword(client.getUser(), currentPassword, newPassword);
     }
 
 }
