@@ -42,6 +42,10 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private CouponService couponService;
 
+    // Servicio de reseñas, para borrar la reseña al eliminar la cuenta.
+    @Autowired
+    private ReviewService reviewService;
+
     // Servicio encargado de gestionar los pedidos asociados a los clientes.
     @Autowired
     private OrderService orderService;
@@ -213,6 +217,9 @@ public class ClientServiceImpl implements ClientService {
 
         // Cupones personales: se borran, o se desactivan si ya están en pedidos
         couponService.removeClientCoupons(id);
+
+        // La reseña del cliente se borra antes que el cliente
+        reviewService.deleteClientReview(id);
 
         // Elimina el cliente de la base de datos.
         repository.deleteById(id);

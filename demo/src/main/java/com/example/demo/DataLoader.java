@@ -23,6 +23,7 @@ import com.example.demo.entities.OrderDetail;
 import com.example.demo.entities.OrderDetailAddOn;
 import com.example.demo.entities.OrderStatus;
 import com.example.demo.entities.Product;
+import com.example.demo.entities.Review;
 import com.example.demo.entities.Role;
 import com.example.demo.entities.RoleEntity;
 import com.example.demo.repository.RoleRepository;
@@ -37,6 +38,7 @@ import com.example.demo.repository.DeliveryPersonRepository;
 import com.example.demo.repository.OperatorRepository;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 
 @Component
@@ -79,6 +81,9 @@ public class DataLoader implements CommandLineRunner {
 
         @Autowired
         private RoleRepository roleRepository;
+
+        @Autowired 
+        private ReviewRepository reviewRepository;
 
         // Crea las filas en users con la contraseña cifrada
         @Autowired
@@ -937,5 +942,19 @@ public class DataLoader implements CommandLineRunner {
                                 .description("Descubre nuestra carta de platos tradicionales y disfruta de la auténtica gastronomía gallega.")
                                 .imageUrl("https://png.pngtree.com/thumb_back/fh260/background/20240425/pngtree-top-desk-with-blur-restaurant-background-wooden-table-image_15665383.jpg")
                                 .build());
+
+                        // Reseñas de demostración (una por cliente)
+                reviewRepository.save(Review.builder().client(client4).rating(5)
+                        .comment("El pulpo a la brasa es extraordinario. El servicio fue cálido y todo llegó en su punto.")
+                        .createdAt(now.minusDays(6)).build());
+                reviewRepository.save(Review.builder().client(client5).rating(5)
+                        .comment("La fideuá y el cachopo estaban espectaculares. Ingredientes de primera y mucho sabor en cada plato.")
+                        .createdAt(now.minusDays(4)).build());
+                reviewRepository.save(Review.builder().client(client2).rating(4)
+                        .comment("Las croquetas y la tarta de queso vasca me encantaron. Volveré a pedir pronto.")
+                        .createdAt(now.minusDays(2)).build());
+                reviewRepository.save(Review.builder().client(client1).rating(5)
+                        .comment("Auténtica comida gallega a domicilio. El pedido llegó caliente y a tiempo.")
+                        .createdAt(now.minusDays(1)).build());
         }
 }

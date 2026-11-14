@@ -122,6 +122,14 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/announcements").permitAll()
                                                 // Crear, editar o borrar anuncios: solo el admin
                                                 .requestMatchers("/announcements/**").hasAuthority(ADMIN)
+                                                
+                                                // ================= RESEÑAS =================
+                                                // Las reseñas visibles las ve cualquiera
+                                                .requestMatchers(HttpMethod.GET, "/reviews").permitAll()
+                                                // Mi reseña (consultar, guardar, eliminar): solo clientes
+                                                .requestMatchers("/reviews/me").hasAuthority(CLIENT)
+                                                // Listado completo, ocultar y eliminar: solo admin
+                                                .requestMatchers("/reviews/**").hasAuthority(ADMIN)
 
                                                 // ================= SESIÓN =================
                                                 // /auth/me: cualquier usuario con un token válido
