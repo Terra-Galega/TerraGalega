@@ -16,15 +16,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CouponServiceImpl implements CouponService {
     // Descuento de bienvenida: porcentaje y días de vigencia
     private static final double WELCOME_PERCENTAGE = 10.0;
     private static final int WELCOME_DAYS = 30;
+
+    // Límites de los campos del cupón (coinciden con el front)
+    private static final double MAX_AMOUNT = 10_000_000;
+    private static final int MAX_USES = 1_000_000;
+    private static final int DESCRIPTION_MAX = 255;
+    private static final String CODE_PATTERN = "^[A-Za-z0-9_-]{3,40}$";
 
     // Acceso a la tabla de cupones
     @Autowired
@@ -56,8 +64,12 @@ public class CouponServiceImpl implements CouponService {
         if (coupon.getCode() == null || coupon.getCode().isBlank()) {
             throw ApiException.badRequest("El código del cupón no puede estar vacío.");
         }
-        if (coupon.getCode().trim().length() > 40) {
-            throw ApiException.badRequest("El código no puede tener más de 40 caracteres.");
+        if (!coupon.getCode().trim().matches(CODE_PATTERN)) {
+            throw ApiException.badRequest(
+                    "El código debe tener entre 3 y 40 caracteres y solo puede incluir letras, números, guion (-) y guion bajo (_), sin espacios.");
+        }
+        if (coupon.getDescription() != null && coupon.getDescription().trim().length() > DESCRIPTION_MAX) {
+            throw ApiException.badRequest("La descripción no puede tener más de " + DESCRIPTION_MAX + " caracteres.");
         }
         if (coupon.getDiscountType() == null) {
             throw ApiException.badRequest("Indica el tipo de descuento.");
@@ -68,14 +80,24 @@ public class CouponServiceImpl implements CouponService {
         if (coupon.getDiscountType() == DiscountType.PERCENTAGE && coupon.getDiscountValue() > 100) {
             throw ApiException.badRequest("El porcentaje no puede ser mayor que 100.");
         }
-        if (coupon.getMaxDiscount() != null && coupon.getMaxDiscount() <= 0) {
-            throw ApiException.badRequest("El tope del descuento debe ser mayor que 0.");
+        if (coupon.getDiscountType() == DiscountType.FIXED_AMOUNT) {
+            if (coupon.getDiscountValue() % 1 != 0) {
+                throw ApiException.badRequest("El monto fijo debe ser un número entero de pesos.");
+            }
+            if (coupon.getDiscountValue() > MAX_AMOUNT) {
+                throw ApiException.badRequest("El monto fijo no puede superar $" + (long) MAX_AMOUNT + ".");
+            }
         }
-        if (coupon.getMinOrderAmount() != null && coupon.getMinOrderAmount() < 0) {
-            throw ApiException.badRequest("El monto mínimo no puede ser negativo.");
+        if (coupon.getMaxDiscount() != null
+                && (coupon.getMaxDiscount() <= 0 || coupon.getMaxDiscount() > MAX_AMOUNT)) {
+            throw ApiException.badRequest("El tope del descuento debe estar entre 1 y " + (long) MAX_AMOUNT + ".");
         }
-        if (coupon.getMaxUses() != null && coupon.getMaxUses() < 1) {
-            throw ApiException.badRequest("Los usos máximos deben ser al menos 1.");
+        if (coupon.getMinOrderAmount() != null
+                && (coupon.getMinOrderAmount() < 0 || coupon.getMinOrderAmount() > MAX_AMOUNT)) {
+            throw ApiException.badRequest("El monto mínimo debe estar entre 0 y " + (long) MAX_AMOUNT + ".");
+        }
+        if (coupon.getMaxUses() != null && (coupon.getMaxUses() < 1 || coupon.getMaxUses() > MAX_USES)) {
+            throw ApiException.badRequest("Los usos máximos deben estar entre 1 y " + MAX_USES + ".");
         }
         if (coupon.getStartsAt() != null && coupon.getExpiresAt() != null
                 && !coupon.getExpiresAt().isAfter(coupon.getStartsAt())) {
@@ -104,6 +126,11 @@ public class CouponServiceImpl implements CouponService {
     public Coupon addCoupon(Coupon coupon) {
 
         validateCoupon(coupon);
+
+        // Un cupón nuevo no puede nacer ya vencido
+        if (coupon.getExpiresAt() != null && !coupon.getExpiresAt().isAfter(LocalDateTime.now())) {
+            throw ApiException.badRequest("La fecha de vencimiento debe ser futura.");
+        }
 
         // El código se guarda siempre sin espacios y en mayúsculas
         String code = coupon.getCode().trim().toUpperCase();
@@ -144,6 +171,19 @@ public class CouponServiceImpl implements CouponService {
                 .orElseThrow(() -> ApiException.notFound("El cupón no existe."));
 
         validateCoupon(coupon);
+
+        // Un vencimiento pasado solo se rechaza si cambió; así se puede seguir
+        // editando o desactivando un cupón que ya venció
+        LocalDateTime currentExpires = existing.getExpiresAt() == null
+                ? null
+                : existing.getExpiresAt().truncatedTo(ChronoUnit.MINUTES);
+        LocalDateTime newExpires = coupon.getExpiresAt() == null
+                ? null
+                : coupon.getExpiresAt().truncatedTo(ChronoUnit.MINUTES);
+        if (newExpires != null && !Objects.equals(newExpires, currentExpires)
+                && !newExpires.isAfter(LocalDateTime.now())) {
+            throw ApiException.badRequest("La fecha de vencimiento debe ser futura.");
+        }
 
         String code = coupon.getCode().trim().toUpperCase();
 

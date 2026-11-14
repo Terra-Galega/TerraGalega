@@ -87,6 +87,12 @@ public class SecurityConfig {
                         // Crear, editar, borrar o activar/desactivar: solo el admin
                         .requestMatchers("/products/**", "/categories/**", "/addons/**").hasAuthority(ADMIN)
 
+                        // ================= ANUNCIOS DEL HOME =================
+                        // El carrusel del inicio lo ve cualquiera, incluso sin sesión
+                        .requestMatchers(HttpMethod.GET, "/announcements").permitAll()
+                        // Crear, editar o borrar anuncios: solo el admin
+                        .requestMatchers("/announcements/**").hasAuthority(ADMIN)
+
                         // ================= SESIÓN =================
                         // /auth/me: cualquier usuario con un token válido
                         .requestMatchers("/auth/**").authenticated()
