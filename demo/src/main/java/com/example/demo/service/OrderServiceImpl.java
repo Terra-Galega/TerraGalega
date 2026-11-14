@@ -27,6 +27,8 @@ import com.example.demo.dto.ClientOrderDTO;
 import com.example.demo.dto.DeliveryPersonOrderDTO;
 import com.example.demo.repository.AddOnRepository;
 import com.example.demo.entities.Client;
+import com.example.demo.entities.Coupon;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +60,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private DeliveryTrackingService deliveryTrackingService;
+
+    @Autowired
+    private CouponService couponService;
 
     @Autowired
     private OrderMirrorService orderMirrorService;
@@ -221,6 +226,15 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setDetails(details);
+
+        // Cupón opcional: se valida y se calcula el descuento aquí, en el servidor.
+        // Si algo falla, la transacción se revierte y el pedido no se crea.
+        if (request.getCouponCode() != null && !request.getCouponCode().isBlank()) {
+            Double subtotal = order.getSubtotal();
+            Coupon coupon = couponService.findValidCoupon(request.getCouponCode(), client, subtotal);
+            order.setCoupon(coupon);
+            order.setDiscountAmount(couponService.calculateDiscount(coupon, subtotal));
+        }
 
         Order saved = repository.save(order);
         orderMirrorService.sync(saved);
@@ -428,6 +442,8 @@ public class OrderServiceImpl implements OrderService {
         dto.setDeliveredAt(order.getDeliveredAt());
         dto.setAddress(order.getAddress());
         dto.setTotal(order.getTotal());
+        dto.setDiscount(order.getDiscountAmount());
+        dto.setCouponCode(order.getCoupon() != null ? order.getCoupon().getCode() : null);
 
         // Cliente y domiciliario: solo cuando la pantalla los necesita
         if (includeContact) {

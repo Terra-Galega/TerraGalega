@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 
 //Entidad que representa un pedido realizado por un cliente.
 @Getter
@@ -94,6 +95,18 @@ public class Order {
     @Builder.Default
     private List<OrderDetail> details = new ArrayList<>();
 
+    // Cupón aplicado a este pedido (null si no se usó ninguno). Al convertir a
+    // JSON solo se incluyen id y código.
+    @JsonIncludeProperties({ "id", "code" })
+    @ManyToOne
+    @JoinColumn(name = "coupon_id", nullable = true)
+    private Coupon coupon;
+
+    // Valor descontado, guardado al momento del pedido para que no cambie si el
+    // cupón se edita después (null en pedidos sin cupón o anteriores)
+    @Column(nullable = true)
+    private Double discountAmount;
+
     // Suma de los productos y adicionales, sin domicilio
     // Fórmula por línea: (precio unitario + suma de adicionales) * cantidad
     public Double getSubtotal() {
@@ -108,8 +121,11 @@ public class Order {
     }
 
     // No es columna, se calcula para que nunca quede desactualizado
-    // Total = subtotal + domicilio (los pedidos viejos sin domicilio cuentan 0)
+    // Total = subtotal - descuento + domicilio (los pedidos viejos sin descuento
+    // ni domicilio cuentan 0)
     public Double getTotal() {
-        return getSubtotal() + (deliveryFee != null ? deliveryFee : 0.0);
+        return getSubtotal()
+                - (discountAmount != null ? discountAmount : 0.0)
+                + (deliveryFee != null ? deliveryFee : 0.0);
     }
 }

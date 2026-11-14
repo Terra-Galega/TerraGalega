@@ -30,4 +30,9 @@ private DeliveryPersonOrderDTO deliveryPerson;
     private List<OrderDetailDTO> details;
     // Total calculado en la entidad: productos + adicionales + domicilio
     private Double total;
+    // Solo aparecen si el pedido usó un cupón
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Double discount;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String couponCode;
 }

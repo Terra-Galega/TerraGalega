@@ -5,6 +5,7 @@ import com.example.demo.errors.ApiException;
 import com.example.demo.entities.Client;
 import com.example.demo.repository.AdminRepository;
 import com.example.demo.repository.ClientRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,10 @@ public class ClientServiceImpl implements ClientService {
     // Repositorio utilizado para comprobar si un correo pertenece a un repartidor.
     @Autowired
     private DeliveryPersonRepository deliveryPersonRepository;
+
+    // Servicio de cupones, para limpiar los cupones personales al borrar la cuenta.
+    @Autowired
+    private CouponService couponService;
 
     // Servicio encargado de gestionar los pedidos asociados a los clientes.
     @Autowired
@@ -106,8 +111,13 @@ public class ClientServiceImpl implements ClientService {
             address.setClient(client);
         }
 
-        // Guarda el cliente en la base de datos y devuelve el registro creado.
-        return repository.save(client);
+        // Guarda el cliente en la base de datos
+        Client saved = repository.save(client);
+
+        // Toda cuenta nueva recibe su cupón de bienvenida
+        couponService.createWelcomeCoupon(saved);
+
+        return saved;
     }
 
     // Actualiza la información de un cliente existente.
@@ -178,6 +188,9 @@ public class ClientServiceImpl implements ClientService {
 
         // Antes de eliminar el cliente, limpiamos los id de los pedidos.
         orderService.clearClientIdFromOrders(id);
+
+        // Cupones personales: se borran, o se desactivan si ya están en pedidos
+        couponService.removeClientCoupons(id);
 
         // Elimina el cliente de la base de datos.
         repository.deleteById(id);
