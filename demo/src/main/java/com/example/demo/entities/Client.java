@@ -29,7 +29,7 @@ import lombok.ToString;
 @Getter
 @Setter
 // Genera el método toString(), excluyendo la contraseña para evitar mostrarla.
-@ToString(exclude = { "password", "addresses", "user" })
+@ToString(exclude = { "password", "addresses", "user", "reservation" })
 // Genera un constructor con todos los atributos.
 @AllArgsConstructor
 // Genera un constructor sin argumentos.
@@ -95,4 +95,12 @@ public class Client {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", unique = true)
     private UserEntity user;
+
+    // Reserva del cliente (relación 1 a 1; la FK unique vive en Reservation.client).
+    // cascade + orphanRemoval: al borrar el cliente se borra su reserva (sin
+    // reembolso del anticipo). No se envía en el JSON: tiene su propio endpoint
+    // (/clients/me/reservation).
+    @JsonIgnore
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Reservation reservation;
 }
