@@ -2,11 +2,9 @@ package com.example.demo.security;
 
 import java.io.IOException;
 import java.time.Instant;
-
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
