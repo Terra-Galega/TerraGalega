@@ -18,9 +18,12 @@ import { ToastService } from '../../../../services/toast.service';
 import { getErrorMessage } from '../../../../utils/http-error';
 
 
+// Límites que coinciden con las columnas del back
+const TITLE_MAX = 120;
+const DESCRIPTION_MAX = 500;
 const URL_MAX = 500;
-
-
+// Tiempo máximo para comprobar que la URL carga una imagen (milisegundos)
+const IMAGE_CHECK_MS = 8_000;
 /**
  * Ventana flotante para crear o editar un anuncio del home.
  * Si recibe un anuncio, lo edita; si recibe null, crea uno nuevo.
@@ -36,6 +39,9 @@ export class AdminAnnouncementModalComponent {
     private announcementService = inject(AnnouncementService);
     private toast = inject(ToastService);
 
+
+    readonly titleMax = TITLE_MAX;
+    readonly descriptionMax = DESCRIPTION_MAX;
     readonly urlMax = URL_MAX;
 
     // Anuncio a editar; null significa "crear uno nuevo"

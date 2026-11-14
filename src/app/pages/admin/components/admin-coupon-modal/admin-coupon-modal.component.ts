@@ -26,6 +26,7 @@ import { getErrorMessage } from '../../../../utils/http-error';
  */
 
 const CODE_PATTERN = /^[A-Za-z0-9_-]{3,40}$/;
+const DESCRIPTION_MAX = 255;
 const MAX_AMOUNT = 10_000_000;
 const MAX_USES = 1_000_000;
 
@@ -79,6 +80,9 @@ export class AdminCouponModalComponent {
     // Mensaje de error que se muestra dentro del formulario
     errorMessage = '';
 
+    readonly descriptionMax = DESCRIPTION_MAX;
+    readonly maxAmount = MAX_AMOUNT;
+    readonly maxUsesLimit = MAX_USES;
     saving = false;
 
     constructor() {
