@@ -1,25 +1,51 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EmptyStateComponent } from '../../../../components/empty-state/empty-state.component';
+import { SegmentedControlComponent } from '../../../../components/segmented-control/segmented-control.component';
 import { AdminProductRowComponent } from '../admin-product-row/admin-product-row.component';
+import { CategoryFilterComponent } from '../../../menu/components/category-filter/category-filter.component';
+import { FeatureFilterComponent } from '../../../menu/components/feature-filter/feature-filter.component';
 import { Product } from '../../../../models/product';
+import { Category } from '../../../../models/category';
+import { FeatureKey } from '../../../../models/feature';
 import { ProductService } from '../../../../services/product.service';
+import { CategoryService } from '../../../../services/category.service';
 import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ToastService } from '../../../../services/toast.service';
 import { getErrorMessage } from '../../../../utils/http-error';
 
+// Filtro por estado del plato (solo existe en el admin)
+type StatusFilter = 'all' | 'active' | 'inactive';
+
 /**
  * Tabla de productos del panel de administración.
- * Carga los productos, los filtra por el texto de búsqueda que llega del padre
- * y permite activar/desactivar, editar y eliminar (con ventana de confirmación
+ * Carga los productos y los filtra por texto de búsqueda, categoría (incluida
+ * "Popular"), estado y características. Los cuatro filtros se combinan.
+ * Permite activar/desactivar, editar y eliminar (con ventana de confirmación
  * y ventana de error si el servidor rechaza la eliminación).
  */
 @Component({
   selector: 'app-admin-products',
-  imports: [AdminProductRowComponent, EmptyStateComponent, ModalComponent],
+  imports: [
+    AdminProductRowComponent,
+    EmptyStateComponent,
+    ModalComponent,
+    CategoryFilterComponent,
+    FeatureFilterComponent,
+    SegmentedControlComponent,
+  ],
   templateUrl: './admin-products.component.html',
 })
-export class AdminProductsComponent {
+export class AdminProductsComponent implements OnChanges {
   private productService = inject(ProductService);
+  private categoryService = inject(CategoryService);
   private toast = inject(ToastService);
 
   // Texto de búsqueda que escribe el admin en la barra superior
@@ -33,8 +59,22 @@ export class AdminProductsComponent {
 
   // Todos los productos que devuelve el servidor
   products: Product[] = [];
-  // Productos que coinciden con la búsqueda (los que se dibujan)
+  // Productos que cumplen los filtros (los que se dibujan)
   filteredProducts: Product[] = [];
+  // Categorías del servidor, para armar los botones de filtro
+  categories: Category[] = [];
+
+  // Estado actual de los filtros
+  currentCategory = 'Todos';
+  statusFilter: StatusFilter = 'all';
+  activeFeatureFilters: FeatureKey[] = [];
+
+  // Opciones del selector de estado
+  readonly statusOptions: { value: StatusFilter; label: string }[] = [
+    { value: 'all', label: 'Todos' },
+    { value: 'active', label: 'Activos' },
+    { value: 'inactive', label: 'Inactivos' },
+  ];
 
   // Controlan la ventana de confirmación y la ventana de error
   showDeleteModal = false;
@@ -55,14 +95,46 @@ export class AdminProductsComponent {
   constructor() {
     this.loadProducts();
 
-    // Cada vez que otro componente pide refrescar (por ejemplo, tras guardar
-    // en el modal), se vuelve a cargar la lista
-    this.productService.refresh$.subscribe(() => {
-      this.loadProducts();
+    // Las categorías se piden una sola vez para armar los botones de filtro
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Error cargando categorías:', error);
+      },
     });
+
+    // Cada vez que otro componente pide refrescar (por ejemplo, tras guardar
+    // en el modal), se vuelve a cargar la lista. takeUntilDestroyed evita que
+    // la suscripción quede viva al cambiar de pestaña.
+    this.productService.refresh$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.loadProducts();
+      });
   }
 
-  // Pide los productos al servidor y vuelve a aplicar el filtro
+  // Nombres de los botones de categoría: "Todos" y "Popular" son fijos y
+  // después van las categorías reales
+  get categoriesList(): string[] {
+    return [
+      'Todos',
+      'Popular',
+      ...this.categories.map((category) => category.name),
+    ];
+  }
+
+  // true si hay algún filtro del panel aplicado (sin contar la búsqueda)
+  get hasFilters(): boolean {
+    return (
+      this.currentCategory !== 'Todos' ||
+      this.statusFilter !== 'all' ||
+      this.activeFeatureFilters.length > 0
+    );
+  }
+
+  // Pide los productos al servidor y vuelve a aplicar los filtros
   loadProducts() {
     this.productService.getProducts().subscribe({
       next: (products) => {
@@ -80,14 +152,60 @@ export class AdminProductsComponent {
     this.filterProducts();
   }
 
-  // Deja solo los productos cuyo nombre contiene el texto buscado
-  // (sin distinguir mayúsculas de minúsculas)
+  // Aplica los cuatro filtros. Un producto se muestra solo si cumple
+  // búsqueda, categoría, estado y características a la vez.
   filterProducts() {
-    const value = this.searchTerm.trim().toLowerCase();
+    const search = this.searchTerm.trim().toLowerCase();
 
-    this.filteredProducts = this.products.filter((product) =>
-      product.name.toLowerCase().includes(value),
-    );
+    this.filteredProducts = this.products.filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(search);
+
+      // "Todos" no filtra; "Popular" usa la marca popular del producto;
+      // cualquier otra opción compara con el nombre de su categoría
+      const matchesCategory =
+        this.currentCategory === 'Todos' ||
+        (this.currentCategory === 'Popular'
+          ? product.popular
+          : product.category?.name === this.currentCategory);
+
+      const matchesStatus =
+        this.statusFilter === 'all' ||
+        (this.statusFilter === 'active' ? product.active : !product.active);
+
+      // Con varias características, el plato debe cumplirlas todas
+      const matchesFeatures = this.activeFeatureFilters.every(
+        (feature) => product[feature],
+      );
+
+      return matchesSearch && matchesCategory && matchesStatus && matchesFeatures;
+    });
+  }
+
+  // El admin eligió otro botón de categoría
+  selectCategory(category: string) {
+    this.currentCategory = category;
+    this.filterProducts();
+  }
+
+  // El admin cambió el selector Todos / Activos / Inactivos
+  selectStatus(value: string) {
+    this.statusFilter = value as StatusFilter;
+    this.filterProducts();
+  }
+
+  // El admin aplicó (o limpió) el panel de características
+  applyFeatureFilters(features: FeatureKey[]) {
+    this.activeFeatureFilters = features;
+    this.filterProducts();
+  }
+
+  // Quita categoría, estado y características (la búsqueda de la barra
+  // superior la maneja el padre y no se toca)
+  resetFilters() {
+    this.currentCategory = 'Todos';
+    this.statusFilter = 'all';
+    this.activeFeatureFilters = [];
+    this.filterProducts();
   }
 
   // Activa o desactiva el producto (botón "Activo/Inactivo" de la fila)

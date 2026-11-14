@@ -1,3 +1,22 @@
+<!-- Fila de filtros: categorías (ocupan el espacio sobrante), estado y,
+    a la derecha, el panel de características -->
+<div class="flex items-center gap-3 mb-4">
+  <app-category-filter
+    class="flex-1 min-w-0"
+    [categories]="categoriesList"
+    [selected]="currentCategory"
+    (selectedChange)="selectCategory($event)"
+  />
+  <app-segmented-control
+    [options]="statusOptions"
+    [value]="statusFilter"
+    (valueChange)="selectStatus($event)"
+  />
+  <app-feature-filter
+    [active]="activeFeatureFilters"
+    (filtersApplied)="applyFeatureFilters($event)"
+  />
+</div>
 <!-- Contenedor de la tabla: tarjeta con fondo translúcido y sombra suave -->
 <div
   class="rounded-2xl overflow-hidden"
@@ -38,10 +57,19 @@
           <!-- Sin resultados: una sola celda que ocupa todas las columnas -->
           <tr>
             <td [attr.colspan]="columns.length">
-              <app-empty-state
-                [compact]="true"
-                message="No se encontraron productos"
-              />
+              @if (hasFilters) {
+                <app-empty-state
+                  [compact]="true"
+                  message="No se encontraron productos"
+                  actionLabel="Quitar filtros"
+                  (action)="resetFilters()"
+                />
+              } @else {
+                <app-empty-state
+                  [compact]="true"
+                  message="No se encontraron productos"
+                />
+              }
             </td>
           </tr>
         }
