@@ -140,4 +140,61 @@ object MapService {
         }
         return emptyList()
     }
+
+    // "Cl. 8 Sur" -> "Calle 8 Sur", "Cra." -> "Carrera", etc.
+    private fun prettyStreet(street: String): String = street
+        .replace(Regex("^(Cl|Cll)\\.?\\s", RegexOption.IGNORE_CASE), "Calle ")
+        .replace(Regex("^(Cra|Kr|Cr)\\.?\\s", RegexOption.IGNORE_CASE), "Carrera ")
+        .replace(Regex("^Dg\\.?\\s", RegexOption.IGNORE_CASE), "Diagonal ")
+        .replace(Regex("^(Tv|Tr)\\.?\\s", RegexOption.IGNORE_CASE), "Transversal ")
+        .replace(Regex("^Av\\.?\\s", RegexOption.IGNORE_CASE), "Avenida ")
+
+    @Suppress("DEPRECATION")
+    private fun reverseWithGoogle(p: LatLon): String? {
+        val context = appContext ?: return null
+        if (!Geocoder.isPresent()) return null
+        return try {
+            val a = Geocoder(context, Locale("es", "CO")).getFromLocation(p.lat, p.lon, 1)
+                ?.firstOrNull() ?: return null
+            val street = a.thoroughfare?.let { prettyStreet(it) }
+            if (street != null) {
+                buildString {
+                    append(street)
+                    a.subThoroughfare?.let { append(" #").append(it) }
+                    a.subLocality?.let { append(", ").append(it) }
+                }
+            } else {
+                a.getAddressLine(0)?.substringBefore(", Bogot")?.takeIf { it.isNotBlank() }
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    // Coordenadas -> dirección escrita (lo contrario de geocode)
+    suspend fun reverse(p: LatLon): String? = withContext(Dispatchers.IO) {
+        reverseWithGoogle(p)?.let { return@withContext it }
+        try {
+            val body = get(
+                "https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1" +
+                        "&zoom=18&accept-language=es&lat=${p.lat}&lon=${p.lon}"
+            ) ?: return@withContext null
+            val obj = JsonParser.parseString(body).asJsonObject
+            val addr = obj.getAsJsonObject("address")
+            val road = addr?.get("road")?.asString
+            if (road != null) {
+                val number = addr.get("house_number")?.asString
+                val area = (addr.get("neighbourhood") ?: addr.get("suburb"))?.asString
+                buildString {
+                    append(prettyStreet(road))
+                    number?.let { append(" #").append(it) }
+                    area?.let { append(", ").append(it) }
+                }
+            } else {
+                obj.get("display_name")?.asString?.split(",")?.take(2)?.joinToString(",")?.trim()
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
 }

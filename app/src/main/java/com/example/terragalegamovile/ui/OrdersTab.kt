@@ -129,17 +129,17 @@ fun OrdersTab(
 
         item {
             Column {
-                PageHeader("Tu historial", "Mis pedidos")
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    "Hola, esto es todo lo que has pedido en Terra Galega.",
-                    color = Charcoal.copy(alpha = 0.7f),
-                    fontSize = 15.sp
-                )
-                if (orders.isNotEmpty()) {
-                    Spacer(Modifier.height(16.dp))
-                    TerraButton("Pedir de nuevo", onClick = onGoMenu, modifier = Modifier.fillMaxWidth())
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    PageHeader("Tu historial", "Mis pedidos", titleSize = 28.sp)
+                    if (orders.isNotEmpty()) {
+                        TerraButton("Pedir de nuevo", onClick = onGoMenu, compact = true)
+                    }
                 }
+                Spacer(Modifier.height(10.dp))
             }
         }
 
@@ -322,12 +322,14 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
         if (order.status == "ON_THE_WAY") {
             Box(Modifier.fillMaxWidth().height(1.dp).background(Charcoal.copy(alpha = 0.08f)))
             Column(modifier = Modifier.padding(20.dp)) {
-                TerraButton(
-                    "Seguir mi pedido en el mapa",
-                    onClick = onTrack,
-                    style = ButtonStyle.Sage,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    TerraButton(
+                        "Seguir mi pedido",
+                        onClick = onTrack,
+                        style = ButtonStyle.Sage,
+                        compact = true
+                    )
+                }
             }
         }
 

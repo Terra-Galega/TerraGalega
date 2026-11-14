@@ -39,7 +39,10 @@ import com.example.terragalegamovile.ui.CheckoutScreen
 import com.example.terragalegamovile.ui.ClientHomeScreen
 import com.example.terragalegamovile.ui.ProductScreen
 import android.net.Uri
+import androidx.compose.runtime.DisposableEffect
 import com.example.terragalegamovile.ui.CategoryScreen
+import com.example.terragalegamovile.ui.ProfileScreen
+import com.example.terragalegamovile.ui.components.ProfileNav
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +105,16 @@ fun AppNav() {
         showCart = false
         ClientUi.tab = 0
         nav.popBackStack("client", false)
+    }
+
+    // La inicial de la barra de arriba abre el perfil (solo para clientes)
+    DisposableEffect(Unit) {
+        ProfileNav.open = {
+            if (Session.user?.role == "CLIENT" && nav.currentDestination?.route != "profile") {
+                nav.navigate("profile")
+            }
+        }
+        onDispose { ProfileNav.open = null }
     }
 
     NavHost(navController = nav, startDestination = startDestination) {
@@ -179,6 +192,16 @@ fun AppNav() {
                     onEdit = { nav.popBackStack() },
                     onDone = { nav.popBackStack("client", false) },
                     onExit = { goMenu() }
+                )
+            }
+        }
+
+        composable("profile") {
+            Session.user?.let { user ->
+                ProfileScreen(
+                    user = user,
+                    onBack = { nav.popBackStack() },
+                    onLogout = logout
                 )
             }
         }

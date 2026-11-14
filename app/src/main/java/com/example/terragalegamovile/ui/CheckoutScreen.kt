@@ -2,10 +2,15 @@ package com.example.terragalegamovile.ui
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -47,6 +52,7 @@ fun CheckoutScreen(
     var submitted by remember { mutableStateOf(false) }
     var showCancel by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf<String?>(null) }
+    var entry by rememberSaveable { mutableStateOf(0) }   // 0 = escribirla, 1 = ubicar en el mapa
 
     fun isSaved(text: String) = addresses.any { it.label.trim().equals(text.trim(), ignoreCase = true) }
 
@@ -163,18 +169,33 @@ fun CheckoutScreen(
                 }
                 if (newMode) {
                     Spacer(Modifier.height(12.dp))
-                    TerraTextField(
-                        label = "Dirección",
-                        value = d.address,
-                        onValueChange = { if (it.length <= CheckoutDraft.ADDRESS_MAX) d.address = it },
-                        placeholder = "Ej: Calle 123 #45-67, apto 8"
-                    )
-                    Text(
-                        "${d.address.length}/120",
-                        fontSize = 12.sp,
-                        color = TextSoft,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                    AddressEntryTabs(entry) { entry = it }
+                    Spacer(Modifier.height(12.dp))
+                    if (entry == 0) {
+                        TerraTextField(
+                            label = "Dirección",
+                            value = d.address,
+                            onValueChange = { if (it.length <= CheckoutDraft.ADDRESS_MAX) d.address = it },
+                            placeholder = "Ej: Calle 123 #45-67, apto 8"
+                        )
+                        Text(
+                            "${d.address.length}/120",
+                            fontSize = 12.sp,
+                            color = TextSoft,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    } else {
+                        AddressMapPicker(
+                            address = d.address,
+                            onPicked = { d.address = it }
+                        )
+                        Text(
+                            "¿Falta el apartamento o la torre? Pasa a \"Escribirla\" y agrégalo.",
+                            fontSize = 12.sp,
+                            color = TextSoft,
+                            modifier = Modifier.padding(top = 6.dp)
+                        )
+                    }
                 }
                 FieldError(errors["address"])
 
@@ -345,5 +366,37 @@ fun CheckoutScreen(
     }
     notice?.let {
         TerraDialog("Actualizamos tu carrito", it, "Aceptar", onConfirm = { notice = null })
+    }
+}
+
+@Composable
+private fun AddressEntryTabs(selected: Int, onChange: (Int) -> Unit) {
+    val shape = RoundedCornerShape(50)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Charcoal.copy(alpha = 0.06f))
+            .padding(4.dp)
+    ) {
+        listOf("Escribirla", "Ubicar en el mapa").forEachIndexed { index, label ->
+            val active = selected == index
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(shape)
+                    .background(if (active) Color.White else Color.Transparent)
+                    .clickable { onChange(index) }
+                    .padding(vertical = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    label,
+                    fontSize = 14.sp,
+                    fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium,
+                    color = if (active) Terra else Charcoal.copy(alpha = 0.55f)
+                )
+            }
+        }
     }
 }

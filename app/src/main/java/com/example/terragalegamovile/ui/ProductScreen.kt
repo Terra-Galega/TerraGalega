@@ -59,7 +59,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 @Composable
 fun ProductScreen(
     user: LoginResponse,
@@ -328,8 +330,20 @@ fun ProductScreen(
                         color = Charcoal
                     )
                     Spacer(Modifier.height(20.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                        related.forEach { r -> ProductCard(r, onClick = { onOpenProduct(r.id) }) }
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        contentPadding = PaddingValues(vertical = 14.dp)
+                    ) {
+                        items(related, key = { it.id }) { r ->
+                            ProductCard(
+                                product = r,
+                                onClick = { onOpenProduct(r.id) },
+                                modifier = Modifier.width(210.dp),
+                                horizontalMargin = 0.dp,
+                                imageHeight = 130.dp,
+                                showCategory = false
+                            )
+                        }
                     }
                 }
             }

@@ -109,4 +109,19 @@ interface ApiService {
     suspend fun relatedProducts(@Path("id") id: Int): List<Product>
 
 
+    // ---------- Perfil del cliente (los mismos endpoints de la web) ----------
+    @GET("clients/{id}")
+    suspend fun getClient(@Path("id") id: Int): ClientProfile
+
+    @PUT("clients/{id}")
+    suspend fun updateClient(@Path("id") id: Int, @Body body: ClientUpdate): ClientProfile
+
+    @DELETE("clients/{id}")
+    suspend fun deleteClient(@Path("id") id: Int): ResponseBody
+
+    @PUT("clients/{id}/password")
+    suspend fun changePassword(@Path("id") id: Int, @Body body: ChangePasswordRequest): ResponseBody
+
+    @POST("clients")
+    suspend fun register(@Body body: ClientCreate): ClientProfile
 }

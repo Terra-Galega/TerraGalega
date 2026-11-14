@@ -105,7 +105,13 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.Image
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.LineHeightStyle
+import coil.ImageLoader
+import coil.decode.SvgDecoder
 import com.example.terragalegamovile.R
 // Logo "Terra" (Pinyon Script) + "GALEGA" (serifa), como en la navbar de la web
 @Composable
@@ -129,8 +135,7 @@ fun TerraLogo(
             fontSize = (18 * scale).sp,
             letterSpacing = 1.sp,
             color = galegaColor,
-            modifier = Modifier.offset(y = (-2).dp)
-        )
+            modifier = Modifier.offset(y = (-8).dp)        )
     }
 }
 
@@ -167,7 +172,8 @@ fun TerraButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: ButtonStyle = ButtonStyle.Primary,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    compact: Boolean = false      // <-- NUEVO: botón más pequeño
 ) {
     val shape = RoundedCornerShape(50)
 
@@ -199,7 +205,10 @@ fun TerraButton(
             .then(background)
             .then(if (border != null) Modifier.border(border, shape) else Modifier)
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 32.dp, vertical = 14.dp),
+            .padding(
+                horizontal = if (compact) 18.dp else 32.dp,
+                vertical = if (compact) 9.dp else 14.dp
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -207,8 +216,7 @@ fun TerraButton(
             color = textColor,
             fontFamily = SourceSans,
             fontWeight = FontWeight.Medium,
-            fontSize = 16.sp
-        )
+            fontSize = if (compact) 13.sp else 16.sp        )
     }
 }
 
@@ -285,7 +293,10 @@ fun InfoLine(label: String, value: String) {
 // PIN en cuatro casillas
 @Composable
 fun PinDigits(pin: String) {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+    ) {
         pin.forEach { digit ->
             Box(
                 modifier = Modifier
@@ -297,7 +308,7 @@ fun PinDigits(pin: String) {
             ) {
                 Text(
                     digit.toString(),
-                    fontFamily = Playfair,
+                    fontFamily = SourceSans,
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp,
                     color = Terra
@@ -307,6 +318,53 @@ fun PinDigits(pin: String) {
     }
 }
 
+
+
+// Abre el perfil del cliente desde la barra de arriba (lo asigna AppNav)
+object ProfileNav {
+    var open: (() -> Unit)? = null
+}
+
+// Inicial del usuario en su círculo, con "Mi perfil" debajo
+@Composable
+private fun ProfileChip(name: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(CircleShape)
+                .background(Brush.linearGradient(listOf(Terra, Burgundy))),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                name.trim().firstOrNull()?.uppercase() ?: "?",
+                color = Color.White,
+                fontFamily = Playfair,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp
+            )
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(
+            "Mi perfil",
+            fontFamily = SourceSans,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Medium,
+            color = Charcoal.copy(alpha = 0.75f),
+            maxLines = 1
+        )
+    }
+}
 // Barra superior: estilo de la navbar de la web cuando está en modo vidrio
 // Barra superior: réplica de la navbar de la web en estado "stayed" (vidrio esmerilado)
 // Contenedor de pantalla: el contenido ocupa TODO (también bajo la barra) y la barra flota encima
@@ -321,16 +379,14 @@ fun TerraScaffold(
     bottomBar: (@Composable (HazeState) -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
-
     val blur by animateDpAsState(if (FilterUi.open) 5.dp else 0.dp, label = "blur")
     val dim by animateFloatAsState(if (FilterUi.open) 0.16f else 0f, label = "dim")
     val hazeState = rememberHazeState()
     val density = LocalDensity.current
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val topArea = statusTop + 80.dp          // el contenido empieza más abajo (antes 52)
-    val fadeEnd = statusTop + 96.dp          // hasta dónde llega el difuminado
-    val solidUntil = ((statusTop + 54.dp) / fadeEnd).coerceIn(0f, 1f)   // crema sólido detrás del logo
-    // Degradado con curva suave (smoothstep) en vez de lineal, para que no se note el corte
+    val topArea = statusTop + 84.dp
+    val fadeEnd = statusTop + 100.dp
+    val solidUntil = ((statusTop + 62.dp) / fadeEnd).coerceIn(0f, 1f)
     val fadeStops = remember(solidUntil) {
         buildList {
             add(0f to Cream)
@@ -344,6 +400,8 @@ fun TerraScaffold(
         }.toTypedArray()
     }
     var bottomHeight by remember { mutableStateOf(0.dp) }
+    // El perfil solo existe para el cliente
+    val onProfile = if (role == "Cliente") ProfileNav.open else null
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -351,13 +409,11 @@ fun TerraScaffold(
                 .fillMaxSize()
                 .background(Cream)
                 .hazeSource(hazeState)
-                .blur(blur, BlurredEdgeTreatment.Rectangle)   // <-- NUEVO
-
+                .blur(blur, BlurredEdgeTreatment.Rectangle)
         ) {
             content(PaddingValues(top = topArea, bottom = bottomHeight))
         }
 
-        // Difuminado crema para que el contenido no se cruce con el logo al hacer scroll
         // Difuminado crema: sólido detrás del logo y se desvanece suave hacia el contenido
         Box(
             modifier = Modifier
@@ -367,17 +423,54 @@ fun TerraScaffold(
                 .background(Brush.verticalGradient(*fadeStops))
         )
 
-        // Solo el logo, en la esquina
+        // Logo centrado
         Box(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 20.dp, top = statusTop + 10.dp)
+                .align(Alignment.TopCenter)
+                .padding(top = statusTop + 14.dp)
         ) {
             TerraLogo(
                 scale = 0.8f,
                 terraColor = Terra,
                 galegaColor = Color(0xFF1A1A1A)
             )
+        }
+
+        // Izquierda: carrito, solo en pantallas sin barra inferior
+        if (bottomBar == null && onCart != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 16.dp, top = statusTop + 10.dp)
+            ) {
+                CartButton(count = cartCount ?: 0, onClick = onCart)
+            }
+        }
+
+        // Derecha: perfil del cliente o, en otros roles, el botón de salir
+        if (onProfile != null) {
+            ProfileChip(
+                name = name,
+                onClick = onProfile,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = 14.dp, top = statusTop + 6.dp)
+            )
+        } else if (bottomBar == null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = 16.dp, top = statusTop + 10.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(1.dp, Burgundy, CircleShape)
+                    .semantics { contentDescription = "Cerrar sesión" }
+                    .clickable(onClick = onLogout),
+                contentAlignment = Alignment.Center
+            ) {
+                LogoutIcon(bracket = Burgundy, arrow = Terra, modifier = Modifier.size(22.dp))
+            }
         }
 
         if (bottomBar != null) {
@@ -388,34 +481,10 @@ fun TerraScaffold(
             ) {
                 bottomBar(hazeState)
             }
-        } else {
-            // Pantallas sin barra inferior: botones sueltos arriba a la derecha
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(end = 16.dp, top = statusTop + 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (onCart != null) {
-                    CartButton(count = cartCount ?: 0, onClick = onCart)
-                    Spacer(Modifier.width(8.dp))
-                }
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .border(1.dp, Burgundy, CircleShape)
-                        .semantics { contentDescription = "Cerrar sesión" }
-                        .clickable(onClick = onLogout),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LogoutIcon(bracket = Burgundy, arrow = Terra, modifier = Modifier.size(22.dp))
-                    if (dim > 0f) {
-                        Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = dim)))
-                    }
-                }
-            }
+        }
+
+        if (dim > 0f) {
+            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = dim)))
         }
     }
 }
@@ -823,7 +892,7 @@ fun ClientBottomBar(
         NavItem(selected == 0, "Carta", onMenu) {
             Image(
                 painter = painterResource(
-                    if (selected == 0) R.drawable.selected else R.drawable.unselected
+                    if (selected == 0) R.drawable.nav_home_on else R.drawable.nav_home_off
                 ),
                 contentDescription = null,
                 modifier = Modifier.size(30.dp)
@@ -831,11 +900,12 @@ fun ClientBottomBar(
         }
         NavItem(false, "Carrito", onCart, badge = cartCount) { NavIcon(1, it) }
         NavItem(selected == 1, "Órdenes", onOrders) { NavIcon(2, it) }
-        NavItem(false, "Cerrar sesión", onLogout) {
-            LogoutIcon(bracket = it, arrow = it, modifier = Modifier.size(26.dp))
-        }
+
     }
 }
+
+// Negro grisáceo del ícono y texto seleccionados
+private val NavActive = Color(0xFF3B3B38)
 
 @Composable
 private fun RowScope.NavItem(
@@ -845,48 +915,71 @@ private fun RowScope.NavItem(
     badge: Int = 0,
     icon: @Composable (Color) -> Unit
 ) {
-    Column(
+    val contentColor = if (selected) NavActive else Color.White.copy(alpha = 0.8f)
+
+    // La casilla completa es el área de toque; el resaltado va solo alrededor del contenido
+    Box(
         modifier = Modifier
             .weight(1f)
-            .clip(RoundedCornerShape(22.dp))
-            .background(if (selected) Color.White.copy(alpha = 0.25f) else Color.Transparent)
-            .clickable(onClick = onClick)
-            .padding(vertical = 7.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        Box(modifier = Modifier.height(30.dp), contentAlignment = Alignment.Center) {
-            icon(if (selected) Color.White else Color.White.copy(alpha = 0.8f))
-            if (badge > 0) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .offset(x = 8.dp, y = (-2).dp)
-                        .size(16.dp)
-                        .clip(CircleShape)
-                        .background(Terra),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        if (badge > 9) "9+" else "$badge",
-                        color = Color.White,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+        Column(
+            modifier = Modifier
+                .background(
+                    if (selected) Color.White.copy(alpha = 0.45f) else Color.Transparent,
+                    RoundedCornerShape(50)
+                )
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(modifier = Modifier.height(30.dp), contentAlignment = Alignment.Center) {
+                icon(contentColor)
+                if (badge > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 10.dp, y = (-4).dp)
+                            .defaultMinSize(minWidth = 17.dp, minHeight = 17.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(Terra)
+                            .border(1.5.dp, Color.White.copy(alpha = 0.9f), RoundedCornerShape(50))
+                            .padding(horizontal = 4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            if (badge > 9) "9+" else "$badge",
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 10.sp,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                lineHeightStyle = LineHeightStyle(
+                                    alignment = LineHeightStyle.Alignment.Center,
+                                    trim = LineHeightStyle.Trim.Both
+                                )
+                            )
+                        )
+                    }
                 }
             }
+            Spacer(Modifier.height(2.dp))
+            Text(
+                label,
+                fontFamily = SourceSans,
+                fontSize = 10.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                color = contentColor,
+                maxLines = 1
+            )
         }
-        Spacer(Modifier.height(2.dp))
-        Text(
-            label,
-            fontFamily = SourceSans,
-            fontSize = 10.sp,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-            color = if (selected) Color.White else Color.White.copy(alpha = 0.8f),
-            maxLines = 1
-        )
     }
 }
-
 // Íconos de la barra: 0 = carta, 1 = carrito, 2 = órdenes
 @Composable
 private fun NavIcon(kind: Int, color: Color) {

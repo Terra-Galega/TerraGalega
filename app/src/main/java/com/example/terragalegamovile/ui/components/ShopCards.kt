@@ -70,6 +70,7 @@ import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 
 @Composable
 fun terraFieldColors() = OutlinedTextFieldDefaults.colors(
@@ -84,7 +85,12 @@ fun terraFieldColors() = OutlinedTextFieldDefaults.colors(
 
 // Encabezado de página: eyebrow terracota + título serif (como app-page-header)
 @Composable
-fun PageHeader(eyebrow: String, title: String, modifier: Modifier = Modifier) {
+fun PageHeader(
+    eyebrow: String,
+    title: String,
+    modifier: Modifier = Modifier,
+    titleSize: TextUnit = 34.sp      // <-- NUEVO
+) {
     Column(modifier = modifier) {
         Text(
             eyebrow.uppercase(),
@@ -94,7 +100,7 @@ fun PageHeader(eyebrow: String, title: String, modifier: Modifier = Modifier) {
             letterSpacing = 3.sp
         )
         Spacer(Modifier.height(8.dp))
-        Text(title, fontFamily = Playfair, fontWeight = FontWeight.Bold, fontSize = 34.sp, color = Charcoal)
+        Text(title, fontFamily = Playfair, fontWeight = FontWeight.Bold, fontSize = titleSize, color = Charcoal)
     }
 }
 
@@ -387,12 +393,19 @@ fun FeatureBadge(
 }
 // Tarjeta de plato (menú y "También te puede gustar")
 @Composable
-fun ProductCard(product: Product, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun ProductCard(
+    product: Product,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    horizontalMargin: Dp = 26.dp,
+    imageHeight: Dp = 180.dp,
+    showCategory: Boolean = true
+) {
     val shape = RoundedCornerShape(24.dp)
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 26.dp)
+            .padding(horizontal = horizontalMargin)
             .shadow(
                 10.dp, shape,
                 ambientColor = Charcoal.copy(alpha = 0.08f),
@@ -403,8 +416,8 @@ fun ProductCard(product: Product, onClick: () -> Unit, modifier: Modifier = Modi
             .border(1.dp, Color.White.copy(alpha = 0.6f), shape)
             .clickable(onClick = onClick)
     ) {
-        Box(modifier = Modifier.fillMaxWidth().height(180.dp)) {
-            ProductImage(product.imageUrl, Modifier.fillMaxWidth().height(180.dp))
+        Box(modifier = Modifier.fillMaxWidth().height(imageHeight)) {
+            ProductImage(product.imageUrl, Modifier.fillMaxWidth().height(imageHeight))
             if (product.popular) {
                 Row(
                     modifier = Modifier
@@ -428,8 +441,7 @@ fun ProductCard(product: Product, onClick: () -> Unit, modifier: Modifier = Modi
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 product.featureLabels().forEach { FeatureBadge(it) }
-                product.category?.let { category ->
-                    Box(
+                product.category?.takeIf { showCategory }?.let { category ->                    Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
                             .background(Charcoal.copy(alpha = 0.65f))

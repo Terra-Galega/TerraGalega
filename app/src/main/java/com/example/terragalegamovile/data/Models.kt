@@ -136,3 +136,35 @@ data class Order(
     val details: List<OrderLine>,
     val total: Double
 )
+
+// Perfil del cliente (GET/PUT /clients/{id})
+data class ClientProfile(
+    val id: Int,
+    val name: String,
+    val lastName: String,
+    val email: String,
+    val phone: String
+)
+
+data class ClientUpdate(
+    val name: String,
+    val lastName: String,
+    val email: String,
+    val phone: String
+)
+
+data class ChangePasswordRequest(val currentPassword: String, val newPassword: String)
+
+
+// Registro de un cliente nuevo (POST /clients), igual que la web
+data class NewClientAddress(val label: String)
+
+data class ClientCreate(
+    val name: String,
+    val lastName: String,
+    val email: String,
+    val password: String,
+    val phone: String,
+    val role: String = "CLIENT",
+    val addresses: List<NewClientAddress>
+)

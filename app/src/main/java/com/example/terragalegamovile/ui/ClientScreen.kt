@@ -50,6 +50,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.text.font.FontWeight
 
 @Composable
@@ -235,29 +236,31 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                     Spacer(Modifier.height(4.dp))
                     Text("Déjanoslo saber.", color = TextSoft)
                     Spacer(Modifier.height(14.dp))
-                    TerraButton(
-                        text = "Escribenos",
-                        onClick = {
-                            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = Uri.parse("mailto:")
-                                putExtra(Intent.EXTRA_EMAIL, arrayOf("contacto@terragalega.co"))
-                                putExtra(
-                                    Intent.EXTRA_SUBJECT,
-                                    "Quejas, Reclamos o Comentarios del pedido #${current.orderId}"
-                                )
+                    Spacer(Modifier.height(14.dp))
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        TerraButton(
+                            text = "Escríbenos",
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    data = Uri.parse("mailto:")
+                                    putExtra(Intent.EXTRA_EMAIL, arrayOf("contacto@terragalega.co"))
+                                    putExtra(
+                                        Intent.EXTRA_SUBJECT,
+                                        "Quejas, Reclamos o Comentarios del pedido #${current.orderId}"
+                                    )
+                                }
+                                try {
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {
+                                    Toast.makeText(
+                                        context,
+                                        "No hay una app de correo instalada",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                             }
-                            try {
-                                context.startActivity(intent)
-                            } catch (_: Exception) {
-                                Toast.makeText(
-                                    context,
-                                    "No hay una app de correo instalada",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        )
+                    }
                 }
             }
         }
