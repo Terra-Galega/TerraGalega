@@ -1,0 +1,160 @@
+:host {
+  display: block;
+}
+
+.tracking-panel {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(44, 44, 44, 0.08);
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(44, 44, 44, 0.04);
+}
+
+.tracking-panel[hidden] {
+  display: none;
+}
+
+.tracking-header,
+.tracking-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.tracking-header h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.65rem;
+  font-weight: 600;
+}
+
+.tracking-eyebrow {
+  margin-bottom: 0.25rem;
+  color: #b2571f;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+}
+
+.tracking-muted {
+  margin: 0.5rem 0;
+  color: #68655e;
+  font-size: 0.875rem;
+}
+
+.tracking-count {
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  color: #556141;
+  background: #edf0e8;
+  white-space: nowrap;
+}
+
+.tracking-tabs,
+.tracking-actions,
+.tracking-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.tracking-tabs {
+  margin: 1.25rem 0;
+}
+
+.tracking-tabs button,
+.tracking-actions button {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #e6e0d6;
+  border-radius: 0.8rem;
+  background: #faf8f4;
+  color: #474239;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.tracking-tabs button span {
+  display: block;
+  font-size: 0.75rem;
+}
+
+button.active {
+  border-color: #b2571f;
+  background: #faf0e8;
+  color: #97481a;
+}
+
+button:focus-visible {
+  outline: 2px solid #b2571f;
+  outline-offset: 3px;
+}
+
+.tracking-info p {
+  margin-top: 0.2rem;
+  color: #68655e;
+  font-size: 0.875rem;
+}
+
+.tracking-map {
+  width: 100%;
+  height: 430px;
+  margin-top: 1rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #f0eee8;
+}
+
+.tracking-legend {
+  margin-top: 0.8rem;
+  font-size: 0.8rem;
+  color: #68655e;
+}
+
+.tracking-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tracking-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.restaurant {
+  background: #b2571f;
+}
+
+.courier {
+  background: #1565c0;
+}
+
+.destination {
+  background: #c62828;
+}
+
+.tracking-error {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: #fff1ee;
+  color: #8a2222;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .tracking-panel {
+    padding: 1rem;
+  }
+
+  .tracking-info {
+    flex-direction: column;
+  }
+
+  .tracking-map {
+    height: 340px;
+  }
+}

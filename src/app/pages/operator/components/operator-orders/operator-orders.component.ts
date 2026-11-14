@@ -1,11 +1,27 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  inject,
+  DestroyRef,
+} from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { finalize } from 'rxjs';
+import {
+  EMPTY,
+  catchError,
+  exhaustMap,
+  filter,
+  finalize,
+  merge,
+  timer,
+} from 'rxjs';
 import { OrderService } from '../../../../services/order.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
 import { OrderStatus, OrderSummary } from '../../../../models/order';
 import { getErrorMessage } from '../../../../utils/http-error';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Define las acciones permitidas para avanzar un pedido según su estado actual.
 type OperatorAction = 'confirm' | 'cook' | 'send' | 'deliver';
@@ -49,6 +65,7 @@ function actionText(action: OperatorAction): string {
 })
 export class OperatorOrdersComponent {
   private orderService = inject(OrderService);
+  private destroyRef = inject(DestroyRef);
 
   @Input({ required: true }) operatorId!: number;
   @Output() sendRequested = new EventEmitter<OrderSummary>();
@@ -65,13 +82,35 @@ export class OperatorOrdersComponent {
   // Identifica el pedido cuya operación está en curso para impedir solicitudes simultáneas.
   busyOrderId: number | null = null;
 
-
   constructor() {
-    this.loadOrders();
+    merge(timer(0, 3000), this.orderService.refresh$)
+      .pipe(
+        filter(() => document.visibilityState === 'visible'),
 
-    // Recarga la lista cuando otro componente solicita actualizar los pedidos.
-    this.orderService.refresh$.subscribe(() => {
-      this.loadOrders();
+        exhaustMap(() =>
+          this.orderService.getActiveOrders().pipe(
+            catchError((error) => {
+              this.errorMessage = getErrorMessage(
+                error,
+                'No se pudieron cargar los pedidos.',
+              );
+
+              return EMPTY;
+            }),
+          ),
+        ),
+
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((orders) => {
+        this.orders = orders;
+        this.errorMessage = '';
+      });
+
+    this.destroyRef.onDestroy(() => {
+      if (this.toastTimer) {
+        clearTimeout(this.toastTimer);
+      }
     });
   }
 
@@ -90,7 +129,7 @@ export class OperatorOrdersComponent {
 
   onAction(orderSummary: OrderSummary) {
     // Determina qué operación corresponde al estado actual del pedido.
-        // en onAction():
+    // en onAction():
     const action = nextAction(orderSummary.status);
 
     // Evita ejecutar acciones no permitidas o iniciar otra operación mientras hay una en curso.

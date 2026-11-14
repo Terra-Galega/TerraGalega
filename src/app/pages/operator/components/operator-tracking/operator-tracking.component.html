@@ -1,0 +1,95 @@
+@if (errorMessage) {
+  <p class="tracking-error" role="alert">
+    {{ errorMessage }}
+    @if (checkedAt) {
+      Última consulta correcta: {{ checkedAt | date: "HH:mm:ss" }}.
+    }
+  </p>
+}
+
+<section
+  class="tracking-panel"
+  [hidden]="deliveries.length === 0"
+  aria-label="Seguimiento de entregas"
+>
+  <div class="tracking-header">
+    <div>
+      <p class="tracking-eyebrow">SEGUIMIENTO</p>
+      <h2>Entregas en curso</h2>
+      <p class="tracking-muted">La ubicación se consulta cada tres segundos.</p>
+    </div>
+
+    <span class="tracking-count">
+      {{ deliveries.length }}
+      {{ deliveries.length === 1 ? "entrega" : "entregas" }}
+    </span>
+  </div>
+
+  <div class="tracking-tabs" aria-label="Seleccionar entrega">
+    @for (delivery of deliveries; track delivery.orderId) {
+      <button
+        type="button"
+        [class.active]="selected?.orderId === delivery.orderId"
+        [attr.aria-pressed]="selected?.orderId === delivery.orderId"
+        (click)="selectDelivery(delivery)"
+      >
+        Pedido #{{ delivery.orderId }}
+        <span>{{ delivery.deliveryPersonName }}</span>
+      </button>
+    }
+  </div>
+
+  @if (selected; as delivery) {
+    <div class="tracking-info">
+      <div>
+        <strong>{{ delivery.deliveryPersonName }}</strong>
+        <p>{{ delivery.address }}</p>
+
+        @if (delivery.deliveryPersonPhone) {
+          <p>Teléfono: {{ delivery.deliveryPersonPhone }}</p>
+        }
+      </div>
+
+      <div class="tracking-actions">
+        <button
+          type="button"
+          [class.active]="following"
+          (click)="toggleFollow()"
+        >
+          {{ following ? "Siguiendo repartidor" : "Seguir repartidor" }}
+        </button>
+
+        <button type="button" (click)="showWholeRoute()">
+          Ver ruta completa
+        </button>
+      </div>
+    </div>
+
+    @if (delivery.latitude === null || delivery.longitude === null) {
+      <p class="tracking-muted">
+        Entrega iniciada. Esperando la primera ubicación del repartidor…
+      </p>
+    } @else {
+      <p class="tracking-muted">
+        Última posición reportada:
+        {{ delivery.locationUpdatedAt | date: "HH:mm:ss" }}.
+      </p>
+    }
+  }
+
+  @if (mapError) {
+    <p class="tracking-error" role="alert">{{ mapError }}</p>
+  }
+
+  <div
+    data-delivery-map
+    class="tracking-map"
+    aria-label="Mapa de la entrega seleccionada"
+  ></div>
+
+  <div class="tracking-legend">
+    <span><i class="restaurant"></i> Origen</span>
+    <span><i class="courier"></i> Repartidor</span>
+    <span><i class="destination"></i> Destino</span>
+  </div>
+</section>

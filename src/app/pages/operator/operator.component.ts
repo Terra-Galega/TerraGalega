@@ -8,7 +8,7 @@ import { OperatorOrdersComponent } from './components/operator-orders/operator-o
 import { OperatorDeliveryModalComponent } from './components/operator-delivery-modal/operator-delivery-modal.component';
 import { OperatorService } from '../../services/operator.service';
 import { getErrorMessage } from '../../utils/http-error';
-
+import { OperatorTrackingComponent } from './components/operator-tracking/operator-tracking.component';
 @Component({
   selector: 'app-operator',
   imports: [
@@ -16,6 +16,7 @@ import { getErrorMessage } from '../../utils/http-error';
     OperatorOrdersComponent,
     OperatorDeliveryModalComponent,
     OperatorOrderDetailModalComponent,
+    OperatorTrackingComponent,
   ],
   templateUrl: './operator.component.html',
 })
