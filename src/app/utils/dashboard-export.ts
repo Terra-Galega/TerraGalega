@@ -154,10 +154,12 @@ export function buildReport(
 export async function exportReport(
   format: ExportFormat,
   report: ReportData,
+  previewWindow: Window | null = null,
 ): Promise<void> {
   if (format === 'csv') return exportCsv(report);
   if (format === 'excel') return exportExcel(report);
-  return exportPdf(report);
+
+  return exportPdf(report, previewWindow);
 }
 // Utilidades
 function download(blob: Blob, filename: string) {
@@ -604,7 +606,12 @@ function rgb(hex: string): [number, number, number] {
   ];
 }
 
-async function exportPdf(r: ReportData) {
+async function exportPdf(r: ReportData, previewWindow: Window | null) {
+  if (!previewWindow || previewWindow.closed) {
+    throw new Error(
+      'La pestaña de vista previa no está disponible. Vuelve a intentarlo.',
+    );
+  }
   const { jsPDF } = await import('jspdf');
   const autoTable = (await import('jspdf-autotable')).default;
   const logo = await loadLogo();
@@ -796,5 +803,33 @@ async function exportPdf(r: ReportData) {
     });
   }
 
-  doc.save(`${r.fileBase}.pdf`);
+  if (previewWindow.closed) {
+    throw new Error(
+      'Se cerró la vista previa antes de terminar de generar el PDF.',
+    );
+  }
+
+  doc.setProperties({
+    title: `${r.fileBase}.pdf`,
+  });
+
+  // Genera el PDF en memoria sin descargarlo.
+  const url = URL.createObjectURL(doc.output('blob'));
+
+  try {
+    // Abre el PDF en el visor del navegador.
+    previewWindow.location.replace(url);
+  } catch (error) {
+    URL.revokeObjectURL(url);
+    throw error;
+  }
+
+  // Conserva el PDF mientras la pestaña siga abierta,
+  // para que el administrador pueda descargarlo cuando quiera.
+  const cleanup = window.setInterval(() => {
+    if (previewWindow.closed) {
+      URL.revokeObjectURL(url);
+      window.clearInterval(cleanup);
+    }
+  }, 1000);
 }
