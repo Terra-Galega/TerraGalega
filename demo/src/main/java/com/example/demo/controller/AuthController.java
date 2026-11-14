@@ -14,6 +14,7 @@ import com.example.demo.security.AuthenticatedUser;
 import com.example.demo.service.AuthService;
 import com.example.demo.service.ClientService;
 import com.example.demo.service.EmailVerificationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -34,7 +35,9 @@ public class AuthController {
     @Autowired
     private EmailVerificationService emailVerificationService;
 
-    // Devuelve el JWT y los datos básicos si el correo y la contraseña son correctos
+    // Devuelve el JWT y los datos básicos si el correo y la contraseña son
+    // correctos
+    @SecurityRequirements
     @Operation(summary = "Login with email and password, returns a JWT")
     @PostMapping("/login")
     public AuthResponseDTO login(@RequestBody LoginRequestDTO request) {
@@ -43,6 +46,7 @@ public class AuthController {
 
     // Registra un cliente. No inicia sesión: primero debe confirmar su correo
     // con el enlace que se le envía.
+    @SecurityRequirements
     @Operation(summary = "Register a new client and send the confirmation email")
     @PostMapping("/signup")
     public MessageDTO signup(@RequestBody SignupRequestDTO request) {
