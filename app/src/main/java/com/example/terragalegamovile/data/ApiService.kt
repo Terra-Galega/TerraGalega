@@ -7,14 +7,21 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.DELETE
-import retrofit2.http.Query
 
+// El usuario con sesión se identifica por el token que el interceptor de ApiClient
+// agrega en cada petición, así que las rutas del propio usuario no llevan su id.
 interface ApiService {
 
+    // ---------- Sesión ----------
+    // La respuesta trae el token, que se guarda junto con la sesión
     @POST("auth/login")
     suspend fun login(@Body body: LoginRequest): LoginResponse
 
-    // ---------- Cliente ----------
+    // Registra un cliente y lo deja con la sesión iniciada (también devuelve el token)
+    @POST("auth/signup")
+    suspend fun register(@Body body: ClientCreate): LoginResponse
+
+    // ---------- Seguimiento del cliente ----------
     @GET("delivery/client/{clientId}/active")
     suspend fun clientActive(@Path("clientId") clientId: Int): List<ClientDelivery>
 
@@ -41,87 +48,70 @@ interface ApiService {
         @Path("orderId") orderId: Int,
         @Body body: CompleteRequest
     ): ResponseBody
-    // ---------- Menú ----------
+
+    // ---------- Menú (público, no necesita sesión) ----------
     @GET("products/active")
     suspend fun products(): List<Product>
 
     @GET("products/{id}")
     suspend fun product(@Path("id") id: Int): ProductDetail
 
-    @GET("addons/active/category/{categoryId}")
-    suspend fun addOns(@Path("categoryId") categoryId: Int): List<AddOnOption>
-
-    // ---------- Carrito compartido con la web (vive en Postgres) ----------
-    @GET("cart/{clientId}")
-    suspend fun cart(@Path("clientId") clientId: Int): List<CartItem>
-
-    @POST("cart/{clientId}/items")
-    suspend fun cartAdd(
-        @Path("clientId") clientId: Int,
-        @Body body: CheckoutItemRequest
-    ): List<CartItem>
-
-    @PUT("cart/{clientId}/items/{lineId}")
-    suspend fun cartQuantity(
-        @Path("clientId") clientId: Int,
-        @Path("lineId") lineId: String,
-        @Body body: QuantityRequest
-    ): List<CartItem>
-
-    @DELETE("cart/{clientId}/items/{lineId}")
-    suspend fun cartRemove(
-        @Path("clientId") clientId: Int,
-        @Path("lineId") lineId: String
-    ): List<CartItem>
-
-    @DELETE("cart/{clientId}")
-    suspend fun cartClear(@Path("clientId") clientId: Int): List<CartItem>
-
-    // ---------- Direcciones, pedido y mis pedidos (los mismos endpoints de la web) ----------
-    @GET("clients/{clientId}/addresses")
-    suspend fun addresses(@Path("clientId") clientId: Int): List<Address>
-
-    @POST("clients/{clientId}/addresses")
-    suspend fun addAddress(
-        @Path("clientId") clientId: Int,
-        @Body body: AddressInput
-    ): Address
-
-    @POST("checkout")
-    suspend fun checkout(
-        @Query("clientId") clientId: Int,
-        @Body body: CheckoutRequest
-    ): ResponseBody
-
-    @GET("orders/client/{clientId}")
-    suspend fun myOrders(@Path("clientId") clientId: Int): List<Order>
-
-    @PUT("orders/{orderId}/cancel")
-    suspend fun cancelOrder(
-        @Path("orderId") orderId: Int,
-        @Query("clientId") clientId: Int
-    ): ResponseBody
+    @GET("products/{id}/related")
+    suspend fun relatedProducts(@Path("id") id: Int): List<Product>
 
     @GET("categories")
     suspend fun categories(): List<Category>
 
-    @GET("products/{id}/related")
-    suspend fun relatedProducts(@Path("id") id: Int): List<Product>
+    @GET("addons/active/category/{categoryId}")
+    suspend fun addOns(@Path("categoryId") categoryId: Int): List<AddOnOption>
 
+    // ---------- Carrito compartido con la web (vive en Postgres) ----------
+    @GET("cart/me")
+    suspend fun cart(): List<CartItem>
+
+    @POST("cart/me/items")
+    suspend fun cartAdd(@Body body: CheckoutItemRequest): List<CartItem>
+
+    @PUT("cart/me/items/{lineId}")
+    suspend fun cartQuantity(
+        @Path("lineId") lineId: String,
+        @Body body: QuantityRequest
+    ): List<CartItem>
+
+    @DELETE("cart/me/items/{lineId}")
+    suspend fun cartRemove(@Path("lineId") lineId: String): List<CartItem>
+
+    @DELETE("cart/me")
+    suspend fun cartClear(): List<CartItem>
+
+    // ---------- Direcciones, pedido y mis pedidos (los mismos endpoints de la web) ----------
+    @GET("clients/me/addresses")
+    suspend fun addresses(): List<Address>
+
+    @POST("clients/me/addresses")
+    suspend fun addAddress(@Body body: AddressInput): Address
+
+    @POST("checkout")
+    suspend fun checkout(@Body body: CheckoutRequest): ResponseBody
+
+    @GET("orders/me")
+    suspend fun myOrders(): List<Order>
+
+    // El back comprueba que el pedido sea del cliente con sesión
+    @PUT("orders/{orderId}/cancel")
+    suspend fun cancelOrder(@Path("orderId") orderId: Int): ResponseBody
 
     // ---------- Perfil del cliente (los mismos endpoints de la web) ----------
-    @GET("clients/{id}")
-    suspend fun getClient(@Path("id") id: Int): ClientProfile
+    @GET("clients/me")
+    suspend fun getClient(): ClientProfile
 
-    @PUT("clients/{id}")
-    suspend fun updateClient(@Path("id") id: Int, @Body body: ClientUpdate): ClientProfile
+    // Devuelve un token nuevo, por si el cliente cambió su correo
+    @PUT("clients/me")
+    suspend fun updateClient(@Body body: ClientUpdate): LoginResponse
 
-    @DELETE("clients/{id}")
-    suspend fun deleteClient(@Path("id") id: Int): ResponseBody
+    @DELETE("clients/me")
+    suspend fun deleteClient(): ResponseBody
 
-    @PUT("clients/{id}/password")
-    suspend fun changePassword(@Path("id") id: Int, @Body body: ChangePasswordRequest): ResponseBody
-
-    @POST("clients")
-    suspend fun register(@Body body: ClientCreate): ClientProfile
+    @PUT("clients/me/password")
+    suspend fun changePassword(@Body body: ChangePasswordRequest): ResponseBody
 }

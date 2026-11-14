@@ -59,7 +59,7 @@ fun CheckoutScreen(
     // Direcciones guardadas del cliente (las mismas de la web) y limpieza de productos no disponibles
     LaunchedEffect(Unit) {
         try {
-            addresses = ApiClient.api.addresses(user.id)
+            addresses = ApiClient.api.addresses()
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {

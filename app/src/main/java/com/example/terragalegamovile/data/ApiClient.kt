@@ -16,6 +16,17 @@ object ApiClient {
     const val BASE_URL = "http://10.195.23.83:8080/"
 
     private val okHttp = OkHttpClient.Builder()
+        //Agrega el JWT a cada peticion si hay sesion
+        .addInterceptor{ chain ->
+            val token = Session.user?.token
+            val request = if (token != null)
+                chain.request().newBuilder().header("Authorization", "Bearer $token").build()
+            else chain.request()
+            val response = chain.proceed(request)
+            // Token vencido o cuenta eliminada/desactivada: se cierra la sesión
+            if (response.code == 401 && token != null) Session.user = null
+            response
+        }
         .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)

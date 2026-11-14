@@ -65,10 +65,10 @@ fun CheckoutConfirmScreen(
         scope.launch {
             try {
                 if (isCard) delay(1500) // lo que tarda la pasarela simulada
-                ApiClient.api.checkout(user.id, request).close()
+                ApiClient.api.checkout( request).close()
                 if (saveAddress) {
                     try {
-                        ApiClient.api.addAddress(user.id, AddressInput(label = address, name = addressName.ifBlank { null }))
+                        ApiClient.api.addAddress( AddressInput(label = address, name = addressName.ifBlank { null }))
                     } catch (e: CancellationException) {
                         throw e
                     } catch (_: Exception) {

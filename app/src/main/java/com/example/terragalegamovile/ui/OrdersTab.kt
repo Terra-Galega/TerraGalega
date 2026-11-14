@@ -83,7 +83,7 @@ fun OrdersTab(
     LaunchedEffect(reload) {
         while (true) {
             try {
-                orders = ApiClient.api.myOrders(user.id)
+                orders = ApiClient.api.myOrders()
                 error = null
             } catch (e: CancellationException) {
                 throw e
@@ -204,7 +204,7 @@ fun OrdersTab(
                 toCancel = null
                 scope.launch {
                     try {
-                        ApiClient.api.cancelOrder(order.id, user.id).close()
+                        ApiClient.api.cancelOrder(order.id).close()
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {

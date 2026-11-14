@@ -105,10 +105,15 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.LineHeightStyle
 import coil.ImageLoader
 import coil.decode.SvgDecoder
@@ -318,6 +323,62 @@ fun PinDigits(pin: String) {
     }
 }
 
+// PIN que se escribe en casillas (mismo aspecto que PinDigits)
+@Composable
+fun PinInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    length: Int = 4
+) {
+    var focused by remember { mutableStateOf(false) }
+    BasicTextField(
+        value = value,
+        onValueChange = { if (it.length <= length && it.all(Char::isDigit)) onValueChange(it) },
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged { focused = it.isFocused },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+        cursorBrush = SolidColor(Color.Transparent),
+        textStyle = TextStyle(color = Color.Transparent),
+        decorationBox = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+            ) {
+                repeat(length) { i ->
+                    val digit = value.getOrNull(i)
+                    val active = focused && i == value.length.coerceAtMost(length - 1)
+                    val shape = RoundedCornerShape(14.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(width = 52.dp, height = 64.dp)
+                            .clip(shape)
+                            .background(Color.White)
+                            .border(
+                                if (active) 2.dp else 1.dp,
+                                if (active) Terra else Terra.copy(alpha = 0.3f),
+                                shape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (digit != null) {
+                            Text(
+                                digit.toString(),
+                                fontFamily = SourceSans,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 30.sp,
+                                color = Terra
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
+}
+
 
 
 // Abre el perfil del cliente desde la barra de arriba (lo asigna AppNav)
@@ -383,6 +444,7 @@ fun TerraScaffold(
     val dim by animateFloatAsState(if (FilterUi.open) 0.16f else 0f, label = "dim")
     val hazeState = rememberHazeState()
     val density = LocalDensity.current
+    val imeOpen = WindowInsets.ime.getBottom(density) > 0
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val topArea = statusTop + 84.dp
     val fadeEnd = statusTop + 100.dp
@@ -411,8 +473,7 @@ fun TerraScaffold(
                 .hazeSource(hazeState)
                 .blur(blur, BlurredEdgeTreatment.Rectangle)
         ) {
-            content(PaddingValues(top = topArea, bottom = bottomHeight))
-        }
+            content(PaddingValues(top = topArea, bottom = if (imeOpen) 0.dp else bottomHeight))        }
 
         // Difuminado crema: sólido detrás del logo y se desvanece suave hacia el contenido
         Box(
@@ -473,7 +534,7 @@ fun TerraScaffold(
             }
         }
 
-        if (bottomBar != null) {
+        if (bottomBar != null && !imeOpen) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

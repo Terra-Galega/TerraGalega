@@ -77,6 +77,8 @@ import android.content.Intent
 import android.net.Uri
 import com.example.terragalegamovile.ui.components.TerraScaffold
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.style.TextAlign
+import com.example.terragalegamovile.ui.components.PinInput
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -387,6 +389,27 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                             InfoLine("Dirección de entrega", current.address ?: "-")
                             InfoLine("Cliente", current.clientName ?: "-")
                             InfoLine("Teléfono", current.clientPhone ?: "-")
+
+                            // Llamar al cliente: abajo a la derecha de la tarjeta
+                            current.clientPhone?.takeIf { it.isNotBlank() }?.let { phone ->
+                                Spacer(Modifier.height(8.dp))
+                                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+                                    TerraButton(
+                                        text = "Llamar al cliente",
+                                        onClick = {
+                                            try {
+                                                context.startActivity(
+                                                    Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
+                                                )
+                                            } catch (_: Exception) {
+                                                message = "Este dispositivo no tiene app de teléfono"
+                                            }
+                                        },
+                                        style = ButtonStyle.Sage,
+                                        compact = true
+                                    )
+                                }
+                            }
                         }
 
                         Spacer(Modifier.height(16.dp))
@@ -449,27 +472,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                                 Text(status, fontSize = 14.sp, color = TextSoft)
                             }
                         }
-                        // Botón para llamar al cliente (abre el teléfono con el número ya marcado)
-                        current.clientPhone?.takeIf { it.isNotBlank() }?.let { phone ->
-                            Spacer(Modifier.height(12.dp))
-                            TerraButton(
-                                text = "Llamar al cliente",
-                                onClick = {
-                                    try {
-                                        context.startActivity(
-                                            Intent(
-                                                Intent.ACTION_DIAL,
-                                                Uri.fromParts("tel", phone, null)
-                                            )
-                                        )
-                                    } catch (_: Exception) {
-                                        message = "Este dispositivo no tiene app de teléfono"
-                                    }
-                                },
-                                style = ButtonStyle.Outline,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
+
 
                         locationError?.let {
                             Spacer(Modifier.height(4.dp))
@@ -487,18 +490,21 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                                 Spacer(Modifier.height(4.dp))
                                 Text("Pídele al cliente su PIN de 4 dígitos.", color = TextSoft)
                                 Spacer(Modifier.height(16.dp))
-                                TerraTextField(
-                                    label = "PIN del cliente",
-                                    value = pin,
-                                    onValueChange = {
-                                        if (it.length <= 4 && it.all(Char::isDigit)) pin = it
-                                    },
-                                    placeholder = "••••",
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                                Text(
+                                    "PIN DEL CLIENTE",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 11.sp,
+                                    letterSpacing = 1.sp,
+                                    color = TextSoft
                                 )
-                                Spacer(Modifier.height(6.dp))
+                                Spacer(Modifier.height(8.dp))
+                                PinInput(value = pin, onValueChange = { pin = it })
+                                Spacer(Modifier.height(8.dp))
                                 Text(
                                     "Intentos restantes: ${current.attemptsLeft}",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center,
                                     fontSize = 12.sp,
                                     color = TextSoft
                                 )

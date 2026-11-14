@@ -38,7 +38,7 @@ object CartStore {
         if (pending > 0) return
         scope.launch {
             try {
-                val list = ApiClient.api.cart(id)
+                val list = ApiClient.api.cart()
                 if (clientId == id && pending == 0) items = list
             } catch (_: Exception) {
                 // Sin conexión: se queda lo que ya se veía
@@ -60,7 +60,7 @@ object CartStore {
             else items + CartItem(lineId, product, quantity, addOns)
 
         call(optimistic, onDone) { id ->
-            ApiClient.api.cartAdd(id, CheckoutItemRequest(product.id, quantity, addOns.map { it.id }))
+            ApiClient.api.cartAdd( CheckoutItemRequest(product.id, quantity, addOns.map { it.id }))
         }
     }
 
@@ -69,15 +69,15 @@ object CartStore {
             if (quantity < 1) items.filter { it.id != item.id }
             else items.map { if (it.id == item.id) it.copy(quantity = quantity) else it }
 
-        call(optimistic) { id -> ApiClient.api.cartQuantity(id, item.id, QuantityRequest(quantity)) }
+        call(optimistic) { id -> ApiClient.api.cartQuantity( item.id, QuantityRequest(quantity)) }
     }
 
     fun remove(item: CartItem) {
-        call(items.filter { it.id != item.id }) { id -> ApiClient.api.cartRemove(id, item.id) }
+        call(items.filter { it.id != item.id }) { id -> ApiClient.api.cartRemove( item.id) }
     }
 
     fun clear() {
-        call(emptyList()) { id -> ApiClient.api.cartClear(id) }
+        call(emptyList()) { id -> ApiClient.api.cartClear() }
     }
 
     // Misma regla que el servidor y que buildId() de la web

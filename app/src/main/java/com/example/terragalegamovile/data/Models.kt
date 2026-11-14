@@ -3,6 +3,7 @@ package com.example.terragalegamovile.data
 data class LoginRequest(val email: String, val password: String)
 
 data class LoginResponse(
+    val token : String,
     val id: Int,
     val name: String,
     val lastName: String,

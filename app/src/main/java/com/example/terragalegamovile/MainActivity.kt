@@ -43,6 +43,7 @@ import androidx.compose.runtime.DisposableEffect
 import com.example.terragalegamovile.ui.CategoryScreen
 import com.example.terragalegamovile.ui.ProfileScreen
 import com.example.terragalegamovile.ui.components.ProfileNav
+import androidx.compose.foundation.layout.imePadding
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +68,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
+                    Box(modifier = Modifier.fillMaxSize().navigationBarsPadding().imePadding()) {
                         AppNav()
                     }
                 }
