@@ -231,6 +231,13 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                         fontSize = 12.sp,
                         color = TextLabel
                     )
+                    current.progress?.let { p ->
+                        Text(
+                            "Recorrido: ${(p * 100).toInt()} %",
+                            fontSize = 12.sp,
+                            color = TextLabel
+                        )
+                    }
 
                     Spacer(Modifier.height(16.dp))
                     Text(

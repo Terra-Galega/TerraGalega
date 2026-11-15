@@ -37,7 +37,9 @@ data class ClientDelivery(
     val longitude: Double?,
     val locationUpdatedAt: String?,
     val startedAt: String? = null,
-    val route: List<LatLon>? = null
+    val route: List<LatLon>? = null,
+    // Avance del recorrido de 0.0 a 1.0 (lo calcula el backend; null si aún no inicia)
+    val progress: Double? = null
 )
 
 // Lo que ve el repartidor (nunca trae el PIN)

@@ -1,10 +1,17 @@
 package com.example.terragalegamovile
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -20,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavType
@@ -32,6 +40,7 @@ import com.example.terragalegamovile.data.AppStorage
 import com.example.terragalegamovile.data.CartStore
 import com.example.terragalegamovile.data.CheckoutDraft
 import com.example.terragalegamovile.data.ClientUi
+import com.example.terragalegamovile.data.DeliveryNotifier
 import com.example.terragalegamovile.data.MapService
 import com.example.terragalegamovile.data.Session
 import com.example.terragalegamovile.ui.CartSheet
@@ -65,6 +74,10 @@ class MainActivity : ComponentActivity() {
             Session.user?.takeIf { it.role == "CLIENT" }?.id
         )
 
+        // Avisos de "tu pedido salió" y "ya va llegando" (notificación + vibración)
+        DeliveryNotifier.start(applicationContext)
+        handleNotificationIntent(intent)
+
         enableEdgeToEdge()
 
         setContent {
@@ -94,6 +107,22 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    // La app ya estaba abierta (singleTask) y el usuario tocó una notificación
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleNotificationIntent(intent)
+    }
+
+    // Tocar la notificación de domicilio abre la pantalla de seguimiento
+    private fun handleNotificationIntent(intent: Intent?) {
+        if (intent == null) return
+        if (intent.getBooleanExtra(DeliveryNotifier.EXTRA_OPEN_TRACKING, false)) {
+            DeliveryNotifier.openTrackingRequest.value = true
+            intent.removeExtra(DeliveryNotifier.EXTRA_OPEN_TRACKING)
         }
     }
 }
@@ -190,6 +219,42 @@ fun AppNav(lifecycle: Lifecycle) {
 
                 delay(15_000)
             }
+        }
+    }
+
+    // Android 13+: los avisos de domicilio necesitan el permiso de notificaciones.
+    // Se pide una vez, cuando entra un cliente.
+    val context = LocalContext.current
+    val notificationPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
+    LaunchedEffect(session?.role) {
+        if (session?.role == "CLIENT" &&
+            Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    // Se tocó una notificación de domicilio: abre el seguimiento del cliente
+    val openTracking by DeliveryNotifier.openTrackingRequest.collectAsState()
+
+    LaunchedEffect(openTracking, session?.role) {
+        if (!openTracking) return@LaunchedEffect
+
+        if (session?.role == "CLIENT") {
+            if (nav.currentDestination?.route != "tracking") {
+                nav.navigate("tracking") { launchSingleTop = true }
+            }
+            DeliveryNotifier.openTrackingRequest.value = false
+        } else if (session == null) {
+            // Sin sesión no hay pedido que mostrar: se descarta la solicitud
+            DeliveryNotifier.openTrackingRequest.value = false
         }
     }
 

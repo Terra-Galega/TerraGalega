@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,12 +36,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.terragalegamovile.data.ApiClient
-import com.example.terragalegamovile.data.AppStorage
 import com.example.terragalegamovile.data.CompleteRequest
 import com.example.terragalegamovile.data.DeliveryJob
 import com.example.terragalegamovile.data.LatLon
@@ -58,8 +55,6 @@ import com.example.terragalegamovile.ui.components.GlassCard
 import com.example.terragalegamovile.ui.components.InfoLine
 import com.example.terragalegamovile.ui.components.StatusPill
 import com.example.terragalegamovile.ui.components.TerraButton
-import com.example.terragalegamovile.ui.components.TerraTextField
-import com.example.terragalegamovile.ui.components.TerraTopBar
 import com.example.terragalegamovile.ui.theme.Burgundy
 import com.example.terragalegamovile.ui.theme.Forest
 import com.example.terragalegamovile.ui.theme.Gold
@@ -78,6 +73,7 @@ import android.net.Uri
 import com.example.terragalegamovile.ui.components.TerraScaffold
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
+import com.example.terragalegamovile.data.AppStorage
 import com.example.terragalegamovile.ui.components.PinInput
 import com.example.terragalegamovile.data.StartDeliveryRequest
 @SuppressLint("MissingPermission")

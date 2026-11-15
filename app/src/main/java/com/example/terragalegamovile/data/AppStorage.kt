@@ -81,4 +81,29 @@ object AppStorage {
     fun clearTrip(orderId: Int) {
         prefs.edit().remove("trip_started_$orderId").remove("trip_meters_$orderId").apply()
     }
+
+    // ---------- Avisos de domicilio ya mostrados ----------
+    // Cada elemento es "pedido:horaDeInicio|tipo" (tipo = started o near), para
+    // que cada aviso salga una sola vez por recorrido aunque se cierre la app.
+
+    @Synchronized
+    fun isAlerted(tripKey: String, type: String): Boolean =
+        prefs.getStringSet("delivery_alerts", emptySet())?.contains("$tripKey|$type") == true
+
+    @Synchronized
+    fun markAlerted(tripKey: String, type: String) {
+        val updated = HashSet(prefs.getStringSet("delivery_alerts", emptySet()) ?: emptySet())
+        updated.add("$tripKey|$type")
+        prefs.edit().putStringSet("delivery_alerts", updated).apply()
+    }
+
+    // Olvida los recorridos que ya terminaron
+    @Synchronized
+    fun pruneAlerts(activeTripKeys: Set<String>) {
+        val current = prefs.getStringSet("delivery_alerts", emptySet()) ?: return
+        val kept = current.filterTo(HashSet()) { activeTripKeys.contains(it.substringBefore('|')) }
+        if (kept.size != current.size) {
+            prefs.edit().putStringSet("delivery_alerts", kept).apply()
+        }
+    }
 }
