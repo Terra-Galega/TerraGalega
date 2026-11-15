@@ -55,6 +55,9 @@ class OrderServiceMockTest {
     @InjectMocks
     private OrderServiceImpl orderService;
 
+    @Mock
+    private NotificationService notificationService;
+
     // Constructor de un pedido en memoria con el id y estado dados
     private Order buildOrder(Integer id, OrderStatus status) {
         return Order.builder()

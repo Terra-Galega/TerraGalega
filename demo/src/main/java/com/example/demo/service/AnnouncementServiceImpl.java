@@ -22,6 +22,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Autowired
     private AnnouncementRepository repository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // Todos los anuncios en orden de creación
     @Override
     @Transactional
@@ -90,7 +93,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
         // Se fuerza id nulo para que siempre se cree uno nuevo
         announcement.setId(null);
-        return repository.save(announcement);
+        Announcement saved = repository.save(announcement);
+        notificationService.notifyAnnouncement(saved);
+        return saved;
     }
 
     // Actualiza los tres campos de un anuncio existente
