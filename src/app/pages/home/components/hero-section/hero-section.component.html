@@ -20,9 +20,22 @@
       Restaurante Gallego - Bogotá
     </p>
 
-    <!-- Logotipo principal del restaurante. -->
-    <img src="/images/logo-hero.svg" alt="Terra Galega"
-      class="mx-auto w-[480px] max-w-none my-6 md:my-10 object-contain drop-shadow-2xl" />
+    <!-- Logotipo principal. Entrada: aparece como una marea que avanza sobre la piedra (borde
+         ondulado), se enfoca y un destello dorado recorre el trazo; en el pulpo el brillo es más
+         intenso. Al bajar, el logo sube hasta la navbar: el pulpo se desvanece por el camino y
+         el texto se convierte en el logo de la barra. -->
+    <span #logoBox class="hero-logo mx-auto my-6 md:my-10">
+      <span #logoMove class="logo-move">
+        <span class="logo-reveal">
+          <img src="/images/logo-hero-text.svg" alt="Terra Galega" class="logo-img" />
+          <span class="logo-shine logo-shine--text" aria-hidden="true"></span>
+          <span #octopus class="logo-octopus" aria-hidden="true">
+            <img src="/images/logo-hero-octopus.svg" alt="" class="logo-img" />
+            <span class="logo-shine logo-shine--octopus"></span>
+          </span>
+        </span>
+      </span>
+    </span>
 
     <!-- Descripción breve del restaurante. -->
     <p class="text-base md:text-lg lg:text-xl max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"

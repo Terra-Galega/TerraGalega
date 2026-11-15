@@ -1,4 +1,101 @@
 // Hace que el host se comporte como bloque para que la sección ocupe todo el ancho.
 :host {
   display: block;
+  --gap: 2rem;
+}
+
+.rows {
+  display: grid;
+  gap: var(--gap);
+}
+
+// Las filas animadas ocupan más ancho que el resto de la página.
+.wide {
+  max-width: 96rem;
+}
+
+// Cada fila es una ventana: se ven 3 platos. Los bordes se desvanecen de forma gradual y en
+// diagonal, así los platos aparecen y desaparecen poco a poco en lugar de cortarse.
+.row {
+  --fade: linear-gradient(100deg,
+      transparent 0%,
+      rgb(0 0 0 / .15) 5%,
+      rgb(0 0 0 / .55) 11%,
+      #000 20%,
+      #000 80%,
+      rgb(0 0 0 / .55) 89%,
+      rgb(0 0 0 / .15) 95%,
+      transparent 100%);
+  container-type: inline-size;
+  overflow: hidden;
+  padding: .75rem 0;
+  mask-image: var(--fade);
+  -webkit-mask-image: var(--fade);
+}
+
+// La pista contiene los platos dos veces; al moverse la mitad de su ancho vuelve al inicio sin saltos.
+.track {
+  display: flex;
+  gap: var(--gap);
+  width: max-content;
+  animation: slide-left linear infinite;
+}
+
+// Fila de arriba: hacia la derecha. Fila de abajo: hacia la izquierda.
+.row:not(.reverse) .track {
+  animation-name: slide-right;
+}
+
+// Al pasar el ratón o enfocar un plato la fila se detiene para poder leerlo.
+.row:hover .track,
+.row:focus-within .track {
+  animation-play-state: paused;
+}
+
+// Tres platos visibles por fila
+.item {
+  flex: 0 0 calc((100cqw - 2 * var(--gap)) / 3);
+  display: flex;
+}
+
+.item > * {
+  flex: 1;
+}
+
+@keyframes slide-left {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - var(--gap) / 2));
+  }
+}
+
+@keyframes slide-right {
+  from {
+    transform: translateX(calc(-50% - var(--gap) / 2));
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+// En móvil tres tarjetas no caben legibles: se ve una y media.
+@media (max-width: 640px) {
+  .item {
+    flex-basis: 66cqw;
+  }
+}
+
+// Sin movimiento: las filas se recorren deslizando a mano.
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    overflow-x: auto;
+  }
+
+  .track {
+    animation: none;
+  }
 }

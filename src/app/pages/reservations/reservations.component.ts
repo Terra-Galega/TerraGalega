@@ -4,6 +4,8 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { Reservation, ReservationInput, ReservationTheme, RESERVATION_THEMES } from '../../models/reservation';
 import { ReservationService } from '../../services/reservation.service';
+import { AuthService } from '../../services/auth.service';
+import { ReservationGuestComponent } from './components/reservation-guest/reservation-guest.component';
 import { ToastService } from '../../services/toast.service';
 import { getErrorMessage } from '../../utils/http-error';
 import {
@@ -51,13 +53,17 @@ function localDate(date: Date): string {
 
 @Component({
   selector: 'app-reservations',
-  imports: [NavbarComponent, FooterComponent, PageHeaderComponent],
+  imports: [NavbarComponent, FooterComponent, PageHeaderComponent, ReservationGuestComponent],
   templateUrl: './reservations.component.html',
   styleUrl: './reservations.component.scss',
 })
 export class ReservationsComponent implements OnInit {
   private reservationService = inject(ReservationService);
   private toast = inject(ToastService);
+  private auth = inject(AuthService);
+
+  /** Sin sesión se muestra la explicación de cómo reservar en lugar del plano. */
+  readonly isLoggedIn = this.auth.isLoggedIn;
 
   // --- Datos fijos de la página ---
   readonly floors: readonly Floor[] = [1, 2];
@@ -128,6 +134,10 @@ export class ReservationsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.isLoggedIn) {
+      this.loading = false;
+      return;
+    }
     this.reservationService.getReservation().subscribe({
       next: (reservation) => {
         this.reservation = reservation;
@@ -263,7 +273,7 @@ export class ReservationsComponent implements OnInit {
       error: (error) => {
         this.saving = false;
         this.confirmingDelete = false;
-        this.toast.show('No se pudo eliminar', getErrorMessage(error));
+        this.toast.error('No se pudo eliminar', getErrorMessage(error));
         // Puede que el pago se haya completado justo antes: se recarga la reserva
         this.reservationService.getReservation().subscribe({
           next: (reservation) => (this.reservation = reservation),
@@ -297,7 +307,8 @@ export class ReservationsComponent implements OnInit {
         next: (reservation) => {
           // Se queda "guardando" mientras el navegador va a la pasarela
           this.reservation = reservation;
-          this.reservationService.redirectToStripe(reservation);
+          this.toast.show('Reserva creada', 'Te llevamos a la pasarela para pagar el anticipo.');
+          setTimeout(() => this.reservationService.redirectToStripe(reservation), 1200);
         },
         error: (error) => this.saveFailed(error),
       });
@@ -322,6 +333,7 @@ export class ReservationsComponent implements OnInit {
   private saveFailed(error: unknown): void {
     this.saving = false;
     this.feedback = getErrorMessage(error, 'No se pudo guardar la reserva.');
+    this.toast.error(this.editing ? 'No se pudo actualizar la reserva' : 'No se pudo crear la reserva', this.feedback);
     // Si la mesa se ocupó mientras tanto, se refresca el plano
     this.loadTaken();
   }

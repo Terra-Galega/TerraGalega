@@ -8,6 +8,7 @@ import {
 
 import { OrderService } from '../../../../services/order.service';
 import { AuthService } from '../../../../services/auth.service';
+import { ToastService } from '../../../../services/toast.service';
 import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
@@ -32,6 +33,7 @@ export class OrderedComponent {
 
   private orderService = inject(OrderService);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
 
   // Avisa a la página que un pedido cambió para que recargue la lista
   @Output() orderCancelled = new EventEmitter<void>();
@@ -69,7 +71,10 @@ export class OrderedComponent {
     this.closeCancelModal();
 
     this.orderService.cancelOrder(orderId).subscribe({
-      next: () => this.orderCancelled.emit(),
+      next: () => {
+        this.toast.show('Pedido cancelado', `Pedido #${orderId}`);
+        this.orderCancelled.emit();
+      },
       error: (error) => {
         console.error('Error cancelando pedido:', error);
         this.errorMessage = getErrorMessage(

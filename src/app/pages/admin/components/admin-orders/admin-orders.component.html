@@ -3,21 +3,21 @@
   <!-- Fecha inicial del rango. -->
   <label class="flex flex-col gap-1">
     <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Desde</span>
-    <input type="date" class="text-[12px] px-3 py-2 rounded-xl" style="background-color: rgba(44, 44, 44, 0.06)"
+    <input type="date" class="text-[12px] px-4 py-2 rounded-full" style="background-color: rgba(44, 44, 44, 0.06)"
       [value]="dateFrom" [attr.max]="dateTo || null" (change)="onDateFromChange($event)" />
   </label>
 
   <!-- Fecha final del rango; no permite elegir una fecha anterior a la inicial. -->
   <label class="flex flex-col gap-1">
     <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Hasta</span>
-    <input type="date" class="text-[12px] px-3 py-2 rounded-xl" style="background-color: rgba(44, 44, 44, 0.06)"
+    <input type="date" class="text-[12px] px-4 py-2 rounded-full" style="background-color: rgba(44, 44, 44, 0.06)"
       [value]="dateTo" [attr.min]="dateFrom || null" (change)="onDateToChange($event)" />
   </label>
 
   <!-- Selector de producto. -->
   <label class="flex flex-col gap-1">
     <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Producto</span>
-    <select class="text-[12px] px-3 py-2 rounded-xl" style="background-color: rgba(85, 44, 44, 0.06)"
+    <select class="text-[12px] px-4 py-2 rounded-full" style="background-color: rgba(85, 44, 44, 0.06)"
       (change)="onProductChange($event)">
       <option value="" [selected]="productId === null">
         Todos los productos
@@ -34,7 +34,7 @@
   <!-- Número de pedido. -->
   <label class="flex flex-col gap-1">
     <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">N.º de pedido</span>
-    <input type="number" min="1" placeholder="Ej. 12" class="text-[12px] px-3 py-2 rounded-xl w-28"
+    <input type="number" min="1" placeholder="Ej. 12" class="text-[12px] px-4 py-2 rounded-full w-28"
       style="background-color: rgba(44, 44, 44, 0.06)" [value]="orderNumber" (change)="onOrderNumberChange($event)" />
   </label>
 

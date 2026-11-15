@@ -22,7 +22,7 @@
           [value]="loginEmail"
           (input)="setLoginEmail($event)"
           placeholder="correo&#64;ejemplo.com"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
         />
       </div>
 
@@ -43,7 +43,7 @@
             [value]="loginPassword"
             (input)="setLoginPassword($event)"
             placeholder="••••••••"
-            class="password-field input-field w-full px-4 py-3 pr-11 rounded-xl text-charcoal text-sm"
+            class="password-field input-field w-full px-4 py-3 pr-11 rounded-full text-charcoal text-sm"
           />
 
           <button
@@ -130,16 +130,12 @@
         </div>
       }
 
-      <!-- Botón -->
-      <app-button
-        id="btn-login"
-        type="submit"
-        variant="primary"
-        [fullWidth]="true"
-        class="mt-2"
-      >
-        Iniciar sesión
-      </app-button>
+      <!-- Botón: un poco más ancho que su texto y centrado -->
+      <div class="flex justify-center mt-2">
+        <app-button id="btn-login" type="submit" variant="primary">
+          Iniciar sesión
+        </app-button>
+      </div>
 
       <!-- Separador -->
       <div class="flex items-center gap-3 py-1">
@@ -294,7 +290,7 @@
             [value]="signupName"
             (input)="setSignupName($event)"
             placeholder="Juan"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+            class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
           />
         </div>
 
@@ -313,7 +309,7 @@
             [value]="signupLastName"
             (input)="setSignupLastName($event)"
             placeholder="García"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+            class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
           />
         </div>
       </div>
@@ -335,7 +331,7 @@
           [value]="signupEmail"
           (input)="setSignupEmail($event)"
           placeholder="correo&#64;ejemplo.com"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
         />
       </div>
 
@@ -357,7 +353,7 @@
             [value]="signupPassword"
             (input)="setSignupPassword($event)"
             placeholder="••••••••"
-            class="password-field input-field w-full px-4 py-3 pr-11 rounded-xl text-charcoal text-sm"
+            class="password-field input-field w-full px-4 py-3 pr-11 rounded-full text-charcoal text-sm"
           />
 
           <button
@@ -427,7 +423,7 @@
           [value]="signupPhone"
           (input)="setSignupPhone($event)"
           placeholder="+57 300 000 0000"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
         />
       </div>
       <!-- Dirección -->
@@ -446,7 +442,7 @@
           [value]="signupAddress"
           (input)="setSignupAddress($event)"
           placeholder="Dirección"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm"
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
         />
       </div>
       <!-- Error registro -->
@@ -459,14 +455,11 @@
 
       <!-- Crear cuenta -->
 
-      <app-button
-        type="submit"
-        variant="primary"
-        [fullWidth]="true"
-        class="mt-2"
-      >
-        Crear cuenta
-      </app-button>
+      <div class="flex justify-center mt-2">
+        <app-button type="submit" variant="primary">
+          Crear cuenta
+        </app-button>
+      </div>
     </form>
   }
 </div>

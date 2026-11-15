@@ -1,26 +1,45 @@
-// Entrada suave del aviso: sube y aparece. Se desactiva si el usuario prefiere menos movimiento.
+// Entrada tipo popup: el aviso sube, crece un poco más de su tamaño y se asienta.
+// El icono hace un pequeño rebote justo después. Se desactiva si el usuario prefiere menos movimiento.
 .toast {
-  // Mantiene el aviso centrado horizontalmente respecto a su posición fija.
   transform: translateX(-50%);
-  // Aplica la animación de entrada con una curva de aceleración personalizada y conserva el estado final.
-  animation: toast-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  transform-origin: 50% 100%;
+  animation: toast-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
 }
 
-// Define la transición desde un estado invisible y desplazado hacia abajo hasta su posición final.
-@keyframes toast-in {
-  from {
+.toast-icon {
+  animation: toast-icon-pop 0.45s 0.2s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+
+@keyframes toast-pop {
+  0% {
     opacity: 0;
-    transform: translate(-50%, 16px);
+    transform: translate(-50%, 24px) scale(0.82);
   }
-  to {
+
+  60% {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -4px) scale(1.04);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
   }
 }
 
-// Respeta la preferencia de accesibilidad del usuario para reducir las animaciones y el movimiento.
+@keyframes toast-icon-pop {
+  from {
+    transform: scale(0);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .toast {
+  .toast,
+  .toast-icon {
     animation: none;
   }
 }

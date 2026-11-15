@@ -1,7 +1,12 @@
 <app-navbar />
 
 <main class="reservations-page min-h-screen pt-32 pb-28 max-w-7xl mx-auto px-6 md:px-8">
-  <!-- Encabezado con el mismo estilo que la carta y el resto de páginas -->
+  @if (!isLoggedIn) {
+  <!-- Visitante sin sesión: igual que Pedidos, empieza con "¿Cómo funciona?", los pasos para
+       reservar y los espacios del restaurante -->
+  <app-reservation-guest />
+  } @else {
+  <!-- Cliente con sesión. Encabezado con el mismo estilo que la carta y el resto de páginas -->
   <app-page-header eyebrow="Tu visita" title="Reserva tu mesa" />
 
   @if (loading) {
@@ -61,6 +66,19 @@
     }
   </section>
   } @else {
+
+  <!-- ¿CÓMO FUNCIONA? Guía corta de los pasos para reservar (solo al crear una reserva nueva) -->
+  @if (!editing) {
+  <section class="how-it-works" aria-labelledby="how-heading">
+    <p id="how-heading" class="how-title">¿Cómo funciona?</p>
+    <ol>
+      <li><span>1</span> Elige la fecha, la hora y cuántos comensales vienen.</li>
+      <li><span>2</span> Selecciona una mesa disponible en el plano.</li>
+      <li><span>3</span> Paga el anticipo de {{ money(deposit) }} en la pasarela de pago.</li>
+      <li><span>4</span> Tu mesa queda confirmada y puedes editarla aquí mismo.</li>
+    </ol>
+  </section>
+  }
 
   <!-- Filtros de la visita: al cambiar fecha, hora o comensales se recalcula el estado de cada mesa
        y se quita la mesa seleccionada (changeDate, changeTime, changeParty). -->
@@ -484,6 +502,7 @@
       <p class="feedback error" role="alert" [hidden]="!feedback">{{ feedback }}</p>
     </aside>
   </div>
+  }
   }
 </main>
 

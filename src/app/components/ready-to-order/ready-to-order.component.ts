@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ButtonComponent } from '../button/button.component';
 
-// Tarjeta de invitación al final de la página de pedidos para quien no
-// ha iniciado sesión: ofrece iniciar sesión, crear una cuenta o ver la carta.
+// Tarjeta de invitación para quien no ha iniciado sesión (pedidos y reservas):
+// ofrece iniciar sesión, crear una cuenta o ver la carta.
 // No tiene lógica propia; los botones solo navegan a otras rutas.
 @Component({
   selector: 'app-ready-to-order',
@@ -10,4 +10,7 @@ import { ButtonComponent } from '../button/button.component';
   templateUrl: './ready-to-order.component.html',
   styleUrl: './ready-to-order.component.scss',
 })
-export class ReadyToOrderComponent {}
+export class ReadyToOrderComponent {
+  @Input() title = '¿Listo para pedir?';
+  @Input() message = 'Inicia sesión si ya tienes cuenta, o regístrate en un minuto.';
+}

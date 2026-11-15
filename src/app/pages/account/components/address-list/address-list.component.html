@@ -26,13 +26,13 @@
         <app-form-field label="Nombre">
           <input type="text" [value]="editName" (input)="setEditName($event)" (keydown.enter)="saveEdit()"
             [attr.maxlength]="nameMax" placeholder="Casa, Oficina..." aria-label="Nombre de la dirección"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+            class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
         </app-form-field>
 
         <app-form-field label="Dirección">
           <input type="text" [value]="editLabel" (input)="setEditLabel($event)" (keydown.enter)="saveEdit()"
             [attr.maxlength]="labelMax" placeholder="Calle 10 #5-20, Bogotá" aria-label="Dirección"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+            class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
         </app-form-field>
 
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
@@ -97,27 +97,28 @@
   <!-- Agregar una dirección nueva -->
   <div class="rounded-2xl p-4 space-y-4"
     style="background: rgba(255, 255, 255, 0.35); border: 1px dashed rgba(44, 44, 44, 0.18)">
-    <p class="text-[13px] font-semibold">Agregar dirección</p>
+    <!-- Título a la izquierda y botón (pequeño) a la derecha, encima de los campos -->
+    <div class="flex items-center justify-between gap-3">
+      <p class="text-[13px] font-semibold">Nueva dirección</p>
+      <app-button type="button" variant="primary" size="sm" (click)="add()">
+        Agregar dirección
+      </app-button>
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <app-form-field label="Nombre (opcional)">
         <input type="text" [value]="newName" (input)="setNewName($event)" (keydown.enter)="add()"
           [attr.maxlength]="nameMax" placeholder="Casa" aria-label="Nombre de la nueva dirección"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </app-form-field>
 
       <app-form-field label="Dirección" class="sm:col-span-2">
         <input type="text" [value]="newLabel" (input)="setNewLabel($event)" (keydown.enter)="add()"
           [attr.maxlength]="labelMax" placeholder="Calle 10 #5-20, Bogotá" aria-label="Nueva dirección"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </app-form-field>
     </div>
 
-    <div class="flex sm:justify-end">
-      <app-button type="button" variant="primary" size="md" (click)="add()">
-        Agregar dirección
-      </app-button>
-    </div>
   </div>
 
   @if (error) {

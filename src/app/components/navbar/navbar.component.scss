@@ -129,6 +129,19 @@
   transform: translateY(6px) scale(0.9);
 }
 
+// Home arriba del todo: el logo de la barra se esconde mientras el del hero sube hacia aquí,
+// y aparece fundiéndose cuando llega.
+.logo-wrap a,
+.logo-wrap-mobile {
+  transition: opacity 0.3s ease, transform 0.3s;
+}
+
+.nav-bar.nav-bar--logo-away .logo-wrap a,
+.nav-bar.nav-bar--logo-away .logo-wrap-mobile {
+  opacity: 0;
+  pointer-events: none;
+}
+
 // Móvil: misma idea, más discreta.
 .nav-row-mobile {
   height: 4.5rem;
@@ -206,7 +219,16 @@
  */
 .nav-row a.link-nav,
 .nav-row span.link-nav {
-  padding: 0.5rem 0.5rem;
+  // El texto se centra en la píldora en ambos ejes. El espaciado entre letras (0.18em)
+  // también se añade después de la última letra, así que el relleno izquierdo lleva
+  // ese mismo extra para que el texto quede centrado.
+  --link-pad-y: 0.5rem;
+  --link-pad-x: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: var(--link-pad-y) var(--link-pad-x) var(--link-pad-y) calc(var(--link-pad-x) + 0.18em);
   border-radius: 9999px;
 
   transition:
@@ -243,7 +265,8 @@
 
   .nav-row a.link-nav,
   .nav-row span.link-nav {
-    padding: 0.55rem 1rem;
+    --link-pad-y: 0.55rem;
+    --link-pad-x: 1rem;
   }
 }
 
@@ -251,7 +274,8 @@
 
   .nav-row a.link-nav,
   .nav-row span.link-nav {
-    padding: 0.6rem 1.25rem;
+    --link-pad-y: 0.6rem;
+    --link-pad-x: 1.25rem;
   }
 }
 

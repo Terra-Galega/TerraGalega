@@ -42,7 +42,7 @@
                     autocomplete="off"
                     placeholder="BIENVENIDA10"
                     style="text-transform: uppercase"
-                    class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                    class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
                 />
                 <p class="text-[11px] mt-1" style="color: rgba(44, 44, 44, 0.45)">
                     Entre 3 y 40 caracteres: letras, números, guion (-) y guion bajo (_), sin espacios.
@@ -58,7 +58,7 @@
                     [attr.maxlength]="descriptionMax"
                     rows="2"
                     placeholder="Descripción del cupón…"
-                    class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
+                    class="input-field w-full px-4 py-3 rounded-3xl text-sm text-charcoal resize-none"
                 ></textarea>
                 <p
                     class="text-[11px] mt-1 text-right"
@@ -73,7 +73,7 @@
                 <app-form-field label="Tipo de descuento">
                     <select
                         (change)="setDiscountType($event)"
-                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                        class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
                     >
                         <option value="PERCENTAGE" [selected]="discountType === 'PERCENTAGE'">
                             Porcentaje (%)
@@ -99,7 +99,7 @@
                         (input)="setDiscountValue($event)"
                         required
                         [placeholder]="discountType === 'PERCENTAGE' ? '10' : '5000'"
-                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                        class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
                     />
                 </app-form-field>
             </div>
@@ -117,7 +117,7 @@
                             [value]="maxDiscount ?? ''"
                             (input)="setMaxDiscount($event)"
                             placeholder="8000"
-                            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                            class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
                         />
                     </app-form-field>
                 }
@@ -132,7 +132,7 @@
                         [value]="minOrderAmount ?? ''"
                         (input)="setMinOrderAmount($event)"
                         placeholder="20000"
-                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                        class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
                     />
                 </app-form-field>
             </div>
@@ -145,7 +145,7 @@
                         type="datetime-local"
                         [value]="startsAt"
                         (input)="setStartsAt($event)"
-                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                        class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
                     />
                 </app-form-field>
 
@@ -156,7 +156,7 @@
                         [value]="expiresAt"
                         [attr.min]="startsAt || null"
                         (input)="setExpiresAt($event)"
-                        class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                        class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
                     />
                 </app-form-field>
             </div>
@@ -172,7 +172,7 @@
                     [value]="maxUses ?? ''"
                     (input)="setMaxUses($event)"
                     placeholder="Ilimitado"
-                    class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+                    class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
                 />
             </app-form-field>
 
@@ -217,7 +217,7 @@
                                     ? 'Desmarca la casilla para elegir un cliente'
                                     : 'Buscar cliente por nombre…'"
                                 autocomplete="off"
-                                class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal disabled:cursor-not-allowed"
+                                class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal disabled:cursor-not-allowed"
                                 [style.background-color]="forEveryone ? 'rgba(44, 44, 44, 0.08)' : null"
                             />
 

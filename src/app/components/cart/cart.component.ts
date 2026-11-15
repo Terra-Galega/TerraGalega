@@ -9,6 +9,7 @@ import {
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import {
   CartService,
   CartItem,
@@ -44,6 +45,7 @@ export class CartComponent implements OnChanges {
     private cartService: CartService,
     private router: Router,
     private auth: AuthService,
+    private toast: ToastService,
   ) {
     // Mantiene la lista local sincronizada con el carrito del servicio
     this.cartService.items$.subscribe((items) => {
@@ -111,6 +113,8 @@ export class CartComponent implements OnChanges {
 
   // Quita una línea del carrito
   removeItem(id: string) {
+    const item = this.cartItems.find((i) => i.id === id);
     this.cartService.removeItem(id);
+    this.toast.show('Producto eliminado del carrito', item?.product?.name ?? '');
   }
 }

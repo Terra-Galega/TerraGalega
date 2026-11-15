@@ -1,0 +1,6 @@
+// El icono hereda el color del texto de quien lo usa (currentColor).
+:host {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}

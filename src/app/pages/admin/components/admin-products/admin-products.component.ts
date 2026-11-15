@@ -212,6 +212,8 @@ export class AdminProductsComponent implements OnChanges {
   toggleProduct(product: Product) {
     this.productService.toggleProductActiveStatus(product.id).subscribe({
       next: () => {
+        // El estado que llega aún es el anterior al cambio
+        this.toast.show(product.active ? 'Producto desactivado' : 'Producto activado');
         // Se recarga la lista para ver el nuevo estado
         this.productService.refresh();
       },

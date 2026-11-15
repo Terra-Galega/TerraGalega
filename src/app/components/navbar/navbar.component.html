@@ -1,5 +1,8 @@
 <!-- Contenedor flotante de la barra; la clase nav-bar--stayed se aplica cuando navBarStayed es true (fondo de vidrio). -->
-<nav id="nav-bar" class="nav-bar" [class.nav-bar--stayed]="navBarStayed">
+<!-- En el home, mientras el logo grande del hero no ha llegado a la barra, la barra sigue
+     transparente y esconde su propio logo (nav-bar--logo-away). -->
+<nav id="nav-bar" class="nav-bar" [class.nav-bar--stayed]="navBarStayed && heroLogo.docked()"
+  [class.nav-bar--logo-away]="!heroLogo.docked()">
   <!-- ============================================================ DESKTOP ============================================================ -->
   <!-- Rejilla de tres columnas (enlaces, logo, sesión y carrito). La altura (nav-row) cambia con el scroll. -->
   <div class="nav-row hidden md:grid px-6 lg:px-10 xl:px-16 items-center w-full"
