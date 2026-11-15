@@ -1,14 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { TourName, TutorialService } from '../../services/Tutorial.service';
 
-// Botón flotante a la derecha: al tocarlo muestra los tutoriales disponibles
-// ("hacer un pedido" y "hacer una reserva") y arranca el que elija el cliente
+// Botón flotante que muestra los tutoriales disponibles en la pantalla.
 @Component({
     selector: 'app-tutorial-fab',
     templateUrl: './tutorial-fab.component.html',
 })
 export class TutorialFabComponent {
     private tutorial = inject(TutorialService);
+    readonly adminPanel = input(false);
+    readonly adminTourRequested = output<void>();
 
     // true mientras se ve la lista de tutoriales
     open = false;
@@ -21,5 +22,10 @@ export class TutorialFabComponent {
     startTour(name: TourName): void {
         this.open = false;
         this.tutorial.start(name);
+    }
+
+    startAdminTour(): void {
+        this.open = false;
+        this.adminTourRequested.emit();
     }
 }

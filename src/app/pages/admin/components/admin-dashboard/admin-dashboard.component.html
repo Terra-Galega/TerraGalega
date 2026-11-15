@@ -21,6 +21,7 @@
   <div class="space-y-6">
     <!-- Barra de control: periodo, estado "en vivo", actualizar y descargar -->
     <div
+      id="admin-dashboard-controls"
       class="dash-in flex flex-wrap items-center justify-between gap-3"
       style="animation-delay: 0ms"
     >
@@ -108,12 +109,12 @@
     </div>
 
     <!-- Indicadores del día -->
-    <div class="dash-in" style="animation-delay: 80ms">
+    <div id="admin-dashboard-kpis" class="dash-in" style="animation-delay: 80ms">
       <app-dashboard-kpis [kpis]="kpis" />
     </div>
 
     <!-- Ventas por periodo + comparación con el periodo anterior -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+    <div id="admin-dashboard-sales" class="grid grid-cols-1 xl:grid-cols-2 gap-5">
       <!-- Ventas por día, semana o mes -->
       <section
         class="dash-in glass-card rounded-2xl p-5"
@@ -233,7 +234,7 @@
     </div>
 
     <!-- Productos más vendidos + categorías -->
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+    <div id="admin-dashboard-products" class="grid grid-cols-1 xl:grid-cols-2 gap-5">
       <section
         class="dash-in glass-card rounded-2xl p-5"
         style="animation-delay: 280ms"
@@ -290,7 +291,7 @@
     </div>
 
     <!-- Últimos pedidos y pedidos con mucha espera -->
-    <div class="dash-in" style="animation-delay: 400ms">
+    <div id="admin-dashboard-orders" class="dash-in" style="animation-delay: 400ms">
       <app-dashboard-orders
         [latest]="latest"
         [delayed]="delayed"
@@ -301,7 +302,7 @@
     </div>
 
     <!-- Platos con su precio final y su ganancia del 20 % -->
-    <div class="dash-in" style="animation-delay: 460ms">
+    <div id="admin-dashboard-dishes" class="dash-in" style="animation-delay: 460ms">
       <app-dashboard-dishes [rows]="dishes" [rangeLabel]="pair.label" />
     </div>
   </div>
