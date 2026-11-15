@@ -81,6 +81,14 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/payments/app-return").permitAll()
                                                 // Iniciar, consultar y cancelar pagos: solo el cliente dueño
                                                 .requestMatchers("/payments/**").hasAuthority(CLIENT)
+                                                // Factura abierta desde el QR: el celular no tiene sesión; la protege
+                                                // la firma del enlace
+                                                .requestMatchers(HttpMethod.GET, "/invoices/public/**").permitAll()
+                                                // Datos del QR de mi factura: solo el cliente dueño
+                                                .requestMatchers(HttpMethod.GET, "/invoices/*/link")
+                                                .hasAuthority(CLIENT)
+                                                // Enviar un informe por correo: solo admin
+                                                .requestMatchers(HttpMethod.POST, "/reports/email").hasAuthority(ADMIN)
                                                 // Página de error de Spring, consola H2 y documentación Swagger
                                                 .requestMatchers("/error", "/h2/**", "/swagger-ui/**",
                                                                 "/swagger-ui.html",
@@ -130,7 +138,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/announcements").permitAll()
                                                 // Crear, editar o borrar anuncios: solo el admin
                                                 .requestMatchers("/announcements/**").hasAuthority(ADMIN)
-                                                
+
                                                 // ================= RESEÑAS =================
                                                 // Las reseñas visibles las ve cualquiera
                                                 .requestMatchers(HttpMethod.GET, "/reviews").permitAll()

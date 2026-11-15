@@ -53,6 +53,12 @@ public class PaymentService {
     @Autowired
     private ReservationService reservations;
 
+    @Autowired
+    private org.springframework.context.ApplicationEventPublisher events;
+
+    @Autowired
+    private InvoiceService invoices;
+
     @PersistenceContext
     private EntityManager em;
 
@@ -322,6 +328,10 @@ public class PaymentService {
             order.setStatus(OrderStatus.PENDING);
 
             mirror.sync(order);
+            mirror.sync(order);
+
+            // Factura electrónica al correo del cliente (sale al guardarse el pago)
+            events.publishEvent(new InvoiceMailer.OrderPaidEvent(invoices.snapshot(order)));
 
         } else if ("expired".equals(session.getStatus())) {
             order.setPaymentState("EXPIRED");

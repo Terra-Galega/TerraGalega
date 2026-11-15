@@ -1,2 +1,3 @@
 mydatabase*.db
 testdb*.db
+.env
