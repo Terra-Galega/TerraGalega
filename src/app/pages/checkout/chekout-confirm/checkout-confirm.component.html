@@ -3,133 +3,219 @@
   <app-navbar></app-navbar>
 
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
-    <app-page-header eyebrow="Paso 2 de 2 - Pasarela de pago" title="Revisa tu pedido" />
+    <app-page-header
+      eyebrow="Paso 2 de 2 - Pasarela de pago"
+      title="Revisa tu pedido"
+    />
 
     <!-- Carrito vacío: invita a ir a la carta -->
     @if (items.length === 0) {
-    <div class="glass-card rounded-3xl">
-      <app-empty-state message="Tu carrito está vacío. Agrega algo de la carta antes de pagar."
-        actionLabel="Explorar la carta" (action)="goToMenu()"></app-empty-state>
-    </div>
-    <!-- 'ready' es true solo si el paso 1 quedó completo; si no, se redirige al paso 1 -->
-    } @else if (ready) {
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
-      <!-- Izquierda: lo que eligió el cliente, cada bloque con su "Editar" -->
-      <div class="md:col-span-3 flex flex-col gap-4">
-        <section id="confirm-delivery" class="glass-card rounded-3xl p-6">
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Entrega</p>
-              <p class="text-[15px] font-medium text-charcoal mt-1 break-words">
-                {{ draft.address }}
-              </p>
-
-              <!-- Aviso de que la dirección se guardará en el perfil -->
-              @if (draft.saveAddress) {
-              <p class="text-sm mt-3" style="color: rgba(44, 44, 44, 0.7)">
-                Esta dirección se guardará en tu perfil
-                @if (draft.addressName) { como «{{ draft.addressName }}» }
-                para tus próximos pedidos.
-              </p>
-              }
-            </div>
-
-            <button type="button" class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
-              style="color: #b2571f" (click)="edit()">
-              Editar
-            </button>
-          </div>
-        </section>
-
-        <!-- Cupón aplicado en el paso 1 (solo si hay uno) -->
-        @if (coupon) {
-        <section id="confirm-coupon" class="glass-card rounded-3xl p-6">
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Cupón</p>
-              <p id="confirm-coupon-code" class="text-[15px] font-medium text-charcoal mt-1 break-words">
-                {{ coupon.code }}
-              </p>
-              <p class="text-sm mt-0.5" style="color: #556141">
-                Ahorras ${{ coupon.discount | number: "1.0-0" }}
-              </p>
-              @if (coupon.description) {
-              <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">{{ coupon.description }}</p>
-              }
-            </div>
-
-            <button type="button" class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
-              style="color: #b2571f" (click)="edit()">
-              Editar
-            </button>
-          </div>
-        </section>
-        }
-
-        <section id="confirm-payment" class="glass-card rounded-3xl p-6">
-          <div class="flex items-start justify-between gap-4">
-            <div class="min-w-0">
-              <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Método de pago</p>
-
-              <!-- Tarjeta: se paga en Stripe. Contra entrega: pago en efectivo. -->
-              @if (draft.method === 'card') {
-              <p class="text-[15px] font-medium text-charcoal mt-1">Tarjeta de crédito o débito</p>
-              <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
-                Ingresarás los datos en la pasarela segura de Stripe.
-              </p>
-              } @else {
-              <p class="text-[15px] font-medium text-charcoal mt-1">Contra entrega</p>
-              <p class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
-                Pagas en efectivo cuando recibas tu pedido.
-              </p>
-              }
-            </div>
-
-            <button type="button" class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
-              style="color: #b2571f" (click)="edit()">
-              Editar
-            </button>
-          </div>
-        </section>
+      <div class="glass-card rounded-3xl">
+        <app-empty-state
+          message="Tu carrito está vacío. Agrega algo de la carta antes de pagar."
+          actionLabel="Explorar la carta"
+          (action)="goToMenu()"
+        ></app-empty-state>
       </div>
+      <!-- 'ready' es true solo si el paso 1 quedó completo; si no, se redirige al paso 1 -->
+    } @else if (ready) {
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
+        <!-- Izquierda: lo que eligió el cliente, cada bloque con su "Editar" -->
+        <div class="md:col-span-3 flex flex-col gap-4">
+          <section id="confirm-delivery" class="glass-card rounded-3xl p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
+                  Entrega
+                </p>
+                <p
+                  class="text-[15px] font-medium text-charcoal mt-1 break-words"
+                >
+                  {{ draft.address }}
+                </p>
 
-      <!-- Derecha: productos, total y confirmar -->
-      <aside class="md:col-span-2 md:sticky md:top-28">
-        <!-- Resumen con el costo del domicilio y el descuento incluidos -->
-        <app-order-summary id="confirm-summary" class="block" [items]="items" [total]="total"
-          [deliveryFee]="deliveryFee" [unitPrice]="unitPrice" [discount]="discount" [couponCode]="coupon?.code ?? ''">
-          <div class="mt-6 flex flex-col items-center gap-4">
-            <!-- El texto cambia según el estado -->
-            <app-button id="btn-confirm-order" size="lg" [fullWidth]="true" [disabled]="paying" (click)="confirm()">
-              {{
-              draft.method === "card"
-              ? (paying ? "Abriendo la pasarela..." : "Pagar con tarjeta")
-              : (paying ? "Confirmando pedido..." : "Confirmar pedido")
-              }}
-            </app-button>
+                <!-- Aviso de que la dirección se guardará en el perfil -->
+                @if (draft.saveAddress) {
+                  <p class="text-sm mt-3" style="color: rgba(44, 44, 44, 0.7)">
+                    Esta dirección se guardará en tu perfil
+                    @if (draft.addressName) {
+                      como «{{ draft.addressName }}»
+                    }
+                    para tus próximos pedidos.
+                  </p>
+                }
+              </div>
 
-            <!-- Error del backend, visible bajo el botón -->
-            @if (serverError) {
-            <p class="text-sm text-center" style="color: #8a2222">{{ serverError }}</p>
-            }
+              <button
+                type="button"
+                class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
+                style="color: #b2571f"
+                (click)="edit()"
+              >
+                Editar
+              </button>
+            </div>
+          </section>
 
-            <button type="button" class="text-sm underline underline-offset-4 cursor-pointer"
-              style="color: rgba(44, 44, 44, 0.65)" [disabled]="paying" (click)="cancel()">
-              Cancelar compra
-            </button>
-          </div>
-        </app-order-summary>
-      </aside>
-    </div>
+          <!-- Cupón aplicado en el paso 1 (solo si hay uno) -->
+          @if (coupon) {
+            <section id="confirm-coupon" class="glass-card rounded-3xl p-6">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
+                    Cupón
+                  </p>
+                  <p
+                    id="confirm-coupon-code"
+                    class="text-[15px] font-medium text-charcoal mt-1 break-words"
+                  >
+                    {{ coupon.code }}
+                  </p>
+                  <p class="text-sm mt-0.5" style="color: #556141">
+                    Ahorras ${{ coupon.discount | number: "1.0-0" }}
+                  </p>
+                  @if (coupon.description) {
+                    <p
+                      class="text-sm mt-0.5"
+                      style="color: rgba(44, 44, 44, 0.6)"
+                    >
+                      {{ coupon.description }}
+                    </p>
+                  }
+                </div>
+
+                <button
+                  type="button"
+                  class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
+                  style="color: #b2571f"
+                  (click)="edit()"
+                >
+                  Editar
+                </button>
+              </div>
+            </section>
+          }
+
+          <section id="confirm-payment" class="glass-card rounded-3xl p-6">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
+                  Método de pago
+                </p>
+
+                <!-- Tarjeta: se paga en Stripe. Contra entrega: pago en efectivo. -->
+                @if (draft.method === "card") {
+                  <p class="text-[15px] font-medium text-charcoal mt-1">
+                    Tarjeta de crédito o débito
+                  </p>
+                  <p
+                    class="text-sm mt-0.5"
+                    style="color: rgba(44, 44, 44, 0.6)"
+                  >
+                    Ingresarás los datos en la pasarela segura de Stripe.
+                  </p>
+                } @else {
+                  <p class="text-[15px] font-medium text-charcoal mt-1">
+                    Contra entrega
+                  </p>
+                  <p
+                    class="text-sm mt-0.5"
+                    style="color: rgba(44, 44, 44, 0.6)"
+                  >
+                    Pagas en efectivo cuando recibas tu pedido.
+                  </p>
+                }
+              </div>
+
+              <button
+                type="button"
+                class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0"
+                style="color: #b2571f"
+                (click)="edit()"
+              >
+                Editar
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <!-- Derecha: productos, total y confirmar -->
+        <aside class="md:col-span-2 md:sticky md:top-28">
+          <!-- Resumen con el costo del domicilio y el descuento incluidos -->
+          <app-order-summary
+            id="confirm-summary"
+            class="block"
+            [items]="items"
+            [total]="total"
+            [deliveryFee]="deliveryFee"
+            [freeDelivery]="freeDelivery"
+            [unitPrice]="unitPrice"
+            [discount]="discount"
+            [couponCode]="coupon?.code ?? ''"
+          >
+            <div class="mt-6 flex flex-col items-center gap-4">
+              <!-- El texto cambia según el estado -->
+              <app-button
+                id="btn-confirm-order"
+                size="lg"
+                [fullWidth]="true"
+                [disabled]="paying"
+                (click)="confirm()"
+              >
+                {{
+                  draft.method === "card"
+                    ? paying
+                      ? "Abriendo la pasarela..."
+                      : "Pagar con tarjeta"
+                    : paying
+                      ? "Confirmando pedido..."
+                      : "Confirmar pedido"
+                }}
+              </app-button>
+
+              <!-- Error del backend, visible bajo el botón -->
+              @if (serverError) {
+                <p class="text-sm text-center" style="color: #8a2222">
+                  {{ serverError }}
+                </p>
+              }
+
+              <button
+                type="button"
+                class="text-sm underline underline-offset-4 cursor-pointer"
+                style="color: rgba(44, 44, 44, 0.65)"
+                [disabled]="paying"
+                (click)="cancel()"
+              >
+                Cancelar compra
+              </button>
+            </div>
+          </app-order-summary>
+        </aside>
+      </div>
     }
   </main>
 
   <app-footer></app-footer>
 </div>
 
-<app-modal [open]="showCancelModal" [title]="confirmTitle" [message]="confirmMessage" confirmLabel="Sí, cancelar compra"
-  cancelLabel="Continuar comprando" variant="danger" (confirm)="confirmCancel()"
-  (cancel)="closeCancelModal()"></app-modal>
+<app-modal
+  [open]="showCancelModal"
+  [title]="confirmTitle"
+  [message]="confirmMessage"
+  confirmLabel="Sí, cancelar compra"
+  cancelLabel="Continuar comprando"
+  variant="danger"
+  (confirm)="confirmCancel()"
+  (cancel)="closeCancelModal()"
+></app-modal>
 
-<app-modal [open]="showErrorModal" [title]="errorTitle" [message]="errorMessage" confirmLabel="Aceptar" variant="error"
-  (confirm)="closeErrorModal()" (cancel)="closeErrorModal()"></app-modal>
+<app-modal
+  [open]="showErrorModal"
+  [title]="errorTitle"
+  [message]="errorMessage"
+  confirmLabel="Aceptar"
+  variant="error"
+  (confirm)="closeErrorModal()"
+  (cancel)="closeErrorModal()"
+></app-modal>
