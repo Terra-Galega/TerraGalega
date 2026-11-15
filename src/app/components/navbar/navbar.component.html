@@ -53,7 +53,10 @@
                 class="block text-[11px] mt-1"
                 style="color: rgba(44, 44, 44, 0.45)"
               >
-                {{ timeAgo(n.createdAt) }} · Toca para seguir tu pedido
+                {{ timeAgo(n.createdAt) }}
+                @if (n.orderId) {
+                  · Toca para ver tu pedido
+                }
               </span>
             </span>
           </button>
