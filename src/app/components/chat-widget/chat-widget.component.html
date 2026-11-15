@@ -1,0 +1,105 @@
+@if (isClient()) {
+<div class="chat-root">
+  @if (open()) {
+  <section id="chat-panel" class="chat-panel" role="dialog" aria-label="Asistente de TerraGalega"
+    (keydown.escape)="toggle()">
+    <header class="chat-header">
+      <div class="chat-header-info">
+        <span class="chat-avatar" aria-hidden="true">TG</span>
+        <div>
+          <p class="chat-title">Asistente TerraGalega</p>
+          <p class="chat-subtitle">Recomendaciones, carrito y reservas</p>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        @if (bubbles().length > 0) {
+        <button type="button" class="chat-icon-btn" aria-label="Nueva conversación" title="Nueva conversación"
+          [disabled]="sending()" (click)="reset()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.6m14.8 2A8 8 0 004.6 9m0 0H9m11 11v-5h-.6m0 0a8 8 0 01-15.4-2m15.4 2H15" />
+          </svg>
+        </button>
+        }
+        <button type="button" class="chat-icon-btn" aria-label="Cerrar asistente" (click)="toggle()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div #messages class="chat-messages" aria-live="polite">
+      <div class="chat-bubble chat-bubble--model">
+        ¡Hola{{ firstName() ? ', ' + firstName() : '' }}! Soy el asistente de TerraGalega. Puedo recomendarte
+        platos, agregarlos a tu carrito o hacerte una reserva.
+      </div>
+
+      @if (bubbles().length === 0) {
+      <div class="chat-suggestions">
+        @for (s of suggestions; track s) {
+        <button type="button" class="chat-chip" (click)="send(s)">{{ s }}</button>
+        }
+      </div>
+      }
+
+      @for (b of bubbles(); track $index) {
+      <div class="chat-bubble" [class.chat-bubble--user]="b.role === 'user'"
+        [class.chat-bubble--model]="b.role === 'model'" [class.chat-bubble--error]="b.error"
+        [innerHTML]="format(b.text)"></div>
+
+      @if (b.reservation; as r) {
+      <div class="chat-reservation">
+        <p class="chat-reservation-title">{{ r.name }}</p>
+        <p class="chat-reservation-line">{{ formatDate(r.date) }} · {{ r.time.slice(0, 5) }}</p>
+        <p class="chat-reservation-line">{{ r.seats }} {{ r.seats === 1 ? 'persona' : 'personas' }} · Mesa {{ r.tableId
+          }} (piso {{ r.floor }})</p>
+
+        @if (r.paymentState === 'PENDING' && r.checkoutUrl) {
+        <button type="button" class="chat-pay" (click)="pay(r.checkoutUrl)">
+          Pagar anticipo {{ money(r.depositAmount) }}
+        </button>
+        <p class="chat-note">Tienes 30 minutos para pagarlo; si no, la reserva se cancela sola.</p>
+        } @else if (r.paymentState === 'PAID') {
+        <p class="chat-paid">✓ Anticipo pagado, reserva confirmada</p>
+        <a routerLink="/reservations" class="chat-link" (click)="open.set(false)">Ver mi reserva</a>
+        }
+      </div>
+      }
+      }
+
+      @if (sending()) {
+      <div class="chat-bubble chat-bubble--model chat-typing" aria-label="El asistente está escribiendo">
+        <span></span><span></span><span></span>
+      </div>
+      }
+    </div>
+
+    <form class="chat-form" (submit)="$event.preventDefault(); send()">
+      <textarea #input rows="1" class="chat-input" placeholder="Escribe tu mensaje..."
+        aria-label="Mensaje para el asistente" [maxLength]="maxLength" [value]="draft()"
+        (input)="draft.set($any($event.target).value)" (keydown)="onKeydown($event)"></textarea>
+      <button type="submit" class="chat-send" aria-label="Enviar mensaje" [disabled]="sending() || !draft().trim()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </button>
+    </form>
+  </section>
+  }
+
+  <button id="chat-fab" type="button" class="chat-fab" aria-controls="chat-panel" [attr.aria-expanded]="open()"
+    [attr.aria-label]="open() ? 'Cerrar asistente' : 'Abrir asistente'" (click)="toggle()">
+    @if (open()) {
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+    } @else {
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+    </svg>
+    }
+  </button>
+</div>
+}

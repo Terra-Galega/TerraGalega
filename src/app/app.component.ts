@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TooltipService } from './services/tooltip.service';
 import { AuthService } from './services/auth.service';
+import { ChatWidgetComponent } from './components/chat-widget/chat-widget.component';
 import { ThemeService } from './services/theme.service';
 import { ToastComponent } from './components/toast/toast.component';
 import { ClientDeliveryWatcherService } from './services/client-delivery-watcher.service';
@@ -9,7 +10,7 @@ import { focusMainContent } from './services/page-title.strategy';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastComponent],
+  imports: [RouterOutlet, ToastComponent, ChatWidgetComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
