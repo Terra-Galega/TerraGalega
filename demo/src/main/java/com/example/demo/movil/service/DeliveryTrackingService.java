@@ -193,6 +193,69 @@ public class DeliveryTrackingService {
                 .toList();
     }
 
+    // Avance del recorrido (0.0 a 1.0): se proyecta la última ubicación del
+    // repartidor sobre la ruta compartida y se divide la distancia recorrida
+    // entre la longitud total. null si el recorrido aún no inicia.
+    public Double progressOf(DeliveryTracking tracking) {
+        if (tracking.getStartedAt() == null) {
+            return null;
+        }
+        if (tracking.getStatus() == DeliveryTrackingStatus.DELIVERED) {
+            return 1.0;
+        }
+
+        List<MapPointDTO> route = routeOf(tracking);
+        if (route.size() < 2) {
+            return null;
+        }
+        if (tracking.getLatitude() == null || tracking.getLongitude() == null) {
+            return 0.0;
+        }
+
+        // Metros aproximados (proyección equirrectangular): suficiente a escala de
+        // ciudad.
+        double refLat = Math.toRadians(tracking.getLatitude());
+        double mx = 111_320.0 * Math.cos(refLat);
+        double my = 110_540.0;
+
+        double px = tracking.getLongitude() * mx;
+        double py = tracking.getLatitude() * my;
+
+        double total = 0;
+        double bestDist = Double.MAX_VALUE;
+        double bestAlong = 0;
+
+        for (int i = 1; i < route.size(); i++) {
+            double ax = route.get(i - 1).lon() * mx;
+            double ay = route.get(i - 1).lat() * my;
+            double bx = route.get(i).lon() * mx;
+            double by = route.get(i).lat() * my;
+
+            double dx = bx - ax;
+            double dy = by - ay;
+            double len2 = dx * dx + dy * dy;
+            double seg = Math.sqrt(len2);
+
+            double t = len2 == 0 ? 0 : ((px - ax) * dx + (py - ay) * dy) / len2;
+            t = Math.max(0, Math.min(1, t));
+
+            double cx = ax + t * dx;
+            double cy = ay + t * dy;
+            double dist = Math.hypot(px - cx, py - cy);
+
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestAlong = total + t * seg;
+            }
+            total += seg;
+        }
+
+        if (total <= 0) {
+            return 0.0;
+        }
+        return Math.max(0.0, Math.min(1.0, bestAlong / total));
+    }
+
     private void validateRoute(List<MapPointDTO> route) {
         if (route == null || route.size() < 2 || route.size() > 10000) {
             throw ApiException.badRequest(

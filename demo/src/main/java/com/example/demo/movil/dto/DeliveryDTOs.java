@@ -28,7 +28,10 @@ public final class DeliveryDTOs {
                         Double longitude,
                         LocalDateTime locationUpdatedAt,
                         LocalDateTime startedAt,
-                        List<MapPointDTO> route) {
+                        List<MapPointDTO> route,
+                        // Avance del recorrido de 0.0 a 1.0 (null si aún no inició).
+                        // Lo calcula el back para que web y móvil avisen igual.
+                        Double progress) {
         }
 
         // Repartidor: nunca recibe el PIN.

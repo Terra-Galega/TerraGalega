@@ -110,7 +110,8 @@ public class DeliveryFlowService {
                 t.getLongitude(),
                 t.getLocationUpdatedAt(),
                 t.getStartedAt(),
-                tracking.routeOf(t));
+                tracking.routeOf(t),
+                onTheWay ? tracking.progressOf(t) : null);
     }
 
     private DeliveryJobDTO toJobDTO(Order order, DeliveryTracking t) {
