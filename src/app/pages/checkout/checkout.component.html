@@ -15,27 +15,28 @@
     <!-- Formulario reactivo; al enviarlo (Enter o botón Continuar) se ejecuta goToReview().
         Los hijos reciben el mismo `form` y escriben directamente en él. -->
     <form [formGroup]="form" (ngSubmit)="goToReview()" class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
-      <!-- Izquierda: dirección, cupón y método de pago -->
+      <!-- Izquierda: dirección, cupón y método de pago.
+           "block" en los componentes: así el tutorial mide bien su recuadro -->
       <div class="md:col-span-3 flex flex-col gap-10">
         <!-- Dirección: direcciones guardadas, errores de los campos y estado de carga -->
-        <app-delivery-address [form]="form" [error]="errors.address" [nameError]="errors.addressName"
-          [addresses]="addresses" [loading]="!addressesLoaded"></app-delivery-address>
+        <app-delivery-address id="checkout-address" class="block" [form]="form" [error]="errors.address"
+          [nameError]="errors.addressName" [addresses]="addresses" [loading]="!addressesLoaded"></app-delivery-address>
 
         <!-- Cupón de descuento: avisa con (couponChange) cuando se aplica o se quita -->
         @if (clientId !== null) {
-        <app-checkout-coupon [clientId]="clientId" [subtotal]="total" [initialCode]="initialCouponCode"
-          (couponChange)="onCouponChange($event)"></app-checkout-coupon>
+        <app-checkout-coupon id="checkout-coupon" class="block" [clientId]="clientId" [subtotal]="total"
+          [initialCode]="initialCouponCode" (couponChange)="onCouponChange($event)"></app-checkout-coupon>
         }
 
         <!-- Método de pago: efectivo o tarjeta (la tarjeta se escribe en Stripe) -->
-        <app-payment-form [form]="form" [errors]="errors"></app-payment-form>
+        <app-payment-form id="checkout-payment" class="block" [form]="form" [errors]="errors"></app-payment-form>
       </div>
 
       <!-- Derecha: resumen y botón (queda fijo al hacer scroll en escritorio) -->
       <aside class="md:col-span-2 md:sticky md:top-28">
         <!-- El resumen proyecta aquí dentro (ng-content) los botones propios de esta página -->
-        <app-order-summary [items]="items" [total]="total" [unitPrice]="unitPrice" [discount]="discount"
-          [couponCode]="coupon?.code ?? ''">
+        <app-order-summary id="checkout-summary" class="block" [items]="items" [total]="total" [unitPrice]="unitPrice"
+          [discount]="discount" [couponCode]="coupon?.code ?? ''">
           <div class="mt-6 flex flex-col items-center gap-4">
             <app-button id="btn-continue" type="submit" size="lg" [fullWidth]="true">
               Continuar

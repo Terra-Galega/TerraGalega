@@ -87,3 +87,80 @@ body {
   border-color: #b2571f;
   box-shadow: 0 0 0 3px rgba(178, 87, 31, 0.1);
 }
+
+// TUTORIALES (driver.js): estilo del globo de ayuda, clase "terra-tour"
+@keyframes terra-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.driver-popover.terra-tour {
+  background: #f5f2eb;
+  color: #2c2c2c;
+  border-radius: 20px;
+  padding: 20px 22px;
+  max-width: 340px;
+  font-family: "Source Sans 3", sans-serif;
+  box-shadow: 0 12px 40px rgba(44, 44, 44, 0.25);
+  animation: terra-pop 0.35s ease;
+
+  .driver-popover-title {
+    font-family: "Playfair Display", serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c2c2c;
+  }
+
+  .driver-popover-description {
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(44, 44, 44, 0.75);
+  }
+
+  .driver-popover-progress-text {
+    font-size: 12px;
+    color: rgba(44, 44, 44, 0.5);
+  }
+
+  .driver-popover-footer button {
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    text-shadow: none;
+    background: #fff;
+    color: #2c2c2c;
+    border: 1px solid rgba(44, 44, 44, 0.15);
+  }
+
+  .driver-popover-next-btn,
+  .driver-popover-done-btn {
+    background: #b2571f;
+    border-color: #b2571f;
+    color: #fff;
+  }
+}
+
+// La flecha del globo toma el mismo color de fondo
+.driver-popover.terra-tour .driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: #f5f2eb; }
+.driver-popover.terra-tour .driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: #f5f2eb; }
+.driver-popover.terra-tour .driver-popover-arrow-side-top.driver-popover-arrow { border-top-color: #f5f2eb; }
+.driver-popover.terra-tour .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: #f5f2eb; }
+
+// TUTORIALES (driver.js): desenfoque muy leve de la zona oscura.
+// La capa .terra-blur la crea TutorialService y la recorta para dejar nítido el
+// elemento resaltado. Para más o menos desenfoque, cambia el valor de blur().
+@keyframes terra-blur-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.terra-blur {
+  position: fixed;
+  inset: 0;
+  z-index: 9999; // justo debajo de la zona oscura de driver.js (10000)
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: terra-blur-in 0.35s ease;
+}

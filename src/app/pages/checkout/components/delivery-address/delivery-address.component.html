@@ -15,12 +15,14 @@
     <!-- Direcciones guardadas: solo el nombre; la elegida muestra además la dirección -->
     @if (addresses.length > 0) {
       <div
+        id="address-options"
         class="flex flex-col gap-2.5 mb-3"
         role="radiogroup"
         aria-label="Direcciones guardadas"
       >
         @for (address of addresses; track address.id) {
           <label
+            [id]="'address-option-' + address.id"
             class="relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3.5 min-h-[60px] cursor-pointer transition-colors focus-within:shadow-[0_0_0_3px_rgba(178,87,31,0.25)]"
             [style.background-color]="
               isSelected(address)
@@ -112,6 +114,7 @@
 
         <!-- Escribir una dirección distinta -->
         <label
+          id="address-option-new"
           class="relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3.5 min-h-[60px] cursor-pointer transition-colors focus-within:shadow-[0_0_0_3px_rgba(178,87,31,0.25)]"
           [style.background-color]="
             newMode ? 'rgba(178, 87, 31, 0.06)' : 'rgba(255, 255, 255, 0.85)'
@@ -172,8 +175,10 @@
         style="background: rgba(44, 44, 44, 0.06)"
         role="group"
         aria-label="Cómo ingresar la dirección"
+        id="address-entry-mode"
       >
         <button
+          id="address-mode-text"
           type="button"
           class="flex-1 rounded-full px-3 py-2 text-sm font-medium cursor-pointer"
           [style.background]="entryMode === 'text' ? '#fff' : 'transparent'"
@@ -185,6 +190,7 @@
         </button>
 
         <button
+          id="address-mode-map"
           type="button"
           class="flex-1 rounded-full px-3 py-2 text-sm font-medium cursor-pointer"
           [style.background]="entryMode === 'map' ? '#fff' : 'transparent'"
@@ -211,6 +217,7 @@
 
             <input
               #newAddressInput
+              id="address-input"
               type="text"
               formControlName="address"
               maxlength="120"
@@ -222,6 +229,8 @@
         </div>
       } @else {
         <app-address-map-picker
+          id="address-map"
+          class="block"
           [address]="current"
           (picked)="onMapPicked($event)"
         ></app-address-map-picker>
@@ -248,6 +257,7 @@
     <!-- Guardar la dirección nueva en el perfil -->
     @if (showSaveOption) {
       <label
+        id="address-save-option"
         class="mt-3 flex items-center gap-2 text-sm cursor-pointer w-fit min-h-[44px] rounded-md focus-within:shadow-[0_0_0_3px_rgba(178,87,31,0.25)]"
         style="color: rgba(44, 44, 44, 0.75)"
       >
@@ -292,6 +302,7 @@
               >Nombre de la dirección</span
             >
             <input
+              id="address-name"
               type="text"
               formControlName="addressName"
               maxlength="40"

@@ -1,6 +1,7 @@
 <!-- Tarjeta completa: toda el área es clicable y lleva al detalle del producto.
      Al pasar el mouse se levanta y se agranda la imagen. -->
 <div
+  [id]="'menu-card-' + product.id"
   class="glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
   (click)="openProductDetail()"
 >

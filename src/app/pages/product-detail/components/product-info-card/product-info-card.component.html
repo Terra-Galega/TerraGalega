@@ -82,7 +82,7 @@
     <!-- Adicionales opcionales (solo si la categoría tiene adicionales activos).
          Cada fila avisa con (changed) cuando se suma o resta una unidad. -->
     @if (addons.length > 0) {
-      <div class="mb-8">
+      <div id="product-addons" class="mb-8">
         <p
           class="text-[11px] font-medium tracking-widest uppercase mb-4"
           style="color: rgba(44, 44, 44, 0.35)"
@@ -103,7 +103,7 @@
 
     <!-- Cantidad de platos (enlace doble con "quantity") y total a pagar -->
     <div class="flex items-center justify-between gap-6 mb-6">
-      <app-quantity-selector [(value)]="quantity" />
+      <app-quantity-selector id="product-quantity" [(value)]="quantity" />
       <div>
         <p
           class="text-[11px] uppercase tracking-widest mb-1"
@@ -111,7 +111,7 @@
         >
           Total
         </p>
-        <span class="font-serif text-3xl font-bold" style="color: #b2571f"
+        <span id="product-total" class="font-serif text-3xl font-bold" style="color: #b2571f"
           >${{ totalPrice | number: "1.0-0" }}</span
         >
       </div>

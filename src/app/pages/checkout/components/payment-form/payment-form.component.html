@@ -41,14 +41,14 @@
 
   <!-- Contra entrega: solo un aviso, no se pide nada más -->
   @if (method === 'cash') {
-  <p class="text-sm mt-4" style="color: rgba(44, 44, 44, 0.7)">
+  <p id="payment-cash-info" class="text-sm mt-4" style="color: rgba(44, 44, 44, 0.7)">
     Pagarás el total en efectivo cuando el domiciliario llegue con tu pedido.
   </p>
   }
 
   <!-- Tarjeta: los datos se escriben en la página de Stripe, no aquí -->
   @if (method === 'card') {
-  <div class="mt-4 rounded-2xl px-4 py-3 flex items-start gap-3"
+  <div id="payment-card-info" class="mt-4 rounded-2xl px-4 py-3 flex items-start gap-3"
     style="background-color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(44, 44, 44, 0.12)">
     <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#556141" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
