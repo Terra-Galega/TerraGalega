@@ -1,0 +1,55 @@
+<!-- El botón usa role="switch" y aria-checked para que los lectores de pantalla anuncien
+     "activado / desactivado". -->
+@if (compact) {
+<!-- Versión compacta: solo el interruptor. aria-label lo nombra para lectores de pantalla y
+     data-tooltip es el texto del tooltip propio de la app (TooltipService). -->
+<button type="button" role="switch" class="switch switch--compact" [class.switch--on]="theme.isDark"
+  [attr.aria-checked]="theme.isDark" aria-label="Tema oscuro"
+  [attr.data-tooltip]="theme.isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'" (click)="theme.toggle()">
+    <span class="switch__thumb" aria-hidden="true">
+      @if (theme.isDark) {
+      <!-- Luna -->
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+      </svg>
+      } @else {
+      <!-- Sol -->
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round">
+        <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </svg>
+      }
+    </span>
+</button>
+} @else {
+<!-- Versión completa: texto a la izquierda y el interruptor a la derecha. -->
+<div class="flex items-center justify-between gap-5">
+  <div class="min-w-0">
+    <p id="theme-switch-label" class="font-medium text-charcoal">Tema oscuro</p>
+    <p id="theme-switch-hint" class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.55)">
+      Fondos oscuros y menos brillo, más cómodo de noche.
+    </p>
+  </div>
+
+  <button type="button" role="switch" class="switch" [class.switch--on]="theme.isDark"
+    [attr.aria-checked]="theme.isDark" aria-labelledby="theme-switch-label" aria-describedby="theme-switch-hint"
+    (click)="theme.toggle()">
+    <span class="switch__thumb" aria-hidden="true">
+      @if (theme.isDark) {
+      <!-- Luna -->
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+      </svg>
+      } @else {
+      <!-- Sol -->
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round">
+        <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </svg>
+      }
+    </span>
+  </button>
+</div>
+}

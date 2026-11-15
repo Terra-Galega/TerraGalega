@@ -18,8 +18,8 @@
                 </div>
 
                 <span class="text-(length:--dfs-11) font-medium px-3 py-1 rounded-full flex-shrink-0"
-                    [style.background-color]="statusStyle[order.status].bg"
-                    [style.color]="statusStyle[order.status].color">
+                    [style.background-color]="statusStyle(order.status).bg"
+                    [style.color]="statusStyle(order.status).color">
                     {{ statusLabel(order.status) }}
                 </span>
 

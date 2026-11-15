@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ThemeService } from '../../../../services/theme.service';
 import {
   EMPTY,
   Subject,
@@ -15,7 +16,7 @@ import { OrderService } from '../../../../services/order.service';
 import { ProductService } from '../../../../services/product.service';
 import { ToastService } from '../../../../services/toast.service';
 import {
-  CHART_COLORS,
+  chartColors,
   DashOrder,
   DashboardModel,
   DelayedOrder,
@@ -110,6 +111,7 @@ export class AdminDashboardComponent {
   private productService = inject(ProductService);
   private toast = inject(ToastService);
   private reports = inject(ReportService);
+  private themeService = inject(ThemeService);
 
   // Permite forzar una recarga inmediata (botón de actualizar)
   private reload$ = new Subject<void>();
@@ -207,6 +209,13 @@ export class AdminDashboardComponent {
   readonly plainNumber = (n: number) => String(Math.round(n));
 
   constructor() {
+    // Al cambiar entre tema claro y oscuro (el interruptor de la barra superior) se vuelven a
+    // calcular los datos de las gráficas para que tomen la paleta del tema nuevo.
+    effect(() => {
+      this.themeService.theme();
+      untracked(() => this.recompute());
+    });
+
     // Carga los datos al abrir, los actualiza cada REFRESH_MS y también al volver
     // a esta pestaña del navegador. Además se recarga cuando otro componente avisa
     // de cambios en pedidos o productos (por ejemplo, un cambio de precio).
@@ -447,6 +456,8 @@ export class AdminDashboardComponent {
     if (!model) return;
 
     const now = this.now;
+    // Colores de las gráficas en pantalla (más claros en tema oscuro)
+    const palette = chartColors();
     this.pair = rangePair(this.rangeKey, now);
     const pair = this.pair;
     this.comparePair = rangePair(PERIOD_TO_RANGE[this.comparePeriod], now);
@@ -473,12 +484,12 @@ export class AdminDashboardComponent {
       {
         name: 'Ventas',
         values: sales.map((p) => p.revenue),
-        color: CHART_COLORS[0],
+        color: palette[0],
       },
       {
         name: 'Ganancia',
         values: sales.map((p) => p.profit),
-        color: CHART_COLORS[1],
+        color: palette[1],
       },
     ];
 
@@ -486,11 +497,11 @@ export class AdminDashboardComponent {
     const compare = compareSeries(model, cmp);
     this.compareLabels = compare.labels;
     this.compareData = [
-      { name: cmp.label, values: compare.current, color: CHART_COLORS[0] },
+      { name: cmp.label, values: compare.current, color: palette[0] },
       {
         name: cmp.previousLabel,
         values: compare.previous,
-        color: CHART_COLORS[5],
+        color: palette[5],
         labels: compare.previousLabels,
         dashed: true,
       },
@@ -513,7 +524,7 @@ export class AdminDashboardComponent {
       (c, i) => ({
         label: c.name,
         value: c[this.categoryMetric],
-        color: CHART_COLORS[i % CHART_COLORS.length],
+        color: palette[i % palette.length],
       }),
     );
 

@@ -33,9 +33,14 @@ export class AdminSidebarComponent {
   // Nombre del administrador que se muestra en la barra lateral.
   @Input() adminName = 'Administrador';
 
+  // En móvil y tablet la barra es un panel deslizante: open lo muestra y closed pide cerrarlo.
+  @Input() open = false;
+  @Output() closed = new EventEmitter<void>();
+
   // Emite la sección seleccionada para que el componente padre actualice la vista.
   changeTab(tab: AdminTab) {
     this.tabChanged.emit(tab);
+    this.closed.emit();
   }
 
   // Emite el evento para que el componente padre gestione el cierre de sesión.

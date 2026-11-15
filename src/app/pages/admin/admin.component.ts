@@ -147,6 +147,9 @@ export class AdminComponent {
   }
 
   // Cambia la pestaña activa y limpia el filtro de búsqueda.
+  // Barra lateral abierta (solo se usa en móvil y tablet, donde es un panel deslizante)
+  sidebarOpen = false;
+
   changeTab(tab: AdminTab) {
     this.activeTab = tab;
     this.searchTerm = '';
@@ -161,6 +164,8 @@ export class AdminComponent {
     this.changeTab('dashboard');
     this.tutorial.start('admin', () => {
       if (this.productModalOpen && !this.selectedProduct) this.closeProductModal();
+      // En móvil y tablet el tutorial abre la barra lateral: al terminar se vuelve a cerrar
+      this.sidebarOpen = false;
     });
   }
 

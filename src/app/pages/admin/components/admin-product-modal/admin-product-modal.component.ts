@@ -7,6 +7,7 @@ import {
   SimpleChanges,
   inject,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 
 import { Product, CreateProduct } from '../../../../models/product';
 import { ProductService } from '../../../../services/product.service';
@@ -32,7 +33,7 @@ type CheckKey = 'popular' | FeatureKey;
  */
 @Component({
   selector: 'app-admin-product-modal',
-  imports: [
+  imports: [DialogDirective, 
     ButtonComponent,
     IconButtonComponent,
     FormFieldComponent,

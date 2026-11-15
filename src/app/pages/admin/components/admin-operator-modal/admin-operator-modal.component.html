@@ -1,7 +1,7 @@
 <!-- Fondo oscuro que cubre la pantalla y centra el modal. -->
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(44, 44, 44, 0.55)">
+<div class="fixed inset-0 z-50 sheet-overlay flex items-center justify-center p-4" style="background-color: rgba(44, 44, 44, 0.55)">
   <!-- Tarjeta del modal; tiene scroll interno si el contenido es muy alto. -->
-  <div class="bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative">
+  <div appDialog class="sheet-window bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative">
     <!-- Encabezado: el título cambia según se edite o se cree, y botón para cerrar. -->
     <div class="flex items-center justify-between mb-7">
       <h2 class="font-serif text-2xl font-semibold text-charcoal">

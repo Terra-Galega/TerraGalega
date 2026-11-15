@@ -1,4 +1,6 @@
 <div class="text-center mb-10 flex flex-col items-center">
+  <!-- Título principal para lectores de pantalla; cambia con la pestaña elegida -->
+  <h1 class="sr-only">{{ activeTab === "login" ? "Iniciar sesión" : "Crear cuenta" }}</h1>
   <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">
     {{ activeTab === "login" ? "Bienvenido de vuelta" : "Únete a nosotros" }}
   </p>

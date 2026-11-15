@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import { DialogDirective } from '../../../../../../directives/dialog.directive';
 import { ButtonComponent } from '../../../../../../components/button/button.component';
 import { CheckOptionComponent } from '../../../../../../components/check-option/check-option.component';
 import { IconButtonComponent } from '../../../../../../components/icon-button/icon-button.component';
@@ -71,7 +72,7 @@ function fromInput(value: string): Date | null {
 // fechas), en qué formato y si el archivo lleva las gráficas.
 @Component({
   selector: 'app-dashboard-export-modal',
-  imports: [
+  imports: [DialogDirective, 
     ButtonComponent,
     CheckOptionComponent,
     IconButtonComponent,

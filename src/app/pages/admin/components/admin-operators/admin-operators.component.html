@@ -8,8 +8,9 @@
   } @else {
   <!-- Iteración dinámica sobre la lista de operadores -->
   @for (operator of filteredOperators; track operator.id) {
-  <!-- Fila de un operador. -->
-  <div class="flex items-center gap-5 px-6 py-4 rounded-2xl" style="
+  <!-- Fila de un operador. En móvil se reparte en dos líneas: arriba avatar y datos; abajo rol,
+       estado y acciones. Desde tablet va todo en una sola línea. -->
+  <div class="flex flex-wrap md:flex-nowrap items-center gap-x-4 md:gap-x-5 gap-y-3 px-4 md:px-6 py-4 rounded-2xl" style="
           background-color: rgba(255, 255, 255, 0.72);
           backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.55);
@@ -22,29 +23,30 @@
     </div>
 
     <!-- Nombre completo, usuario y correo del operador. -->
-    <div class="flex-1 min-w-0">
-      <p class="font-medium text-charcoal text-sm">
+    <!-- En móvil ocupa el resto de la primera línea, así lo demás baja a la segunda -->
+        <div class="flex-1 min-w-0 basis-[calc(100%-3.5rem)] md:basis-0">
+      <p class="font-medium text-charcoal text-sm break-words">
         {{ operator.name }} {{ operator.lastName }}
         <span style="color: rgba(44, 44, 44, 0.45)">- {{ operator.username }} - {{ operator.email }}</span>
       </p>
     </div>
 
     <!-- Etiqueta de rol y botón de estado. -->
-    <div class="flex items-center gap-6 flex-shrink-0">
+    <div class="flex items-center gap-3 md:gap-6 flex-shrink-0 pl-14 md:pl-0">
       <span class="text-[11px] font-medium px-3 py-1 rounded-full"
         style="background-color: rgba(44, 44, 44, 0.07); color: rgba(44, 44, 44, 0.55);">Operador</span>
 
       <!-- Toggle activo / inactivo  -->
       <button type="button"
-        class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap mr-6"
+        class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap md:mr-6"
         [style.background-color]="operator.active ? 'rgba(85,97,65,0.1)' : 'rgba(44,44,44,0.06)'"
         [style.color]="operator.active ? '#556141' : 'rgba(44,44,44,0.4)'" (click)="toggleOperator(operator)">
         {{ operator.active ? 'Activo' : 'Inactivo' }}
       </button>
     </div>
 
-    <!-- Acciones de la fila: cambiar contraseña, editar y eliminar. -->
-    <div class="flex items-center gap-2">
+    <!-- Acciones de la fila: cambiar contraseña, editar y eliminar (en móvil, al extremo derecho). -->
+    <div class="flex items-center gap-2 ml-auto">
 
       <!-- Abre el modal para cambiar la contraseña de este operador. -->
       <app-icon-button variant="ghost" label="Cambiar contraseña" (click)="passwordOperator = operator">

@@ -153,7 +153,11 @@ export class GoogleButtonComponent implements AfterViewInit, OnDestroy {
     element.replaceChildren();
     id.renderButton(element, {
       type: 'standard',
-      theme: 'outline',
+      // Botón oscuro de Google cuando la app está en tema oscuro
+      theme:
+        document.documentElement.getAttribute('data-theme') === 'dark'
+          ? 'filled_black'
+          : 'outline',
       size: 'large',
       shape: 'pill',
       text: this.mode === 'signup' ? 'signup_with' : 'continue_with',

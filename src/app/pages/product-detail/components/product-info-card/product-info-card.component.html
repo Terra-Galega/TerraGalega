@@ -1,14 +1,15 @@
 <!-- Tarjeta de vidrio: en pantallas medianas o más grandes la imagen va a la
      izquierda y la información a la derecha; en celular, una encima de otra -->
 <div
-  class="glass-card w-full rounded-3xl overflow-hidden p-6 md:p-10 flex flex-col md:flex-row gap-10 md:gap-14 mb-16"
+  class="glass-card w-full rounded-3xl overflow-hidden p-5 md:p-10 flex flex-col md:flex-row gap-7 md:gap-14 mb-16"
 >
-  <!-- Imagen del producto -->
+  <!-- Imagen del producto: en móvil guarda proporción 4:3 (no ocupa toda la pantalla);
+       desde tablet se estira al alto de la tarjeta -->
   <div class="w-full md:w-[45%] flex-shrink-0 md:min-h-[460px]">
     <img
       [src]="product.imageUrl"
       [alt]="product.name"
-      class="w-full h-[460px] md:h-full object-cover rounded-2xl"
+      class="w-full aspect-[4/3] md:aspect-auto md:h-full object-cover rounded-2xl"
     />
   </div>
 
@@ -37,7 +38,7 @@
 
     <!-- Nombre del plato y línea decorativa -->
     <h1
-      class="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-5"
+      class="font-serif fluid-title font-semibold text-charcoal mb-5"
     >
       {{ product.name }}
     </h1>

@@ -1,10 +1,6 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import {
-  Order,
-  OrderDetail,
-  groupAddOns,
-} from '../../../../models/order';
+import { Order, OrderDetail, groupAddOns } from '../../../../models/order';
 
 import { OrderService } from '../../../../services/order.service';
 import { AuthService } from '../../../../services/auth.service';
@@ -12,6 +8,7 @@ import { ToastService } from '../../../../services/toast.service';
 import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
+import { ClientDeliveryWatcherService } from '../../../../services/client-delivery-watcher.service';
 import { getErrorMessage } from '../../../../utils/http-error';
 
 // Lista de tarjetas de pedidos (la reutilizan "activos" y "pasados").
@@ -34,6 +31,7 @@ export class OrderedComponent {
   private orderService = inject(OrderService);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+  private watcher = inject(ClientDeliveryWatcherService);
 
   // Avisa a la página que un pedido cambió para que recargue la lista
   @Output() orderCancelled = new EventEmitter<void>();
@@ -43,6 +41,12 @@ export class OrderedComponent {
   showErrorModal = false;
   selectedOrderId: number | null = null;
   errorMessage = '';
+
+  // Al ir a seguir el pedido se pide permiso para las notificaciones del navegador
+  // (los navegadores solo lo permiten tras un clic del usuario)
+  enableNotifications() {
+    void this.watcher.enableNotifications();
+  }
 
   // Paso 1 de cancelar: guarda el pedido y abre la confirmación
   askCancel(order: Order) {

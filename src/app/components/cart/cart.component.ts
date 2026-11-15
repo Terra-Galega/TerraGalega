@@ -6,6 +6,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
+import { DialogDirective } from '../../directives/dialog.directive';
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -24,7 +25,7 @@ import { ButtonComponent } from '../button/button.component';
 // CartService; aquí solo se presentan.
 @Component({
   selector: 'app-cart',
-  imports: [DecimalPipe,ButtonComponent],
+  imports: [DialogDirective, DecimalPipe,ButtonComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
 })

@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { SearchInputComponent } from '../../../../components/search-input/search-input.component';
+import { ThemeSwitchComponent } from '../../../../components/theme-switch/theme-switch.component';
 
 @Component({
   selector: 'app-admin-topbar',
-  imports: [ButtonComponent, SearchInputComponent],
+  imports: [ButtonComponent, SearchInputComponent, ThemeSwitchComponent],
   templateUrl: './admin-topbar.component.html',
   styleUrl: './admin-topbar.component.scss',
 })
@@ -18,4 +19,6 @@ export class AdminTopbarComponent {
   // Eventos que notifican al componente padre los cambios en la búsqueda y los clics en el botón de añadir.
   @Output() searchChanged = new EventEmitter<string>();
   @Output() addClicked = new EventEmitter<void>();
+  // Clic en el botón de menú (móvil y tablet): el padre abre la barra lateral.
+  @Output() menuClicked = new EventEmitter<void>();
 }

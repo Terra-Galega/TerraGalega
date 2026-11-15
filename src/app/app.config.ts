@@ -1,5 +1,6 @@
 import { ApplicationConfig, inject, provideZoneChangeDetection } from '@angular/core';
-import { Router, provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
+import { Router, TitleStrategy, provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
+import { PageTitleStrategy } from './services/page-title.strategy';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
@@ -46,9 +47,15 @@ export const appConfig: ApplicationConfig = {
               queryParams: 'ignored',
             });
           if (samePage) transition.skipTransition();
+          // Seguro: si el navegador no llega a pintar el fundido (pestaña en segundo plano),
+          // se salta para que el cambio de página nunca se quede esperando.
+          const guard = setTimeout(() => transition.skipTransition(), 1500);
+          transition.finished.finally(() => clearTimeout(guard)).catch(() => {});
         },
       }),
     ),
+    // Título de cada página ("Menú · Terra Galega") y aviso al lector de pantalla al navegar
+    { provide: TitleStrategy, useClass: PageTitleStrategy },
     // Activa HttpClient para consumir la API con dos interceptores, que se ejecutan en orden:
     // authInterceptor agrega el JWT a cada petición; errorInterceptor maneja los 401/403.
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),

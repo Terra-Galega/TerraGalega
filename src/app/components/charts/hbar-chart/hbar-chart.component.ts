@@ -8,9 +8,12 @@ import {
 } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import {
-  INK,
+  accentTextColor,
   chartFont,
+  inkColor,
+  isDarkTheme,
   tooltipStyle,
+  trackColor,
   truncate,
 } from '../../../utils/chart-theme';
 import { fmtMoney } from '../../../utils/dashboard-metrics';
@@ -53,7 +56,7 @@ export class HbarChartComponent implements OnChanges {
         ctx.save();
         const font = chartFont(12, 'bold');
         ctx.font = `${font.weight} ${font.size}px ${font.family}`;
-        ctx.fillStyle = '#b2571f';
+        ctx.fillStyle = accentTextColor();
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         chart.getDatasetMeta(0).data.forEach((bar, i) => {
@@ -95,7 +98,7 @@ export class HbarChartComponent implements OnChanges {
           barThickness: 10,
           borderRadius: 6,
           borderSkipped: false,
-          backgroundColor: 'rgba(44, 44, 44, 0.07)',
+          backgroundColor: trackColor,
         },
       ] as unknown as ChartDataset[],
     };
@@ -124,7 +127,7 @@ export class HbarChartComponent implements OnChanges {
           border: { display: false },
           grid: { display: false },
           ticks: {
-            color: INK,
+            color: inkColor,
             font: () => chartFont(12),
             padding: 8,
             callback: (_value, index) =>
@@ -158,8 +161,12 @@ export class HbarChartComponent implements OnChanges {
 
   // Degradado de cada barra: la primera en terracota→dorado, las demás en verde
   private fill(c: ScriptableContext<'bar'>): CanvasGradient | string {
+    // En tema oscuro, los mismos degradados en tonos más claros
+    const dark = isDarkTheme();
     const [from, to] =
-      c.dataIndex === 0 ? ['#b2571f', '#d99a21'] : ['#556141', '#8a9a6b'];
+      c.dataIndex === 0
+        ? dark ? ['#ee9c68', '#f2c260'] : ['#b2571f', '#d99a21']
+        : dark ? ['#adc48f', '#c8cdb8'] : ['#556141', '#8a9a6b'];
     // Chart.js entrega la barra en el contexto, aunque sus tipos no lo declaran
     const bar = (c as unknown as { element?: { x: number; base: number } })
       .element;

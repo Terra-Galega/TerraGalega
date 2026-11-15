@@ -6,6 +6,7 @@ import {
   SimpleChanges,
   inject,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 import { AddOn, CreateAddOn } from '../../../../models/addOn';
 import { Category } from '../../../../models/category';
 import { AddOnService } from '../../../../services/addOn.service';
@@ -25,7 +26,7 @@ import { getErrorMessage } from '../../../../utils/http-error';
  */
 @Component({
   selector: 'app-admin-addon-modal',
-  imports: [
+  imports: [DialogDirective, 
     ButtonComponent,
     IconButtonComponent,
     FormFieldComponent,

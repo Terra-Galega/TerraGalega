@@ -6,6 +6,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 import {
   CreateDeliveryPerson,
   DeliveryPerson,
@@ -24,7 +25,7 @@ import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../../../utils/email';
 // es edición; si es null, es creación.
 @Component({
   selector: 'app-admin-delivery-person-modal',
-  imports: [
+  imports: [DialogDirective, 
     ButtonComponent,
     IconButtonComponent,
     FormFieldComponent,

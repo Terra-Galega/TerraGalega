@@ -2,10 +2,11 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { ChartConfiguration, ChartDataset, ChartType, Plugin } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import {
-  GRID_COLOR,
-  TICK_COLOR,
   areaGradient,
   chartFont,
+  gridColor,
+  isDarkTheme,
+  tickColor,
   tooltipStyle,
 } from '../../../utils/chart-theme';
 import { fmtCompact, fmtMoney } from '../../../utils/dashboard-metrics';
@@ -106,7 +107,7 @@ export class SeriesChartComponent implements OnChanges {
       cubicInterpolationMode: 'monotone',
       pointRadius: 0,
       pointHoverRadius: 5,
-      pointHoverBackgroundColor: '#ffffff',
+      pointHoverBackgroundColor: isDarkTheme() ? '#262320' : '#ffffff',
       pointHoverBorderColor: s.color,
       pointHoverBorderWidth: 2.5,
       pointHitRadius: 20,
@@ -129,7 +130,7 @@ export class SeriesChartComponent implements OnChanges {
           grid: { display: false },
           border: { display: false },
           ticks: {
-            color: TICK_COLOR,
+            color: tickColor,
             font: () => chartFont(10),
             autoSkip: true,
             maxTicksLimit: 8,
@@ -139,9 +140,9 @@ export class SeriesChartComponent implements OnChanges {
         y: {
           beginAtZero: true,
           border: { display: false },
-          grid: { color: GRID_COLOR },
+          grid: { color: gridColor },
           ticks: {
-            color: TICK_COLOR,
+            color: tickColor,
             font: () => chartFont(10),
             maxTicksLimit: 5,
             padding: 8,

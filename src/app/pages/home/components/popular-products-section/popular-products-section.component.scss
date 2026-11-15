@@ -1,7 +1,7 @@
 // Hace que el host se comporte como bloque para que la sección ocupe todo el ancho.
 :host {
   display: block;
-  --gap: 2rem;
+  --gap: 1.5rem;
 }
 
 .rows {
@@ -28,7 +28,8 @@
       transparent 100%);
   container-type: inline-size;
   overflow: hidden;
-  padding: .75rem 0;
+  // Margen para que el levantamiento y la sombra de la tarjeta no queden recortados
+  padding: 1rem 0 1.5rem;
   mask-image: var(--fade);
   -webkit-mask-image: var(--fade);
 }
@@ -52,13 +53,20 @@
   animation-play-state: paused;
 }
 
-// Tres platos visibles por fila
+// Platos visibles por fila según el ancho de la fila: 3 en tablet y 4 en pantallas anchas
+// (con 4 las tarjetas conservan un tamaño cómodo y las dos filas no alargan tanto la página).
 .item {
   flex: 0 0 calc((100cqw - 2 * var(--gap)) / 3);
   display: flex;
 }
 
-.item > * {
+@container (min-width: 1000px) {
+  .item {
+    flex-basis: calc((100cqw - 3 * var(--gap)) / 4);
+  }
+}
+
+.item>* {
   flex: 1;
 }
 
@@ -82,10 +90,10 @@
   }
 }
 
-// En móvil tres tarjetas no caben legibles: se ve una y media.
+// En móvil las tarjetas no caben legibles: se ve una y media.
 @media (max-width: 640px) {
   .item {
-    flex-basis: 66cqw;
+    flex-basis: 72cqw;
   }
 }
 

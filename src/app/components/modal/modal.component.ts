@@ -5,13 +5,14 @@ import {
   Input,
   Output,
 } from '@angular/core';
+import { DialogDirective } from '../../directives/dialog.directive';
 import { ButtonComponent, ButtonVariant } from '../button/button.component';
 
 // Diálogo reutilizable de confirmación o aviso; el padre controla su visibilidad y reacciona a sus eventos.
 @Component({
   selector: 'app-modal',
   // Importa el botón compartido que se usa para las acciones de confirmar y cancelar.
-  imports: [ButtonComponent],
+  imports: [DialogDirective, ButtonComponent],
   templateUrl: './modal.component.html',
 })
 export class ModalComponent {

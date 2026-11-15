@@ -6,6 +6,7 @@ import {
     SimpleChanges,
     inject,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 import { Client } from '../../../../models/client';
 import { Coupon, CouponPayload, DiscountType } from '../../../../models/coupon';
 import { ClientService } from '../../../../services/client.service';
@@ -32,7 +33,7 @@ const MAX_USES = 1_000_000;
 
 @Component({
     selector: 'app-admin-coupon-modal',
-    imports: [
+    imports: [DialogDirective, 
         ButtonComponent,
         IconButtonComponent,
         FormFieldComponent,

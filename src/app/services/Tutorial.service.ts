@@ -35,6 +35,9 @@ export interface TourStep {
     description: string;
     nextBtnText?: string;
     beforeNext?: () => void;
+    // Se ejecuta antes de mostrar el paso, para dejar la pantalla lista (p. ej. abrir un
+    // panel que está oculto en móvil). Si devuelve una promesa, se espera a que termine.
+    beforeShow?: () => void | Promise<void>;
     side?: Popover['side'];
     align?: Popover['align'];
     // Resalta un control sin habilitar sus acciones durante el paso.
@@ -338,6 +341,9 @@ export class TutorialService {
                     }
                 }
 
+                await step.beforeShow?.();
+                if (id !== this.runId || !this.active) return;
+
                 const target = step.ready ?? step.element;
 
                 // Paso sin elemento (globo centrado): no hay nada que esperar
@@ -605,6 +611,20 @@ export class TutorialService {
                 const dashboardAvailable = () => document.querySelector(dashboardControls) !== null;
                 const productsTab = '#tab-products';
                 const addProduct = '#btn-add button';
+                // En móvil y tablet la barra lateral es un panel oculto: se abre con el botón
+                // de menú y se espera a que termine de deslizarse antes de resaltarla.
+                // En escritorio el botón no se ve y no se hace nada.
+                const openSidebar = async () => {
+                    // Se deja que la página termine de reaccionar al clic anterior
+                    // (al elegir una pestaña, el panel se cierra solo)
+                    await new Promise((r) => setTimeout(r, WHEN_DELAY_MS));
+                    const menu = document.querySelector<HTMLElement>('#btn-admin-menu');
+                    const sidebar = document.querySelector('#admin-sidebar');
+                    if (!menu || menu.getClientRects().length === 0) return;
+                    if (sidebar?.classList.contains('open')) return;
+                    menu.click();
+                    await new Promise((r) => setTimeout(r, 350));
+                };
 
                 return [
                     {
@@ -681,6 +701,7 @@ export class TutorialService {
                         description: 'Haz clic en «Productos» en la barra lateral para revisar el catálogo.',
                         side: 'right',
                         waitClick: productsTab,
+                        beforeShow: openSidebar,
                     },
                     {
                         element: '#admin-product-filters',
@@ -720,6 +741,7 @@ export class TutorialService {
                     {
                         element: '#admin-sidebar',
                         ready: 'app-admin:not(:has(#admin-product-form)) #admin-sidebar',
+                        beforeShow: openSidebar,
                         title: 'Explora el resto del panel',
                         description:
                             'Desde esta barra puedes volver al Dashboard, gestionar productos, categorías, adicionales, cupones y anuncios, revisar reseñas y órdenes, y administrar usuarios, operadores y domiciliarios.',

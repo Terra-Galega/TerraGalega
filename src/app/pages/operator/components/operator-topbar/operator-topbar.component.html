@@ -3,7 +3,8 @@
     border-bottom: 1px solid rgba(245, 242, 235, 0.08);
     color: #f5f2eb;
   ">
-  <div class="max-w-7xl mx-auto h-20 px-8 flex items-center justify-between">
+  <!-- Móvil: barra más baja y con menos margen; el botón de salir muestra solo el icono -->
+  <div class="max-w-7xl mx-auto h-16 md:h-20 px-4 md:px-8 flex items-center justify-between gap-3">
     <!-- Agrupa la marca y el nombre del portal para mantenerlos alineados en la cabecera. -->
     <div class="flex items-center gap-4">
       <a class="flex flex-col items-start leading-none select-none" aria-label="Terra Galega">
@@ -27,7 +28,7 @@
     </div>
 
     <!-- Reúne la información del operador y la acción para cerrar sesión. -->
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2 md:gap-4">
       <div class="flex items-center gap-3">
         <!-- Genera el avatar a partir de la primera letra del nombre, sin necesitar una imagen de perfil. -->
         <div
@@ -49,14 +50,17 @@
       </div>
 
       <!-- Emite el evento al componente padre para que este ejecute la lógica de cierre de sesión. -->
-      <app-button size="md" variant="glass-dark" (click)="logoutClicked.emit()">
+      <app-button size="md" variant="glass-dark" aria-label="Cerrar sesión" (click)="logoutClicked.emit()">
         <!-- Icono SVG de salida; hereda el color del texto del botón mediante currentColor. -->
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
         </svg>
-        Cerrar sesión
+        <span class="hidden sm:inline">Cerrar sesión</span>
       </app-button>
+
+      <!-- Interruptor de tema claro / oscuro, en la esquina derecha -->
+      <app-theme-switch [compact]="true" class="flex-shrink-0" />
     </div>
   </div>
 </header>

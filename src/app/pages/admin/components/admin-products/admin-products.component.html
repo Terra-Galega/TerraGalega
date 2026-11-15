@@ -1,8 +1,9 @@
 <!-- Fila de filtros: categorías (ocupan el espacio sobrante), estado y,
     a la derecha, el panel de características -->
-<div id="admin-product-filters" class="flex items-center gap-3 mb-4">
+<!-- Móvil: las categorías ocupan su propia línea y los otros dos filtros van debajo -->
+<div id="admin-product-filters" class="flex flex-wrap items-center gap-3 mb-4">
   <app-category-filter
-    class="flex-1 min-w-0"
+    class="basis-full md:basis-0 flex-1 min-w-0"
     [categories]="categoriesList"
     [selected]="currentCategory"
     (selectedChange)="selectCategory($event)"
@@ -27,7 +28,7 @@
 >
   <!-- Permite desplazar la tabla de lado en pantallas pequeñas -->
   <div class="overflow-x-auto">
-    <table id="admin-product-table" class="w-full text-sm" style="border-collapse: collapse">
+    <table id="admin-product-table" class="responsive-table w-full text-sm" style="border-collapse: collapse">
       <!-- Encabezados (salen de la lista "columns" del .ts) -->
       <thead>
         <tr style="background-color: rgba(44, 44, 44, 0.04)">

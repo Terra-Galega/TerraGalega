@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, Input, inject } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 
 // Define las variantes visuales permitidas; cada una se corresponde con una clase .btn--<variante> en el SCSS.
@@ -28,7 +28,9 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
     '[class.inline-block]': '!fullWidth',
   },
 })
-export class ButtonComponent {
+export class ButtonComponent implements AfterViewChecked {
+  private host = inject(ElementRef<HTMLElement>).nativeElement as HTMLElement;
+
   // primary: degradado naranja-rojo, texto blanco
   // outline: borde gris, y al pasar el mouse se llena con el degradado
   // neutral: borde gris, al pasar el mouse solo se oscurece el fondo (Cancelar)
@@ -64,5 +66,18 @@ export class ButtonComponent {
         // Une las clases separadas por espacios, listas para asignarse al atributo class.
         .join(' ')
     );
+  }
+
+  // Accesibilidad: el aria-label se escribe en <app-button aria-label="...">, pero quien recibe el
+  // foco y lo anuncia el lector de pantalla es el <button>/<a> de dentro. Se pasa ahí (y se quita
+  // del contenedor) para que los botones de solo icono —o los que en móvil esconden su texto—
+  // tengan nombre. También permite que salga el tooltip de la app (button[aria-label]).
+  ngAfterViewChecked(): void {
+    const label = this.host.getAttribute('aria-label');
+    if (label === null) return;
+    const control = this.host.querySelector<HTMLElement>(':scope > button, :scope > a');
+    if (!control) return;
+    control.setAttribute('aria-label', label);
+    this.host.removeAttribute('aria-label');
   }
 }

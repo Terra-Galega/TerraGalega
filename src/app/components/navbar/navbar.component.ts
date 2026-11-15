@@ -5,12 +5,19 @@ import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { HeroLogoService } from '../../services/hero-logo.service';
+
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
+import {
+  AppNotification,
+  NotificationCenterService,
+} from '../../services/notification-center.service';
+
 // Barra de navegación principal: enlaces, sesión del usuario, carrito y menú móvil.
 @Component({
   selector: 'app-navbar',
   standalone: true,
   // Importa el carrito, que se muestra como panel desde la barra.
-  imports: [CartComponent],
+  imports: [CartComponent, AsyncPipe, NgTemplateOutlet],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
@@ -120,7 +127,6 @@ export class NavbarComponent implements OnDestroy {
   }
 
   goToReservations(): void {
-
     this.router.navigate(['/reservations']);
     this.navBarStayed = true;
     this.closeMobileMenu();
@@ -136,6 +142,12 @@ export class NavbarComponent implements OnDestroy {
     this.router.navigate(['/login']);
     this.navBarStayed = true;
     this.closeMobileMenu();
+  }
+
+  // Dirección real del enlace al perfil (para que sea un enlace de verdad: se alcanza con
+  // Tab y el lector de pantalla lo anuncia como enlace)
+  get profileHref(): string | null {
+    return this.isLoggedIn ? this.auth.homeRoute() : null;
   }
 
   // Lleva a la página de su rol: panel de admin, panel de operador o cuenta.
@@ -226,6 +238,52 @@ export class NavbarComponent implements OnDestroy {
   // Cierra el panel del carrito.
   closeCart() {
     this.cartOpen = false;
+  }
+
+  // =========================
+  // NOTIFICACIONES (campanita)
+  // =========================
+
+  readonly center = inject(NotificationCenterService);
+  bellOpen = false;
+
+  toggleBell(): void {
+    this.bellOpen = !this.bellOpen;
+  }
+
+  // Clic en una notificación: la marca leída y va al seguimiento
+  openNotification(notification: AppNotification): void {
+    this.center.markRead(notification.id);
+    this.bellOpen = false;
+    this.closeMobileMenu();
+    this.router.navigate([notification.link], {
+      queryParams: notification.queryParams,
+    });
+  }
+
+  // Cierra el panel al hacer clic fuera o con Escape
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (
+      this.bellOpen &&
+      !(event.target as HTMLElement).closest('[data-bell]')
+    ) {
+      this.bellOpen = false;
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.bellOpen = false;
+  }
+
+  timeAgo(iso: string): string {
+    const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+    if (minutes < 1) return 'ahora';
+    if (minutes < 60) return `hace ${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `hace ${hours} h`;
+    return `hace ${Math.floor(hours / 24)} d`;
   }
 
   // =========================

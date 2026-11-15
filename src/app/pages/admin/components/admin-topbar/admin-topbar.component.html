@@ -1,6 +1,6 @@
 <!-- Barra superior con título, campo de búsqueda y botón de acción -->
 <div
-  class="h-[60px] flex items-center justify-between px-8 border-b flex-shrink-0"
+  class="h-[60px] flex items-center justify-between gap-3 px-4 md:px-8 border-b flex-shrink-0"
   style="
     background-color: rgba(245, 242, 235, 0.85);
     backdrop-filter: blur(16px);
@@ -10,16 +10,31 @@
     z-index: 10;
   "
 >
-  <!-- Título definido desde el componente padre -->
-  <h1 class="font-serif text-xl font-semibold text-charcoal">
-    {{ title }}
-  </h1>
+  <div class="flex items-center gap-2 min-w-0">
+    <!-- Botón del menú: solo en móvil y tablet, abre la barra lateral -->
+    <button
+      id="btn-admin-menu"
+      type="button"
+      class="lg:hidden w-11 h-11 -ml-2 flex items-center justify-center rounded-full flex-shrink-0 cursor-pointer hover:bg-black/5"
+      aria-label="Abrir menú"
+      (click)="menuClicked.emit()"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16" />
+      </svg>
+    </button>
 
-  <div class="flex items-center gap-3">
+    <!-- Título definido desde el componente padre -->
+    <h1 class="font-serif text-lg md:text-xl font-semibold text-charcoal truncate">
+      {{ title }}
+    </h1>
+  </div>
+
+  <div class="flex items-center gap-2 md:gap-3 min-w-0">
     <!-- Campo de búsqueda visible cuando showSearch está habilitado (en Orders no )-->
     @if (showSearch) {
       <app-search-input
-        class="w-48"
+        class="w-32 sm:w-48 min-w-0"
         variant="soft"
         placeholder="Buscar…"
         (valueChange)="searchChanged.emit($event)"
@@ -28,7 +43,7 @@
 
     <!-- Botón de añadir visible cuando showAddButton está habilitado -->
     @if (showAddButton) {
-      <app-button id="btn-add" size="sm" (click)="addClicked.emit()">
+      <app-button id="btn-add" size="sm" [attr.aria-label]="addLabel" (click)="addClicked.emit()">
         <!-- Icono de suma del botón -->
         <svg
           width="15"
@@ -41,8 +56,12 @@
           <path d="M12 5v14M5 12h14" />
         </svg>
 
-        {{ addLabel }}
+        <!-- En móvil el botón muestra solo el "+" para dejar sitio al buscador -->
+        <span class="hidden md:inline">{{ addLabel }}</span>
       </app-button>
     }
+
+    <!-- Interruptor de tema claro / oscuro, en la esquina derecha -->
+    <app-theme-switch [compact]="true" class="flex-shrink-0" />
   </div>
 </div>

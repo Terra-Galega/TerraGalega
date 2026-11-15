@@ -6,6 +6,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import {
   Order,
@@ -36,7 +37,7 @@ function statusColor(status: OrderStatus): string {
 
 @Component({
   selector: 'app-operator-order-detail-modal',
-  imports: [DatePipe, DecimalPipe, IconButtonComponent],
+  imports: [DialogDirective, DatePipe, DecimalPipe, IconButtonComponent],
   templateUrl: './operator-order-detail-modal.component.html',
 })
 export class OperatorOrderDetailModalComponent implements OnInit {

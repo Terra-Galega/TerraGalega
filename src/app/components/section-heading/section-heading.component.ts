@@ -10,4 +10,6 @@ import { Component, Input } from '@angular/core';
 export class SectionHeadingComponent {
   @Input() eyebrow = ''; // texto pequeño superior
   @Input() title = '';
+  // true = menos aire bajo el título (secciones del inicio); false = el espacio de siempre
+  @Input() tight = false;
 }

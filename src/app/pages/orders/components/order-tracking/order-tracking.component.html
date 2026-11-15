@@ -1,0 +1,254 @@
+<app-navbar></app-navbar>
+<div
+  class="min-h-screen font-sans text-charcoal"
+  style="background-color: #f5f2eb"
+>
+  <main class="min-h-screen pt-32 pb-28 max-w-6xl mx-auto px-6 md:px-8">
+    <a
+      routerLink="/orders"
+      class="inline-flex items-center gap-1 text-sm font-medium mb-6"
+      style="color: #b2571f"
+    >
+      ← Mis pedidos
+    </a>
+
+    <p
+      class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
+      style="color: #b2571f"
+    >
+      Seguimiento
+    </p>
+    <h1 class="font-serif text-4xl md:text-5xl font-bold text-charcoal mb-8">
+      Sigue tu pedido
+    </h1>
+
+    @if (!delivery) {
+      <!-- Sin pedido en camino: cargando, entregado o vacío -->
+      <div
+        class="rounded-3xl px-8 py-14 text-center"
+        style="background-color: #fff; border: 1px solid rgba(44, 44, 44, 0.08)"
+      >
+        @if (!loaded) {
+          <p style="color: rgba(44, 44, 44, 0.6)">Cargando...</p>
+        } @else if (delivered) {
+          <span
+            class="inline-block rounded-full px-4 py-1 text-sm font-semibold mb-4"
+            style="color: #556141; background-color: rgba(85, 97, 65, 0.12)"
+          >
+            Entregado ✓
+          </span>
+          <h2 class="font-serif text-2xl font-semibold">
+            Tu pedido llegó. ¡Buen provecho!
+          </h2>
+        } @else {
+          <h2 class="font-serif text-2xl font-semibold">
+            No tienes pedidos en camino
+          </h2>
+          <p class="mt-2" style="color: rgba(44, 44, 44, 0.6)">
+            Cuando un repartidor salga con tu pedido, lo verás aquí en el mapa.
+          </p>
+        }
+      </div>
+    } @else {
+      @if (notificationsPending) {
+        <!-- Invita a activar las notificaciones del navegador -->
+        <div
+          class="rounded-2xl px-5 py-4 mb-6 flex flex-wrap items-center justify-between gap-3"
+          style="
+            background-color: rgba(178, 87, 31, 0.08);
+            border: 1px solid rgba(178, 87, 31, 0.25);
+          "
+        >
+          <p class="text-sm" style="color: #2c2c2c">
+            Activa las notificaciones y te avisamos cuando tu pedido ya va
+            llegando.
+          </p>
+          <app-button size="sm" (click)="enableNotifications()"
+            >Activar avisos</app-button
+          >
+        </div>
+      }
+
+      <div class="grid gap-6 lg:grid-cols-3">
+        <!-- Mapa (solo cuando el repartidor ya inició el recorrido) -->
+        <section class="lg:col-span-2">
+          @if (started) {
+            <div
+              class="rounded-3xl overflow-hidden relative"
+              style="
+                border: 1px solid rgba(44, 44, 44, 0.08);
+                background-color: #fff;
+              "
+            >
+              <div
+                data-tracking-map
+                class="w-full h-[420px] lg:h-[600px]"
+                aria-label="Mapa del pedido en camino"
+              ></div>
+
+              <div class="absolute left-3 top-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  class="rounded-full px-4 py-1.5 text-xs font-semibold cursor-pointer"
+                  [style.background-color]="
+                    following ? '#556141' : 'rgba(255,255,255,0.95)'
+                  "
+                  [style.color]="following ? '#fff' : '#2c2c2c'"
+                  style="box-shadow: 0 2px 8px rgba(44, 44, 44, 0.2)"
+                  (click)="toggleFollow()"
+                >
+                  {{ following ? "Siguiendo repartidor" : "Seguir repartidor" }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded-full px-4 py-1.5 text-xs font-semibold cursor-pointer"
+                  style="
+                    background-color: rgba(255, 255, 255, 0.95);
+                    color: #2c2c2c;
+                    box-shadow: 0 2px 8px rgba(44, 44, 44, 0.2);
+                  "
+                  (click)="showWholeRoute()"
+                >
+                  Ver ruta completa
+                </button>
+              </div>
+            </div>
+            @if (mapError) {
+              <p class="mt-3 text-sm" style="color: #9c2f1f" role="alert">
+                {{ mapError }}
+              </p>
+            }
+          } @else {
+            <div
+              class="rounded-3xl px-8 py-16 text-center"
+              style="
+                background-color: #fff;
+                border: 1px solid rgba(44, 44, 44, 0.08);
+              "
+            >
+              <h2 class="font-serif text-2xl font-semibold">
+                Tu pedido está por salir
+              </h2>
+              <p class="mt-2" style="color: rgba(44, 44, 44, 0.6)">
+                El mapa aparecerá cuando el repartidor inicie el recorrido. Te
+                avisaremos.
+              </p>
+            </div>
+          }
+        </section>
+
+        <!-- Panel lateral: estado, repartidor y PIN -->
+        <aside class="space-y-6">
+          <div
+            class="rounded-3xl p-6"
+            style="
+              background-color: #fff;
+              border: 1px solid rgba(44, 44, 44, 0.08);
+            "
+          >
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="font-serif text-2xl font-semibold">
+                Pedido #{{ delivery.orderId }}
+              </h2>
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold"
+                style="
+                  color: #b2571f;
+                  background-color: rgba(178, 87, 31, 0.12);
+                "
+              >
+                En camino
+              </span>
+            </div>
+
+            <p class="mt-2 text-sm" style="color: rgba(44, 44, 44, 0.65)">
+              {{ delivery.deliveryPersonName ?? "-" }} ·
+              {{ delivery.deliveryPersonPhone ?? "-" }}
+            </p>
+            <p class="mt-1 text-xs" style="color: rgba(44, 44, 44, 0.5)">
+              @if (delivery.locationUpdatedAt) {
+                Última actualización:
+                {{ delivery.locationUpdatedAt | date: "HH:mm:ss" }}
+              } @else if (started) {
+                Esperando la ubicación del repartidor...
+              } @else {
+                El repartidor aún no inicia el recorrido.
+              }
+            </p>
+
+            @if (started) {
+              <div class="mt-5">
+                <div
+                  class="flex items-center justify-between text-xs mb-1.5"
+                  style="color: rgba(44, 44, 44, 0.6)"
+                >
+                  <span>Recorrido</span>
+                  <span>{{ percent }}%</span>
+                </div>
+                <div
+                  class="h-2 rounded-full overflow-hidden"
+                  style="background-color: rgba(44, 44, 44, 0.08)"
+                >
+                  <div
+                    class="h-full rounded-full transition-all duration-700"
+                    style="background-color: #b2571f"
+                    [style.width.%]="percent"
+                  ></div>
+                </div>
+              </div>
+            }
+
+            <p
+              class="mt-6 text-[11px] tracking-[0.15em] font-semibold"
+              style="color: rgba(44, 44, 44, 0.5)"
+            >
+              TU PIN DE ENTREGA
+            </p>
+            <div class="mt-2 flex gap-2" aria-label="PIN de entrega">
+              @for (digit of pinDigits; track $index) {
+                <span
+                  class="w-12 h-14 rounded-xl flex items-center justify-center text-2xl font-bold"
+                  style="
+                    background-color: #f5f2eb;
+                    border: 1px solid rgba(44, 44, 44, 0.12);
+                    color: #2c2c2c;
+                  "
+                >
+                  {{ digit }}
+                </span>
+              }
+            </div>
+            <p class="mt-2 text-xs" style="color: rgba(44, 44, 44, 0.6)">
+              Díselo al repartidor solo cuando tengas tu pedido en la mano.
+            </p>
+          </div>
+
+          <div
+            class="rounded-3xl p-6"
+            style="
+              background-color: #fff;
+              border: 1px solid rgba(44, 44, 44, 0.08);
+            "
+          >
+            <h2 class="font-serif text-xl font-semibold">
+              ¿Algún problema con tu pedido?
+            </h2>
+            <p class="mt-1 text-sm" style="color: rgba(44, 44, 44, 0.6)">
+              Déjanoslo saber.
+            </p>
+            <div class="mt-4">
+              <a
+                [href]="complaintLink"
+                class="inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white"
+                style="background: linear-gradient(135deg, #d97b45, #b2571f)"
+              >
+                Escríbenos
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    }
+  </main>
+</div>
+<app-footer></app-footer>

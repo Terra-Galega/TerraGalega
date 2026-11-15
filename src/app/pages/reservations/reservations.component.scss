@@ -13,6 +13,7 @@
   --surface: #fdfbf7;
   --line: #dcd5c9;
   --muted: #625b51;
+  --field: white; // fondo de campos, selects y botones claros (el tema oscuro lo cambia)
   --brass: #a9854e;
   --gold: #d9a63c;
   --glaze: #4f8fbf; // azul de los ventanales
@@ -72,7 +73,7 @@ h2 {
   min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: white;
+  background: var(--field);
   padding: .5rem 1rem;
   color: var(--ink);
   font-weight: 400;
@@ -96,17 +97,22 @@ h2 {
 }
 
 // Cenefa de azulejos en el borde superior del plano.
+// El elemento mide lo mismo que el radio de la esquina (1.25rem + 1px del borde): si fuera de solo
+// 8px de alto, el navegador reduciría el radio a 8px y la franja se saldría de la curva de la
+// tarjeta. La franja se pinta solo en los primeros 9px del fondo; el resto queda transparente.
 .map-card::before {
   content: "";
   position: absolute;
-  inset: 0 0 auto;
-  height: 8px;
+  // Se extiende 1px hacia afuera para tapar el borde de la tarjeta y calzar con su esquina exterior.
+  inset: -1px -1px auto;
+  height: calc(1.25rem + 1px);
   border-radius: 1.25rem 1.25rem 0 0;
+  pointer-events: none;
   background: repeating-linear-gradient(90deg,
       var(--terracotta) 0 18px,
       var(--gold) 18px 36px,
       var(--olive) 36px 54px,
-      #f3ead8 54px 72px);
+      #f3ead8 54px 72px) top left / 100% 9px no-repeat;
 }
 
 .map-heading {
@@ -787,7 +793,7 @@ button {
   height: 44px;
   border: 1px solid var(--line);
   border-radius: .7rem;
-  background: white;
+  background: var(--field);
   font-size: 1.25rem;
   line-height: 1;
 }
@@ -810,7 +816,7 @@ button {
 .reserve-button {
   min-height: 44px;
   width: 100%;
-  border-radius: .75rem;
+  border-radius: 999px; // píldora: extremos completamente redondos
   background: var(--terracotta);
   color: white;
   font-weight: 600;
@@ -993,7 +999,7 @@ button {
   min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: white;
+  background: var(--field);
   padding: .5rem 1rem;
   font-weight: 400;
 }
@@ -1028,7 +1034,7 @@ button {
 
 .secondary-button {
   border: 1px solid var(--line);
-  background: white;
+  background: var(--field);
   color: var(--ink);
 }
 
@@ -1085,15 +1091,25 @@ button {
 }
 
 .how-it-works li span {
-  display: grid;
-  place-items: center;
+  // Círculo perfecto con el número centrado en ambos ejes (flex centra también el texto suelto)
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
+  box-sizing: border-box;
   width: 1.6rem;
   height: 1.6rem;
+  padding: 0;
   border-radius: 999px;
   background: linear-gradient(135deg, #b2571f, #8a2222);
   color: white;
-  font: 700 .8rem var(--serif);
+  text-align: center;
+  // Playfair Display usa por defecto números "de texto" (el 3 y el 4 bajan de la línea y el 1
+  // parece una I). Con cifras alineadas todos miden lo mismo y quedan centrados.
+  font: 700 .8rem/1 var(--serif); // el atajo "font" reinicia line-height, por eso va aquí
+  font-variant-numeric: lining-nums tabular-nums;
+  // Pequeño ajuste óptico: la línea base del serif queda un pelo alta al centrar
+  padding-top: 1px;
 }
 
 @media (max-width: 960px) {
