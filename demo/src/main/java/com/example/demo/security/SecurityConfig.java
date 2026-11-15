@@ -102,12 +102,14 @@ public class SecurityConfig {
                                                                 "/productDetail/**", "/css/**", "/js/**", "/assets/**",
                                                                 "/favicon.ico")
                                                 .permitAll()
-                                                // Selección de dirección durante el checkout.
+                                                // Dirección <-> coordenadas (Google Geocoding desde el back):
+                                                // el cliente al elegir su dirección y el repartidor para
+                                                // ubicar el destino en la app
                                                 .requestMatchers(
                                                                 HttpMethod.GET,
                                                                 "/maps/search",
                                                                 "/maps/reverse")
-                                                .hasAuthority(CLIENT)
+                                                .hasAnyAuthority(CLIENT, DELIVERY_PERSON)
 
                                                 .requestMatchers("/maps/**")
                                                 .denyAll()
