@@ -71,9 +71,9 @@ h2 {
   min-width: 0;
   min-height: 44px;
   border: 1px solid var(--line);
-  border-radius: .65rem;
+  border-radius: 999px;
   background: white;
-  padding: .5rem .65rem;
+  padding: .5rem 1rem;
   color: var(--ink);
   font-weight: 400;
 }
@@ -992,9 +992,9 @@ button {
   width: 100%;
   min-height: 44px;
   border: 1px solid var(--line);
-  border-radius: .65rem;
+  border-radius: 999px;
   background: white;
-  padding: .5rem .65rem;
+  padding: .5rem 1rem;
   font-weight: 400;
 }
 
@@ -1048,4 +1048,62 @@ button {
 // Error al reservar (mesa ocupada, pasarela caída...)
 .feedback.error {
   color: #8a2222;
+}
+
+
+// --- ¿Cómo funciona? (guía corta para el cliente con sesión) ---
+.how-it-works {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  background: var(--surface);
+}
+
+.how-title {
+  margin-bottom: .7rem;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+}
+
+.how-it-works ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .75rem 1.25rem;
+}
+
+.how-it-works li {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  font-size: .9rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.how-it-works li span {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #b2571f, #8a2222);
+  color: white;
+  font: 700 .8rem var(--serif);
+}
+
+@media (max-width: 960px) {
+  .how-it-works ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .how-it-works ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

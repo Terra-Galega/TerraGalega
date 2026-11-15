@@ -1,12 +1,12 @@
 <!-- Tarjeta completa: toda el área es clicable y lleva al detalle del producto.
      Al pasar el mouse se levanta un poco y se agranda la imagen. -->
 <div
-  class="rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+  class="h-full flex flex-col rounded-2xl bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
   style="box-shadow: 0 4px 24px rgba(44, 44, 44, 0.06)"
   (click)="goToProductDetail()"
 >
   <!-- Imagen del producto -->
-  <div class="card-image relative h-48 overflow-hidden">
+  <div class="card-image relative h-48 flex-shrink-0 overflow-hidden">
     <img
       [src]="product.imageUrl"
       [alt]="product.name"
@@ -14,8 +14,9 @@
     />
   </div>
 
-  <!-- Información del producto -->
-  <div class="p-6">
+  <!-- Información del producto. Todas las tarjetas miden lo mismo: el nombre ocupa una sola
+       línea y la descripción siempre reserva dos, tenga el texto que tenga. -->
+  <div class="p-6 flex-grow">
     <!-- Categoría (el "?" evita error si el producto no tiene categoría) -->
     <span
       class="text-[11px] font-medium tracking-widest uppercase"
@@ -27,7 +28,8 @@
     <!-- Nombre y precio (el precio se muestra sin decimales, ej. 38.900) -->
     <div class="flex justify-between items-start gap-3 mt-1 mb-2">
       <h3
-        class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors"
+        class="font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors truncate min-w-0"
+        [title]="product.name"
       >
         {{ product.name }}
       </h3>
@@ -39,7 +41,7 @@
 
     <!-- Descripción (se recorta a 2 líneas) -->
     <p
-      class="text-sm leading-relaxed line-clamp-2"
+      class="text-sm leading-relaxed line-clamp-2 min-h-[2lh]"
       style="color: rgba(44, 44, 44, 0.68)"
     >
       {{ product.description }}

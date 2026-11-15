@@ -198,13 +198,13 @@
 
       @if (entryMode === "text") {
         <div
-          class="rounded-2xl overflow-hidden"
+          class="rounded-full overflow-hidden"
           style="background-color: rgba(255, 255, 255, 0.85)"
           [style.border]="
             error ? '1px solid #8a2222' : '1px solid rgba(44, 44, 44, 0.12)'
           "
         >
-          <label class="block px-4 pt-2.5 pb-2">
+          <label class="block px-6 pt-2.5 pb-2">
             <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">
               Dirección
             </span>
@@ -281,13 +281,13 @@
       <!-- Nombre con el que se guardará (vacío = "Casa") -->
       @if (saveChecked) {
         <div
-          class="mt-1 rounded-2xl overflow-hidden"
+          class="mt-1 rounded-full overflow-hidden"
           style="background-color: rgba(255, 255, 255, 0.85)"
           [style.border]="
             nameError ? '1px solid #8a2222' : '1px solid rgba(44, 44, 44, 0.12)'
           "
         >
-          <label class="block px-4 pt-2.5 pb-2">
+          <label class="block px-6 pt-2.5 pb-2">
             <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)"
               >Nombre de la dirección</span
             >

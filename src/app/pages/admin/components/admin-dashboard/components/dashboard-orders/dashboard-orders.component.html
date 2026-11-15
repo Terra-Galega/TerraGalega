@@ -47,7 +47,7 @@
             <!-- Umbral de espera -->
             <label class="flex items-center gap-2 text-(length:--dfs-11)" style="color: rgba(44, 44, 44, 0.5)">
                 Más de
-                <select class="text-(length:--dfs-12) px-2 py-1.5 rounded-lg" style="background-color: rgba(44, 44, 44, 0.06)"
+                <select class="text-(length:--dfs-12) px-4 py-1.5 rounded-full" style="background-color: rgba(44, 44, 44, 0.06)"
                     (change)="onThreshold($event)">
                     @for (t of thresholds; track t) {
                     <option [value]="t" [selected]="t === threshold">{{ t }} min</option>

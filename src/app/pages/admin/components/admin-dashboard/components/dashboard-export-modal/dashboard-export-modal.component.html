@@ -32,14 +32,14 @@
                 <label class="block text-(length:--dfs-12) mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
                     for="export-day">Fecha</label>
                 <input id="export-day" type="date"
-                    class="input-field px-4 py-3 rounded-xl text-(length:--dfs-14) leading-[1.43] text-charcoal w-full sm:w-64" [value]="dayValue"
+                    class="input-field px-4 py-3 rounded-full text-(length:--dfs-14) leading-[1.43] text-charcoal w-full sm:w-64" [value]="dayValue"
                     [max]="maxDate" (input)="onDay($event)" />
                 } @else if (mode === "week") {
                 <label class="block text-(length:--dfs-12) mb-1.5" style="color: rgba(44, 44, 44, 0.6)" for="export-week">
                     Cualquier día de la semana (de lunes a domingo)
                 </label>
                 <input id="export-week" type="date"
-                    class="input-field px-4 py-3 rounded-xl text-(length:--dfs-14) leading-[1.43] text-charcoal w-full sm:w-64" [value]="weekValue"
+                    class="input-field px-4 py-3 rounded-full text-(length:--dfs-14) leading-[1.43] text-charcoal w-full sm:w-64" [value]="weekValue"
                     [max]="maxDate" (input)="onWeek($event)" />
                 } @else {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -47,14 +47,14 @@
                         <label class="block text-(length:--dfs-12) mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
                             for="export-from">Desde</label>
                         <input id="export-from" type="date"
-                            class="input-field px-4 py-3 rounded-xl text-(length:--dfs-14) leading-[1.43] text-charcoal w-full" [value]="fromValue"
+                            class="input-field px-4 py-3 rounded-full text-(length:--dfs-14) leading-[1.43] text-charcoal w-full" [value]="fromValue"
                             [max]="maxDate" (input)="onFrom($event)" />
                     </div>
                     <div>
                         <label class="block text-(length:--dfs-12) mb-1.5" style="color: rgba(44, 44, 44, 0.6)"
                             for="export-to">Hasta</label>
                         <input id="export-to" type="date"
-                            class="input-field px-4 py-3 rounded-xl text-(length:--dfs-14) leading-[1.43] text-charcoal w-full" [value]="toValue"
+                            class="input-field px-4 py-3 rounded-full text-(length:--dfs-14) leading-[1.43] text-charcoal w-full" [value]="toValue"
                             [max]="maxDate" (input)="onTo($event)" />
                     </div>
                 </div>

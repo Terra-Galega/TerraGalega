@@ -5,15 +5,15 @@
   >
     <!-- El mapa solo aparece si la URL pasó la validación del componente -->
     @if (safeUrl) {
+      <!-- Ocupa todo el cuadro de la tarjeta, sin dejar espacio vacío debajo -->
       <iframe
+        class="absolute inset-0 w-full h-full"
         [src]="safeUrl"
         [title]="mapTitle"
-        width="100%"
-        height="400"
         style="border: 0"
         allowfullscreen
         loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
+        referrerpolicy="strict-origin-when-cross-origin"
       ></iframe>
     }
   </div>

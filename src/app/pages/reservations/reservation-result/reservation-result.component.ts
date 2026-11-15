@@ -79,6 +79,7 @@ export class ReservationResultComponent implements OnInit {
       this.toast.show('Reserva confirmada', 'Recibimos el anticipo. ¡Te esperamos!');
       this.router.navigate(['/reservations'], { replaceUrl: true });
     } else if (reservation.paymentState === 'EXPIRED') {
+      this.toast.error('Reserva cancelada', 'El tiempo para pagar el anticipo terminó.');
       this.stop('expired');
     } else if (this.canceled) {
       // Pulsó "volver" en Stripe: no tiene sentido seguir esperando

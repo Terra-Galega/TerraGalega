@@ -2,3 +2,169 @@
 :host {
   display: block;
 }
+
+// --- Logo del hero ---
+// hero-logo: ocupa su sitio en la portada y no se transforma (sirve de referencia para medir).
+// logo-move: recibe desde el código el movimiento hacia la navbar al hacer scroll.
+// logo-reveal: la animación de entrada.
+.hero-logo {
+  display: block;
+  width: min(680px, 88vw);
+}
+
+.logo-move {
+  display: block;
+  transform-origin: 0 0;
+  will-change: transform;
+  transition: opacity .3s ease;
+}
+
+.logo-reveal {
+  position: relative;
+  display: block;
+  filter: drop-shadow(0 18px 30px rgb(0 0 0 / .35));
+}
+
+.logo-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+// El pulpo va en su propia capa, encima del texto y con la misma caja, para poder
+// desvanecerlo por separado al hacer scroll.
+.logo-octopus {
+  position: absolute;
+  inset: 0;
+  // Centro del pulpo dentro del logo: gira y crece sobre sí mismo al desvanecerse
+  transform-origin: 76% 29%;
+  will-change: opacity, transform;
+}
+
+// --- Entrada del logo ---
+// 1. Marea (0 - 1.5s): una máscara con borde ondulado avanza de izquierda a derecha y va
+//    descubriendo el logo, mientras pasa de desenfocado a nítido.
+// 2. Destello (1.3s - 2.6s): una franja dorada cruza el logo. Cada capa usa su propio dibujo
+//    como máscara, así el brillo solo se ve sobre el trazo y no sobre el fondo.
+.logo-reveal .logo-img {
+  // Máscara: zona visible + borde en ola + zona oculta. Se mueve de derecha a izquierda.
+  -webkit-mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0H140C150 12 130 25 140 37S150 62 140 75 150 92 145 100H0Z'/%3E%3C/svg%3E");
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' preserveAspectRatio='none'%3E%3Cpath d='M0 0H140C150 12 130 25 140 37S150 62 140 75 150 92 145 100H0Z'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 300% 100%;
+  mask-size: 300% 100%;
+  -webkit-mask-position: 100% 0;
+  mask-position: 100% 0;
+  animation: logo-tide 1.5s cubic-bezier(.45, .05, .25, 1) .2s forwards;
+}
+
+.logo-shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  opacity: 0;
+}
+
+// Texto: un destello suave
+.logo-shine--text {
+  background-image: linear-gradient(105deg,
+      transparent 38%,
+      rgb(255 236 190 / 0) 42%,
+      rgb(255 228 160 / .8) 50%,
+      rgb(255 236 190 / 0) 58%,
+      transparent 62%);
+  -webkit-mask-image: url('/images/logo-hero-text.svg');
+  mask-image: url('/images/logo-hero-text.svg');
+  animation: logo-shine 1.1s ease-in-out 1.35s forwards;
+}
+
+// Pulpo: franja más ancha y de oro más intenso, con un halo dorado. Pasa un poco después
+// que la del texto y deja el pulpo con un ligero tono dorado.
+.logo-shine--octopus {
+  background-image: linear-gradient(105deg,
+      rgb(232 178 74 / .28) 0%,
+      rgb(232 178 74 / .28) 30%,
+      rgb(255 214 120 / .9) 42%,
+      rgb(255 246 214) 50%,
+      rgb(255 205 100 / .95) 58%,
+      rgb(232 178 74 / .28) 70%,
+      rgb(232 178 74 / .28) 100%);
+  -webkit-mask-image: url('/images/logo-hero-octopus.svg');
+  mask-image: url('/images/logo-hero-octopus.svg');
+  filter: drop-shadow(0 0 6px rgb(255 196 90 / .85)) drop-shadow(0 0 16px rgb(217 154 33 / .55));
+  animation: octopus-shine 1.4s cubic-bezier(.4, 0, .2, 1) 1.55s forwards;
+}
+
+@keyframes logo-tide {
+  0% {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+    filter: blur(6px);
+    transform: scale(.96);
+  }
+
+  70% {
+    filter: blur(0);
+  }
+
+  100% {
+    // Al terminar, la máscara deja todo el logo visible
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes logo-shine {
+  0% {
+    opacity: 1;
+    background-position: 120% 0;
+  }
+
+  100% {
+    opacity: 1;
+    background-position: -20% 0;
+  }
+}
+
+// El destello cruza el pulpo y al final queda un leve baño dorado (opacidad .55)
+@keyframes octopus-shine {
+  0% {
+    opacity: 1;
+    background-position: 120% 0;
+  }
+
+  80% {
+    opacity: 1;
+    background-position: -20% 0;
+  }
+
+  100% {
+    opacity: .55;
+    background-position: -20% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-reveal .logo-img {
+    -webkit-mask-image: none;
+    mask-image: none;
+    animation: none;
+  }
+
+  .logo-shine {
+    display: none;
+  }
+}

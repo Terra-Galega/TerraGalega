@@ -105,6 +105,8 @@ export class AdminAddonsComponent {
   toggleAddon(addon: AddOn) {
     this.addOnService.toggleAddOnActiveStatus(addon.id).subscribe({
       next: () => {
+        // El estado que llega aún es el anterior al cambio
+        this.toast.show(addon.active ? 'Adicional desactivado' : 'Adicional activado');
         // Se recarga la lista para ver el nuevo estado
         this.addOnService.refresh();
       },

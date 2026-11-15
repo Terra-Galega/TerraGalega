@@ -1,0 +1,35 @@
+<!-- ENCABEZADO: por qué se necesita una cuenta -->
+<div class="text-center mb-16">
+  <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">¿Cómo funciona?</p>
+  <h1 class="font-serif text-4xl md:text-5xl font-bold text-charcoal mb-5">Para reservar necesitas una cuenta</h1>
+  <p class="text-base leading-relaxed max-w-2xl mx-auto" style="color: rgba(44, 44, 44, 0.75)">
+    Así guardamos tu mesa, te enviamos la confirmación y puedes cambiar la fecha o cancelar cuando quieras.
+    Crear la cuenta toma menos de un minuto.
+  </p>
+</div>
+
+<!-- PASOS -->
+<app-order-steps [steps]="steps"></app-order-steps>
+
+<!-- NUESTROS ESPACIOS -->
+<section class="mb-14" aria-labelledby="spaces-heading">
+  <div class="text-center mb-8">
+    <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">Nuestros espacios</p>
+    <h2 id="spaces-heading" class="font-serif text-3xl font-semibold text-charcoal">Elige dónde vivir tu visita</h2>
+  </div>
+  <div class="spaces">
+    @for (space of spaces; track space.name) {
+    <figure class="space glass-card">
+      <img [src]="space.image" [alt]="space.name" loading="lazy" />
+      <figcaption>
+        <h3 class="font-serif text-xl font-semibold">{{ space.name }}</h3>
+        <p>{{ space.caption }}</p>
+      </figcaption>
+    </figure>
+    }
+  </div>
+</section>
+
+<!-- LISTO PARA RESERVAR -->
+<app-ready-to-order title="¿Listo para reservar?"
+  message="Inicia sesión si ya tienes cuenta, o regístrate en un minuto y elige tu mesa."></app-ready-to-order>

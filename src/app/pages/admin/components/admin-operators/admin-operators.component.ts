@@ -135,6 +135,8 @@ export class AdminOperatorsComponent implements OnChanges {
   toggleOperator(operator: Operator) {
     this.operatorService.toggleOperatorActiveStatus(operator.id).subscribe({
       next: () => {
+        // El estado que llega aún es el anterior al cambio
+        this.toast.show(operator.active ? 'Operador desactivado' : 'Operador activado');
         this.operatorService.refresh();
       },
       error: (error) => {

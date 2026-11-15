@@ -138,6 +138,8 @@ export class AdminCouponsComponent {
     toggleCoupon(coupon: Coupon) {
         this.couponService.toggleCouponActiveStatus(coupon.id).subscribe({
             next: () => {
+                // El estado que llega aún es el anterior al cambio
+                this.toast.show(coupon.active ? 'Cupón desactivado' : 'Cupón activado');
                 // Se recarga la lista para ver el nuevo estado
                 this.couponService.refresh();
             },

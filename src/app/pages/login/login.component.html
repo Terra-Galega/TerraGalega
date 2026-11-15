@@ -1,12 +1,26 @@
 <app-navbar></app-navbar>
 
 <main class="min-h-screen flex items-center justify-center px-6 py-32">
-  <div class="w-full max-w-md mx-auto">
+  <!-- 400px: el ancho máximo del botón oficial de Google. Así las pestañas, el botón de Google
+       y la caja del formulario miden exactamente lo mismo. -->
+  <div class="w-full max-w-[400px] mx-auto">
     <!--Barra para login o register-->
     <app-login-header
       [activeTab]="activeTab"
       (tabChange)="selectTab($event)"
     ></app-login-header>
+    <!-- Acceso con Google encima del formulario, en las dos pestañas (oculto mientras se espera
+         la confirmación del correo). Se recrea al cambiar de pestaña para que cambie su texto. -->
+    @if (!pendingEmail) {
+      @if (activeTab === "login") {
+        <app-google-button mode="login" position="top" (credential)="googleLogin($event)"></app-google-button>
+      } @else {
+        <app-google-button mode="signup" position="top" (credential)="googleLogin($event)"></app-google-button>
+      }
+      @if (googleError) {
+        <p id="google-error" class="text-sm text-center -mt-3 mb-5" style="color: #8a2222">{{ googleError }}</p>
+      }
+    }
     <!--Formulario-->
     <app-login-forms
       [activeTab]="activeTab"
@@ -43,19 +57,6 @@
       (signupAddressChange)="setSignupAddress($event)"
       (signupSubmit)="signup()"
     ></app-login-forms>
-
-    <!-- Crear cuenta o entrar con Google (oculto mientras se espera la confirmación del correo).
-         Se recrea al cambiar de pestaña para que el texto del botón cambie. -->
-    @if (!pendingEmail) {
-      @if (activeTab === "login") {
-        <app-google-button mode="login" (credential)="googleLogin($event)"></app-google-button>
-      } @else {
-        <app-google-button mode="signup" (credential)="googleLogin($event)"></app-google-button>
-      }
-      @if (googleError) {
-        <p id="google-error" class="text-sm text-center mt-3" style="color: #8a2222">{{ googleError }}</p>
-      }
-    }
   </div>
 </main>
 

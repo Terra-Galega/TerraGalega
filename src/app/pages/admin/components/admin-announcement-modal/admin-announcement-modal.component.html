@@ -36,7 +36,7 @@ style="background-color: rgba(44, 44, 44, 0.55)"
             [attr.maxlength]="titleMax"
             required
             placeholder="Título del anuncio"
-            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+            class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
             />
             <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
                 {{ title.length }}/{{ titleMax }}
@@ -52,7 +52,7 @@ style="background-color: rgba(44, 44, 44, 0.55)"
             rows="3"
             required
             placeholder="Descripción del anuncio…"
-            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal resize-none"
+            class="input-field w-full px-4 py-3 rounded-3xl text-sm text-charcoal resize-none"
             ></textarea>
             <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
                 {{ description.length }}/{{ descriptionMax }}
@@ -68,7 +68,7 @@ style="background-color: rgba(44, 44, 44, 0.55)"
             [attr.maxlength]="urlMax"
             required
             placeholder="https://images.unsplash.com/…"
-            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal"
+            class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
             />
 
             @if (canPreview) {

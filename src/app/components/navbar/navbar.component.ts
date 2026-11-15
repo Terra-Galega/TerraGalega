@@ -1,9 +1,10 @@
 import { NavigationEnd, Router } from '@angular/router';
 import { CartComponent } from '../cart/cart.component';
-import { Component, HostListener, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnDestroy, inject } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
+import { HeroLogoService } from '../../services/hero-logo.service';
 // Barra de navegación principal: enlaces, sesión del usuario, carrito y menú móvil.
 @Component({
   selector: 'app-navbar',
@@ -17,6 +18,9 @@ export class NavbarComponent implements OnDestroy {
   // =========================
   // MENÚ MOBILE
   // =========================
+
+  // Estado del logo del hero en el home (si ya llegó a la barra)
+  readonly heroLogo = inject(HeroLogoService);
 
   // Indica si el menú desplegable de móvil está abierto.
   mobileMenuOpen = false;
