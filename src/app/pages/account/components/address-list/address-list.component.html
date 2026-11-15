@@ -35,6 +35,10 @@
             class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
         </app-form-field>
 
+        <!-- Mapa sincronizado con el texto (igual que en el checkout) -->
+        <app-address-map-picker class="block" [address]="editLabel"
+          (picked)="editLabel = $event"></app-address-map-picker>
+
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
       <app-button type="button" variant="neutral" size="sm" (click)="cancelEdit()">
             Cancelar
@@ -118,6 +122,11 @@
           class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </app-form-field>
     </div>
+
+    <!-- Mapa sincronizado con el texto (igual que en el checkout): escribir mueve
+         el mapa; mover el mapa o hacer clic actualiza la dirección -->
+    <app-address-map-picker class="block" [address]="newLabel"
+      (picked)="newLabel = $event"></app-address-map-picker>
 
   </div>
 

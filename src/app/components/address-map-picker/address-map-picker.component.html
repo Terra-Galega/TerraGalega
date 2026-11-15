@@ -1,12 +1,8 @@
-<p class="hint">
-  Mueve el mapa hasta la entrada o haz clic en el lugar de entrega.
-</p>
-
 <div class="map-frame">
   <div
     data-address-map
     class="map"
-    aria-label="Seleccionar dirección de entrega"
+    aria-label="Mapa de la dirección de entrega: muévelo o haz clic para ajustar el punto"
   ></div>
 
   <!-- La punta del marcador queda en el centro del mapa. -->
@@ -37,23 +33,10 @@
   @if (error) {
     <p class="error">{{ error }}</p>
   }
-
-  @if (address) {
-    <p class="address">{{ address }}</p>
-  }
 </div>
 
 <p class="hint">
-  Revisa la nomenclatura y añade apartamento o torre en “Escribirla”.
-</p>
-
-<p class="credit">
-  Direcciones:
-  <a
-    href="https://www.openstreetmap.org/copyright"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    © OpenStreetMap contributors </a
-  >.
+  El mapa sigue lo que escribes. Si el punto no es exacto, mueve el mapa o haz
+  clic en la entrada y la dirección se actualiza. Añade el apartamento o la torre
+  al final del texto.
 </p>
