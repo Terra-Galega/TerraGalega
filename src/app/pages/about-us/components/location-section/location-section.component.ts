@@ -17,9 +17,9 @@ export class LocationSectionComponent {
   locationItems: ContactInfo[] = [
     {
       title: 'Dirección',
-      value: 'Calle 93 #15-47, Zona Rosa, Bogotá',
+      value: 'Ak 15 # 92-81, Chapinero, Bogotá',
       icon: 'location',
-      link: 'https://www.google.com/maps/search/?api=1&query=Calle+93+%2315-47%2C+Bogot%C3%A1',
+      link: 'https://www.google.com/maps/search/?api=1&query=Ak+15+%23+92-81%2C+Chapinero%2C+Bogot%C3%A1',
     },
     {
       title: 'Teléfono',
@@ -40,5 +40,5 @@ export class LocationSectionComponent {
 
   // URL de inserción del mapa que muestra la ubicación del restaurante
   mapUrl =
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3692.7843048189684!2d-74.05482151150028!3d4.676878070701616!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9a92bc5d5f05%3A0x6f031d8201a7f827!2sCl.%2093%20%2315-47%2C%20Bogot%C3%A1!5e0!3m2!1ses-419!2sco!4v1789465880652!5m2!1ses-419!2sco';
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1988.2672065576457!2d-74.05271797148316!3d4.6767543363447555!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e3f9a92a2aceca3%3A0x1febcd9a02525fde!2zQWsgMTUgIyA5Mi04MSwgQ2hhcGluZXJvLCBCb2dvdMOhLCBELkMuLCBCb2dvdMOhLCBCb2dvdMOhLCBELkMu!5e0!3m2!1ses-419!2sco!4v1794690397857!5m2!1ses-419!2sco';
 }

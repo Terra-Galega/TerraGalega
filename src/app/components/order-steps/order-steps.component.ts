@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
-// Guía de "cómo pedir" (se usa en la página de pedidos): muestra los pasos para hacer un pedido, desde crear
-// la cuenta hasta seguir el domicilio. El contenido es fijo y se define aquí.
+// Guía de pasos para visitantes sin sesión. Por defecto muestra "cómo pedir" (página de pedidos);
+// otras páginas, como reservas, pasan sus propios pasos con [steps].
 @Component({
   selector: 'app-order-steps',
   imports: [],
@@ -10,7 +10,7 @@ import { Component } from '@angular/core';
 })
 export class OrderStepsComponent {
 
-  steps = [
+  @Input() steps: { number: number; title: string; description: string; color: string }[] = [
     {
       number: 1,
       title: 'Crea tu cuenta',

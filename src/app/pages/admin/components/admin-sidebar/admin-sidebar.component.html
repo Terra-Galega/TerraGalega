@@ -1,5 +1,7 @@
 <!-- Barra lateral fija del panel administrativo -->
-<aside class="w-60 flex-shrink-0 flex flex-col py-7 px-4" style="
+<aside
+  class="w-60 flex-shrink-0 flex flex-col py-7 px-4"
+  style="
     background-color: #2c2c2c;
     backdrop-filter: blur(24px);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
@@ -8,7 +10,8 @@
     bottom: 0;
     left: 0;
     z-index: 20;
-  ">
+  "
+>
   <!-- Logotipo y nombre del panel administrativo -->
   <div class="px-3 mb-10 flex flex-col items-start">
     <a class="flex flex-col items-start leading-none select-none">
@@ -16,24 +19,40 @@
         Terra
       </span>
 
-      <span class="font-galega text-sm tracking-[0.22em] uppercase font-semibold -mt-1" style="color: #f5f2eb">
+      <span
+        class="font-galega text-sm tracking-[0.22em] uppercase font-semibold -mt-1"
+        style="color: #f5f2eb"
+      >
         Galega
       </span>
     </a>
 
-    <p class="text-[10px] tracking-widest uppercase mt-2" style="color: rgba(245, 242, 235, 0.25)">
+    <p
+      class="text-[10px] tracking-widest uppercase mt-2"
+      style="color: rgba(245, 242, 235, 0.25)"
+    >
       Panel admin
     </p>
   </div>
 
   <!-- Opciones de navegación entre las secciones del panel -->
-  <nav class="flex flex-col gap-1 flex-1">
-
+  <nav class="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto">
     <!-- Acceso al dashboard (resumen de ventas) -->
-    <button id="tab-dashboard" type="button" (click)="changeTab('dashboard')"
+    <button
+      id="tab-dashboard"
+      type="button"
+      (click)="changeTab('dashboard')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'dashboard'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      [class.active]="activeTab === 'dashboard'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <rect x="3" y="3" width="7" height="9" rx="1" />
         <rect x="14" y="3" width="7" height="5" rx="1" />
         <rect x="14" y="12" width="7" height="9" rx="1" />
@@ -43,11 +62,24 @@
       Dashboard
     </button>
     <!-- Acceso a la sección de productos -->
-    <button id="tab-products" type="button" (click)="changeTab('products')"
+    <button
+      id="tab-products"
+      type="button"
+      (click)="changeTab('products')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'products'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M20 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z" />
+      [class.active]="activeTab === 'products'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path
+          d="M20 7H4a1 1 0 00-1 1v11a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1z"
+        />
         <path d="M16 3H8a1 1 0 00-1 1v3h10V4a1 1 0 00-1-1z" />
       </svg>
 
@@ -55,10 +87,20 @@
     </button>
 
     <!-- Acceso a la sección de categorías -->
-    <button type="button" (click)="changeTab('categories')"
+    <button
+      type="button"
+      (click)="changeTab('categories')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'categories'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      [class.active]="activeTab === 'categories'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <path d="M4 6h16M4 12h16M4 18h16" />
       </svg>
 
@@ -66,10 +108,21 @@
     </button>
 
     <!-- Acceso a la sección de adicionales -->
-    <button id="tab-addons" type="button" (click)="changeTab('addons')"
+    <button
+      id="tab-addons"
+      type="button"
+      (click)="changeTab('addons')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'addons'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      [class.active]="activeTab === 'addons'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <circle cx="12" cy="12" r="9" />
         <path d="M12 8v8M8 12h8" />
       </svg>
@@ -93,18 +146,31 @@
         stroke="currentColor"
         stroke-width="1.5"
       >
-        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+        <path
+          d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+        />
         <circle cx="7" cy="7" r="1" />
       </svg>
 
       Cupones
     </button>
-    
+
     <!-- Acceso a la sección de anuncios del inicio -->
-    <button id="tab-announcements" type="button" (click)="changeTab('announcements')"
+    <button
+      id="tab-announcements"
+      type="button"
+      (click)="changeTab('announcements')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'announcements'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      [class.active]="activeTab === 'announcements'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <path d="M3 11v2a1 1 0 001 1h2l5 4V6L6 10H4a1 1 0 00-1 1z" />
         <path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13" />
       </svg>
@@ -113,33 +179,67 @@
     </button>
 
     <!-- Acceso a la sección de reseñas -->
-    <button id="tab-reviews" type="button" (click)="changeTab('reviews')"
+    <button
+      id="tab-reviews"
+      type="button"
+      (click)="changeTab('reviews')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'reviews'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      [class.active]="activeTab === 'reviews'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path
+          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+        />
       </svg>
 
       Reseñas
     </button>
 
     <!-- Acceso a la sección de órdenes -->
-    <button type="button" (click)="changeTab('orders')"
+    <button
+      type="button"
+      (click)="changeTab('orders')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'orders'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      [class.active]="activeTab === 'orders'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <path
-          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+        />
       </svg>
 
       Ordenes
     </button>
 
     <!-- Acceso a la sección de usuarios -->
-    <button type="button" (click)="changeTab('users')"
+    <button
+      type="button"
+      (click)="changeTab('users')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'users'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      [class.active]="activeTab === 'users'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
@@ -149,10 +249,20 @@
     </button>
 
     <!-- Acceso a la sección de operadores -->
-    <button type="button" (click)="changeTab('operators')"
+    <button
+      type="button"
+      (click)="changeTab('operators')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'operators'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      [class.active]="activeTab === 'operators'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
@@ -162,10 +272,20 @@
     </button>
 
     <!-- Acceso a la sección de domiciliarios -->
-    <button type="button" (click)="changeTab('deliveries')"
+    <button
+      type="button"
+      (click)="changeTab('deliveries')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
-      [class.active]="activeTab === 'deliveries'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      [class.active]="activeTab === 'deliveries'"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
         <circle cx="6" cy="17" r="3" />
         <circle cx="18" cy="17" r="3" />
         <path d="M6 17l3-7h5l4 7M9 10L8 7H5" />
@@ -176,7 +296,10 @@
   </nav>
 
   <!-- Información del administrador y opción para cerrar sesión -->
-  <div class="px-4 py-4 rounded-xl mt-4" style="background-color: rgba(255, 255, 255, 0.04)">
+  <div
+    class="px-4 py-4 rounded-xl mt-4 flex-shrink-0"
+    style="background-color: rgba(255, 255, 255, 0.04)"
+  >
     <p class="text-sm font-medium" style="color: rgba(245, 242, 235, 0.8)">
       {{ adminName }}
     </p>
@@ -186,10 +309,20 @@
     </p>
 
     <!-- Solicita al componente padre gestionar el cierre de sesión -->
-    <button type="button" (click)="logout()"
+    <button
+      type="button"
+      (click)="logout()"
       class="admin-logout-btn flex items-center gap-2 px-4 py-1 text-[12px] font-medium rounded-xl"
-      style="color: #da5858">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      style="color: #da5858"
+    >
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
         <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
         <path d="M16 17l5-5-5-5" />
         <path d="M21 12H9" />

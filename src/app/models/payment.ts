@@ -36,3 +36,9 @@ export interface PendingPayment {
   saveAddress: boolean;
   addressName: string;
 }
+
+// Respuesta de GET /invoices/{orderId}/link
+export interface InvoiceLink {
+  previewUrl: string; // enlace firmado al ticket en PDF
+  qrPngBase64: string; // el mismo enlace como imagen QR
+}

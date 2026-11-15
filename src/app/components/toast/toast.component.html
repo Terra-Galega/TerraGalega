@@ -1,5 +1,7 @@
 <!-- Muestra el aviso cuando el servicio tiene una notificación activa -->
-@if (toastService.toast(); as toast) {
+@if (toastService.toast(); as current) {
+<!-- @for con un solo elemento: cada aviso nuevo crea el elemento otra vez y repite la animación -->
+@for (toast of [current]; track toast) {
   <!-- Contenedor principal de la notificación, ubicado en la parte inferior de la pantalla -->
   <div
     class="toast fixed left-1/2 bottom-8 z-50 w-[calc(100%-2rem)] max-w-md flex items-center gap-4 rounded-2xl pl-4 pr-3 py-3.5"
@@ -10,13 +12,13 @@
       border: 1px solid rgba(44, 44, 44, 0.08);
       box-shadow: 0 12px 40px rgba(44, 44, 44, 0.18), 0 2px 6px rgba(44, 44, 44, 0.06);
     "
-    role="status"
+    [attr.role]="toast.type === 'error' ? 'alert' : 'status'"
     aria-live="polite"
   >
-    <!-- Icono que indica que la operación se realizó correctamente -->
+    <!-- Icono: check verde si la acción salió bien, signo de exclamación rojo si falló -->
     <span
-      class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-      style="background-color: #556141"
+      class="toast-icon w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+      [style.background-color]="toast.type === 'error' ? '#9c2f1f' : '#556141'"
     >
       <svg
         width="20"
@@ -28,7 +30,11 @@
         stroke-linecap="round"
         stroke-linejoin="round"
       >
+        @if (toast.type === 'error') {
+        <path d="M12 7v6M12 17h.01" />
+        } @else {
         <path d="M5 13l4 4L19 7" />
+        }
       </svg>
     </span>
 
@@ -66,4 +72,5 @@
       </svg>
     </button>
   </div>
+}
 }

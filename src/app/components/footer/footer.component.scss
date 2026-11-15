@@ -12,7 +12,13 @@
   display: block;
 }
 
+// Fondo verde con una luz suave en el centro: un verde algo más claro que se va
+// apagando hacia los bordes hasta el verde de la paleta.
 footer {
   background-color: #556141;
+  background-image: radial-gradient(ellipse 70% 85% at 50% 45%,
+      #6b7a52 0%,
+      #627049 35%,
+      #556141 75%);
   color: #f5f2eb;
 }

@@ -16,13 +16,13 @@
           <span class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
             style="color: rgba(44, 44, 44, 0.4)">Nombre</span>
           <input id="profile-name" name="name" [(ngModel)]="name" [maxlength]="nameMax" autocomplete="given-name"
-            class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+            class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
         </label>
         <label class="block">
           <span class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
             style="color: rgba(44, 44, 44, 0.4)">Apellido</span>
           <input id="profile-lastname" name="lastName" [(ngModel)]="lastName" [maxlength]="nameMax"
-            autocomplete="family-name" class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+            autocomplete="family-name" class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
         </label>
       </div>
 
@@ -31,7 +31,7 @@
           style="color: rgba(44, 44, 44, 0.4)">Teléfono</span>
         <input id="profile-phone" name="phone" type="tel" [(ngModel)]="phone" [maxlength]="phoneMax"
           placeholder="+57 300 123 4567" autocomplete="tel" inputmode="tel"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </label>
 
       @if (needsAddress) {
@@ -40,14 +40,14 @@
           style="color: rgba(44, 44, 44, 0.4)">Dirección de entrega</span>
         <input id="profile-address" name="address" [(ngModel)]="address" [maxlength]="addressMax"
           placeholder="Calle 123 #45-67, apto 8" autocomplete="street-address"
-          class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </label>
 
       <label class="block">
         <span class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
           style="color: rgba(44, 44, 44, 0.4)">Nombre de la dirección (opcional)</span>
         <input id="profile-address-name" name="addressName" [(ngModel)]="addressName" maxlength="40"
-          placeholder="Casa" class="input-field w-full px-4 py-3 rounded-xl text-charcoal text-sm" />
+          placeholder="Casa" class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </label>
       }
 

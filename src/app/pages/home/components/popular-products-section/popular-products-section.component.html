@@ -1,18 +1,36 @@
 <!-- Sección de productos populares. -->
 <section id="menu" class="py-24 bg-cream">
   <div class="max-w-7xl mx-auto px-6">
-    <!-- Encabezado con etiqueta superior y título. -->
-    <app-section-heading
-      eyebrow="Más solicitados"
-      title="Favoritos de la casa"
-    />
+    <app-section-heading eyebrow="Más solicitados" title="Favoritos de la casa" />
+  </div>
+  <div class="mx-auto px-6" [class.max-w-7xl]="!animated" [class.wide]="animated">
 
-    <!-- Cuadrícula responsiva: 1 columna en móvil, 2 en tablet y 3 en escritorio. -->
+    @if (!animated) {
+    <!-- Hasta 6 favoritos: cuadrícula fija de 1, 2 o 3 columnas según la pantalla. -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Una tarjeta por producto, usando su id para identificarlo en la lista. -->
-      @for (product of products; track product.id) {
-        <app-product-card [product]="product" />
+      @for (product of all; track product.id) {
+      <app-product-card [product]="product" />
       }
     </div>
+    } @else {
+    <!-- Más de 6: dos filas en movimiento, algo más anchas que el resto de la página. Cada fila
+         repite sus platos dos veces para que el recorrido no tenga cortes; la copia se oculta a
+         los lectores de pantalla, pero se puede pulsar igual para abrir el plato. -->
+    <div class="rows">
+      @for (row of [topRow, bottomRow]; track $index) {
+      <div class="row" [class.reverse]="$index === 1">
+        <div class="track" [style.animation-duration]="durationOf(row)">
+          @for (copy of [0, 1]; track copy) {
+          @for (product of row; track product.id) {
+          <div class="item" [attr.aria-hidden]="copy === 1 ? 'true' : null">
+            <app-product-card [product]="product" />
+          </div>
+          }
+          }
+        </div>
+      </div>
+      }
+    </div>
+    }
   </div>
 </section>

@@ -1,0 +1,6 @@
+// El host ocupa todo el alto que le dé su contenedor (fila o celda de la cuadrícula),
+// así la tarjeta se estira y todas quedan iguales.
+:host {
+  display: block;
+  height: 100%;
+}

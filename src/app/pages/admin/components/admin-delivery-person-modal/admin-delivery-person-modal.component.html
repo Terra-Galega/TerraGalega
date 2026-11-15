@@ -21,12 +21,12 @@
       <div class="grid grid-cols-2 gap-4">
         <app-form-field label="Nombre">
           <input type="text" [value]="form.name" (input)="form.name = $any($event.target).value" placeholder="Pedro"
-            class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+            class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal" />
         </app-form-field>
 
         <app-form-field label="Apellido">
           <input type="text" [value]="form.lastName" (input)="form.lastName = $any($event.target).value"
-            placeholder="Sánchez" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+            placeholder="Sánchez" class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal" />
         </app-form-field>
       </div>
 
@@ -34,19 +34,19 @@
       <app-form-field label="Correo electrónico">
         <input type="email" [value]="form.email" (input)="form.email = $any($event.target).value"
           placeholder="domiciliario@terragalega.com"
-          class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+          class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal" />
       </app-form-field>
 
       <!-- Identificación y teléfono en dos columnas -->
       <div class="grid grid-cols-2 gap-4">
         <app-form-field label="Identificación">
           <input type="text" [value]="form.identification" (input)="form.identification = $any($event.target).value"
-            placeholder="1000123456" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+            placeholder="1000123456" class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal" />
         </app-form-field>
 
         <app-form-field label="Teléfono">
           <input type="tel" [value]="form.phone" (input)="form.phone = $any($event.target).value"
-            placeholder="3001234567" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+            placeholder="3001234567" class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal" />
         </app-form-field>
       </div>
 
@@ -75,7 +75,7 @@
       } @else {
       <app-form-field label="Contraseña">
         <input type="password" [value]="form.password" (input)="form.password = $any($event.target).value"
-          placeholder="Contraseña" class="input-field w-full px-4 py-3 rounded-xl text-sm text-charcoal" />
+          placeholder="Contraseña" class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal" />
       </app-form-field>
       }
 

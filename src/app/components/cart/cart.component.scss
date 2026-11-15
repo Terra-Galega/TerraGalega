@@ -6,3 +6,48 @@
 .btn-terra:hover {
   background-color: #8a2222;
 }
+
+// Fondo del carrito: un velo gris con difuminado moderado. Algo más oscuro que la página
+// para que el panel destaque, sin llegar a taparla.
+.cart-backdrop {
+  background-color: rgb(44 44 44 / .3);
+  backdrop-filter: blur(7px) saturate(110%);
+  -webkit-backdrop-filter: blur(7px) saturate(110%);
+  animation: cart-backdrop-in .22s ease-out both;
+}
+
+// Panel: entrada corta, sube un poco y crece desde el 96 %.
+.cart-panel {
+  animation: cart-panel-in .28s cubic-bezier(.2, .9, .3, 1.1) both;
+}
+
+@keyframes cart-backdrop-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cart-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-backdrop,
+  .cart-panel {
+    animation: none;
+  }
+}

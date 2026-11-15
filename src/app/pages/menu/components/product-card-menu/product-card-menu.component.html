@@ -5,12 +5,12 @@
   class="glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
   (click)="openProductDetail()"
 >
-  <!-- Imagen del producto -->
-  <div class="relative h-56 overflow-hidden">
+  <!-- Imagen del producto: siempre con la misma proporción, tenga o no etiquetas el plato -->
+  <div class="relative aspect-[4/3] flex-shrink-0 overflow-hidden">
     <img
       [src]="product.imageUrl"
       [alt]="product.name"
-      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+      class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
     />
 
     <!-- Insignia Popular (arriba a la izquierda, solo en productos populares) -->
@@ -42,27 +42,28 @@
     </span>
   </div>
 
-  <!-- Información -->
-  <div class="p-6 flex flex-col flex-grow">
+  <!-- Información: ocupa el alto que sobra en la fila y el precio queda siempre abajo -->
+  <div class="px-5 pt-4 pb-5 flex flex-col flex-grow">
     <!-- Nombre -->
     <h3
       [id]="'menu-product-' + product.id"
-      class="menu-product-name font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-2"
+      class="menu-product-name font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-1"
     >
       {{ product.name }}
     </h3>
 
     <!-- Descripción (se recorta a 2 líneas) -->
     <p
-      class="text-sm leading-relaxed line-clamp-2 mb-3 flex-grow min-h-[2.9rem]"
+      class="text-sm leading-relaxed line-clamp-2 mb-2.5"
       style="color: rgba(44, 44, 44, 0.75)"
     >
       {{ product.description }}
     </p>
 
-    <!-- Características: siempre reserva 2 filas para que todas las cards midan igual -->
+    <!-- Características del plato -->
+    <!-- Reserva el alto de una fila de etiquetas para que los precios queden alineados -->
     <app-feature-chips
-      class="flex flex-wrap content-start gap-1.5 mb-4 min-h-[3.5rem]"
+      class="flex flex-wrap content-start gap-1.5 mb-3 min-h-[1.625rem]"
       [product]="product"
     />
 

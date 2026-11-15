@@ -4,6 +4,8 @@ import { Injectable, signal } from '@angular/core';
 export interface Toast {
   title: string;
   message: string;
+  // success: acción completada (icono de check verde); error: algo falló (icono rojo)
+  type: 'success' | 'error';
 }
 
 // Servicio que permite mostrar y cerrar avisos temporales desde cualquier pantalla.
@@ -16,15 +18,21 @@ export class ToastService {
   private timer: ReturnType<typeof setTimeout> | null = null;
 
   // Muestra un aviso durante el tiempo indicado y reemplaza cualquier aviso anterior.
-  show(title: string, message = '', durationMs = 3500) {
+  show(title: string, message = '', durationMs = 3500, type: Toast['type'] = 'success') {
     // Cancela el temporizador anterior para evitar que cierre el nuevo aviso.
     if (this.timer) {
       clearTimeout(this.timer);
     }
 
     // Actualiza el aviso visible y programa su cierre automático.
-    this.toast.set({ title, message });
+    // Siempre es un objeto nuevo: así el aviso se vuelve a animar aunque ya hubiera otro visible.
+    this.toast.set({ title, message, type });
     this.timer = setTimeout(() => this.close(), durationMs);
+  }
+
+  // Aviso de error (no se pudo completar la acción)
+  error(title: string, message = '', durationMs = 4500) {
+    this.show(title, message, durationMs, 'error');
   }
 
   // Cierra el aviso actual y cancela su temporizador si sigue activo.

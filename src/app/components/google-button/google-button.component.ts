@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -54,18 +55,28 @@ function loadGoogleScript(): Promise<void> {
 // elige su cuenta y se emite el ID token (credential) para enviarlo al back.
 @Component({
   selector: 'app-google-button',
+  imports: [NgTemplateOutlet],
   template: `
     @if (enabled) {
+      <!-- Separador "o": antes del botón si va debajo del formulario, después si va encima -->
+      @if (position === 'bottom') {
+        <ng-container *ngTemplateOutlet="divider"></ng-container>
+      }
+      <div #host class="flex justify-center min-h-[44px]"></div>
+      @if (loadError) {
+        <p class="text-sm text-center mt-2" style="color: #8a2222">{{ loadError }}</p>
+      }
+      @if (position === 'top') {
+        <ng-container *ngTemplateOutlet="divider"></ng-container>
+      }
+    }
+    <ng-template #divider>
       <div class="flex items-center gap-3 my-6" aria-hidden="true">
         <span class="flex-1 h-px" style="background: rgba(44, 44, 44, 0.12)"></span>
         <span class="text-xs uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">o</span>
         <span class="flex-1 h-px" style="background: rgba(44, 44, 44, 0.12)"></span>
       </div>
-      <div #host class="flex justify-center min-h-[44px]"></div>
-      @if (loadError) {
-        <p class="text-sm text-center mt-2" style="color: #8a2222">{{ loadError }}</p>
-      }
-    }
+    </ng-template>
   `,
 })
 export class GoogleButtonComponent implements AfterViewInit {
@@ -73,6 +84,8 @@ export class GoogleButtonComponent implements AfterViewInit {
 
   // 'signup' muestra "Registrarse con Google"; 'login', "Continuar con Google"
   @Input() mode: 'login' | 'signup' = 'login';
+  // 'top': el botón va encima del formulario (registro); 'bottom': debajo (inicio de sesión)
+  @Input() position: 'top' | 'bottom' = 'bottom';
   @Output() credential = new EventEmitter<string>();
 
   @ViewChild('host') host?: ElementRef<HTMLElement>;

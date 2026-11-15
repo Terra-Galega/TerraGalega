@@ -24,7 +24,7 @@ export class ContactInfoComponent {
   @Input() contactItems: ContactInfo[] = [
     {
       title: 'Dirección',
-      value: 'Calle 93 #15-47, Zona Rosa, Bogotá',
+      value: 'Ak 15 # 92-81, Chapinero, Bogotá',
       icon: 'location',
     },
     {

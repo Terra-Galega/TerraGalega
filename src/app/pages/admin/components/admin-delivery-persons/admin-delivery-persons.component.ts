@@ -129,6 +129,8 @@ export class AdminDeliveryPersonsComponent implements OnChanges {
   toggleDeliveryPerson(person: DeliveryPerson) {
     this.deliveryPersonService.toggleDeliveryPersonActive(person.id).subscribe({
       next: () => {
+        // El estado que llega aún es el anterior al cambio
+        this.toast.show(person.active ? 'Domiciliario desactivado' : 'Domiciliario activado');
         this.deliveryPersonService.refresh();
       },
       error: (error) => {

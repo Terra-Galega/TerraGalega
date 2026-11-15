@@ -36,9 +36,9 @@
   } @else {
   <!-- Campo del código y botón Aplicar -->
   <div class="flex items-center gap-3">
-    <div class="flex-1 min-w-0 rounded-2xl overflow-hidden" style="background-color: rgba(255, 255, 255, 0.85)"
+    <div class="flex-1 min-w-0 rounded-full overflow-hidden" style="background-color: rgba(255, 255, 255, 0.85)"
       [style.border]="error ? '1px solid #8a2222' : '1px solid rgba(44, 44, 44, 0.12)'">
-      <label class="block px-4 pt-2.5 pb-2">
+      <label class="block px-6 pt-2.5 pb-2">
         <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Código del cupón</span>
         <input id="coupon-code" type="text" [value]="code" (input)="setCode($event)" (keydown.enter)="onEnter($event)"
           maxlength="40" placeholder="Ej: BIENVENIDA-1" autocomplete="off"
