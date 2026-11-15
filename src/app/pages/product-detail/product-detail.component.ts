@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { Product, ProductDetail } from '../../models/product';
@@ -48,6 +49,7 @@ export class ProductDetailComponent implements OnInit {
   private router = inject(Router);
   private productService = inject(ProductService);
   private destroyRef = inject(DestroyRef);
+  private title = inject(Title);
   // Suscripción de la actualización automática, para poder cancelarla
   private refreshSub?: Subscription;
 
@@ -116,6 +118,8 @@ export class ProductDetailComponent implements OnInit {
         }
 
         this.product = product;
+        // La pestaña (y el lector de pantalla) dicen qué plato es: "Pulpo a la Brasa · Terra Galega"
+        this.title.setTitle(`${product.name} · Terra Galega`);
 
         // related es null si esa petición falló: en ese caso se conservan los anteriores
         if (related) {

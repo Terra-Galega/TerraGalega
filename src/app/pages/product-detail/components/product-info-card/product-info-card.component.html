@@ -31,7 +31,7 @@
           style="color: #d99a21"
         >
           <app-star-icon />
-          Popular
+          Popular<span class="sr-only">: uno de los platos más pedidos</span>
         </span>
       }
     </div>
@@ -112,8 +112,10 @@
         >
           Total
         </p>
-        <span id="product-total" class="font-serif text-3xl font-bold" style="color: #b2571f"
-          >${{ totalPrice | number: "1.0-0" }}</span
+        <!-- aria-live: el total se anuncia cuando cambian la cantidad o los adicionales -->
+        <span id="product-total" class="font-serif text-3xl font-bold" style="color: #b2571f" aria-live="polite"
+          ><span class="sr-only">{{ totalPrice | number: "1.0-0" }} pesos</span
+          ><span aria-hidden="true">${{ totalPrice | number: "1.0-0" }}</span></span
         >
       </div>
     </div>

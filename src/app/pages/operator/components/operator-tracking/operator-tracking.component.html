@@ -51,7 +51,7 @@
       </div>
 
       <div class="tracking-actions">
-        <button
+        <button [attr.aria-pressed]="following"
           type="button"
           [class.active]="following"
           (click)="toggleFollow()"

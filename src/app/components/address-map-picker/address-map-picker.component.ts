@@ -16,6 +16,7 @@ import type { Map as MapLibreMap } from 'maplibre-gl';
 
 import { MapAddressService } from '../../services/map-address.service';
 import { getErrorMessage } from '../../utils/http-error';
+import { MAP_LOCALE_ES } from '../../utils/map-locale';
 
 type Lookup =
   | { kind: 'search'; address: string }
@@ -142,6 +143,8 @@ export class AddressMapPickerComponent implements AfterViewInit {
 
       const map = new Map({
         container,
+        // Controles en español (para el lector de pantalla)
+        locale: MAP_LOCALE_ES,
         style: 'https://tiles.openfreemap.org/styles/liberty',
         center: [-74.0503, 4.6767],
         zoom: 14,

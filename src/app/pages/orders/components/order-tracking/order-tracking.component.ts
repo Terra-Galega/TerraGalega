@@ -24,6 +24,7 @@ import {
   markerElement,
   setFacingLeft,
 } from '../../../../utils/map-markers';
+import { MAP_LOCALE_ES } from '../../../../utils/map-locale';
 
 // Seguimiento del pedido en camino (equivalente a la pantalla "Seguir mi pedido" de la app móvil):
 // mapa con el restaurante, la ruta, el repartidor y el destino; además el PIN de entrega.
@@ -289,6 +290,8 @@ export class OrderTrackingComponent implements AfterViewInit {
 
       const map = new Map({
         container,
+        // Controles en español (para el lector de pantalla)
+        locale: MAP_LOCALE_ES,
         style: 'https://tiles.openfreemap.org/styles/liberty',
         center: [first.lon, first.lat],
         zoom: 12,

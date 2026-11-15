@@ -25,7 +25,7 @@
         </p>
       </div>
       <app-icon-button variant="soft" label="Cerrar" (click)="close()">
-        <svg
+        <svg aria-hidden="true" focusable="false"
           width="15"
           height="15"
           viewBox="0 0 24 24"
@@ -45,6 +45,7 @@
       </h3>
 
       <app-segmented-control
+        label="Tipo de periodo"
         [options]="modeOptions"
         [value]="mode"
         (valueChange)="setMode($event)"
