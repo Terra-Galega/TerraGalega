@@ -15,7 +15,12 @@
             (edit)="editProfile()"
           ></app-personal-info>
 
-          <app-account-actions (logout)="logout()"></app-account-actions>
+            <app-account-actions
+            [subscription]="subscription"
+            [confirmingPayment]="confirmingPayment"
+            (logout)="logout()"
+            (upgrade)="openSubscribeModal()"
+          ></app-account-actions>
         </div>
 
         <app-address-list [clientId]="client.id"></app-address-list>
@@ -63,6 +68,18 @@
   variant="danger"
   (confirm)="confirmDelete()"
   (cancel)="cancelDelete()"
+></app-modal>
+<!--modal de la suscripción Premium: beneficios, precio y aviso de que no hay reembolso-->
+<app-modal
+  [open]="showSubscribeModal"
+  [title]="subscribeTitle"
+  [message]="subscribeMessage"
+  [items]="subscribeBenefits"
+  [warning]="subscribeWarning"
+  [confirmLabel]="subscribeConfirmLabel"
+  cancelLabel="Ahora no"
+  (confirm)="confirmSubscribe()"
+  (cancel)="closeSubscribeModal()"
 ></app-modal>
 <!--modal de error para que falle bonito-->
 <app-modal

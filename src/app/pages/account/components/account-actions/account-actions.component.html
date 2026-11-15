@@ -15,6 +15,28 @@
     <app-button routerLink="/coupons" variant="primary" size="md" [fullWidth]="true">
       Mis cupones
     </app-button>
+        <!--Suscripción Premium: suscribirme / premium activo (deshabilitado) / renovar-->
+    <div>
+      <app-button
+        id="premium-btn"
+        variant="sage"
+        size="md"
+        [fullWidth]="true"
+        [disabled]="premiumDisabled"
+        (click)="onUpgrade()"
+      >
+        {{ premiumLabel }}
+      </app-button>
+      @if (premiumHint) {
+        <p
+          id="premium-hint"
+          class="text-[12px] text-center mt-2"
+          style="color: rgba(44, 44, 44, 0.55)"
+        >
+          {{ premiumHint }}
+        </p>
+      }
+    </div>
     <app-button variant="neutral" size="md" [fullWidth]="true" (click)="logout.emit()">
       Cerrar sesión
     </app-button>

@@ -3,19 +3,29 @@
     class="relative overflow-hidden h-36 md:h-44"
     style="background: #556141"
   >
+        <!--Plan del cliente: Premium (dorado) o Freemium-->
     <div
+      id="profile-plan"
       class="absolute top-6 right-6 md:top-8 md:right-8 px-4 py-1.5 rounded-full text-[11px] tracking-widest uppercase flex items-center gap-2"
-      style="
-        background: rgba(255, 255, 255, 0.15);
-        color: #f5f2eb;
-        border: 1px solid rgba(255, 255, 255, 0.25);
+      style="color: #f5f2eb"
+      [style.background]="
+        client.subscribed
+          ? 'rgba(217, 154, 33, 0.28)'
+          : 'rgba(255, 255, 255, 0.15)'
+      "
+      [style.border]="
+        client.subscribed
+          ? '1px solid rgba(217, 154, 33, 0.7)'
+          : '1px solid rgba(255, 255, 255, 0.25)'
       "
     >
       <span
         class="w-1.5 h-1.5 rounded-full"
-        style="background-color: #d99a21"
+        [style.background-color]="
+          client.subscribed ? '#d99a21' : 'rgba(245, 242, 235, 0.55)'
+        "
       ></span>
-      Sesión iniciada
+      {{ client.subscribed ? "Premium" : "Freemium" }}
     </div>
   </div>
   <!--Info-->

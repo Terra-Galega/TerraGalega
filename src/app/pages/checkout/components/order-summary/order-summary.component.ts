@@ -15,6 +15,8 @@ export class OrderSummaryComponent {
   @Input() total = 0;
   // Costo del domicilio; si es 0 (paso 1) la línea no se muestra
   @Input() deliveryFee = 0;
+  // true si el cliente es Premium: en vez del costo se muestra "Domicilio gratis"
+  @Input() freeDelivery = false;
   // Descuento del cupón; si es 0 (sin cupón) la línea no se muestra
   @Input() discount = 0;
   // Código del cupón aplicado, para mostrarlo en la línea del descuento
