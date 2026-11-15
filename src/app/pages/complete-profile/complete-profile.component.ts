@@ -16,6 +16,12 @@ const NAME_MAX = 70;
 const PHONE_MAX = 25;
 const ADDRESS_MAX = 120;
 
+// A dónde se vuelve según el parámetro "redirect" (sin él, a la cuenta)
+const REDIRECTS: Record<string, string> = {
+  checkout: '/checkout',
+  reservations: '/reservations',
+};
+
 // Después de crear la cuenta con Google: pide lo que Google no da y el
 // registro normal sí exige (apellido, teléfono y una dirección de entrega).
 @Component({
@@ -97,8 +103,8 @@ export class CompleteProfileComponent implements OnInit {
       .subscribe({
         next: (user) => {
           this.auth.setSession(user);
-          const redirect = this.route.snapshot.queryParamMap.get('redirect');
-          this.router.navigate([redirect === 'checkout' ? '/checkout' : '/account'], {
+          const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '';
+          this.router.navigate([REDIRECTS[redirect] ?? '/account'], {
             replaceUrl: true,
           });
         },

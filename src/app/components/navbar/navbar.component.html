@@ -18,7 +18,9 @@
         [class.active]="isActive('/menu')" (click)="goToMenu()">
         MENÚ
       </a>
-      <a class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+      <!-- id usado por el tutorial de "hacer una reserva" -->
+      <a id="nav-reservations"
+        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/reservations')" (click)="goToReservations()">
         RESERVAS
       </a>

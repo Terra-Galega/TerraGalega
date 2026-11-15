@@ -10,6 +10,7 @@ import { LoginFormsComponent } from './components/login-forms/login-forms.compon
 import { GoogleButtonComponent } from '../../components/google-button/google-button.component';
 import { ToastService } from '../../services/toast.service';
 import { TutorialAuthService } from '../../services/tutorial-auth.service';
+import { TutorialService } from '../../services/Tutorial.service';
 import { AuthService, LoginResponse } from '../../services/auth.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
@@ -19,6 +20,20 @@ const RESEND_COOLDOWN_SECONDS = 60;
 
 // Código con el que el back avisa que la contraseña es correcta pero falta confirmar el correo.
 const EMAIL_NOT_VERIFIED_CODE = 'EMAIL_NOT_VERIFIED';
+
+// A dónde vuelve el cliente según el parámetro ?redirect=
+const REDIRECTS: Record<string, string> = {
+  checkout: '/checkout',
+  reservations: '/reservations',
+  home: '/aboutUs',
+  aboutUs: '/aboutUs',
+};
+
+// Página a la que vuelve si viene de un tutorial (aunque la URL no traiga redirect)
+const TOUR_REDIRECTS = {
+  order: '/checkout',
+  reservation: '/reservations',
+} as const;
 
 @Component({
   selector: 'app-login',
@@ -69,6 +84,8 @@ export class LoginComponent implements OnDestroy {
   private auth = inject(AuthService);
   private toast = inject(ToastService);
   private tutorialAuth = inject(TutorialAuthService);
+  // Para saber si el cliente viene de un tutorial y devolverlo a su página
+  private tutorial = inject(TutorialService);
   constructor() {
     // /login?tab=signup abre directo la pestaña de crear cuenta
     if (this.route.snapshot.queryParamMap.get('tab') === 'signup') {
@@ -76,22 +93,22 @@ export class LoginComponent implements OnDestroy {
     }
     this.tutorialAuth.resumeLogin();
   }
-  
 
-  // Si llegaron desde /checkout sin sesión, después de entrar vuelven allí
+  // Ruta a la que se va después de entrar:
+  // 1. Si viene de un tutorial, a la página donde sigue (checkout o reservas).
+  // 2. Si la URL trae ?redirect=, a esa página.
+  // 3. Si no, a su cuenta.
+  private afterAuthRoute(): string {
+    const flow = this.tutorial.currentFlow();
+    if (flow) return TOUR_REDIRECTS[flow];
+
+    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '';
+    return REDIRECTS[redirect] ?? '/account';
+  }
+
+  // Después de iniciar sesión como cliente
   private goAfterClientAuth(): void {
-    const redirect = this.route.snapshot.queryParamMap.get('redirect');
-    // Si venían de checkout, los redirigimos allí
-    if (redirect === 'checkout') {
-      this.router.navigate(['/checkout']);
-      return;
-    }
-    if (redirect === 'home' || redirect === 'aboutUs') {
-      this.router.navigate(['/aboutUs']);
-      return;
-    }
-    // Si no, van a su cuenta
-    this.router.navigate(['/account']);
+    this.router.navigate([this.afterAuthRoute()]);
   }
   // Cambia la pestaña activa entre login y signup
   selectTab(tab: 'login' | 'signup') {
@@ -149,7 +166,11 @@ export class LoginComponent implements OnDestroy {
       next: (user) => {
         this.auth.setSession(user);
         if (user.profileComplete === false) {
-          const redirect = this.route.snapshot.queryParamMap.get('redirect');
+          // Se pasa a dónde volver: el del tutorial o el de la URL
+          const flow = this.tutorial.currentFlow();
+          const redirect = flow
+            ? (flow === 'order' ? 'checkout' : 'reservations')
+            : this.route.snapshot.queryParamMap.get('redirect');
           this.router.navigate(['/complete-profile'], {
             queryParams: redirect ? { redirect } : {},
           });

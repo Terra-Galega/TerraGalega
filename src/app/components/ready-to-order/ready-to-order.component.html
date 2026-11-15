@@ -7,18 +7,13 @@
     {{ message }}
   </p>
 
-  <!-- Botones -->
+  <!-- Botones. Si se indicó "redirect", después de entrar se vuelve a esa página -->
   <div class="flex flex-col sm:flex-row gap-3 justify-center">
-    <app-button variant="outline" size="lg" routerLink="/login">
+    <app-button id="cta-login" variant="outline" size="lg" routerLink="/login" [queryParams]="loginParams">
       Iniciar sesión
     </app-button>
     <!-- Lleva al login con la pestaña de registro ya seleccionada -->
-    <app-button
-      variant="outline"
-      size="lg"
-      [routerLink]="['/login']"
-      [queryParams]="{ tab: 'register' }"
-    >
+    <app-button id="cta-signup" variant="outline" size="lg" [routerLink]="['/login']" [queryParams]="signupParams">
       Crear una cuenta
     </app-button>
     <app-button variant="outline" size="lg" routerLink="/menu">

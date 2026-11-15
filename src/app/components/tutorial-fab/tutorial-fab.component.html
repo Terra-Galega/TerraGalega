@@ -1,20 +1,51 @@
-<!-- Pegado al borde derecho, centrado en vertical. En celular solo se ve el ícono. -->
-<button
-    id="tutorial-fab"
-    type="button"
-    class="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex items-center gap-2 rounded-l-full pl-4 pr-3 py-3 text-white shadow-xl cursor-pointer transition-all duration-300 hover:pr-5"
-    style="background-color: #b2571f"
-    aria-label="Aprende a hacer un pedido"
-    (click)="startOrderTour()"
->
-<!-- Ícono de signo de pregunta -->
-<svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-    />
+<!-- Pegado al borde derecho, centrado en vertical. Plegado solo se ve el ícono; al pasar
+     el mouse (o con el menú abierto) se despliega el texto «¿Cómo funciona?». -->
+<div class="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-end gap-3">
+  <!-- Lista de tutoriales: aparece encima del botón al tocarlo -->
+  @if (open) {
+  <div id="tutorial-menu" role="menu" aria-label="Tutoriales"
+    class="mr-3 flex flex-col gap-2 rounded-2xl p-2 shadow-xl"
+    style="background-color: rgba(255, 255, 255, 0.96); border: 1px solid rgba(178, 87, 31, 0.25)">
+    <button id="tutorial-order" type="button" role="menuitem"
+      class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
+      style="color: #2c2c2c" (click)="startTour('order')">
+      <!-- Ícono de carrito -->
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#b2571f">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      ¿Cómo hago un pedido?
+    </button>
+    <button id="tutorial-reservation" type="button" role="menuitem"
+      class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
+      style="color: #2c2c2c" (click)="startTour('reservation')">
+      <!-- Ícono de calendario -->
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#b2571f">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      ¿Cómo hago una reserva?
+    </button>
+  </div>
+  }
+
+  <!-- "group": el texto de adentro reacciona al hover del botón completo -->
+  <button id="tutorial-fab" type="button"
+    class="group flex items-center rounded-l-full pl-3 pr-2.5 py-3 text-white shadow-xl cursor-pointer transition-all duration-300 hover:pl-4 hover:pr-4 focus-visible:pl-4 focus-visible:pr-4"
+    [class.pl-4]="open" [class.pr-4]="open"
+    style="background-color: #b2571f" aria-label="Ver tutoriales" aria-controls="tutorial-menu"
+    [attr.aria-expanded]="open" (click)="toggle()">
+    <!-- Ícono de signo de pregunta: lo único visible con el botón plegado -->
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
-    <span class="hidden md:inline text-sm font-medium tracking-wide">¿Cómo hago un pedido?</span>
-</button>
+    <!-- Texto plegado (ancho 0 y transparente); se despliega deslizándose al pasar el mouse,
+         con el foco del teclado o mientras el menú está abierto -->
+    <span
+      class="overflow-hidden whitespace-nowrap text-sm font-medium tracking-wide max-w-0 opacity-0 ml-0 transition-all duration-300 ease-out group-hover:max-w-[12rem] group-hover:opacity-100 group-hover:ml-2 group-focus-visible:max-w-[12rem] group-focus-visible:opacity-100 group-focus-visible:ml-2"
+      [class.max-w-[12rem]]="open" [class.opacity-100]="open" [class.ml-2]="open">
+      ¿Cómo funciona?
+    </span>
+  </button>
+</div>

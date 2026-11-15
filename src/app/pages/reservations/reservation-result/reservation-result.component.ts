@@ -9,6 +9,7 @@ import { ButtonComponent } from '../../../components/button/button.component';
 import { Reservation } from '../../../models/reservation';
 import { ReservationService } from '../../../services/reservation.service';
 import { ToastService } from '../../../services/toast.service';
+import { TutorialReservationService } from '../../../services/tutorial-reservation.service';
 import { getErrorMessage } from '../../../utils/http-error';
 
 // Cada cuánto se pregunta el estado mientras Stripe confirma el pago
@@ -27,6 +28,7 @@ type View =
 // Página a la que vuelve Stripe tras pagar el anticipo de la reserva:
 // /reservations/result?reservation=ID[&canceled=true].
 // Consulta el pago al back (que pregunta a Stripe); si se aprobó, la reserva queda confirmada.
+// Si el cliente venía del tutorial "hacer una reserva", aquí se retoma.
 @Component({
   selector: 'app-reservation-result',
   imports: [NavbarComponent, FooterComponent, PageHeaderComponent, ButtonComponent],
@@ -38,6 +40,7 @@ export class ReservationResultComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private reservationService = inject(ReservationService);
   private toast = inject(ToastService);
+  private tutorialReservation = inject(TutorialReservationService);
 
   view: View = 'checking';
   reservation: Reservation | null = null;
@@ -96,7 +99,8 @@ export class ReservationResultComponent implements OnInit {
 
   // Vuelve a la página de pago de Stripe (la sesión sigue abierta)
   payAgain(): void {
-    if (this.reservation) this.reservationService.redirectToStripe(this.reservation);
+    if (!this.reservation) return;
+    this.reservationService.redirectToStripe(this.reservation);
   }
 
   // Cancela la reserva sin pagar: no se cobra nada y la mesa se libera

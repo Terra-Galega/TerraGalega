@@ -18,9 +18,10 @@ const WHEN_DELAY_MS = 150;
 
 // Páginas por las que puede pasar un tutorial que quedó pendiente (flujo).
 // Si el cliente se va a otra, el flujo se descarta.
+// '/reservations' también cubre '/reservations/result' (vuelta de Stripe).
 const FLOW_ROUTES: Record<TourName, string[]> = {
     order: ['/login', '/complete-profile', '/checkout'],
-    reservation: ['/reservations'],
+    reservation: ['/reservations', '/login', '/complete-profile'],
 };
 
 // Un paso del tutorial en formato simple; el servicio lo convierte a DriveStep
@@ -63,12 +64,12 @@ export interface TourStep {
 }
 
 // Motor de los tutoriales guiados con driver.js.
-// Solo hay uno activo a la vez; los pasos de "order" se definen en stepsFor().
+// Solo hay uno activo a la vez; el primer tramo de cada tutorial se define en stepsFor().
 // Funciona entre páginas: el globo sigue activo mientras el router cambia de ruta.
 //
-// Un tutorial puede continuar en otra página con un servicio auxiliar (ver
-// TutorialLoginService): al terminar su tramo, el motor deja el "flujo" armado
-// (armFlow) y la página siguiente llama a su auxiliar, que lo retoma con run().
+// Un tutorial puede continuar en otra página con un servicio auxiliar (TutorialAuthService,
+// TutorialCheckoutService, TutorialReservationService): al terminar su tramo, el motor deja
+// el "flujo" armado (armFlow) y la página siguiente llama a su auxiliar, que lo retoma con run().
 @Injectable({ providedIn: 'root' })
 export class TutorialService {
     // Tutorial que se está mostrando ahora (null = ninguno)
@@ -169,6 +170,12 @@ export class TutorialService {
     // ¿Hay un tramo pendiente de ese tutorial?
     hasFlow(name: TourName): boolean {
         return this.flow === name;
+    }
+
+    // Tutorial que tiene un tramo pendiente (null = ninguno). Lo usa el login,
+    // que es compartido por los tutoriales de pedido y de reserva.
+    currentFlow(): TourName | null {
+        return this.flow;
     }
 
     // Termina el flujo: ya no quedan tramos
@@ -283,7 +290,8 @@ export class TutorialService {
         if (step.waitInput) {
             const { selector, valid } = step.waitInput;
             // "change" se dispara al salir del campo o pulsar Enter, no en cada tecla:
-            // así el globo no se mueve mientras el cliente todavía está escribiendo
+            // así el globo no se mueve mientras el cliente todavía está escribiendo.
+            // También sirve para <select> y <input type="date">.
             document.addEventListener(
                 'change',
                 (event) => {
@@ -300,6 +308,9 @@ export class TutorialService {
     // que cargan), salta los pasos condicionales que no aplican y los opcionales
     // cuyo elemento no aparece.
     private async advance(from: number): Promise<void> {
+        // Si mientras se espera arranca otro tramo (p. ej. la página siguiente retomó
+        // el tutorial), este avance se descarta para no cerrar el tramo nuevo
+        const id = this.runId;
         this.advancing = true;
         try {
             let next = from + 1;
@@ -310,7 +321,7 @@ export class TutorialService {
                 // Paso condicional: se deja que la página reaccione y se revisa
                 if (step.when) {
                     await new Promise((r) => setTimeout(r, WHEN_DELAY_MS));
-                    if (!this.active) return;
+                    if (id !== this.runId || !this.active) return;
                     if (!step.when()) {
                         next++;
                         continue;
@@ -323,7 +334,9 @@ export class TutorialService {
                 if (!target) break;
 
                 const wait = step.optional ? OPTIONAL_WAIT_MS : REQUIRED_WAIT_MS;
-                if (await this.waitForElement(target, wait)) break;
+                const found = await this.waitForElement(target, wait);
+                if (id !== this.runId) return;
+                if (found) break;
 
                 if (!step.optional) {
                     console.warn('Tutorial: no apareció el elemento', target);
@@ -436,7 +449,7 @@ export class TutorialService {
         this.abort = null;
     }
 
-    // Pasos de cada tutorial
+    // Primer tramo de cada tutorial
     private stepsFor(name: TourName): TourStep[] {
         switch (name) {
             case 'order':
@@ -551,6 +564,22 @@ export class TutorialService {
                         align: 'center',
                         waitClick: '#btn-cart-checkout',
                         afterClick: () => this.armFlow('order'),
+                    },
+                ];
+            case 'reservation':
+                return [
+                    // En el home: entrar a reservas. Es el único paso de este tramo; al pulsar
+                    // queda el flujo armado y la página de reservas lo retoma
+                    // (TutorialReservationService), con o sin sesión.
+                    {
+                        element: '#nav-reservations',
+                        title: 'Reserva tu mesa',
+                        description:
+                            'Haz clic en «RESERVAS» para ver el plano del restaurante y elegir tu mesa.',
+                        side: 'bottom',
+                        align: 'center',
+                        waitClick: '#nav-reservations',
+                        afterClick: () => this.armFlow('reservation'),
                     },
                 ];
             default:

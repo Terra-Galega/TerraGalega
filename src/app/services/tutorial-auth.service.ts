@@ -1,16 +1,30 @@
 import { Injectable, inject } from '@angular/core';
-import { TourStep, TutorialService } from './Tutorial.service';
+import { TourName, TourStep, TutorialService } from './Tutorial.service';
 import { isValidEmail } from '../utils/email';
 
 // Mismo formato de teléfono que valida la página de completar perfil
 const PHONE_REGEX = /^\+?[\d\s-]{7,}$/;
 
-// Servicio auxiliar: pasos de entrada a la cuenta dentro del tutorial "hacer un pedido".
+// Textos que cambian según el tutorial que trajo al cliente al login
+interface FlowTexts {
+    // Para qué necesita la cuenta: "confirmar tu pedido" / "reservar tu mesa"
+    goal: string;
+    // A dónde vuelve después: "seguir con tu pedido" / "seguir con tu reserva"
+    back: string;
+}
+
+const TEXTS: Record<TourName, FlowTexts> = {
+    order: { goal: 'confirmar tu pedido', back: 'seguir con tu pedido' },
+    reservation: { goal: 'reservar tu mesa', back: 'seguir con tu reserva' },
+};
+
+// Servicio auxiliar: pasos de entrada a la cuenta. Lo comparten los tutoriales
+// "hacer un pedido" y "hacer una reserva".
 // No corre solo: las páginas lo llaman al abrirse, y solo arranca si el cliente viene
-// del tutorial (el carrito dejó el flujo armado). Un cliente que ya tiene sesión nunca
+// de un tutorial (quedó un flujo armado). Un cliente que ya tiene sesión nunca
 // pasa por /login, así que nunca ve estos pasos.
 //
-//   /login            -> resumeLogin():   elegir iniciar sesión, registrarse o Google
+//   /login            -> resumeLogin():   elegir iniciar sesión o registrarse
 //   /complete-profile -> resumeProfile(): completar datos tras entrar con Google
 @Injectable({ providedIn: 'root' })
 export class TutorialAuthService {
@@ -18,36 +32,37 @@ export class TutorialAuthService {
 
     // La llama LoginComponent al abrirse. Si no hay tutorial pendiente, no hace nada.
     resumeLogin(): void {
-        if (!this.tutorial.hasFlow('order')) return;
-        void this.tutorial.run(this.chooseSteps());
+        const flow = this.tutorial.currentFlow();
+        if (!flow) return;
+        void this.tutorial.run(this.chooseSteps(TEXTS[flow]));
     }
 
     // La llama CompleteProfileComponent al abrirse (cuenta creada con Google).
     resumeProfile(): void {
-        if (!this.tutorial.hasFlow('order')) return;
-        void this.tutorial.run(this.profileSteps());
+        const flow = this.tutorial.currentFlow();
+        if (!flow) return;
+        void this.tutorial.run(this.profileSteps(TEXTS[flow]));
     }
 
     // ---- Elegir cómo entrar ----
 
-    // Un solo paso que resalta toda la tarjeta (pestañas, formulario y botón de Google).
-    // Según lo que toque el cliente, arranca el tramo que corresponde.
-    private chooseSteps(): TourStep[] {
+    // Un solo paso que resalta SOLO las pestañas «Iniciar sesión» y «Registrarse».
+    // Lo demás de la tarjeta (formulario, botón de Google) queda bajo la zona oscura
+    // y no se puede tocar: así el cliente no se salta el flujo.
+    // Según la pestaña que toque, arranca el tramo que corresponde.
+    private chooseSteps(t: FlowTexts): TourStep[] {
         return [
             {
-                element: '#auth-card',
+                element: '#auth-tabs',
                 title: '¿Cómo quieres continuar?',
-                description:
-                    'Para confirmar tu pedido necesitas una cuenta. Toca «Iniciar sesión» si ya tienes una, «Registrarse» para crear una, o usa el botón de Google de más abajo.',
+                description: `Para ${t.goal} necesitas una cuenta. Toca «Iniciar sesión» si ya tienes una, o «Registrarse» para crear una.`,
                 side: 'right',
                 align: 'center',
-                // Pestañas. El botón de Google no se escucha: abre su propia ventana y,
-                // al terminar, la página cambia sola y el tutorial se cierra.
                 waitClick: '#auth-tabs button',
                 afterClick: (target) => {
                     const branch = target.closest('#tab-signup-btn')
-                        ? this.signupSteps()
-                        : this.loginSteps();
+                        ? this.signupSteps(t)
+                        : this.loginSteps(t);
                     // Se arranca después de que el motor cierre este tramo
                     setTimeout(() => void this.tutorial.run(branch));
                 },
@@ -58,8 +73,8 @@ export class TutorialAuthService {
     // ---- Iniciar sesión ----
 
     // El último paso espera a que el cliente se vaya de /login: así, si se equivoca de
-    // contraseña, el globo sigue ahí. El flujo queda armado para el checkout.
-    private loginSteps(): TourStep[] {
+    // contraseña, el globo sigue ahí. El flujo queda armado para la página siguiente.
+    private loginSteps(t: FlowTexts): TourStep[] {
         return [
             // Correo: avanza al escribir uno válido y salir del campo,
             // o al tocar la cuenta de cliente de prueba (el primer botón de prueba)
@@ -88,8 +103,7 @@ export class TutorialAuthService {
             {
                 element: '#btn-login',
                 title: 'Entra a tu cuenta',
-                description:
-                    'Pulsa «Iniciar sesión». Te llevaremos de vuelta para seguir con tu pedido.',
+                description: `Pulsa «Iniciar sesión». Te llevaremos de vuelta para ${t.back}.`,
                 side: 'right',
                 align: 'center',
                 waitNavigation: true,
@@ -100,7 +114,7 @@ export class TutorialAuthService {
     // ---- Registrarse ----
 
     // Un paso por campo; cada uno avanza cuando el cliente lo escribe y sale del campo.
-    private signupSteps(): TourStep[] {
+    private signupSteps(t: FlowTexts): TourStep[] {
         return [
             {
                 element: '#signup-form',
@@ -145,7 +159,7 @@ export class TutorialAuthService {
             {
                 element: '#signup-phone',
                 title: 'Tu teléfono',
-                description: 'Lo usamos para contactarte si hay algún problema con tu pedido.',
+                description: 'Lo usamos para contactarte si hay algún cambio con tu pedido o tu reserva.',
                 side: 'right',
                 align: 'center',
                 waitInput: { selector: '#signup-phone', valid: (v) => PHONE_REGEX.test(v.trim()) },
@@ -172,8 +186,7 @@ export class TutorialAuthService {
             {
                 element: '#signup-pending',
                 title: '¡Revisa tu correo!',
-                description:
-                    'Te enviamos un enlace para activar tu cuenta. Ábrelo y, cuando vuelvas, inicia sesión para seguir con tu pedido.',
+                description: `Te enviamos un enlace para activar tu cuenta. Ábrelo y, cuando vuelvas, inicia sesión para ${t.back}.`,
                 side: 'right',
                 align: 'center',
             },
@@ -182,7 +195,7 @@ export class TutorialAuthService {
 
     // ---- Completar perfil (cuenta creada con Google) ----
 
-    private profileSteps(): TourStep[] {
+    private profileSteps(t: FlowTexts): TourStep[] {
         return [
             {
                 element: '#complete-profile-form',
@@ -213,7 +226,7 @@ export class TutorialAuthService {
             {
                 element: '#btn-complete-profile',
                 title: 'Guarda y continúa',
-                description: 'Pulsa «Guardar y continuar» para volver a tu pedido.',
+                description: `Pulsa «Guardar y continuar» para ${t.back}.`,
                 side: 'right',
                 align: 'center',
                 waitNavigation: true,

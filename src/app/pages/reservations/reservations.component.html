@@ -14,7 +14,7 @@
   } @else if (reservation && !editing) {
   <!-- TU RESERVA: cada cliente tiene como máximo una. Si el anticipo está pendiente se puede ir
        a pagar o cancelar; si está pagada, editar o eliminar (sin reembolso). -->
-  <section class="summary-card my-reservation" aria-labelledby="my-reservation-heading">
+  <section id="my-reservation" class="summary-card my-reservation" aria-labelledby="my-reservation-heading">
     <h2 id="my-reservation-heading">Tu reserva</h2>
     @if (paymentPending) {
     <p class="status-pill pending">Pago del anticipo pendiente</p>
@@ -54,12 +54,12 @@
       <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelDelete()">Conservar</button>
     </div>
     } @else if (paymentPending) {
-    <div class="reservation-actions">
+    <div id="my-reservation-actions" class="reservation-actions">
       <button class="reserve-button" type="button" (click)="payNow()">Ir a pagar el anticipo</button>
       <button class="secondary-button" type="button" (click)="askDelete()">Cancelar reserva</button>
     </div>
     } @else {
-    <div class="reservation-actions">
+    <div id="my-reservation-actions" class="reservation-actions">
       <button class="reserve-button" type="button" (click)="startEdit()">Editar reserva</button>
       <button class="secondary-button" type="button" (click)="askDelete()">Eliminar reserva</button>
     </div>
@@ -82,14 +82,15 @@
 
   <!-- Filtros de la visita: al cambiar fecha, hora o comensales se recalcula el estado de cada mesa
        y se quita la mesa seleccionada (changeDate, changeTime, changeParty). -->
-  <div class="reservation-filters" role="group" aria-label="Datos de la visita">
+  <div id="reservation-filters" class="reservation-filters" role="group" aria-label="Datos de la visita">
     <label>
       <span>Fecha</span>
-      <input type="date" required [min]="today" [value]="date" (input)="changeDate($any($event.target).value)" />
+      <input id="reservation-date" type="date" required [min]="today" [value]="date"
+        (input)="changeDate($any($event.target).value)" />
     </label>
     <label>
       <span>Hora</span>
-      <select (change)="changeTime($any($event.target).value)">
+      <select id="reservation-time" (change)="changeTime($any($event.target).value)">
         @for (option of times; track option) {
         <option [value]="option" [selected]="option === time">{{ option }}</option>
         }
@@ -97,7 +98,7 @@
     </label>
     <label>
       <span>Comensales</span>
-      <select (change)="changeParty($any($event.target).value)">
+      <select id="reservation-party" (change)="changeParty($any($event.target).value)">
         @for (option of parties; track option) {
         <option [value]="option" [selected]="option === party">{{ partyLabel(option) }}</option>
         }
@@ -114,7 +115,8 @@
           <h2 id="map-heading">Plano del restaurante</h2>
           <p aria-live="polite">{{ floorNames[floor] }}</p>
         </div>
-        <div class="floor-control" role="group" aria-label="Cambiar de piso" [attr.data-floor]="floor">
+        <div id="reservation-floors" class="floor-control" role="group" aria-label="Cambiar de piso"
+          [attr.data-floor]="floor">
           @for (option of floors; track option) {
           <button type="button" [attr.aria-pressed]="floor === option" (click)="changeFloor(option)">
             Piso {{ option }}
@@ -155,7 +157,7 @@
            2. Encima, un botón por mesa colocado con left/top en porcentaje (x / 9 y y / 8), así las
               mesas siguen alineadas con el dibujo al cambiar el tamaño de la pantalla.
            En pantallas estrechas el plano mantiene un ancho mínimo y se desplaza en horizontal. -->
-      <div class="map-viewport" tabindex="0" aria-label="Plano desplazable">
+      <div id="reservation-map" class="map-viewport" tabindex="0" aria-label="Plano desplazable">
         <div class="plan">
           <!-- Piezas reutilizables (contornos, texturas e iconos) que las capas usan con <use> o url(#...). -->
           <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
@@ -417,7 +419,7 @@
          aria-live hace que los lectores de pantalla anuncien los cambios. -->
     <aside class="summary-card" aria-labelledby="selection-heading">
       <h2 id="selection-heading">Tu mesa</h2>
-      <div class="summary-body" aria-live="polite">
+      <div id="reservation-table-info" class="summary-body" aria-live="polite">
         @if (selected; as table) {
         <p class="table-title">{{ nameOf(table) }}</p>
         <dl>
@@ -449,7 +451,7 @@
         <p class="note highlight">La capacidad máxima de esta mesa es de {{ boothSeats }} personas.</p>
         }
         @if (table.special) {
-        <div class="seat-stepper" role="group" aria-label="Sillas de la mesa">
+        <div id="reservation-seats" class="seat-stepper" role="group" aria-label="Sillas de la mesa">
           <span>Sillas</span>
           <button type="button" aria-label="Quitar una silla" [disabled]="seatsOf(table) <= specialMin"
             (click)="adjustSeats(table, -1)">−</button>
@@ -467,26 +469,26 @@
       <div class="reservation-fields">
         <label>
           <span>Nombre de la reserva</span>
-          <input type="text" maxlength="60" placeholder="Ej. Cena de grado" [value]="reservationName"
-            (input)="reservationName = $any($event.target).value" />
+          <input id="reservation-name" type="text" maxlength="60" placeholder="Ej. Cena de grado"
+            [value]="reservationName" (input)="reservationName = $any($event.target).value" />
         </label>
         <label>
           <span>Temática</span>
-          <select (change)="theme = $any($event.target).value">
+          <select id="reservation-theme" (change)="theme = $any($event.target).value">
             @for (option of themes; track option.value) {
             <option [value]="option.value" [selected]="option.value === theme">{{ option.label }}</option>
             }
           </select>
         </label>
         @if (!editing) {
-        <label class="deposit-check">
+        <label id="reservation-deposit" class="deposit-check">
           <input type="checkbox" [checked]="acceptDeposit" (change)="acceptDeposit = $any($event.target).checked" />
           <span>Acepto pagar un anticipo de {{ money(deposit) }} en la pasarela de pago. No se reembolsa si elimino
             la reserva.</span>
         </label>
         }
       </div>
-      <button class="reserve-button" type="button" [disabled]="!canReserve" (click)="reserve()">
+      <button id="btn-reserve" class="reserve-button" type="button" [disabled]="!canReserve" (click)="reserve()">
         @if (saving) {
         {{ editing ? 'Guardando...' : 'Abriendo la pasarela...' }}
         } @else {

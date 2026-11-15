@@ -7,6 +7,7 @@ import { ReservationService } from '../../services/reservation.service';
 import { AuthService } from '../../services/auth.service';
 import { ReservationGuestComponent } from './components/reservation-guest/reservation-guest.component';
 import { ToastService } from '../../services/toast.service';
+import { TutorialReservationService } from '../../services/tutorial-reservation.service';
 import { getErrorMessage } from '../../utils/http-error';
 import {
   BOOTH_SEATS,
@@ -33,6 +34,8 @@ import {
 // 5. Cada cliente tiene UNA reserva (1 a 1). Si ya la tiene, la página muestra "Tu reserva":
 //    - pagada: botones Editar (vuelve al plano con los datos cargados) y Eliminar (sin reembolso);
 //    - con el pago pendiente: botones Ir a pagar y Cancelar (no se cobra nada).
+// 6. Si el cliente viene del tutorial "hacer una reserva", la página lo retoma
+//    (TutorialReservationService) en cuanto sabe qué mostrar.
 
 /** Estado de una mesa para la fecha, hora y grupo elegidos. */
 type TableState = 'available' | 'occupied' | 'small';
@@ -61,6 +64,8 @@ export class ReservationsComponent implements OnInit {
   private reservationService = inject(ReservationService);
   private toast = inject(ToastService);
   private auth = inject(AuthService);
+  // Tutorial "hacer una reserva"
+  private tutorialReservation = inject(TutorialReservationService);
 
   /** Sin sesión se muestra la explicación de cómo reservar en lugar del plano. */
   readonly isLoggedIn = this.auth.isLoggedIn;
@@ -136,18 +141,26 @@ export class ReservationsComponent implements OnInit {
   ngOnInit(): void {
     if (!this.isLoggedIn) {
       this.loading = false;
+      // Tutorial: pedir que entre o se registre
+      this.tutorialReservation.resumeReservations('guest');
       return;
     }
     this.reservationService.getReservation().subscribe({
       next: (reservation) => {
         this.reservation = reservation;
         this.loading = false;
+        // Tutorial: explicar la reserva que ya tiene (pendiente o confirmada)
+        this.tutorialReservation.resumeReservations(
+          reservation.paymentState === 'PENDING' ? 'pending' : 'paid',
+        );
       },
       // 404 = el cliente aún no tiene reserva: se muestra el plano para crearla
       error: () => {
         this.reservation = null;
         this.loading = false;
         this.loadTaken();
+        // Tutorial: guiar por el plano para crearla
+        this.tutorialReservation.resumeReservations('new');
       },
     });
   }
@@ -241,7 +254,8 @@ export class ReservationsComponent implements OnInit {
 
   /** Vuelve a la pasarela para pagar el anticipo pendiente. */
   payNow(): void {
-    if (this.reservation) this.reservationService.redirectToStripe(this.reservation);
+    if (!this.reservation) return;
+    this.reservationService.redirectToStripe(this.reservation);
   }
 
   /** Eliminar o cancelar: primero pide confirmar. */
