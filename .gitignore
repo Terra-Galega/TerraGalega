@@ -1,3 +1,4 @@
 mydatabase*.db
 testdb*.db
 .env
+demo/src/main/resources/application.properties
