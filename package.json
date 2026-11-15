@@ -22,6 +22,7 @@
     "@tailwindcss/postcss": "^4.3.5",
     "autoprefixer": "^10.6.2",
     "chart.js": "^4.6.1",
+    "driver.js": "^1.14.0",
     "exceljs": "^4.4.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.9",
