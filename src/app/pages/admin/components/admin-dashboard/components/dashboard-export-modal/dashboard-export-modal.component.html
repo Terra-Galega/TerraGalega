@@ -4,12 +4,9 @@
   style="background-color: rgba(44, 44, 44, 0.55); backdrop-filter: blur(4px)"
   (click)="close()"
 >
-  <div
+  <div appDialog
     class="sheet-window bg-cream w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-3xl p-6 sm:p-8 relative"
-    style="box-shadow: 0 24px 64px rgba(44, 44, 44, 0.35)"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Descargar reporte"
+    style="box-shadow: 0 24px 64px rgba(44, 44, 44, 0.35)" dialogLabel="Descargar reporte"
     (click)="$event.stopPropagation()"
   >
     <!-- Encabezado -->

@@ -3,8 +3,8 @@
 <div class="fixed inset-0 z-[100] flex items-center justify-center p-4"
   style="background-color: rgba(44, 44, 44, 0.45); backdrop-filter: blur(4px)" (click)="cancel.emit()">
 
-  <div id="subscription-modal" class="glass-card w-full max-w-md rounded-3xl max-h-[90vh] overflow-y-auto"
-    style="background: rgba(255, 255, 255, 0.98)" role="dialog" aria-modal="true"
+  <div appDialog id="subscription-modal" class="glass-card w-full max-w-md rounded-3xl max-h-[90vh] overflow-y-auto"
+    style="background: rgba(255, 255, 255, 0.98)"
     aria-labelledby="subscription-modal-title" (click)="$event.stopPropagation()">
 
     <!-- Encabezado -->

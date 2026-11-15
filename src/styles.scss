@@ -513,6 +513,50 @@ h3 {
 }
 
 
+// ---------- Accesibilidad ----------
+// "Saltar al contenido": fuera de la pantalla hasta que recibe el foco con Tab
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1000;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background-color: #2c2c2c;
+  color: #f5f2eb;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: none;
+  outline: 3px solid #d99a21;
+  outline-offset: 2px;
+}
+
+// Título o <main> enfocado por código al cambiar de página: sin recuadro (no es un control)
+.focus-target:focus {
+  outline: none;
+}
+
+// Tarjetas de plato (role="link"): aro visible al llegar con el teclado
+[role="link"][tabindex]:focus-visible {
+  outline: 3px solid #b2571f;
+  outline-offset: 4px;
+}
+
+html[data-theme="dark"] [role="link"][tabindex]:focus-visible {
+  outline-color: #e58e57;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+}
+
 // ======================================================================================
 // TEMA OSCURO
 // ThemeService pone data-theme="dark" en <html> (el switch de "Mi cuenta"). Todo lo de este

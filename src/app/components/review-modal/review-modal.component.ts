@@ -7,6 +7,7 @@ import {
     Output,
     inject,
 } from '@angular/core';
+import { DialogDirective } from '../../directives/dialog.directive';
 import { ButtonComponent } from '../button/button.component';
 import { IconButtonComponent } from '../icon-button/icon-button.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
@@ -31,7 +32,7 @@ const RATING_LABELS = ['Muy mala', 'Mala', 'Regular', 'Buena', 'Excelente'];
  */
 @Component({
     selector: 'app-review-modal',
-    imports: [
+    imports: [DialogDirective, 
         ButtonComponent,
         IconButtonComponent,
         FormFieldComponent,

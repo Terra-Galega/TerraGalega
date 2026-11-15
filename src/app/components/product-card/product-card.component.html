@@ -3,11 +3,17 @@
      Estructura (todas las tarjetas de una fila miden lo mismo):
      1. Imagen con proporción fija 4:3, así nunca se ve aplastada ni estirada.
      2. Categoría, nombre (hasta 2 líneas) y descripción (2 líneas) con altura reservada.
-     3. Precio siempre al fondo, alineado entre tarjetas. -->
+     3. Precio siempre al fondo, alineado entre tarjetas.
+     Accesibilidad: role="link" + tabindex="0" la hacen alcanzable con Tab y Enter la abre;
+     el lector de pantalla la anuncia como "enlace, Ver <plato>, $<precio>". -->
 <div
   class="h-full flex flex-col rounded-[22px] bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
   style="box-shadow: 0 1px 2px rgba(44, 44, 44, 0.04), 0 8px 28px rgba(44, 44, 44, 0.06)"
   (click)="goToProductDetail()"
+  role="link"
+  tabindex="0"
+  [attr.aria-label]="'Ver ' + product.name + ', $' + (product.price | number: '1.0-0')"
+  (keydown.enter)="goToProductDetail()"
 >
   <!-- Imagen del producto (fondo beige mientras carga) -->
   <div class="card-image relative aspect-[4/3] flex-shrink-0 overflow-hidden" style="background-color: #ede9e0">

@@ -1,9 +1,14 @@
 <!-- Tarjeta completa: toda el área es clicable y lleva al detalle del producto.
-     Al pasar el mouse se levanta y se agranda la imagen. -->
+     Al pasar el mouse se levanta y se agranda la imagen.
+     Accesibilidad: role="link" + tabindex="0" la hacen alcanzable con Tab y Enter la abre. -->
 <div
   [id]="'menu-card-' + product.id"
   class="glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
   (click)="openProductDetail()"
+  role="link"
+  tabindex="0"
+  [attr.aria-label]="'Ver ' + product.name + ', $' + (product.price | number: '1.0-0')"
+  (keydown.enter)="openProductDetail()"
 >
   <!-- Imagen del producto: siempre con la misma proporción, tenga o no etiquetas el plato -->
   <div class="relative aspect-[4/3] flex-shrink-0 overflow-hidden">

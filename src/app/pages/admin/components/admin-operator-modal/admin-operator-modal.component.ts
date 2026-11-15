@@ -6,6 +6,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { OperatorService } from '../../../../services/operator.service';
@@ -17,7 +18,7 @@ import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../../../utils/email';
 // Modal para crear o editar un operador: si recibe un operador funciona como edición; si no, como creación.
 @Component({
   selector: 'app-admin-operator-modal',
-  imports: [
+  imports: [DialogDirective, 
     IconButtonComponent,
     IconButtonComponent,
     FormFieldComponent,

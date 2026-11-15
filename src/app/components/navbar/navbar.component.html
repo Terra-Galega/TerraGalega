@@ -85,26 +85,32 @@
     <!-- ========================================================== COLUMNA IZQUIERDA ========================================================== -->
     <div class="flex items-center justify-evenly w-full">
       <a
+        href="/aboutUs"
+        [attr.aria-current]="isActive('/aboutUs') ? 'page' : null"
         class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/aboutUs')"
-        (click)="goToAboutUs()"
+        (click)="$event.preventDefault(); goToAboutUs()"
       >
         NOSOTROS
       </a>
       <a
+        href="/menu"
+        [attr.aria-current]="isActive('/menu') ? 'page' : null"
         id="nav-menu"
         class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/menu')"
-        (click)="goToMenu()"
+        (click)="$event.preventDefault(); goToMenu()"
       >
         MENÚ
       </a>
       <!-- id usado por el tutorial de "hacer una reserva" -->
       <a
+        href="/reservations"
+        [attr.aria-current]="isActive('/reservations') ? 'page' : null"
         id="nav-reservations"
         class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/reservations')"
-        (click)="goToReservations()"
+        (click)="$event.preventDefault(); goToReservations()"
       >
         RESERVAS
       </a>
@@ -113,8 +119,10 @@
     <!-- logo-wrap escala el logo: grande al inicio de Home y tamaño normal al hacer scroll. -->
     <div class="logo-wrap flex justify-center px-10 xl:px-16">
       <a
+        href="/home"
+        aria-label="Terra Galega, ir al inicio"
         class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300 cursor-pointer"
-        (click)="goToHome()"
+        (click)="$event.preventDefault(); goToHome()"
       >
         <span
           class="logo-terra font-terra text-[28px] xl:text-[32px] leading-[0.6] font-normal"
@@ -131,29 +139,35 @@
     <!-- ========================================================== COLUMNA DERECHA Pedidos - sesión - carrito ========================================================== -->
     <div class="flex items-center justify-evenly w-full">
       <a
+        href="/orders"
+        [attr.aria-current]="isActive('/orders') ? 'page' : null"
         id="nav-orders"
         class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
         [class.active]="isActive('/orders')"
-        (click)="goToOrders()"
+        (click)="$event.preventDefault(); goToOrders()"
       >
         {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
       </a>
       @if (!isLoggedIn) {
         <a
+          href="/login"
+          [attr.aria-current]="isActive('/login') ? 'page' : null"
           id="nav-login"
           class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
           [class.active]="isActive('/login')"
-          (click)="goToLogin()"
+          (click)="$event.preventDefault(); goToLogin()"
         >
           INICIAR SESIÓN
         </a>
       } @else {
         @if (isLoggedAdmin || isClient) {
           <a
+            [attr.href]="profileHref"
+            [attr.aria-current]="isProfileActive() ? 'page' : null"
             id="nav-user"
             class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer max-w-[160px] xl:max-w-[240px] truncate"
             [class.active]="isProfileActive()"
-            (click)="goToProfile()"
+            (click)="$event.preventDefault(); goToProfile()"
           >
             {{ fullName }}
           </a>
@@ -373,33 +387,41 @@
     >
       <!-- NOSOTROS -->
       <a
+        href="/aboutUs"
+        [attr.aria-current]="isActive('/aboutUs') ? 'page' : null"
         class="mobile-link link-nav"
         [class.active]="isActive('/aboutUs')"
-        (click)="goToAboutUs()"
+        (click)="$event.preventDefault(); goToAboutUs()"
       >
         NOSOTROS
       </a>
       <!-- MENÚ -->
       <a
+        href="/menu"
+        [attr.aria-current]="isActive('/menu') ? 'page' : null"
         class="mobile-link link-nav"
         [class.active]="isActive('/menu')"
-        (click)="goToMenu()"
+        (click)="$event.preventDefault(); goToMenu()"
       >
         MENÚ
       </a>
       <!-- RESERVAS -->
       <a
+        href="/reservations"
+        [attr.aria-current]="isActive('/reservations') ? 'page' : null"
         class="mobile-link link-nav"
         [class.active]="isActive('/reservations')"
-        (click)="goToReservations()"
+        (click)="$event.preventDefault(); goToReservations()"
       >
         RESERVAS
       </a>
       <!-- PEDIDOS -->
       <a
+        href="/orders"
+        [attr.aria-current]="isActive('/orders') ? 'page' : null"
         class="mobile-link link-nav"
         [class.active]="isActive('/orders')"
-        (click)="goToOrders()"
+        (click)="$event.preventDefault(); goToOrders()"
       >
         <!-- El texto cambia según haya o no una sesión iniciada. -->
         {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
@@ -414,10 +436,12 @@
           <!-- Solo admin y cliente tienen enlace a su perfil (igual que en escritorio). -->
           @if (isLoggedAdmin || isClient) {
             <a
+              [attr.href]="profileHref"
+              [attr.aria-current]="isProfileActive() ? 'page' : null"
               id="user-profile-mobile"
               class="mobile-link link-nav"
               [class.active]="isProfileActive()"
-              (click)="goToProfile()"
+              (click)="$event.preventDefault(); goToProfile()"
             >
               {{ fullName }}
             </a>

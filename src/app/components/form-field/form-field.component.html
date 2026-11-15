@@ -1,7 +1,9 @@
 <div class="block">
-  <!-- Solo se dibuja la etiqueta cuando el padre ha indicado un texto. -->
+  <!-- Solo se dibuja la etiqueta cuando el padre ha indicado un texto. Su id se une a los
+       controles de dentro (ver form-field.component.ts) para que el lector de pantalla la lea. -->
   @if (label) {
-  <span class="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 mb-1.5">
+  <span [id]="labelId" class="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 mb-1.5 cursor-default"
+    (click)="focusControl()">
     {{ label }}
   </span>
   }

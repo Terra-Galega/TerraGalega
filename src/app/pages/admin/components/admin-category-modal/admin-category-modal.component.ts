@@ -6,6 +6,7 @@ import {
   SimpleChanges,
   inject,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 import { Category, CreateCategory } from '../../../../models/category';
 import { CategoryService } from '../../../../services/category.service';
 import { ButtonComponent } from '../../../../components/button/button.component';
@@ -22,7 +23,7 @@ import { getErrorMessage } from '../../../../utils/http-error';
  */
 @Component({
   selector: 'app-admin-category-modal',
-  imports: [ButtonComponent, IconButtonComponent, FormFieldComponent],
+  imports: [DialogDirective, ButtonComponent, IconButtonComponent, FormFieldComponent],
   templateUrl: './admin-category-modal.component.html',
 })
 export class AdminCategoryModalComponent {

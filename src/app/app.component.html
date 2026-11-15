@@ -1,12 +1,18 @@
-<!-- Contenedor principal de toda la aplicación: ocupa al menos el alto completo de la pantalla,
+<!-- Enlace "Saltar al contenido": es lo primero que alcanza el Tab. Está oculto hasta que recibe
+     el foco y lleva directo al título de la página, sin pasar por todos los enlaces de la navbar. -->
+<a href="#contenido" class="skip-link" (click)="skipToContent($event)">Saltar al contenido</a>
+
+<!-- Contenedor general de toda la aplicación: ocupa al menos el alto completo de la pantalla,
      usa la fuente sans por defecto y el color de texto "charcoal" definido en el tema.
-     El fondo crema (#f5f2eb) se aplica en línea para que sea común a todas las páginas. -->
-<main class="min-h-screen font-sans text-charcoal" style="background-color: #f5f2eb">
+     El fondo crema (#f5f2eb) se aplica en línea para que sea común a todas las páginas.
+     Es un <div> (no <main>) porque cada página ya marca su propio <main>; así la navbar no queda
+     dentro del contenido principal y no hay dos <main> anidados. -->
+<div class="min-h-screen font-sans text-charcoal" style="background-color: #f5f2eb">
   <!-- Punto donde el router de Angular inserta el componente de la página activa
        (home, menú, login, admin, operator, etc., según app.routes.ts). -->
   <router-outlet></router-outlet>
-</main>
+</div>
 
-<!-- Componente global de notificaciones (toasts). Está fuera de <main> para que se muestre
+<!-- Componente global de notificaciones (toasts). Está fuera del contenedor para que se muestre
      por encima de cualquier página sin depender de ella. -->
 <app-toast />

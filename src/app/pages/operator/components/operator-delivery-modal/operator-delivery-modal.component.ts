@@ -6,6 +6,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 import { OrderSummary } from '../../../../models/order';
 import { OrderService } from '../../../../services/order.service';
 import { DeliveryPersonService } from '../../../../services/delivery-person.service';
@@ -16,7 +17,7 @@ import { getErrorMessage } from '../../../../utils/http-error';
 import { DeliveryPersonOption } from '../../../../models/deliveryPerson';
 @Component({
   selector: 'app-operator-delivery-modal',
-  imports: [ButtonComponent, IconButtonComponent, FormFieldComponent],
+  imports: [DialogDirective, ButtonComponent, IconButtonComponent, FormFieldComponent],
   templateUrl: './operator-delivery-modal.component.html',
 })
 export class OperatorDeliveryModalComponent implements OnInit {

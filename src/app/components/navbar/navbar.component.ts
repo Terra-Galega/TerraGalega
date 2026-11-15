@@ -144,6 +144,12 @@ export class NavbarComponent implements OnDestroy {
     this.closeMobileMenu();
   }
 
+  // Dirección real del enlace al perfil (para que sea un enlace de verdad: se alcanza con
+  // Tab y el lector de pantalla lo anuncia como enlace)
+  get profileHref(): string | null {
+    return this.isLoggedIn ? this.auth.homeRoute() : null;
+  }
+
   // Lleva a la página de su rol: panel de admin, panel de operador o cuenta.
   // La ruta de cada rol se define en AuthService.homeRoute().
   goToProfile(): void {

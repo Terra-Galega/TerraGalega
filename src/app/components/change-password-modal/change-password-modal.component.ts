@@ -8,6 +8,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
+import { DialogDirective } from '../../directives/dialog.directive';
 import { Observable } from 'rxjs';
 import { ButtonComponent } from '../button/button.component';
 import { IconButtonComponent } from '../icon-button/icon-button.component';
@@ -17,7 +18,7 @@ import { getErrorMessage } from '../../utils/http-error';
 // Componente modal para cambiar la contraseña de un usuario.
 @Component({
   selector: 'app-change-password-modal',
-  imports: [ButtonComponent, IconButtonComponent, FormFieldComponent],
+  imports: [DialogDirective, ButtonComponent, IconButtonComponent, FormFieldComponent],
   templateUrl: './change-password-modal.component.html',
 })
 export class ChangePasswordModalComponent implements OnInit, OnDestroy {

@@ -6,6 +6,7 @@ import {
     SimpleChanges,
     inject,
 } from '@angular/core';
+import { DialogDirective } from '../../../../directives/dialog.directive';
 import {
     Announcement,
     CreateAnnouncement,
@@ -32,7 +33,7 @@ const IMAGE_CHECK_MS = 8_000;
  */
 @Component({
     selector: 'app-admin-announcement-modal',
-    imports: [ButtonComponent, IconButtonComponent, FormFieldComponent],
+    imports: [DialogDirective, ButtonComponent, IconButtonComponent, FormFieldComponent],
     templateUrl: './admin-announcement-modal.component.html',
 })
 export class AdminAnnouncementModalComponent {
