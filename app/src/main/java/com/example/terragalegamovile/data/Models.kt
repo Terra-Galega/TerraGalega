@@ -136,7 +136,11 @@ data class CheckoutItemRequest(val productId: Int, val quantity: Int, val addOnI
 
 data class QuantityRequest(val quantity: Int)
 
-data class CheckoutRequest(val address: String, val items: List<CheckoutItemRequest>)
+data class CheckoutRequest(
+    val address: String,
+    val items: List<CheckoutItemRequest>,
+    val couponCode: String? = null
+)
 
 // POST /payments/start. channel = "app" hace que Stripe vuelva a la app.
 data class StartPaymentRequest(
@@ -220,3 +224,46 @@ data class ClientCreate(
     val role: String = "CLIENT",
     val addresses: List<NewClientAddress>
 )
+
+// ---------- Notificaciones y cupones ----------
+
+// GET /notifications/me?platform=mobile
+data class AppNotification(
+    val id: Int,
+    // WELCOME | COUPON | ORDER_CONFIRMED | ORDER_PREPARING | ORDER_ON_THE_WAY | ORDER_NEAR
+    val type: String,
+    val title: String,
+    val message: String,
+    val orderId: Int?,
+    val read: Boolean,
+    val createdAt: String?
+)
+
+// GET /coupons/me (los que se pueden usar ahora, para el checkout)
+data class Coupon(
+    val id: Int,
+    val code: String,
+    val description: String?,
+    val discountType: String, // "PERCENTAGE" | "FIXED_AMOUNT"
+    val discountValue: Double,
+    val maxDiscount: Double?,
+    val minOrderAmount: Double?,
+    val expiresAt: String?
+)
+
+// GET /coupons/me/all ("Mis cupones", con su estado)
+data class ClientCoupon(
+    val id: Int,
+    val code: String,
+    val description: String?,
+    val discountType: String,
+    val discountValue: Double,
+    val maxDiscount: Double?,
+    val minOrderAmount: Double?,
+    val expiresAt: String?,
+    val general: Boolean,
+    val status: String // ACTIVE | EXPIRED | USED | EXHAUSTED
+)
+
+// GET /coupons/validate: cuánto descontaría el cupón sobre el subtotal
+data class CouponDiscount(val code: String, val description: String?, val discount: Double)

@@ -7,6 +7,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.DELETE
+import retrofit2.http.Query
 
 // El usuario con sesión se identifica por el token que el interceptor de ApiClient
 // agrega en cada petición, así que las rutas del propio usuario no llevan su id.
@@ -155,4 +156,28 @@ interface ApiService {
 
     @PUT("clients/me/password")
     suspend fun changePassword(@Body body: ChangePasswordRequest): ResponseBody
+
+    // ---------- Notificaciones (las guarda el back) ----------
+    @GET("notifications/me?platform=mobile")
+    suspend fun notifications(): List<AppNotification>
+
+    @PUT("notifications/{id}/read")
+    suspend fun notificationRead(@Path("id") id: Int): ResponseBody
+
+    @PUT("notifications/me/read-all")
+    suspend fun notificationsReadAll(): ResponseBody
+
+    // ---------- Cupones (los mismos endpoints de la web) ----------
+    @GET("coupons/me")
+    suspend fun availableCoupons(): List<Coupon>
+
+    @GET("coupons/me/all")
+    suspend fun myCoupons(): List<ClientCoupon>
+
+    @GET("coupons/validate")
+    suspend fun validateCoupon(
+        @Query("code") code: String,
+        @Query("subtotal") subtotal: Double
+    ): CouponDiscount
+
 }

@@ -15,6 +15,9 @@ object CheckoutDraft {
     // "cash" | "card" | "". Con "card" los datos de la tarjeta se escriben en
     // la página de Stripe: la app nunca los ve.
     var method by mutableStateOf("")
+    // Cupón aplicado en el paso 1 (null = ninguno). El descuento es informativo:
+    // el back vuelve a validarlo al crear el pedido.
+    var coupon by mutableStateOf<CouponDiscount?>(null)
 
     // Intento de pago con tarjeta. Mismo carrito = mismo id, así reintentar
     // tras un fallo de red no crea otro pedido (igual que la web).
@@ -25,6 +28,7 @@ object CheckoutDraft {
 
     fun reset() {
         address = ""; saveAddress = true; addressName = ""; method = ""
+        coupon = null
         paymentRequestId = ""; paymentRequestBody = ""; pendingOrderId = null
     }
 }

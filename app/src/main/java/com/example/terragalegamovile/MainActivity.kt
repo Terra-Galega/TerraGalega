@@ -42,6 +42,7 @@ import com.example.terragalegamovile.data.CheckoutDraft
 import com.example.terragalegamovile.data.ClientUi
 import com.example.terragalegamovile.data.DeliveryNotifier
 import com.example.terragalegamovile.data.MapService
+import com.example.terragalegamovile.data.NotificationStore
 import com.example.terragalegamovile.data.Session
 import com.example.terragalegamovile.ui.CartSheet
 import com.example.terragalegamovile.ui.CategoryScreen
@@ -59,7 +60,9 @@ import com.example.terragalegamovile.ui.theme.TerraGalegaMovileTheme
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-
+import com.example.terragalegamovile.ui.NotificationsScreen
+import com.example.terragalegamovile.ui.components.NotificationsNav
+import com.example.terragalegamovile.ui.CouponsScreen
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +79,7 @@ class MainActivity : ComponentActivity() {
 
         // Avisos de "tu pedido salió" y "ya va llegando" (notificación + vibración)
         DeliveryNotifier.start(applicationContext)
+        NotificationStore.start(applicationContext)
         handleNotificationIntent(intent)
 
         enableEdgeToEdge()
@@ -171,6 +175,22 @@ fun AppNav(lifecycle: Lifecycle) {
 
         onDispose {
             ProfileNav.open = null
+        }
+    }
+
+    // La campanita de la barra abre la bandeja de notificaciones.
+    DisposableEffect(Unit) {
+        NotificationsNav.open = {
+            if (
+                Session.user?.role == "CLIENT" &&
+                nav.currentDestination?.route != "notifications"
+            ) {
+                nav.navigate("notifications")
+            }
+        }
+
+        onDispose {
+            NotificationsNav.open = null
         }
     }
 
@@ -345,6 +365,28 @@ fun AppNav(lifecycle: Lifecycle) {
             }
         }
 
+        composable("notifications") {
+            session?.let { user ->
+                NotificationsScreen(
+                    user = user,
+                    onBack = { nav.popBackStack() },
+                    onLogout = logout,
+                    onOpen = { n ->
+                        NotificationStore.markRead(n.id)
+                        when (n.type) {
+                            "ORDER_ON_THE_WAY", "ORDER_NEAR" -> nav.navigate("tracking")
+                            "COUPON" -> nav.navigate("coupons")
+                            "ORDER_CONFIRMED", "ORDER_PREPARING" -> {
+                                ClientUi.tab = 1
+                                nav.popBackStack("client", false)
+                            }
+                            else -> goMenu()
+                        }
+                    }
+                )
+            }
+        }
+
         composable(
             route = "product/{id}",
             arguments = listOf(
@@ -369,6 +411,16 @@ fun AppNav(lifecycle: Lifecycle) {
                     onOpenCart = {
                         showCart = true
                     },
+                    onLogout = logout
+                )
+            }
+        }
+
+        composable("coupons") {
+            session?.let { user ->
+                CouponsScreen(
+                    user = user,
+                    onBack = { nav.popBackStack() },
                     onLogout = logout
                 )
             }
@@ -422,7 +474,9 @@ fun AppNav(lifecycle: Lifecycle) {
                     onBack = {
                         nav.popBackStack()
                     },
-                    onLogout = logout
+                    onLogout = logout,
+                    onOpenCoupons = { nav.navigate("coupons") }
+
                 )
             }
         }

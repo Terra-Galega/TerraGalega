@@ -71,7 +71,8 @@ private val EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+$")
 fun ProfileScreen(
     user: LoginResponse,
     onBack: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onOpenCoupons: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
@@ -222,6 +223,14 @@ fun ProfileScreen(
                     }
 
                     Spacer(Modifier.height(20.dp))
+
+                    TerraButton(
+                        "Mis cupones",
+                        onClick = onOpenCoupons,
+                        style = ButtonStyle.Outline,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(12.dp))
                     TerraButton(
                         "Editar perfil",
                         onClick = startEdit,

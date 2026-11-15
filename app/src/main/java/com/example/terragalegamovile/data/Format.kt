@@ -38,4 +38,8 @@ object Format {
     // [Queso, Queso, Salsa] -> [("Queso", 2), ("Salsa", 1)]
     fun group(names: List<String>): List<Pair<String, Int>> =
         names.groupingBy { it }.eachCount().toList()
+
+    // "10 %" o "$5,000"
+    fun couponValue(type: String, value: Double): String =
+        if (type == "PERCENTAGE") "${value.toInt()} %" else money(value)
 }

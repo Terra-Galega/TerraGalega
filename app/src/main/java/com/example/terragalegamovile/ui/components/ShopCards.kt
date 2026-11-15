@@ -698,6 +698,8 @@ fun SelectCard(
 fun OrderSummaryCard(
     items: List<CartItem>,
     deliveryFee: Double,
+    discount: Double = 0.0,
+    couponCode: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val subtotal = items.sumOf { CartStore.unitPrice(it) * it.quantity }
@@ -743,6 +745,18 @@ fun OrderSummaryCard(
             Text("Subtotal", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.7f))
             Text(Format.money(subtotal), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.7f))
         }
+        if (discount > 0) {
+            Spacer(Modifier.height(8.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    if (couponCode != null) "Descuento ($couponCode)" else "Descuento",
+                    fontSize = 14.sp,
+                    color = Forest
+                )
+                Text("-" + Format.money(discount), fontSize = 14.sp, color = Forest)
+            }
+        }
+
         if (deliveryFee > 0) {
             Spacer(Modifier.height(8.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -757,8 +771,7 @@ fun OrderSummaryCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Total", fontWeight = FontWeight.Medium, color = Charcoal)
-            Text(Format.money(subtotal + deliveryFee), fontWeight = FontWeight.Bold, fontSize = 24.sp, color = Terra)
-        }
+            Text(Format.money(subtotal - discount + deliveryFee), fontWeight = FontWeight.Bold, fontSize = 24.sp, color = Terra)        }
         content()
     }
 }

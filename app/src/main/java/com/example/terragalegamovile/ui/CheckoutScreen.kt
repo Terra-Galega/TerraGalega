@@ -19,6 +19,7 @@ import com.example.terragalegamovile.data.*
 import com.example.terragalegamovile.ui.components.*
 import com.example.terragalegamovile.ui.theme.*
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 @Composable
 private fun FieldError(text: String?) {
@@ -224,9 +225,17 @@ fun CheckoutScreen(
                 )
             }
 
+            // ---------- Cupón ----------
+            Spacer(Modifier.height(36.dp))
+            CouponBox()
+
+
             // ---------- Resumen ----------
             Spacer(Modifier.height(36.dp))
-            OrderSummaryCard(items = CartStore.items, deliveryFee = 0.0) {
+            OrderSummaryCard( items = CartStore.items,
+                deliveryFee = 0.0,
+                discount = d.coupon?.discount ?: 0.0,
+                couponCode = d.coupon?.code) {
                 Spacer(Modifier.height(24.dp))
                 TerraButton("Continuar", onClick = { goNext() }, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(16.dp))
@@ -288,5 +297,114 @@ private fun AddressEntryTabs(selected: Int, onChange: (Int) -> Unit) {
                 )
             }
         }
+    }
+}
+
+// Cupón del pedido: escribir el código o elegir uno de los disponibles.
+// El descuento mostrado es informativo: el back vuelve a validarlo al crear el pedido.
+@Composable
+private fun CouponBox() {
+    val d = CheckoutDraft
+    val scope = rememberCoroutineScope()
+    var code by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
+    var applying by remember { mutableStateOf(false) }
+    var available by remember { mutableStateOf<List<Coupon>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        try {
+            available = ApiClient.api.availableCoupons()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // Si falla, igual puede escribir el código a mano
+        }
+    }
+
+    // Si cambia el subtotal, el descuento (y hasta la validez del cupón) puede cambiar
+    LaunchedEffect(CartStore.subtotal) {
+        val current = d.coupon ?: return@LaunchedEffect
+        try {
+            d.coupon = ApiClient.api.validateCoupon(current.code, CartStore.subtotal)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            d.coupon = null
+            error = "Quitamos el cupón ${current.code}. ${e.toUserMessage()}"
+        }
+    }
+
+    fun apply(text: String) {
+        val value = text.trim()
+        if (value.isEmpty()) {
+            error = "Escribe el código de tu cupón."
+            return
+        }
+        if (applying) return
+        applying = true
+        error = ""
+        scope.launch {
+            try {
+                d.coupon = ApiClient.api.validateCoupon(value, CartStore.subtotal)
+                code = ""
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                error = e.toUserMessage()
+            }
+            applying = false
+        }
+    }
+
+    StepTitle("Cupón de descuento", "¿Tienes un cupón? Escribe el código o elige uno.")
+
+    val applied = d.coupon
+    if (applied != null) {
+        GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 16.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Cupón ${applied.code}", fontWeight = FontWeight.SemiBold, color = Charcoal)
+                    Text("Descuento: -${Format.money(applied.discount)}", fontSize = 14.sp, color = Forest)
+                }
+                Text(
+                    "Quitar",
+                    color = Terra,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.clickable { d.coupon = null; error = "" }.padding(8.dp)
+                )
+            }
+        }
+    } else {
+        TerraTextField(
+            label = "Código del cupón",
+            value = code,
+            onValueChange = { code = it },
+            placeholder = "Ej: BIENVENIDA-1"
+        )
+        Spacer(Modifier.height(10.dp))
+        TerraButton(
+            if (applying) "Aplicando..." else "Aplicar",
+            onClick = { apply(code) },
+            enabled = !applying,
+            style = ButtonStyle.Outline,
+            modifier = Modifier.fillMaxWidth()
+        )
+        available.forEach { c ->
+            Spacer(Modifier.height(10.dp))
+            SelectCard(selected = false, onClick = { apply(c.code) }) {
+                Text(c.code, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
+                Text(
+                    "${Format.couponValue(c.discountType, c.discountValue)} de descuento" +
+                            (c.description?.let { " · $it" } ?: ""),
+                    fontSize = 14.sp,
+                    color = Charcoal.copy(alpha = 0.6f)
+                )
+            }
+        }
+    }
+    if (error.isNotEmpty()) {
+        Spacer(Modifier.height(8.dp))
+        Text(error, color = Burgundy, fontSize = 14.sp)
     }
 }

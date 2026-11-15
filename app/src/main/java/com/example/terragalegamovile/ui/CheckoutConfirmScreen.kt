@@ -79,6 +79,20 @@ fun CheckoutConfirmScreen(
         }
     }
 
+    // El cupón pudo dejar de servir desde el paso 1 (venció, ya se usó...): se vuelve a validar
+    LaunchedEffect(Unit) {
+        val current = d.coupon ?: return@LaunchedEffect
+        try {
+            d.coupon = ApiClient.api.validateCoupon(current.code, CartStore.subtotal)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            d.coupon = null
+            errorTitle = "Quitamos tu cupón"
+            errorMessage = "Quitamos el cupón ${current.code}. ${e.toUserMessage()}"
+        }
+    }
+
     // Lo mismo que hace el checkout en efectivo al terminar
     suspend fun finish(address: String, saveAddress: Boolean, addressName: String) {
 
@@ -219,7 +233,8 @@ fun CheckoutConfirmScreen(
             address = d.address,
             items = CartStore.items.map { item ->
                 CheckoutItemRequest(item.product.id, item.quantity, item.addOns.map { it.id })
-            }
+            },
+            couponCode = d.coupon?.code
         )
         paying = true
 
@@ -359,7 +374,12 @@ fun CheckoutConfirmScreen(
             Spacer(Modifier.height(24.dp))
 
             // Resumen con el domicilio incluido
-            OrderSummaryCard(items = CartStore.items, deliveryFee = DELIVERY_FEE) {
+            OrderSummaryCard(
+                items = CartStore.items,
+                deliveryFee = DELIVERY_FEE,
+                discount = d.coupon?.discount ?: 0.0,
+                couponCode = d.coupon?.code
+            ) {
                 Spacer(Modifier.height(24.dp))
                 TerraButton(
                     text = when {

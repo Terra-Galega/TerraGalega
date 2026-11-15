@@ -118,6 +118,8 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import coil.ImageLoader
 import coil.decode.SvgDecoder
 import com.example.terragalegamovile.R
+import com.example.terragalegamovile.data.NotificationStore
+
 // Logo "Terra" (Pinyon Script) + "GALEGA" (serifa), como en la navbar de la web
 @Composable
 fun TerraLogo(
@@ -386,6 +388,47 @@ object ProfileNav {
     var open: (() -> Unit)? = null
 }
 
+// Abre la bandeja de notificaciones desde la barra de arriba (lo asigna AppNav)
+object NotificationsNav {
+    var open: (() -> Unit)? = null
+}
+
+// Campanita con el número de notificaciones sin leer
+@Composable
+fun BellButton(count: Int, onClick: () -> Unit) {
+    Box {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color.White)
+                .border(1.dp, Terra, CircleShape)
+                .semantics { contentDescription = "Notificaciones" }
+                .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("🔔", fontSize = 18.sp)
+        }
+        if (count > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(18.dp)
+                    .clip(CircleShape)
+                    .background(Burgundy),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    if (count > 9) "9+" else "$count",
+                    color = Color.White,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
 // Inicial del usuario en su círculo, con "Mi perfil" debajo
 @Composable
 private fun ProfileChip(name: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -464,6 +507,9 @@ fun TerraScaffold(
     var bottomHeight by remember { mutableStateOf(0.dp) }
     // El perfil solo existe para el cliente
     val onProfile = if (role == "Cliente") ProfileNav.open else null
+    // La campanita solo sale en el inicio del cliente (la izquierda está libre, el carrito va abajo)
+    val onBell = if (role == "Cliente" && bottomBar != null) NotificationsNav.open else null
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -505,6 +551,16 @@ fun TerraScaffold(
                     .padding(start = 16.dp, top = statusTop + 10.dp)
             ) {
                 CartButton(count = cartCount ?: 0, onClick = onCart)
+            }
+        }
+
+        if (onBell != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 16.dp, top = statusTop + 10.dp)
+            ) {
+                BellButton(count = NotificationStore.unread, onClick = onBell)
             }
         }
 
