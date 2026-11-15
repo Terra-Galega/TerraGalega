@@ -1,16 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
-import { OrdersComponent } from './pages/orders/orders.component';
-import { LoginComponent } from './pages/login/login.component';
-import { MenuComponent } from './pages/menu/menu.component';
-import { AccountComponent } from './pages/account/account.component';
-import { CouponsComponent } from './pages/coupons/coupons.component';
-import { AccountEditComponent } from './pages/account-edit/account-edit.component';
-import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
-import { AboutUsComponent } from './pages/about-us/about-us.component';
-import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { ErrorComponent } from './pages/error/error.component';
-import { VerifyEmailComponent } from './pages/verify-email/verify-email.component';
 import {
   adminGuard,
   clientAreaGuard,
@@ -19,9 +9,6 @@ import {
   operatorGuard,
   redirectByRoleGuard,
 } from './guards/role.guards';
-import { CheckoutConfirmComponent } from './pages/checkout/chekout-confirm/checkout-confirm.component';
-import { CheckoutResultComponent } from './pages/checkout/checkout-result/checkout-result.component';
-import { CompleteProfileComponent } from './pages/complete-profile/complete-profile.component';
 
 // Las rutas del usuario no llevan su id: el back lo identifica por el token,
 // así nadie puede cambiar un número en la URL para ver la cuenta de otra persona.
@@ -41,31 +28,31 @@ export const routes: Routes = [
   {
     // Login: con sesión iniciada se va a la página del rol.
     path: 'login',
-    component: LoginComponent,
+    loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent),
     canActivate: [redirectByRoleGuard],
   },
   {
     // Destino del enlace del correo de confirmación: /verify-email?token=...
     // Sin guard: debe abrir igual con o sin sesión iniciada.
     path: 'verify-email',
-    component: VerifyEmailComponent,
+    loadComponent: () => import('./pages/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent),
   },
   {
     // Después de crear la cuenta con Google: pide teléfono, apellido y dirección
     path: 'complete-profile',
-    component: CompleteProfileComponent,
+    loadComponent: () => import('./pages/complete-profile/complete-profile.component').then((m) => m.CompleteProfileComponent),
     canActivate: [completeProfileGuard],
   },
   {
     // Página "Sobre nosotros".
     path: 'aboutUs',
-    component: AboutUsComponent,
+    loadComponent: () => import('./pages/about-us/about-us.component').then((m) => m.AboutUsComponent),
     canActivate: [clientAreaGuard],
   },
   {
     // Catálogo / menú de productos.
     path: 'menu',
-    component: MenuComponent,
+    loadComponent: () => import('./pages/menu/menu.component').then((m) => m.MenuComponent),
     canActivate: [clientAreaGuard],
   },
   {
@@ -88,49 +75,49 @@ export const routes: Routes = [
   {
     // Historial de pedidos del cliente.
     path: 'orders',
-    component: OrdersComponent,
+    loadComponent: () => import('./pages/orders/orders.component').then((m) => m.OrdersComponent),
     canActivate: [clientAreaGuard],
   },
   {
     // Carrito y datos de envío/pago.
     path: 'checkout',
-    component: CheckoutComponent,
+    loadComponent: () => import('./pages/checkout/checkout.component').then((m) => m.CheckoutComponent),
     canActivate: [clientAreaGuard],
   },
   {
     // Confirmación del pedido tras finalizar la compra.
     path: 'checkout/confirm',
-    component: CheckoutConfirmComponent,
+    loadComponent: () => import('./pages/checkout/chekout-confirm/checkout-confirm.component').then((m) => m.CheckoutConfirmComponent),
     canActivate: [clientAreaGuard],
   },
   {
     // Vuelta desde Stripe: /checkout/result?order=ID[&canceled=true]
     path: 'checkout/result',
-    component: CheckoutResultComponent,
+    loadComponent: () => import('./pages/checkout/checkout-result/checkout-result.component').then((m) => m.CheckoutResultComponent),
     canActivate: [clientAreaGuard],
   },
   {
     // Detalle de un producto; ':id' es el id del producto.
     path: 'productDetails/:id',
-    component: ProductDetailComponent,
+    loadComponent: () => import('./pages/product-detail/product-detail.component').then((m) => m.ProductDetailComponent),
     canActivate: [clientAreaGuard],
   },
   {
     // Cupones personales del cliente.
     path: 'coupons',
-    component: CouponsComponent,
+    loadComponent: () => import('./pages/coupons/coupons.component').then((m) => m.CouponsComponent),
     canActivate: [clientGuard],
   },
   {
     // Cuenta del cliente con sesión iniciada.
     path: 'account',
-    component: AccountComponent,
+    loadComponent: () => import('./pages/account/account.component').then((m) => m.AccountComponent),
     canActivate: [clientGuard],
   },
   {
     // Edición de los datos de la cuenta del cliente.
     path: 'account/edit',
-    component: AccountEditComponent,
+    loadComponent: () => import('./pages/account-edit/account-edit.component').then((m) => m.AccountEditComponent),
     canActivate: [clientGuard],
   },
   {
