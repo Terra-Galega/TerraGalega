@@ -18,4 +18,6 @@ export class AdminTopbarComponent {
   // Eventos que notifican al componente padre los cambios en la búsqueda y los clics en el botón de añadir.
   @Output() searchChanged = new EventEmitter<string>();
   @Output() addClicked = new EventEmitter<void>();
+  // Clic en el botón de menú (móvil y tablet): el padre abre la barra lateral.
+  @Output() menuClicked = new EventEmitter<void>();
 }

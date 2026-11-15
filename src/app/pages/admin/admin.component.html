@@ -1,18 +1,21 @@
 <!-- Contenedor general del panel de administración -->
 <div class="min-h-screen flex font-sans text-charcoal" style="background-color: #ece9e1">
   <!-- Barra lateral con navegación, administrador activo y cierre de sesión -->
-  <app-admin-sidebar [activeTab]="activeTab" [adminName]="adminName" (tabChanged)="changeTab($event)"
+  <app-admin-sidebar [activeTab]="activeTab" [adminName]="adminName" [open]="sidebarOpen"
+    (closed)="sidebarOpen = false" (tabChanged)="changeTab($event)"
     (logoutClicked)="logout()"></app-admin-sidebar>
 
-  <!-- Área principal que contiene la barra superior y el contenido de cada sección -->
-  <div class="flex-1 flex flex-col" style="margin-left: 240px">
+  <!-- Área principal que contiene la barra superior y el contenido de cada sección.
+       Solo en escritorio deja el margen de la barra lateral (240 px); min-w-0 evita que una
+       tabla ancha estire la página. -->
+  <div class="flex-1 min-w-0 flex flex-col lg:ml-60">
     <!-- Barra superior con título, búsqueda y botón para añadir elementos -->
     <app-admin-topbar [title]="pageTitle" [showAddButton]="showAddButton" [addLabel]="addLabel"
       [showSearch]="activeTab !== 'orders' && activeTab !== 'dashboard'" (addClicked)="onAddClicked()"
-      (searchChanged)="searchProducts($event)"></app-admin-topbar>
+      (menuClicked)="sidebarOpen = true" (searchChanged)="searchProducts($event)"></app-admin-topbar>
 
     <!-- CArga el componente correspondiente a la pestaña seleccionada -->
-    <div class="flex-1 p-8">
+    <div class="flex-1 p-4 md:p-8">
 
       @if (activeTab === "dashboard") {
       <app-admin-dashboard></app-admin-dashboard>

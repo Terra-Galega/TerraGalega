@@ -46,6 +46,10 @@ export const appConfig: ApplicationConfig = {
               queryParams: 'ignored',
             });
           if (samePage) transition.skipTransition();
+          // Seguro: si el navegador no llega a pintar el fundido (pestaña en segundo plano),
+          // se salta para que el cambio de página nunca se quede esperando.
+          const guard = setTimeout(() => transition.skipTransition(), 1500);
+          transition.finished.finally(() => clearTimeout(guard)).catch(() => {});
         },
       }),
     ),

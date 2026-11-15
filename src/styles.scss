@@ -216,3 +216,179 @@ body {
   -webkit-backdrop-filter: blur(2px);
   animation: terra-blur-in 0.35s ease;
 }
+
+// =====================================================================================
+// RESPONSIVE: BASE COMÚN DE TODO EL PROYECTO
+// =====================================================================================
+// Se trabaja con los tres rangos que usa Apple, apoyados en los puntos de corte que ya
+// trae Tailwind (no se cambian, así nada de lo existente se rompe):
+//
+//   Rango                  Ancho              En el código
+//   ---------------------  -----------------  -------------------------------------------
+//   Pequeño  (móvil)       hasta 767 px       clases sin prefijo: una columna
+//   Mediano  (tablet)      768 a 1023 px      md:  dos columnas
+//   Grande   (escritorio)  1024 px o más      lg: / xl:  el diseño completo, con un ancho
+//                                             máximo de contenido (max-w-7xl)
+//
+// Reglas que sigue todo el sitio:
+//   1. Se diseña primero el móvil; md: y lg: solo añaden columnas y aire.
+//   2. Los títulos crecen de forma continua con clamp() (clases fluid-*), sin saltos.
+//   3. En pantallas táctiles, botones y campos miden al menos 44 px de alto.
+//   4. Los campos de texto usan 16 px en móvil para que iOS no haga zoom al enfocarlos.
+//   5. Las tablas del panel pasan a tarjetas en móvil (clase responsive-table).
+//   6. Nada desborda la pantalla a lo ancho: lo que no cabe se apila o se desplaza
+//      dentro de su propio contenedor.
+
+// ---------- Variables por rango ----------
+:root {
+  // Margen lateral de las páginas
+  --gutter: 1.25rem; // móvil: 20 px
+  // Espacio vertical entre secciones grandes
+  --section-y: 4.5rem;
+}
+
+// Tablet
+@media (min-width: 768px) {
+  :root {
+    --gutter: 1.5rem;
+    --section-y: 7rem;
+  }
+}
+
+// Escritorio
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 2rem;
+    --section-y: 9rem;
+  }
+}
+
+// ---------- Tipografía fluida ----------
+// Cada clase va de su tamaño de móvil (375 px) a su tamaño de escritorio (1280 px o más).
+// Título de sección del inicio: 36 → 60 px
+.fluid-display {
+  font-size: clamp(2.25rem, 1.63rem + 2.65vw, 3.75rem);
+  line-height: 1.05;
+}
+
+// Título de página (h1): 34 → 48 px
+.fluid-title {
+  font-size: clamp(2.125rem, 1.76rem + 1.55vw, 3rem);
+  line-height: 1.1;
+}
+
+// Título dentro de una tarjeta grande: 28 → 48 px
+.fluid-headline {
+  font-size: clamp(1.75rem, 1.23rem + 2.2vw, 3rem);
+  line-height: 1.1;
+}
+
+// Los títulos largos no dejan una palabra suelta en la última línea
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+// ---------- Secciones ----------
+// Espacio vertical de las secciones grandes del inicio, según el rango
+.section-y {
+  padding-block: var(--section-y);
+}
+
+// ---------- Pantallas táctiles ----------
+// Área mínima de 44 px para pulsar con el dedo (botones de la app, campos y selectores)
+@media (pointer: coarse) {
+  .btn,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select {
+    min-height: 44px;
+  }
+}
+
+// ---------- Móvil ----------
+@media (max-width: 767px) {
+  // iOS amplía la página al enfocar un campo con letra menor de 16 px
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  // Tablas → tarjetas: sin encabezados, cada fila es una tarjeta. La primera celda (lo que
+  // identifica la fila) ocupa todo el ancho y el resto se reparte debajo en una línea.
+  .responsive-table,
+  .responsive-table tbody {
+    display: block;
+  }
+
+  .responsive-table thead {
+    display: none;
+  }
+
+  .responsive-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem 0.75rem;
+    padding: 1rem;
+    border-bottom: 1px solid rgb(44 44 44 / 0.07);
+  }
+
+  .responsive-table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .responsive-table td {
+    display: block;
+    padding: 0 !important;
+    border: 0 !important;
+    min-width: 0;
+  }
+
+  .responsive-table td:first-child,
+  .responsive-table td[colspan] {
+    flex: 1 1 100%;
+  }
+
+  // La última celda (acciones) se va al extremo derecho de la tarjeta
+  .responsive-table td:last-child:not(:first-child) {
+    margin-left: auto;
+  }
+}
+
+// ---------- Ventanas de formulario (modales) ----------
+// Escritorio y tablet: ventana centrada. Móvil: hoja que sube desde abajo y ocupa todo el
+// ancho, como las hojas de iOS; si el formulario es alto, se desplaza por dentro.
+// Se usan dos clases: sheet-overlay (el fondo) y sheet-window (la ventana).
+@media (max-width: 767px) {
+  .sheet-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .sheet-window {
+    max-width: none !important;
+    max-height: 92dvh !important;
+    border-radius: 1.5rem 1.5rem 0 0 !important;
+    animation: sheet-up 0.32s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  // Las ventanas con relleno amplio lo reducen para aprovechar el ancho
+  .sheet-window.p-8 {
+    padding: 1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-window {
+    animation: none;
+  }
+}

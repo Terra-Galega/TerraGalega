@@ -1,7 +1,7 @@
 <!-- Carrusel de anuncios: solo existe si hay al menos uno -->
 @if (announcements.length > 0) {
 <section
-    class="py-28 md:py-36"
+    class="section-y"
     style="background-color: #f7f4ec"
     aria-roledescription="carousel"
     aria-label="Anuncios"
@@ -46,7 +46,7 @@
             <!-- Texto -->
             <div class="flex flex-col justify-center p-8 md:p-14">
                 <h2
-                class="font-serif text-3xl md:text-5xl font-semibold tracking-tight leading-[1.1] text-charcoal mb-5"
+                class="font-serif fluid-headline font-semibold tracking-tight text-charcoal mb-5"
                 >
                 {{ announcement.title }}
                 </h2>

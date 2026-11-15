@@ -321,6 +321,28 @@
     0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+// Fila del menú móvil: alto mínimo de 44 px para pulsarla con el dedo.
+.mobile-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  cursor: pointer;
+}
+
+// Página actual dentro del menú móvil
+#mobile-menu .mobile-link.active {
+  color: #d99a21 !important;
+}
+
+// El menú no puede ser más alto que la pantalla: si no cabe (móvil en horizontal), se desplaza.
+#mobile-menu {
+  max-height: calc(100dvh - 5.5rem);
+  overflow-y: auto;
+}
+
 // Los enlaces del menú móvil desplegado se mantienen claros sobre su fondo oscuro.
 
 #mobile-menu .link-nav {
@@ -353,4 +375,10 @@
 
 .nav-bar.nav-bar--stayed .logo-galega {
   color: #2c2c2c;
+}
+
+// Botón "Iniciar sesión" del menú móvil (mismo degradado que los botones principales)
+#mobile-menu .btn-terra {
+  background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
+  border: 0;
 }

@@ -141,6 +141,9 @@ export class AdminComponent {
   }
 
   // Cambia la pestaña activa y limpia el filtro de búsqueda.
+  // Barra lateral abierta (solo se usa en móvil y tablet, donde es un panel deslizante)
+  sidebarOpen = false;
+
   changeTab(tab: AdminTab) {
     this.activeTab = tab;
     this.searchTerm = '';
