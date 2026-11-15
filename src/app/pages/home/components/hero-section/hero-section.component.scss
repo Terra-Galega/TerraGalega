@@ -5,18 +5,17 @@
 
 // --- Logo del hero ---
 // hero-logo: ocupa su sitio en la portada y no se transforma (sirve de referencia para medir).
-// logo-move: recibe desde el código el movimiento hacia la navbar al hacer scroll.
+// logo-part: cada pieza (Terra, GALEGA, pulpo) recibe desde el código su movimiento al hacer scroll.
 // logo-reveal: la animación de entrada.
 .hero-logo {
   display: block;
   width: min(680px, 88vw);
 }
 
-.logo-move {
+// logo-fade: al llegar a la navbar, el logo del hero se funde con el de la barra.
+.logo-fade {
   display: block;
-  transform-origin: 0 0;
-  will-change: transform;
-  transition: opacity .3s ease;
+  transition: opacity .35s ease;
 }
 
 .logo-reveal {
@@ -31,14 +30,32 @@
   height: auto;
 }
 
-// El pulpo va en su propia capa, encima del texto y con la misma caja, para poder
-// desvanecerlo por separado al hacer scroll.
+// Cada pieza ocupa la caja completa del logo y se mueve por separado desde el código
+.logo-part {
+  display: block;
+  transform-origin: 0 0;
+  will-change: transform, opacity;
+}
+
+.logo-part--terra,
 .logo-octopus {
   position: absolute;
   inset: 0;
-  // Centro del pulpo dentro del logo: gira y crece sobre sí mismo al desvanecerse
+}
+
+// El texto es un solo dibujo: "Terra" ocupa la parte de arriba y "GALEGA" la de abajo,
+// sin solaparse, así que se recorta la misma imagen por la línea que las separa.
+.logo-part--terra {
+  clip-path: inset(0 0 41.3% 0);
+}
+
+.logo-part--galega {
+  clip-path: inset(58.7% 0 0 0);
+}
+
+// El pulpo gira y se encoge sobre su propio centro al irse
+.logo-octopus {
   transform-origin: 76% 29%;
-  will-change: opacity, transform;
 }
 
 // --- Entrada del logo ---
@@ -90,7 +107,7 @@
 }
 
 // Pulpo: franja más ancha y de oro más intenso, con un halo dorado. Pasa un poco después
-// que la del texto y deja el pulpo con un ligero tono dorado.
+// que la del texto y al terminar se apaga: el pulpo queda del mismo color que las letras.
 .logo-shine--octopus {
   background-image: linear-gradient(105deg,
       rgb(232 178 74 / .28) 0%,
@@ -139,25 +156,77 @@
   }
 }
 
-// El destello cruza el pulpo y al final queda un leve baño dorado (opacidad .55)
+// El destello cruza el pulpo con un baño dorado y al final se apaga del todo
 @keyframes octopus-shine {
   0% {
-    opacity: 1;
+    opacity: 0;
     background-position: 120% 0;
   }
 
-  80% {
+  15% {
     opacity: 1;
-    background-position: -20% 0;
+  }
+
+  75% {
+    opacity: 1;
   }
 
   100% {
-    opacity: .55;
+    opacity: 0;
     background-position: -20% 0;
   }
 }
 
+// --- Indicador "Descubrir" ---
+// Una línea fina con un brillo que baja despacio; aparece cuando termina la entrada del logo.
+.scroll-cue {
+  color: rgb(245 242 235 / .5);
+  opacity: 0;
+  animation: cue-in 1s ease 2.4s forwards;
+}
+
+.scroll-cue-line {
+  position: relative;
+  width: 1px;
+  height: 2.5rem;
+  overflow: hidden;
+  background: rgb(245 242 235 / .18);
+}
+
+.scroll-cue-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 40%;
+  background: rgb(245 242 235 / .85);
+  animation: cue-drop 2.4s cubic-bezier(.6, 0, .4, 1) 3s infinite;
+  transform: translateY(-100%);
+}
+
+@keyframes cue-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cue-drop {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(260%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .scroll-cue,
+  .scroll-cue-line::after {
+    animation: none;
+    opacity: 1;
+  }
+
   .logo-reveal .logo-img {
     -webkit-mask-image: none;
     mask-image: none;

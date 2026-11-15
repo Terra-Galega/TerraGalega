@@ -1,25 +1,22 @@
 <!-- Carrusel de anuncios: solo existe si hay al menos uno -->
 @if (announcements.length > 0) {
 <section
-    class="py-20"
+    class="py-28 md:py-36"
     style="background-color: #f7f4ec"
     aria-roledescription="carousel"
     aria-label="Anuncios"
 >
     <div class="max-w-7xl mx-auto px-6">
-    <p
-        class="text-[11px] font-semibold tracking-[0.2em] uppercase mb-6 text-center"
-        style="color: #b2571f"
-    >
-        Novedades
-    </p>
+    <!-- Mismo encabezado que "Favoritos de la casa" -->
+    <app-section-heading appReveal eyebrow="Lo último en casa" title="Novedades" />
 
     <!-- Marco del carrusel: recorta lo que queda fuera de la diapositiva -->
     <div
-        class="relative overflow-hidden rounded-3xl"
+        appReveal
+        class="relative overflow-hidden rounded-[2rem]"
         style="
         background-color: rgba(255, 255, 255, 0.7);
-        box-shadow: 0 8px 32px rgba(44, 44, 44, 0.08);
+        box-shadow: 0 1px 2px rgba(44, 44, 44, 0.04), 0 20px 50px rgba(44, 44, 44, 0.07);
         "
         (mouseenter)="paused = true"
         (mouseleave)="paused = false"
@@ -43,18 +40,18 @@
             <img
                 [src]="announcement.imageUrl"
                 [alt]="announcement.title"
-                class="w-full h-64 md:h-[26rem] object-cover"
+                class="w-full h-64 md:h-[30rem] object-cover"
             />
 
             <!-- Texto -->
-            <div class="flex flex-col justify-center p-8 md:p-12">
+            <div class="flex flex-col justify-center p-8 md:p-14">
                 <h2
-                class="font-serif text-3xl md:text-4xl font-semibold text-charcoal mb-4"
+                class="font-serif text-3xl md:text-5xl font-semibold tracking-tight leading-[1.1] text-charcoal mb-5"
                 >
                 {{ announcement.title }}
                 </h2>
                 <p
-                class="text-base leading-relaxed"
+                class="text-base md:text-lg leading-relaxed"
                 style="color: rgba(44, 44, 44, 0.7)"
                 >
                 {{ announcement.description }}

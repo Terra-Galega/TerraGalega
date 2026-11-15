@@ -7,8 +7,8 @@ import { getErrorMessage } from '../utils/http-error';
 
 // Peticiones cuyo error NO maneja este interceptor:
 // /auth/login: un 401 significa "contraseña incorrecta" (lo muestra el formulario).
-// /auth/me: la revisión periódica maneja su propio 401 en AuthService.
-const IGNORED_URLS = ['/auth/login', '/auth/me'];
+// /auth/me y /auth/refresh: la revisión periódica maneja su propio 401 en AuthService.
+const IGNORED_URLS = ['/auth/login', '/auth/me', '/auth/refresh'];
 
 // Atiende en un solo lugar los errores que ninguna pantalla debería resolver
 // sola: 401 cierra la sesión y 403 lleva a la página de error.

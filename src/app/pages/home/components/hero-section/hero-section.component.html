@@ -17,19 +17,25 @@
   <div class="relative z-10 flex-1 flex flex-col justify-center items-center text-center px-6 max-w-4xl mx-auto w-full">
     <!-- Etiqueta superior con el tipo de restaurante y la ciudad. -->
     <p class="text-xs md:text-sm font-medium tracking-[0.35em] uppercase" style="color: #d99a21">
-      Restaurante Gallego - Bogotá
+      Restaurante gallego · Bogotá
     </p>
 
     <!-- Logotipo principal. Entrada: aparece como una marea que avanza sobre la piedra (borde
-         ondulado), se enfoca y un destello dorado recorre el trazo; en el pulpo el brillo es más
-         intenso. Al bajar, el logo sube hasta la navbar: el pulpo se desvanece por el camino y
-         el texto se convierte en el logo de la barra. -->
+         ondulado), se enfoca y un destello dorado recorre el trazo, más intenso en el pulpo.
+         Al bajar: primero se va el pulpo, luego "Terra" se centra sobre "GALEGA" y por último
+         las dos palabras suben hasta el logo de la navbar. -->
     <span #logoBox class="hero-logo mx-auto my-6 md:my-10">
-      <span #logoMove class="logo-move">
+      <span #logoFade class="logo-fade">
         <span class="logo-reveal">
-          <img src="/images/logo-hero-text.svg" alt="Terra Galega" class="logo-img" />
+          <!-- GALEGA (define el tamaño de la caja) y Terra: el mismo dibujo recortado en dos -->
+          <span #galega class="logo-part logo-part--galega">
+            <img src="/images/logo-hero-text.svg" alt="Terra Galega" class="logo-img" />
+          </span>
+          <span #terra class="logo-part logo-part--terra" aria-hidden="true">
+            <img src="/images/logo-hero-text.svg" alt="" class="logo-img" />
+          </span>
           <span class="logo-shine logo-shine--text" aria-hidden="true"></span>
-          <span #octopus class="logo-octopus" aria-hidden="true">
+          <span #octopus class="logo-part logo-octopus" aria-hidden="true">
             <img src="/images/logo-hero-octopus.svg" alt="" class="logo-img" />
             <span class="logo-shine logo-shine--octopus"></span>
           </span>
@@ -38,28 +44,16 @@
     </span>
 
     <!-- Descripción breve del restaurante. -->
-    <p class="text-base md:text-lg lg:text-xl max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed"
+    <p class="text-base md:text-lg lg:text-xl max-w-xl mx-auto leading-relaxed"
       style="color: rgba(245, 242, 235, 0.8)">
       Tradición culinaria gallega en el corazón de Bogotá. Mariscos frescos,
       carnes seleccionadas y los auténticos sabores del noroeste de España.
     </p>
-
-    <!-- Botones de acción; el routerLink es una propiedad de app-button, que en ese caso se dibuja como enlace. -->
-    <div class="flex flex-wrap items-center justify-center gap-4">
-      <app-button variant="glass-light" routerLink="/menu">
-        Explorar Menú
-      </app-button>
-      <app-button variant="glass-dark" routerLink="/aboutUs">
-        Nuestra Historia
-      </app-button>
-    </div>
   </div>
 
-  <!-- Indicador Descubrir con una flecha animada que invita a seguir bajando por la página. -->
-  <div class="relative z-10 flex flex-col items-center gap-2 mt-8" style="color: rgba(245, 242, 235, 0.45)">
-    <span class="text-xs tracking-widest uppercase">Descubrir</span>
-    <svg class="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-    </svg>
+  <!-- Indicador para seguir bajando: texto pequeño y una línea fina que se ilumina despacio. -->
+  <div class="scroll-cue relative z-10 flex flex-col items-center gap-3 mt-8" aria-hidden="true">
+    <span class="text-[11px] tracking-[0.3em] uppercase">Descubrir</span>
+    <span class="scroll-cue-line"></span>
   </div>
 </section>

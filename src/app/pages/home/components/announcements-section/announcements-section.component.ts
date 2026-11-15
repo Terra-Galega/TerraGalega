@@ -2,6 +2,8 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
 import { Announcement } from '../../../../models/announcement';
+import { SectionHeadingComponent } from '../../../../components/section-heading/section-heading.component';
+import { RevealDirective } from '../../../../directives/reveal.directive';
 
 // Cada cuánto avanza solo el carrusel (en milisegundos)
 const AUTOPLAY_MS = 6_000;
@@ -13,6 +15,7 @@ const AUTOPLAY_MS = 6_000;
  */
 @Component({
     selector: 'app-announcements-section',
+    imports: [SectionHeadingComponent, RevealDirective],
     templateUrl: './announcements-section.component.html',
 })
 export class AnnouncementsSectionComponent implements OnChanges {

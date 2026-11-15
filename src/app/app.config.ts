@@ -1,5 +1,5 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { ApplicationConfig, inject, provideZoneChangeDetection } from '@angular/core';
+import { Router, provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
@@ -30,6 +30,24 @@ export const appConfig: ApplicationConfig = {
       routes,
       // al cambiar de página siempre se empieza desde arriba
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
+      // Fundido entre páginas (el estilo está en styles.scss). Si solo cambian los parámetros
+      // de la misma página (filtros, pestañas), no hay fundido.
+      withViewTransitions({
+        skipInitialTransition: true,
+        onViewTransitionCreated: ({ transition }) => {
+          const router = inject(Router);
+          const target = router.getCurrentNavigation()?.finalUrl;
+          const samePage =
+            target &&
+            router.isActive(target, {
+              paths: 'exact',
+              matrixParams: 'exact',
+              fragment: 'ignored',
+              queryParams: 'ignored',
+            });
+          if (samePage) transition.skipTransition();
+        },
+      }),
     ),
     // Activa HttpClient para consumir la API con dos interceptores, que se ejecutan en orden:
     // authInterceptor agrega el JWT a cada petición; errorInterceptor maneja los 401/403.

@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Product } from '../../../../models/product';
 import { ProductCardComponent } from '../../../../components/product-card/product-card.component';
 import { SectionHeadingComponent } from '../../../../components/section-heading/section-heading.component';
+import { RevealDirective } from '../../../../directives/reveal.directive';
 
 // Máximo de favoritos que se ven a la vez: dos filas de tres.
 const MAX_STATIC = 6;
@@ -15,7 +16,7 @@ const SECONDS_PER_CARD = 7;
 //   bordes difuminan los platos que entran y salen.
 @Component({
   selector: 'app-popular-products-section',
-  imports: [ProductCardComponent, SectionHeadingComponent],
+  imports: [ProductCardComponent, SectionHeadingComponent, RevealDirective],
   templateUrl: './popular-products-section.component.html',
   styleUrl: './popular-products-section.component.scss',
 })

@@ -10,6 +10,7 @@ import {
   fromEvent,
   merge,
   switchMap,
+  tap,
   timer,
 } from 'rxjs';
 import { CreateClient } from '../models/client';
@@ -67,6 +68,9 @@ const TOKEN_KEY = 'terragalega_token';
 
 // Cada cuánto se revisa que el token siga vigente y que la cuenta exista.
 const SESSION_CHECK_MS = 15_000;
+
+// Si al token le queda menos de esto, se pide uno nuevo sin cerrar la sesión.
+const RENEW_BEFORE_MS = 60 * 60 * 1000; // 1 hora
 
 // Página principal de cada rol.
 const HOME_BY_TYPE: Record<SessionType, string> = {
@@ -240,6 +244,23 @@ export class AuthService {
                 this.endSession();
                 return EMPTY;
               }
+              // Al token le queda poco: se pide uno nuevo y se sobrescribe el anterior.
+              // El interceptor lo usa desde la siguiente petición, sin cerrar la sesión.
+              if (this.expiresInMs() < RENEW_BEFORE_MS) {
+                return this.http
+                  .post<LoginResponse>(`${this.apiUrl}/refresh`, {})
+                  .pipe(
+                    // Solo se cambia el token: los datos de la sesión siguen iguales
+                    // y así la revisión no se reinicia en cada renovación
+                    tap((response) => this.saveToken(response.token)),
+                    catchError((error: HttpErrorResponse) => {
+                      if (error.status === 401) {
+                        this.endSession();
+                      }
+                      return EMPTY;
+                    }),
+                  );
+              }
               // El back responde 401 si el token no es válido o la cuenta ya no existe
               return this.http.get(`${this.apiUrl}/me`).pipe(
                 catchError((error: HttpErrorResponse) => {
@@ -304,6 +325,13 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  // Milisegundos que le quedan al token (0 si no hay token o no se puede leer)
+  private expiresInMs(): number {
+    const token = this.readToken();
+    const payload = token ? this.decode(token) : null;
+    return payload ? payload.exp * 1000 - Date.now() : 0;
   }
 
   // Lee los datos del JWT (la parte del medio, en Base64URL). No verifica la firma.

@@ -1,9 +1,9 @@
 <!-- Sección de productos populares. -->
-<section id="menu" class="py-24 bg-cream">
+<section id="menu" class="py-28 md:py-36 bg-cream">
   <div class="max-w-7xl mx-auto px-6">
-    <app-section-heading eyebrow="Más solicitados" title="Favoritos de la casa" />
+    <app-section-heading appReveal eyebrow="Más solicitados" title="Favoritos de la casa" />
   </div>
-  <div class="mx-auto px-6" [class.max-w-7xl]="!animated" [class.wide]="animated">
+  <div appReveal class="mx-auto px-6" [class.max-w-7xl]="!animated" [class.wide]="animated">
 
     @if (!animated) {
     <!-- Hasta 6 favoritos: cuadrícula fija de 1, 2 o 3 columnas según la pantalla. -->

@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, inject } from '@angular/core';
 import { SectionHeadingComponent } from '../../../../components/section-heading/section-heading.component';
+import { RevealDirective } from '../../../../directives/reveal.directive';
 
 // Opinión de un crítico gastronómico (contenido fijo de la sección).
 interface CriticReview {
@@ -14,7 +15,7 @@ interface CriticReview {
 // Las tarjetas aparecen con un fundido cuando la sección entra en pantalla, una tras otra.
 @Component({
   selector: 'app-testimonials-section',
-  imports: [SectionHeadingComponent],
+  imports: [SectionHeadingComponent, RevealDirective],
   templateUrl: './testimonials-section.component.html',
   styleUrl: './testimonials-section.component.scss',
 })

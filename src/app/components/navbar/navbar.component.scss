@@ -53,6 +53,9 @@
   border: 1px solid transparent;
   box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
 
+  // Nombre para el fundido entre páginas: la barra se mantiene en su sitio mientras cambia la página
+  view-transition-name: nav-bar;
+
   transition:
     background-color 0.4s ease,
     border-color 0.4s ease,
@@ -140,6 +143,25 @@
 .nav-bar.nav-bar--logo-away .logo-wrap-mobile {
   opacity: 0;
   pointer-events: none;
+}
+
+// Mientras el logo del hero sube, la barra ya tiene el alto y la escala del logo de su estado
+// final (aunque siga transparente): así las palabras llegan justo a donde se quedan y, al
+// fundirse con el logo de la barra, nada salta.
+.nav-bar.nav-bar--logo-away .nav-row {
+  height: 4.25rem;
+}
+
+.nav-bar.nav-bar--logo-away .logo-wrap {
+  transform: translateY(6px) scale(0.9);
+}
+
+.nav-bar.nav-bar--logo-away .nav-row-mobile {
+  height: 3.5rem;
+}
+
+.nav-bar.nav-bar--logo-away .logo-wrap-mobile {
+  transform: scale(0.92);
 }
 
 // Móvil: misma idea, más discreta.
