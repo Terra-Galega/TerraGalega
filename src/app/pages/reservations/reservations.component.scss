@@ -13,6 +13,7 @@
   --surface: #fdfbf7;
   --line: #dcd5c9;
   --muted: #625b51;
+  --field: white; // fondo de campos, selects y botones claros (el tema oscuro lo cambia)
   --brass: #a9854e;
   --gold: #d9a63c;
   --glaze: #4f8fbf; // azul de los ventanales
@@ -72,7 +73,7 @@ h2 {
   min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: white;
+  background: var(--field);
   padding: .5rem 1rem;
   color: var(--ink);
   font-weight: 400;
@@ -792,7 +793,7 @@ button {
   height: 44px;
   border: 1px solid var(--line);
   border-radius: .7rem;
-  background: white;
+  background: var(--field);
   font-size: 1.25rem;
   line-height: 1;
 }
@@ -815,7 +816,7 @@ button {
 .reserve-button {
   min-height: 44px;
   width: 100%;
-  border-radius: .75rem;
+  border-radius: 999px; // píldora: extremos completamente redondos
   background: var(--terracotta);
   color: white;
   font-weight: 600;
@@ -998,7 +999,7 @@ button {
   min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: white;
+  background: var(--field);
   padding: .5rem 1rem;
   font-weight: 400;
 }
@@ -1033,7 +1034,7 @@ button {
 
 .secondary-button {
   border: 1px solid var(--line);
-  background: white;
+  background: var(--field);
   color: var(--ink);
 }
 

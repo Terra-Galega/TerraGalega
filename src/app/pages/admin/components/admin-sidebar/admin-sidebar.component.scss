@@ -38,9 +38,20 @@
   background-color: rgba(105, 47, 47, 0.18);
 }
 
-nav {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(245, 242, 235, 0.2) transparent;
+// Barra de scroll clara y discreta sobre el fondo oscuro de la barra lateral
+@supports (-moz-appearance: none) {
+  nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 242, 235, 0.2) transparent;
+  }
+}
+
+nav::-webkit-scrollbar-thumb {
+  background-color: rgba(245, 242, 235, 0.2);
+}
+
+nav::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(245, 242, 235, 0.35);
 }
 // ============================================================
 // RESPONSIVE: barra lateral

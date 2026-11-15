@@ -1,14 +1,27 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <title>Terra Galega</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=2">
 
+  <!-- Aplica el tema guardado ANTES de que se pinte la página (evita el destello claro).
+       La clave coincide con THEME_KEY de theme.service.ts. -->
+  <script>
+    try {
+      if (localStorage.getItem('terragalega_theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.style.colorScheme = 'dark';
+      }
+    } catch (e) { }
+  </script>
   <link rel="icon" type="image/svg+xml" href="/images/logo-cropped.svg">
 </head>
+
 <body>
   <app-root></app-root>
 </body>
+
 </html>

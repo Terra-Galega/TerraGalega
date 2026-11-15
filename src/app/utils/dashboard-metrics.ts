@@ -1,5 +1,6 @@
 import { Order, OrderStatus, OrderSummary } from '../models/order';
 import { Product } from '../models/product';
+import { isDarkTheme } from './chart-theme';
 
 // =====================================================================
 // Cálculos del dashboard del administrador.
@@ -26,6 +27,24 @@ export const CHART_COLORS = [
   '#c9885c', // arcilla
 ];
 
+// Misma paleta, más clara, para verse sobre el fondo del tema oscuro.
+// SOLO la usa el dashboard en pantalla: el PDF/Excel exportado sigue con CHART_COLORS.
+export const CHART_COLORS_DARK = [
+  '#ee9c68', // terracota
+  '#adc48f', // bosque
+  '#f2c260', // dorado
+  '#74b6da', // azul
+  '#ec9393', // granate
+  '#c8cdb8', // salvia apagado
+  '#bf9fd0', // violeta
+  '#eab38d', // arcilla
+];
+
+// Paleta de las gráficas en pantalla según el tema activo
+export function chartColors(): string[] {
+  return isDarkTheme() ? CHART_COLORS_DARK : CHART_COLORS;
+}
+
 // Colores del estado del pedido (fondo y texto de la etiqueta)
 export const STATUS_STYLE: Record<OrderStatus, { bg: string; color: string }> =
   {
@@ -36,6 +55,24 @@ export const STATUS_STYLE: Record<OrderStatus, { bg: string; color: string }> =
     DELIVERED: { bg: 'rgba(85, 97, 65, 0.16)', color: '#556141' },
     CANCELLED: { bg: 'rgba(138, 34, 34, 0.12)', color: '#8a2222' },
   };
+
+// Las mismas etiquetas en tema oscuro: fondo algo más intenso y texto claro
+export const STATUS_STYLE_DARK: Record<
+  OrderStatus,
+  { bg: string; color: string }
+> = {
+  PENDING: { bg: 'rgba(242, 194, 96, 0.2)', color: '#f5cd78' },
+  CONFIRMED: { bg: 'rgba(116, 182, 218, 0.2)', color: '#94c9e6' },
+  PREPARING: { bg: 'rgba(238, 156, 104, 0.22)', color: '#f3ad80' },
+  ON_THE_WAY: { bg: 'rgba(191, 159, 208, 0.22)', color: '#d2b9de' },
+  DELIVERED: { bg: 'rgba(173, 196, 143, 0.22)', color: '#c2d6a8' },
+  CANCELLED: { bg: 'rgba(236, 147, 147, 0.2)', color: '#f2a8a8' },
+};
+
+// Estilo de la etiqueta de estado según el tema activo
+export function statusStyle(status: OrderStatus): { bg: string; color: string } {
+  return (isDarkTheme() ? STATUS_STYLE_DARK : STATUS_STYLE)[status];
+}
 
 // Pedidos que todavía no terminaron (ni entregados ni cancelados)
 const ACTIVE_STATUSES: OrderStatus[] = [

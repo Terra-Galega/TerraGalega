@@ -29,7 +29,7 @@
     <!-- Nombre: hasta 2 líneas, sin cortarse con puntos suspensivos a la mitad de una palabra -->
     <h3
       class="font-serif text-xl md:text-[22px] leading-snug tracking-tight font-semibold text-charcoal group-hover:text-terra transition-colors line-clamp-2 min-h-[2lh] mt-1.5"
-      [title]="product.name"
+      [attr.data-tooltip]="product.name"
     >
       {{ product.name }}
     </h3>

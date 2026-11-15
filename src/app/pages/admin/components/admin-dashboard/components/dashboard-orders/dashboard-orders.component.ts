@@ -9,7 +9,7 @@ import { orderStatusLabel } from '../../../../../../models/order';
 import {
   DashOrder,
   DelayedOrder,
-  STATUS_STYLE,
+  statusStyle,
   dateTimeLabel,
   fmtMoney,
   formatWait,
@@ -35,7 +35,7 @@ export class DashboardOrdersComponent {
   readonly thresholds = [15, 30, 45, 60];
   readonly money = fmtMoney;
   readonly statusLabel = orderStatusLabel;
-  readonly statusStyle = STATUS_STYLE;
+  readonly statusStyle = statusStyle;
   readonly wait = formatWait;
   readonly dateLabel = dateTimeLabel;
 

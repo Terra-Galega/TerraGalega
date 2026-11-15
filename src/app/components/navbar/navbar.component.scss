@@ -382,3 +382,60 @@
   background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
   border: 0;
 }
+
+// TEMA OSCURO
+// Va aquí (y no en styles.scss) porque los estilos de este componente llevan el atributo de
+// encapsulación de Angular y ganan en especificidad a cualquier regla global.
+// :host-context mira si <html> tiene data-theme="dark" (lo pone ThemeService).
+:host-context(html[data-theme="dark"]) {
+  .nav-bar {
+    --nav-active-bg: rgba(255, 255, 255, 0.12);
+  }
+
+  // Vidrio oscuro en lugar del gris claro
+  .nav-bar.nav-bar--stayed {
+    background-color: rgba(27, 25, 22, 0.72);
+    border-top-color: rgba(255, 255, 255, 0.12);
+    border-left-color: rgba(255, 255, 255, 0.06);
+    border-right-color: rgba(255, 255, 255, 0.06);
+    border-bottom-color: rgba(0, 0, 0, 0.4);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .nav-bar.nav-bar--stayed .link-nav {
+    color: rgba(245, 242, 235, 0.72);
+  }
+
+  .nav-bar.nav-bar--stayed .link-nav:hover {
+    color: #f5f2eb;
+  }
+
+  .nav-bar.nav-bar--stayed .nav-row .link-nav:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .nav-bar.nav-bar--stayed .nav-row .link-nav.active {
+    color: #f5f2eb !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .nav-row button.link-nav:focus-visible {
+    box-shadow: 0 0 0 2px rgba(245, 242, 235, 0.45);
+  }
+
+  .nav-bar.nav-bar--stayed .logo-terra {
+    color: #e58e57;
+  }
+
+  .nav-bar.nav-bar--stayed .logo-galega {
+    color: #f5f2eb;
+  }
+
+  #mobile-menu {
+    background-color: rgba(27, 25, 22, 0.97);
+  }
+}

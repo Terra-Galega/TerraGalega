@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { fmtPct } from '../../utils/dashboard-metrics';
+import { isDarkTheme } from '../../utils/chart-theme';
 
 // Etiqueta de variación (▲ 12.4 % / ▼ 3 %) frente al periodo anterior.
 // value = null cuando no hay base de comparación.
@@ -35,6 +36,14 @@ export class DeltaBadgeComponent {
 
   // Verde si sube, rojo si baja, gris si no hay base o no cambia
   get style(): { bg: string; color: string } {
+    if (isDarkTheme()) {
+      if (this.value === null || this.value === 0) {
+        return { bg: 'rgba(245, 242, 235, 0.12)', color: 'rgba(245, 242, 235, 0.8)' };
+      }
+      return this.value > 0
+        ? { bg: 'rgba(173, 196, 143, 0.22)', color: '#c2d6a8' }
+        : { bg: 'rgba(236, 147, 147, 0.2)', color: '#f2a8a8' };
+    }
     if (this.value === null || this.value === 0) {
       return { bg: 'rgba(44, 44, 44, 0.08)', color: 'rgba(44, 44, 44, 0.6)' };
     }

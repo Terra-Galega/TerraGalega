@@ -25,6 +25,7 @@ import { SubscriptionModalComponent } from '../../components/subscription-modal/
 import { ToastService } from '../../services/toast.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { AddressListComponent } from './components/address-list/address-list.component';
+import { ThemeSwitchComponent } from '../../components/theme-switch/theme-switch.component';
 
 // Cada cuánto se pregunta el estado mientras Stripe confirma el pago
 const POLL_MS = 5000;
@@ -44,6 +45,7 @@ const MAX_POLLS = 15;
     SubscriptionModalComponent,
     AccountActionsComponent,
     AddressListComponent,
+    ThemeSwitchComponent,
     ButtonComponent,
   ],
   templateUrl: './account.component.html',
@@ -111,7 +113,7 @@ export class AccountComponent implements OnInit {
       this.waitForPayment();
     }
   }
-  
+
   // Trae el estado de la suscripción y DESPUÉS el cliente. El orden importa:
   // /subscriptions/status asienta primero cualquier pago pendiente, así el perfil
   // (Freemium/Premium) llega ya actualizado.

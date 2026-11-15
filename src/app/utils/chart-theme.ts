@@ -8,6 +8,26 @@ export const INK = '#2c2c2c';
 export const GRID_COLOR = 'rgba(44, 44, 44, 0.08)';
 export const TICK_COLOR = 'rgba(44, 44, 44, 0.5)';
 
+// ¿Está activo el tema oscuro? (ThemeService pone data-theme en <html>)
+export function isDarkTheme(): boolean {
+  return (
+    typeof document !== 'undefined' &&
+    document.documentElement.getAttribute('data-theme') === 'dark'
+  );
+}
+
+// Colores de texto, rejilla y pistas según el tema. Se pasan a Chart.js como funciones
+// para que se lean al dibujar y no al crear la gráfica.
+export const inkColor = () => (isDarkTheme() ? '#f5f2eb' : INK);
+export const gridColor = () =>
+  isDarkTheme() ? 'rgba(245, 242, 235, 0.1)' : GRID_COLOR;
+export const tickColor = () =>
+  isDarkTheme() ? 'rgba(245, 242, 235, 0.6)' : TICK_COLOR;
+export const trackColor = () =>
+  isDarkTheme() ? 'rgba(245, 242, 235, 0.08)' : 'rgba(44, 44, 44, 0.07)';
+// Valor escrito al final de las barras (el terracota se aclara sobre fondo oscuro)
+export const accentTextColor = () => (isDarkTheme() ? '#e58e57' : '#b2571f');
+
 type TooltipOptions = NonNullable<
   NonNullable<ChartOptions['plugins']>['tooltip']
 >;
@@ -47,7 +67,8 @@ export function truncate(text: string, max: number): string {
 // Tooltip oscuro redondeado, como el del dashboard original
 export function tooltipStyle(): TooltipOptions {
   return {
-    backgroundColor: INK,
+    // En tema oscuro el tooltip va un poco más claro que el fondo para que se distinga
+    backgroundColor: () => (isDarkTheme() ? '#3a352f' : INK),
     titleColor: '#f5f2eb',
     bodyColor: 'rgba(245, 242, 235, 0.85)',
     titleFont: () => chartFont(12, 'bold'),

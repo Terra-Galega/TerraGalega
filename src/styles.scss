@@ -1,3 +1,5 @@
+@use "sass:list";
+
 // fuentes de Google Fonts
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
@@ -31,27 +33,90 @@ body {
   --dfs-24: calc(24px * var(--dash-k));
   --dfs-30: calc(30px * var(--dash-k));
 }
+
 // Tablet
 @media (min-width: 768px) {
-  :root { --dash-k: 1.15; }
+  :root {
+    --dash-k: 1.15;
+  }
 }
+
 // Portátil
 @media (min-width: 1280px) {
-  :root { --dash-k: 1.2; }
+  :root {
+    --dash-k: 1.2;
+  }
 }
+
 // Monitor grande
 @media (min-width: 1536px) {
-  :root { --dash-k: 1.3; }
+  :root {
+    --dash-k: 1.3;
+  }
 }
+
 // Monitor muy grande (2K / 4K)
 @media (min-width: 1920px) {
-  :root { --dash-k: 1.4; }
+  :root {
+    --dash-k: 1.4;
+  }
 }
 
 // Barra de desplazamiento
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #b2571f transparent;
+// Firefox: barra fina terracota (Firefox ya la recorta bien en las esquinas redondeadas).
+@supports (-moz-appearance: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #b2571f transparent;
+  }
+}
+
+// Chrome, Edge y Safari: se dibuja con ::-webkit-scrollbar (en Chrome solo funciona si NO se
+// usa scrollbar-width/scrollbar-color). Así la barra es una píldora sin flechas, separada del
+// borde, y no pasa por encima de las esquinas redondeadas de modales y tarjetas.
+@supports not (-moz-appearance: none) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  // El borde transparente + background-clip deja la píldora más fina y despegada del borde
+  ::-webkit-scrollbar-thumb {
+    background-color: #b2571f;
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #8e4116;
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  // Contenedores redondeados: el carril empieza y termina antes de la curva de la esquina
+  .rounded-xl::-webkit-scrollbar-track,
+  .rounded-2xl::-webkit-scrollbar-track {
+    margin: 0.75rem;
+  }
+
+  .rounded-3xl::-webkit-scrollbar-track,
+  .sheet-window::-webkit-scrollbar-track,
+  .glass-card::-webkit-scrollbar-track {
+    margin: 1.5rem;
+  }
+
+  // Tablas con scroll horizontal dentro de tarjetas redondeadas
+  .overflow-x-auto::-webkit-scrollbar-track {
+    margin-inline: 1rem;
+  }
 }
 
 // TIPOGRAFÍAS DEL LOGO
@@ -75,6 +140,7 @@ body {
     0 4px 24px rgba(44, 44, 44, 0.07),
     0 1px 4px rgba(44, 44, 44, 0.04);
 }
+
 // Formulario Checkout
 .input-field {
   background-color: rgba(255, 255, 255, 0.7);
@@ -87,6 +153,7 @@ body {
   border-color: #b2571f;
   box-shadow: 0 0 0 3px rgba(178, 87, 31, 0.1);
 }
+
 // --- Fundido entre páginas ---
 // Al cambiar de ruta, la página anterior se apaga y la nueva aparece subiendo apenas.
 // La navbar tiene su propio nombre (ver navbar.component.scss) para que no parpadee.
@@ -112,6 +179,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;
@@ -142,8 +210,15 @@ body {
 
 // TUTORIALES (driver.js): estilo del globo de ayuda, clase "terra-tour"
 @keyframes terra-pop {
-  from { opacity: 0; transform: translateY(8px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .driver-popover.terra-tour {
@@ -201,6 +276,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .driver-popover.terra-tour,
   .terra-blur {
     animation: none;
@@ -208,17 +284,33 @@ body {
 }
 
 // La flecha del globo toma el mismo color de fondo
-.driver-popover.terra-tour .driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: #f5f2eb; }
-.driver-popover.terra-tour .driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: #f5f2eb; }
-.driver-popover.terra-tour .driver-popover-arrow-side-top.driver-popover-arrow { border-top-color: #f5f2eb; }
-.driver-popover.terra-tour .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: #f5f2eb; }
+.driver-popover.terra-tour .driver-popover-arrow-side-left.driver-popover-arrow {
+  border-left-color: #f5f2eb;
+}
+
+.driver-popover.terra-tour .driver-popover-arrow-side-right.driver-popover-arrow {
+  border-right-color: #f5f2eb;
+}
+
+.driver-popover.terra-tour .driver-popover-arrow-side-top.driver-popover-arrow {
+  border-top-color: #f5f2eb;
+}
+
+.driver-popover.terra-tour .driver-popover-arrow-side-bottom.driver-popover-arrow {
+  border-bottom-color: #f5f2eb;
+}
 
 // TUTORIALES (driver.js): desenfoque muy leve de la zona oscura.
 // La capa .terra-blur la crea TutorialService y la recorta para dejar nítido el
 // elemento resaltado. Para más o menos desenfoque, cambia el valor de blur().
 @keyframes terra-blur-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .terra-blur {
@@ -324,6 +416,7 @@ h3 {
 // ---------- Pantallas táctiles ----------
 // Área mínima de 44 px para pulsar con el dedo (botones de la app, campos y selectores)
 @media (pointer: coarse) {
+
   .btn,
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
   select {
@@ -333,6 +426,7 @@ h3 {
 
 // ---------- Móvil ----------
 @media (max-width: 767px) {
+
   // iOS amplía la página al enfocar un campo con letra menor de 16 px
   input,
   select,
@@ -415,5 +509,540 @@ h3 {
 @media (prefers-reduced-motion: reduce) {
   .sheet-window {
     animation: none;
+  }
+}
+
+
+// ======================================================================================
+// TEMA OSCURO
+// ThemeService pone data-theme="dark" en <html> (el switch de "Mi cuenta"). Todo lo de este
+// bloque solo se aplica con ese atributo, así que el tema claro queda exactamente como estaba.
+//
+// Cómo está armado, de lo general a lo particular:
+//   1. Variables --t-* con la paleta oscura (derivada de la paleta del proyecto).
+//   2. Clases de Tailwind que usan los colores claros (text-charcoal, bg-cream, bg-white...).
+//   3. Estilos en línea (style="color: rgba(44, 44, 44, 0.6)" y similares). Angular escribe los
+//      estilos estáticos como "propiedad: valor;", por eso se pueden reconocer con selectores
+//      de atributo y se sustituyen con !important (un estilo en línea solo se vence así).
+//   4. Componentes con colores propios en su .scss (botones, buscador, navbar, filtros...).
+//   5. Páginas con su propia paleta (reservas).
+//
+// Qué NO cambia a propósito: el hero, la sección de historia, el footer y el panel lateral del
+// admin (ya son oscuros), los botones de color (terracota, verde, degradados) y los mapas.
+// ======================================================================================
+
+// Texto oscuro semitransparente -> texto claro semitransparente (misma jerarquía visual)
+$dark-ink-text: (
+  0.3: 0.42,
+  0.35: 0.46,
+  0.38: 0.5,
+  0.4: 0.5,
+  0.45: 0.56,
+  0.5: 0.6,
+  0.55: 0.65,
+  0.6: 0.7,
+  0.62: 0.7,
+  0.65: 0.74,
+  0.68: 0.76,
+  0.7: 0.78,
+  0.75: 0.82,
+  0.8: 0.86
+);
+
+// Fondos "tinta" muy suaves (hover, chips, filas) -> mismos fondos con luz en vez de sombra
+$dark-ink-tints: (
+  0.04: 0.05,
+  0.06: 0.07,
+  0.07: 0.08,
+  0.08: 0.09,
+  0.1: 0.11,
+  0.12: 0.13
+);
+
+// Colores de marca que, como TEXTO, no se leen sobre fondo oscuro -> versión más clara.
+// Clave: el hex tal como está en las plantillas; valor: (su forma rgb(), color oscuro).
+$dark-brand-text: (
+  "#b2571f": ("rgb(178, 87, 31)", var(--t-terra)),
+  "#a24a17": ("rgb(162, 74, 23)", var(--t-terra)),
+  "#8a4a1a": ("rgb(138, 74, 26)", var(--t-terra)),
+  "#8a2222": ("rgb(138, 34, 34)", var(--t-burgundy)),
+  "#9c2f1f": ("rgb(156, 47, 31)", var(--t-burgundy)),
+  "#556141": ("rgb(85, 97, 65)", var(--t-forest)),
+  "#4a6b3a": ("rgb(74, 107, 58)", var(--t-forest)),
+  "#8a5a00": ("rgb(138, 90, 0)", #e0b250),
+  "#9a6a05": ("rgb(154, 106, 5)", #e0b250),
+  "#2c2c2c": ("rgb(44, 44, 44)", var(--t-text))
+);
+
+// Fondos claros opacos -> superficie oscura equivalente
+$dark-solid-bgs: (
+  "#f5f2eb": ("rgb(245, 242, 235)", var(--t-bg)),
+  "#f7f4ec": ("rgb(247, 244, 236)", var(--t-bg)),
+  "#ece9e1": ("rgb(236, 233, 225)", var(--t-bg)),
+  "#ede9e0": ("rgb(237, 233, 224)", var(--t-bg-alt)),
+  "#efece4": ("rgb(239, 236, 228)", var(--t-bg-alt)),
+  "#ffffff": ("rgb(255, 255, 255)", var(--t-surface-2)),
+  "#fff": ("rgb(255, 255, 255)", var(--t-surface-2)),
+  "#fbf7f2": ("rgb(251, 247, 242)", var(--t-surface-2))
+);
+
+html[data-theme="dark"] {
+  // ---------- 1. Paleta ----------
+  --t-bg: #1b1916; // fondo de página (el crema #f5f2eb)
+  --t-bg-alt: #23201c; // secciones alternas (el beige #ede9e0)
+  --t-surface: #262320; // tarjetas y ventanas
+  --t-surface-2: #2f2b26; // campos, botones y superficies elevadas
+  --t-text: #f5f2eb; // texto principal (el crema, ahora como texto)
+  --t-line: rgba(245, 242, 235, 0.14); // bordes y separadores
+  --t-terra: #e58e57; // terracota para TEXTO (el #b2571f no contrasta sobre oscuro)
+  --t-burgundy: #e88a8a;
+  --t-forest: #a3b987;
+
+  body {
+    background-color: var(--t-bg);
+    color: var(--t-text);
+  }
+
+  // ---------- 2. Clases de Tailwind ----------
+  .text-charcoal,
+  .hover\:text-charcoal:hover {
+    color: var(--t-text);
+  }
+
+  .text-charcoal\/45 {
+    color: rgba(245, 242, 235, 0.5);
+  }
+
+  .text-charcoal\/60 {
+    color: rgba(245, 242, 235, 0.68);
+  }
+
+  .bg-cream {
+    background-color: var(--t-bg);
+  }
+
+  .bg-white {
+    background-color: var(--t-surface-2);
+  }
+
+  .hover\:bg-black\/5:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+  }
+
+  .hover\:bg-black\/10:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .border-black\/5 {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  // ---------- 3. Estilos en línea ----------
+  // Texto gris oscuro con transparencia
+  @each $alpha, $light in $dark-ink-text {
+
+    [style^="color: rgba(44, 44, 44, #{$alpha})"],
+    [style*=" color: rgba(44, 44, 44, #{$alpha})"] {
+      color: rgba(245, 242, 235, $light) !important;
+    }
+  }
+
+  // Texto de marca (terracota, vino, verde) y gris oscuro sólido.
+  // Cada color se busca en sus dos formas: "#b2571f" (estilo estático) y "rgb(178, 87, 31)"
+  // (cuando el elemento también tiene un [style.x], Angular reescribe el atributo y el
+  // navegador pasa los colores a rgb()).
+  @each $hex, $pair in $dark-brand-text {
+    $rgb: list.nth($pair, 1);
+    $light: list.nth($pair, 2);
+
+    [style^="color: #{$hex};"],
+    [style*=" color: #{$hex};"],
+    [style^="color: #{$rgb};"],
+    [style*=" color: #{$rgb};"] {
+      color: $light !important;
+    }
+  }
+
+  // Fondos opacos claros (crema, beige, gris del admin, blanco) en sus dos formas
+  @each $hex, $pair in $dark-solid-bgs {
+    $rgb: list.nth($pair, 1);
+    $dark: list.nth($pair, 2);
+
+    [style*="background-color: #{$hex};"],
+    [style*="background: #{$hex};"],
+    [style*="background-color: #{$rgb};"],
+    [style*="background: #{$rgb};"] {
+      background-color: $dark !important;
+    }
+  }
+
+  @each $alpha in (0.98, 0.96, 0.85) {
+
+    [style*="background-color: rgba(255, 255, 255, #{$alpha});"],
+    [style*="background: rgba(255, 255, 255, #{$alpha});"] {
+      background-color: var(--t-surface) !important;
+    }
+  }
+
+  @each $alpha in (0.72, 0.7, 0.6, 0.35) {
+
+    [style*="background-color: rgba(255, 255, 255, #{$alpha});"],
+    [style*="background: rgba(255, 255, 255, #{$alpha});"] {
+      background-color: rgba(255, 255, 255, 0.06) !important;
+    }
+  }
+
+  // Fondos de tinta suave (chips, filas, botones suaves). Los de 0.45 o más son telones de
+  // ventana modal y se quedan oscuros.
+  @each $alpha, $light in $dark-ink-tints {
+
+    [style*="background-color: rgba(44, 44, 44, #{$alpha});"],
+    [style*="background: rgba(44, 44, 44, #{$alpha});"] {
+      background-color: rgba(245, 242, 235, $light) !important;
+    }
+  }
+
+  // Bordes
+  [style*="solid rgba(44, 44, 44,"],
+  [style*="dashed rgba(44, 44, 44,"],
+  [style*="border-color: rgba(44, 44, 44,"] {
+    border-color: var(--t-line) !important;
+  }
+
+  [style*="solid rgba(255, 255, 255, 0.55)"] {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  [style*="border: 4px solid #f5f2eb"] {
+    border-color: var(--t-bg) !important;
+  }
+
+  // Barras de vidrio crema (barra superior del admin y similares)
+  @each $alpha in (0.98, 0.88, 0.85) {
+
+    [style*="background-color: rgba(245, 242, 235, #{$alpha});"],
+    [style*="background: rgba(245, 242, 235, #{$alpha});"] {
+      background-color: rgba(27, 25, 22, $alpha) !important;
+    }
+  }
+
+  [style*="background-color: rgba(255, 255, 255, 0.95);"] {
+    background-color: var(--t-surface) !important;
+  }
+
+  // Tinte rojizo del filtro de pedidos del admin
+  [style*="background-color: rgba(85, 44, 44, 0.06);"] {
+    background-color: rgba(245, 242, 235, 0.07) !important;
+  }
+
+  // ---------- Listas desplegables (<select>) ----------
+  // El navegador dibuja la lista de opciones con el fondo del <select>. Como los selects
+  // tienen fondo translúcido y texto claro, la lista salía blanca con letras claras.
+  select {
+    color-scheme: dark;
+  }
+
+  select option,
+  select optgroup {
+    background-color: var(--t-surface-2);
+    color: var(--t-text);
+  }
+
+  select option:checked {
+    background-color: #4a3426;
+    color: var(--t-text);
+  }
+
+  select option:disabled {
+    color: rgba(245, 242, 235, 0.4);
+  }
+
+  // Casillas y radios: el acento terracota/verde de siempre se ve bien sobre oscuro,
+  // pero el cuadro vacío necesita el esquema oscuro del navegador.
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  input[type="number"] {
+    color-scheme: dark;
+  }
+
+  .text-red-600 {
+    color: #f08a8a;
+  }
+
+  // ---------- 4. Componentes ----------
+  // Tarjeta de vidrio y campos de formulario
+  .glass-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .input-field {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: var(--t-line);
+    color: var(--t-text);
+  }
+
+  .input-field::placeholder,
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(245, 242, 235, 0.4);
+  }
+
+  .input-field:focus {
+    border-color: var(--t-terra);
+    box-shadow: 0 0 0 3px rgba(229, 142, 87, 0.18);
+  }
+
+  // Botones
+  .btn--outline:not(:hover),
+  .btn--neutral:not(:hover) {
+    color: rgba(245, 242, 235, 0.78);
+    border-color: rgba(245, 242, 235, 0.25);
+  }
+
+  .btn--neutral:hover {
+    color: var(--t-text);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .btn--danger:not(:hover) {
+    color: var(--t-burgundy);
+    border-color: rgba(232, 138, 138, 0.4);
+  }
+
+  .icon-btn:not(:hover) {
+    color: rgba(245, 242, 235, 0.7);
+  }
+
+  .icon-btn:hover {
+    color: var(--t-text);
+  }
+
+  .icon-btn--soft {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .icon-btn--soft:hover,
+  .icon-btn--ghost:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  // Buscador y casillas
+  .search__input {
+    color: var(--t-text);
+  }
+
+  .search__icon {
+    color: rgba(245, 242, 235, 0.45);
+  }
+
+  .search--glass .search__input {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(245, 242, 235, 0.25);
+  }
+
+  .search--soft .search__input {
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: var(--t-line);
+  }
+
+  .check-option {
+    color: var(--t-text);
+  }
+
+  .check-option--sage {
+    color: rgba(245, 242, 235, 0.78);
+  }
+
+  // La barra de navegación tiene su tema oscuro en navbar.component.scss
+
+  // Menú: filtros, cantidades, extras y botón "+"
+  .category-btn:not(.active),
+  .feature-filter-btn:not(.active) {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: var(--t-line);
+    color: rgba(245, 242, 235, 0.7);
+  }
+
+  .feature-filter-panel {
+    background: rgba(38, 35, 32, 0.98);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .qty-btn {
+    color: rgba(245, 242, 235, 0.7);
+  }
+
+  .qty-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .addon {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .addon.selected {
+    background: rgba(178, 87, 31, 0.16);
+    border-color: rgba(229, 142, 87, 0.45);
+  }
+
+  .menu-plus-btn {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: rgba(245, 242, 235, 0.5);
+  }
+
+  // Login, reseñas de la crítica y selector de dirección
+  // Switch "Iniciar sesión / Registrarse": carril más marcado y pestaña activa clara
+  #auth-tabs {
+    background-color: rgba(245, 242, 235, 0.1) !important;
+    box-shadow: inset 0 0 0 1px rgba(245, 242, 235, 0.12);
+  }
+
+  .auth-tab {
+    color: rgba(245, 242, 235, 0.62);
+  }
+
+  .auth-tab:hover:not(.active) {
+    color: var(--t-text);
+  }
+
+  .auth-tab.active {
+    background-color: #f5f2eb;
+    color: #2c2c2c;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  }
+
+  // Etiquetas de lo que contiene el plato (vegetariano, picante...)
+  .feature-chip {
+    background-color: rgba(173, 196, 143, 0.2);
+    color: #c9dbb0;
+  }
+
+  blockquote,
+  .author {
+    color: var(--t-text);
+  }
+
+  figcaption {
+    border-top-color: var(--t-line);
+  }
+
+  .outlet {
+    color: var(--t-forest);
+  }
+
+  .stars svg.empty {
+    fill: rgba(245, 242, 235, 0.18);
+  }
+
+  .map-frame {
+    border-color: var(--t-line);
+  }
+
+  .address {
+    color: var(--t-text);
+  }
+
+  .status,
+  .credit {
+    color: rgba(245, 242, 235, 0.6);
+  }
+
+  // Admin: modal de exportar reporte del dashboard
+  .preset-chip {
+    background-color: rgba(245, 242, 235, 0.08);
+    color: rgba(245, 242, 235, 0.78);
+  }
+
+  .preset-chip:hover {
+    background-color: rgba(163, 185, 135, 0.18);
+    color: var(--t-forest);
+  }
+
+  .format-card {
+    background-color: var(--t-surface-2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .format-card--on {
+    border-color: var(--t-terra);
+  }
+
+  .dish-row:hover {
+    background-color: rgba(163, 185, 135, 0.1);
+  }
+
+  .kpi-card:hover,
+  .order-row:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+
+  // Panel del operador
+  .tracking-panel {
+    background: var(--t-surface);
+    border-color: var(--t-line);
+  }
+
+  .tracking-eyebrow {
+    color: var(--t-terra);
+  }
+
+  .tracking-muted {
+    color: rgba(245, 242, 235, 0.6);
+  }
+
+  .tracking-count {
+    background: rgba(163, 185, 135, 0.15);
+    color: var(--t-forest);
+  }
+
+  .tracking-actions button {
+    background: var(--t-surface-2);
+    border-color: var(--t-line);
+    color: var(--t-text);
+  }
+
+  // ---------- 5. Reservas ----------
+  // La página define sus colores como variables en :host; se redefinen aquí para el tema oscuro.
+  app-reservations,
+  app-reservation-guest {
+    --ink: #f5f2eb;
+    --surface: #262320;
+    --line: rgba(245, 242, 235, 0.14);
+    --muted: rgba(245, 242, 235, 0.66);
+    // Campos (fecha, hora, comensales), contador de puestos y botones secundarios
+    --field: #2f2b26;
+  }
+
+  // El plano es un dibujo en tonos crema: se deja claro dentro de la tarjeta oscura
+  // y recupera sus colores de siempre.
+  .map-viewport {
+    --field: white;
+    --ink: #2c2c2c;
+    --surface: #fdfbf7;
+    --line: #dcd5c9;
+    --muted: #625b51;
+  }
+
+  .floor-control {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .how-title {
+    color: var(--t-terra);
+  }
+
+  .status-pill.pending {
+    color: #e0b250;
+  }
+
+  .status-pill.paid {
+    color: var(--t-forest);
   }
 }
