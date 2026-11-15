@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AdminDeliveryPersonsComponent } from './components/admin-delivery-persons/admin-delivery-persons.component';
@@ -35,6 +35,8 @@ import { OperatorService } from '../../services/operator.service';
 import { DeliveryPersonService } from '../../services/delivery-person.service';
 import { ChangePasswordModalComponent } from '../../components/change-password-modal/change-password-modal.component';
 import { ToastService } from '../../services/toast.service';
+import { TutorialFabComponent } from '../../components/tutorial-fab/tutorial-fab.component';
+import { TutorialService } from '../../services/Tutorial.service';
 
 // Componente principal del panel de administración.
 @Component({
@@ -62,6 +64,7 @@ import { ToastService } from '../../services/toast.service';
     AdminAddonModalComponent,
     AdminOperatorModalComponent,
     ChangePasswordModalComponent,
+    TutorialFabComponent,
   ],
   templateUrl: './admin.component.html',
 })
@@ -69,6 +72,9 @@ export class AdminComponent {
   // Servicios encargados de gestionar operadores y domiciliarios.
   private operatorService = inject(OperatorService);
   private deliveryPersonService = inject(DeliveryPersonService);
+  private tutorial = inject(TutorialService);
+  private destroyRef = inject(DestroyRef);
+  private tutorialStarted = false;
 
   // Usuarios seleccionados para cambiar sus contraseñas.
   passwordOperator: Operator | null = null;
@@ -147,6 +153,20 @@ export class AdminComponent {
   changeTab(tab: AdminTab) {
     this.activeTab = tab;
     this.searchTerm = '';
+  }
+
+  startAdminTutorial(): void {
+    if (!this.tutorialStarted) {
+      this.tutorialStarted = true;
+      this.destroyRef.onDestroy(() => this.tutorial.stop());
+    }
+
+    this.changeTab('dashboard');
+    this.tutorial.start('admin', () => {
+      if (this.productModalOpen && !this.selectedProduct) this.closeProductModal();
+      // En móvil y tablet el tutorial abre la barra lateral: al terminar se vuelve a cerrar
+      this.sidebarOpen = false;
+    });
   }
 
   // Devuelve el título correspondiente a la pestaña seleccionada.

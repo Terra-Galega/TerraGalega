@@ -78,6 +78,8 @@
   </div>
 </div>
 
+<app-tutorial-fab [adminPanel]="true" (adminTourRequested)="startAdminTutorial()" />
+
 <!-- Modal para crear o editar productos -->
 @if (productModalOpen) {
 <app-admin-product-modal [product]="selectedProduct" (closed)="closeProductModal()"></app-admin-product-modal>

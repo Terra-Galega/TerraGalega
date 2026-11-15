@@ -193,6 +193,20 @@ body {
   }
 }
 
+@media (max-width: 400px) {
+  .driver-popover.terra-tour {
+    min-width: 0;
+    max-width: calc(100vw - 24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-popover.terra-tour,
+  .terra-blur {
+    animation: none;
+  }
+}
+
 // La flecha del globo toma el mismo color de fondo
 .driver-popover.terra-tour .driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: #f5f2eb; }
 .driver-popover.terra-tour .driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: #f5f2eb; }

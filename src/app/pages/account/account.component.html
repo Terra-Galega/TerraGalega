@@ -15,7 +15,12 @@
             (edit)="editProfile()"
           ></app-personal-info>
 
-          <app-account-actions (logout)="logout()"></app-account-actions>
+            <app-account-actions
+            [subscription]="subscription"
+            [confirmingPayment]="confirmingPayment"
+            (logout)="logout()"
+            (upgrade)="openSubscribeModal()"
+          ></app-account-actions>
         </div>
 
         <app-address-list [clientId]="client.id"></app-address-list>
@@ -64,6 +69,14 @@
   (confirm)="confirmDelete()"
   (cancel)="cancelDelete()"
 ></app-modal>
+<!--modal de la suscripción Premium-->
+<app-subscription-modal
+  [open]="showSubscribeModal"
+  [subscription]="subscription"
+  [starting]="startingSubscription"
+  (confirm)="confirmSubscribe()"
+  (cancel)="closeSubscribeModal()"
+></app-subscription-modal>
 <!--modal de error para que falle bonito-->
 <app-modal
   [open]="showErrorModal"

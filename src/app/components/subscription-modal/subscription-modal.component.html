@@ -1,0 +1,110 @@
+@if (open) {
+<!-- Capa oscura: al hacer clic fuera del cuadro se cierra -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+  style="background-color: rgba(44, 44, 44, 0.45); backdrop-filter: blur(4px)" (click)="cancel.emit()">
+
+  <div id="subscription-modal" class="glass-card w-full max-w-md rounded-3xl max-h-[90vh] overflow-y-auto"
+    style="background: rgba(255, 255, 255, 0.98)" role="dialog" aria-modal="true"
+    aria-labelledby="subscription-modal-title" (click)="$event.stopPropagation()">
+
+    <!-- Encabezado -->
+    <div class="px-6 md:px-8 pt-7">
+      <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[12px] font-semibold"
+        style="background: rgba(217, 154, 33, 0.15); color: #8a5a00">
+        <span class="w-1.5 h-1.5 rounded-full" style="background-color: #d99a21"></span>
+        Premium
+      </span>
+
+      <h3 id="subscription-modal-title" class="font-serif text-2xl md:text-3xl font-semibold text-charcoal mt-3">
+        {{ title }}
+      </h3>
+
+      <p class="text-sm mt-1.5" style="color: rgba(44, 44, 44, 0.65)">
+        @if (renewing) {
+        Te quedan {{ daysLeftText }}. Al renovar se suman {{ durationDays }} días a tu vencimiento, no pierdes los que te quedan.
+        } @else {
+        Pide sin pagar domicilio durante {{ durationDays }} días.
+        }
+      </p>
+    </div>
+
+    <!-- Precio -->
+    <div class="mx-6 md:mx-8 mt-5 rounded-2xl px-5 py-4 flex items-center justify-between gap-4"
+      style="background: rgba(85, 97, 65, 0.09)">
+      <p>
+        <span id="subscription-price" class="font-serif text-4xl font-semibold text-charcoal">{{ price }}</span>
+        <span class="text-sm ml-1" style="color: rgba(44, 44, 44, 0.55)">COP</span>
+      </p>
+      <p class="text-[13px] text-right leading-snug" style="color: rgba(44, 44, 44, 0.6)">
+        Pago único por {{ durationDays }} días.<br />Sin renovación automática.
+      </p>
+    </div>
+
+    <!-- Beneficios -->
+    <ul class="px-6 md:px-8 mt-5 space-y-4">
+      <li class="flex items-start gap-3">
+        <svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="10" cy="10" r="10" fill="#556141" />
+          <path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <div>
+          <p class="text-sm font-semibold text-charcoal">Domicilios gratis</p>
+          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">En todos tus pedidos.</p>
+        </div>
+      </li>
+
+      <li class="flex items-start gap-3">
+        <svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="10" cy="10" r="10" fill="#556141" />
+          <path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <div>
+          <p class="text-sm font-semibold text-charcoal">Cupones exclusivos</p>
+          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">Descuentos pensados para suscriptores.</p>
+        </div>
+      </li>
+
+      <li class="flex items-start gap-3">
+        <!-- Ícono hueco: este beneficio todavía no está activo -->
+        <svg class="flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="10" cy="10" r="9.2" fill="none" stroke="rgba(44, 44, 44, 0.25)" stroke-width="1.5" />
+          <path d="M5.5 10.5l3 3 6-6.5" fill="none" stroke="rgba(44, 44, 44, 0.3)" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div>
+          <p class="text-sm font-semibold text-charcoal flex items-center gap-2">
+            Prioridad en reservas de mesa
+            <span class="text-[11px] font-medium px-2 py-0.5 rounded-full"
+              style="background: rgba(44, 44, 44, 0.07); color: rgba(44, 44, 44, 0.6)">Próximamente</span>
+          </p>
+          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">Tu reserva pasa primero.</p>
+        </div>
+      </li>
+    </ul>
+
+    <!-- Aviso: sin reembolso -->
+    <div class="mx-6 md:mx-8 mt-5 flex items-start gap-2.5 rounded-xl px-3.5 py-3 text-[13px]"
+      style="background: rgba(217, 154, 33, 0.12); color: #8a5a00">
+      <svg class="flex-shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M8 4.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <circle cx="8" cy="11" r="0.9" fill="currentColor" />
+      </svg>
+      <span>No hay reembolsos: una vez realizado el pago no se devuelve el dinero.</span>
+    </div>
+
+    <!-- Acciones -->
+    <div class="px-6 md:px-8 pt-6 pb-7 flex flex-col-reverse sm:flex-row gap-3">
+      <app-button variant="neutral" size="md" [fullWidth]="true" [disabled]="starting" (click)="cancel.emit()">
+        Ahora no
+      </app-button>
+      <app-button id="btn-subscribe-pay" variant="primary" size="md" [fullWidth]="true" [disabled]="starting"
+        (click)="confirm.emit()">
+        {{ payLabel }}
+      </app-button>
+    </div>
+  </div>
+</div>
+}

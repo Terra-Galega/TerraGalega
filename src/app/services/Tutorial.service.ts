@@ -33,8 +33,15 @@ export interface TourStep {
     ready?: string;
     title: string;
     description: string;
+    nextBtnText?: string;
+    beforeNext?: () => void;
+    // Se ejecuta antes de mostrar el paso, para dejar la pantalla lista (p. ej. abrir un
+    // panel que está oculto en móvil). Si devuelve una promesa, se espera a que termine.
+    beforeShow?: () => void | Promise<void>;
     side?: Popover['side'];
     align?: Popover['align'];
+    // Resalta un control sin habilitar sus acciones durante el paso.
+    disableActiveInteraction?: boolean;
     // Si se indica, NO hay botón "Siguiente": el paso avanza solo cuando el cliente
     // hace clic en algo que cumpla este selector.
     waitClick?: string;
@@ -97,20 +104,20 @@ export class TutorialService {
     }
 
     // Inicia un tutorial desde el primer paso (cierra el anterior si había uno)
-    start(name: TourName): void {
+    start(name: TourName | 'admin', closeAdminProductForm?: () => void): void {
         this.flow = null;
-        void this.run(this.stepsFor(name));
+        void this.run(this.stepsFor(name, closeAdminProductForm), closeAdminProductForm);
     }
 
     // Corre una lista de pasos. La usan start() y los servicios auxiliares.
     // Espera a que exista el primer elemento (la página puede estar cargando).
-    async run(steps: TourStep[]): Promise<void> {
+    async run(steps: TourStep[], onEnd?: () => void): Promise<void> {
         this.stop();
 
         this.steps = steps;
         if (steps.length === 0) return;
 
-        const id = ++this.runId;
+        const id = this.runId;
         const first = steps[0];
         const target = first.ready ?? first.element;
         if (target && !(await this.waitForElement(target))) {
@@ -120,10 +127,11 @@ export class TutorialService {
         // Mientras se esperaba empezó otro tutorial: este se descarta
         if (id !== this.runId) return;
 
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         this.active = driver({
             // Animaciones: el recuadro se desliza de un elemento al siguiente
-            animate: true,
-            smoothScroll: true,
+            animate: !reduceMotion,
+            smoothScroll: !reduceMotion,
             overlayOpacity: 0.6,
             stagePadding: 8,
             stageRadius: 14,
@@ -139,12 +147,14 @@ export class TutorialService {
             nextBtnText: 'Siguiente',
             prevBtnText: 'Atrás',
             doneBtnText: 'Listo',
+            closeBtnLabel: 'Cerrar tutorial',
             steps: this.steps.map((step, index) => this.toDriveStep(step, index)),
             // Al cerrar (X o último paso) se limpia todo
             onDestroyed: () => {
                 this.cleanup();
                 this.stopBlur();
                 this.active = null;
+                onEnd?.();
             },
         });
 
@@ -154,6 +164,8 @@ export class TutorialService {
 
     // Cierra el tutorial activo, si hay uno
     stop(): void {
+        this.runId++;
+        this.advancing = false;
         this.active?.destroy();
         this.active = null;
         this.cleanup();
@@ -195,8 +207,9 @@ export class TutorialService {
         // Si el elemento resaltado desapareció sin que el tutorial lo provocara
         // (el cliente usó otro camino, p. ej. Enter en vez del botón), se cierra
         if (this.active) {
+            const runId = this.runId;
             setTimeout(() => {
-                if (!this.active || this.advancing) return;
+                if (runId !== this.runId || !this.active || this.advancing) return;
                 const el = this.active.getActiveElement();
                 if (el && !el.isConnected) this.stop();
             }, 300);
@@ -211,27 +224,24 @@ export class TutorialService {
     // Convierte un paso simple en un paso de driver.js
     private toDriveStep(step: TourStep, index: number): DriveStep {
         const waits = this.waits(step);
-        // "Atrás" solo si el paso anterior no esperaba una acción (podría estar en otra página)
-        const canGoBack = index > 0 && !this.waits(this.steps[index - 1]);
-
-        const buttons: NonNullable<Popover['showButtons']> = waits
-            ? step.canSkip
-                ? ['next', 'close']
-                : ['close']
-            : canGoBack
-                ? ['previous', 'next', 'close']
-                : ['next', 'close'];
+        const buttons: NonNullable<Popover['showButtons']> = ['previous', 'close'];
+        if (!waits || step.canSkip) buttons.push('next');
 
         return {
             // Se resuelve al momento de mostrar el paso: así, con un selector doble
             // ('#nav-cart, #nav-cart-mobile') se resalta el botón que se ve en esta pantalla
             element: step.element ? () => this.pickVisible(step.element!) : undefined,
+            disableActiveInteraction: step.disableActiveInteraction,
             popover: {
                 title: step.title,
                 description: step.description,
                 side: step.side,
                 align: step.align,
                 showButtons: buttons,
+                nextBtnText: step.nextBtnText,
+                onPopoverRender: ({ previousButton }) => {
+                    if (this.previousStep(index) === null) previousButton.style.display = 'none';
+                },
                 // "Siguiente" y "Atrás" pasan por el servicio (no por driver.js) para
                 // esperar a que cargue la página y saltar los pasos opcionales que no existen
                 onNextClick: () => void this.advance(index),
@@ -242,8 +252,8 @@ export class TutorialService {
                     this.stop();
                 },
             },
-            // Cuando el paso ya se ve, empieza a esperar la acción del cliente
-            onHighlighted: waits ? () => this.waitForAction(index) : undefined,
+            // Escucha desde el inicio de la transición para captar clics rápidos.
+            onHighlightStarted: waits ? () => this.waitForAction(index) : undefined,
             // Al salir del paso se deja de escuchar
             onDeselected: () => this.cleanup(),
         };
@@ -308,11 +318,14 @@ export class TutorialService {
     // que cargan), salta los pasos condicionales que no aplican y los opcionales
     // cuyo elemento no aparece.
     private async advance(from: number): Promise<void> {
+        if (this.advancing || !this.active) return;
         // Si mientras se espera arranca otro tramo (p. ej. la página siguiente retomó
         // el tutorial), este avance se descarta para no cerrar el tramo nuevo
         const id = this.runId;
         this.advancing = true;
         try {
+            this.cleanup();
+            this.steps[from].beforeNext?.();
             let next = from + 1;
 
             while (next < this.steps.length) {
@@ -328,6 +341,9 @@ export class TutorialService {
                     }
                 }
 
+                await step.beforeShow?.();
+                if (id !== this.runId || !this.active) return;
+
                 const target = step.ready ?? step.element;
 
                 // Paso sin elemento (globo centrado): no hay nada que esperar
@@ -335,7 +351,7 @@ export class TutorialService {
 
                 const wait = step.optional ? OPTIONAL_WAIT_MS : REQUIRED_WAIT_MS;
                 const found = await this.waitForElement(target, wait);
-                if (id !== this.runId) return;
+                if (id !== this.runId || !this.active) return;
                 if (found) break;
 
                 if (!step.optional) {
@@ -355,15 +371,23 @@ export class TutorialService {
 
             this.active?.moveTo(next);
         } finally {
-            this.advancing = false;
+            if (id === this.runId) this.advancing = false;
         }
     }
 
     // Vuelve al paso anterior, saltando los opcionales y condicionales que no se mostraron
     private goBack(from: number): void {
+        if (this.advancing) return;
+        const previous = this.previousStep(from);
+        if (previous !== null) this.active?.moveTo(previous);
+    }
+
+    private previousStep(from: number): number | null {
         let prev = from - 1;
         while (prev > 0 && this.isMissingOptional(prev)) prev--;
-        if (prev >= 0) this.active?.moveTo(prev);
+        // Las acciones pueden cambiar la pantalla o cerrar un modal.
+        if (prev < 0 || this.waits(this.steps[prev]) || this.steps[prev].beforeNext) return null;
+        return prev;
     }
 
     // true si el paso no se mostró: opcional sin elemento o condicional que no aplica
@@ -450,7 +474,7 @@ export class TutorialService {
     }
 
     // Primer tramo de cada tutorial
-    private stepsFor(name: TourName): TourStep[] {
+    private stepsFor(name: TourName | 'admin', closeAdminProductForm?: () => void): TourStep[] {
         switch (name) {
             case 'order':
                 return [
@@ -582,6 +606,150 @@ export class TutorialService {
                         afterClick: () => this.armFlow('reservation'),
                     },
                 ];
+            case 'admin': {
+                const dashboardControls = '#admin-dashboard-controls';
+                const dashboardAvailable = () => document.querySelector(dashboardControls) !== null;
+                const productsTab = '#tab-products';
+                const addProduct = '#btn-add button';
+                // En móvil y tablet la barra lateral es un panel oculto: se abre con el botón
+                // de menú y se espera a que termine de deslizarse antes de resaltarla.
+                // En escritorio el botón no se ve y no se hace nada.
+                const openSidebar = async () => {
+                    // Se deja que la página termine de reaccionar al clic anterior
+                    // (al elegir una pestaña, el panel se cierra solo)
+                    await new Promise((r) => setTimeout(r, WHEN_DELAY_MS));
+                    const menu = document.querySelector<HTMLElement>('#btn-admin-menu');
+                    const sidebar = document.querySelector('#admin-sidebar');
+                    if (!menu || menu.getClientRects().length === 0) return;
+                    if (sidebar?.classList.contains('open')) return;
+                    menu.click();
+                    await new Promise((r) => setTimeout(r, 350));
+                };
+
+                return [
+                    {
+                        element: 'app-admin-topbar h1',
+                        ready: 'app-admin-dashboard',
+                        title: 'Tu panel de administración',
+                        description:
+                            'En el Dashboard puedes seguir las ventas, la ganancia y los pedidos, comparar periodos y descargar reportes. Después veremos cómo gestionar el catálogo en Productos.',
+                        side: 'bottom',
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: dashboardControls,
+                        title: 'Periodo y actualización',
+                        description:
+                            'El selector cambia el periodo de las métricas y gráficas que dependen de él. El indicador en vivo muestra la última actualización. Usa el botón de recarga si quieres actualizar en el momento.',
+                        side: 'bottom',
+                        optional: true,
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: '#admin-dashboard-kpis',
+                        title: 'Indicadores del día',
+                        description:
+                            'Consulta cuánto se ha vendido hoy, cuántos pedidos siguen pendientes, cuántas unidades se han vendido y cuánta ganancia se ha generado.',
+                        side: 'bottom',
+                        when: dashboardAvailable,
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: '#admin-dashboard-sales',
+                        title: 'Ventas, ganancia e ingresos',
+                        description:
+                            'Revisa cómo evolucionan las ventas y la ganancia por día, semana o mes. La comparación de ingresos muestra cuánto cambió el total frente al periodo anterior.',
+                        when: dashboardAvailable,
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: '#admin-dashboard-products',
+                        title: 'Productos y categorías',
+                        description:
+                            'Identifica los seis productos más vendidos y revisa cómo se reparten las ventas entre categorías. Puedes ver ambas gráficas por unidades o por valor vendido.',
+                        when: dashboardAvailable,
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: '#admin-dashboard-orders',
+                        title: 'Pedidos recientes y demorados',
+                        description:
+                            'Consulta los últimos pedidos e identifica cuáles llevan más tiempo esperando. Puedes ajustar el umbral de minutos para marcar una demora.',
+                        when: dashboardAvailable,
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: '#admin-dashboard-dishes',
+                        title: 'Detalle de los platos',
+                        description:
+                            'Revisa el precio final, las unidades vendidas y la ganancia por plato en el periodo seleccionado.',
+                        when: dashboardAvailable,
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: '#btn-export',
+                        title: 'Descarga un reporte',
+                        description:
+                            'Desde aquí puedes elegir un día, una semana o un rango de fechas y exportar a PDF, Excel o CSV. PDF y Excel también permiten incluir las gráficas.',
+                        side: 'bottom',
+                        when: dashboardAvailable,
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: productsTab,
+                        title: 'Ve a Productos',
+                        description: 'Haz clic en «Productos» en la barra lateral para revisar el catálogo.',
+                        side: 'right',
+                        waitClick: productsTab,
+                        beforeShow: openSidebar,
+                    },
+                    {
+                        element: '#admin-product-filters',
+                        title: 'Encuentra un producto',
+                        description:
+                            'Usa el buscador de arriba y los filtros de categoría, estado y características para acotar la lista del catálogo.',
+                        side: 'bottom',
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element:
+                            '#admin-product-table tbody tr[app-admin-product-row], ' +
+                            '#admin-product-table:not(:has(tbody tr[app-admin-product-row])) thead',
+                        title: 'Acciones rápidas de cada fila',
+                        description:
+                            'Cuando hay productos en la lista, puedes tocar «Activo» o «Inactivo» para cambiar su disponibilidad. El lápiz abre la edición y la papelera abre la confirmación de eliminación.',
+                        side: 'bottom',
+                        disableActiveInteraction: true,
+                    },
+                    {
+                        element: addProduct,
+                        title: 'Añade un producto',
+                        description: 'Haz clic en «Añadir producto» para abrir el formulario de creación.',
+                        side: 'bottom',
+                        waitClick: addProduct,
+                    },
+                    {
+                        element: '#admin-product-form',
+                        title: 'Formulario de creación',
+                        description:
+                            'Aquí defines el nombre, precio, categoría, descripción y URL de imagen. También puedes marcar las características y elegir si el producto quedará activo. Al terminar, «Añadir producto» guarda el registro.',
+                        side: 'right',
+                        disableActiveInteraction: true,
+                        nextBtnText: 'Cerrar formulario',
+                        beforeNext: closeAdminProductForm,
+                    },
+                    {
+                        element: '#admin-sidebar',
+                        ready: 'app-admin:not(:has(#admin-product-form)) #admin-sidebar',
+                        beforeShow: openSidebar,
+                        title: 'Explora el resto del panel',
+                        description:
+                            'Desde esta barra puedes volver al Dashboard, gestionar productos, categorías, adicionales, cupones y anuncios, revisar reseñas y órdenes, y administrar usuarios, operadores y domiciliarios.',
+                        side: 'right',
+                        disableActiveInteraction: true,
+                    },
+                ];
+            }
             default:
                 return [];
         }

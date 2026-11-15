@@ -5,6 +5,7 @@
 >
   <!-- Ventana: si el formulario es muy alto, se desplaza por dentro -->
   <div
+    id="admin-product-form"
     class="sheet-window bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
   >
     <!-- Encabezado: el título cambia según se edite o se cree -->
@@ -137,6 +138,7 @@
       <!-- Botones: Cancelar y Guardar -->
       <div class="flex gap-3 pt-2">
         <app-button
+          id="admin-cancel-product"
           class="flex-1"
           variant="neutral"
           [fullWidth]="true"

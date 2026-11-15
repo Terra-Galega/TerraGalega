@@ -14,6 +14,7 @@ import {
   CartService,
   unavailableMessage,
 } from '../../../services/cart.service';
+import { ClientService } from '../../../services/client.service';
 import { AddressService } from '../../../services/address.service';
 import { CheckoutService } from '../../../services/checkout.service';
 import { CheckoutDraftService } from '../../../services/checkout-draft.service';
@@ -52,14 +53,19 @@ export class CheckoutConfirmComponent implements OnInit {
   private addressService = inject(AddressService);
   private couponService = inject(CouponService);
   private paymentService = inject(PaymentService);
+  private clientService = inject(ClientService);
   // Último tramo del tutorial "hacer un pedido"
   private tutorialCheckout = inject(TutorialCheckoutService);
 
   // Id del cliente logueado; null hasta comprobar la sesión
   clientId: number | null = null;
 
-  // Costo fijo del domicilio, que se suma al total en el resumen
+  // Costo del domicilio que se muestra en el resumen. Si es Premium queda en 0.
+  // Quien cobra de verdad es el back; esto solo refleja lo que el back va a cobrar.
   deliveryFee = DELIVERY_FEE;
+
+  // true si el cliente es Premium: el resumen muestra "Domicilio gratis"
+  freeDelivery = false;
 
   // false mientras se comprueba que el paso 1 esté completo
   ready = false;
@@ -98,7 +104,19 @@ export class CheckoutConfirmComponent implements OnInit {
       return;
     }
 
-    this.ready = true;
+        // Se consulta si es Premium antes de mostrar la página, para no enseñar un
+    // domicilio de $6.000 que luego desaparece
+    this.clientService.getMe().subscribe({
+      next: (client) => {
+        this.freeDelivery = client.subscribed === true;
+        this.deliveryFee = this.freeDelivery ? 0 : DELIVERY_FEE;
+        this.ready = true;
+      },
+      // Si falla, se muestra el domicilio normal; el back cobra lo que corresponda
+      error: () => {
+        this.ready = true;
+      },
+    });
 
     // Último tramo del tutorial "hacer un pedido" (si viene de él)
     this.tutorialCheckout.resumeConfirm();
