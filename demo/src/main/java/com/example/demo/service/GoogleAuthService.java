@@ -51,6 +51,8 @@ public class GoogleAuthService {
     private final AuthService authService;
     private final JwtGenerator jwtGenerator;
 
+    private final NotificationService notificationService;
+
     public GoogleAuthService(
             // Client ID web de Google Cloud (el mismo que usan la web y la app).
             // Se pueden poner varios separados por coma.
@@ -59,6 +61,7 @@ public class GoogleAuthService {
             ClientRepository clientRepository,
             UserAccountService userAccountService,
             CouponService couponService,
+            NotificationService notificationService,
             AuthService authService,
             JwtGenerator jwtGenerator) {
 
@@ -70,6 +73,7 @@ public class GoogleAuthService {
         this.clientRepository = clientRepository;
         this.userAccountService = userAccountService;
         this.couponService = couponService;
+        this.notificationService = notificationService;
         this.authService = authService;
         this.jwtGenerator = jwtGenerator;
 
@@ -162,6 +166,7 @@ public class GoogleAuthService {
 
         // Igual que el registro normal: cupón de bienvenida
         couponService.createWelcomeCoupon(saved);
+        notificationService.notifyWelcome(saved);
         return user;
     }
 

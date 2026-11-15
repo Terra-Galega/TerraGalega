@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.movil.service.DeliveryTrackingService;
 import com.example.demo.movil.service.OrderMirrorService;
+import com.example.demo.entities.NotificationType;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -66,6 +67,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderMirrorService orderMirrorService;
+
+    @Autowired
+    private NotificationService notificationService;
+
     private static final List<OrderStatus> FINISHED_STATUSES = List.of(
             OrderStatus.DELIVERED,
             OrderStatus.CANCELLED);
@@ -366,7 +371,9 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(OrderStatus.CONFIRMED);
 
-        return repository.save(order);
+        Order saved = repository.save(order);
+        notificationService.notifyOrder(saved, NotificationType.ORDER_CONFIRMED);
+        return saved;
     }
 
     // Solo el cliente dueño puede cancelar y solo antes de que el restaurante
@@ -426,6 +433,8 @@ public class OrderServiceImpl implements OrderService {
 
         Order saved = repository.save(order);
         orderMirrorService.sync(saved);
+        notificationService.notifyOrder(saved, NotificationType.ORDER_PREPARING);
+
         return saved;
     }
 

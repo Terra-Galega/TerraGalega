@@ -160,6 +160,7 @@ public class SecurityConfig {
                                                 .hasAuthority(CLIENT)
                                                 .requestMatchers(HttpMethod.GET, "/orders/me").hasAuthority(CLIENT)
                                                 .requestMatchers(HttpMethod.PUT, "/orders/*/cancel")
+                                                .hasAuthority(CLIENT).requestMatchers("/notifications/**")
                                                 .hasAuthority(CLIENT)
 
                                                 // ================= OPERADOR =================

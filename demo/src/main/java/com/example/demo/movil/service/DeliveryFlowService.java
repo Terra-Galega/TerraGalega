@@ -16,6 +16,9 @@ import com.example.demo.errors.ApiException;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.service.OrderService;
 
+import com.example.demo.entities.NotificationType;
+import com.example.demo.service.NotificationService;
+
 import com.example.demo.movil.dto.DeliveryDTOs.MapPointDTO;
 import com.example.demo.movil.dto.DeliveryDTOs.OperatorDeliveryDTO;
 
@@ -35,6 +38,12 @@ public class DeliveryFlowService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    // Avance del recorrido desde el cual se avisa "ya va llegando" (85 %)
+    private static final double NEAR_PROGRESS = 0.85;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // ---------- CLIENTE ----------
 
@@ -68,7 +77,12 @@ public class DeliveryFlowService {
         }
         Order order = onTheWayOf(deliveryPersonId, orderId);
         tracking.findOrCreate(order);
-        return toJobDTO(order, tracking.updateLocation(orderId, latitude, longitude));
+        DeliveryTracking updated = tracking.updateLocation(orderId, latitude, longitude);
+        Double progress = tracking.progressOf(updated);
+        if (progress != null && progress >= NEAR_PROGRESS) {
+            notificationService.notifyOrder(order, NotificationType.ORDER_NEAR);
+        }
+        return toJobDTO(order, updated);
     }
 
     // Valida el PIN, marca el pedido como entregado en H2 y cierra el
@@ -145,6 +159,7 @@ public class DeliveryFlowService {
         tracking.findOrCreate(order);
 
         DeliveryTracking updated = tracking.beginTrip(orderId, route);
+        notificationService.notifyOrder(order, NotificationType.ORDER_ON_THE_WAY);
 
         return toJobDTO(order, updated);
     }
