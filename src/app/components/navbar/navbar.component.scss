@@ -438,4 +438,18 @@
   #mobile-menu {
     background-color: rgba(27, 25, 22, 0.97);
   }
+
+  // Panel de notificaciones (campanita): superficie oscura con sombra profunda.
+  // Los textos, bordes y el fondo bg-white ya los adapta el bloque oscuro de styles.scss.
+  #notification-panel {
+    background-color: #262320 !important;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 16px 40px rgba(0, 0, 0, 0.55) !important;
+  }
+
+  // Notificación sin leer: el tinte terracota se intensifica un poco para notarse sobre oscuro
+  #notification-panel [style*="background-color: rgba(178, 87, 31, 0.06)"] {
+    background-color: rgba(229, 142, 87, 0.12) !important;
+  }
 }

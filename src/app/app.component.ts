@@ -4,6 +4,7 @@ import { TooltipService } from './services/tooltip.service';
 import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
 import { ToastComponent } from './components/toast/toast.component';
+import { ClientDeliveryWatcherService } from './services/client-delivery-watcher.service';
 
 @Component({
   selector: 'app-root',
@@ -23,5 +24,8 @@ export class AppComponent {
     // Si eliminan tu cuenta mientras tienes la sesión abierta, te saca al inicio
     inject(AuthService).startSessionWatch();
 
+    // Avisa al cliente cuando su pedido inicia el recorrido y cuando ya va llegando
+    // (también llena la campanita de notificaciones de la navbar)
+    inject(ClientDeliveryWatcherService).start();
   }
 }
