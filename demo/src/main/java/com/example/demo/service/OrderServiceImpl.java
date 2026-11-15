@@ -230,6 +230,8 @@ public class OrderServiceImpl implements OrderService {
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw ApiException.badRequest("El carrito está vacío.");
         }
+        // Los clientes premium no pagan domicilio.
+        double deliveryFee = client.isSubscribed() ? 0.0 : DELIVERY_FEE;
 
         // Cabecera del pedido: estado inicial PENDING, fecha actual y el domicilio
         Order order = Order.builder()
@@ -237,7 +239,7 @@ public class OrderServiceImpl implements OrderService {
                 .status(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .address(request.getAddress().trim())
-                .deliveryFee(DELIVERY_FEE)
+                .deliveryFee(deliveryFee)
                 .build();
 
         List<OrderDetail> details = new ArrayList<>();

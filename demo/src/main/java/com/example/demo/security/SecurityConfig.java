@@ -89,6 +89,8 @@ public class SecurityConfig {
                                                 .hasAuthority(CLIENT)
                                                 // Enviar un informe por correo: solo admin
                                                 .requestMatchers(HttpMethod.POST, "/reports/email").hasAuthority(ADMIN)
+                                                // Suscripción Premium: consultar y pagar, solo clientes
+                                                .requestMatchers("/subscriptions/**").hasAuthority(CLIENT)
                                                 // Página de error de Spring, consola H2 y documentación Swagger
                                                 .requestMatchers("/error", "/h2/**", "/swagger-ui/**",
                                                                 "/swagger-ui.html",

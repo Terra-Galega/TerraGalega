@@ -17,6 +17,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -113,5 +115,29 @@ public class Client {
         return phone != null && !phone.isBlank()
                 && lastName != null && !lastName.isBlank()
                 && addresses != null && !addresses.isEmpty();
+    }
+
+    // Hasta cuándo es premium. null = nunca se ha suscrito.
+    // Se guarda solo la fecha: "está suscrito" se calcula comparándola con la
+    // hora actual, así no hace falta ningún proceso que lo apague al vencer.
+    @Column(nullable = true)
+    private LocalDateTime subscriptionEndsAt;
+
+    // true mientras la fecha de vencimiento no haya pasado
+    @JsonIgnore
+    public boolean isSubscribed() {
+        return subscriptionEndsAt != null
+                && LocalDateTime.now().isBefore(subscriptionEndsAt);
+    }
+
+    // Días que le quedan, redondeados hacia arriba (le quedan 2 horas = 1 día).
+    // 0 si no es premium.
+    @JsonIgnore
+    public long getDaysLeft() {
+        if (!isSubscribed()) {
+            return 0;
+        }
+        long minutes = Duration.between(LocalDateTime.now(), subscriptionEndsAt).toMinutes();
+        return (minutes + 1439) / 1440;
     }
 }
