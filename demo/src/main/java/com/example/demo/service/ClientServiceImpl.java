@@ -61,6 +61,10 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private AddressService addressService;
 
+        // Servicio de suscripciones, para cerrar los pagos pendientes al borrar la cuenta.
+    @Autowired
+    private SubscriptionService subscriptionService;
+
     @jakarta.persistence.PersistenceContext
     private jakarta.persistence.EntityManager entityManager;
 
@@ -263,7 +267,10 @@ public class ClientServiceImpl implements ClientService {
 
         // Igual con la reserva (1 a 1): se gestiona solo por /clients/me/reservation
         client.setReservation(actual.getReservation());
-
+        
+        // La suscripción se gestiona solo por /subscriptions: editar el perfil
+        // no debe borrarla (el cliente nuevo que llega no trae esta fecha)
+        client.setSubscriptionEndsAt(actual.getSubscriptionEndsAt());
         // Guarda los datos actualizados del cliente.
         return repository.save(client);
     }
@@ -288,6 +295,9 @@ public class ClientServiceImpl implements ClientService {
 
         // La reseña del cliente se borra antes que el cliente
         reviewService.deleteClientReview(id);
+        
+        // Pagos de suscripción: se cierra la sesión de Stripe abierta y se borran los registros
+        subscriptionService.deleteClientPayments(id);
 
         // Elimina el cliente de la base de datos.
         repository.deleteById(id);

@@ -88,7 +88,7 @@ public class DataLoader implements CommandLineRunner {
         @Autowired
         private RoleRepository roleRepository;
 
-        @Autowired 
+        @Autowired
         private ReviewRepository reviewRepository;
 
         @Autowired
@@ -186,20 +186,31 @@ public class DataLoader implements CommandLineRunner {
                 saveClient(
                                 Client.builder().name("Diego").lastName("Pardo").email("diego.pardo@gmail.com")
                                                 .password("diego123").phone("+57 320 444 9988")
-                                                .role(Role.CLIENT).build(),
+                                                .role(Role.CLIENT)
+                                                // Premium con 25 días restantes
+                                                .subscriptionEndsAt(LocalDateTime.now().plusDays(25))
+                                                .build(),
                                 "Avenida 68 #20-33, Bogotá");
                 saveClient(
                                 Client.builder().name("María").lastName("López").email("maria.lopez@hotmail.com")
                                                 .password("maria123").phone("+57 310 123 4567")
-                                                .role(Role.CLIENT).build(),
+                                                .role(Role.CLIENT)
+                                                // Premium que vence en 3 días (el botón debe permitir renovar)
+                                                .subscriptionEndsAt(LocalDateTime.now().plusDays(3))
+                                                .build(),
                                 "Calle 72 #10-34, Bogotá");
                 saveClient(
-                                Client.builder().name("Carlos").lastName("Rodríguez").email("carlos.rodriguez@gmail.com")
+                                Client.builder().name("Carlos").lastName("Rodríguez")
+                                                .email("carlos.rodriguez@gmail.com")
                                                 .password("carlos123").phone("+57 315 987 6543")
-                                                .role(Role.CLIENT).build(),
+                                                .role(Role.CLIENT)
+                                                // Venció ayer: debe aparecer como freemium
+                                                .subscriptionEndsAt(LocalDateTime.now().minusDays(1))
+                                                .build(),
                                 "Transversal 9 #100-2, Bogotá");
                 saveClient(
-                                Client.builder().name("Andrés").lastName("Martínez").email("andres.martinez@outlook.com")
+                                Client.builder().name("Andrés").lastName("Martínez")
+                                                .email("andres.martinez@outlook.com")
                                                 .password("andres123").phone("+57 301 222 3344")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 7 #32-16, Bogotá");
@@ -209,7 +220,8 @@ public class DataLoader implements CommandLineRunner {
                                                 .role(Role.CLIENT).build(),
                                 "Calle 85 #15-25, Bogotá");
                 saveClient(
-                                Client.builder().name("Sebastián").lastName("Torres").email("sebastian.torres@yahoo.com")
+                                Client.builder().name("Sebastián").lastName("Torres")
+                                                .email("sebastian.torres@yahoo.com")
                                                 .password("sebastian123").phone("+57 322 111 2233")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 30 #45-03, Bogotá");
@@ -224,7 +236,8 @@ public class DataLoader implements CommandLineRunner {
                                                 .role(Role.CLIENT).build(),
                                 "Calle 93 #11-27, Bogotá");
                 saveClient(
-                                Client.builder().name("Felipe").lastName("Gutiérrez").email("felipe.gutierrez@outlook.com")
+                                Client.builder().name("Felipe").lastName("Gutiérrez")
+                                                .email("felipe.gutierrez@outlook.com")
                                                 .password("felipe123").phone("+57 316 772 0198")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 11 #82-71, Bogotá");
@@ -254,12 +267,14 @@ public class DataLoader implements CommandLineRunner {
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 19 #104-62, Bogotá");
                 saveClient(
-                                Client.builder().name("Alejandro").lastName("Navarro").email("alejandro.navarro@gmail.com")
+                                Client.builder().name("Alejandro").lastName("Navarro")
+                                                .email("alejandro.navarro@gmail.com")
                                                 .password("alejandro123").phone("+57 314 285 7731")
                                                 .role(Role.CLIENT).build(),
                                 "Calle 140 #10-21, Bogotá");
                 saveClient(
-                                Client.builder().name("Gabriela").lastName("Salazar").email("gabriela.salazar@outlook.com")
+                                Client.builder().name("Gabriela").lastName("Salazar")
+                                                .email("gabriela.salazar@outlook.com")
                                                 .password("gabriela123").phone("+57 305 712 9946")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 4 #69-12, Bogotá");
@@ -274,7 +289,8 @@ public class DataLoader implements CommandLineRunner {
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 50 #80-15, Bogotá");
                 saveClient(
-                                Client.builder().name("Esteban").lastName("Cárdenas").email("esteban.cardenas@gmail.com")
+                                Client.builder().name("Esteban").lastName("Cárdenas")
+                                                .email("esteban.cardenas@gmail.com")
                                                 .password("esteban123").phone("+57 319 604 1158")
                                                 .role(Role.CLIENT).build(),
                                 "Calle 45 #13-70, Bogotá");
@@ -299,7 +315,8 @@ public class DataLoader implements CommandLineRunner {
                                                 .role(Role.CLIENT).build(),
                                 "Calle 134 #55-30, Bogotá");
                 saveClient(
-                                Client.builder().name("Carolina").lastName("Suárez").email("carolina.suarez@hotmail.com")
+                                Client.builder().name("Carolina").lastName("Suárez")
+                                                .email("carolina.suarez@hotmail.com")
                                                 .password("carolina123").phone("+57 315 128 6679")
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 16 #96-64, Bogotá");
@@ -324,7 +341,8 @@ public class DataLoader implements CommandLineRunner {
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 7 #116-50, Bogotá");
                 saveClient(
-                                Client.builder().name("Miguel Ángel").lastName("Forero").email("miguel.forero@gmail.com")
+                                Client.builder().name("Miguel Ángel").lastName("Forero")
+                                                .email("miguel.forero@gmail.com")
                                                 .password("miguelf123").phone("+57 322 471 0985")
                                                 .role(Role.CLIENT).build(),
                                 "Calle 106 #54-15, Bogotá");
@@ -1145,38 +1163,70 @@ public class DataLoader implements CommandLineRunner {
                 // Reseñas de demostración: una por cliente (relación 1 a 1), todas buenas
                 // (4 o 5 estrellas) para que el carrusel de opiniones tenga movimiento.
                 String[][] reviews = {
-                                { "juan.garcia@gmail.com", "5", "Auténtica cocina gallega. El pulpo a feira llegó perfecto y el servicio fue impecable." },
-                                { "marta.souto@outlook.com", "5", "Celebramos un aniversario en el balcón y la atención fue de diez. El maridaje con albariño, un acierto." },
-                                { "diego.pardo@gmail.com", "5", "La mejor fabada que he probado en Bogotá. Reservar por la web fue rapidísimo." },
-                                { "maria.lopez@hotmail.com", "5", "El pulpo a la brasa es extraordinario. El servicio fue cálido y todo llegó en su punto." },
-                                { "carlos.rodriguez@gmail.com", "5", "La fideuá y el cachopo estaban espectaculares. Ingredientes de primera y mucho sabor en cada plato." },
-                                { "andres.martinez@outlook.com", "4", "Muy buen ambiente en el salón principal. Las croquetas de jamón, de las mejores de la ciudad." },
-                                { "laura.ramirez@gmail.com", "5", "Hicimos la cena de grado en la sala de celebración y todo salió perfecto. Volveremos." },
-                                { "sebastian.torres@yahoo.com", "5", "El menú de maridaje vale cada peso: cada vino estaba pensado para el plato." },
-                                { "camila.moreno@gmail.com", "4", "Las croquetas y la tarta de queso vasca me encantaron. Volveré a pedir pronto." },
-                                { "valeria.castro@gmail.com", "5", "Un restaurante elegante, con platos generosos y un equipo muy atento." },
-                                { "felipe.gutierrez@outlook.com", "5", "El arroz negro y el vino de la casa, una combinación perfecta. Ambiente acogedor." },
-                                { "natalia.rojas@hotmail.com", "5", "Pedimos a domicilio y llegó caliente y bien presentado. Se nota la calidad." },
-                                { "juliana.vargas@gmail.com", "4", "La mesa de arco junto a la pared es muy cómoda para una cena tranquila. Muy recomendado." },
-                                { "santiago.ospina@gmail.com", "5", "El chuletón a la piedra estaba en su punto exacto. Gran carta de vinos." },
-                                { "daniel.quintero@yahoo.com", "5", "Celebramos un cumpleaños y nos sorprendieron con un postre. Detalles que enamoran." },
-                                { "paula.herrera@icloud.com", "5", "Las vieiras gratinadas son una delicia. Precio alto pero lo vale." },
-                                { "alejandro.navarro@gmail.com", "4", "Buen servicio y platos muy bien elaborados. La terraza del segundo piso es preciosa." },
-                                { "gabriela.salazar@outlook.com", "5", "La tarta de Santiago es la mejor que he probado fuera de Galicia." },
-                                { "ricardo.mendez@gmail.com", "5", "Fuimos por una cena de negocios y quedamos encantados con la atención y la discreción." },
-                                { "lucia.pineda@hotmail.com", "5", "El maridaje de quesos gallegos con vino tinto fue una experiencia inolvidable." },
-                                { "esteban.cardenas@gmail.com", "4", "Todo muy rico y bien servido. La reserva con anticipo da tranquilidad de que la mesa está lista." },
-                                { "manuela.rios@gmail.com", "5", "El caldo gallego me recordó a la cocina de mi abuela. Volveré sin duda." },
-                                { "hector.duarte@outlook.com", "5", "Excelente lugar para una cita: ambiente cálido, buena música y comida espectacular." },
-                                { "adriana.beltran@yahoo.com", "5", "Los mariscos son fresquísimos. La parrillada para compartir es una maravilla." },
-                                { "martin.acosta@gmail.com", "4", "Muy buena experiencia en la galería del segundo piso. El personal conoce bien la carta." },
-                                { "carolina.suarez@hotmail.com", "5", "Pedí la empanada gallega y el lacón con grelos: sabores auténticos y porciones generosas." },
-                                { "tomas.villamil@gmail.com", "5", "El sommelier nos recomendó un godello que combinó perfecto con el pescado. Gran servicio." },
-                                { "diana.escobar@outlook.com", "5", "Celebramos la despedida de soltera en la sala de celebración. Todo impecable." },
-                                { "samuel.pacheco@gmail.com", "4", "Platos deliciosos y un ambiente muy bonito. Ideal para ocasiones especiales." },
-                                { "elena.barrios@icloud.com", "5", "La crema catalana y el café de pota, el cierre perfecto para una gran cena." },
-                                { "miguel.forero@gmail.com", "5", "De los mejores restaurantes de la ciudad. Atención cercana y cocina de altura." },
-                                { "sara.londono@outlook.com", "5", "Reservé para la revelación de género de mi bebé y el equipo lo hizo muy especial." },
+                                { "juan.garcia@gmail.com", "5",
+                                                "Auténtica cocina gallega. El pulpo a feira llegó perfecto y el servicio fue impecable." },
+                                { "marta.souto@outlook.com", "5",
+                                                "Celebramos un aniversario en el balcón y la atención fue de diez. El maridaje con albariño, un acierto." },
+                                { "diego.pardo@gmail.com", "5",
+                                                "La mejor fabada que he probado en Bogotá. Reservar por la web fue rapidísimo." },
+                                { "maria.lopez@hotmail.com", "5",
+                                                "El pulpo a la brasa es extraordinario. El servicio fue cálido y todo llegó en su punto." },
+                                { "carlos.rodriguez@gmail.com", "5",
+                                                "La fideuá y el cachopo estaban espectaculares. Ingredientes de primera y mucho sabor en cada plato." },
+                                { "andres.martinez@outlook.com", "4",
+                                                "Muy buen ambiente en el salón principal. Las croquetas de jamón, de las mejores de la ciudad." },
+                                { "laura.ramirez@gmail.com", "5",
+                                                "Hicimos la cena de grado en la sala de celebración y todo salió perfecto. Volveremos." },
+                                { "sebastian.torres@yahoo.com", "5",
+                                                "El menú de maridaje vale cada peso: cada vino estaba pensado para el plato." },
+                                { "camila.moreno@gmail.com", "4",
+                                                "Las croquetas y la tarta de queso vasca me encantaron. Volveré a pedir pronto." },
+                                { "valeria.castro@gmail.com", "5",
+                                                "Un restaurante elegante, con platos generosos y un equipo muy atento." },
+                                { "felipe.gutierrez@outlook.com", "5",
+                                                "El arroz negro y el vino de la casa, una combinación perfecta. Ambiente acogedor." },
+                                { "natalia.rojas@hotmail.com", "5",
+                                                "Pedimos a domicilio y llegó caliente y bien presentado. Se nota la calidad." },
+                                { "juliana.vargas@gmail.com", "4",
+                                                "La mesa de arco junto a la pared es muy cómoda para una cena tranquila. Muy recomendado." },
+                                { "santiago.ospina@gmail.com", "5",
+                                                "El chuletón a la piedra estaba en su punto exacto. Gran carta de vinos." },
+                                { "daniel.quintero@yahoo.com", "5",
+                                                "Celebramos un cumpleaños y nos sorprendieron con un postre. Detalles que enamoran." },
+                                { "paula.herrera@icloud.com", "5",
+                                                "Las vieiras gratinadas son una delicia. Precio alto pero lo vale." },
+                                { "alejandro.navarro@gmail.com", "4",
+                                                "Buen servicio y platos muy bien elaborados. La terraza del segundo piso es preciosa." },
+                                { "gabriela.salazar@outlook.com", "5",
+                                                "La tarta de Santiago es la mejor que he probado fuera de Galicia." },
+                                { "ricardo.mendez@gmail.com", "5",
+                                                "Fuimos por una cena de negocios y quedamos encantados con la atención y la discreción." },
+                                { "lucia.pineda@hotmail.com", "5",
+                                                "El maridaje de quesos gallegos con vino tinto fue una experiencia inolvidable." },
+                                { "esteban.cardenas@gmail.com", "4",
+                                                "Todo muy rico y bien servido. La reserva con anticipo da tranquilidad de que la mesa está lista." },
+                                { "manuela.rios@gmail.com", "5",
+                                                "El caldo gallego me recordó a la cocina de mi abuela. Volveré sin duda." },
+                                { "hector.duarte@outlook.com", "5",
+                                                "Excelente lugar para una cita: ambiente cálido, buena música y comida espectacular." },
+                                { "adriana.beltran@yahoo.com", "5",
+                                                "Los mariscos son fresquísimos. La parrillada para compartir es una maravilla." },
+                                { "martin.acosta@gmail.com", "4",
+                                                "Muy buena experiencia en la galería del segundo piso. El personal conoce bien la carta." },
+                                { "carolina.suarez@hotmail.com", "5",
+                                                "Pedí la empanada gallega y el lacón con grelos: sabores auténticos y porciones generosas." },
+                                { "tomas.villamil@gmail.com", "5",
+                                                "El sommelier nos recomendó un godello que combinó perfecto con el pescado. Gran servicio." },
+                                { "diana.escobar@outlook.com", "5",
+                                                "Celebramos la despedida de soltera en la sala de celebración. Todo impecable." },
+                                { "samuel.pacheco@gmail.com", "4",
+                                                "Platos deliciosos y un ambiente muy bonito. Ideal para ocasiones especiales." },
+                                { "elena.barrios@icloud.com", "5",
+                                                "La crema catalana y el café de pota, el cierre perfecto para una gran cena." },
+                                { "miguel.forero@gmail.com", "5",
+                                                "De los mejores restaurantes de la ciudad. Atención cercana y cocina de altura." },
+                                { "sara.londono@outlook.com", "5",
+                                                "Reservé para la revelación de género de mi bebé y el equipo lo hizo muy especial." },
                 };
                 for (int i = 0; i < reviews.length; i++) {
                         reviewRepository.save(Review.builder()
@@ -1187,7 +1237,8 @@ public class DataLoader implements CommandLineRunner {
                                         .build());
                 }
 
-                // Reservas reales ya pagadas (anticipo de 50.000). Ocupan sus mesas en esa fecha
+                // Reservas reales ya pagadas (anticipo de 50.000). Ocupan sus mesas en esa
+                // fecha
                 // y hora, así el plano de reservas las muestra como "Reservada". Se reparten
                 // entre hoy y los próximos días, varias en el turno de las 19:30 (el que abre
                 // la página por defecto). juan.garcia@gmail.com (cliente de prueba) no tiene
@@ -1195,30 +1246,54 @@ public class DataLoader implements CommandLineRunner {
                 LocalDate today = LocalDate.now();
                 Object[][] reservations = {
                                 // correo, nombre de la reserva, mesa, días desde hoy, hora, sillas, temática
-                                { "marta.souto@outlook.com", "Aniversario Souto", 201, 0, "19:30", 2, ReservationTheme.LOVE },
-                                { "diego.pardo@gmail.com", "Cena con amigos", 118, 0, "19:30", 4, ReservationTheme.NONE },
-                                { "maria.lopez@hotmail.com", "Cumpleaños de María", 127, 0, "19:30", 6, ReservationTheme.BIRTHDAY },
-                                { "carlos.rodriguez@gmail.com", "Reunión de negocios", 112, 0, "19:30", 4, ReservationTheme.BUSINESS },
-                                { "andres.martinez@outlook.com", "Maridaje gallego", 103, 0, "19:30", 2, ReservationTheme.PAIRING },
-                                { "laura.ramirez@gmail.com", "Grado de Laura", 233, 0, "19:30", 16, ReservationTheme.GRADUATION },
-                                { "sebastian.torres@yahoo.com", "Cena familiar", 225, 0, "19:30", 4, ReservationTheme.NONE },
-                                { "camila.moreno@gmail.com", "Cita especial", 221, 0, "19:30", 2, ReservationTheme.LOVE },
-                                { "valeria.castro@gmail.com", "Almuerzo de equipo", 120, 0, "21:00", 4, ReservationTheme.BUSINESS },
-                                { "felipe.gutierrez@outlook.com", "Noche de vinos", 105, 0, "21:00", 2, ReservationTheme.PAIRING },
-                                { "natalia.rojas@hotmail.com", "Cena de Natalia", 208, 0, "21:00", 4, ReservationTheme.NONE },
-                                { "juliana.vargas@gmail.com", "Despedida de soltera", 234, 1, "19:30", 14, ReservationTheme.BACHELOR_PARTY },
-                                { "santiago.ospina@gmail.com", "Cena de aniversario", 207, 1, "19:30", 2, ReservationTheme.LOVE },
-                                { "daniel.quintero@yahoo.com", "Celebración familiar", 129, 1, "19:30", 6, ReservationTheme.BIRTHDAY },
-                                { "paula.herrera@icloud.com", "Revelación de género", 233, 1, "13:30", 18, ReservationTheme.GENDER_REVEAL },
-                                { "alejandro.navarro@gmail.com", "Almuerzo de negocios", 117, 1, "13:30", 4, ReservationTheme.BUSINESS },
-                                { "gabriela.salazar@outlook.com", "Cena tranquila", 116, 1, "21:00", 3, ReservationTheme.NONE },
-                                { "ricardo.mendez@gmail.com", "Maridaje con amigos", 228, 2, "19:30", 6, ReservationTheme.PAIRING },
-                                { "lucia.pineda@hotmail.com", "Cumpleaños de Lucía", 230, 2, "19:30", 5, ReservationTheme.BIRTHDAY },
-                                { "esteban.cardenas@gmail.com", "Cena de grado", 234, 2, "21:00", 12, ReservationTheme.GRADUATION },
-                                { "manuela.rios@gmail.com", "Cita en el balcón", 204, 3, "19:30", 2, ReservationTheme.LOVE },
-                                { "hector.duarte@outlook.com", "Comida de empresa", 119, 3, "13:30", 4, ReservationTheme.BUSINESS },
-                                { "adriana.beltran@yahoo.com", "Almuerzo familiar", 109, 4, "12:00", 4, ReservationTheme.NONE },
-                                { "martin.acosta@gmail.com", "Cena de amigos", 223, 5, "19:30", 4, ReservationTheme.NONE },
+                                { "marta.souto@outlook.com", "Aniversario Souto", 201, 0, "19:30", 2,
+                                                ReservationTheme.LOVE },
+                                { "diego.pardo@gmail.com", "Cena con amigos", 118, 0, "19:30", 4,
+                                                ReservationTheme.NONE },
+                                { "maria.lopez@hotmail.com", "Cumpleaños de María", 127, 0, "19:30", 6,
+                                                ReservationTheme.BIRTHDAY },
+                                { "carlos.rodriguez@gmail.com", "Reunión de negocios", 112, 0, "19:30", 4,
+                                                ReservationTheme.BUSINESS },
+                                { "andres.martinez@outlook.com", "Maridaje gallego", 103, 0, "19:30", 2,
+                                                ReservationTheme.PAIRING },
+                                { "laura.ramirez@gmail.com", "Grado de Laura", 233, 0, "19:30", 16,
+                                                ReservationTheme.GRADUATION },
+                                { "sebastian.torres@yahoo.com", "Cena familiar", 225, 0, "19:30", 4,
+                                                ReservationTheme.NONE },
+                                { "camila.moreno@gmail.com", "Cita especial", 221, 0, "19:30", 2,
+                                                ReservationTheme.LOVE },
+                                { "valeria.castro@gmail.com", "Almuerzo de equipo", 120, 0, "21:00", 4,
+                                                ReservationTheme.BUSINESS },
+                                { "felipe.gutierrez@outlook.com", "Noche de vinos", 105, 0, "21:00", 2,
+                                                ReservationTheme.PAIRING },
+                                { "natalia.rojas@hotmail.com", "Cena de Natalia", 208, 0, "21:00", 4,
+                                                ReservationTheme.NONE },
+                                { "juliana.vargas@gmail.com", "Despedida de soltera", 234, 1, "19:30", 14,
+                                                ReservationTheme.BACHELOR_PARTY },
+                                { "santiago.ospina@gmail.com", "Cena de aniversario", 207, 1, "19:30", 2,
+                                                ReservationTheme.LOVE },
+                                { "daniel.quintero@yahoo.com", "Celebración familiar", 129, 1, "19:30", 6,
+                                                ReservationTheme.BIRTHDAY },
+                                { "paula.herrera@icloud.com", "Revelación de género", 233, 1, "13:30", 18,
+                                                ReservationTheme.GENDER_REVEAL },
+                                { "alejandro.navarro@gmail.com", "Almuerzo de negocios", 117, 1, "13:30", 4,
+                                                ReservationTheme.BUSINESS },
+                                { "gabriela.salazar@outlook.com", "Cena tranquila", 116, 1, "21:00", 3,
+                                                ReservationTheme.NONE },
+                                { "ricardo.mendez@gmail.com", "Maridaje con amigos", 228, 2, "19:30", 6,
+                                                ReservationTheme.PAIRING },
+                                { "lucia.pineda@hotmail.com", "Cumpleaños de Lucía", 230, 2, "19:30", 5,
+                                                ReservationTheme.BIRTHDAY },
+                                { "esteban.cardenas@gmail.com", "Cena de grado", 234, 2, "21:00", 12,
+                                                ReservationTheme.GRADUATION },
+                                { "manuela.rios@gmail.com", "Cita en el balcón", 204, 3, "19:30", 2,
+                                                ReservationTheme.LOVE },
+                                { "hector.duarte@outlook.com", "Comida de empresa", 119, 3, "13:30", 4,
+                                                ReservationTheme.BUSINESS },
+                                { "adriana.beltran@yahoo.com", "Almuerzo familiar", 109, 4, "12:00", 4,
+                                                ReservationTheme.NONE },
+                                { "martin.acosta@gmail.com", "Cena de amigos", 223, 5, "19:30", 4,
+                                                ReservationTheme.NONE },
                 };
                 for (Object[] data : reservations) {
                         Client client = clientRepository.findByEmail((String) data[0]);

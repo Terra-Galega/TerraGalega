@@ -52,13 +52,16 @@ public class PaymentService {
     // Los anticipos de reservas también llegan por el mismo webhook de Stripe
     @Autowired
     private ReservationService reservations;
-
+    
     @Autowired
     private org.springframework.context.ApplicationEventPublisher events;
 
     @Autowired
     private InvoiceService invoices;
 
+    // Las suscripciones Premium también llegan por el mismo webhook de Stripe
+    @Autowired
+    private SubscriptionService subscriptions;
     @PersistenceContext
     private EntityManager em;
 
@@ -479,6 +482,11 @@ public class PaymentService {
 
             if (session.getClientReferenceId().startsWith(ReservationServiceImpl.REFERENCE_PREFIX)) {
                 reservations.handleStripeSession(session);
+                return;
+            }
+
+            if (session.getClientReferenceId().startsWith(SubscriptionService.REFERENCE_PREFIX)) {
+                subscriptions.handleStripeSession(session);
                 return;
             }
 
