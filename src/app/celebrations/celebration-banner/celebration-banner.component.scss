@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 104px;
+  margin: 18px 0 26px;
+  padding: 17px 22px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--festival-accent) 46%, #e9ded1);
+  border-radius: 22px;
+  background: linear-gradient(110deg, #fffaf2, color-mix(in srgb, var(--festival-accent) 11%, #fffaf2));
+  box-shadow: 0 12px 35px rgb(44 44 44 / 0.06);
+}
+
+.icon {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  padding: 9px;
+  border-radius: 17px;
+  color: var(--festival-accent);
+  background: #342f31;
+  box-shadow: 0 5px 16px rgb(0 0 0 / 0.13);
+}
+
+.copy {
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+  color: #3b3432;
+
+  small {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 10px;
+    opacity: 0.65;
+  }
+
+  strong {
+    font: 600 21px Georgia, serif;
+  }
+
+  > span {
+    font-size: 13px;
+  }
+}
+
+.spark {
+  position: absolute;
+  right: 5%;
+  width: 80px;
+  height: 80px;
+  color: var(--festival-accent);
+  opacity: 0.34;
+  transform: rotate(16deg);
+}
+
+@media (max-width: 640px) {
+  .spark {
+    display: none;
+  }
+}

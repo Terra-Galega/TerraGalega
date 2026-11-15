@@ -8,6 +8,8 @@ import {
   inject,
 } from '@angular/core';
 import { HeroLogoService } from '../../../../services/hero-logo.service';
+import { CelebrationSceneComponent } from '../../../../celebrations/celebration-scene/celebration-scene.component';
+import { CelebrationSwitcherComponent } from '../../../../celebrations/celebration-switcher/celebration-switcher.component';
 
 // Caja de cada palabra dentro del dibujo del logo, en fracciones del viewBox de
 // logo-hero-text.svg (left, top, right, bottom).
@@ -34,6 +36,7 @@ const phase = (p: number, from: number, to: number) => ease(clamp01((p - from) /
 // El avance sigue al scroll con un pequeño suavizado, para que la rueda del ratón no dé saltos.
 @Component({
   selector: 'app-hero-section',
+  imports: [CelebrationSceneComponent, CelebrationSwitcherComponent],
   templateUrl: './hero-section.component.html',
   styleUrl: './hero-section.component.scss',
 })

@@ -1,0 +1,19 @@
+@if (celebration(); as c) {
+  <div class="scene" role="group" [attr.aria-label]="c.name + ': ' + c.message" [style.--festival-accent]="c.accent">
+    <span class="glow" aria-hidden="true"></span>
+
+    <app-celebration-canvas [celebration]="c" [forceMotion]="forceMotion()" />
+
+    <span class="orbit orbit-left" aria-hidden="true">
+      <app-celebration-icon [shape]="c.shape" />
+    </span>
+    <span class="orbit orbit-right" aria-hidden="true">
+      <app-celebration-icon [shape]="c.shape" />
+    </span>
+
+    <span class="plaque">
+      <small>Terra Galega celebra</small>
+      <strong>{{ c.name }}</strong>
+    </span>
+  </div>
+}

@@ -1,0 +1,11 @@
+<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false" fill="currentColor">
+  @for (part of parts; track $index) {
+    <path
+      [attr.d]="part.d"
+      [attr.fill]="part.stroke ? 'none' : part.fill"
+      [attr.stroke]="part.stroke ? 'currentColor' : null"
+      [attr.stroke-width]="part.stroke ?? null"
+      [attr.stroke-linecap]="part.stroke ? 'round' : null"
+    />
+  }
+</svg>

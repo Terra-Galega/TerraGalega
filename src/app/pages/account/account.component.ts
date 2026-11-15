@@ -25,6 +25,8 @@ import { SubscriptionModalComponent } from '../../components/subscription-modal/
 import { ToastService } from '../../services/toast.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { AddressListComponent } from './components/address-list/address-list.component';
+import { CelebrationBannerComponent } from '../../celebrations/celebration-banner/celebration-banner.component';
+import { CelebrationSwitcherComponent } from '../../celebrations/celebration-switcher/celebration-switcher.component';
 
 // Cada cuánto se pregunta el estado mientras Stripe confirma el pago
 const POLL_MS = 5000;
@@ -45,6 +47,8 @@ const MAX_POLLS = 15;
     AccountActionsComponent,
     AddressListComponent,
     ButtonComponent,
+    CelebrationBannerComponent,
+    CelebrationSwitcherComponent,
   ],
   templateUrl: './account.component.html',
 })
