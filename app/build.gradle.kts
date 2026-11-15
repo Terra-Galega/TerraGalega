@@ -79,6 +79,9 @@ dependencies {
     // Imágenes de los platos (las mismas URLs que usa la web)
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("io.coil-kt:coil-svg:2.7.0")
+    // Dibuja los SVG del restaurante y del scooter en el mapa (MapIcons.kt).
+    // Es la misma librería que ya trae coil-svg.
+    implementation("com.caverock:androidsvg-aar:1.4")
     // Abre la pasarela de Stripe en una pestaña del navegador dentro de la app
     implementation("androidx.browser:browser:1.4.0")
     // "Continuar con Google" con Credential Manager

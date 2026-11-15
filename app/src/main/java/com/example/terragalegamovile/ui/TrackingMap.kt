@@ -24,6 +24,12 @@ import org.maplibre.android.maps.MapView
 import org.maplibre.android.style.expressions.Expression
 import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.LineLayer
+import org.maplibre.android.style.layers.SymbolLayer
+import org.maplibre.android.style.layers.PropertyFactory.iconAllowOverlap
+import org.maplibre.android.style.layers.PropertyFactory.iconAnchor
+import org.maplibre.android.style.layers.PropertyFactory.iconIgnorePlacement
+import org.maplibre.android.style.layers.PropertyFactory.iconImage
+import kotlin.math.abs
 import org.maplibre.android.style.layers.Property
 import org.maplibre.android.style.layers.PropertyFactory.circleColor
 import org.maplibre.android.style.layers.PropertyFactory.circleRadius
@@ -50,6 +56,14 @@ private const val ROUTE_SRC = "route-src"
 private const val ROUTE_LAYER = "route-layer"
 private const val POINTS_SRC = "points-src"
 private const val POINTS_LAYER = "points-layer"
+// Restaurante y carrito del repartidor, dibujados con MapIcons.kt
+private const val ICONS_SRC = "icons-src"
+private const val ICONS_LAYER = "icons-layer"
+
+private fun iconFeature(p: LatLon, icon: String): Feature =
+    Feature.fromGeometry(Point.fromLngLat(p.lon, p.lat)).apply {
+        addStringProperty("icon", icon)
+    }
 
 private fun pointFeature(p: LatLon, color: String, radius: Float): Feature =
     Feature.fromGeometry(Point.fromLngLat(p.lon, p.lat)).apply {
@@ -73,6 +87,9 @@ fun TrackingMap(
     var styleReady by remember { mutableStateOf(false) }
     var introDone by remember { mutableStateOf(false) }
     var followStarted by remember { mutableStateOf(false) }
+    // Hacia dónde mira el carrito: última longitud conocida y si va hacia el oeste
+    var lastCourierLon by remember { mutableStateOf<Double?>(null) }
+    var courierFacingLeft by remember { mutableStateOf(false) }
 
     val mapView = remember {
         MapLibre.getInstance(context)
@@ -99,6 +116,17 @@ fun TrackingMap(
                             circleRadius(Expression.get("r")),
                             circleStrokeColor("#FFFFFF"),
                             circleStrokeWidth(3f)
+                        )
+                    )
+                    // Dibujos del restaurante y del carrito, por encima de la ruta y los puntos
+                    trackingIcons(context).forEach { (name, bitmap) -> style.addImage(name, bitmap) }
+                    style.addSource(GeoJsonSource(ICONS_SRC))
+                    style.addLayer(
+                        SymbolLayer(ICONS_LAYER, ICONS_SRC).withProperties(
+                            iconImage(Expression.get("icon")),
+                            iconAnchor(Property.ICON_ANCHOR_BOTTOM),
+                            iconAllowOverlap(true),
+                            iconIgnorePlacement(true)
                         )
                     )
                     map = m
@@ -154,13 +182,31 @@ fun TrackingMap(
         style.getSourceAs<GeoJsonSource>(ROUTE_SRC)
             ?.setGeoJson(FeatureCollection.fromFeatures(routeFeatures))
 
+        // El destino sigue siendo un punto rojo
         val pointFeatures = buildList {
-            restaurant?.let { add(pointFeature(it, "#B2571F", 9f)) } // restaurante: terracota
-            destination?.let { add(pointFeature(it, "#C62828", 10f)) } // destino: rojo
-            courier?.let { add(pointFeature(it, "#1565C0", 9f)) } // repartidor: azul
+            destination?.let { add(pointFeature(it, "#C62828", 10f)) }
         }
         style.getSourceAs<GeoJsonSource>(POINTS_SRC)
             ?.setGeoJson(FeatureCollection.fromFeatures(pointFeatures))
+
+        // El carrito mira hacia donde avanza; solo gira si de verdad se movió
+        // (así no "tiembla" con el GPS)
+        courier?.let { now ->
+            val before = lastCourierLon
+            if (before == null || abs(now.lon - before) > 0.00002) {
+                if (before != null) courierFacingLeft = now.lon < before
+                lastCourierLon = now.lon
+            }
+        }
+
+        val iconFeatures = buildList {
+            restaurant?.let { add(iconFeature(it, ICON_RESTAURANT)) }
+            courier?.let {
+                add(iconFeature(it, if (courierFacingLeft) ICON_COURIER_LEFT else ICON_COURIER_RIGHT))
+            }
+        }
+        style.getSourceAs<GeoJsonSource>(ICONS_SRC)
+            ?.setGeoJson(FeatureCollection.fromFeatures(iconFeatures))
     }
 
     // 1) Cuando se conoce el destino: lo enfoca y espera 3 segundos
