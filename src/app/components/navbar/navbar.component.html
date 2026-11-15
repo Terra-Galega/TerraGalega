@@ -52,7 +52,10 @@
                 class="block text-[11px] mt-1"
                 style="color: rgba(44, 44, 44, 0.45)"
               >
-                {{ timeAgo(n.createdAt) }} · Toca para seguir tu pedido
+                {{ timeAgo(n.createdAt) }}
+                @if (n.orderId) {
+                  · Toca para ver tu pedido
+                }
               </span>
             </span>
           </button>
@@ -184,7 +187,7 @@
 
       @if (isClient) {
         <div class="relative" data-bell>
-          <button
+          <button [attr.aria-expanded]="bellOpen"
             id="nav-bell"
             type="button"
             class="link-nav relative flex items-center justify-center p-2"
@@ -192,7 +195,7 @@
             [class.active]="bellOpen"
             (click)="toggleBell()"
           >
-            <svg
+            <svg aria-hidden="true" focusable="false"
               class="w-[22px] h-[22px]"
               fill="none"
               viewBox="0 0 24 24"
@@ -227,7 +230,7 @@
         [class.active]="cartOpen"
         (click)="openCart()"
       >
-        <svg
+        <svg aria-hidden="true" focusable="false"
           class="w-[22px] h-[22px]"
           fill="none"
           viewBox="0 0 24 24"
@@ -280,13 +283,13 @@
     <div class="flex items-center gap-4">
       @if (isClient) {
         <div data-bell>
-          <button
+          <button [attr.aria-expanded]="bellOpen"
             type="button"
             class="link-nav relative p-2"
             [attr.aria-label]="language.t('notifications')"
             (click)="toggleBell()"
           >
-            <svg
+            <svg aria-hidden="true" focusable="false"
               class="w-5 h-5"
               fill="none"
               viewBox="0 0 24 24"
@@ -319,7 +322,7 @@
         [attr.aria-label]="language.t('cart')"
         (click)="openCart()"
       >
-        <svg
+        <svg aria-hidden="true" focusable="false"
           xmlns="http://www.w3.org/2000/svg"
           class="w-5 h-5"
           fill="none"
@@ -355,7 +358,7 @@
         (click)="toggleMobileMenu()"
       >
         @if (!mobileMenuOpen) {
-          <svg
+          <svg aria-hidden="true" focusable="false"
             id="icon-open"
             class="w-6 h-6"
             fill="none"
@@ -370,7 +373,7 @@
             />
           </svg>
         } @else {
-          <svg
+          <svg aria-hidden="true" focusable="false"
             id="icon-close"
             class="w-6 h-6"
             fill="none"

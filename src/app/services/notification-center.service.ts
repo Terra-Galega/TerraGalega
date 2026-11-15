@@ -1,25 +1,57 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, map } from 'rxjs';
+import {
+  BehaviorSubject,
+  EMPTY,
+  catchError,
+  exhaustMap,
+  map,
+  of,
+  switchMap,
+  timer,
+} from 'rxjs';
+import { API_URL } from '../api-url';
 import { AuthService } from './auth.service';
+import { ToastService } from './toast.service';
+
+// Lo que manda el back en GET /notifications/me
+interface NotificationDTO {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  orderId: number | null;
+  read: boolean;
+  createdAt: string; // ISO
+}
 
 export interface AppNotification {
-  id: string;
+  id: number;
+  type: string;
   title: string;
   message: string;
   createdAt: string; // ISO
   read: boolean;
+  orderId: number | null;
   link: string; // ruta a la que lleva, p. ej. '/orders/tracking'
   queryParams?: Record<string, string | number>;
 }
 
-const MAX_ITEMS = 30;
+// Cada cuánto se consultan las notificaciones al back (milisegundos)
+const POLL_MS = 10_000;
 
+// Las guarda el back (así existen aunque la web esté cerrada). Aquí solo se
+// leen cada pocos segundos y se muestran en la campanita.
 @Injectable({ providedIn: 'root' })
 export class NotificationCenterService {
   private auth = inject(AuthService);
+  private http = inject(HttpClient);
+  private toast = inject(ToastService);
 
   private subject = new BehaviorSubject<AppNotification[]>([]);
-  private userId: number | null = null;
+  // Ids ya conocidos, para avisar en pantalla solo de las nuevas
+  private knownIds = new Set<number>();
+  private firstLoad = true;
 
   readonly notifications$ = this.subject.asObservable();
   readonly unreadCount$ = this.subject.pipe(
@@ -27,53 +59,92 @@ export class NotificationCenterService {
   );
 
   constructor() {
-    this.auth.session$.subscribe((session) => {
-      this.userId = session?.type === 'client' ? session.id : null;
-      this.subject.next(this.userId === null ? [] : this.load());
-    });
+    this.auth.session$
+      .pipe(
+        switchMap((session) => {
+          this.knownIds.clear();
+          this.firstLoad = true;
+          this.subject.next([]);
+
+          if (!session || session.type !== 'client') {
+            return EMPTY;
+          }
+
+          return timer(0, POLL_MS).pipe(
+            exhaustMap(() =>
+              this.http
+                .get<NotificationDTO[]>(`${API_URL}/notifications/me`, {
+                  params: { platform: 'web' },
+                })
+                .pipe(catchError(() => of(null))),
+            ),
+          );
+        }),
+      )
+      .subscribe((list) => {
+        if (list) this.receive(list);
+      });
   }
 
-  add(n: Omit<AppNotification, 'id' | 'createdAt' | 'read'>): void {
-    if (this.userId === null) return;
-    const item: AppNotification = {
-      ...n,
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      createdAt: new Date().toISOString(),
-      read: false,
-    };
-    this.update([item, ...this.subject.value].slice(0, MAX_ITEMS));
-  }
-
-  markRead(id: string): void {
-    this.update(
+  markRead(id: number): void {
+    this.subject.next(
       this.subject.value.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
+    this.http
+      .put(`${API_URL}/notifications/${id}/read`, {})
+      .subscribe({ error: () => {} });
   }
 
   markAllRead(): void {
-    this.update(this.subject.value.map((n) => ({ ...n, read: true })));
+    this.subject.next(this.subject.value.map((n) => ({ ...n, read: true })));
+    this.http
+      .put(`${API_URL}/notifications/me/read-all`, {})
+      .subscribe({ error: () => {} });
   }
 
   clear(): void {
-    this.update([]);
+    this.subject.next([]);
+    this.http
+      .delete(`${API_URL}/notifications/me`)
+      .subscribe({ error: () => {} });
   }
 
-  private update(list: AppNotification[]): void {
-    this.subject.next(list);
-    try {
-      localStorage.setItem(this.key(), JSON.stringify(list));
-    } catch {}
-  }
+  private receive(list: NotificationDTO[]): void {
+    const items = list.map((n) => this.toItem(n));
 
-  private load(): AppNotification[] {
-    try {
-      return JSON.parse(localStorage.getItem(this.key()) ?? '[]');
-    } catch {
-      return [];
+    // Aviso en pantalla de las nuevas (no en la primera carga). "Salió" y
+    // "ya va llegando" los avisa ClientDeliveryWatcherService (con vibración).
+    if (!this.firstLoad) {
+      for (const n of items) {
+        const handledByWatcher =
+          n.type === 'ORDER_ON_THE_WAY' || n.type === 'ORDER_NEAR';
+        if (!n.read && !this.knownIds.has(n.id) && !handledByWatcher) {
+          this.toast.show(n.title, n.message, 6000);
+        }
+      }
     }
+
+    items.forEach((n) => this.knownIds.add(n.id));
+    this.firstLoad = false;
+    this.subject.next(items);
   }
 
-  private key(): string {
-    return `terragalega_notifications_${this.userId}`;
+  // A dónde lleva cada tipo al tocarla
+  private toItem(n: NotificationDTO): AppNotification {
+    let link = '/home';
+    let queryParams: Record<string, string | number> | undefined;
+
+    if (n.type === 'ORDER_CONFIRMED' || n.type === 'ORDER_PREPARING') {
+      link = '/orders';
+    } else if (n.type === 'ORDER_ON_THE_WAY' || n.type === 'ORDER_NEAR') {
+      link = '/orders/tracking';
+      queryParams = { order: n.orderId as number };
+    } else if (n.type === 'COUPON') {
+      link = '/coupons';
+    } else if (n.type === 'WELCOME') {
+      link = '/menu';
+    }
+
+    return { ...n, link, queryParams };
   }
 }

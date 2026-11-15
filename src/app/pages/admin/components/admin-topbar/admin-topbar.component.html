@@ -19,7 +19,7 @@
       aria-label="Abrir menú"
       (click)="menuClicked.emit()"
     >
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <svg aria-hidden="true" focusable="false" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
         <path d="M4 7h16M4 12h16M4 17h16" />
       </svg>
     </button>
@@ -45,7 +45,7 @@
     @if (showAddButton) {
       <app-button id="btn-add" size="sm" [attr.aria-label]="addLabel" (click)="addClicked.emit()">
         <!-- Icono de suma del botón -->
-        <svg
+        <svg aria-hidden="true" focusable="false"
           width="15"
           height="15"
           viewBox="0 0 24 24"

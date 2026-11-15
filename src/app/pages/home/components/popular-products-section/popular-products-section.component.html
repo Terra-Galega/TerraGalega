@@ -24,7 +24,7 @@
           @for (copy of [0, 1]; track copy) {
           @for (product of row; track product.id) {
           <div class="item" [attr.aria-hidden]="copy === 1 ? 'true' : null">
-            <app-product-card [product]="product" />
+            <app-product-card [product]="product" [focusable]="copy === 0" />
           </div>
           }
           }

@@ -1,14 +1,13 @@
 <!-- Tarjeta completa: toda el área es clicable y lleva al detalle del producto.
      Al pasar el mouse se levanta y se agranda la imagen.
-     Accesibilidad: role="link" + tabindex="0" la hacen alcanzable con Tab y Enter la abre. -->
-<div
+     Accesibilidad: el nombre del plato es un enlace de verdad (se alcanza con Tab y se abre
+     con Enter) y su ::after cubre toda la tarjeta, así el clic en cualquier parte sigue
+     funcionando. El lector lee el contenido normal: nombre, descripción, etiquetas y precio.
+     El botón "+" lleva al mismo detalle, donde se eligen cantidad y adicionales. -->
+<article
   [id]="'menu-card-' + product.id"
-  class="glass-card rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
-  (click)="openProductDetail()"
-  role="link"
-  tabindex="0"
-  [attr.aria-label]="'Ver ' + product.name + ', $' + (product.price | number: '1.0-0')"
-  (keydown.enter)="openProductDetail()"
+  class="product-card glass-card relative rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
+  [attr.aria-labelledby]="'menu-product-' + product.id"
 >
   <!-- Imagen del producto: siempre con la misma proporción, tenga o no etiquetas el plato -->
   <div class="relative aspect-[4/3] flex-shrink-0 overflow-hidden">
@@ -54,7 +53,7 @@
       [id]="'menu-product-' + product.id"
       class="menu-product-name font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-1"
     >
-      {{ product.name }}
+      <a class="card-link" [routerLink]="['/productDetails', product.id]">{{ product.name }}</a>
     </h3>
 
     <!-- Descripción (se recorta a 2 líneas) -->
@@ -72,17 +71,21 @@
       [product]="product"
     />
 
-    <!-- Precio (sin decimales, ej. 38.900) y botón "+" decorativo; el clic
-         en cualquier parte de la tarjeta ya abre el detalle -->
+    <!-- Precio (sin decimales, ej. 38.900) y botón "+" que abre el detalle para añadirlo.
+         El lector de pantalla oye "Precio: 38.900 pesos" (el "$" lo leería como dólares). -->
     <div class="flex items-center justify-between mt-auto">
-      <span class="font-bold text-lg" style="color: #b2571f">
-        ${{ product.price | number: "1.0-0" }}
-      </span>
+      <p class="font-bold text-lg" style="color: #b2571f">
+        <span class="sr-only">Precio: {{ product.price | number: "1.0-0" }} pesos</span>
+        <span aria-hidden="true">${{ product.price | number: "1.0-0" }}</span>
+      </p>
 
-      <span
-        class="menu-plus-btn w-10 h-10 rounded-full flex items-center justify-center"
+      <button
+        type="button"
+        class="menu-plus-btn card-action w-10 h-10 rounded-full flex items-center justify-center cursor-pointer"
+        [attr.aria-label]="'Añadir ' + product.name + ' al pedido'"
+        (click)="openProductDetail()"
       >
-        <svg
+        <svg aria-hidden="true" focusable="false"
           class="w-[17px] h-[17px]"
           fill="none"
           viewBox="0 0 24 24"
@@ -95,7 +98,7 @@
             d="M12 4v16m8-8H4"
           />
         </svg>
-      </span>
+      </button>
     </div>
   </div>
-</div>
+</article>

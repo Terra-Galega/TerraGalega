@@ -1,0 +1,30 @@
+// Textos de MapLibre en español. Por defecto la librería pone en inglés los nombres de sus
+// controles ("Zoom in", "Map", "Toggle attribution"...) y eso es lo que leía el lector de
+// pantalla. Se pasa como `locale` al crear cada mapa.
+export const MAP_LOCALE_ES: Record<string, string> = {
+  'AttributionControl.ToggleAttribution': 'Mostrar u ocultar los créditos del mapa',
+  'AttributionControl.MapFeedback': 'Enviar comentarios sobre el mapa',
+  'FullscreenControl.Enter': 'Ver el mapa en pantalla completa',
+  'FullscreenControl.Exit': 'Salir de pantalla completa',
+  'GeolocateControl.FindMyLocation': 'Buscar mi ubicación',
+  'GeolocateControl.LocationNotAvailable': 'Ubicación no disponible',
+  'LogoControl.Title': 'Logotipo de MapLibre',
+  'Map.Title': 'Mapa',
+  'Marker.Title': 'Marcador del mapa',
+  'NavigationControl.ResetBearing': 'Orientar el mapa al norte',
+  'NavigationControl.ZoomIn': 'Acercar el mapa',
+  'NavigationControl.ZoomOut': 'Alejar el mapa',
+  'Popup.Close': 'Cerrar ventana emergente',
+  'ScaleControl.Feet': 'pies',
+  'ScaleControl.Meters': 'm',
+  'ScaleControl.Kilometers': 'km',
+  'ScaleControl.Miles': 'mi',
+  'ScaleControl.NauticalMiles': 'mn',
+  'GlobeControl.Enable': 'Activar vista de globo',
+  'GlobeControl.Disable': 'Desactivar vista de globo',
+  'TerrainControl.Enable': 'Activar relieve',
+  'TerrainControl.Disable': 'Desactivar relieve',
+  'CooperativeGesturesHandler.WindowsHelpText': 'Usa Ctrl + rueda del ratón para acercar o alejar el mapa',
+  'CooperativeGesturesHandler.MacHelpText': 'Usa ⌘ + rueda del ratón para acercar o alejar el mapa',
+  'CooperativeGesturesHandler.MobileHelpText': 'Usa dos dedos para mover el mapa',
+};

@@ -10,10 +10,11 @@ export interface SegmentOption {
 @Component({
   selector: 'app-segmented-control',
   template: `
-    <div class="inline-flex gap-1 p-1 rounded-xl" style="background-color: rgba(44, 44, 44, 0.06)">
+    <div role="group" [attr.aria-label]="label || null" class="inline-flex gap-1 p-1 rounded-xl" style="background-color: rgba(44, 44, 44, 0.06)">
       @for (option of options; track option.value) {
         <button
           type="button"
+          [attr.aria-pressed]="value === option.value"
           class="text-(length:--dfs-12) font-medium px-3 py-1.5 rounded-lg"
           style="transition: all 0.2s ease"
           [style.background-color]="value === option.value ? '#556141' : 'transparent'"
@@ -31,4 +32,7 @@ export class SegmentedControlComponent {
   @Input({ required: true }) options: SegmentOption[] = [];
   @Input({ required: true }) value = '';
   @Output() valueChange = new EventEmitter<string>();
+  // Nombre del grupo para lectores de pantalla (p. ej. "Periodo"); el botón elegido se
+  // anuncia como "pulsado" gracias a aria-pressed
+  @Input() label = '';
 }

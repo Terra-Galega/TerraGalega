@@ -1,11 +1,13 @@
 <!-- Contenedor: la clase cambia según la variante (glass o soft) -->
+<!-- role="search": el lector lo anuncia como zona de búsqueda y se puede saltar a ella -->
 <div
+  role="search"
   class="search relative"
   [class.search--glass]="variant === 'glass'"
   [class.search--soft]="variant === 'soft'"
 >
   <!-- Icono de lupa -->
-  <svg
+  <svg aria-hidden="true" focusable="false"
     class="search__icon"
     fill="none"
     viewBox="0 0 24 24"
@@ -17,8 +19,9 @@
     <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
   </svg>
   <!-- Campo de texto: cada tecla dispara onInput para filtrar en tiempo real -->
+  <!-- type="search": el lector dice "cuadro de búsqueda" y Escape borra el texto -->
   <input
-    type="text"
+    type="search"
     class="search__input"
     [attr.id]="inputId"
     [placeholder]="placeholder"

@@ -8,13 +8,13 @@
 
 <div id="auth-tabs" class="flex w-full rounded-full p-1 mb-8" style="background-color: rgba(44, 44, 44, 0.06)">
   <!--Botones de opción-->
-  <button type="button" id="tab-login-btn" (click)="selectTab('login')"
+  <button [attr.aria-pressed]="activeTab === 'login'" type="button" id="tab-login-btn" (click)="selectTab('login')"
     class="auth-tab flex-1 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-300"
     [class.active]="activeTab === 'login'">
     Iniciar sesión
   </button>
 
-  <button type="button" id="tab-signup-btn" (click)="selectTab('signup')"
+  <button [attr.aria-pressed]="activeTab === 'signup'" type="button" id="tab-signup-btn" (click)="selectTab('signup')"
     class="auth-tab flex-1 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-300"
     [class.active]="activeTab === 'signup'">
     Registrarse

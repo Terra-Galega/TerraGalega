@@ -66,7 +66,7 @@
               "
             >
               @if (isSelected(address)) {
-                <svg
+                <svg aria-hidden="true" focusable="false"
                   class="h-3 w-3"
                   viewBox="0 0 12 12"
                   fill="none"
@@ -138,7 +138,7 @@
             "
           >
             @if (newMode) {
-              <svg
+              <svg aria-hidden="true" focusable="false"
                 class="h-3 w-3"
                 viewBox="0 0 12 12"
                 fill="none"
@@ -167,74 +167,40 @@
       </div>
     }
 
-    <!-- Campo de texto: solo si no hay guardadas o eligió "otra dirección" -->
-    <!-- Dirección nueva: escribirla o seleccionarla en el mapa. -->
+    <!-- Dirección nueva: texto arriba y mapa debajo, sincronizados.
+         Escribir mueve el mapa; mover el mapa (o hacer clic) actualiza el texto. -->
     @if (newMode) {
       <div
-        class="flex gap-1 rounded-full p-1 mb-3"
-        style="background: rgba(44, 44, 44, 0.06)"
-        role="group"
-        aria-label="Cómo ingresar la dirección"
-        id="address-entry-mode"
+        class="rounded-full overflow-hidden"
+        style="background-color: rgba(255, 255, 255, 0.85)"
+        [style.border]="
+          error ? '1px solid #8a2222' : '1px solid rgba(44, 44, 44, 0.12)'
+        "
       >
-        <button
-          id="address-mode-text"
-          type="button"
-          class="flex-1 rounded-full px-3 py-2 text-sm font-medium cursor-pointer"
-          [style.background]="entryMode === 'text' ? '#fff' : 'transparent'"
-          [style.color]="entryMode === 'text' ? '#b2571f' : '#68655e'"
-          [attr.aria-pressed]="entryMode === 'text'"
-          (click)="setEntryMode('text')"
-        >
-          Escribirla
-        </button>
+        <label class="block px-6 pt-2.5 pb-2">
+          <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">
+            Dirección
+          </span>
 
-        <button
-          id="address-mode-map"
-          type="button"
-          class="flex-1 rounded-full px-3 py-2 text-sm font-medium cursor-pointer"
-          [style.background]="entryMode === 'map' ? '#fff' : 'transparent'"
-          [style.color]="entryMode === 'map' ? '#b2571f' : '#68655e'"
-          [attr.aria-pressed]="entryMode === 'map'"
-          (click)="setEntryMode('map')"
-        >
-          Ubicar en el mapa
-        </button>
+          <input
+            #newAddressInput
+            id="address-input"
+            type="text"
+            formControlName="address"
+            maxlength="120"
+            placeholder="Ej: Calle 123 #45-67, apto 8"
+            autocomplete="street-address"
+            class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
+          />
+        </label>
       </div>
 
-      @if (entryMode === "text") {
-        <div
-          class="rounded-full overflow-hidden"
-          style="background-color: rgba(255, 255, 255, 0.85)"
-          [style.border]="
-            error ? '1px solid #8a2222' : '1px solid rgba(44, 44, 44, 0.12)'
-          "
-        >
-          <label class="block px-6 pt-2.5 pb-2">
-            <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">
-              Dirección
-            </span>
-
-            <input
-              #newAddressInput
-              id="address-input"
-              type="text"
-              formControlName="address"
-              maxlength="120"
-              placeholder="Ej: Calle 123 #45-67, apto 8"
-              autocomplete="street-address"
-              class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
-            />
-          </label>
-        </div>
-      } @else {
-        <app-address-map-picker
-          id="address-map"
-          class="block"
-          [address]="current"
-          (picked)="onMapPicked($event)"
-        ></app-address-map-picker>
-      }
+      <app-address-map-picker
+        id="address-map"
+        class="block mt-3"
+        [address]="current"
+        (picked)="onMapPicked($event)"
+      ></app-address-map-picker>
     }
     <!-- Error a la izquierda y contador a la derecha -->
     <div class="flex items-start justify-between gap-4 mt-2">
@@ -272,7 +238,7 @@
           "
         >
           @if (saveChecked) {
-            <svg
+            <svg aria-hidden="true" focusable="false"
               class="h-3 w-3"
               viewBox="0 0 12 12"
               fill="none"

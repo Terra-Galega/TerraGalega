@@ -12,7 +12,7 @@
   <div class="flex flex-col items-center text-center py-20">
     <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4"
       style="background-color: rgba(85, 97, 65, 0.1); color: #556141">
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+      <svg aria-hidden="true" focusable="false" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
         stroke-linecap="round" stroke-linejoin="round">
         <path d="M5 13l4 4L19 7" />
       </svg>
@@ -27,16 +27,17 @@
     <!-- Utiliza el identificador de cada pedido como clave para mantener estable su representación en la lista. -->
     @for (order of orders; track order.id) {
     <li>
+      <!-- Toda la tarjeta abre el detalle: el nombre del cliente es un botón de verdad (Tab + Enter
+           o Espacio) cuyo ::after cubre la tarjeta (ver .stretch-card en styles.scss). Así el
+           lector lee la tarjeta completa y el botón de acción sigue siendo independiente. -->
       <article
         [id]="'operator-order-' + order.id"
-        class="rounded-2xl p-6 cursor-pointer transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b2571f]"
+        class="stretch-card relative rounded-2xl p-6 cursor-pointer transition-shadow hover:shadow-md"
         style="
               background-color: #ffffff;
               border: 1px solid rgba(44, 44, 44, 0.08);
               box-shadow: 0 1px 2px rgba(44, 44, 44, 0.04);
-            " tabindex="0" role="button" [attr.aria-label]="'Ver detalle del pedido ' + order.id"
-        (click)="detailRequested.emit(order.id)" (keydown.enter)="detailRequested.emit(order.id)">
-        <!-- Permite abrir el detalle del pedido tanto con el ratón como con la tecla Enter. -->
+            " [attr.aria-labelledby]="'operator-order-client-' + order.id">
         <!-- Encabezado: cliente y total -->
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
@@ -44,10 +45,12 @@
               Pedido #{{ order.id }} - {{ order.createdAt | date: "dd MMM, HH:mm" }}
             </p>
             <h2 [id]="'operator-order-client-' + order.id" class="mt-1 text-lg font-semibold text-charcoal truncate">
-              {{ clientName(order) }}
+              <button type="button" class="card-link text-left cursor-pointer"
+                [attr.aria-label]="'Ver detalle del pedido ' + order.id + ' de ' + clientName(order)"
+                (click)="detailRequested.emit(order.id)">{{ clientName(order) }}</button>
             </h2>
             <p class="mt-0.5 flex items-center gap-1.5 text-sm" style="color: rgba(44, 44, 44, 0.6)">
-              <svg class="flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              <svg aria-hidden="true" focusable="false" class="flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z" />
                 <circle cx="12" cy="10" r="2.5" />
@@ -57,7 +60,8 @@
           </div>
 
           <p class="text-xl font-bold whitespace-nowrap" style="color: #b2571f">
-            ${{ order.total | number: "1.0-0" }}
+            <span class="sr-only">Total: {{ order.total | number: "1.0-0" }} pesos</span>
+            <span aria-hidden="true">${{ order.total | number: "1.0-0" }}</span>
           </p>
         </div>
 
@@ -71,7 +75,7 @@
         <div class="mt-6 pt-4 flex flex-wrap items-center justify-between gap-3"
           style="border-top: 1px solid rgba(44, 44, 44, 0.08)">
           <p class="flex items-center gap-2 text-sm" style="color: rgba(44, 44, 44, 0.65)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="8" r="4" />
               <path d="M4 21a8 8 0 0116 0" />
@@ -89,9 +93,11 @@
 
           <!-- Solo muestra el botón cuando el pedido tiene una acción disponible según su estado actual. -->
           @if (actionLabel(order); as label) {
-          <div class="w-full sm:w-36">
+          <div class="card-action w-full sm:w-36">
             <!-- Evita que el clic en la acción se propague a la tarjeta y abra también el detalle del pedido. -->
-            <app-button [id]="'operator-action-' + order.id" size="sm" [fullWidth]="true" (click)="$event.stopPropagation(); onAction(order)">
+            <app-button [id]="'operator-action-' + order.id" size="sm" [fullWidth]="true"
+              [attr.aria-label]="busyOrderId === order.id ? null : label + ' el pedido ' + order.id"
+              (click)="$event.stopPropagation(); onAction(order)">
               <!-- Cambia temporalmente el texto del botón para indicar qué pedido se está procesando. -->
               {{ busyOrderId === order.id ? "Procesando…" : label }}
             </app-button>
@@ -118,7 +124,7 @@
       " role="status" aria-live="polite">
     <span class="toast-icon w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
       style="background-color: #556141">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3"
+      <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3"
         stroke-linecap="round" stroke-linejoin="round">
         <path d="M5 13l4 4L19 7" />
       </svg>
@@ -134,7 +140,7 @@
     <button type="button"
       class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-black/5"
       style="color: rgba(44, 44, 44, 0.5)" aria-label="Cerrar aviso" (click)="closeToast()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
         stroke-linecap="round">
         <path d="M6 18L18 6M6 6l12 12" />
       </svg>

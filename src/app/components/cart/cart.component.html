@@ -27,7 +27,7 @@
           style="color: rgba(44, 44, 44, 0.4)"
           aria-label="Cerrar carrito"
         >
-          <svg
+          <svg aria-hidden="true" focusable="false"
             class="w-5 h-5"
             fill="none"
             viewBox="0 0 24 24"
@@ -64,7 +64,7 @@
         @if (cartItems.length === 0) {
           <!-- Carrito vacío -->
           <div class="text-center py-14" style="color: rgba(44, 44, 44, 0.75)">
-            <svg
+            <svg aria-hidden="true" focusable="false"
               class="w-12 h-12 mx-auto mb-4 opacity-40"
               fill="none"
               viewBox="0 0 24 24"
@@ -130,10 +130,11 @@
                 <button
                   class="flex-shrink-0"
                   style="color: rgba(44, 44, 44, 0.3)"
-                  aria-label="Eliminar"
+                  type="button"
+                  [attr.aria-label]="'Quitar ' + item.product.name + ' del carrito'"
                   (click)="removeItem(item.id)"
                 >
-                  <svg
+                  <svg aria-hidden="true" focusable="false"
                     class="w-4 h-4"
                     fill="none"
                     viewBox="0 0 24 24"
