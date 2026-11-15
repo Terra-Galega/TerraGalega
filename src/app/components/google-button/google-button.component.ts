@@ -6,6 +6,7 @@ import {
   EventEmitter,
   Input,
   NgZone,
+  OnDestroy,
   Output,
   ViewChild,
   inject,
@@ -62,7 +63,8 @@ function loadGoogleScript(): Promise<void> {
       @if (position === 'bottom') {
         <ng-container *ngTemplateOutlet="divider"></ng-container>
       }
-      <div #host class="flex justify-center min-h-[44px]"></div>
+      <!-- Ocupa todo el ancho del formulario; el botón se dibuja a ese ancho -->
+      <div #host class="w-full flex justify-center min-h-[44px]"></div>
       @if (loadError) {
         <p class="text-sm text-center mt-2" style="color: #8a2222">{{ loadError }}</p>
       }
@@ -79,7 +81,7 @@ function loadGoogleScript(): Promise<void> {
     </ng-template>
   `,
 })
-export class GoogleButtonComponent implements AfterViewInit {
+export class GoogleButtonComponent implements AfterViewInit, OnDestroy {
   private zone = inject(NgZone);
 
   // 'signup' muestra "Registrarse con Google"; 'login', "Continuar con Google"
@@ -92,6 +94,11 @@ export class GoogleButtonComponent implements AfterViewInit {
 
   enabled = GOOGLE_CLIENT_ID.trim() !== '';
   loadError = '';
+
+  // Ancho con el que se dibujó el botón por última vez
+  private renderedWidth = 0;
+  private resizeObserver?: ResizeObserver;
+  private resizeTimer?: ReturnType<typeof setTimeout>;
 
   ngAfterViewInit(): void {
     if (!this.enabled) return;
@@ -109,14 +116,16 @@ export class GoogleButtonComponent implements AfterViewInit {
           callback: (response) =>
             this.zone.run(() => this.credential.emit(response.credential)),
         });
-        id.renderButton(element, {
-          type: 'standard',
-          theme: 'outline',
-          size: 'large',
-          shape: 'pill',
-          text: this.mode === 'signup' ? 'signup_with' : 'continue_with',
-          locale: 'es',
-          width: Math.min(element.clientWidth || 320, 400),
+        this.render();
+
+        // El botón de Google tiene un ancho fijo en píxeles: cuando el formulario cambia de
+        // ancho (girar el móvil, cambiar el tamaño de la ventana) se vuelve a dibujar.
+        this.zone.runOutsideAngular(() => {
+          this.resizeObserver = new ResizeObserver(() => {
+            clearTimeout(this.resizeTimer);
+            this.resizeTimer = setTimeout(() => this.render(), 150);
+          });
+          this.resizeObserver.observe(element);
         });
       })
       .catch(() =>
@@ -124,5 +133,32 @@ export class GoogleButtonComponent implements AfterViewInit {
           () => (this.loadError = 'No se pudo cargar el botón de Google. Revisa tu conexión.'),
         ),
       );
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+    clearTimeout(this.resizeTimer);
+  }
+
+  // Dibuja el botón al ancho del formulario. Google no admite menos de 200 px ni más de 400 px.
+  private render(): void {
+    const element = this.host?.nativeElement;
+    const id = window.google?.accounts.id;
+    if (!element || !id) return;
+
+    const width = Math.round(Math.min(Math.max(element.clientWidth, 200), 400));
+    if (width === this.renderedWidth) return;
+    this.renderedWidth = width;
+
+    element.replaceChildren();
+    id.renderButton(element, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+      shape: 'pill',
+      text: this.mode === 'signup' ? 'signup_with' : 'continue_with',
+      locale: 'es',
+      width,
+    });
   }
 }
