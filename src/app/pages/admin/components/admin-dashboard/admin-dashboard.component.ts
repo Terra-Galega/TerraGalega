@@ -14,7 +14,6 @@ import { DashboardService } from '../../../../services/dashboard.service';
 import { OrderService } from '../../../../services/order.service';
 import { ProductService } from '../../../../services/product.service';
 import { ToastService } from '../../../../services/toast.service';
-import { getErrorMessage } from '../../../../utils/http-error';
 import {
   CHART_COLORS,
   DashOrder,
@@ -64,7 +63,12 @@ import { DashboardDishesComponent } from './components/dashboard-dishes/dashboar
 import {
   DashboardExportModalComponent,
   ExportRequest,
+  EmailReportRequest,
 } from './components/dashboard-export-modal/dashboard-export-modal.component';
+import { firstValueFrom } from 'rxjs';
+import { exportReportToBlob } from '../../../../utils/dashboard-export'; // súmalo al import que ya existe de buildReport/exportReport
+import { getErrorMessage } from '../../../../utils/http-error';
+import { ReportService } from '../../../../services/report.service';
 
 // Cada cuánto se vuelven a pedir los datos al servidor (en milisegundos).
 // Es el mismo valor y el mismo patrón que usa el menú del cliente.
@@ -105,6 +109,7 @@ export class AdminDashboardComponent {
   private orderService = inject(OrderService);
   private productService = inject(ProductService);
   private toast = inject(ToastService);
+  private reports = inject(ReportService);
 
   // Permite forzar una recarga inmediata (botón de actualizar)
   private reload$ = new Subject<void>();
@@ -388,6 +393,45 @@ export class AdminDashboardComponent {
         error instanceof Error
           ? error.message
           : 'Inténtalo de nuevo en unos segundos.',
+      );
+    } finally {
+      this.exporting = false;
+    }
+  }
+
+  // Genera el informe elegido y lo envía al correo escrito en la ventana
+  async sendEmail(request: EmailReportRequest) {
+    if (!this.model || this.exporting) return;
+    this.exporting = true;
+
+    try {
+      const report = buildReport(
+        this.model,
+        request.pair,
+        new Date(),
+        request.includeCharts,
+      );
+      const { blob, filename } = await exportReportToBlob(
+        request.format,
+        report,
+      );
+
+      await firstValueFrom(
+        this.reports.emailReport(
+          request.to,
+          'Informe de ventas - Terra Galega',
+          blob,
+          filename,
+        ),
+      );
+
+      this.toast.show('Informe enviado', `Lo enviamos a ${request.to}.`);
+      this.exportOpen = false;
+    } catch (error) {
+      console.error('Error enviando el informe:', error);
+      this.toast.show(
+        'No se pudo enviar',
+        getErrorMessage(error, 'Inténtalo de nuevo en unos segundos.'),
       );
     } finally {
       this.exporting = false;

@@ -162,7 +162,14 @@ export async function exportReport(
   return exportPdf(report, previewWindow);
 }
 // Utilidades
+// Si hay un "sink", el archivo se entrega a quien lo pidió en vez de descargarse
+let captureSink: ((blob: Blob, filename: string) => void) | null = null;
+
 function download(blob: Blob, filename: string) {
+  if (captureSink) {
+    captureSink(blob, filename);
+    return;
+  }
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -813,6 +820,12 @@ async function exportPdf(r: ReportData, previewWindow: Window | null) {
     title: `${r.fileBase}.pdf`,
   });
 
+  // Para enviarlo por correo: se entrega el PDF sin abrir la pestaña de vista previa
+  if (captureSink) {
+    captureSink(doc.output('blob'), `${r.fileBase}.pdf`);
+    return;
+  }
+
   // Genera el PDF en memoria sin descargarlo.
   const url = URL.createObjectURL(doc.output('blob'));
 
@@ -832,4 +845,23 @@ async function exportPdf(r: ReportData, previewWindow: Window | null) {
       window.clearInterval(cleanup);
     }
   }, 1000);
+}
+
+// Genera el informe en el formato elegido y lo devuelve en memoria (para enviarlo por correo)
+export async function exportReportToBlob(
+  format: ExportFormat,
+  report: ReportData,
+): Promise<{ blob: Blob; filename: string }> {
+  let result = null as { blob: Blob; filename: string } | null;
+  captureSink = (blob, filename) => {
+    result = { blob, filename };
+  };
+  try {
+    // El PDF pide una pestaña solo para la vista previa; aquí no se usa
+    await exportReport(format, report, { closed: false } as unknown as Window);
+  } finally {
+    captureSink = null;
+  }
+  if (!result) throw new Error('No se pudo generar el archivo del informe.');
+  return result;
 }

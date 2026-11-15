@@ -13,7 +13,7 @@ import { CheckoutDraftService } from '../../../services/checkout-draft.service';
 import { CouponService } from '../../../services/coupon.service';
 import { OrderService } from '../../../services/order.service';
 import { PaymentService } from '../../../services/payment.service';
-import { Payment } from '../../../models/payment';
+import { Payment, InvoiceLink } from '../../../models/payment';
 import { getErrorMessage } from '../../../utils/http-error';
 
 // Cada cuánto se pregunta el estado mientras Stripe confirma el pago
@@ -27,14 +27,20 @@ type View =
   | 'abandoned' // volvió de Stripe sin pagar (la sesión sigue abierta)
   | 'waiting' // pagó pero Stripe aún no lo confirma
   | 'expired' // el pago caducó o se canceló
-  | 'refunded' // se canceló un pedido ya pagado
+  | 'refunded'
+  | 'paid' // se canceló un pedido ya pagado
   | 'error';
 
 // Página a la que vuelve Stripe: /checkout/result?order=ID[&canceled=true].
 // Confirma el pago con el back y, si se aprobó, termina el pedido.
 @Component({
   selector: 'app-checkout-result',
-  imports: [NavbarComponent, FooterComponent, PageHeaderComponent, ButtonComponent],
+  imports: [
+    NavbarComponent,
+    FooterComponent,
+    PageHeaderComponent,
+    ButtonComponent,
+  ],
   templateUrl: './checkout-result.component.html',
 })
 export class CheckoutResultComponent implements OnInit {
@@ -51,6 +57,7 @@ export class CheckoutResultComponent implements OnInit {
 
   view: View = 'checking';
   payment: Payment | null = null;
+  invoice: InvoiceLink | null = null;
   errorMessage = '';
   // true mientras se cancela, para bloquear los botones
   busy = false;
@@ -137,10 +144,16 @@ export class CheckoutResultComponent implements OnInit {
 
     if (pending?.saveAddress) {
       this.addressService
-        .addAddress({ label: pending.address, name: pending.addressName || undefined })
+        .addAddress({
+          label: pending.address,
+          name: pending.addressName || undefined,
+        })
         .subscribe({
           error: (error) =>
-            console.error('No se pudo guardar la dirección en el perfil:', error),
+            console.error(
+              'No se pudo guardar la dirección en el perfil:',
+              error,
+            ),
         });
     }
 
@@ -150,9 +163,11 @@ export class CheckoutResultComponent implements OnInit {
     this.couponService.refresh();
     this.draftService.reset();
 
-    this.router.navigate(['/orders'], {
-      replaceUrl: true,
-      queryParams: { paid: true },
+    // En vez de saltar a /orders, se queda aquí para mostrar el QR de la factura
+    this.view = 'paid';
+    this.paymentService.invoiceLink(this.orderId).subscribe({
+      next: (link) => (this.invoice = link),
+      error: () => (this.invoice = null),
     });
   }
 
