@@ -2,11 +2,14 @@ package com.example.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import org.springframework.core.io.ByteArrayResource;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -22,7 +25,8 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    // Motor de Thymeleaf que ya usa el proyecto para sus páginas: aquí llena las plantillas de correo
+    // Motor de Thymeleaf que ya usa el proyecto para sus páginas: aquí llena las
+    // plantillas de correo
     @Autowired
     private TemplateEngine templateEngine;
 
@@ -44,6 +48,47 @@ public class EmailService {
                 + "El enlace vence en 24 horas. Si no creaste esta cuenta, ignora este mensaje.";
 
         send(to, "Confirma tu cuenta en Terra Galega", plain, html);
+    }
+
+    // Factura electrónica del pedido, adjunta en PDF: plantilla
+    // templates/email/invoice-email.html
+    public void sendInvoiceEmail(InvoiceService.InvoiceData d, byte[] pdf) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("name", d.clientName());
+        context.setVariable("number", d.number());
+        context.setVariable("total", InvoiceService.money(d.total()));
+        String html = templateEngine.process("email/invoice-email", context);
+
+        String plain = "Hola " + d.clientName() + ",\n\n"
+                + "Gracias por tu compra. Adjuntamos la factura electrónica " + d.number()
+                + " por " + InvoiceService.money(d.total()) + ".";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(from);
+        helper.setTo(d.clientEmail());
+        helper.setSubject("Tu factura electrónica " + d.number() + " - Terra Galega");
+        helper.setText(plain, html);
+        helper.addAttachment("factura-" + d.number() + ".pdf", new ByteArrayResource(pdf), "application/pdf");
+        mailSender.send(message);
+    }
+
+    // Informe de ventas que el admin manda a cualquier correo:
+    // templates/email/report-email.html
+    public void sendReportEmail(String to, String subject, String filename, byte[] data, String contentType)
+            throws MessagingException {
+        Context context = new Context();
+        context.setVariable("filename", filename);
+        String html = templateEngine.process("email/report-email", context);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(from);
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText("Adjuntamos el informe de ventas de Terra Galega: " + filename, html);
+        helper.addAttachment(filename, new ByteArrayResource(data), contentType);
+        mailSender.send(message);
     }
 
     // Arma el mensaje (UTF-8, para las tildes) y lo envía

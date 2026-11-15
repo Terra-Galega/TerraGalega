@@ -1,0 +1,30 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tu factura</title>
+  </head>
+  <body>
+    <div
+      style="
+        font-family: Arial, sans-serif;
+        max-width: 480px;
+        margin: 0 auto;
+        padding: 24px;
+        color: #2b2b2b;
+      "
+    >
+      <h2 style="margin: 0 0 16px">
+        ¡Gracias por tu compra, <span th:text="${name}">Juan</span>!
+      </h2>
+      <p>
+        Tu pago fue aprobado. Adjuntamos tu factura electrónica
+        <strong th:text="${number}">TG-000001</strong> por
+        <strong th:text="${total}">$0</strong>.
+      </p>
+      <p style="font-size: 13px; color: #666">
+        Conserva el PDF adjunto como soporte de tu compra.
+      </p>
+    </div>
+  </body>
+</html>
