@@ -69,18 +69,14 @@
   (confirm)="confirmDelete()"
   (cancel)="cancelDelete()"
 ></app-modal>
-<!--modal de la suscripción Premium: beneficios, precio y aviso de que no hay reembolso-->
-<app-modal
+<!--modal de la suscripción Premium-->
+<app-subscription-modal
   [open]="showSubscribeModal"
-  [title]="subscribeTitle"
-  [message]="subscribeMessage"
-  [items]="subscribeBenefits"
-  [warning]="subscribeWarning"
-  [confirmLabel]="subscribeConfirmLabel"
-  cancelLabel="Ahora no"
+  [subscription]="subscription"
+  [starting]="startingSubscription"
   (confirm)="confirmSubscribe()"
   (cancel)="closeSubscribeModal()"
-></app-modal>
+></app-subscription-modal>
 <!--modal de error para que falle bonito-->
 <app-modal
   [open]="showErrorModal"

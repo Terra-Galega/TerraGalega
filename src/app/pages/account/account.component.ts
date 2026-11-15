@@ -21,6 +21,7 @@ import { SubscriptionStatus } from '../../models/subscription';
 import {SubscriptionService,formatSubscriptionDate,} from '../../services/subscription.service';
 import { ButtonComponent } from '../../components/button/button.component';
 import { ModalComponent } from '../../components/modal/modal.component';
+import { SubscriptionModalComponent } from '../../components/subscription-modal/subscription-modal.component';
 import { ToastService } from '../../services/toast.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { AddressListComponent } from './components/address-list/address-list.component';
@@ -40,6 +41,7 @@ const MAX_POLLS = 15;
     AccountActionsComponent,
     ButtonComponent,
     ModalComponent,
+    SubscriptionModalComponent,
     AccountActionsComponent,
     AddressListComponent,
     ButtonComponent,
@@ -76,13 +78,6 @@ export class AccountComponent implements OnInit {
   confirmingPayment = false;
   private poll?: Subscription;
 
-  readonly subscribeBenefits = [
-    'Domicilios gratis',
-    'Cupones exclusivos (próximamente)',
-    'Prioridad en la reserva de mesas (próximamente)',
-  ];
-  readonly subscribeWarning =
-    'No hay reembolsos: una vez realizado el pago no se devuelve el dinero.';
 
     ngOnInit() {
     //si no ha iniciado sesión
@@ -205,43 +200,6 @@ export class AccountComponent implements OnInit {
         6000,
       );
     }
-  }
-
-  // ---- Modal de suscripción ----
-
-  get subscribeTitle(): string {
-    return this.subscription?.subscribed ? 'Renueva tu Premium' : 'Hazte Premium';
-  }
-
-  get subscribeMessage(): string {
-    const s = this.subscription;
-    if (!s) {
-      return '';
-    }
-
-    const price = `$${s.priceCop.toLocaleString('es-CO')}`;
-
-    if (s.subscribed) {
-      const days = `${s.daysLeft} ${s.daysLeft === 1 ? 'día' : 'días'}`;
-      return (
-        `Te quedan ${days} de Premium. Si renuevas ahora, se suman ${s.durationDays} días ` +
-        `a tu fecha de vencimiento: no pierdes los días que te quedan.\n\n` +
-        `Valor: ${price} COP, pago único.`
-      );
-    }
-
-    return (
-      `Con Premium tus domicilios son gratis durante ${s.durationDays} días.\n\n` +
-      `Valor: ${price} COP, pago único. No se renueva automáticamente.`
-    );
-  }
-
-  get subscribeConfirmLabel(): string {
-    if (this.startingSubscription) {
-      return 'Abriendo el pago…';
-    }
-
-    return `Pagar $${(this.subscription?.priceCop ?? 0).toLocaleString('es-CO')}`;
   }
 
   // Botón Premium de "Acciones"
