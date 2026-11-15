@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
@@ -16,6 +18,7 @@ import com.example.demo.entities.Admin;
 import com.example.demo.entities.Client;
 import com.example.demo.entities.DeliveryPerson;
 import com.example.demo.entities.Operator;
+import com.example.demo.entities.RoleEntity;
 import com.example.demo.entities.UserEntity;
 import com.example.demo.errors.ApiException;
 import com.example.demo.repository.AdminRepository;
@@ -85,6 +88,22 @@ public class AuthServiceImpl implements AuthService {
 
         LoginResponseDTO profile = currentUser(email);
         return new AuthResponseDTO(token, profile);
+    }
+
+    // Llega aquí solo con un token todavía válido (lo exige SecurityConfig).
+    // Los roles se leen de la base, no del token viejo, por si cambiaron.
+    @Override
+    @Transactional
+    public AuthResponseDTO refresh(String email) {
+        UserEntity user = userRepository.findByUsername(email)
+                .orElseThrow(() -> ApiException.unauthorized("Debes iniciar sesión para realizar esta acción."));
+
+        List<String> roles = user.getRoles().stream()
+                .map(RoleEntity::getName)
+                .toList();
+
+        String token = jwtGenerator.generateToken(email, roles);
+        return new AuthResponseDTO(token, currentUser(email));
     }
 
     // Cada tipo de usuario tiene su propia tabla, así que se busca en cada una

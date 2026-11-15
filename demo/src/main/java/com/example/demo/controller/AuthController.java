@@ -90,4 +90,12 @@ public class AuthController {
     public LoginResponseDTO me() {
         return authService.currentUser(authenticatedUser.email());
     }
+
+    // Renueva el JWT antes de que venza, para no cerrar la sesión de quien la está usando.
+    // Exige un token todavía válido: con uno vencido hay que iniciar sesión de nuevo.
+    @Operation(summary = "Renew the JWT of the logged-in user before it expires")
+    @PostMapping("/refresh")
+    public AuthResponseDTO refresh() {
+        return authService.refresh(authenticatedUser.email());
+    }
 }

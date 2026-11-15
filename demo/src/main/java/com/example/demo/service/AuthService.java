@@ -12,4 +12,7 @@ public interface AuthService {
 
     // Datos básicos (id, nombre, apellido y rol) del perfil que tiene ese correo
     LoginResponseDTO currentUser(String email);
+
+    // Genera un token nuevo para el usuario con sesión iniciada, antes de que venza el actual
+    AuthResponseDTO refresh(String email);
 }
