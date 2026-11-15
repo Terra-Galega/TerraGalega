@@ -33,6 +33,9 @@ object CheckoutDraft {
 object ClientUi {
     var tab by mutableStateOf(0) // 0 = Carta, 1 = Mis pedidos
     var paid by mutableStateOf(false) // aviso verde "¡Tu orden fue añadida con éxito!"
+
+    var lastPaidOrderId by mutableStateOf<Int?>(null) // pedido pagado con tarjeta: muestra "Ver mi factura"
+
 }
 
 // Mismo texto que unavailableMessage() de la web

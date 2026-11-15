@@ -2,6 +2,7 @@ package com.example.terragalegamovile.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,9 +76,10 @@ fun OrdersTab(
     var reload by remember { mutableStateOf(0) }
     var toCancel by remember { mutableStateOf<Order?>(null) }
     var cancelError by remember { mutableStateOf<String?>(null) }
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     // El aviso verde de "pedido creado" se apaga al salir de esta pestaña
-    DisposableEffect(Unit) { onDispose { ClientUi.paid = false } }
+    DisposableEffect(Unit) { onDispose { ClientUi.paid = false; ClientUi.lastPaidOrderId = null } }
 
     // Carga al abrir y refresca cada 6 s: si el operador cambia el estado, se ve solo
     LaunchedEffect(reload) {
@@ -118,11 +120,33 @@ fun OrdersTab(
                         .border(1.dp, Forest.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                         .padding(horizontal = 20.dp, vertical = 14.dp)
                 ) {
-                    Text(
-                        "✓  ¡Tu orden fue añadida con éxito! Ya quedó registrada y está pendiente.",
-                        color = Forest,
-                        fontSize = 14.sp
-                    )
+                    Column {
+                        Text(
+                            "✓  ¡Tu orden fue añadida con éxito! Ya quedó registrada y está pendiente.",
+                            color = Forest,
+                            fontSize = 14.sp
+                        )
+                        ClientUi.lastPaidOrderId?.let { id ->
+                            Text(
+                                "Descargar mi factura",
+                                color = Forest,
+                                fontSize = 14.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .clickable {
+                                        scope.launch {
+                                            try {
+                                                openStripe(context, ApiClient.api.invoiceLink(id).previewUrl)
+                                            } catch (e: CancellationException) {
+                                                throw e
+                                            } catch (_: Exception) {
+                                            }
+                                        }
+                                    }
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -35,7 +35,7 @@ private const val PAYMENT_CHECKS = 4
 // Abre la página de pago de Stripe en una pestaña del navegador dentro de la
 // app (Custom Tab). Al terminar, Stripe pasa por /payments/app-return del back,
 // que reabre la app con terragalega://pago.
-private fun openStripe(context: Context, url: String) {
+fun openStripe(context: Context, url: String) {
     val uri = Uri.parse(url)
     try {
         CustomTabsIntent.Builder().setShowTitle(true).build().launchUrl(context, uri)
@@ -81,6 +81,8 @@ fun CheckoutConfirmScreen(
 
     // Lo mismo que hace el checkout en efectivo al terminar
     suspend fun finish(address: String, saveAddress: Boolean, addressName: String) {
+
+        ClientUi.lastPaidOrderId = null
         if (saveAddress) {
             try {
                 ApiClient.api.addAddress(AddressInput(label = address, name = addressName.ifBlank { null }))
@@ -120,6 +122,7 @@ fun CheckoutConfirmScreen(
             "PENDING" -> false
             "PAID" -> {
                 finish(d.address, d.saveAddress, d.addressName)
+                ClientUi.lastPaidOrderId = result.orderId
                 true
             }
             "EXPIRED" -> {

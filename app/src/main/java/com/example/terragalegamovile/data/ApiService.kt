@@ -131,6 +131,10 @@ interface ApiService {
     @POST("payments/{orderId}/cancel")
     suspend fun cancelPayment(@Path("orderId") orderId: Int): Payment
 
+    // Enlace firmado a la factura de un pedido pagado
+    @GET("invoices/{orderId}/link")
+    suspend fun invoiceLink(@Path("orderId") orderId: Int): InvoiceLink
+
     @GET("orders/me")
     suspend fun myOrders(): List<Order>
 

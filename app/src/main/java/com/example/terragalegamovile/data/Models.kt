@@ -154,6 +154,8 @@ data class Payment(
     val currency: String
 )
 
+data class InvoiceLink(val previewUrl: String, val qrPngBase64: String)
+
 data class Address(
     val id: Int,
     val name: String?,
