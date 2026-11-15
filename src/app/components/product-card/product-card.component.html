@@ -4,16 +4,13 @@
      1. Imagen con proporción fija 4:3, así nunca se ve aplastada ni estirada.
      2. Categoría, nombre (hasta 2 líneas) y descripción (2 líneas) con altura reservada.
      3. Precio siempre al fondo, alineado entre tarjetas.
-     Accesibilidad: role="link" + tabindex="0" la hacen alcanzable con Tab y Enter la abre;
-     el lector de pantalla la anuncia como "enlace, Ver <plato>, $<precio>". -->
-<div
-  class="h-full flex flex-col rounded-[22px] bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
+     Accesibilidad: el nombre es un enlace de verdad (Tab + Enter) y su ::after cubre toda la
+     tarjeta, así el clic en cualquier parte sigue llevando al detalle. El lector de pantalla
+     lee la categoría, el nombre, la descripción y el precio con normalidad. -->
+<article
+  class="product-card relative h-full flex flex-col rounded-[22px] bg-white overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl"
   style="box-shadow: 0 1px 2px rgba(44, 44, 44, 0.04), 0 8px 28px rgba(44, 44, 44, 0.06)"
-  (click)="goToProductDetail()"
-  role="link"
-  tabindex="0"
-  [attr.aria-label]="'Ver ' + product.name + ', $' + (product.price | number: '1.0-0')"
-  (keydown.enter)="goToProductDetail()"
+  [attr.aria-labelledby]="'card-product-' + product.id"
 >
   <!-- Imagen del producto (fondo beige mientras carga) -->
   <div class="card-image relative aspect-[4/3] flex-shrink-0 overflow-hidden" style="background-color: #ede9e0">
@@ -34,10 +31,12 @@
 
     <!-- Nombre: hasta 2 líneas, sin cortarse con puntos suspensivos a la mitad de una palabra -->
     <h3
+      [id]="'card-product-' + product.id"
       class="font-serif text-xl md:text-[22px] leading-snug tracking-tight font-semibold text-charcoal group-hover:text-terra transition-colors line-clamp-2 min-h-[2lh] mt-1.5"
       [attr.data-tooltip]="product.name"
     >
-      {{ product.name }}
+      <a class="card-link" [routerLink]="['/productDetails', product.id]"
+        [attr.tabindex]="focusable ? null : -1">{{ product.name }}</a>
     </h3>
 
     <!-- Descripción (se recorta a 2 líneas) -->
@@ -50,7 +49,8 @@
 
     <!-- Precio al fondo, sin decimales (ej. $38.900), con cifras de ancho fijo -->
     <p class="mt-auto pt-5 text-lg font-semibold tabular-nums text-charcoal">
-      ${{ product.price | number: "1.0-0" }}
+      <span class="sr-only">Precio: {{ product.price | number: "1.0-0" }} pesos</span>
+      <span aria-hidden="true">${{ product.price | number: "1.0-0" }}</span>
     </p>
   </div>
-</div>
+</article>

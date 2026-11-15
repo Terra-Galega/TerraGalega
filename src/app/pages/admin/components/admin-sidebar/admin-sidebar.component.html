@@ -32,14 +32,14 @@
   <!-- Opciones de navegación entre las secciones del panel -->
   <nav class="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto">
     <!-- Acceso al dashboard (resumen de ventas) -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'dashboard') ? 'page' : null"
       id="tab-dashboard"
       type="button"
       (click)="changeTab('dashboard')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'dashboard'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -56,14 +56,14 @@
       Dashboard
     </button>
     <!-- Acceso a la sección de productos -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'products') ? 'page' : null"
       id="tab-products"
       type="button"
       (click)="changeTab('products')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'products'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -81,13 +81,13 @@
     </button>
 
     <!-- Acceso a la sección de categorías -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'categories') ? 'page' : null"
       type="button"
       (click)="changeTab('categories')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'categories'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -102,14 +102,14 @@
     </button>
 
     <!-- Acceso a la sección de adicionales -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'addons') ? 'page' : null"
       id="tab-addons"
       type="button"
       (click)="changeTab('addons')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'addons'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -125,14 +125,14 @@
     </button>
 
     <!-- Acceso a la sección de cupones -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'coupons') ? 'page' : null"
       id="tab-coupons"
       type="button"
       (click)="changeTab('coupons')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'coupons'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -150,14 +150,14 @@
     </button>
 
     <!-- Acceso a la sección de anuncios del inicio -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'announcements') ? 'page' : null"
       id="tab-announcements"
       type="button"
       (click)="changeTab('announcements')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'announcements'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -173,14 +173,14 @@
     </button>
 
     <!-- Acceso a la sección de reseñas -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'reviews') ? 'page' : null"
       id="tab-reviews"
       type="button"
       (click)="changeTab('reviews')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'reviews'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -197,13 +197,13 @@
     </button>
 
     <!-- Acceso a la sección de órdenes -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'orders') ? 'page' : null"
       type="button"
       (click)="changeTab('orders')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'orders'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -220,13 +220,13 @@
     </button>
 
     <!-- Acceso a la sección de usuarios -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'users') ? 'page' : null"
       type="button"
       (click)="changeTab('users')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'users'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -243,13 +243,13 @@
     </button>
 
     <!-- Acceso a la sección de operadores -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'operators') ? 'page' : null"
       type="button"
       (click)="changeTab('operators')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'operators'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -266,13 +266,13 @@
     </button>
 
     <!-- Acceso a la sección de domiciliarios -->
-    <button
+    <button [attr.aria-current]="(activeTab === 'deliveries') ? 'page' : null"
       type="button"
       (click)="changeTab('deliveries')"
       class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
       [class.active]="activeTab === 'deliveries'"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="16"
         height="16"
         viewBox="0 0 24 24"
@@ -309,7 +309,7 @@
       class="admin-logout-btn flex items-center gap-2 px-4 py-1 text-[12px] font-medium rounded-xl"
       style="color: #da5858"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="13"
         height="13"
         viewBox="0 0 24 24"

@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Product } from '../../models/product';
 
 /**
@@ -10,13 +10,16 @@ import { Product } from '../../models/product';
  */
 @Component({
   selector: 'app-product-card',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss',
 })
 export class ProductCardComponent {
   // Producto que muestra la tarjeta (obligatorio, lo pasa quien la usa)
   @Input() product!: Product;
+  // false en las copias del carrusel animado del inicio (ocultas al lector de pantalla): así el
+  // Tab no pasa dos veces por el mismo plato ni entra en contenido oculto
+  @Input() focusable = true;
   router = inject(Router);
 
   // Lleva a la página de detalle del producto

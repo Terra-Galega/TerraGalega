@@ -1,5 +1,5 @@
 @for (category of categories; track category) {
-  <button
+  <button [attr.aria-pressed]="selected === category"
     type="button"
     class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
     [class.active]="selected === category"

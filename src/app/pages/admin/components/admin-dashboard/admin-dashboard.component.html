@@ -27,6 +27,7 @@
     >
       <div class="flex items-center gap-3">
         <app-segmented-control
+          label="Periodo"
           [options]="rangeOptions"
           [value]="rangeKey"
           (valueChange)="setRange($event)"
@@ -58,7 +59,7 @@
           aria-label="Actualizar ahora"
           (click)="refreshNow()"
         >
-          <svg
+          <svg aria-hidden="true" focusable="false"
             width="15"
             height="15"
             viewBox="0 0 24 24"
@@ -80,7 +81,7 @@
           style="background-color: #b2571f; color: #f5f2eb"
           (click)="openExport()"
         >
-          <svg
+          <svg aria-hidden="true" focusable="false"
             width="16"
             height="16"
             viewBox="0 0 24 24"
@@ -136,11 +137,13 @@
           </div>
           <div class="flex items-center gap-2">
             <app-segmented-control
+              label="Agrupar ventas por"
               [options]="granularityOptions"
               [value]="granularity"
               (valueChange)="setGranularity($event)"
             />
             <app-segmented-control
+              label="Tipo de gráfica"
               [options]="typeOptions"
               [value]="salesType"
               (valueChange)="setSalesType($event)"
@@ -193,6 +196,7 @@
             </p>
           </div>
           <app-segmented-control
+            label="Tipo de gráfica"
             [options]="typeOptions"
             [value]="compareType"
             (valueChange)="setCompareType($event)"
@@ -248,6 +252,7 @@
             </p>
           </div>
           <app-segmented-control
+            label="Ordenar productos por"
             [options]="productOptions"
             [value]="productMetric"
             (valueChange)="setProductMetric($event)"
@@ -274,6 +279,7 @@
             </p>
           </div>
           <app-segmented-control
+            label="Medir categorías por"
             [options]="categoryOptions"
             [value]="categoryMetric"
             (valueChange)="setCategoryMetric($event)"

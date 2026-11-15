@@ -15,7 +15,7 @@ import { isDarkTheme } from '../../utils/chart-theme';
       @if (value === null) {
         Nuevo
       } @else {
-        <svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor">
+        <svg aria-hidden="true" focusable="false" width="9" height="9" viewBox="0 0 10 10" fill="currentColor">
           @if (value >= 0) {
             <path d="M5 1l4 7H1z" />
           } @else {

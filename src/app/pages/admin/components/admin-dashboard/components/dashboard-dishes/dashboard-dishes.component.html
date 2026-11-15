@@ -19,14 +19,24 @@
             <thead>
                 <tr style="background-color: rgba(44, 44, 44, 0.04)">
                     @for (col of columns; track col.label) {
-                    <th class="font-medium uppercase tracking-wider py-3 px-4 whitespace-nowrap sticky top-0"
+                    <!-- Columnas ordenables: el texto es un botón (se usa con teclado) y aria-sort
+                         le dice al lector de pantalla cómo está ordenada la tabla -->
+                    <th scope="col" class="font-medium uppercase tracking-wider py-3 px-4 whitespace-nowrap sticky top-0"
                         [class.text-right]="col.right" [class.text-left]="!col.right"
-                        [class.cursor-pointer]="col.key !== null" style="font-size: var(--dfs-11); background-color: #efece4"
+                        style="font-size: var(--dfs-11); background-color: #efece4"
                         [style.color]="col.key === sortKey ? '#b2571f' : 'rgba(44, 44, 44, 0.45)'"
-                        (click)="sortBy(col.key)">
+                        [attr.aria-sort]="col.key === sortKey ? (sortDir === 1 ? 'ascending' : 'descending') : null">
+                        @if (col.key !== null) {
+                        <button type="button" class="uppercase tracking-wider font-medium cursor-pointer"
+                            [attr.aria-label]="'Ordenar por ' + col.label"
+                            (click)="sortBy(col.key)">
+                            {{ col.label }}
+                            @if (col.key === sortKey) {
+                            <span aria-hidden="true">{{ sortDir === 1 ? '↑' : '↓' }}</span>
+                            }
+                        </button>
+                        } @else {
                         {{ col.label }}
-                        @if (col.key === sortKey) {
-                        {{ sortDir === 1 ? '↑' : '↓' }}
                         }
                     </th>
                     }

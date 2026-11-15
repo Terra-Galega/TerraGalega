@@ -51,3 +51,15 @@
     border: 1px solid rgba(44, 44, 44, 0.1);
   }
 }
+// type="search" añade en Chrome/Safari una "x" y un relleno propios: se quitan para que el
+// campo se vea igual que antes (Escape sigue borrando el texto)
+.search__input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search__input::-webkit-search-decoration,
+.search__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  display: none;
+}
