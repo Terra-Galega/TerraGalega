@@ -1,0 +1,107 @@
+<div class="settings">
+<button
+type="button"
+class="settings__trigger"
+[class.settings__trigger--open]="open"
+[attr.aria-label]="open
+    ? language.t('closeSettings')
+    : language.t('settings')"
+[attr.aria-expanded]="open"
+(click)="toggle()"
+>
+<!-- TUERCA -->
+<svg
+    class="settings__gear"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+>
+    <path
+    d="M10.3 2.8h3.4l.5 2.1c.5.2 1 .4 1.5.7l1.9-1.1L20 6.9l-1.1 1.9c.3.5.5 1 .7 1.5l2.1.5v3.4l-2.1.5c-.2.5-.4 1-.7 1.5l1.1 1.9-2.4 2.4-1.9-1.1c-.5.3-1 .5-1.5.7l-.5 2.1h-3.4l-.5-2.1c-.5-.2-1-.4-1.5-.7l-1.9 1.1L4 17.1l1.1-1.9c-.3-.5-.5-1-.7-1.5l-2.1-.5v-3.4l2.1-.5c.2-.5.4-1 .7-1.5L4 6.9l2.4-2.4 1.9 1.1c.5-.3 1-.5 1.5-.7l.5-2.1Z"
+    />
+    <circle cx="12" cy="12" r="3" />
+</svg>
+
+<!-- X -->
+<svg
+    class="settings__close"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    aria-hidden="true"
+>
+    <path d="M5 5 19 19M19 5 5 19" />
+</svg>
+</button>
+
+<div
+class="settings__actions"
+[class.settings__actions--open]="open"
+[attr.aria-hidden]="!open"
+[attr.inert]="open ? null : ''"
+>
+<!-- TEMA: muestra la acción disponible -->
+<button
+    type="button"
+    class="settings__action"
+    [attr.aria-label]="theme.isDark
+    ? 'Cambiar a tema claro'
+    : 'Cambiar a tema oscuro'"
+    [attr.title]="theme.isDark
+    ? 'Tema claro'
+    : 'Tema oscuro'"
+    (click)="theme.toggle()"
+>
+    @if (theme.isDark) {
+    <!-- SOL: pulsar para volver al tema claro -->
+    <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+    >
+        <circle cx="12" cy="12" r="4" />
+        <path
+        d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"
+        />
+    </svg>
+    } @else {
+    <!-- LUNA: pulsar para activar el tema oscuro -->
+    <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+    >
+        <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z" />
+    </svg>
+    }
+</button>
+
+<!-- IDIOMA: muestra el idioma activo -->
+<button
+    type="button"
+    class="settings__action settings__action--language"
+    [attr.aria-label]="language.language() === 'es'
+    ? 'Cambiar idioma a inglés'
+    : 'Switch language to Spanish'"
+    [attr.title]="language.language() === 'es'
+    ? 'Español'
+    : 'English'"
+    (click)="language.toggle()"
+>
+    {{ language.language() === 'es' ? 'ES' : 'EN' }}
+</button>
+</div>
+</div>

@@ -4,6 +4,8 @@ import { Component, HostListener, OnDestroy, inject } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
+import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
+import { LanguageService } from '../../services/language.service';
 import { HeroLogoService } from '../../services/hero-logo.service';
 
 import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
@@ -17,7 +19,7 @@ import {
   selector: 'app-navbar',
   standalone: true,
   // Importa el carrito, que se muestra como panel desde la barra.
-  imports: [CartComponent, AsyncPipe, NgTemplateOutlet],
+  imports: [CartComponent, AsyncPipe,SettingsMenuComponent, NgTemplateOutlet],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
@@ -28,6 +30,7 @@ export class NavbarComponent implements OnDestroy {
 
   // Estado del logo del hero en el home (si ya llegó a la barra)
   readonly heroLogo = inject(HeroLogoService);
+  readonly language = inject(LanguageService);
 
   // Indica si el menú desplegable de móvil está abierto.
   mobileMenuOpen = false;

@@ -1,0 +1,151 @@
+:host {
+    display: inline-flex;
+    color: inherit;
+}
+
+.settings {
+    position: relative;
+}
+
+.settings__trigger,
+.settings__action {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.settings__trigger {
+    position: relative;
+    z-index: 2;
+    color: inherit;
+    background: transparent;
+    transition: background-color 250ms ease;
+}
+
+.settings__trigger:hover {
+    background: rgb(128 128 128 / 15%);
+}
+
+.settings__trigger:focus-visible,
+.settings__action:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.settings__gear,
+.settings__close {
+    position: absolute;
+    width: 23px;
+    height: 23px;
+    transition:
+        opacity 340ms ease,
+        transform 460ms cubic-bezier(.2, .75, .2, 1);
+}
+
+/* Al abrir, la tuerca gira hacia la izquierda y desaparece. */
+.settings__gear {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+.settings__trigger--open .settings__gear {
+    opacity: 0;
+    transform: rotate(-180deg) scale(.55);
+}
+
+/* La X entra girando también hacia la izquierda. */
+.settings__close {
+    opacity: 0;
+    transform: rotate(90deg) scale(.55);
+}
+
+.settings__trigger--open .settings__close {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+}
+
+.settings__actions {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    visibility: hidden;
+    transition: visibility 400ms;
+}
+
+.settings__actions--open {
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.settings__action {
+    color: #2c2c2c;
+    background: #f5f2eb;
+    border: 1px solid rgb(44 44 44 / 15%);
+    box-shadow: 0 7px 20px rgb(0 0 0 / 22%);
+    opacity: 0;
+    transform: translateY(-25px) scale(.55);
+    transition:
+        opacity 300ms ease,
+        transform 400ms cubic-bezier(.2, .8, .2, 1),
+        background-color 200ms ease;
+}
+
+.settings__action:hover {
+    background: #e9d8bd;
+}
+
+/* Primero baja el tema; después, el idioma. */
+.settings__actions--open .settings__action {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.settings__actions--open .settings__action:first-child {
+    transition-delay: 40ms;
+}
+
+.settings__actions--open .settings__action:last-child {
+    transition-delay: 120ms;
+}
+
+.settings__action svg {
+    width: 22px;
+    height: 22px;
+}
+
+.settings__action--language {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .04em;
+}
+
+:host-context(html[data-theme="dark"]) .settings__action {
+    color: #f5f2eb;
+    background: #262320;
+    border-color: rgb(255 255 255 / 18%);
+}
+
+:host-context(html[data-theme="dark"]) .settings__action:hover {
+    background: #423a34;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .settings__gear,
+    .settings__close,
+    .settings__action,
+    .settings__actions {
+        transition-duration: 0.01ms;
+        transition-delay: 0ms;
+    }
+}
