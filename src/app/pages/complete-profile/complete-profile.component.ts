@@ -6,6 +6,7 @@ import { FooterComponent } from '../../components/footer/footer.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { ButtonComponent } from '../../components/button/button.component';
 import { AuthService } from '../../services/auth.service';
+import { TutorialAuthService } from '../../services/tutorial-auth.service';
 import { ClientService } from '../../services/client.service';
 import { AddressService } from '../../services/address.service';
 import { getErrorMessage } from '../../utils/http-error';
@@ -28,6 +29,8 @@ export class CompleteProfileComponent implements OnInit {
   private addressService = inject(AddressService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private tutorialAuth = inject(TutorialAuthService);
+
 
   readonly nameMax = NAME_MAX;
   readonly phoneMax = PHONE_MAX;
@@ -50,6 +53,7 @@ export class CompleteProfileComponent implements OnInit {
     const session = this.auth.session;
     this.name = session?.name ?? '';
     this.lastName = session?.lastName ?? '';
+    this.tutorialAuth.resumeProfile();
 
     // Si falla alguna carga se piden todos los campos; el back decide qué hace falta
     this.clientService.getMe().subscribe({

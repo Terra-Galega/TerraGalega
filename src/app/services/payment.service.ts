@@ -6,6 +6,7 @@ import {
   Payment,
   PendingPayment,
   StartPaymentRequest,
+  InvoiceLink,
 } from '../models/payment';
 
 const PENDING_KEY = 'terra.pendingPayment';
@@ -68,5 +69,10 @@ export class PaymentService {
     } catch {
       // nada que limpiar
     }
+  }
+
+  // Enlace y QR de la factura de un pedido pagado
+  invoiceLink(orderId: number): Observable<InvoiceLink> {
+    return this.http.get<InvoiceLink>(`${API_URL}/invoices/${orderId}/link`);
   }
 }

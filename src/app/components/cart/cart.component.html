@@ -1,6 +1,6 @@
 <!-- El carrito solo existe en el DOM mientras está abierto -->
 @if (isOpen) {
-  <!-- Fondo: no se oscurece, se difumina ligeramente (efecto vidrio). Al hacer clic fuera
+    <!-- Fondo: no se oscurece, se difumina ligeramente (efecto vidrio). Al hacer clic fuera
        del panel se cierra el carrito. -->
   <div
     class="cart-backdrop fixed inset-0 z-50 flex items-end md:items-center justify-center"
@@ -9,8 +9,8 @@
     <!-- Panel: stopPropagation evita que un clic dentro cierre el carrito.
         En móvil sube desde abajo; en pantallas medianas va centrado -->
     <div
-      class="cart-panel bg-cream w-full md:max-w-lg shadow-2xl flex flex-col rounded-t-3xl md:rounded-3xl"
-      style="max-height: 95vh"
+      id="cart-panel"
+      class="bg-cream w-full md:max-w-lg shadow-2xl flex flex-col rounded-t-3xl md:rounded-3xl max-h-[95vh] overflow-hidden"
       (click)="$event.stopPropagation()"
     >
       <!-- Encabezado -->

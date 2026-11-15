@@ -20,6 +20,7 @@ import { CheckoutDraftService } from '../../../services/checkout-draft.service';
 import { CouponService } from '../../../services/coupon.service';
 import { OrderService } from '../../../services/order.service';
 import { PaymentService } from '../../../services/payment.service';
+import { TutorialCheckoutService } from '../../../services/tutorial-checkout.service';
 import { CheckoutRequest, DELIVERY_FEE } from '../../../models/checkout';
 import { CouponDiscount } from '../../../models/coupon';
 import { Payment } from '../../../models/payment';
@@ -51,6 +52,8 @@ export class CheckoutConfirmComponent implements OnInit {
   private addressService = inject(AddressService);
   private couponService = inject(CouponService);
   private paymentService = inject(PaymentService);
+  // Último tramo del tutorial "hacer un pedido"
+  private tutorialCheckout = inject(TutorialCheckoutService);
 
   // Id del cliente logueado; null hasta comprobar la sesión
   clientId: number | null = null;
@@ -96,6 +99,9 @@ export class CheckoutConfirmComponent implements OnInit {
     }
 
     this.ready = true;
+
+    // Último tramo del tutorial "hacer un pedido" (si viene de él)
+    this.tutorialCheckout.resumeConfirm();
 
     // Antes de confirmar se quitan los productos que ya no están disponibles.
     // Si hay cupón, se revalida: el subtotal pudo cambiar o el cupón dejó de servir

@@ -1,9 +1,7 @@
 <app-navbar></app-navbar>
 
 <main class="min-h-screen flex items-center justify-center px-6 py-32">
-  <!-- 400px: el ancho máximo del botón oficial de Google. Así las pestañas, el botón de Google
-       y la caja del formulario miden exactamente lo mismo. -->
-  <div class="w-full max-w-[400px] mx-auto">
+  <div id="auth-card" class="w-full max-w-md mx-auto">
     <!--Barra para login o register-->
     <app-login-header
       [activeTab]="activeTab"

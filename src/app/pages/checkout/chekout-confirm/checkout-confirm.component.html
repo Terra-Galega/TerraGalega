@@ -16,7 +16,7 @@
     <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-start">
       <!-- Izquierda: lo que eligió el cliente, cada bloque con su "Editar" -->
       <div class="md:col-span-3 flex flex-col gap-4">
-        <section class="glass-card rounded-3xl p-6">
+        <section id="confirm-delivery" class="glass-card rounded-3xl p-6">
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Entrega</p>
@@ -43,7 +43,7 @@
 
         <!-- Cupón aplicado en el paso 1 (solo si hay uno) -->
         @if (coupon) {
-        <section class="glass-card rounded-3xl p-6">
+        <section id="confirm-coupon" class="glass-card rounded-3xl p-6">
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Cupón</p>
@@ -66,7 +66,7 @@
         </section>
         }
 
-        <section class="glass-card rounded-3xl p-6">
+        <section id="confirm-payment" class="glass-card rounded-3xl p-6">
           <div class="flex items-start justify-between gap-4">
             <div class="min-w-0">
               <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Método de pago</p>
@@ -96,8 +96,8 @@
       <!-- Derecha: productos, total y confirmar -->
       <aside class="md:col-span-2 md:sticky md:top-28">
         <!-- Resumen con el costo del domicilio y el descuento incluidos -->
-        <app-order-summary [items]="items" [total]="total" [deliveryFee]="deliveryFee" [unitPrice]="unitPrice"
-          [discount]="discount" [couponCode]="coupon?.code ?? ''">
+        <app-order-summary id="confirm-summary" class="block" [items]="items" [total]="total"
+          [deliveryFee]="deliveryFee" [unitPrice]="unitPrice" [discount]="discount" [couponCode]="coupon?.code ?? ''">
           <div class="mt-6 flex flex-col items-center gap-4">
             <!-- El texto cambia según el estado -->
             <app-button id="btn-confirm-order" size="lg" [fullWidth]="true" [disabled]="paying" (click)="confirm()">

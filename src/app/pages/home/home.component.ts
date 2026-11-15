@@ -10,6 +10,7 @@ import { PopularProductsSectionComponent } from './components/popular-products-s
 import { StorySectionComponent } from './components/story-section/story-section.component';
 import { TestimonialsSectionComponent } from './components/testimonials-section/testimonials-section.component';
 import { AnnouncementsSectionComponent } from './components/announcements-section/announcements-section.component';
+import { TutorialFabComponent } from '../../components/tutorial-fab/tutorial-fab.component';
 
 // Página de inicio: ensambla el navbar, las secciones del home y el footer.
 @Component({
@@ -22,6 +23,7 @@ import { AnnouncementsSectionComponent } from './components/announcements-sectio
     StorySectionComponent,
     TestimonialsSectionComponent,
     AnnouncementsSectionComponent,
+    TutorialFabComponent,
   ],
   templateUrl: './home.component.html',
 })

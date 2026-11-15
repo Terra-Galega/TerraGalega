@@ -23,6 +23,7 @@ import { Address } from '../../models/address';
 import { CouponDiscount } from '../../models/coupon';
 import { AddressService } from '../../services/address.service';
 import { CheckoutDraftService } from '../../services/checkout-draft.service';
+import { TutorialCheckoutService } from '../../services/tutorial-checkout.service';
 
 
 // Paso 1 del checkout: dirección de entrega, cupón y método de pago
@@ -52,6 +53,8 @@ export class CheckoutComponent implements OnInit {
   private draftService = inject(CheckoutDraftService);
   private destroyRef = inject(DestroyRef);
   private addressService = inject(AddressService);
+  // Tramo del checkout del tutorial "hacer un pedido"
+  private tutorialCheckout = inject(TutorialCheckoutService);
 
   // Id del cliente con sesión (null hasta comprobarla); lo necesita el cupón
   clientId: number | null = null;
@@ -107,6 +110,9 @@ export class CheckoutComponent implements OnInit {
     }
 
     this.clientId = session.id;
+
+    // Si viene del tutorial "hacer un pedido", sigue con el tramo del checkout
+    this.tutorialCheckout.resumeCheckout();
 
     // Si el cliente vuelve desde el paso 2 (botón Editar) se recupera lo que
     // había escrito. El cupón no va en el formulario: se reaplica aparte.

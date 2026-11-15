@@ -26,12 +26,21 @@ import {
   totalsFor,
 } from '../../../../../../utils/dashboard-metrics';
 import { ExportFormat } from '../../../../../../utils/dashboard-export';
+import {
+  EMAIL_ERROR_MESSAGE,
+  isValidEmail,
+} from '../../../../../../utils/email';
 
 // Lo que el modal le entrega al dashboard al confirmar
 export interface ExportRequest {
   format: ExportFormat;
   pair: RangePair;
   includeCharts: boolean;
+}
+
+// Igual que ExportRequest, pero en vez de descargar se envía a este correo
+export interface EmailReportRequest extends ExportRequest {
+  to: string;
 }
 
 type PeriodMode = 'day' | 'week' | 'range';
@@ -79,6 +88,11 @@ export class DashboardExportModalComponent implements OnInit {
 
   @Output() closed = new EventEmitter<void>();
   @Output() confirmed = new EventEmitter<ExportRequest>();
+
+  @Output() emailed = new EventEmitter<EmailReportRequest>();
+
+  emailTo = '';
+  emailError = '';
 
   readonly modeOptions: SegmentOption[] = [
     { value: 'day', label: 'Por día' },
@@ -271,6 +285,29 @@ export class DashboardExportModalComponent implements OnInit {
       format: this.format,
       pair: this.pair,
       includeCharts: this.includeCharts && this.canCharts,
+    });
+  }
+
+  onEmail(event: Event) {
+    this.emailTo = (event.target as HTMLInputElement).value;
+    this.emailError = '';
+  }
+
+  sendByEmail() {
+    if (!this.pair || this.error || this.exporting) return;
+    if (!isValidEmail(this.emailTo)) {
+      this.emailError = EMAIL_ERROR_MESSAGE;
+      return;
+    }
+    this.emitEmail();
+  }
+
+  private emitEmail() {
+    this.emailed.emit({
+      format: this.format,
+      pair: this.pair!,
+      includeCharts: this.includeCharts && this.canCharts,
+      to: this.emailTo.trim(),
     });
   }
 

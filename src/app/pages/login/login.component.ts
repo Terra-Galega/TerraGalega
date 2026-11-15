@@ -9,6 +9,7 @@ import { LoginHeaderComponent } from './components/login-header/login-header.com
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
 import { GoogleButtonComponent } from '../../components/google-button/google-button.component';
 import { ToastService } from '../../services/toast.service';
+import { TutorialAuthService } from '../../services/tutorial-auth.service';
 import { AuthService, LoginResponse } from '../../services/auth.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { EMAIL_ERROR_MESSAGE, isValidEmail } from '../../utils/email';
@@ -67,12 +68,15 @@ export class LoginComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+  private tutorialAuth = inject(TutorialAuthService);
   constructor() {
     // /login?tab=signup abre directo la pestaña de crear cuenta
     if (this.route.snapshot.queryParamMap.get('tab') === 'signup') {
       this.activeTab = 'signup';
     }
+    this.tutorialAuth.resumeLogin();
   }
+  
 
   // Si llegaron desde /checkout sin sesión, después de entrar vuelven allí
   private goAfterClientAuth(): void {
