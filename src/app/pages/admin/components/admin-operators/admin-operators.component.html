@@ -49,8 +49,8 @@
     <div class="flex items-center gap-2 ml-auto">
 
       <!-- Abre el modal para cambiar la contraseña de este operador. -->
-      <app-icon-button variant="ghost" label="Cambiar contraseña" (click)="passwordOperator = operator">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+      <app-icon-button variant="ghost" [label]="'Cambiar contraseña de ' + operator.name + ' ' + operator.lastName" (click)="passwordOperator = operator">
+        <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
           stroke-linecap="round" stroke-linejoin="round">
           <path
             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -58,8 +58,8 @@
       </app-icon-button>
 
       <!-- Solicita editar este operador; el padre abre el modal de edición. -->
-      <app-icon-button variant="ghost" label="Editar" (click)="openEdit(operator)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      <app-icon-button variant="ghost" [label]="'Editar ' + operator.name + ' ' + operator.lastName" (click)="openEdit(operator)">
+        <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
           <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -67,8 +67,8 @@
       </app-icon-button>
 
       <!-- Solicita eliminar este operador; antes se pide confirmación. -->
-      <app-icon-button variant="ghost" label="Eliminar" (click)="removeOperator(operator.id)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      <app-icon-button variant="ghost" [label]="'Eliminar ' + operator.name + ' ' + operator.lastName" (click)="removeOperator(operator.id)">
+        <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 6h18" />
           <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />

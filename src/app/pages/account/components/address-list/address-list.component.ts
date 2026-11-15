@@ -7,6 +7,7 @@ import { ModalComponent } from '../../../../components/modal/modal.component';
 import { getErrorMessage } from '../../../../utils/http-error';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
 import { AddressIconComponent } from '../../../../components/address-icon/address-icon.component';
+import { AddressMapPickerComponent } from '../../../../components/address-map-picker/address-map-picker.component';
 
 // Tarjeta "Mis direcciones": lista, agrega, edita, elimina y marca la predeterminada.
 @Component({
@@ -16,6 +17,7 @@ import { AddressIconComponent } from '../../../../components/address-icon/addres
     ModalComponent,
     FormFieldComponent,
     AddressIconComponent,
+    AddressMapPickerComponent,
   ],
   templateUrl: './address-list.component.html',
   host: { class: 'block' },

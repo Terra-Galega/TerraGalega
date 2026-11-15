@@ -64,10 +64,10 @@
     <!-- Editar (ícono de lápiz) -->
     <app-icon-button
       variant="ghost"
-      label="Editar"
+      [label]="'Editar ' + product.name"
       (click)="edit.emit(product)"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="15"
         height="15"
         viewBox="0 0 24 24"
@@ -85,10 +85,10 @@
     <!-- Eliminar (ícono de caneca de basura) -->
     <app-icon-button
       variant="ghost"
-      label="Eliminar"
+      [label]="'Eliminar ' + product.name"
       (click)="remove.emit(product)"
     >
-      <svg
+      <svg aria-hidden="true" focusable="false"
         width="15"
         height="15"
         viewBox="0 0 24 24"

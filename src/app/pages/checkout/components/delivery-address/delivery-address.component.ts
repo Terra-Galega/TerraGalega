@@ -43,16 +43,7 @@ export class DeliveryAddressComponent implements OnChanges {
   // true = el cliente está escribiendo una dirección que no está en su lista
   newMode = false;
 
-  entryMode: 'text' | 'map' = 'text';
-
-  setEntryMode(mode: 'text' | 'map'): void {
-    this.entryMode = mode;
-
-    if (mode === 'text') {
-      setTimeout(() => this.newAddressInput?.nativeElement.focus());
-    }
-  }
-
+  // El cliente movió el mapa o hizo clic: el texto pasa a ser la dirección de ese punto
   onMapPicked(address: string): void {
     const control = this.form.get('address');
 
@@ -106,7 +97,6 @@ export class DeliveryAddressComponent implements OnChanges {
   // Pasa a escribir otra dirección (por defecto se ofrece guardarla)
   chooseNew(): void {
     this.newMode = true;
-    this.entryMode = 'text';
 
     this.form.get('address')?.setValue('');
     this.form.get('addressName')?.setValue('');

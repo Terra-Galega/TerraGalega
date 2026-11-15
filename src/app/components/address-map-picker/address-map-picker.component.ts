@@ -6,7 +6,9 @@ import {
   EventEmitter,
   Input,
   NgZone,
+  OnChanges,
   Output,
+  SimpleChanges,
   inject,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -16,6 +18,7 @@ import type { Map as MapLibreMap } from 'maplibre-gl';
 
 import { MapAddressService } from '../../services/map-address.service';
 import { getErrorMessage } from '../../utils/http-error';
+import { MAP_LOCALE_ES } from '../../utils/map-locale';
 
 type Lookup =
   | { kind: 'search'; address: string }
@@ -27,9 +30,38 @@ type Lookup =
   templateUrl: './address-map-picker.component.html',
   styleUrl: './address-map-picker.component.scss',
 })
-export class AddressMapPickerComponent implements AfterViewInit {
+// Mapa que acompaña al campo de dirección y se mantiene sincronizado con él:
+// - cuando cambia el texto (lo escribe el cliente), centra el mapa en esa dirección;
+// - cuando el cliente mueve el mapa o hace clic, emite la dirección de ese punto.
+// El texto que llega desde el propio mapa no vuelve a mover el mapa (sin bucles).
+export class AddressMapPickerComponent implements AfterViewInit, OnChanges {
   @Input() address = '';
   @Output() picked = new EventEmitter<string>();
+
+  // Última dirección que salió del mapa: si vuelve por @Input no se busca
+  private lastPicked: string | null = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['address'] || changes['address'].firstChange) return;
+
+    const text = this.address.trim();
+    if (text === (this.lastPicked ?? '').trim()) return;
+    this.lastPicked = null;
+
+    // Muy corto para ser una dirección: no consulta todavía
+    if (text.length < 6 || !/\d/.test(text)) {
+      this.sequence++;
+      this.tasks.next(null);
+      this.error = '';
+      return;
+    }
+
+    // switchMap + timer(700) del constructor: espera a que deje de escribir
+    this.sequence++;
+    if (!this.loadingMap) {
+      this.tasks.next({ kind: 'search', address: text });
+    }
+  }
 
   private service = inject(MapAddressService);
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -75,14 +107,16 @@ export class AddressMapPickerComponent implements AfterViewInit {
 
               if (!result) {
                 this.error =
-                  'No se pudo ubicar esa dirección. Mueve el mapa para elegir el punto.';
+                  'No ubicamos esa dirección en el mapa. Mueve el mapa hasta el punto exacto.';
               } else if (task.kind === 'search') {
-                // Centrar no modifica una dirección ya escrita.
-                this.map?.jumpTo({
+                // Centrar no modifica lo que escribió el cliente (apto, torre...)
+                this.map?.flyTo({
                   center: [result.lon, result.lat],
-                  zoom: 16,
+                  zoom: 17,
+                  duration: 800,
                 });
               } else {
+                this.lastPicked = result.label;
                 this.picked.emit(result.label);
               }
 
@@ -117,14 +151,12 @@ export class AddressMapPickerComponent implements AfterViewInit {
     void this.createMap();
   }
 
+  // El cliente empezó a mover el mapa: se cancela cualquier búsqueda del texto.
+  // El texto se conserva hasta tener la dirección del punto nuevo.
   private beginSelection(): void {
     this.userMoving = true;
     this.sequence++;
     this.tasks.next(null);
-
-    // Evita continuar con la dirección anterior mientras
-    // se está consultando el punto nuevo.
-    this.picked.emit('');
   }
 
   private async createMap(): Promise<void> {
@@ -142,6 +174,8 @@ export class AddressMapPickerComponent implements AfterViewInit {
 
       const map = new Map({
         container,
+        // Controles en español (para el lector de pantalla)
+        locale: MAP_LOCALE_ES,
         style: 'https://tiles.openfreemap.org/styles/liberty',
         center: [-74.0503, 4.6767],
         zoom: 14,
@@ -165,9 +199,8 @@ export class AddressMapPickerComponent implements AfterViewInit {
           this.loadingMap = false;
           this.mapError = '';
 
-          // Solo busca el texto al abrir el selector.
-          // No consulta por cada letra que escribe el usuario.
-          if (this.address.trim() && !this.userMoving && this.sequence === 0) {
+          // Si ya había texto al abrir el mapa, lo ubica
+          if (this.address.trim() && !this.userMoving) {
             this.tasks.next({
               kind: 'search',
               address: this.address.trim(),

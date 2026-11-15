@@ -25,6 +25,7 @@ import {
 } from '../../../../models/delivery-tracking';
 import { DeliveryTrackingService } from '../../../../services/delivery-tracking.service';
 import { getErrorMessage } from '../../../../utils/http-error';
+import { MAP_LOCALE_ES } from '../../../../utils/map-locale';
 
 @Component({
   selector: 'app-operator-tracking',
@@ -296,6 +297,8 @@ export class OperatorTrackingComponent implements AfterViewInit {
 
       const map = new Map({
         container,
+        // Controles en español (para el lector de pantalla)
+        locale: MAP_LOCALE_ES,
         style: 'https://tiles.openfreemap.org/styles/liberty',
         center: first ? [first.lon, first.lat] : [-74.08, 4.65],
         zoom: 12,

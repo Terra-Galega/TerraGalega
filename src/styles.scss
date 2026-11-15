@@ -541,14 +541,37 @@ h3 {
   outline: none;
 }
 
-// Tarjetas de plato (role="link"): aro visible al llegar con el teclado
-[role="link"][tabindex]:focus-visible {
+// Tarjetas de plato: el enlace del nombre (.card-link) se estira con ::after hasta cubrir toda
+// la tarjeta (.product-card, que es position: relative). Así toda la tarjeta es clicable, pero
+// para el teclado y el lector de pantalla es un único enlace con el nombre del plato.
+:is(.product-card, .stretch-card) .card-link {
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+
+:is(.product-card, .stretch-card) .card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+// Aro visible alrededor de toda la tarjeta al llegar con Tab
+:is(.product-card, .stretch-card):has(.card-link:focus-visible) {
   outline: 3px solid #b2571f;
   outline-offset: 4px;
 }
 
-html[data-theme="dark"] [role="link"][tabindex]:focus-visible {
+html[data-theme="dark"] :is(.product-card, .stretch-card):has(.card-link:focus-visible) {
   outline-color: #e58e57;
+}
+
+// Botones dentro de la tarjeta (el "+") quedan por encima del enlace estirado
+:is(.product-card, .stretch-card) .card-action {
+  position: relative;
+  z-index: 2;
 }
 
 @media (prefers-reduced-motion: reduce) {

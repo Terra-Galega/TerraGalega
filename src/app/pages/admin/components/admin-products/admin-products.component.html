@@ -9,6 +9,7 @@
     (selectedChange)="selectCategory($event)"
   />
   <app-segmented-control
+    label="Filtrar por estado"
     [options]="statusOptions"
     [value]="statusFilter"
     (valueChange)="selectStatus($event)"
@@ -33,7 +34,7 @@
       <thead>
         <tr style="background-color: rgba(44, 44, 44, 0.04)">
           @for (column of columns; track column) {
-            <th
+            <th scope="col"
               class="text-left font-medium uppercase tracking-wider py-3 px-5"
               style="font-size: 11px; color: rgba(44, 44, 44, 0.45)"
             >

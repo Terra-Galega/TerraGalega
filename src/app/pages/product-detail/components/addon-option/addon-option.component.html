@@ -9,7 +9,8 @@
       addOn.name
     }}</span>
     <span class="text-sm" style="color: rgba(44, 44, 44, 0.45)"
-      >+${{ addOn.price | number: "1.0-0" }}</span
+      ><span class="sr-only">Cuesta {{ addOn.price | number: "1.0-0" }} pesos más</span
+      ><span aria-hidden="true">+${{ addOn.price | number: "1.0-0" }}</span></span
     >
   </div>
 
@@ -17,27 +18,29 @@
   <div
     class="flex items-center rounded-full p-0.5"
     style="background: rgba(44, 44, 44, 0.06)"
+    role="group"
+    [attr.aria-label]="'Cantidad de ' + addOn.name"
   >
     <!-- Quitar uno (deshabilitado cuando no hay ninguna unidad) -->
     <button
       type="button"
       class="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-30"
       style="color: rgba(44, 44, 44, 0.6)"
-      aria-label="Quitar uno"
+      [attr.aria-label]="'Quitar ' + addOn.name"
       [disabled]="quantity === 0"
       (click)="changed.emit(-1)"
     >
       −
     </button>
-    <span class="w-8 text-center text-sm font-semibold text-charcoal">{{
-      quantity
-    }}</span>
+    <!-- aria-live: al cambiar, el lector anuncia la nueva cantidad -->
+    <span class="w-8 text-center text-sm font-semibold text-charcoal" aria-live="polite"
+      ><span class="sr-only">{{ addOn.name }}: </span>{{ quantity }}</span>
     <!-- Agregar uno (se puede repetir el mismo adicional varias veces) -->
     <button
       type="button"
       class="w-8 h-8 rounded-full flex items-center justify-center"
       style="color: rgba(44, 44, 44, 0.6)"
-      aria-label="Agregar uno"
+      [attr.aria-label]="'Añadir ' + addOn.name"
       (click)="changed.emit(1)"
     >
       +

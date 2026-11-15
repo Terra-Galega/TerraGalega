@@ -13,7 +13,7 @@
       <thead>
         <tr style="background-color: rgba(44, 44, 44, 0.04)">
           @for (column of columns; track column) {
-          <th class="text-left font-medium uppercase tracking-wider py-3 px-5"
+          <th scope="col" class="text-left font-medium uppercase tracking-wider py-3 px-5"
             style="font-size: 11px; color: rgba(44, 44, 44, 0.45)">
             {{ column }}
           </th>
@@ -43,16 +43,16 @@
           <!-- Acciones: editar y eliminar -->
           <td class="py-3 px-5">
             <div class="flex items-center gap-2">
-              <app-icon-button variant="ghost" label="Editar" (click)="openEdit(announcement)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              <app-icon-button variant="ghost" [label]="'Editar ' + announcement.title" (click)="openEdit(announcement)">
+                <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
                   <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                   <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
               </app-icon-button>
 
-              <app-icon-button variant="ghost" label="Eliminar" (click)="removeAnnouncement(announcement)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              <app-icon-button variant="ghost" [label]="'Eliminar ' + announcement.title" (click)="removeAnnouncement(announcement)">
+                <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 6h18" />
                   <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />

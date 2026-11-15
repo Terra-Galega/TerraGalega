@@ -16,7 +16,7 @@
       <thead>
         <tr style="background-color: rgba(44, 44, 44, 0.04)">
           @for (column of columns; track column) {
-          <th
+          <th scope="col"
             class="text-left font-medium uppercase tracking-wider py-3 px-5"
             style="font-size: 11px; color: rgba(44, 44, 44, 0.45)"
           >
@@ -95,7 +95,7 @@
               >
                 @if (review.visible) {
                 <!-- Ojo tachado: ocultar -->
-                <svg
+                <svg aria-hidden="true" focusable="false"
                   width="15"
                   height="15"
                   viewBox="0 0 24 24"
@@ -112,7 +112,7 @@
                 </svg>
                 } @else {
                 <!-- Ojo: mostrar -->
-                <svg
+                <svg aria-hidden="true" focusable="false"
                   width="15"
                   height="15"
                   viewBox="0 0 24 24"
@@ -130,10 +130,10 @@
 
               <app-icon-button
                 variant="ghost"
-                label="Eliminar"
+                [label]="'Eliminar la reseña de ' + review.authorName"
                 (click)="removeReview(review)"
               >
-                <svg
+                <svg aria-hidden="true" focusable="false"
                   width="15"
                   height="15"
                   viewBox="0 0 24 24"
