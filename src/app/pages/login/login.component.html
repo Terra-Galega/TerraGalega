@@ -1,7 +1,10 @@
 <app-navbar></app-navbar>
 
 <main class="min-h-screen flex items-center justify-center px-6 py-32">
-  <div id="auth-card" class="w-full max-w-md mx-auto">
+  <!-- Columna flexible: ocupa el ancho disponible hasta 400 px, que es el máximo del botón oficial
+       de Google. Así las pestañas, el botón de Google y el formulario miden siempre lo mismo,
+       también en móvil (el botón se vuelve a dibujar cuando cambia el ancho). -->
+  <div id="auth-card" class="w-full max-w-[400px] mx-auto">
     <!--Barra para login o register-->
     <app-login-header
       [activeTab]="activeTab"
