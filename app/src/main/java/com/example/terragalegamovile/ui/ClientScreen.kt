@@ -36,7 +36,6 @@ import com.example.terragalegamovile.data.toUserMessage
 import com.example.terragalegamovile.ui.components.GlassCard
 import com.example.terragalegamovile.ui.components.PinDigits
 import com.example.terragalegamovile.ui.components.StatusPill
-import com.example.terragalegamovile.ui.components.TerraTopBar
 import com.example.terragalegamovile.ui.theme.Burgundy
 import com.example.terragalegamovile.ui.theme.Forest
 import com.example.terragalegamovile.ui.theme.Terra

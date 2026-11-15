@@ -107,6 +107,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Icon
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
@@ -115,8 +116,10 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.LineHeightStyle
-import coil.ImageLoader
-import coil.decode.SvgDecoder
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import com.example.terragalegamovile.R
 import com.example.terragalegamovile.data.NotificationStore
 
@@ -407,7 +410,10 @@ fun BellButton(count: Int, onClick: () -> Unit) {
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
-            Text("🔔", fontSize = 18.sp)
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = "Notificaciones"
+            )
         }
         if (count > 0) {
             Box(
@@ -606,202 +612,6 @@ fun TerraScaffold(
     }
 }
 
-// Barra superior: réplica de .nav-bar--stayed (vidrio esmerilado con blur real)
-@Composable
-fun TerraTopBar(
-    role: String,
-    name: String,
-    onLogout: () -> Unit,
-    hazeState: HazeState,
-    modifier: Modifier = Modifier,
-    cartCount: Int? = null,
-    onCart: (() -> Unit)? = null
-) {
-    val pill = RoundedCornerShape(50)
-    var menuOpen by remember { mutableStateOf(false) }
-    val gapPx = with(LocalDensity.current) { 12.dp.roundToPx() }
-    // El menú sale pegado a la derecha, debajo del nombre
-    val below = remember(gapPx) {
-        object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize
-            ) = IntOffset(
-                x = anchorBounds.right - popupContentSize.width,
-                y = anchorBounds.bottom + gapPx
-            )
-        }
-    }
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            // box-shadow: 0 10px 30px rgba(0,0,0,.08)
-            .shadow(
-                elevation = 10.dp,
-                ambientColor = Color.Black.copy(alpha = 0.08f),
-                spotColor = Color.Black.copy(alpha = 0.08f)
-            )
-            // backdrop-filter: blur(35px) + background rgba(206,206,206,.505)
-            // backdrop-filter más fuerte + tinte verde Forest (#556141) traslúcido
-            .hazeEffect(state = hazeState) {
-                blurRadius = 40.dp
-                noiseFactor = 0.02f
-                backgroundColor = Cream
-                tints = listOf(HazeTint(Forest.copy(alpha = 0.30f)))
-            }
-            // brillo de cristal más sutil, para que el verde y el blur se noten
-            .background(
-                Brush.verticalGradient(
-                    listOf(Color.White.copy(alpha = 0.22f), Color.White.copy(alpha = 0.0f))
-                )
-            )
-            // canto del cristal: borde superior blanco, inferior oscuro sutil
-            .drawBehind {
-                val line = 1.dp.toPx()
-                drawLine(
-                    Color.White.copy(alpha = 0.9f),
-                    Offset(0f, line / 2), Offset(size.width, line / 2), line
-                )
-                drawLine(
-                    Color(0xFF4B4B4B).copy(alpha = 0.12f),
-                    Offset(0f, size.height - line / 2), Offset(size.width, size.height - line / 2), line
-                )
-            }
-            .statusBarsPadding() // el vidrio llega hasta arriba, el contenido queda bajo la hora/batería
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TerraLogo(
-            scale = 0.8f,
-            terraColor = Terra,
-            galegaColor = Color(0xFF1A1A1A)
-        )
-        Spacer(Modifier.width(12.dp))
-        Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Nombre: solo texto, pegado a la derecha. Al tocarlo se despliega el menú
-            Box(modifier = Modifier.weight(1f, fill = false)) {
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) { menuOpen = !menuOpen }
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f, fill = false),
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Text(
-                            role.uppercase(),
-                            fontFamily = SourceSans,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Medium,
-                            letterSpacing = 1.8.sp,
-                            color = Terra,
-                            textAlign = TextAlign.End
-                        )
-                        Text(
-                            name,
-                            fontFamily = SourceSans,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Charcoal,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            textAlign = TextAlign.End
-                        )
-                    }
-                    Spacer(Modifier.width(6.dp))
-                    Text(if (menuOpen) "▴" else "▾", color = Terra, fontSize = 12.sp)
-                }
-
-                if (menuOpen) {
-                    Popup(
-                        popupPositionProvider = below,
-                        onDismissRequest = { menuOpen = false }
-                    ) {
-                        Box(modifier = Modifier.padding(12.dp)) {
-                            val card = RoundedCornerShape(22.dp)
-                            Column(
-                                modifier = Modifier
-                                    .shadow(
-                                        14.dp, card,
-                                        ambientColor = Color.Black.copy(alpha = 0.15f),
-                                        spotColor = Color.Black.copy(alpha = 0.15f)
-                                    )
-                                    .clip(card)
-                                    .background(Color.White)
-                                    .padding(vertical = 6.dp)
-                            ) {
-                                if (onCart != null) {
-                                    val openCart = { menuOpen = false; onCart() }
-                                    Row(
-                                        modifier = Modifier
-                                            .clickable(onClick = openCart)
-                                            .padding(horizontal = 14.dp, vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        CartButton(count = cartCount ?: 0, onClick = openCart)
-                                        Spacer(Modifier.width(12.dp))
-                                        Text(
-                                            "Carrito",
-                                            fontFamily = SourceSans,
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = Charcoal,
-                                            modifier = Modifier.padding(end = 8.dp)
-                                        )
-                                    }
-                                }
-                                val doLogout = { menuOpen = false; onLogout() }
-                                Row(
-                                    modifier = Modifier
-                                        .clickable(onClick = doLogout)
-                                        .padding(horizontal = 14.dp, vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                            .background(Color.White)
-                                            .border(1.dp, Burgundy, CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        LogoutIcon(
-                                            bracket = Burgundy,
-                                            arrow = Terra,
-                                            modifier = Modifier.size(22.dp)
-                                        )
-                                    }
-                                    Spacer(Modifier.width(12.dp))
-                                    Text(
-                                        "Salir",
-                                        fontFamily = SourceSans,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = Burgundy,
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 // Ícono de salir: puerta + flecha, dibujado en dos tonos
 @Composable
@@ -892,75 +702,7 @@ fun CartIcon(color: Color, modifier: Modifier = Modifier) {
     }
 }
 
-// Barra inferior de pestañas con el mismo vidrio de la barra superior
-@Composable
-fun TerraBottomBar(
-    hazeState: HazeState,
-    labels: List<String>,
-    selected: Int,
-    onSelect: (Int) -> Unit
-) {
-    val navInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 10.dp,
-                ambientColor = Color.Black.copy(alpha = 0.08f),
-                spotColor = Color.Black.copy(alpha = 0.08f)
-            )
-            .hazeEffect(state = hazeState) {
-                blurRadius = 40.dp
-                noiseFactor = 0.02f
-                backgroundColor = Cream
-                tints = listOf(HazeTint(Forest.copy(alpha = 0.30f)))
-            }
-            .background(
-                Brush.verticalGradient(
-                    listOf(Color.White.copy(alpha = 0.0f), Color.White.copy(alpha = 0.22f))
-                )
-            )
-            .drawBehind {
-                val line = 1.dp.toPx()
-                drawLine(
-                    Color.White.copy(alpha = 0.9f),
-                    Offset(0f, line / 2), Offset(size.width, line / 2), line
-                )
-            }.padding(bottom = navInset),   // <-- NUEVO: el vidrio se extiende hasta abajo
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        labels.forEachIndexed { index, label ->
-            val active = index == selected
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) { onSelect(index) }
-                    .padding(vertical = 14.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    label.uppercase(),
-                    fontFamily = SourceSans,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 1.8.sp,
-                    color = if (active) Terra else Charcoal.copy(alpha = 0.7f)
-                )
-                Spacer(Modifier.height(5.dp))
-                Box(
-                    modifier = Modifier
-                        .width(if (active) 22.dp else 0.dp)
-                        .height(2.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(Terra)
-                )
-            }
-        }
-    }
-}
+
 
 // Barra inferior flotante tipo píldora, de vidrio, solo con íconos.
 // selected: 0 = Carta, 1 = Órdenes, -1 = ninguno
