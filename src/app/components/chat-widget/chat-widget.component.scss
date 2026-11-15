@@ -135,14 +135,13 @@
 }
 
 .chat-avatar {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
   border-radius: 9999px;
-  display: grid;
-  place-items: center;
-  font-size: 0.8rem;
-  font-weight: 700;
-  background-color: rgba(255, 255, 255, 0.2);
+  object-fit: cover;
+  background-color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.6);
 }
 
 .chat-title {
