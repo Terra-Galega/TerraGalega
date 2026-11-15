@@ -11,7 +11,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, catchError, exhaustMap, filter, timer } from 'rxjs';
 
 import type { FeatureCollection } from 'geojson';
-import type { GeoJSONSource, Map as MapLibreMap } from 'maplibre-gl';
+import type { GeoJSONSource, Map as MapLibreMap, Marker } from 'maplibre-gl';
+import {
+  COURIER_SVG,
+  RESTAURANT_SVG,
+  markerElement,
+  setFacingLeft,
+} from '../../../../utils/map-markers';
 
 import {
   MapPoint,
@@ -47,6 +53,13 @@ export class OperatorTrackingComponent implements AfterViewInit {
   private destroyed = false;
   private frame = 0;
   private fittedOrderId: number | null = null;
+
+  // Dibujos del restaurante y del repartidor (marcadores HTML de MapLibre)
+  private MarkerClass: typeof Marker | null = null;
+  private restaurantMarker: Marker | null = null;
+  private courierMarker: Marker | null = null;
+  // Última posición del repartidor, para saber hacia dónde mira el carrito
+  private lastCourier: { orderId: number; lon: number } | null = null;
 
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -125,7 +138,14 @@ export class OperatorTrackingComponent implements AfterViewInit {
   }
 
   private async paint(): Promise<void> {
-    if (this.destroyed || !this.selected) return;
+    if (this.destroyed) return;
+
+    // Sin entregas activas no queda ningún dibujo de la anterior
+    if (!this.selected) {
+      this.placeRestaurant(null);
+      this.placeCourier(0, null);
+      return;
+    }
 
     if (!this.map) {
       await this.createMap();
@@ -170,24 +190,20 @@ export class OperatorTrackingComponent implements AfterViewInit {
       });
     };
 
+    // El destino sigue siendo un punto rojo; el restaurante (inicio de la
+    // ruta) y el repartidor se dibujan con sus marcadores
     if (route.length > 1) {
-      addPoint(route[0], '#B2571F', 8);
       addPoint(route[route.length - 1], '#C62828', 10);
     }
+    this.placeRestaurant(route.length > 0 ? route[0] : null);
 
     const hasPosition =
       delivery.latitude !== null && delivery.longitude !== null;
 
-    if (hasPosition) {
-      addPoint(
-        {
-          lat: delivery.latitude!,
-          lon: delivery.longitude!,
-        },
-        '#1565C0',
-        9,
-      );
-    }
+    this.placeCourier(
+      delivery.orderId,
+      hasPosition ? { lat: delivery.latitude!, lon: delivery.longitude! } : null,
+    );
 
     (this.map.getSource('delivery-route') as GeoJSONSource).setData(routeData);
 
@@ -207,13 +223,66 @@ export class OperatorTrackingComponent implements AfterViewInit {
     }
   }
 
+  // Restaurante: siempre en el mismo sitio (primer punto de la ruta)
+  private placeRestaurant(point: MapPoint | null): void {
+    if (!this.map || !this.MarkerClass) return;
+
+    if (!point) {
+      this.restaurantMarker?.remove();
+      this.restaurantMarker = null;
+      return;
+    }
+
+    if (!this.restaurantMarker) {
+      this.restaurantMarker = new this.MarkerClass({
+        element: markerElement(RESTAURANT_SVG, 56, 60, 'Restaurante Terra Galega'),
+        anchor: 'bottom',
+      });
+      this.restaurantMarker.setLngLat([point.lon, point.lat]).addTo(this.map);
+    } else {
+      this.restaurantMarker.setLngLat([point.lon, point.lat]);
+    }
+  }
+
+  // Repartidor: carrito que mira hacia donde avanza (este u oeste)
+  private placeCourier(orderId: number, point: MapPoint | null): void {
+    if (!this.map || !this.MarkerClass) return;
+
+    if (!point) {
+      this.courierMarker?.remove();
+      this.courierMarker = null;
+      this.lastCourier = null;
+      return;
+    }
+
+    if (!this.courierMarker) {
+      this.courierMarker = new this.MarkerClass({
+        element: markerElement(COURIER_SVG, 58, 48, 'Repartidor'),
+        anchor: 'bottom',
+      });
+      this.courierMarker.setLngLat([point.lon, point.lat]).addTo(this.map);
+    } else {
+      this.courierMarker.setLngLat([point.lon, point.lat]);
+    }
+
+    // Solo gira si de verdad se movió (evita que "tiemble" con el GPS)
+    const last = this.lastCourier;
+    if (last && last.orderId === orderId && Math.abs(point.lon - last.lon) > 0.00002) {
+      setFacingLeft(this.courierMarker.getElement(), point.lon < last.lon);
+    }
+    if (!last || last.orderId !== orderId || Math.abs(point.lon - last.lon) > 0.00002) {
+      this.lastCourier = { orderId, lon: point.lon };
+    }
+  }
+
   private async createMap(): Promise<void> {
     if (this.loadingMap || this.destroyed) return;
 
     this.loadingMap = true;
 
     try {
-      const { Map, NavigationControl } = await import('maplibre-gl');
+      const { Map, NavigationControl, Marker } = await import('maplibre-gl');
+      this.MarkerClass = Marker;
 
       if (this.destroyed || !this.selected) return;
 
