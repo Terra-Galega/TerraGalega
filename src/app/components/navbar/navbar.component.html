@@ -1,130 +1,363 @@
 <!-- Contenedor flotante de la barra; la clase nav-bar--stayed se aplica cuando navBarStayed es true (fondo de vidrio). -->
 <!-- En el home, mientras el logo grande del hero no ha llegado a la barra, la barra sigue
      transparente y esconde su propio logo (nav-bar--logo-away). -->
-<nav id="nav-bar" class="nav-bar" [class.nav-bar--stayed]="navBarStayed && heroLogo.docked()"
-  [class.nav-bar--logo-away]="!heroLogo.docked()">
+<ng-template #bellPanel>
+  @if (bellOpen) {
+    <div
+      id="notification-panel"
+      class="absolute left-3 right-3 top-full mt-2 md:left-auto md:right-0 md:w-96 rounded-2xl bg-white text-charcoal text-left overflow-hidden z-50"
+      style="
+        border: 1px solid rgba(44, 44, 44, 0.08);
+        box-shadow: 0 12px 40px rgba(44, 44, 44, 0.18);
+      "
+    >
+      <div
+        class="flex items-center justify-between px-4 py-3"
+        style="border-bottom: 1px solid rgba(44, 44, 44, 0.08)"
+      >
+        <p class="text-sm font-semibold">Notificaciones</p>
+        @if (center.unreadCount$ | async) {
+          <button
+            type="button"
+            class="text-xs font-medium cursor-pointer"
+            style="color: #b2571f"
+            (click)="center.markAllRead()"
+          >
+            Marcar todas como leídas
+          </button>
+        }
+      </div>
+      <div class="max-h-96 overflow-y-auto">
+        @for (n of center.notifications$ | async; track n.id) {
+          <button
+            type="button"
+            class="w-full text-left px-4 py-3 flex gap-3 items-start cursor-pointer hover:bg-black/5"
+            [style.background-color]="
+              n.read ? 'transparent' : 'rgba(178, 87, 31, 0.06)'
+            "
+            style="border-bottom: 1px solid rgba(44, 44, 44, 0.06)"
+            (click)="openNotification(n)"
+          >
+            <span
+              class="mt-1.5 w-2 h-2 rounded-full flex-shrink-0"
+              [style.background-color]="n.read ? 'transparent' : '#b2571f'"
+            ></span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold">{{ n.title }}</span>
+              <span
+                class="block text-[13px]"
+                style="color: rgba(44, 44, 44, 0.7)"
+                >{{ n.message }}</span
+              >
+              <span
+                class="block text-[11px] mt-1"
+                style="color: rgba(44, 44, 44, 0.45)"
+              >
+                {{ timeAgo(n.createdAt) }} · Toca para seguir tu pedido
+              </span>
+            </span>
+          </button>
+        } @empty {
+          <p
+            class="px-4 py-8 text-sm text-center"
+            style="color: rgba(44, 44, 44, 0.55)"
+          >
+            No tienes notificaciones.
+          </p>
+        }
+      </div>
+    </div>
+  }
+</ng-template>
+
+<nav
+  id="nav-bar"
+  class="nav-bar"
+  [class.nav-bar--stayed]="navBarStayed && heroLogo.docked()"
+  [class.nav-bar--logo-away]="!heroLogo.docked()"
+>
   <!-- ============================================================ DESKTOP ============================================================ -->
   <!-- Rejilla de tres columnas (enlaces, logo, sesión y carrito). La altura (nav-row) cambia con el scroll. -->
-  <div class="nav-row hidden md:grid px-6 lg:px-10 xl:px-16 items-center w-full"
-    style="grid-template-columns: 1fr auto 1fr">
+  <div
+    class="nav-row hidden md:grid px-6 lg:px-10 xl:px-16 items-center w-full"
+    style="grid-template-columns: 1fr auto 1fr"
+  >
     <!-- ========================================================== COLUMNA IZQUIERDA ========================================================== -->
     <div class="flex items-center justify-evenly w-full">
-      <a class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        [class.active]="isActive('/aboutUs')" (click)="goToAboutUs()">
+      <a
+        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+        [class.active]="isActive('/aboutUs')"
+        (click)="goToAboutUs()"
+      >
         NOSOTROS
       </a>
-      <a id="nav-menu"
+      <a
+        id="nav-menu"
         class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        [class.active]="isActive('/menu')" (click)="goToMenu()">
+        [class.active]="isActive('/menu')"
+        (click)="goToMenu()"
+      >
         MENÚ
       </a>
       <!-- id usado por el tutorial de "hacer una reserva" -->
-      <a id="nav-reservations"
+      <a
+        id="nav-reservations"
         class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        [class.active]="isActive('/reservations')" (click)="goToReservations()">
+        [class.active]="isActive('/reservations')"
+        (click)="goToReservations()"
+      >
         RESERVAS
       </a>
     </div>
     <!-- ========================================================== LOGO CENTRAL ========================================================== -->
     <!-- logo-wrap escala el logo: grande al inicio de Home y tamaño normal al hacer scroll. -->
     <div class="logo-wrap flex justify-center px-10 xl:px-16">
-      <a class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300 cursor-pointer"
-        (click)="goToHome()">
-        <span class="logo-terra font-terra text-[28px] xl:text-[32px] leading-[0.6] font-normal">
+      <a
+        class="flex flex-col items-center justify-center drop-shadow-lg transition-transform hover:scale-105 duration-300 cursor-pointer"
+        (click)="goToHome()"
+      >
+        <span
+          class="logo-terra font-terra text-[28px] xl:text-[32px] leading-[0.6] font-normal"
+        >
           Terra
         </span>
-        <span class="logo-galega font-galega text-[24px] xl:text-[27px] tracking-[0.05em] uppercase -mt-1.5">
+        <span
+          class="logo-galega font-galega text-[24px] xl:text-[27px] tracking-[0.05em] uppercase -mt-1.5"
+        >
           Galega
         </span>
       </a>
     </div>
     <!-- ========================================================== COLUMNA DERECHA Pedidos - sesión - carrito ========================================================== -->
     <div class="flex items-center justify-evenly w-full">
-      <a id="nav-orders"
+      <a
+        id="nav-orders"
         class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        [class.active]="isActive('/orders')" (click)="goToOrders()">
+        [class.active]="isActive('/orders')"
+        (click)="goToOrders()"
+      >
         {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
       </a>
       @if (!isLoggedIn) {
-      <a id="nav-login"
-        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
-        [class.active]="isActive('/login')" (click)="goToLogin()">
-        INICIAR SESIÓN
-      </a>
+        <a
+          id="nav-login"
+          class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] whitespace-nowrap cursor-pointer"
+          [class.active]="isActive('/login')"
+          (click)="goToLogin()"
+        >
+          INICIAR SESIÓN
+        </a>
       } @else {
-      @if (isLoggedAdmin || isClient) {
-      <a id="nav-user"
-        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer max-w-[160px] xl:max-w-[240px] truncate"
-        [class.active]="isProfileActive()" (click)="goToProfile()">
-        {{ fullName }}
-      </a>
-      } @else {
-      <span
-        class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] leading-none whitespace-nowrap max-w-[160px] xl:max-w-[240px] truncate"
-        [class.active]="isProfileActive()">
-        {{ fullName }}
-      </span>
+        @if (isLoggedAdmin || isClient) {
+          <a
+            id="nav-user"
+            class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] leading-none whitespace-nowrap cursor-pointer max-w-[160px] xl:max-w-[240px] truncate"
+            [class.active]="isProfileActive()"
+            (click)="goToProfile()"
+          >
+            {{ fullName }}
+          </a>
+        } @else {
+          <span
+            class="link-nav text-[11px] lg:text-[13px] xl:text-[15px] font-medium tracking-[0.18em] leading-none whitespace-nowrap max-w-[160px] xl:max-w-[240px] truncate"
+            [class.active]="isProfileActive()"
+          >
+            {{ fullName }}
+          </span>
+        }
       }
+      @if (isClient) {
+        <div class="relative" data-bell>
+          <button
+            id="nav-bell"
+            type="button"
+            class="link-nav relative flex items-center justify-center p-2"
+            aria-label="Notificaciones"
+            [class.active]="bellOpen"
+            (click)="toggleBell()"
+          >
+            <svg
+              class="w-[22px] h-[22px]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+                d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9"
+              />
+            </svg>
+            @if (center.unreadCount$ | async; as unread) {
+              <span
+                class="absolute top-0 right-0 bg-terra text-white text-[11px] rounded-full w-5 h-5 flex items-center justify-center font-medium"
+              >
+                {{ unread > 9 ? "9+" : unread }}
+              </span>
+            }
+          </button>
+          <ng-container *ngTemplateOutlet="bellPanel"></ng-container>
+        </div>
       }
       <!-- ======================================================== CARRITO ======================================================== -->
-      <button id="nav-cart" class="link-nav relative flex items-center justify-center p-2" aria-label="Carrito"
-        [class.active]="cartOpen" (click)="openCart()">
-        <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      <button
+        id="nav-cart"
+        class="link-nav relative flex items-center justify-center p-2"
+        aria-label="Carrito"
+        [class.active]="cartOpen"
+        (click)="openCart()"
+      >
+        <svg
+          class="w-[22px] h-[22px]"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.8"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+          />
         </svg>
         @if (cartCount > 0) {
-        <span
-          class="absolute top-0 right-0 bg-terra text-white text-[11px] rounded-full w-5 h-5 flex items-center justify-center font-medium">
-          {{ cartCount }}
-        </span>
+          <span
+            class="absolute top-0 right-0 bg-terra text-white text-[11px] rounded-full w-5 h-5 flex items-center justify-center font-medium"
+          >
+            {{ cartCount }}
+          </span>
         }
       </button>
     </div>
   </div>
   <!-- ============================================================ MOBILE ============================================================ -->
   <!-- Versión móvil: solo visible en pantallas pequeñas. La altura (nav-row-mobile) cambia con el scroll. -->
-  <div class="nav-row-mobile flex md:hidden items-center justify-between px-5 relative">
+  <div
+    class="nav-row-mobile flex md:hidden items-center justify-between px-5 relative"
+  >
     <!-- LOGO -->
     <!-- En móvil, el logo desplaza suavemente hasta la sección principal (hero). -->
-    <button type="button" (click)="scrollToHero()"
-      class="logo-wrap-mobile flex flex-col items-center justify-center drop-shadow-md z-10" aria-label="Ir al inicio">
+    <button
+      type="button"
+      (click)="scrollToHero()"
+      class="logo-wrap-mobile flex flex-col items-center justify-center drop-shadow-md z-10"
+      aria-label="Ir al inicio"
+    >
       <span class="logo-terra font-terra text-[24px] leading-[0.6]">
         Terra
       </span>
-      <span class="logo-galega font-galega text-[22px] tracking-[0.05em] uppercase -mt-1">
+      <span
+        class="logo-galega font-galega text-[22px] tracking-[0.05em] uppercase -mt-1"
+      >
         Galega
       </span>
     </button>
     <!-- ========================================================== CARRITO + HAMBURGUESA ========================================================== -->
     <div class="flex items-center gap-4">
+      @if (isClient) {
+        <div data-bell>
+          <button
+            type="button"
+            class="link-nav relative p-2"
+            aria-label="Notificaciones"
+            (click)="toggleBell()"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+                d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9"
+              />
+            </svg>
+            @if (center.unreadCount$ | async; as unread) {
+              <span
+                class="absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
+              >
+                {{ unread > 9 ? "9+" : unread }}
+              </span>
+            }
+          </button>
+          <ng-container *ngTemplateOutlet="bellPanel"></ng-container>
+        </div>
+      }
       <!-- CARRITO -->
-      <button type="button" class="link-nav relative p-2" aria-label="Carrito" (click)="openCart()">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      <button
+        type="button"
+        class="link-nav relative p-2"
+        aria-label="Carrito"
+        (click)="openCart()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+          />
         </svg>
         <!-- Insignia del carrito para móvil. -->
         @if (cartCount > 0) {
-        <span id="cart-count-mobile"
-          class="absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium">
-          {{ cartCount }}
-        </span>
+          <span
+            id="cart-count-mobile"
+            class="absolute top-0.5 right-0.5 bg-terra text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium"
+          >
+            {{ cartCount }}
+          </span>
         }
       </button>
       <!-- HAMBURGUESA -->
-      <button type="button" class="link-nav p-1" aria-label="Menú" (click)="toggleMobileMenu()">
+      <button
+        type="button"
+        class="link-nav p-1"
+        aria-label="Menú"
+        (click)="toggleMobileMenu()"
+      >
         <!-- Alterna entre el icono de hamburguesa y el de cerrar según el estado del menú. -->
         @if (!mobileMenuOpen) {
-        <!-- ICONO ABRIR -->
-        <svg id="icon-open" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
+          <!-- ICONO ABRIR -->
+          <svg
+            id="icon-open"
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
         } @else {
-        <!-- ICONO CERRAR -->
-        <svg id="icon-close" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
+          <!-- ICONO CERRAR -->
+          <svg
+            id="icon-close"
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
         }
       </button>
     </div>
@@ -134,53 +367,83 @@
        44 px de alto para pulsarla con el dedo. Al final va la cuenta: el nombre y cerrar sesión
        si hay sesión, o el botón de iniciar sesión si no la hay. -->
   @if (mobileMenuOpen) {
-  <div id="mobile-menu" class="md:hidden px-6 pt-2 pb-5 flex flex-col border-t">
-    <!-- NOSOTROS -->
-    <a class="mobile-link link-nav" [class.active]="isActive('/aboutUs')" (click)="goToAboutUs()">
-      NOSOTROS
-    </a>
-    <!-- MENÚ -->
-    <a class="mobile-link link-nav" [class.active]="isActive('/menu')" (click)="goToMenu()">
-      MENÚ
-    </a>
-    <!-- RESERVAS -->
-    <a class="mobile-link link-nav" [class.active]="isActive('/reservations')" (click)="goToReservations()">
-      RESERVAS
-    </a>
-    <!-- PEDIDOS -->
-    <a class="mobile-link link-nav" [class.active]="isActive('/orders')" (click)="goToOrders()">
-      <!-- El texto cambia según haya o no una sesión iniciada. -->
-      {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
-    </a>
-
-    <!-- ========================================================== CUENTA ========================================================== -->
-    <div class="flex flex-col gap-3 pt-4 mt-2 border-t" style="border-color: rgba(255, 255, 255, 0.08)">
-      @if (isLoggedIn) {
-      <!-- Solo admin y cliente tienen enlace a su perfil (igual que en escritorio). -->
-      @if (isLoggedAdmin || isClient) {
-      <a id="user-profile-mobile" class="mobile-link link-nav" [class.active]="isProfileActive()"
-        (click)="goToProfile()">
-        {{ fullName }}
+    <div
+      id="mobile-menu"
+      class="md:hidden px-6 pt-2 pb-5 flex flex-col border-t"
+    >
+      <!-- NOSOTROS -->
+      <a
+        class="mobile-link link-nav"
+        [class.active]="isActive('/aboutUs')"
+        (click)="goToAboutUs()"
+      >
+        NOSOTROS
       </a>
-      } @else {
-      <span id="user-profile-mobile" class="mobile-link link-nav">
-        {{ fullName }}
-      </span>
-      }
-      <button type="button"
-        class="w-full min-h-[44px] text-xs font-medium tracking-widest text-white rounded-full bg-red-800/80 hover:bg-red-700 text-center transition-colors border-0 cursor-pointer"
-        (click)="logout()">
-        CERRAR SESIÓN
-      </button>
-      } @else {
-      <button type="button"
-        class="w-full min-h-[44px] text-xs font-medium tracking-widest text-white rounded-full btn-terra text-center cursor-pointer"
-        (click)="goToLogin()">
-        INICIAR SESIÓN
-      </button>
-      }
+      <!-- MENÚ -->
+      <a
+        class="mobile-link link-nav"
+        [class.active]="isActive('/menu')"
+        (click)="goToMenu()"
+      >
+        MENÚ
+      </a>
+      <!-- RESERVAS -->
+      <a
+        class="mobile-link link-nav"
+        [class.active]="isActive('/reservations')"
+        (click)="goToReservations()"
+      >
+        RESERVAS
+      </a>
+      <!-- PEDIDOS -->
+      <a
+        class="mobile-link link-nav"
+        [class.active]="isActive('/orders')"
+        (click)="goToOrders()"
+      >
+        <!-- El texto cambia según haya o no una sesión iniciada. -->
+        {{ isLoggedIn ? "MIS PEDIDOS" : "PEDIDOS" }}
+      </a>
+
+      <!-- ========================================================== CUENTA ========================================================== -->
+      <div
+        class="flex flex-col gap-3 pt-4 mt-2 border-t"
+        style="border-color: rgba(255, 255, 255, 0.08)"
+      >
+        @if (isLoggedIn) {
+          <!-- Solo admin y cliente tienen enlace a su perfil (igual que en escritorio). -->
+          @if (isLoggedAdmin || isClient) {
+            <a
+              id="user-profile-mobile"
+              class="mobile-link link-nav"
+              [class.active]="isProfileActive()"
+              (click)="goToProfile()"
+            >
+              {{ fullName }}
+            </a>
+          } @else {
+            <span id="user-profile-mobile" class="mobile-link link-nav">
+              {{ fullName }}
+            </span>
+          }
+          <button
+            type="button"
+            class="w-full min-h-[44px] text-xs font-medium tracking-widest text-white rounded-full bg-red-800/80 hover:bg-red-700 text-center transition-colors border-0 cursor-pointer"
+            (click)="logout()"
+          >
+            CERRAR SESIÓN
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="w-full min-h-[44px] text-xs font-medium tracking-widest text-white rounded-full btn-terra text-center cursor-pointer"
+            (click)="goToLogin()"
+          >
+            INICIAR SESIÓN
+          </button>
+        }
+      </div>
     </div>
-  </div>
   }
 </nav>
 <!-- Panel del carrito: se muestra según cartOpen y avisa con (closed) cuando se cierra. -->

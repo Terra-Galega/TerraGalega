@@ -13,6 +13,8 @@ import { AuthService } from './auth.service';
 import { DeliveryTrackingService } from './delivery-tracking.service';
 import { ToastService } from './toast.service';
 import { ClientDelivery } from '../models/delivery-tracking';
+import { Router } from '@angular/router';
+import { NotificationCenterService } from './notification-center.service';
 
 // Cada cuánto se consulta al back el pedido en camino (milisegundos)
 const POLL_MS = 4_000;
@@ -43,6 +45,9 @@ export class ClientDeliveryWatcherService {
   private auth = inject(AuthService);
   private tracking = inject(DeliveryTrackingService);
   private toast = inject(ToastService);
+
+  private center = inject(NotificationCenterService);
+  private router = inject(Router);
 
   private started = false;
   private subject = new BehaviorSubject<ClientDelivery[]>([]);
@@ -160,6 +165,7 @@ export class ClientDeliveryWatcherService {
           `Pedido #${delivery.orderId}: tu repartidor está a punto de llegar. Ten tu PIN a la mano.`,
           `near-${key}`,
           VIBRATE_NEAR,
+          delivery.orderId,
         );
       } else if (!entry.started) {
         entry.started = true;
@@ -171,6 +177,7 @@ export class ClientDeliveryWatcherService {
           } inició el recorrido. Puedes seguirlo en el mapa.`,
           `started-${key}`,
           VIBRATE_STARTED,
+          delivery.orderId,
         );
       }
     }
@@ -191,7 +198,15 @@ export class ClientDeliveryWatcherService {
     message: string,
     tag: string,
     vibration: number[],
+    orderId: number,
   ): void {
+    // 0) Bandeja (campanita)
+    this.center.add({
+      title,
+      message,
+      link: '/orders/tracking',
+      queryParams: { order: orderId },
+    });
     // 1) Aviso dentro de la página
     this.toast.show(title, message, 9000);
 
@@ -216,6 +231,10 @@ export class ClientDeliveryWatcherService {
         notification.onclick = () => {
           window.focus();
           notification.close();
+          void this.router.navigate(['/orders/tracking'], {
+            // <-- nuevo
+            queryParams: { order: orderId },
+          });
         };
       }
     } catch {
