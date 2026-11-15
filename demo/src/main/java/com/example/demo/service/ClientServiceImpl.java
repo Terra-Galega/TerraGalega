@@ -61,9 +61,13 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private AddressService addressService;
 
-        // Servicio de suscripciones, para cerrar los pagos pendientes al borrar la cuenta.
+    // Servicio de suscripciones, para cerrar los pagos pendientes al borrar la
+    // cuenta.
     @Autowired
     private SubscriptionService subscriptionService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @jakarta.persistence.PersistenceContext
     private jakarta.persistence.EntityManager entityManager;
@@ -147,6 +151,8 @@ public class ClientServiceImpl implements ClientService {
 
         // Toda cuenta nueva recibe su cupón de bienvenida
         couponService.createWelcomeCoupon(saved);
+
+        notificationService.notifyWelcome(saved);
 
         // Envía el correo de confirmación (sale cuando la transacción se guarda)
         emailVerificationService.sendVerification(saved.getUser(), saved.getEmail(), saved.getName());
@@ -267,7 +273,7 @@ public class ClientServiceImpl implements ClientService {
 
         // Igual con la reserva (1 a 1): se gestiona solo por /clients/me/reservation
         client.setReservation(actual.getReservation());
-        
+
         // La suscripción se gestiona solo por /subscriptions: editar el perfil
         // no debe borrarla (el cliente nuevo que llega no trae esta fecha)
         client.setSubscriptionEndsAt(actual.getSubscriptionEndsAt());
@@ -295,11 +301,15 @@ public class ClientServiceImpl implements ClientService {
 
         // La reseña del cliente se borra antes que el cliente
         reviewService.deleteClientReview(id);
-        
-        // Pagos de suscripción: se cierra la sesión de Stripe abierta y se borran los registros
+
+        // Pagos de suscripción: se cierra la sesión de Stripe abierta y se borran los
+        // registros
         subscriptionService.deleteClientPayments(id);
 
         // Elimina el cliente de la base de datos.
+
+        // Sus notificaciones se borran con la cuenta
+        notificationService.deleteAll(id);
         repository.deleteById(id);
     }
 

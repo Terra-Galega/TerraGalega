@@ -46,6 +46,9 @@ public class CouponServiceImpl implements CouponService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     @Transactional
     public Collection<Coupon> getAllCoupons() {
@@ -158,7 +161,9 @@ public class CouponServiceImpl implements CouponService {
         // Si no se indica el estado, el cupón nace activo
         newCoupon.setActive(coupon.getActive() == null ? true : coupon.getActive());
 
-        return repository.save(newCoupon);
+        Coupon saved = repository.save(newCoupon);
+        notificationService.notifyCoupon(saved);
+        return saved;
     }
 
     // Actualiza un cupón existente. Se modifica la entidad guardada en vez de
@@ -287,7 +292,8 @@ public class CouponServiceImpl implements CouponService {
         return coupon;
     }
 
-    // Porcentaje (con tope opcional) o monto fijo; nunca descuenta más que el subtotal
+    // Porcentaje (con tope opcional) o monto fijo; nunca descuenta más que el
+    // subtotal
     @Override
     public Double calculateDiscount(Coupon coupon, Double subtotal) {
 

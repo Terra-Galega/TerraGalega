@@ -2,6 +2,16 @@
 workspace:
   id: f23076c8-f54b-430f-8939-e326a00fa6b5
 
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/TerraGalega API (JWT + roles): 39db7494-1159-45b8-b5b4-e1762f69a31e
+    ../postman/collections/TerraGalega - Suscripción Premium - Paso 1: e0428820-6f60-481c-b08e-4d2da14499b7
+    ../postman/collections/TerraGalega - Suscripción Premium - Paso 2 (domicilio gratis): 2af8d7ec-4958-49aa-914f-dec6003c9fc0
+    ../postman/collections/TerraGalega - Suscripción Premium - Paso 3 (v3): f57f6e56-8590-4f96-83fa-5a78fe6c99cb
+    ../postman/collections/TerraGalega - Bot (registro + pruebas): 0da76571-78dc-4729-9992-3a903b4c9764
+
 # All resources in the `postman/` folder are automatically registered in Local View.
 # Point to additional files outside the `postman/` folder to register them individually. Example:
 #localResources:
