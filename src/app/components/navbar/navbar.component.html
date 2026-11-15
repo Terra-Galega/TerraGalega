@@ -15,7 +15,7 @@
         class="flex items-center justify-between px-4 py-3"
         style="border-bottom: 1px solid rgba(44, 44, 44, 0.08)"
       >
-        <p class="text-sm font-semibold">Notificaciones</p>
+        <p class="text-sm font-semibold">{{ language.t('notifications') }}</p>
         @if (center.unreadCount$ | async) {
           <button
             type="button"
