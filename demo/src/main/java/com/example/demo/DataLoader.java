@@ -3,9 +3,14 @@ package com.example.demo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -122,6 +127,239 @@ public class DataLoader implements CommandLineRunner {
                 return new HashSet<>(Arrays.asList(categories));
         }
 
+        // ------------------------------------------------------------------
+        // Utilidades para los datos ampliados
+        // ------------------------------------------------------------------
+        // Semilla fija: el historial de pedidos parece aleatorio pero es SIEMPRE el
+        // mismo en cada arranque, así las estadísticas se pueden comprobar.
+        private static final long SEED = 20261115L;
+        // Días de historia (~18 meses): permite ver pedidos y opiniones del año pasado.
+        private static final int HISTORY_DAYS = 545;
+
+        // Platos populares (pesan x3 al armar pedidos aleatorios)
+        private static final Set<String> POPULAR = Set.of(
+                        "Gambas al Ajillo",
+                        "Pulpo a la Brasa",
+                        "Fideuá Valenciana",
+                        "Cochinillo Segoviano",
+                        "Fabada Asturiana",
+                        "Rabo de Toro",
+                        "Secreto Ibérico",
+                        "Salmorejo Cordobés",
+                        "Huevos Rotos con Jamón",
+                        "Cachopo Asturiano",
+                        "Churros con Chocolate",
+                        "Tarta de Queso Vasca",
+                        "Sangría Española",
+                        "Café Cortado",
+                        "Menú Maridaje Degustación",
+                        "Pulpo a Feira",
+                        "Croquetas de Jamón Ibérico",
+                        "Caldo Gallego",
+                        "Parrillada de Mariscos para Compartir",
+                        "Chuletón a la Piedra",
+                        "Tarta de Santiago");
+        // Plato fuera de carta (inactivo): no aparece en ningún pedido
+        private static final Set<String> NOT_ORDERABLE = Set.of("Cordero Lechal de Temporada");
+
+        // Clientes en el orden en que se crean (lo llena saveClient)
+        private final List<Client> createdClients = new ArrayList<>();
+        private List<Product> starterDishes;
+        private List<Product> mainDishes;
+        private List<Product> dessertDishes;
+        private List<Product> drinkDishes;
+        private List<Product> pairingDishes;
+        private List<AddOn> allAddOns;
+
+        // Día (hacia atrás desde hoy) en que cada cliente empieza a pedir.
+        // Los 32 primeros son los clientes originales; los siguientes son más nuevos.
+        private int clientSinceDaysAgo(int index) {
+                return index < 32 ? HISTORY_DAYS - 4 * index : 120 - (index - 32) * 5;
+        }
+
+        // Crea un producto con UN solo nivel de picante (mild o hot, nunca ambos).
+        // flags admitidos: popular vegetarian mild hot nuts seafood gluten inactive
+        private void saveProduct(String name, String description, double price, String category,
+                        String imageOf, String flags) {
+                Set<String> f = new HashSet<>(Arrays.asList(flags.split(" ")));
+                if (f.contains("mild") && f.contains("hot")) {
+                        throw new IllegalStateException(
+                                        name + ": solo puede ser picante ligero o picante fuerte, no ambos");
+                }
+                productRepository.save(Product.builder().name(name).description(description).price(price)
+                                .category(categoryRepository.findByName(category))
+                                .imageUrl(findProductByName(imageOf).getImageUrl())
+                                .active(!f.contains("inactive")).popular(f.contains("popular"))
+                                .vegetarian(f.contains("vegetarian")).spicyMild(f.contains("mild"))
+                                .spicyHot(f.contains("hot")).containsNuts(f.contains("nuts"))
+                                .containsSeafood(f.contains("seafood")).containsGluten(f.contains("gluten"))
+                                .build());
+        }
+
+        private List<Product> pool(String... categoryNames) {
+                Set<String> wanted = new HashSet<>(Arrays.asList(categoryNames));
+                List<Product> result = new ArrayList<>();
+                for (Product p : productRepository.findAll()) {
+                        if (NOT_ORDERABLE.contains(p.getName()) || !wanted.contains(p.getCategory().getName())) {
+                                continue;
+                        }
+                        int weight = POPULAR.contains(p.getName()) ? 3 : 1;
+                        for (int k = 0; k < weight; k++) {
+                                result.add(p);
+                        }
+                }
+                return result;
+        }
+
+        private void initMenuPools() {
+                starterDishes = pool("Entradas");
+                mainDishes = pool("Mariscos", "Carnes");
+                dessertDishes = pool("Postres");
+                drinkDishes = pool("Bebidas");
+                pairingDishes = pool("Maridajes");
+                allAddOns = addOnRepository.findAll();
+        }
+
+        private Product pick(List<Product> options, Random rnd, Set<String> used) {
+                for (int attempt = 0; attempt < 20; attempt++) {
+                        Product p = options.get(rnd.nextInt(options.size()));
+                        if (used.add(p.getName())) {
+                                return p;
+                        }
+                }
+                return options.get(rnd.nextInt(options.size()));
+        }
+
+        // Añade una línea al pedido (detalle enlazado en ambos sentidos)
+        private OrderDetail addLine(Order order, Product product, int quantity, AddOn... extras) {
+                OrderDetail detail = OrderDetail.builder().order(order).product(product).quantity(quantity)
+                                .unitPrice(product.getPrice()).build();
+                for (AddOn extra : extras) {
+                        detail.getOrderDetailAddOns().add(
+                                        OrderDetailAddOn.builder().orderDetail(detail).addOn(extra).build());
+                }
+                order.getDetails().add(detail);
+                return detail;
+        }
+
+        // 22% de las líneas llevan un adicional compatible con la categoría del plato
+        private AddOn[] maybeExtra(Product product, Random rnd) {
+                if (rnd.nextDouble() > 0.22) {
+                        return new AddOn[0];
+                }
+                List<AddOn> candidates = new ArrayList<>();
+                for (AddOn addOn : allAddOns) {
+                        for (Category c : addOn.getCategories()) {
+                                if (c.getName().equals(product.getCategory().getName())) {
+                                        candidates.add(addOn);
+                                        break;
+                                }
+                        }
+                }
+                if (candidates.isEmpty()) {
+                        return new AddOn[0];
+                }
+                return new AddOn[] { candidates.get(rnd.nextInt(candidates.size())) };
+        }
+
+        private Order newOrder(Client client, OrderStatus status, LocalDateTime createdAt, Operator operator,
+                        DeliveryPerson driver) {
+                return Order.builder().client(client).status(status).createdAt(createdAt).operator(operator)
+                                .deliveryPerson(driver).address(client.getAddresses().get(0).getLabel()).build();
+        }
+
+        // Elige un cliente que ya existiera ese día; los antiguos piden más
+        // (habituales)
+        private Client pickClient(Random rnd, int daysAgo) {
+                List<Client> eligible = new ArrayList<>();
+                for (int i = 0; i < createdClients.size(); i++) {
+                        if (clientSinceDaysAgo(i) >= daysAgo) {
+                                eligible.add(createdClients.get(i));
+                        }
+                }
+                return eligible.get((int) (Math.pow(rnd.nextDouble(), 1.5) * eligible.size()));
+        }
+
+        // Pedido histórico ya cerrado (entregado o cancelado) con una composición
+        // realista: 1-3 platos fuertes, a veces entrada, postre y bebida o maridaje.
+        // drivers: 0 Pedro, 1 Luisa, 2 Miguel, 3 Daniela, 4 Tomás, 5 Camilo, 6 Juliana,
+        // 7 Brayan
+        // ops: 0..3 activos, 4 Isabella (inactiva hoy; solo aparece en pedidos
+        // antiguos)
+        private Order randomOrder(Random rnd, Client client, LocalDateTime createdAt, int daysAgo,
+                        boolean cancelled, Operator[] ops, DeliveryPerson[] drivers) {
+                List<Operator> opPool = new ArrayList<>(Arrays.asList(ops[0], ops[1], ops[2], ops[3]));
+                if (daysAgo > 75) {
+                        opPool.add(ops[4]);
+                }
+                List<DeliveryPerson> driverPool = new ArrayList<>(
+                                Arrays.asList(drivers[0], drivers[1], drivers[2], drivers[3]));
+                if (daysAgo > 75) {
+                        driverPool.add(drivers[4]); // Tomás ya no trabaja
+                }
+                if (daysAgo < 200) {
+                        driverPool.add(drivers[5]);
+                }
+                if (daysAgo < 120) {
+                        driverPool.add(drivers[6]);
+                }
+                if (daysAgo < 60) {
+                        driverPool.add(drivers[7]);
+                }
+                List<Address> addresses = client.getAddresses();
+                Order order = Order.builder().client(client)
+                                .status(cancelled ? OrderStatus.CANCELLED : OrderStatus.DELIVERED)
+                                .createdAt(createdAt)
+                                .deliveredAt(cancelled ? null : createdAt.plusMinutes(35 + rnd.nextInt(40)))
+                                .operator(opPool.get(rnd.nextInt(opPool.size())))
+                                .deliveryPerson(cancelled ? null : driverPool.get(rnd.nextInt(driverPool.size())))
+                                .address(addresses.get(rnd.nextInt(addresses.size())).getLabel())
+                                .build();
+
+                Set<String> used = new HashSet<>();
+                int mains = 1 + (rnd.nextDouble() < 0.40 ? 1 : 0) + (rnd.nextDouble() < 0.12 ? 1 : 0);
+                for (int m = 0; m < mains; m++) {
+                        Product p = pick(mainDishes, rnd, used);
+                        int qty = rnd.nextDouble() < 0.70 ? 1 : (rnd.nextDouble() < 0.85 ? 2 : 3);
+                        addLine(order, p, qty, maybeExtra(p, rnd));
+                }
+                if (rnd.nextDouble() < 0.65) {
+                        Product p = pick(starterDishes, rnd, used);
+                        addLine(order, p, 1 + (rnd.nextDouble() < 0.30 ? 1 : 0), maybeExtra(p, rnd));
+                }
+                if (rnd.nextDouble() < 0.40) {
+                        Product p = pick(dessertDishes, rnd, used);
+                        addLine(order, p, 1 + (rnd.nextDouble() < 0.35 ? 1 : 0), maybeExtra(p, rnd));
+                }
+                double drinkRoll = rnd.nextDouble();
+                if (drinkRoll < 0.72) {
+                        addLine(order, pick(drinkDishes, rnd, used), 1 + rnd.nextInt(3));
+                } else if (drinkRoll < 0.86) {
+                        addLine(order, pick(pairingDishes, rnd, used), 1 + (rnd.nextDouble() < 0.30 ? 1 : 0));
+                }
+                return order;
+        }
+
+        // Resumen en consola para verificar rápido qué se cargó
+        private void printSummary() {
+                List<Order> orders = orderRepository.findAll();
+                Map<OrderStatus, Long> byStatus = orders.stream()
+                                .collect(Collectors.groupingBy(Order::getStatus, Collectors.counting()));
+                double revenue = orders.stream().filter(o -> o.getStatus() == OrderStatus.DELIVERED)
+                                .flatMap(o -> o.getDetails().stream())
+                                .mapToDouble(d -> d.getQuantity() * d.getUnitPrice()).sum();
+                System.out.println("==== DataLoader: resumen de datos de demostración ====");
+                System.out.println("Clientes: " + clientRepository.count() + " | Admins: " + adminRepository.count()
+                                + " | Operadores: " + operatorRepository.count() + " | Domiciliarios: "
+                                + deliveryPersonRepository.count());
+                System.out.println("Productos: " + productRepository.count() + " | Adicionales: "
+                                + addOnRepository.count() + " | Cupones: " + couponRepository.count()
+                                + " | Reseñas: " + reviewRepository.count() + " | Reservas: "
+                                + reservationRepository.count());
+                System.out.println("Pedidos: " + orders.size() + " " + byStatus);
+                System.out.printf("Ventas de pedidos entregados: $%,.0f%n", revenue);
+        }
+
         // Cada helper crea primero la fila en users (correo + contraseña cifrada +
         // rol), la asocia por OneToOne y después guarda la entidad.
         // El .password(...) del builder es @Transient: solo sirve para crear el user.
@@ -156,7 +394,9 @@ public class DataLoader implements CommandLineRunner {
                 }
                 client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT,
                                 true));
-                return clientRepository.save(client);
+                Client saved = clientRepository.save(client);
+                createdClients.add(saved);
+                return saved;
         }
 
         @Override
@@ -352,6 +592,68 @@ public class DataLoader implements CommandLineRunner {
                                                 .role(Role.CLIENT).build(),
                                 "Carrera 9 #80-45, Bogotá");
 
+                // Clientes nuevos (se suman a los de arriba, que no se tocan). Son más
+                // recientes: sus primeros pedidos y opiniones son de los últimos 4 meses.
+                // columnas: nombre, apellido, correo, contraseña, teléfono,
+                // días de Premium restantes ("" = freemium; negativo = vencido), direcciones...
+                String[][] moreClients = {
+                                { "Isabel", "Ortega", "isabel.ortega@gmail.com", "isabel123", "+57 300 118 4520", "",
+                                                "Calle 80 #69-20, Bogotá" },
+                                { "Julián", "Cortés", "julian.cortes@outlook.com", "julian123", "+57 310 774 2093",
+                                                "30", "Carrera 11 #93-40, Bogotá", "Calle 100 #8A-55, Bogotá" },
+                                { "Mariana", "Giraldo", "mariana.giraldo@gmail.com", "mariana123", "+57 315 306 8841",
+                                                "", "Carrera 24 #63A-18, Bogotá" },
+                                { "Andrea", "Montoya", "andrea.montoya@hotmail.com", "andrea123", "+57 320 590 1127",
+                                                "", "Calle 57 #17-61, Bogotá" },
+                                { "Cristian", "Bernal", "cristian.bernal@gmail.com", "cristian123", "+57 301 842 6035",
+                                                "12", "Avenida Boyacá #72-81, Bogotá" },
+                                { "Verónica", "Aguirre", "veronica.aguirre@yahoo.com", "veronica123",
+                                                "+57 312 227 9560", "", "Carrera 8 #67-20, Bogotá",
+                                                "Calle 72 #5-40, Bogotá" },
+                                { "Jorge", "Rincón", "jorge.rincon@gmail.com", "jorge123", "+57 316 451 3382", "",
+                                                "Calle 147 #7-25, Bogotá" },
+                                { "Paola", "Cifuentes", "paola.cifuentes@icloud.com", "paola123", "+57 322 903 7714",
+                                                "", "Carrera 15 #77-09, Bogotá" },
+                                { "Nicolás", "Arango", "nicolas.arango@gmail.com", "nicolasa123", "+57 304 618 2259",
+                                                "-4", "Calle 39 #19-33, Bogotá" },
+                                { "Daniela", "Sandoval", "daniela.sandoval@outlook.com", "danielas123",
+                                                "+57 318 275 0946", "", "Carrera 45 #94-12, Bogotá" },
+                                { "Óscar", "Mejía", "oscar.mejia@gmail.com", "oscar123", "+57 311 369 5871", "",
+                                                "Transversal 18 #108-50, Bogotá" },
+                                { "Liliana", "Prieto", "liliana.prieto@hotmail.com", "liliana123", "+57 313 780 4426",
+                                                "20", "Calle 119 #14-20, Bogotá" },
+                                { "Fabián", "Lozano", "fabian.lozano@gmail.com", "fabian123", "+57 317 152 9038", "",
+                                                "Carrera 13 #53-47, Bogotá", "Calle 51 #10-15, Bogotá" },
+                                { "Catalina", "Reyes", "catalina.reyes@gmail.com", "catalina123", "+57 302 497 6613",
+                                                "", "Calle 85 #19-06, Bogotá" },
+                                { "Mauricio", "Gaitán", "mauricio.gaitan@yahoo.com", "mauricio123", "+57 319 836 2205",
+                                                "", "Carrera 7 #71-21, Bogotá" },
+                                { "Angie", "Osorio", "angie.osorio@gmail.com", "angie123", "+57 305 214 7790", "8",
+                                                "Calle 63 #11-54, Bogotá" },
+                                { "Rodrigo", "Valencia", "rodrigo.valencia@outlook.com", "rodrigo123",
+                                                "+57 314 668 3017", "", "Avenida 19 #118-30, Bogotá" },
+                                { "Stephanie", "Murillo", "stephanie.murillo@gmail.com", "stephanie123",
+                                                "+57 321 940 5528", "", "Carrera 9 #115-06, Bogotá" },
+                                { "Iván", "Calderón", "ivan.calderon@icloud.com", "ivan123", "+57 300 573 8864", "",
+                                                "Calle 134 #19-40, Bogotá" },
+                                { "Claudia", "Roldán", "claudia.roldan@hotmail.com", "claudia123", "+57 310 291 4439",
+                                                "", "Carrera 16A #82-10, Bogotá" },
+                                { "Sergio", "Ibáñez", "sergio.ibanez@gmail.com", "sergio123", "+57 315 727 0152", "",
+                                                "Calle 45 #7-20, Bogotá" },
+                                { "Mónica", "Zapata", "monica.zapata@gmail.com", "monica123", "+57 312 385 6691", "",
+                                                "Carrera 20 #123-14, Bogotá" },
+                };
+                for (String[] c : moreClients) {
+                        saveClient(
+                                        Client.builder().name(c[0]).lastName(c[1]).email(c[2]).password(c[3])
+                                                        .phone(c[4]).role(Role.CLIENT)
+                                                        .subscriptionEndsAt(c[5].isEmpty() ? null
+                                                                        : LocalDateTime.now()
+                                                                                        .plusDays(Long.parseLong(c[5])))
+                                                        .build(),
+                                        Arrays.copyOfRange(c, 6, c.length));
+                }
+
                 // admin
                 saveAdmin(
                                 Admin.builder().name("Carlos").lastName("Martínez").email("admin@terra.com")
@@ -510,7 +812,7 @@ public class DataLoader implements CommandLineRunner {
                                                 .price(56000.0)
                                                 .category(categoryRepository.findByName("Mariscos"))
                                                 .imageUrl("https://invitadoinvierno.com/wp-content/uploads/2019/07/receta-gambas-ajillo-0.jpg")
-                                                .active(true).popular(true).vegetarian(false).spicyMild(true)
+                                                .active(true).popular(true).vegetarian(false).spicyMild(false)
                                                 .spicyHot(true).containsNuts(false).containsSeafood(true)
                                                 .containsGluten(false).build());
 
@@ -939,6 +1241,64 @@ public class DataLoader implements CommandLineRunner {
                                                 .spicyHot(false).containsNuts(false).containsSeafood(false)
                                                 .containsGluten(false).build());
 
+                // Más carta: platos que ya nombran las opiniones de los clientes (pulpo a
+                // feira,
+                // croquetas, empanada, lacón con grelos, etc.). Cada uno tiene UN solo nivel de
+                // picante (mild = ligero, hot = fuerte). La imagen se toma de un plato
+                // parecido:
+                // cámbiala por la foto real cuando la tengas.
+                saveProduct("Croquetas de Jamón Ibérico",
+                                "Croquetas cremosas de bechamel y jamón ibérico, fritas al momento con alioli suave.",
+                                36000.0, "Entradas", "Calamares a la Romana", "popular gluten");
+                saveProduct("Pimientos de Padrón",
+                                "Pimientos verdes fritos con sal gruesa y aceite de oliva: unos pican y otros no.",
+                                30000.0, "Entradas", "Patatas Bravas", "vegetarian mild");
+                saveProduct("Empanada Gallega",
+                                "Empanada de masa fina rellena de atún, cebolla y pimiento, horneada cada día.",
+                                38000.0, "Entradas", "Tortilla Española", "seafood gluten");
+                saveProduct("Zorza con Patatas",
+                                "Lomo de cerdo adobado con pimentón picante, salteado y servido sobre patatas caseras.",
+                                42000.0, "Entradas", "Chorizo a la Sidra", "hot");
+                saveProduct("Caldo Gallego",
+                                "Caldo de grelos, patata y alubias blancas con unto y chorizo, como en las aldeas gallegas.",
+                                34000.0, "Entradas", "Fabada Asturiana", "popular");
+                saveProduct("Pulpo a Feira",
+                                "Pulpo cocido al estilo gallego sobre cachelos, con aceite de oliva y pimentón ligeramente picante.",
+                                78000.0, "Mariscos", "Pulpo a la Brasa", "popular seafood mild");
+                saveProduct("Vieiras Gratinadas",
+                                "Vieiras al horno con cebolla pochada y pan rallado, gratinadas en su concha.",
+                                88000.0, "Mariscos", "Gambas al Ajillo", "seafood gluten");
+                saveProduct("Chipirones en su Tinta",
+                                "Chipirones guisados en su propia tinta con cebolla y vino blanco, con arroz blanco.",
+                                72000.0, "Mariscos", "Calamares a la Romana", "seafood");
+                saveProduct("Parrillada de Mariscos para Compartir",
+                                "Gambas, mejillones, almejas, calamares y cigalas a la plancha, pensada para cuatro personas.",
+                                165000.0, "Mariscos", "Arroz Negro", "popular seafood");
+                saveProduct("Lacón con Grelos",
+                                "Lacón cocido con grelos, cachelos y chorizo, el plato de carnaval gallego todo el año.",
+                                69000.0, "Carnes", "Carrilleras de Cerdo", "");
+                saveProduct("Chuletón a la Piedra",
+                                "Chuletón de res madurado, servido a punto sobre piedra caliente con sal en escamas.",
+                                135000.0, "Carnes", "Secreto Ibérico", "popular");
+                saveProduct("Cordero Lechal de Temporada",
+                                "Paletilla de cordero lechal asada a baja temperatura. Solo en temporada: hoy fuera de carta.",
+                                118000.0, "Carnes", "Cordero Asado", "inactive");
+                saveProduct("Tarta de Santiago",
+                                "Tarta tradicional de almendra con la cruz de Santiago en azúcar glas.",
+                                33000.0, "Postres", "Tarta de Queso Vasca", "popular vegetarian nuts");
+                saveProduct("Albariño Rías Baixas (copa)",
+                                "Copa de Albariño fresco y salino, ideal con mariscos y pescados.",
+                                36000.0, "Bebidas", "Sangría Española", "");
+                saveProduct("Cerveza Estrella Galicia",
+                                "Cerveza gallega bien fría, servida en botella de 330 ml.",
+                                18000.0, "Bebidas", "Tinto de Verano", "gluten");
+                saveProduct("Café de Pota",
+                                "Café servido en jarra de barro, con el toque tradicional de las casas gallegas.",
+                                18000.0, "Bebidas", "Café Cortado", "");
+                saveProduct("Agua Mineral",
+                                "Agua mineral natural, botella de 500 ml.",
+                                9000.0, "Bebidas", "Horchata de Chufa", "vegetarian");
+
                 // DeliveryPersons
                 // available=false solo si llevan un pedido en camino (Luisa); un repartidor
                 // inactivo (Tomás) tampoco está disponible.
@@ -952,21 +1312,39 @@ public class DataLoader implements CommandLineRunner {
                                                 .email("luisa.fernandez@terra.com").password("luisa123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234568")
                                                 .phone("+57 301 500 1002").available(false).active(true).build());
-                saveDeliveryPerson(
+                DeliveryPerson deliveryPerson3 = saveDeliveryPerson(
                                 DeliveryPerson.builder().name("Miguel Ángel").lastName("Ruiz")
                                                 .email("miguel.ruiz@terra.com").password("miguel123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234569")
                                                 .phone("+57 301 500 1003").available(true).active(true).build());
-                saveDeliveryPerson(
+                DeliveryPerson deliveryPerson4 = saveDeliveryPerson(
                                 DeliveryPerson.builder().name("Daniela").lastName("Vargas")
                                                 .email("daniela.vargas@terra.com").password("daniela123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234570")
                                                 .phone("+57 301 500 1004").available(true).active(true).build());
-                saveDeliveryPerson(
+                DeliveryPerson deliveryPerson5 = saveDeliveryPerson(
                                 DeliveryPerson.builder().name("Tomás").lastName("Herrera")
                                                 .email("tomas.herrera@terra.com").password("tomas123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234571")
                                                 .phone("+57 301 500 1005").available(false).active(false).build());
+
+                // Domiciliarios más recientes: Camilo y Juliana llevan un pedido en camino
+                // ahora mismo (available=false); Brayan es el más nuevo y está libre.
+                DeliveryPerson deliveryPerson6 = saveDeliveryPerson(
+                                DeliveryPerson.builder().name("Camilo").lastName("Ortiz")
+                                                .email("camilo.ortiz@terra.com").password("camilo123")
+                                                .role(Role.DELIVERY_PERSON).identification("1001234572")
+                                                .phone("+57 301 500 1006").available(false).active(true).build());
+                DeliveryPerson deliveryPerson7 = saveDeliveryPerson(
+                                DeliveryPerson.builder().name("Juliana").lastName("Salcedo")
+                                                .email("juliana.salcedo@terra.com").password("julianas123")
+                                                .role(Role.DELIVERY_PERSON).identification("1001234573")
+                                                .phone("+57 301 500 1007").available(false).active(true).build());
+                DeliveryPerson deliveryPerson8 = saveDeliveryPerson(
+                                DeliveryPerson.builder().name("Brayan").lastName("Cortés")
+                                                .email("brayan.cortes@terra.com").password("brayan123")
+                                                .role(Role.DELIVERY_PERSON).identification("1001234574")
+                                                .phone("+57 301 500 1008").available(true).active(true).build());
 
                 // Los operadores deben existir antes de los pedidos, que los referencian.
                 // operator5 está inactivo (active=false).
@@ -1126,6 +1504,93 @@ public class DataLoader implements CommandLineRunner {
                 order5.getDetails().add(order5Detail2);
                 orderRepository.save(order5);
 
+                // ------------------------------------------------------------------
+                // Pedidos ampliados
+                // ------------------------------------------------------------------
+                initMenuPools();
+
+                // Pedido 6 - SEGUNDO pedido en camino de Marta Souto (el pedido 2 es el
+                // primero).
+                // Marta tiene así 2 pedidos en camino a la vez, con 2 domiciliarios distintos.
+                Order order6 = newOrder(client2, OrderStatus.ON_THE_WAY, now.minusMinutes(48), operator1,
+                                deliveryPerson7);
+                addLine(order6, findProductByName("Fideuá Valenciana"), 1);
+                addLine(order6, findProductByName("Salmorejo Cordobés"), 2);
+                addLine(order6, findProductByName("Tarta de Queso Vasca"), 1, findAddOnByName("Nata montada"));
+                addLine(order6, findProductByName("Tinto de Verano"), 2);
+                orderRepository.save(order6);
+
+                // Pedido 7 - en camino (Santiago Ospina, con Camilo)
+                Order order7 = newOrder(clientRepository.findByEmail("santiago.ospina@gmail.com"),
+                                OrderStatus.ON_THE_WAY, now.minusMinutes(27), operator3, deliveryPerson6);
+                addLine(order7, findProductByName("Croquetas de Jamón Ibérico"), 2);
+                addLine(order7, findProductByName("Rabo de Toro"), 2);
+                addLine(order7, findProductByName("Café de Pota"), 2);
+                orderRepository.save(order7);
+
+                // Pedidos 8 y 9 - en preparación
+                Order order8 = newOrder(clientRepository.findByEmail("paula.herrera@icloud.com"),
+                                OrderStatus.PREPARING, now.minusMinutes(14), operator2, null);
+                addLine(order8, findProductByName("Vieiras Gratinadas"), 1);
+                addLine(order8, findProductByName("Chuletón a la Piedra"), 1);
+                addLine(order8, findProductByName("Albariño Rías Baixas (copa)"), 2);
+                orderRepository.save(order8);
+                Order order9 = newOrder(clientRepository.findByEmail("gabriela.salazar@outlook.com"),
+                                OrderStatus.PREPARING, now.minusMinutes(9), operator4, null);
+                addLine(order9, findProductByName("Pulpo a Feira"), 1);
+                addLine(order9, findProductByName("Pimientos de Padrón"), 1);
+                addLine(order9, findProductByName("Tarta de Santiago"), 1);
+                orderRepository.save(order9);
+
+                // Pedidos 10 y 11 - confirmados (recién entrados)
+                Order order10 = newOrder(clientRepository.findByEmail("ricardo.mendez@gmail.com"),
+                                OrderStatus.CONFIRMED, now.minusMinutes(4), operator1, null);
+                addLine(order10, findProductByName("Parrillada de Mariscos para Compartir"), 1);
+                addLine(order10, findProductByName("Cerveza Estrella Galicia"), 3);
+                orderRepository.save(order10);
+                Order order11 = newOrder(clientRepository.findByEmail("lucia.pineda@hotmail.com"),
+                                OrderStatus.CONFIRMED, now.minusMinutes(2), operator3, null);
+                addLine(order11, findProductByName("Tarta de Santiago"), 2);
+                addLine(order11, findProductByName("Café de Pota"), 2);
+                orderRepository.save(order11);
+
+                // Historial: ~18 meses de pedidos cerrados (entregados y algunos cancelados).
+                // Más movimiento los viernes, sábados y domingos, menos lunes y martes, un
+                // pico en diciembre, y un negocio que crece con el tiempo. Cada pedido cae en
+                // el turno del almuerzo (12-14) o de la cena (19-21).
+                Random rnd = new Random(SEED);
+                Operator[] ops = { operator1, operator2, operator3, operator4, operator5 };
+                DeliveryPerson[] drivers = { deliveryPerson1, deliveryPerson2, deliveryPerson3,
+                                deliveryPerson4, deliveryPerson5, deliveryPerson6, deliveryPerson7,
+                                deliveryPerson8 };
+                for (int daysAgo = HISTORY_DAYS; daysAgo >= 1; daysAgo--) {
+                        LocalDateTime day = now.minusDays(daysAgo);
+                        double growth = 0.20 + 0.90 * (HISTORY_DAYS - daysAgo) / (double) HISTORY_DAYS;
+                        double weekday = switch (day.getDayOfWeek()) {
+                                case FRIDAY, SATURDAY -> 1.7;
+                                case SUNDAY -> 1.4;
+                                case MONDAY, TUESDAY -> 0.6;
+                                default -> 1.0;
+                        };
+                        double season = day.getMonthValue() == 12 ? 1.4
+                                        : (day.getMonthValue() == 2 || day.getMonthValue() == 5) ? 1.15 : 1.0;
+                        double expected = growth * weekday * season;
+                        int count = (int) expected + (rnd.nextDouble() < expected - (int) expected ? 1 : 0);
+                        for (int k = 0; k < count; k++) {
+                                int hour = rnd.nextDouble() < 0.40 ? 12 + rnd.nextInt(3) : 19 + rnd.nextInt(3);
+                                LocalDateTime createdAt = day.withHour(hour).withMinute(rnd.nextInt(60))
+                                                .withSecond(0).withNano(0);
+                                orderRepository.save(randomOrder(rnd, pickClient(rnd, daysAgo), createdAt,
+                                                daysAgo, rnd.nextDouble() < 0.06, ops, drivers));
+                        }
+                }
+                // Hoy: pedidos ya entregados y uno cancelado (los de "en curso" están arriba)
+                for (int k = 0; k < 4; k++) {
+                        LocalDateTime createdAt = now.minusHours(2 + k).minusMinutes(rnd.nextInt(40));
+                        orderRepository.save(randomOrder(rnd, pickClient(rnd, 0), createdAt, 0, k == 3, ops,
+                                        drivers));
+                }
+
                 // Cupones generales de demostración
                 couponRepository.save(Coupon.builder().code("TERRA10")
                                 .description("10 % de descuento en tu pedido")
@@ -1153,6 +1618,33 @@ public class DataLoader implements CommandLineRunner {
                                 .startsAt(now.minusDays(40)).expiresAt(now.minusDays(5)).active(true)
                                 .client(client1).build());
 
+                // Más cupones: generales vigentes, uno ya vencido, uno que aún no empieza y
+                // personales para otros clientes
+                couponRepository.save(Coupon.builder().code("FIDELIDAD20")
+                                .description("20 % de descuento en pedidos grandes")
+                                .discountType(DiscountType.PERCENTAGE).discountValue(20.0)
+                                .maxDiscount(15000.0).minOrderAmount(80000.0)
+                                .expiresAt(now.plusDays(45)).active(true).build());
+                couponRepository.save(Coupon.builder().code("PRIMAVERA10")
+                                .description("10 % de descuento de temporada")
+                                .discountType(DiscountType.PERCENTAGE).discountValue(10.0)
+                                .startsAt(now.minusDays(200)).expiresAt(now.minusDays(150)).active(true).build());
+                couponRepository.save(Coupon.builder().code("NAVIDAD25")
+                                .description("25 % de descuento para las fiestas")
+                                .discountType(DiscountType.PERCENTAGE).discountValue(25.0)
+                                .maxDiscount(25000.0).minOrderAmount(100000.0)
+                                .startsAt(now.plusDays(40)).expiresAt(now.plusDays(70)).active(true).build());
+                couponRepository.save(Coupon.builder().code("MARTA10K")
+                                .description("$10.000 de descuento para ti")
+                                .discountType(DiscountType.FIXED_AMOUNT).discountValue(10000.0)
+                                .minOrderAmount(40000.0).expiresAt(now.plusDays(20)).active(true)
+                                .client(client2).build());
+                couponRepository.save(Coupon.builder().code("DIEGO15")
+                                .description("15 % para clientes Premium")
+                                .discountType(DiscountType.PERCENTAGE).discountValue(15.0)
+                                .maxDiscount(12000.0).expiresAt(now.plusDays(15)).active(true)
+                                .client(client3).build());
+
                 // Anuncios de demostración para el home
                 announcementRepository.save(Announcement.builder()
                                 .title("¡Bienvenidos a Terra Galega!")
@@ -1160,8 +1652,27 @@ public class DataLoader implements CommandLineRunner {
                                 .imageUrl("https://png.pngtree.com/thumb_back/fh260/background/20240425/pngtree-top-desk-with-blur-restaurant-background-wooden-table-image_15665383.jpg")
                                 .build());
 
-                // Reseñas de demostración: una por cliente (relación 1 a 1), todas buenas
-                // (4 o 5 estrellas) para que el carrusel de opiniones tenga movimiento.
+                announcementRepository.save(Announcement.builder()
+                                .title("Nuevo: Menú Maridaje Degustación")
+                                .description("Tres copas gallegas elegidas por nuestro sommelier para acompañar entrada, principal y postre.")
+                                .imageUrl("https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80")
+                                .build());
+                announcementRepository.save(Announcement.builder()
+                                .title("Reserva tu mesa con anticipo")
+                                .description("Elige tu mesa en el plano, en el salón principal o en la galería del segundo piso, y asegúrala con un anticipo.")
+                                .imageUrl("https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=800&q=80")
+                                .build());
+                announcementRepository.save(Announcement.builder()
+                                .title("Hazte Premium y recibe cupones")
+                                .description("Los clientes Premium reciben descuentos exclusivos y cupones personales cada mes.")
+                                .imageUrl("https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80")
+                                .build());
+
+                // Reseñas de demostración: una por cliente (relación 1 a 1). Las opiniones
+                // antiguas son mayormente de 4 y 5 estrellas; las de clientes recientes
+                // incluyen
+                // alguna de 3 y de 2. Las fechas están repartidas en ~18 meses (varias del año
+                // pasado), no todas en el mismo mes. Algunos clientes no han opinado todavía.
                 String[][] reviews = {
                                 { "juan.garcia@gmail.com", "5",
                                                 "Auténtica cocina gallega. El pulpo a feira llegó perfecto y el servicio fue impecable." },
@@ -1227,13 +1738,54 @@ public class DataLoader implements CommandLineRunner {
                                                 "De los mejores restaurantes de la ciudad. Atención cercana y cocina de altura." },
                                 { "sara.londono@outlook.com", "5",
                                                 "Reservé para la revelación de género de mi bebé y el equipo lo hizo muy especial." },
+                                { "isabel.ortega@gmail.com", "4",
+                                                "Muy buena la empanada gallega y el caldo gallego. El servicio fue un poco lento en hora pico, pero valió la pena." },
+                                { "julian.cortes@outlook.com", "5",
+                                                "El chuletón a la piedra para compartir fue lo mejor de la noche. Volvemos pronto." },
+                                { "mariana.giraldo@gmail.com", "3",
+                                                "La comida estuvo rica, pero el domicilio tardó más de lo esperado y llegó tibio." },
+                                { "andrea.montoya@hotmail.com", "5",
+                                                "La tarta de Santiago y el café de pota, un final perfecto. Atención muy amable." },
+                                { "cristian.bernal@gmail.com", "4",
+                                                "Buen lugar para ir en grupo. La parrillada de mariscos alcanza bien para cuatro personas." },
+                                { "veronica.aguirre@yahoo.com", "5",
+                                                "Las croquetas de jamón son adictivas. Reservamos por la página y la mesa estaba lista." },
+                                { "jorge.rincon@gmail.com", "2",
+                                                "Pedí a domicilio y faltó un plato en el pedido. Me lo solucionaron, pero la experiencia no fue la mejor." },
+                                { "paola.cifuentes@icloud.com", "5",
+                                                "Los pimientos de Padrón y el pulpo a feira, como en Galicia. Muy recomendado." },
+                                { "nicolas.arango@gmail.com", "4",
+                                                "Cena de aniversario muy agradable, aunque la zorza me pareció demasiado picante para mi gusto." },
+                                { "daniela.sandoval@outlook.com", "5",
+                                                "El lacón con grelos es contundente y sabroso. Gran relación entre calidad y precio." },
+                                { "oscar.mejia@gmail.com", "3",
+                                                "Buena comida, pero el ruido en el primer piso un sábado a las 8 pm era mucho." },
+                                { "liliana.prieto@hotmail.com", "5",
+                                                "Las vieiras gratinadas con una copa de albariño: perfecto. El equipo de sala es excelente." },
+                                { "fabian.lozano@gmail.com", "4",
+                                                "Pedimos el menú de maridaje y el sommelier lo explicó muy bien." },
+                                { "catalina.reyes@gmail.com", "5",
+                                                "Almuerzo de trabajo impecable: rápido, con buen sabor y puntuales con la reserva." },
+                                { "mauricio.gaitan@yahoo.com", "5",
+                                                "El rabo de toro se deshace en la boca. De lo mejor que he comido en Bogotá." },
+                                { "angie.osorio@gmail.com", "4",
+                                                "Los churros con chocolate y la tarta de queso vasca son un vicio. Volveré." },
                 };
+                // Hace cuántos días escribió cada reseña (en el mismo orden que la lista).
+                // Hay del mes actual, de meses anteriores y de 2025.
+                int[] reviewDaysAgo = { 5, 380, 12, 41, 505, 63, 220, 8, 148, 331, 27, 460, 95, 17, 270, 410, 52, 185,
+                                24, 355, 120, 440, 70, 300, 38, 430, 2, 160, 240, 85, 400, 33, 100, 90, 84, 76, 70, 64,
+                                58, 51, 46, 39, 33, 29, 22, 18, 13, 9 };
+                if (reviewDaysAgo.length != reviews.length) {
+                        throw new IllegalStateException("reviewDaysAgo y reviews deben tener la misma cantidad");
+                }
                 for (int i = 0; i < reviews.length; i++) {
                         reviewRepository.save(Review.builder()
                                         .client(clientRepository.findByEmail(reviews[i][0]))
                                         .rating(Integer.parseInt(reviews[i][1]))
                                         .comment(reviews[i][2])
-                                        .createdAt(now.minusDays(reviews.length - i).minusHours(i % 5))
+                                        .createdAt(now.minusDays(reviewDaysAgo[i]).withHour(10 + (i * 7) % 12)
+                                                        .withMinute((i * 13) % 60).withSecond(0).withNano(0))
                                         .build());
                 }
 
@@ -1294,6 +1846,27 @@ public class DataLoader implements CommandLineRunner {
                                                 ReservationTheme.NONE },
                                 { "martin.acosta@gmail.com", "Cena de amigos", 223, 5, "19:30", 4,
                                                 ReservationTheme.NONE },
+                                // Reservas de la semana siguiente (clientes nuevos, sin reserva previa)
+                                { "rodrigo.valencia@outlook.com", "Cena de aniversario", 207, 6, "19:30", 2,
+                                                ReservationTheme.LOVE },
+                                { "stephanie.murillo@gmail.com", "Cumpleaños de Stephanie", 127, 6, "21:00", 6,
+                                                ReservationTheme.BIRTHDAY },
+                                { "ivan.calderon@icloud.com", "Reunión de socios", 112, 7, "13:30", 4,
+                                                ReservationTheme.BUSINESS },
+                                { "claudia.roldan@hotmail.com", "Maridaje de despedida", 103, 7, "19:30", 2,
+                                                ReservationTheme.PAIRING },
+                                { "sergio.ibanez@gmail.com", "Cena con amigos", 118, 8, "19:30", 4,
+                                                ReservationTheme.NONE },
+                                { "monica.zapata@gmail.com", "Grado de Mónica", 233, 9, "19:30", 16,
+                                                ReservationTheme.GRADUATION },
+                                { "angie.osorio@gmail.com", "Cumpleaños de Angie", 129, 10, "21:00", 6,
+                                                ReservationTheme.BIRTHDAY },
+                                { "mauricio.gaitan@yahoo.com", "Cena de negocios", 117, 10, "19:30", 4,
+                                                ReservationTheme.BUSINESS },
+                                { "catalina.reyes@gmail.com", "Almuerzo familiar", 109, 12, "12:00", 4,
+                                                ReservationTheme.NONE },
+                                { "fabian.lozano@gmail.com", "Noche de vinos", 105, 12, "21:00", 2,
+                                                ReservationTheme.PAIRING },
                 };
                 for (Object[] data : reservations) {
                         Client client = clientRepository.findByEmail((String) data[0]);
@@ -1310,5 +1883,7 @@ public class DataLoader implements CommandLineRunner {
                         client.setReservation(reservation);
                         reservationRepository.save(reservation);
                 }
+
+                printSummary();
         }
 }
