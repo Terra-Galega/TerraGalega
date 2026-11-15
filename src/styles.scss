@@ -257,15 +257,16 @@ body {
 :root {
   // Margen lateral de las páginas
   --gutter: 1.25rem; // móvil: 20 px
-  // Espacio vertical entre secciones grandes
-  --section-y: 4.5rem;
+  // Espacio vertical entre secciones grandes del inicio (antes 4.5 / 7 / 9 rem: dejaba
+  // 18 rem en blanco entre una sección y la siguiente)
+  --section-y: 3rem;
 }
 
 // Tablet
 @media (min-width: 768px) {
   :root {
     --gutter: 1.5rem;
-    --section-y: 7rem;
+    --section-y: 4.25rem;
   }
 }
 
@@ -273,7 +274,7 @@ body {
 @media (min-width: 1024px) {
   :root {
     --gutter: 2rem;
-    --section-y: 9rem;
+    --section-y: 5rem;
   }
 }
 
@@ -308,6 +309,16 @@ h3 {
 // Espacio vertical de las secciones grandes del inicio, según el rango
 .section-y {
   padding-block: var(--section-y);
+}
+
+// Dos secciones seguidas con el mismo fondo se unen: la de arriba no deja espacio abajo
+// y la de abajo reduce el de arriba, así solo hay un respiro entre ambas.
+.section-y--flush-bottom {
+  padding-bottom: 0;
+}
+
+.section-y--join {
+  padding-top: calc(var(--section-y) * 0.7);
 }
 
 // ---------- Pantallas táctiles ----------

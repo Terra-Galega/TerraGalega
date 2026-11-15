@@ -1,113 +1,107 @@
 <!-- Fondo oscuro que cubre toda la pantalla y centra la ventana -->
-<div
-class="fixed inset-0 z-50 sheet-overlay flex items-center justify-center p-4"
-style="background-color: rgba(44, 44, 44, 0.55)"
->
-    <div
-        class="sheet-window bg-cream w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 relative"
-    >
-        <!-- Encabezado: el título cambia según se edite o se cree -->
-        <div class="flex items-center justify-between mb-7">
-        <h2 class="font-serif text-2xl font-semibold text-charcoal">
-            {{ announcement ? "Editar anuncio" : "Añadir anuncio" }}
-        </h2>
+<div class="fixed inset-0 z-50 sheet-overlay flex items-center justify-center p-4"
+  style="background-color: rgba(44, 44, 44, 0.55)">
+  <!-- Ventana grande: en pantallas anchas el formulario va a la izquierda y la vista previa
+         (tal como se verá en el inicio) a la derecha. En móvil se apilan y se desplaza dentro. -->
+  <div class="sheet-window bg-cream w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-3xl p-6 md:p-10 relative">
+    <!-- Encabezado: el título cambia según se edite o se cree -->
+    <div class="flex items-center justify-between mb-6 md:mb-8">
+      <h2 class="font-serif text-2xl md:text-3xl font-semibold tracking-tight text-charcoal">
+        {{ announcement ? "Editar anuncio" : "Añadir anuncio" }}
+      </h2>
 
-        <app-icon-button variant="soft" label="Cerrar" (click)="close()">
-            <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            >
-            <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </app-icon-button>
-        </div>
+      <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </app-icon-button>
+    </div>
 
-        <div class="space-y-4">
+    <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-8 lg:gap-10 items-start">
+      <!-- ===== Formulario ===== -->
+      <div class="space-y-5">
         <!-- Título -->
         <app-form-field label="Título">
-            <input
-            type="text"
-            [value]="title"
-            (input)="setTitle($event)"
-            [attr.maxlength]="titleMax"
-            required
+          <input type="text" [value]="title" (input)="setTitle($event)" [attr.maxlength]="titleMax" required
             placeholder="Título del anuncio"
-            class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
-            />
-            <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
-                {{ title.length }}/{{ titleMax }}
-            </p>
+            class="input-field w-full px-5 py-3.5 rounded-full text-base text-charcoal" />
+          <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
+            {{ title.length }}/{{ titleMax }}
+          </p>
         </app-form-field>
 
         <!-- Descripción -->
         <app-form-field label="Descripción">
-            <textarea
-            [value]="description"
-            (input)="setDescription($event)"
-            [attr.maxlength]="descriptionMax"
-            rows="3"
-            required
-            placeholder="Descripción del anuncio…"
-            class="input-field w-full px-4 py-3 rounded-3xl text-sm text-charcoal resize-none"
-            ></textarea>
-            <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
-                {{ description.length }}/{{ descriptionMax }}
-            </p>
+          <textarea [value]="description" (input)="setDescription($event)" [attr.maxlength]="descriptionMax" rows="6"
+            required placeholder="Descripción del anuncio…"
+            class="input-field w-full px-5 py-4 rounded-3xl text-base text-charcoal resize-none"></textarea>
+          <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
+            {{ description.length }}/{{ descriptionMax }}
+          </p>
         </app-form-field>
 
-        <!-- URL de la imagen, con vista previa solo si la URL es válida -->
+        <!-- URL de la imagen -->
         <app-form-field label="URL de imagen">
-            <input
-            type="url"
-            [value]="imageUrl"
-            (input)="setImageUrl($event)"
-            [attr.maxlength]="urlMax"
-            required
+          <input type="url" [value]="imageUrl" (input)="setImageUrl($event)" [attr.maxlength]="urlMax" required
             placeholder="https://images.unsplash.com/…"
-            class="input-field w-full px-4 py-3 rounded-full text-sm text-charcoal"
-            />
-
-            @if (canPreview) {
-                <img
-                    [src]="imageUrl.trim()"
-                    alt="preview"
-                    class="mt-2 w-full h-28 object-cover rounded-xl"
-                    [class.hidden]="previewFailed"
-                    (load)="previewFailed = false"
-                    (error)="previewFailed = true"
-                />
-                @if (previewFailed) {
-                    <p class="text-xs mt-2" style="color: #da5858">
-                        No se pudo cargar la imagen de esa URL.
-                    </p>
-                }
-            }
+            class="input-field w-full px-5 py-3.5 rounded-full text-base text-charcoal" />
+          <p class="text-xs mt-2 leading-relaxed" style="color: rgba(44, 44, 44, 0.55)">
+            Usa una imagen horizontal en proporción 4:3 (por ejemplo, 1600 × 1200 px).
+            Si es de otra proporción, se recorta desde el centro como ves en la vista previa.
+          </p>
         </app-form-field>
 
         <!-- Error de validación o del servidor (incluye "máximo 3 anuncios") -->
         @if (errorMessage) {
-            <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
+        <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
         }
 
         <!-- Botones: Cancelar y Guardar -->
         <div class="flex gap-3 pt-2">
-            <app-button
-            class="flex-1"
-            variant="neutral"
-            [fullWidth]="true"
-            (click)="close()"
-            >
+          <app-button class="flex-1" variant="neutral" [fullWidth]="true" (click)="close()">
             Cancelar
-            </app-button>
+          </app-button>
 
-            <app-button class="flex-1" [fullWidth]="true" (click)="save()">
+          <app-button class="flex-1" [fullWidth]="true" (click)="save()">
             {{ announcement ? "Guardar cambios" : "Añadir anuncio" }}
-            </app-button>
+          </app-button>
         </div>
-        </div>
+      </div>
+
+      <!-- ===== Vista previa: misma imagen 4:3, mismas fuentes y mismo orden que en el inicio ===== -->
+      <div class="lg:sticky lg:top-0">
+        <p class="text-[11px] font-semibold tracking-[0.18em] uppercase mb-3" style="color: rgba(44, 44, 44, 0.5)">
+          Vista previa en el inicio
+        </p>
+        <article class="overflow-hidden rounded-[28px] bg-white"
+          style="box-shadow: 0 1px 2px rgba(44, 44, 44, 0.04), 0 20px 50px rgba(44, 44, 44, 0.08)">
+          <div class="relative aspect-[4/3] w-full" style="background-color: #ede9e0">
+            @if (canPreview) {
+            <img [src]="imageUrl.trim()" alt="Vista previa de la imagen del anuncio"
+              class="absolute inset-0 w-full h-full object-cover" [class.hidden]="previewFailed"
+              (load)="previewFailed = false" (error)="previewFailed = true" />
+            }
+            @if (!canPreview || previewFailed) {
+            <div class="absolute inset-0 flex items-center justify-center px-6 text-center text-sm"
+              [style.color]="previewFailed ? '#da5858' : 'rgba(44, 44, 44, 0.45)'">
+              {{ previewFailed ? "No se pudo cargar la imagen de esa URL." : "La imagen aparecerá aquí" }}
+            </div>
+            }
+          </div>
+          <div class="px-7 py-7">
+            <p class="text-xs font-semibold tracking-[0.22em] uppercase mb-3" style="color: #b2571f">
+              Novedad
+            </p>
+            <h3
+              class="font-serif text-2xl md:text-3xl font-semibold tracking-tight leading-tight text-charcoal mb-3 break-words">
+              {{ title.trim() || "Título del anuncio" }}
+            </h3>
+            <p class="text-base md:text-lg leading-snug break-words" style="color: rgba(44, 44, 44, 0.7)">
+              {{ description.trim() || "La descripción aparecerá aquí." }}
+            </p>
+          </div>
+        </article>
+      </div>
     </div>
+  </div>
 </div>

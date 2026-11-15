@@ -1,13 +1,14 @@
 <!-- Sección de productos populares. -->
-<section id="menu" class="section-y bg-cream">
+<section id="menu" class="section-y section-y--join bg-cream">
   <div class="max-w-7xl mx-auto px-6">
-    <app-section-heading appReveal eyebrow="Más solicitados" title="Favoritos de la casa" />
+    <app-section-heading appReveal [tight]="true" eyebrow="Más solicitados" title="Favoritos de la casa" />
   </div>
   <div appReveal class="mx-auto px-6" [class.max-w-7xl]="!animated" [class.wide]="animated">
 
     @if (!animated) {
-    <!-- Hasta 6 favoritos: cuadrícula fija de 1, 2 o 3 columnas según la pantalla. -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <!-- Hasta 6 favoritos: cuadrícula fija de 1, 2 o 3 columnas según la pantalla. Las tarjetas
+         de una fila miden lo mismo y sus precios quedan alineados abajo. -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       @for (product of all; track product.id) {
       <app-product-card [product]="product" />
       }
