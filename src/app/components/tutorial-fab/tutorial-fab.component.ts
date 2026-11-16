@@ -1,8 +1,10 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, inject, input, output } from '@angular/core';
 import { TourName, TutorialService } from '../../services/Tutorial.service';
 
 // Botón flotante que muestra los tutoriales disponibles en la pantalla.
 @Component({
+  imports: [TranslatePipe],
     selector: 'app-tutorial-fab',
     templateUrl: './tutorial-fab.component.html',
 })

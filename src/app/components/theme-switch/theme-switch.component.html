@@ -4,7 +4,7 @@
 <!-- Versión compacta: solo el interruptor. aria-label lo nombra para lectores de pantalla y
      data-tooltip es el texto del tooltip propio de la app (TooltipService). -->
 <button type="button" role="switch" class="switch switch--compact" [class.switch--on]="theme.isDark"
-  [attr.aria-checked]="theme.isDark" aria-label="Tema oscuro"
+  [attr.aria-checked]="theme.isDark" [attr.aria-label]="'theme_switch.theme_switch.tema_oscuro' | t"
   [attr.data-tooltip]="theme.isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'" (click)="theme.toggle()">
     <span class="switch__thumb" aria-hidden="true">
       @if (theme.isDark) {
@@ -26,9 +26,9 @@
 <!-- Versión completa: texto a la izquierda y el interruptor a la derecha. -->
 <div class="flex items-center justify-between gap-5">
   <div class="min-w-0">
-    <p id="theme-switch-label" class="font-medium text-charcoal">Tema oscuro</p>
+    <p id="theme-switch-label" class="font-medium text-charcoal">{{ 'theme_switch.theme_switch.tema_oscuro' | t }}</p>
     <p id="theme-switch-hint" class="text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.55)">
-      Fondos oscuros y menos brillo, más cómodo de noche.
+      {{ 'theme_switch.theme_switch.fondos_oscuros_y_menos_brillo_mas_comodo_de_noche' | t }}
     </p>
   </div>
 
