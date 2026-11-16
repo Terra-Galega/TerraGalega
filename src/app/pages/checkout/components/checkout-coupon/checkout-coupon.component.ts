@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { DecimalPipe } from '@angular/common';
 import {
   Component,
@@ -20,7 +21,7 @@ import { getErrorMessage } from '../../../../utils/http-error';
 @Component({
   selector: 'app-checkout-coupon',
   standalone: true,
-  imports: [DecimalPipe, ButtonComponent],
+  imports: [DecimalPipe, ButtonComponent, TranslatePipe],
   templateUrl: './checkout-coupon.component.html',
 })
 export class CheckoutCouponComponent implements OnInit, OnChanges {

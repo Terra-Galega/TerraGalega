@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { Order, OrderDetail, groupAddOns } from '../../../../models/order';
@@ -21,7 +22,7 @@ import { getErrorMessage } from '../../../../utils/http-error';
     ModalComponent,
     ButtonComponent,
     OrderProgressComponent,
-  ],
+    TranslatePipe],
   templateUrl: './ordered.component.html',
 })
 export class OrderedComponent {

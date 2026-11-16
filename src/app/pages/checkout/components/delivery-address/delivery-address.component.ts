@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import {
   Component,
   ElementRef,
@@ -19,7 +20,7 @@ import { AddressMapPickerComponent } from '../../../../components/address-map-pi
     ReactiveFormsModule,
     AddressIconComponent,
     AddressMapPickerComponent,
-  ],
+    TranslatePipe],
   templateUrl: './delivery-address.component.html',
 })
 export class DeliveryAddressComponent implements OnChanges {

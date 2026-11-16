@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { AddOnOption } from '../../../../models/addOn';
@@ -7,7 +8,7 @@ import { AddOnOption } from '../../../../models/addOn';
 // pulsa "+" o "−".
 @Component({
   selector: 'app-addon-option',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, TranslatePipe],
   templateUrl: './addon-option.component.html',
   styleUrl: './addon-option.component.scss',
 })

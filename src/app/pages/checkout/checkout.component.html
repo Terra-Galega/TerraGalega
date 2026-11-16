@@ -3,7 +3,7 @@
   <app-navbar></app-navbar>
 
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
-    <app-page-header eyebrow="Paso 1 de 2 - Pasarela de pago" title="Entrega y pago" />
+    <app-page-header eyebrow="Paso 1 de 2 - Pasarela de pago" title="{{ 'checkout.checkout.entrega_y_pago' | t }}" />
 
     <!-- Sin productos en el carrito no tiene sentido pagar: se invita a ir a la carta -->
     @if (items.length === 0) {
@@ -39,12 +39,12 @@
           [discount]="discount" [couponCode]="coupon?.code ?? ''">
           <div class="mt-6 flex flex-col items-center gap-4">
             <app-button id="btn-continue" type="submit" size="lg" [fullWidth]="true">
-              Continuar
+              {{ 'checkout.checkout.continuar' | t }}
             </app-button>
 
             <button type="button" class="text-sm underline underline-offset-4 cursor-pointer"
               style="color: rgba(44, 44, 44, 0.65)" (click)="cancel()">
-              Cancelar compra
+              {{ 'checkout.checkout.cancelar_compra' | t }}
             </button>
           </div>
         </app-order-summary>
