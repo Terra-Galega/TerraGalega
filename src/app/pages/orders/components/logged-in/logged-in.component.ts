@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../components/button/button.component';
@@ -5,7 +6,7 @@ import { Order } from '../../../../models/order';
 // Encabezado de "Mis pedidos" para clientes con sesión
 @Component({
   selector: 'app-logged-in',
-  imports: [RouterLink, ButtonComponent],
+  imports: [RouterLink, ButtonComponent, TranslatePipe],
   templateUrl: './logged-in.component.html',
   styleUrl: './logged-in.component.scss'
 })

@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { OrderStatus, orderStatusLabel } from '../../models/order';
 
@@ -15,6 +16,7 @@ const FLOW: OrderStatus[] = [
 
 // Solo presentación: recibe el estado y dibuja qué pasos ya se completaron
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-order-progress',
   templateUrl: './order-progress.component.html',
 })

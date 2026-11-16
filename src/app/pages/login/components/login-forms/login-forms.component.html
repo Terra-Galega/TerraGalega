@@ -12,7 +12,7 @@
           class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
           style="color: rgba(44, 44, 44, 0.4)"
         >
-          Correo electrónico
+          {{ 'login.login_forms.login_forms.correo_electronico' | t }}
         </label>
 
         <input
@@ -32,7 +32,7 @@
           class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
           style="color: rgba(44, 44, 44, 0.4)"
         >
-          Contraseña
+          {{ 'login.login_forms.login_forms.contrasena' | t }}
         </label>
 
         <div class="relative">
@@ -117,7 +117,7 @@
             @if (resendCooldown > 0) {
               Reenviar correo de confirmación ({{ resendCooldown }}s)
             } @else {
-              Reenviar correo de confirmación
+              {{ 'login.login_forms.login_forms.reenviar_correo_de_confirmacion' | t }}
             }
           </button>
 
@@ -133,7 +133,7 @@
       <!-- Botón: un poco más ancho que su texto y centrado -->
       <div class="flex justify-center mt-2">
         <app-button id="btn-login" type="submit" variant="primary">
-          Iniciar sesión
+          {{ 'login.login_forms.login_forms.iniciar_sesion' | t }}
         </app-button>
       </div>
 
@@ -145,7 +145,7 @@
         ></div>
 
         <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.3)">
-          Accesos de prueba
+          {{ 'login.login_forms.login_forms.accesos_de_prueba' | t }}
         </span>
 
         <div
@@ -168,7 +168,7 @@
           class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
           style="color: rgba(44, 44, 44, 0.6)"
         >
-          <span class="font-semibold text-charcoal"> Cliente de prueba: </span>
+          <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.cliente_de_prueba' | t }} </span>
 
           juan.garcia&#64;gmail.com
         </button>
@@ -179,7 +179,7 @@
           class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
           style="color: rgba(44, 44, 44, 0.6)"
         >
-          <span class="font-semibold text-charcoal"> Admin de prueba: </span>
+          <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.admin_de_prueba' | t }} </span>
 
           admin&#64;terra.com
         </button>
@@ -190,7 +190,7 @@
           class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
           style="color: rgba(44, 44, 44, 0.6)"
         >
-          <span class="font-semibold text-charcoal"> Operador de prueba: </span>
+          <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.operador_de_prueba' | t }} </span>
           
           sofia.jimenez&#64;terra.com
         </button>
@@ -221,16 +221,16 @@
       </div>
 
       <h2 class="font-serif text-2xl font-semibold text-charcoal">
-        Revisa tu correo
+        {{ 'login.login_forms.login_forms.revisa_tu_correo' | t }}
       </h2>
 
       <p
         class="text-sm leading-relaxed"
         style="color: rgba(44, 44, 44, 0.62)"
       >
-        Enviamos un enlace de confirmación a
+        {{ 'login.login_forms.login_forms.enviamos_un_enlace_de_confirmacion_a' | t }}
         <span class="font-semibold text-charcoal">{{ pendingEmail }}</span
-        >. Abre el enlace para activar tu cuenta; vence en 24 horas.
+        >{{ 'login.login_forms.login_forms.abre_el_enlace_para_activar_tu_cuenta_vence_en_24_horas' | t }}
       </p>
 
       @if (resendMessage) {
@@ -251,7 +251,7 @@
         @if (resendCooldown > 0) {
           ¿No te llegó? Reenviar ({{ resendCooldown }}s)
         } @else {
-          ¿No te llegó? Reenviar correo
+          {{ 'login.login_forms.login_forms.no_te_llego_reenviar_correo' | t }}
         }
       </button>
 
@@ -261,7 +261,7 @@
         [fullWidth]="true"
         (click)="goBackToLogin()"
       >
-        Ir a iniciar sesión
+        {{ 'login.login_forms.login_forms.ir_a_iniciar_sesion' | t }}
       </app-button>
     </div>
   }
@@ -280,7 +280,7 @@
             class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
             style="color: rgba(44, 44, 44, 0.4)"
           >
-            Nombre
+            {{ 'login.login_forms.login_forms.nombre' | t }}
           </label>
 
           <input
@@ -289,7 +289,7 @@
             name="name"
             [value]="signupName"
             (input)="setSignupName($event)"
-            placeholder="Juan"
+            placeholder="{{ 'login.login_forms.login_forms.juan' | t }}"
             class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
           />
         </div>
@@ -299,7 +299,7 @@
             class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
             style="color: rgba(44, 44, 44, 0.4)"
           >
-            Apellido
+            {{ 'login.login_forms.login_forms.apellido' | t }}
           </label>
 
           <input
@@ -308,7 +308,7 @@
             name="lastName"
             [value]="signupLastName"
             (input)="setSignupLastName($event)"
-            placeholder="García"
+            placeholder="{{ 'login.login_forms.login_forms.garcia' | t }}"
             class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
           />
         </div>
@@ -321,7 +321,7 @@
           class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
           style="color: rgba(44, 44, 44, 0.4)"
         >
-          Correo electrónico
+          {{ 'login.login_forms.login_forms.correo_electronico' | t }}
         </label>
 
         <input
@@ -342,7 +342,7 @@
           class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
           style="color: rgba(44, 44, 44, 0.4)"
         >
-          Contraseña
+          {{ 'login.login_forms.login_forms.contrasena' | t }}
         </label>
 
         <div class="relative">
@@ -413,7 +413,7 @@
           class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
           style="color: rgba(44, 44, 44, 0.4)"
         >
-          Teléfono
+          {{ 'login.login_forms.login_forms.telefono' | t }}
         </label>
 
         <input
@@ -432,7 +432,7 @@
           class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
           style="color: rgba(44, 44, 44, 0.4)"
         >
-          Dirección
+          {{ 'login.login_forms.login_forms.direccion' | t }}
         </label>
 
         <input
@@ -441,7 +441,7 @@
           name="address"
           [value]="signupAddress"
           (input)="setSignupAddress($event)"
-          placeholder="Dirección"
+          placeholder="{{ 'login.login_forms.login_forms.direccion' | t }}"
           class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
         />
       </div>
@@ -457,7 +457,7 @@
 
       <div class="flex justify-center mt-2">
         <app-button type="submit" variant="primary">
-          Crear cuenta
+          {{ 'login.login_forms.login_forms.crear_cuenta' | t }}
         </app-button>
       </div>
     </form>

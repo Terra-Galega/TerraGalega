@@ -6,19 +6,19 @@
             class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
             style="color: #b2571f"
           >
-            Tu historial
+            {{ 'orders.logged_in.logged_in.tu_historial' | t }}
           </p>
 
           <h1 class="font-serif fluid-title font-bold text-charcoal">
-            Mis pedidos
+            {{ 'orders.logged_in.logged_in.mis_pedidos' | t }}
           </h1>
 
           <p class="mt-3 text-[15px]" style="color: rgba(44, 44, 44, 0.7)">
-            Hola, esto es todo lo que has pedido en Terra Galega.
+            {{ 'orders.logged_in.logged_in.hola_esto_es_todo_lo_que_has_pedido_en_terra_galega' | t }}
           </p>
         </div>
         <!-- MOSTRAR SOLO SI HAY AL MENOS UN PEDIDO-->
          @if(orders.length > 0){
-        <app-button routerLink="/menu" size="lg">Pedir de nuevo</app-button>
+        <app-button routerLink="/menu" size="lg">{{ 'orders.logged_in.logged_in.pedir_de_nuevo' | t }}</app-button>
          }
 </div>
