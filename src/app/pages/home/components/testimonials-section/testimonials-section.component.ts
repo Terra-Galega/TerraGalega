@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { AfterViewInit, Component, ElementRef, OnDestroy, inject } from '@angular/core';
 import { SectionHeadingComponent } from '../../../../components/section-heading/section-heading.component';
 import { RevealDirective } from '../../../../directives/reveal.directive';
@@ -15,7 +16,7 @@ interface CriticReview {
 // Las tarjetas aparecen con un fundido cuando la sección entra en pantalla, una tras otra.
 @Component({
   selector: 'app-testimonials-section',
-  imports: [SectionHeadingComponent, RevealDirective],
+  imports: [SectionHeadingComponent, RevealDirective, TranslatePipe],
   templateUrl: './testimonials-section.component.html',
   styleUrl: './testimonials-section.component.scss',
 })

@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReviewCardComponent } from '../review-card/review-card.component';
@@ -20,7 +21,7 @@ const SECONDS_PER_CARD = 6;
  */
 @Component({
   selector: 'app-reviews-track',
-  imports: [ReviewCardComponent, StarIconComponent],
+  imports: [ReviewCardComponent, StarIconComponent, TranslatePipe],
   templateUrl: './reviews-track.component.html',
   styleUrl: './reviews-track.component.scss',
 })

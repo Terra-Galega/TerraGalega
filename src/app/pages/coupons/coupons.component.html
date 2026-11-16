@@ -1,13 +1,13 @@
 <app-navbar></app-navbar>
 <div class="min-h-screen bg-cream font-sans text-charcoal" style="background-color: #f5f2eb">
 <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
-    <app-page-header eyebrow="Tus beneficios" title="Mis cupones"></app-page-header>
+    <app-page-header eyebrow="Tus beneficios" title="{{ 'coupons.coupons.mis_cupones' | t }}"></app-page-header>
 
     @if (loading) {
-    <p class="text-center py-10">Cargando tus cupones...</p>
+    <p class="text-center py-10">{{ 'coupons.coupons.cargando_tus_cupones' | t }}</p>
     } @else {
     <!-- ACTIVOS -->
-    <h2 class="font-serif text-2xl font-semibold text-charcoal mb-5">Activos</h2>
+    <h2 class="font-serif text-2xl font-semibold text-charcoal mb-5">{{ 'coupons.coupons.activos' | t }}</h2>
     @if (activeCoupons.length > 0) {
         <div id="active-coupons" class="grid grid-cols-1 md:grid-cols-2 gap-5">
         @for (coupon of activeCoupons; track coupon.id) {
@@ -24,7 +24,7 @@
     }
 
     <!-- EXPIRADOS -->
-    <h2 class="font-serif text-2xl font-semibold text-charcoal mt-14 mb-5">Expirados</h2>
+    <h2 class="font-serif text-2xl font-semibold text-charcoal mt-14 mb-5">{{ 'coupons.coupons.expirados' | t }}</h2>
     @if (expiredCoupons.length > 0) {
         <div id="expired-coupons" class="grid grid-cols-1 md:grid-cols-2 gap-5">
         @for (coupon of expiredCoupons; track coupon.id) {

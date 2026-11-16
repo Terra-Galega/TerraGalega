@@ -26,7 +26,7 @@
             class="text-[10px] font-semibold uppercase tracking-wider leading-tight mt-1.5"
             [style.color]="isActive ? 'rgba(255, 255, 255, 0.9)' : 'rgba(44, 44, 44, 0.55)'"
         >
-            de descuento
+            {{ 'coupon_card.coupon_card.de_descuento' | t }}
         </p>
     </div>
 
@@ -47,7 +47,7 @@
                         class="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap"
                         style="color: #556141; background-color: rgba(85, 97, 65, 0.12)"
                     >
-                        Para todos
+                        {{ 'coupon_card.coupon_card.para_todos' | t }}
                     </span>
                 }
                 @if (!isActive) {
@@ -80,7 +80,7 @@
         <div class="mt-auto pt-2 flex items-center justify-between gap-2">
             <p class="text-xs font-medium" style="color: rgba(44, 44, 44, 0.55)">
                 @if (!coupon.expiresAt) {
-                    Sin vencimiento
+                    {{ 'coupon_card.coupon_card.sin_vencimiento' | t }}
                 } @else if (coupon.status === 'EXPIRED') {
                     Venció el {{ coupon.expiresAt | date: "dd MMM yyyy" }}
                 } @else {
@@ -95,7 +95,7 @@
                     style="color: #a24a17"
                     (click)="copyCode()"
                 >
-                    Copiar código
+                    {{ 'coupon_card.coupon_card.copiar_codigo' | t }}
                 </button>
             }
         </div>

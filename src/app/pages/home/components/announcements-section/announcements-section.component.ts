@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, Input, OnChanges } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
@@ -16,7 +17,7 @@ const AUTOPLAY_MS = 6_000;
  */
 @Component({
   selector: 'app-announcements-section',
-  imports: [SectionHeadingComponent, RevealDirective],
+  imports: [SectionHeadingComponent, RevealDirective, TranslatePipe],
   templateUrl: './announcements-section.component.html',
 })
 export class AnnouncementsSectionComponent implements OnChanges {

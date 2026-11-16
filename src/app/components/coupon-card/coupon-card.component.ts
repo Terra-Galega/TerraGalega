@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { DatePipe } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
 import { ClientCoupon, isCouponActive } from '../../models/coupon';
@@ -7,7 +8,7 @@ import { ToastService } from '../../services/toast.service';
 // Si ya no se puede usar, se ve atenuada y con una etiqueta (Usado, Vencido, Agotado).
 @Component({
     selector: 'app-coupon-card',
-    imports: [DatePipe],
+    imports: [DatePipe, TranslatePipe],
     templateUrl: './coupon-card.component.html',
 })
 export class CouponCardComponent {
