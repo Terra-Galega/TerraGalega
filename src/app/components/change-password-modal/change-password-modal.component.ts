@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import {
   Component,
   ElementRef,
@@ -18,7 +19,7 @@ import { getErrorMessage } from '../../utils/http-error';
 // Componente modal para cambiar la contraseña de un usuario.
 @Component({
   selector: 'app-change-password-modal',
-  imports: [DialogDirective, ButtonComponent, IconButtonComponent, FormFieldComponent],
+  imports: [DialogDirective, ButtonComponent, IconButtonComponent, FormFieldComponent, TranslatePipe],
   templateUrl: './change-password-modal.component.html',
 })
 export class ChangePasswordModalComponent implements OnInit, OnDestroy {

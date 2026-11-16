@@ -2,7 +2,7 @@
   <div
     data-address-map
     class="map"
-    aria-label="Mapa de la dirección de entrega: muévelo o haz clic para ajustar el punto"
+    [attr.aria-label]="'merge.map_accessible_label' | t"
   ></div>
 
   <!-- La punta del marcador queda en el centro del mapa. -->
@@ -19,11 +19,11 @@
 
 <div class="status" aria-live="polite">
   @if (loadingMap) {
-    <p>Cargando mapa…</p>
+    <p>{{ 'address_map_picker.address_map_picker.cargando_mapa' | t }}</p>
   }
 
   @if (resolving) {
-    <p>Buscando la dirección…</p>
+    <p>{{ 'address_map_picker.address_map_picker.buscando_la_direccion' | t }}</p>
   }
 
   @if (mapError) {
@@ -31,12 +31,10 @@
   }
 
   @if (error) {
-    <p class="error">{{ error }}</p>
+    <p class="error">{{ error | t }}</p>
   }
 </div>
 
 <p class="hint">
-  El mapa sigue lo que escribes. Si el punto no es exacto, mueve el mapa o haz
-  clic en la entrada y la dirección se actualiza. Añade el apartamento o la torre
-  al final del texto.
+  {{ 'merge.map_hint' | t }}
 </p>

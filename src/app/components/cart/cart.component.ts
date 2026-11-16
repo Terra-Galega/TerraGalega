@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import {
   Component,
   EventEmitter,
@@ -25,7 +26,7 @@ import { ButtonComponent } from '../button/button.component';
 // CartService; aquí solo se presentan.
 @Component({
   selector: 'app-cart',
-  imports: [DialogDirective, DecimalPipe,ButtonComponent],
+  imports: [DialogDirective, DecimalPipe,ButtonComponent, TranslatePipe],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
 })

@@ -1,3 +1,4 @@
+import { TranslatePipe } from './services/translate.pipe';
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TooltipService } from './services/tooltip.service';
@@ -11,7 +12,7 @@ import { NotificationCenterService } from './services/notification-center.servic
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastComponent, ChatWidgetComponent],
+  imports: [RouterOutlet, ToastComponent, ChatWidgetComponent, TranslatePipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
