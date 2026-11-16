@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -13,7 +14,7 @@ type VerifyState = 'loading' | 'success' | 'error';
 // Lee el token, se lo envía al back y muestra el resultado.
 @Component({
   selector: 'app-verify-email',
-  imports: [NavbarComponent, FooterComponent, ButtonComponent],
+  imports: [NavbarComponent, FooterComponent, ButtonComponent, TranslatePipe],
   templateUrl: './verify-email.component.html',
 })
 export class VerifyEmailComponent implements OnInit {

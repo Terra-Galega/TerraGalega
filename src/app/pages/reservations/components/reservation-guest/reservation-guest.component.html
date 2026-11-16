@@ -1,10 +1,9 @@
 <!-- ENCABEZADO: por qué se necesita una cuenta -->
 <div class="text-center mb-16">
-  <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">¿Cómo funciona?</p>
-  <h1 class="font-serif fluid-title font-bold text-charcoal mb-5">Para reservar necesitas una cuenta</h1>
+  <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">{{ 'reservations.reservation_guest.reservation_guest.como_funciona' | t }}</p>
+  <h1 class="font-serif fluid-title font-bold text-charcoal mb-5">{{ 'reservations.reservation_guest.reservation_guest.para_reservar_necesitas_una_cuenta' | t }}</h1>
   <p class="text-base leading-relaxed max-w-2xl mx-auto" style="color: rgba(44, 44, 44, 0.75)">
-    Así guardamos tu mesa, te enviamos la confirmación y puedes cambiar la fecha o cancelar cuando quieras.
-    Crear la cuenta toma menos de un minuto.
+    {{ 'reservations.reservation_guest.reservation_guest.asi_guardamos_tu_mesa_te_enviamos_la_confirmacion_y_pue' | t }}
   </p>
 </div>
 
@@ -14,8 +13,8 @@
 <!-- NUESTROS ESPACIOS -->
 <section class="mb-14" aria-labelledby="spaces-heading">
   <div class="text-center mb-8">
-    <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">Nuestros espacios</p>
-    <h2 id="spaces-heading" class="font-serif text-3xl font-semibold text-charcoal">Elige dónde vivir tu visita</h2>
+    <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">{{ 'reservations.reservation_guest.reservation_guest.nuestros_espacios' | t }}</p>
+    <h2 id="spaces-heading" class="font-serif text-3xl font-semibold text-charcoal">{{ 'reservations.reservation_guest.reservation_guest.elige_donde_vivir_tu_visita' | t }}</h2>
   </div>
   <div class="spaces">
     @for (space of spaces; track space.name) {
@@ -31,5 +30,5 @@
 </section>
 
 <!-- LISTO PARA RESERVAR: al entrar o registrarse, el cliente vuelve a reservas -->
-<app-ready-to-order id="reservation-guest-cta" redirect="reservations" title="¿Listo para reservar?"
+<app-ready-to-order id="reservation-guest-cta" redirect="reservations" title="{{ 'reservations.reservation_guest.reservation_guest.listo_para_reservar' | t }}"
   message="Inicia sesión si ya tienes cuenta, o regístrate en un minuto y elige tu mesa."></app-ready-to-order>
