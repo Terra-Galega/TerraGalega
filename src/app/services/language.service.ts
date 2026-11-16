@@ -1,79 +1,53 @@
 import { Injectable, signal } from '@angular/core';
+import es from '../i18n/es.json';
+import en from '../i18n/en.json';
+import ca from '../i18n/ca.json';
 
-export type Language = 'es' | 'en';
+export type Language = 'es' | 'en' | 'ca';
 
-const translations = {
-    es: {
-        settings: 'Configuración',
-        closeSettings: 'Cerrar configuración',
-        theme: 'Tema',
-        light: 'Claro',
-        dark: 'Oscuro',
-        language: 'Idioma',
-        spanish: 'Español',
-        english: 'English',
-        about: 'NOSOTROS',
-        menu: 'MENÚ',
-        reservations: 'RESERVAS',
-        orders: 'PEDIDOS',
-        myOrders: 'MIS PEDIDOS',
-        signIn: 'INICIAR SESIÓN',
-        signOut: 'CERRAR SESIÓN',
-        notifications: 'Notificaciones',
-        cart: 'Carrito',
-    },
-    en: {
-        settings: 'Settings',
-        closeSettings: 'Close settings',
-        theme: 'Theme',
-        light: 'Light',
-        dark: 'Dark',
-        language: 'Language',
-        spanish: 'Español',
-        english: 'English',
-        about: 'ABOUT US',
-        menu: 'MENU',
-        reservations: 'RESERVATIONS',
-        orders: 'ORDERS',
-        myOrders: 'MY ORDERS',
-        signIn: 'SIGN IN',
-        signOut: 'SIGN OUT',
-        notifications: 'Notifications',
-        cart: 'Cart',
-    },
-} as const;
-
-type TranslationKey = keyof typeof translations.es;
+const dictionaries: Record<Language, Record<string, string>> = { es, en, ca };
+const sourceToKey = new Map(Object.entries(es).map(([key, value]) => [value, key]));
+const languageOrder: Language[] = ['es', 'en', 'ca'];
+const storageKey = 'terragalega_language';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
-    readonly language = signal<Language>(this.read());
+  readonly language = signal<Language>(this.read());
 
-    constructor() {
-        document.documentElement.lang = this.language();
+  constructor() {
+    document.documentElement.lang = this.language();
+  }
+
+  t(key: string): string {
+    const resolvedKey = sourceToKey.get(key) ?? key;
+    return dictionaries[this.language()][resolvedKey] ?? dictionaries.es[resolvedKey] ?? key;
+  }
+
+  setLanguage(next: Language): void {
+    this.language.set(next);
+    document.documentElement.lang = next;
+    try {
+      localStorage.setItem(storageKey, next);
+    } catch {
+      // El idioma sigue activo durante esta sesión si no se puede guardar.
     }
+  }
 
-    t(key: TranslationKey): string {
-        return translations[this.language()][key];
+  toggle(): void {
+    this.setLanguage(this.nextLanguage());
+  }
+
+  nextLanguage(): Language {
+    const index = languageOrder.indexOf(this.language());
+    return languageOrder[(index + 1) % languageOrder.length];
+  }
+
+  private read(): Language {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved === 'en' || saved === 'ca' ? saved : 'es';
+    } catch {
+      return 'es';
     }
-
-    toggle(): void {
-        const next: Language = this.language() === 'es' ? 'en' : 'es';
-        this.language.set(next);
-        document.documentElement.lang = next;
-
-        try {
-            localStorage.setItem('terragalega_language', next);
-        } catch {
-            // La selección sigue activa hasta cerrar la pestaña.
-        }
-    }
-
-    private read(): Language {
-        try {
-            return localStorage.getItem('terragalega_language') === 'en' ? 'en' : 'es';
-        } catch {
-            return 'es';
-        }
-    }
+  }
 }
