@@ -11,7 +11,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
       <p class="text-sm" style="color: #556141">
-        ¡Tu orden fue añadida con éxito! Ya quedó registrada y está pendiente.
+        {{ 'orders.orders.tu_orden_fue_anadida_con_exito_ya_quedo_registrada_y_es' | t }}
       </p>
     </div>
     }
@@ -33,27 +33,27 @@
 
     <!-- Estados de la lista: cargando → sin pedidos → con pedidos -->
     @if (loading) {
-    <p class="text-center py-10">Cargando tus pedidos...</p>
+    <p class="text-center py-10">{{ 'orders.orders.cargando_tus_pedidos' | t }}</p>
     } @else if (orders.length === 0) {
     <app-empty-orders></app-empty-orders>
     } @else {
     <!-- PEDIDOS ACTIVOS -->
     <h2 class="font-serif text-2xl font-semibold text-charcoal mb-5">
-      Pedidos activos
+      {{ 'orders.orders.pedidos_activos' | t }}
     </h2>
     <!-- Los pedidos activos permiten cancelar (orderCancelled recarga la lista) -->
     @if (activeOrders.length > 0) {
     <app-ordered id="active-orders" [orders]="activeOrders" (orderCancelled)="onOrderCancelled()"></app-ordered>
     } @else {
     <p class="text-sm mb-5" style="color: rgba(44, 44, 44, 0.55)">
-      No tienes pedidos activos en este momento.
+      {{ 'orders.orders.no_tienes_pedidos_activos_en_este_momento' | t }}
     </p>
     }
 
     <!-- PEDIDOS PASADOS -->
     @if (pastOrders.length > 0) {
     <h2 class="font-serif text-2xl font-semibold text-charcoal mt-14 mb-5">
-      Pedidos pasados
+      {{ 'orders.orders.pedidos_pasados' | t }}
     </h2>
     <app-ordered id="past-orders" [orders]="pastOrders"></app-ordered>
     }

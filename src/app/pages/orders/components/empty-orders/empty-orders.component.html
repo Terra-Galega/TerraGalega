@@ -14,11 +14,11 @@
         </svg>
 
         <p class="text-lg mb-2 text-charcoal">
-          Todavía no has hecho ningún pedido.
+          {{ 'orders.empty_orders.empty_orders.todavia_no_has_hecho_ningun_pedido' | t }}
         </p>
 
         <p class="text-[15px] mb-7" style="color: rgba(44, 44, 44, 0.65)">
-          Cuando hagas tu primer pedido aparecerá aquí.
+          {{ 'orders.empty_orders.empty_orders.cuando_hagas_tu_primer_pedido_aparecera_aqui' | t }}
         </p>
-        <app-button routerLink="/menu" size="lg">Explorar la carta</app-button> 
+        <app-button routerLink="/menu" size="lg">{{ 'orders.empty_orders.empty_orders.explorar_la_carta' | t }}</app-button> 
 </div>
