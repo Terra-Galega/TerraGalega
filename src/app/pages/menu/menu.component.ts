@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -42,7 +43,7 @@ const REFRESH_MS = 10_000;
     CategoryFilterComponent,
     FeatureFilterComponent,
     ProductCardMenuComponent,
-  ],
+    TranslatePipe],
   templateUrl: './menu.component.html',
 })
 export class MenuComponent {

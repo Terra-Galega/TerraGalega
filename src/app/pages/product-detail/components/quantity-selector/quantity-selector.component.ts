@@ -1,8 +1,10 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 // Selector de cantidad. El mínimo es 1.
 // Se usa con enlace doble: <app-quantity-selector [(value)]="quantity" />
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-quantity-selector',
   templateUrl: './quantity-selector.component.html',
   styleUrl: './quantity-selector.component.scss',

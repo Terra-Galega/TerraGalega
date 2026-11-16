@@ -3,23 +3,23 @@
   class="flex items-center rounded-full p-1"
   style="background: rgba(44, 44, 44, 0.06)"
   role="group"
-  aria-label="Cantidad de platos"
+  [attr.aria-label]="'merge.dish_quantity' | t"
 >
   <button
     type="button"
     class="qty-btn"
-    aria-label="Quitar un plato"
+    [attr.aria-label]="'merge.remove_dish' | t"
     (click)="change(-1)"
   >
     −
   </button>
   <!-- aria-live: al cambiar, el lector anuncia "Cantidad: 3" -->
   <span class="w-12 text-center font-semibold text-charcoal" aria-live="polite"
-    ><span class="sr-only">Cantidad: </span>{{ value }}</span>
+    ><span class="sr-only">{{ 'merge.quantity' | t }}: </span>{{ value }}</span>
   <button
     type="button"
     class="qty-btn"
-    aria-label="Añadir un plato"
+    [attr.aria-label]="'merge.add_dish' | t"
     (click)="change(1)"
   >
     +

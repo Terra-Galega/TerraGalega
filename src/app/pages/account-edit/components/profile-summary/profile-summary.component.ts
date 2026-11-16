@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { UserAvatarComponent } from '../../../../components/user-avatar/user-avatar.component';
 
@@ -5,7 +6,7 @@ import { UserAvatarComponent } from '../../../../components/user-avatar/user-ava
 @Component({
   selector: 'app-profile-summary',
   // Componente utilizado para mostrar el avatar del usuario
-  imports: [UserAvatarComponent],
+  imports: [UserAvatarComponent, TranslatePipe],
   templateUrl: './profile-summary.component.html',
   host: { class: 'block' },
 })
