@@ -3,17 +3,17 @@
     class="text-[12px] tracking-widest uppercase mb-1"
     style="color: rgba(44, 44, 44, 0.38)"
   >
-    Accesos
+    {{ 'account.account_actions.account_actions.accesos' | t }}
   </p>
-  <h3 class="font-serif text-2xl font-semibold mb-6">Acciones</h3>
+  <h3 class="font-serif text-2xl font-semibold mb-6">{{ 'account.account_actions.account_actions.acciones' | t }}</h3>
 
   <div class="flex flex-col gap-3">
     <!--Btns para navegar o cerrar sesión-->
     <app-button routerLink="/orders" variant="neutral" size="md" [fullWidth]="true">
-      Mis pedidos
+      {{ 'account.account_actions.account_actions.mis_pedidos' | t }}
     </app-button>
     <app-button routerLink="/coupons" variant="neutral" size="md" [fullWidth]="true">
-      Mis cupones
+      {{ 'account.account_actions.account_actions.mis_cupones' | t }}
     </app-button>
         <!--Suscripción Premium: suscribirme / premium activo (deshabilitado) / renovar-->
     <div>
@@ -38,7 +38,7 @@
       }
     </div>
     <app-button variant="danger" size="md" [fullWidth]="true" (click)="logout.emit()">
-      Cerrar sesión
+      {{ 'account.account_actions.account_actions.cerrar_sesion' | t }}
     </app-button>
   </div>
 </aside>

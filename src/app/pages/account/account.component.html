@@ -2,7 +2,7 @@
 
 <div class="min-h-screen bg-cream font-sans text-charcoal">
   <main class="pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
-    <app-page-header id="profile-title" eyebrow="Mi cuenta" title="Tu perfil"></app-page-header>
+    <app-page-header id="profile-title" eyebrow="Mi cuenta" title="{{ 'account.account.tu_perfil' | t }}"></app-page-header>
     <!--Revisa si es un cliente-->
     @if (client) {
     <div class="space-y-6">
@@ -20,9 +20,9 @@
       <!-- Apariencia: interruptor del tema oscuro -->
       <section class="glass-card rounded-3xl p-6 md:p-8">
         <p class="text-[12px] tracking-widest uppercase mb-1" style="color: rgba(44, 44, 44, 0.38)">
-          Preferencias
+          {{ 'account.account.preferencias' | t }}
         </p>
-        <h3 class="font-serif text-2xl font-semibold mb-5">Apariencia</h3>
+        <h3 class="font-serif text-2xl font-semibold mb-5">{{ 'account.account.apariencia' | t }}</h3>
         <app-theme-switch></app-theme-switch>
       </section>
 
@@ -30,14 +30,14 @@
         style="background: rgba(138, 34, 34, 0.05); border: 1px solid rgba(138, 34, 34, 0.18)">
         <div>
           <h3 class="font-serif text-xl font-semibold" style="color: #8a2222">
-            Eliminar cuenta
+            {{ 'account.account.eliminar_cuenta' | t }}
           </h3>
           <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.6)">
-            Esta acción es permanente y no se puede deshacer.
+            {{ 'account.account.esta_accion_es_permanente_y_no_se_puede_deshacer' | t }}
           </p>
         </div>
         <app-button variant="danger" size="md" (click)="deleteAccount()">
-          Eliminar mi cuenta
+          {{ 'account.account.eliminar_mi_cuenta' | t }}
         </app-button>
       </section>
     </div>
@@ -47,7 +47,7 @@
       <div class="w-10 h-10 mx-auto mb-4 rounded-full animate-spin"
         style="border: 3px solid rgba(178, 87, 31, 0.2); border-top-color: #b2571f"></div>
       <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-        Cargando tu perfil...
+        {{ 'account.account.cargando_tu_perfil' | t }}
       </p>
     </div>
     }
