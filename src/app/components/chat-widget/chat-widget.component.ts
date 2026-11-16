@@ -6,6 +6,8 @@ import { CartService } from '../../services/cart.service';
 import { ChatService } from '../../services/chat.service';
 import { ToastService } from '../../services/toast.service';
 import { ChatBubble, ChatMessage } from '../../models/chat';
+import { LanguageService } from '../../services/language.service';
+import { TranslatePipe } from '../../services/translate.pipe';
 
 // Máximo de mensajes que se guardan en sessionStorage
 const MAX_STORED = 40;
@@ -13,7 +15,7 @@ const MAX_STORED = 40;
 // Asistente virtual flotante. Solo se muestra a clientes con sesión iniciada.
 @Component({
   selector: 'app-chat-widget',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './chat-widget.component.html',
   styleUrl: './chat-widget.component.scss',
 })
@@ -22,6 +24,7 @@ export class ChatWidgetComponent {
   private cart = inject(CartService);
   private chat = inject(ChatService);
   private toast = inject(ToastService);
+  readonly language = inject(LanguageService);
 
   readonly maxLength = 500;
   readonly suggestions = [
@@ -137,7 +140,7 @@ export class ChatWidgetComponent {
         this.sending.set(false);
       },
       error: (err) => {
-        const msg = err?.error?.message || 'No pude conectarme con el asistente. Intenta de nuevo.';
+        const msg = err?.error?.message || this.language.t('chat.connection_error');
         // El mensaje del cliente queda marcado para no mandarlo en el historial
         userBubble.error = true;
         this.bubbles.update((list) => [...list, { role: 'model', text: msg, error: true }]);
@@ -163,7 +166,8 @@ export class ChatWidgetComponent {
   }
 
   formatDate(date: string): string {
-    return new Date(date + 'T00:00').toLocaleDateString('es-CO', {
+    const locale = { es: 'es-CO', en: 'en-US', ca: 'ca-ES' }[this.language.language()];
+    return new Date(date + 'T00:00').toLocaleDateString(locale, {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -171,7 +175,8 @@ export class ChatWidgetComponent {
   }
 
   money(value: number): string {
-    return new Intl.NumberFormat('es-CO', {
+    const locale = { es: 'es-CO', en: 'en-US', ca: 'ca-ES' }[this.language.language()];
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: 'COP',
       maximumFractionDigits: 0,

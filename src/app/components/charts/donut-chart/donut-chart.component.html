@@ -7,7 +7,7 @@
 <div class="flex flex-col sm:flex-row items-center gap-6">
   <!-- Anillo -->
   <div class="relative w-44 h-44 2xl:w-52 2xl:h-52 flex-shrink-0">
-    <canvas baseChart [type]="'doughnut'" [data]="data" [options]="options" role="img" aria-label="Ventas por categoría"
+    <canvas baseChart [type]="'doughnut'" [data]="data" [options]="options" role="img" [attr.aria-label]="'charts.donut_chart.donut_chart.ventas_por_categoria' | t"
       (chartHover)="onChartHover($event)"></canvas>
 
     <!-- Centro: total o detalle del arco activo -->

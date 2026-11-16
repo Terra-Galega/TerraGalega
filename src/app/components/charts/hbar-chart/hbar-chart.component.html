@@ -2,7 +2,7 @@
 @if (items.length) {
 <div class="relative w-full" [style.height.px]="height">
     <canvas baseChart [type]="chartType" [data]="data" [options]="options" [plugins]="plugins" role="img"
-        aria-label="Ranking de productos"></canvas>
+        [attr.aria-label]="'charts.hbar_chart.hbar_chart.ranking_de_productos' | t"></canvas>
 </div>
 } @else {
 <p class="py-10 text-center text-(length:--dfs-14) leading-[1.43]" style="color: rgba(44, 44, 44, 0.45)">

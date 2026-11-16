@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../services/translate.pipe';
 import { Component, Input, OnChanges } from '@angular/core';
 import {
   ChartConfiguration,
@@ -34,7 +35,7 @@ const ROOM = 1.38;
 // otra, y se ajustan con animación cuando los datos cambian.
 @Component({
   selector: 'app-hbar-chart',
-  imports: [BaseChartDirective],
+  imports: [BaseChartDirective, TranslatePipe],
   templateUrl: './hbar-chart.component.html',
 })
 export class HbarChartComponent implements OnChanges {

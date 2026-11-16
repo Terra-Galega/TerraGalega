@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../services/translate.pipe';
 import { Component, Input, OnChanges } from '@angular/core';
 import { ChartConfiguration, ChartDataset, ChartType, Plugin } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
@@ -50,7 +51,7 @@ const hoverBand: Plugin = {
 // el mouse y animación al entrar y cada vez que cambian los datos.
 @Component({
   selector: 'app-series-chart',
-  imports: [BaseChartDirective],
+  imports: [BaseChartDirective, TranslatePipe],
   templateUrl: './series-chart.component.html',
 })
 export class SeriesChartComponent implements OnChanges {
