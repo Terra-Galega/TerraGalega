@@ -1,6 +1,6 @@
 <!-- Enlace "Saltar al contenido": es lo primero que alcanza el Tab. Está oculto hasta que recibe
      el foco y lleva directo al título de la página, sin pasar por todos los enlaces de la navbar. -->
-<a href="#contenido" class="skip-link" (click)="skipToContent($event)">Saltar al contenido</a>
+<a href="#contenido" class="skip-link" (click)="skipToContent($event)">{{ 'app.saltar_al_contenido' | t }}</a>
 
 <!-- Contenedor general de toda la aplicación: ocupa al menos el alto completo de la pantalla,
      usa la fuente sans por defecto y el color de texto "charcoal" definido en el tema.

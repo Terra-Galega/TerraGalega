@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, inject, OnInit } from '@angular/core';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -56,7 +57,7 @@ function localDate(date: Date): string {
 
 @Component({
   selector: 'app-reservations',
-  imports: [NavbarComponent, FooterComponent, PageHeaderComponent, ReservationGuestComponent],
+  imports: [NavbarComponent, FooterComponent, PageHeaderComponent, ReservationGuestComponent, TranslatePipe],
   templateUrl: './reservations.component.html',
   styleUrl: './reservations.component.scss',
 })

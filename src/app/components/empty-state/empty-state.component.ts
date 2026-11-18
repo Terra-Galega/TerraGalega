@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 // Mensaje para cuando una lista no tiene nada que mostrar (sin resultados,
@@ -5,6 +6,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 // "Explorar la carta". La página que lo usa decide qué hace esa acción.
 @Component({
   selector: 'app-empty-state',
+  imports: [TranslatePipe],
   templateUrl: './empty-state.component.html',
   styleUrl: './empty-state.component.scss',
 })

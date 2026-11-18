@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, Input, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -11,7 +12,7 @@ import { Product } from '../../../../models/product';
 @Component({
   selector: 'app-product-card-menu',
   standalone: true,
-  imports: [DecimalPipe, FeatureChipsComponent, StarIconComponent, RouterLink],
+  imports: [DecimalPipe, FeatureChipsComponent, StarIconComponent, RouterLink, TranslatePipe],
   templateUrl: './product-card-menu.component.html',
   styleUrl: './product-card-menu.component.scss',
 })

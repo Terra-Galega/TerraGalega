@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../services/translate.pipe';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -40,7 +41,7 @@ type View =
     FooterComponent,
     PageHeaderComponent,
     ButtonComponent,
-  ],
+    TranslatePipe],
   templateUrl: './checkout-result.component.html',
 })
 export class CheckoutResultComponent implements OnInit {

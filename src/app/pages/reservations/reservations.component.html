@@ -7,27 +7,27 @@
   <app-reservation-guest />
   } @else {
   <!-- Cliente con sesión. Encabezado con el mismo estilo que la carta y el resto de páginas -->
-  <app-page-header eyebrow="Tu visita" title="Reserva tu mesa" />
+  <app-page-header eyebrow="Tu visita" title="{{ 'reservations.reservations.reserva_tu_mesa' | t }}" />
 
   @if (loading) {
-  <p class="note" role="status">Cargando tu reserva...</p>
+  <p class="note" role="status">{{ 'reservations.reservations.cargando_tu_reserva' | t }}</p>
   } @else if (reservation && !editing) {
   <!-- TU RESERVA: cada cliente tiene como máximo una. Si el anticipo está pendiente se puede ir
        a pagar o cancelar; si está pagada, editar o eliminar (sin reembolso). -->
   <section id="my-reservation" class="summary-card my-reservation" aria-labelledby="my-reservation-heading">
-    <h2 id="my-reservation-heading">Tu reserva</h2>
+    <h2 id="my-reservation-heading">{{ 'reservations.reservations.tu_reserva' | t }}</h2>
     @if (paymentPending) {
-    <p class="status-pill pending">Pago del anticipo pendiente</p>
+    <p class="status-pill pending">{{ 'reservations.reservations.pago_del_anticipo_pendiente' | t }}</p>
     } @else {
-    <p class="status-pill paid">Confirmada</p>
+    <p class="status-pill paid">{{ 'reservations.reservations.confirmada' | t }}</p>
     }
     <p class="table-title">{{ reservation.name }}</p>
     <dl class="reservation-details">
-      <div><dt>Mesa</dt><dd>{{ reservationTableLabel(reservation) }}</dd></div>
-      <div><dt>Fecha</dt><dd>{{ dateLabel(reservation.date) }}</dd></div>
-      <div><dt>Hora</dt><dd>{{ timeLabel(reservation.time) }}</dd></div>
-      <div><dt>Sillas</dt><dd>{{ reservation.seats }}</dd></div>
-      <div><dt>Temática</dt><dd>{{ themeLabel(reservation.theme) }}</dd></div>
+      <div><dt>{{ 'reservations.reservations.mesa' | t }}</dt><dd>{{ reservationTableLabel(reservation) }}</dd></div>
+      <div><dt>{{ 'reservations.reservations.fecha' | t }}</dt><dd>{{ dateLabel(reservation.date) }}</dd></div>
+      <div><dt>{{ 'reservations.reservations.hora' | t }}</dt><dd>{{ timeLabel(reservation.time) }}</dd></div>
+      <div><dt>{{ 'reservations.reservations.sillas' | t }}</dt><dd>{{ reservation.seats }}</dd></div>
+      <div><dt>{{ 'reservations.reservations.tematica' | t }}</dt><dd>{{ themeLabel(reservation.theme) }}</dd></div>
       <div>
         <dt>{{ paymentPending ? 'Anticipo por pagar' : 'Anticipo pagado' }}</dt>
         <dd>{{ money(reservation.depositAmount) }}</dd>
@@ -35,14 +35,13 @@
     </dl>
     @if (paymentPending) {
     <p class="note highlight">
-      La mesa está apartada mientras completas el pago. Si no pagas en unos 30 minutos, la reserva
-      se cancela sola y la mesa se libera.
+      {{ 'reservations.reservations.la_mesa_esta_apartada_mientras_completas_el_pago_si_no_' | t }}
     </p>
     }
     @if (confirmingDelete) {
     <p class="note highlight" role="alert">
       @if (paymentPending) {
-      Se cancelará la reserva y no se hará ningún cobro. ¿Quieres continuar?
+      {{ 'reservations.reservations.se_cancelara_la_reserva_y_no_se_hara_ningun_cobro_quier' | t }}
       } @else {
       Si eliminas la reserva NO se reembolsa el anticipo de {{ money(reservation.depositAmount) }}. ¿Quieres continuar?
       }
@@ -51,17 +50,17 @@
       <button class="danger-button" type="button" [disabled]="saving" (click)="confirmDelete()">
         {{ paymentPending ? 'Sí, cancelar' : 'Sí, eliminar' }}
       </button>
-      <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelDelete()">Conservar</button>
+      <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelDelete()">{{ 'reservations.reservations.conservar' | t }}</button>
     </div>
     } @else if (paymentPending) {
     <div id="my-reservation-actions" class="reservation-actions">
-      <button class="reserve-button" type="button" (click)="payNow()">Ir a pagar el anticipo</button>
-      <button class="secondary-button" type="button" (click)="askDelete()">Cancelar reserva</button>
+      <button class="reserve-button" type="button" (click)="payNow()">{{ 'reservations.reservations.ir_a_pagar_el_anticipo' | t }}</button>
+      <button class="secondary-button" type="button" (click)="askDelete()">{{ 'reservations.reservations.cancelar_reserva' | t }}</button>
     </div>
     } @else {
     <div id="my-reservation-actions" class="reservation-actions">
-      <button class="reserve-button" type="button" (click)="startEdit()">Editar reserva</button>
-      <button class="secondary-button" type="button" (click)="askDelete()">Eliminar reserva</button>
+      <button class="reserve-button" type="button" (click)="startEdit()">{{ 'reservations.reservations.editar_reserva' | t }}</button>
+      <button class="secondary-button" type="button" (click)="askDelete()">{{ 'reservations.reservations.eliminar_reserva' | t }}</button>
     </div>
     }
   </section>
@@ -70,26 +69,26 @@
   <!-- ¿CÓMO FUNCIONA? Guía corta de los pasos para reservar (solo al crear una reserva nueva) -->
   @if (!editing) {
   <section class="how-it-works" aria-labelledby="how-heading">
-    <p id="how-heading" class="how-title">¿Cómo funciona?</p>
+    <p id="how-heading" class="how-title">{{ 'reservations.reservations.como_funciona' | t }}</p>
     <ol>
-      <li><span>1</span> Elige la fecha, la hora y cuántos comensales vienen.</li>
-      <li><span>2</span> Selecciona una mesa disponible en el plano.</li>
+      <li><span>1</span> {{ 'reservations.reservations.elige_la_fecha_la_hora_y_cuantos_comensales_vienen' | t }}</li>
+      <li><span>2</span> {{ 'reservations.reservations.selecciona_una_mesa_disponible_en_el_plano' | t }}</li>
       <li><span>3</span> Paga el anticipo de {{ money(deposit) }} en la pasarela de pago.</li>
-      <li><span>4</span> Tu mesa queda confirmada y puedes editarla aquí mismo.</li>
+      <li><span>4</span> {{ 'reservations.reservations.tu_mesa_queda_confirmada_y_puedes_editarla_aqui_mismo' | t }}</li>
     </ol>
   </section>
   }
 
   <!-- Filtros de la visita: al cambiar fecha, hora o comensales se recalcula el estado de cada mesa
        y se quita la mesa seleccionada (changeDate, changeTime, changeParty). -->
-  <div id="reservation-filters" class="reservation-filters" role="group" aria-label="Datos de la visita">
+  <div id="reservation-filters" class="reservation-filters" role="group" [attr.aria-label]="'reservations.reservations.datos_de_la_visita' | t">
     <label>
-      <span>Fecha</span>
+      <span>{{ 'reservations.reservations.fecha' | t }}</span>
       <input id="reservation-date" type="date" required [min]="today" [value]="date"
         (input)="changeDate($any($event.target).value)" />
     </label>
     <label>
-      <span>Hora</span>
+      <span>{{ 'reservations.reservations.hora' | t }}</span>
       <select id="reservation-time" (change)="changeTime($any($event.target).value)">
         @for (option of times; track option) {
         <option [value]="option" [selected]="option === time">{{ option }}</option>
@@ -97,7 +96,7 @@
       </select>
     </label>
     <label>
-      <span>Comensales</span>
+      <span>{{ 'reservations.reservations.comensales' | t }}</span>
       <select id="reservation-party" (change)="changeParty($any($event.target).value)">
         @for (option of parties; track option) {
         <option [value]="option" [selected]="option === party">{{ partyLabel(option) }}</option>
@@ -112,10 +111,10 @@
       <!-- Título del plano y selector de piso (la píldora verde se desliza con data-floor). -->
       <header class="map-heading">
         <div>
-          <h2 id="map-heading">Plano del restaurante</h2>
+          <h2 id="map-heading">{{ 'reservations.reservations.plano_del_restaurante' | t }}</h2>
           <p aria-live="polite">{{ floorNames[floor] }}</p>
         </div>
-        <div id="reservation-floors" class="floor-control" role="group" aria-label="Cambiar de piso"
+        <div id="reservation-floors" class="floor-control" role="group" [attr.aria-label]="'reservations.reservations.cambiar_de_piso' | t"
           [attr.data-floor]="floor">
           @for (option of floors; track option) {
           <button type="button" [attr.aria-pressed]="floor === option" (click)="changeFloor(option)">
@@ -126,17 +125,17 @@
       </header>
 
       <!-- Leyenda (encima del plano): explica colores e iconos; la muestra de "Balcón" solo aparece en el piso 2. -->
-      <ul class="legend" aria-label="Leyenda del plano">
-        <li><span class="key free" aria-hidden="true"></span> Disponible</li>
+      <ul class="legend" [attr.aria-label]="'reservations.reservations.leyenda_del_plano' | t">
+        <li><span class="key free" aria-hidden="true"></span> {{ 'reservations.reservations.disponible' | t }}</li>
         <li>
           <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#check-badge" /></svg>
-          Seleccionada
+          {{ 'reservations.reservations.seleccionada' | t }}
         </li>
         <li>
           <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#lock-badge" /></svg>
-          Reservada
+          {{ 'reservations.reservations.reservada' | t }}
         </li>
-        <li><span class="key too-small" aria-hidden="true"></span> Cupo insuficiente</li>
+        <li><span class="key too-small" aria-hidden="true"></span> {{ 'reservations.reservations.cupo_insuficiente' | t }}</li>
         <li>
           <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path class="key-sofa" d="M3 15A9 9 0 0 1 21 15H18A6 6 0 0 0 6 15Z" />
@@ -144,9 +143,9 @@
           </svg>
           Mesa de arco (máx. {{ boothSeats }})
         </li>
-        <li><span class="key edge" aria-hidden="true"></span> Ventanal</li>
+        <li><span class="key edge" aria-hidden="true"></span> {{ 'reservations.reservations.ventanal' | t }}</li>
         @if (floor === 2) {
-        <li><span class="key deck" aria-hidden="true"></span> Balcón</li>
+        <li><span class="key deck" aria-hidden="true"></span> {{ 'reservations.reservations.balcon' | t }}</li>
         }
       </ul>
 
@@ -157,7 +156,7 @@
            2. Encima, un botón por mesa colocado con left/top en porcentaje (x / 9 y y / 8), así las
               mesas siguen alineadas con el dibujo al cambiar el tamaño de la pantalla.
            En pantallas estrechas el plano mantiene un ancho mínimo y se desplaza en horizontal. -->
-      <div id="reservation-map" class="map-viewport" tabindex="0" aria-label="Plano desplazable">
+      <div id="reservation-map" class="map-viewport" tabindex="0" [attr.aria-label]="'reservations.reservations.plano_desplazable' | t">
         <div class="plan">
           <!-- Piezas reutilizables (contornos, texturas e iconos) que las capas usan con <use> o url(#...). -->
           <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
@@ -220,12 +219,12 @@
               <path class="stair-trail" d="M92 236V116" />
               <path class="stair-flow" d="M92 236V116" />
               <path class="stair-head" d="M80 114 92 90 104 114Q92 107 80 114Z" />
-              <text class="plan-label" x="92" y="49" text-anchor="middle">Subir</text>
+              <text class="plan-label" x="92" y="49" text-anchor="middle">{{ 'reservations.reservations.subir' | t }}</text>
               } @else {
               <path class="stair-trail" d="M92 106V234" />
               <path class="stair-flow" d="M92 106V234" />
               <path class="stair-head" d="M80 232 92 256 104 232Q92 239 80 232Z" />
-              <text class="plan-label" x="92" y="49" text-anchor="middle">Bajar</text>
+              <text class="plan-label" x="92" y="49" text-anchor="middle">{{ 'reservations.reservations.bajar' | t }}</text>
               }
 
               @if (level === 1) {
@@ -234,41 +233,41 @@
               <path class="inner-wall" d="M40 300H140V330M140 370V400" />
               <rect class="service-item" x="56" y="318" width="22" height="22" rx="6" />
               <rect class="service-item" x="96" y="318" width="22" height="22" rx="6" />
-              <text class="plan-label" x="88" y="372" text-anchor="middle">Baños</text>
+              <text class="plan-label" x="88" y="372" text-anchor="middle">{{ 'reservations.reservations.banos' | t }}</text>
 
               <!-- Barra en el comedor, con los taburetes hacia la sala -->
               @for (stool of [185, 225, 265, 305, 345, 385, 425]; track stool) {
               <circle class="stool" [attr.cx]="stool" cy="346" r="7.5" />
               }
               <rect class="bar" x="160" y="364" width="290" height="26" rx="13" />
-              <text class="counter-label" x="305" y="381" text-anchor="middle">Barra libre, sin reserva</text>
+              <text class="counter-label" x="305" y="381" text-anchor="middle">{{ 'reservations.reservations.barra_libre_sin_reserva' | t }}</text>
 
               <!-- Cocina: solo el nombre -->
               <path class="inner-wall" d="M40 400H476L600 530V610" />
-              <text class="room-name" x="300" y="515" text-anchor="middle">Cocina</text>
+              <text class="room-name" x="300" y="515" text-anchor="middle">{{ 'reservations.reservations.cocina' | t }}</text>
 
-              <text class="plan-label" x="796" y="124" text-anchor="end">Entrada</text>
+              <text class="plan-label" x="796" y="124" text-anchor="end">{{ 'reservations.reservations.entrada' | t }}</text>
 
               <!-- Recepción: un solo círculo -->
               <circle class="reception" cx="704" cy="204" r="20" />
-              <text class="plan-label" x="684" y="244" text-anchor="middle">Recepción</text>
+              <text class="plan-label" x="684" y="244" text-anchor="middle">{{ 'reservations.reservations.recepcion' | t }}</text>
 
-              <text class="plan-label" x="370" y="19" text-anchor="middle">Ventanales</text>
-              <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">Ventanales</text>
-              <text class="plan-label muted" x="400" y="218" text-anchor="middle">Salón principal</text>
-              <text class="plan-label muted" x="690" y="516" text-anchor="middle">Salón lateral</text>
+              <text class="plan-label" x="370" y="19" text-anchor="middle">{{ 'reservations.reservations.ventanales' | t }}</text>
+              <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">{{ 'reservations.reservations.ventanales' | t }}</text>
+              <text class="plan-label muted" x="400" y="218" text-anchor="middle">{{ 'reservations.reservations.salon_principal' | t }}</text>
+              <text class="plan-label muted" x="690" y="516" text-anchor="middle">{{ 'reservations.reservations.salon_lateral' | t }}</text>
               } @else {
               <!-- Baños: igual que en el piso 1, junto a la escalera -->
               <rect fill="url(#hatch)" x="40" y="300" width="100" height="100" />
               <path class="inner-wall" d="M40 300H140V330M140 370V400" />
               <rect class="service-item" x="56" y="318" width="22" height="22" rx="6" />
               <rect class="service-item" x="96" y="318" width="22" height="22" rx="6" />
-              <text class="plan-label" x="88" y="372" text-anchor="middle">Baños</text>
+              <text class="plan-label" x="88" y="372" text-anchor="middle">{{ 'reservations.reservations.banos' | t }}</text>
 
               <!-- Servicio bajo los baños; un pasillo (x 140-180) da acceso a baños, servicio y Sala 1 -->
               <rect fill="url(#hatch)" x="40" y="400" width="100" height="210" />
               <path class="inner-wall" d="M40 400H140V480M140 520V610" />
-              <text class="plan-label" x="90" y="560" text-anchor="middle">Servicio</text>
+              <text class="plan-label" x="90" y="560" text-anchor="middle">{{ 'reservations.reservations.servicio' | t }}</text>
 
               <!-- Salas de celebración: dos salas verticales del mismo tamaño (135 x 310), una junto a otra.
                    La Sala 1 se abre al pasillo y la Sala 2 a la Galería. -->
@@ -277,8 +276,8 @@
               <path class="celebration-room" d="M180 300H315V610H180Z" />
               <path class="celebration-room" d="M315 300H450V610H315Z" />
               <path class="inner-wall" d="M180 330V300H450V572M450 604V610M180 370V610M315 300V610" />
-              <text class="room-label" x="247" y="328" text-anchor="middle">Sala 1</text>
-              <text class="room-label" x="382" y="328" text-anchor="middle">Sala 2</text>
+              <text class="room-label" x="247" y="328" text-anchor="middle">{{ 'reservations.reservations.sala_1' | t }}</text>
+              <text class="room-label" x="382" y="328" text-anchor="middle">{{ 'reservations.reservations.sala_2' | t }}</text>
 
               <!-- Balcón: terraza exterior con otro suelo, separada del salón por el ventanal (línea azul) -->
               <path class="balcony-zone" fill="url(#deck)" d="M140 34H602L856 297V776H765V338L560 125H140Z" />
@@ -289,17 +288,16 @@
               <path class="windows" d="M144 125H328M372 125H560L765 338V432M765 484V772" />
               <path class="glass" d="M144 125H328M372 125H560L765 338V432M765 484V772" />
               <path class="balcony-door" d="M328 125h44M765 432v52" />
-              <text class="plan-label exit-label" x="350" y="146" text-anchor="middle">Salida</text>
+              <text class="plan-label exit-label" x="350" y="146" text-anchor="middle">{{ 'reservations.reservations.salida' | t }}</text>
               <text class="plan-label exit-label" transform="translate(748 458) rotate(-90)"
-                text-anchor="middle">Salida</text>
+                text-anchor="middle">{{ 'reservations.reservations.salida' | t }}</text>
               <text class="plan-label balcony-tag" transform="translate(154 80) rotate(-90)"
-                text-anchor="middle">Balcón</text>
-              <text class="plan-label" x="370" y="19" text-anchor="middle">Balcón</text>
-              <text class="plan-label" transform="translate(742 152) rotate(46)" text-anchor="middle">Balcón</text>
-              <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">Balcón</text>
-              <text class="plan-label muted" transform="translate(154 214) rotate(-90)" text-anchor="middle">Salón
-                alto</text>
-              <text class="plan-label muted" x="525" y="594" text-anchor="middle">Galería</text>
+                text-anchor="middle">{{ 'reservations.reservations.balcon' | t }}</text>
+              <text class="plan-label" x="370" y="19" text-anchor="middle">{{ 'reservations.reservations.balcon' | t }}</text>
+              <text class="plan-label" transform="translate(742 152) rotate(46)" text-anchor="middle">{{ 'reservations.reservations.balcon' | t }}</text>
+              <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">{{ 'reservations.reservations.balcon' | t }}</text>
+              <text class="plan-label muted" transform="translate(154 214) rotate(-90)" text-anchor="middle">{{ 'reservations.reservations.salon_alto' | t }}</text>
+              <text class="plan-label muted" x="525" y="594" text-anchor="middle">{{ 'reservations.reservations.galeria' | t }}</text>
               }
 
               <use href="#shell" class="wall-outer" />
@@ -313,9 +311,9 @@
 
               <text class="cartouche-title" x="64" y="708">Terra Galega</text>
               @if (level === 1) {
-              <text class="cartouche-sub" x="64" y="732">Planta primera, plano de sala</text>
+              <text class="cartouche-sub" x="64" y="732">{{ 'reservations.reservations.planta_primera_plano_de_sala' | t }}</text>
               } @else {
-              <text class="cartouche-sub" x="64" y="732">Planta segunda, plano de sala</text>
+              <text class="cartouche-sub" x="64" y="732">{{ 'reservations.reservations.planta_segunda_plano_de_sala' | t }}</text>
               }
               <path class="cartouche-rule" d="M64 748h190M64 742v12M254 742v12" />
               <g transform="translate(470 712)">
@@ -347,7 +345,7 @@
                 }
                 <rect class="tabletop" x="18" y="8" width="48" height="220" rx="14" />
                 <g transform="rotate(-90 42 108)">
-                  <text class="special-title" x="42" y="104" text-anchor="middle">Mesa de celebración</text>
+                  <text class="special-title" x="42" y="104" text-anchor="middle">{{ 'reservations.reservations.mesa_de_celebracion' | t }}</text>
                   <text class="special-sub" x="42" y="120" text-anchor="middle">{{ seatsOf(table) }} puestos</text>
                 </g>
                 @if (state === 'occupied') {
@@ -411,39 +409,39 @@
           }
         </div>
       </div>
-      <p class="pan-hint">Desliza horizontalmente para recorrer el plano.</p>
+      <p class="pan-hint">{{ 'reservations.reservations.desliza_horizontalmente_para_recorrer_el_plano' | t }}</p>
 
     </section>
 
     <!-- RESUMEN "Tu mesa": datos de la mesa elegida, sillas de las mesas de celebración y botón de reserva.
          aria-live hace que los lectores de pantalla anuncien los cambios. -->
     <aside class="summary-card" aria-labelledby="selection-heading">
-      <h2 id="selection-heading">Tu mesa</h2>
+      <h2 id="selection-heading">{{ 'reservations.reservations.tu_mesa' | t }}</h2>
       <div id="reservation-table-info" class="summary-body" aria-live="polite">
         @if (selected; as table) {
         <p class="table-title">{{ nameOf(table) }}</p>
         <dl>
           <div>
-            <dt>Ubicación</dt>
+            <dt>{{ 'reservations.reservations.ubicacion' | t }}</dt>
             <dd>Piso {{ floor }} - {{ table.area }}</dd>
           </div>
           @if (table.booth !== undefined) {
           <div>
-            <dt>Tipo</dt>
+            <dt>{{ 'reservations.reservations.tipo' | t }}</dt>
             <dd>Mesa de arco, {{ placeOf(table).toLowerCase() }}</dd>
           </div>
           <div>
-            <dt>Capacidad máxima</dt>
+            <dt>{{ 'reservations.reservations.capacidad_maxima' | t }}</dt>
             <dd>{{ boothSeats }} personas</dd>
           </div>
           } @else {
           <div>
-            <dt>Capacidad</dt>
+            <dt>{{ 'reservations.reservations.capacidad' | t }}</dt>
             <dd>{{ seatsOf(table) }} puestos</dd>
           </div>
           }
           <div>
-            <dt>Hora y grupo</dt>
+            <dt>{{ 'reservations.reservations.hora_y_grupo' | t }}</dt>
             <dd>{{ time }} - {{ partyLabel(party) }}</dd>
           </div>
         </dl>
@@ -451,32 +449,32 @@
         <p class="note highlight">La capacidad máxima de esta mesa es de {{ boothSeats }} personas.</p>
         }
         @if (table.special) {
-        <div id="reservation-seats" class="seat-stepper" role="group" aria-label="Sillas de la mesa">
-          <span>Sillas</span>
-          <button type="button" aria-label="Quitar una silla" [disabled]="seatsOf(table) <= specialMin"
+        <div id="reservation-seats" class="seat-stepper" role="group" [attr.aria-label]="'reservations.reservations.sillas_de_la_mesa' | t">
+          <span>{{ 'reservations.reservations.sillas' | t }}</span>
+          <button type="button" [attr.aria-label]="'reservations.reservations.quitar_una_silla' | t" [disabled]="seatsOf(table) <= specialMin"
             (click)="adjustSeats(table, -1)">−</button>
           <output aria-live="polite">{{ seatsOf(table) }}</output>
-          <button type="button" aria-label="Añadir una silla" [disabled]="seatsOf(table) >= maxSeats"
+          <button type="button" [attr.aria-label]="'reservations.reservations.anadir_una_silla' | t" [disabled]="seatsOf(table) >= maxSeats"
             (click)="adjustSeats(table, 1)">+</button>
         </div>
         <p class="note">Sala privada para grupos de {{ minSeats }} a {{ maxSeats }} personas.</p>
         }
         } @else {
-        <p>Selecciona una mesa disponible en el plano para ver su ubicación y capacidad.</p>
+        <p>{{ 'reservations.reservations.selecciona_una_mesa_disponible_en_el_plano_para_ver_su_' | t }}</p>
         }
       </div>
       <!-- Datos de la reserva: nombre, temática y (solo al crear) aceptar el anticipo -->
       <div class="reservation-fields">
         <label>
-          <span>Nombre de la reserva</span>
-          <input id="reservation-name" type="text" maxlength="60" placeholder="Ej. Cena de grado"
+          <span>{{ 'reservations.reservations.nombre_de_la_reserva' | t }}</span>
+          <input id="reservation-name" type="text" maxlength="60" placeholder="{{ 'reservations.reservations.ej_cena_de_grado' | t }}"
             [value]="reservationName" (input)="reservationName = $any($event.target).value" />
         </label>
         <label>
-          <span>Temática</span>
+          <span>{{ 'reservations.reservations.tematica' | t }}</span>
           <select id="reservation-theme" (change)="theme = $any($event.target).value">
             @for (option of themes; track option.value) {
-            <option [value]="option.value" [selected]="option.value === theme">{{ option.label }}</option>
+            <option [value]="option.value" [selected]="option.value === theme">{{ option.label | t }}</option>
             }
           </select>
         </label>
@@ -496,12 +494,12 @@
         }
       </button>
       @if (editing) {
-      <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelEdit()">Cancelar edición</button>
+      <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelEdit()">{{ 'reservations.reservations.cancelar_edicion' | t }}</button>
       }
       @if (!date || date < today) {
-      <p class="note" role="status">Elige la fecha de hoy o una posterior.</p>
+      <p class="note" role="status">{{ 'reservations.reservations.elige_la_fecha_de_hoy_o_una_posterior' | t }}</p>
       }
-      <p class="feedback error" role="alert" [hidden]="!feedback">{{ feedback }}</p>
+      <p class="feedback error" role="alert" [hidden]="!feedback">{{ feedback | t }}</p>
     </aside>
   </div>
   }

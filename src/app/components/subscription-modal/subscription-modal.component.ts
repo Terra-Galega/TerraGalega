@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { DialogDirective } from '../../directives/dialog.directive';
 import { ButtonComponent } from '../button/button.component';
@@ -7,7 +8,7 @@ import { SubscriptionStatus } from '../../models/subscription';
 // El padre controla si está abierto y reacciona a confirm (pagar) y cancel (cerrar).
 @Component({
   selector: 'app-subscription-modal',
-  imports: [DialogDirective, ButtonComponent],
+  imports: [DialogDirective, ButtonComponent, TranslatePipe],
   templateUrl: './subscription-modal.component.html',
 })
 export class SubscriptionModalComponent {

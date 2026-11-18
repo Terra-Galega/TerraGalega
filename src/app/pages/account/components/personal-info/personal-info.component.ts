@@ -1,10 +1,11 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Client } from '../../../../models/client';
 import { InfoTileComponent } from '../info-tile/info-tile.component';
 
 @Component({
   selector: 'app-personal-info',
-  imports: [InfoTileComponent],
+  imports: [InfoTileComponent, TranslatePipe],
   templateUrl: './personal-info.component.html',
   host: { class: 'block h-full' },
 })

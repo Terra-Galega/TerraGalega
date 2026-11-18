@@ -20,7 +20,7 @@
           </p>
         </div>
         <div class="text-right">
-          <p class="text-xs" style="color: rgba(44, 44, 44, 0.5)">Total</p>
+          <p class="text-xs" style="color: rgba(44, 44, 44, 0.5)">{{ 'orders.ordered.ordered.total' | t }}</p>
           <p
             [id]="'order-total-' + order.id"
             class="text-2xl font-bold"
@@ -118,7 +118,7 @@
           </svg>
           <div>
             <p class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
-              Entrega en
+              {{ 'orders.ordered.ordered.entrega_en' | t }}
             </p>
             <p class="text-[15px] text-charcoal">{{ order.address }}</p>
           </div>
@@ -132,7 +132,7 @@
           style="border-top: 1px solid rgba(44, 44, 44, 0.08)"
         >
           <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-            Tu pedido va en camino. Mira dónde está tu repartidor.
+            {{ 'orders.ordered.ordered.tu_pedido_va_en_camino_mira_donde_esta_tu_repartidor' | t }}
           </p>
           <app-button
             variant="sage"
@@ -141,7 +141,7 @@
             [queryParams]="{ order: order.id }"
             (click)="enableNotifications()"
           >
-            Seguir mi pedido
+            {{ 'orders.ordered.ordered.seguir_mi_pedido' | t }}
           </app-button>
         </div>
       }
@@ -153,10 +153,10 @@
           style="border-top: 1px solid rgba(44, 44, 44, 0.08)"
         >
           <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-            Puedes cancelarlo mientras el restaurante no lo confirme.
+            {{ 'orders.ordered.ordered.puedes_cancelarlo_mientras_el_restaurante_no_lo_confirm' | t }}
           </p>
           <app-button variant="danger" size="sm" (click)="askCancel(order)">
-            Cancelar pedido
+            {{ 'orders.ordered.ordered.cancelar_pedido' | t }}
           </app-button>
         </div>
       }
@@ -167,7 +167,7 @@
 <!-- Modal de confirmación de cancelación -->
 <app-modal
   [open]="showCancelModal"
-  title="Cancelar pedido"
+  title="{{ 'orders.ordered.ordered.cancelar_pedido' | t }}"
   message="¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer."
   confirmLabel="Sí, cancelar pedido"
   cancelLabel="Volver"
@@ -179,7 +179,7 @@
 <!-- Modal de error si la cancelación falla -->
 <app-modal
   [open]="showErrorModal"
-  title="No se pudo cancelar el pedido"
+  title="{{ 'orders.ordered.ordered.no_se_pudo_cancelar_el_pedido' | t }}"
   [message]="errorMessage"
   confirmLabel="Aceptar"
   variant="error"

@@ -16,11 +16,11 @@
     >
       <path d="M6 18L18 6M6 6l12 12" />
     </svg>
-    Pedido cancelado
+    {{ 'order_progress.order_progress.pedido_cancelado' | t }}
   </div>
 } @else {
   <!-- Barra de progreso: lista ordenada con un paso por estado -->
-  <ol class="flex w-full" aria-label="Progreso del pedido">
+  <ol class="flex w-full" [attr.aria-label]="'order_progress.order_progress.progreso_del_pedido' | t">
     @for (step of steps; track step.label; let i = $index) {
       <li
         class="relative flex-1 flex flex-col items-center text-center"
@@ -80,11 +80,11 @@
           "
           [style.font-weight]="step.state === 'current' ? 600 : 500"
         >
-          {{ step.label }}
+          {{ step.label | t }}
           @if (step.state === 'done') {
-            <span class="sr-only"> (completado)</span>
+            <span class="sr-only"> {{ 'order_progress.order_progress.completado' | t }}</span>
           } @else if (step.state === 'current') {
-            <span class="sr-only"> (paso actual)</span>
+            <span class="sr-only"> {{ 'order_progress.order_progress.paso_actual' | t }}</span>
           }
         </span>
       </li>

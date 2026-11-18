@@ -2,11 +2,10 @@
   <app-navbar></app-navbar>
 
   <main class="min-h-screen pt-32 pb-28 max-w-xl mx-auto px-6 md:px-8">
-    <app-page-header eyebrow="Ya casi está" title="Completa tu perfil" />
+    <app-page-header eyebrow="Ya casi está" title="{{ 'complete_profile.complete_profile.completa_tu_perfil' | t }}" />
 
     <p class="text-[15px] -mt-2 mb-8" style="color: rgba(44, 44, 44, 0.7)">
-      Creaste tu cuenta con Google. Para poder entregarte tus pedidos necesitamos
-      algunos datos más.
+      {{ 'complete_profile.complete_profile.creaste_tu_cuenta_con_google_para_poder_entregarte_tus_' | t }}
     </p>
 
     <form id="complete-profile-form" class="glass-card rounded-3xl p-8 space-y-4"
@@ -14,13 +13,13 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label class="block">
           <span class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-            style="color: rgba(44, 44, 44, 0.4)">Nombre</span>
+            style="color: rgba(44, 44, 44, 0.4)">{{ 'complete_profile.complete_profile.nombre' | t }}</span>
           <input id="profile-name" name="name" [(ngModel)]="name" [maxlength]="nameMax" autocomplete="given-name"
             class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
         </label>
         <label class="block">
           <span class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-            style="color: rgba(44, 44, 44, 0.4)">Apellido</span>
+            style="color: rgba(44, 44, 44, 0.4)">{{ 'complete_profile.complete_profile.apellido' | t }}</span>
           <input id="profile-lastname" name="lastName" [(ngModel)]="lastName" [maxlength]="nameMax"
             autocomplete="family-name" class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
         </label>
@@ -28,7 +27,7 @@
 
       <label class="block">
         <span class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)">Teléfono</span>
+          style="color: rgba(44, 44, 44, 0.4)">{{ 'complete_profile.complete_profile.telefono' | t }}</span>
         <input id="profile-phone" name="phone" type="tel" [(ngModel)]="phone" [maxlength]="phoneMax"
           placeholder="+57 300 123 4567" autocomplete="tel" inputmode="tel"
           class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
@@ -37,22 +36,22 @@
       @if (needsAddress) {
       <label class="block">
         <span class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)">Dirección de entrega</span>
+          style="color: rgba(44, 44, 44, 0.4)">{{ 'complete_profile.complete_profile.direccion_de_entrega' | t }}</span>
         <input id="profile-address" name="address" [(ngModel)]="address" [maxlength]="addressMax"
-          placeholder="Calle 123 #45-67, apto 8" autocomplete="street-address"
+          placeholder="{{ 'complete_profile.complete_profile.calle_123_45_67_apto_8' | t }}" autocomplete="street-address"
           class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </label>
 
       <label class="block">
         <span class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)">Nombre de la dirección (opcional)</span>
+          style="color: rgba(44, 44, 44, 0.4)">{{ 'complete_profile.complete_profile.nombre_de_la_direccion_opcional' | t }}</span>
         <input id="profile-address-name" name="addressName" [(ngModel)]="addressName" maxlength="40"
-          placeholder="Casa" class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
+          placeholder="{{ 'complete_profile.complete_profile.casa' | t }}" class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </label>
       }
 
       @if (error) {
-      <p class="text-sm" style="color: #8a2222" role="alert">{{ error }}</p>
+      <p class="text-sm" style="color: #8a2222" role="alert">{{ error | t }}</p>
       }
 
       <div class="pt-2 flex flex-col items-center gap-4">
@@ -61,7 +60,7 @@
         </app-button>
         <button type="button" class="text-sm underline underline-offset-4 cursor-pointer"
           style="color: rgba(44, 44, 44, 0.65)" (click)="logout()">
-          Cerrar sesión
+          {{ 'complete_profile.complete_profile.cerrar_sesion' | t }}
         </button>
       </div>
     </form>

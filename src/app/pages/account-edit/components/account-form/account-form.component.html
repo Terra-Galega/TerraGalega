@@ -1,7 +1,7 @@
 <!-- Formulario reactivo para editar la información de la cuenta -->
 <form [formGroup]="form" (ngSubmit)="save.emit()" class="glass-card rounded-3xl p-6 md:p-10 space-y-10">
   <!-- Sección para editar el nombre y el apellido del cliente -->
-  <app-form-section title="Datos personales" tone="terra">
+  <app-form-section title="{{ 'account_edit.account_form.account_form.datos_personales' | t }}" tone="terra">
     <!-- Icono de usuario -->
     <svg aria-hidden="true" focusable="false" icon class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -11,19 +11,19 @@
     <!-- Campos de nombre y apellido organizados en dos columnas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <app-form-field label="Nombre">
-        <input type="text" formControlName="name" aria-label="Nombre"
+        <input type="text" formControlName="name" [attr.aria-label]="'account_edit.account_form.account_form.nombre' | t"
           class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </app-form-field>
 
       <app-form-field label="Apellido">
-        <input type="text" formControlName="lastName" aria-label="Apellido"
+        <input type="text" formControlName="lastName" [attr.aria-label]="'account_edit.account_form.account_form.apellido' | t"
           class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </app-form-field>
     </div>
   </app-form-section>
 
   <!-- Sección para actualizar los datos de contacto -->
-  <app-form-section title="Contacto" tone="gold">
+  <app-form-section title="{{ 'account_edit.account_form.account_form.contacto' | t }}" tone="gold">
     <!-- Icono de correo electrónico -->
     <svg aria-hidden="true" focusable="false" icon class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -33,12 +33,12 @@
     <!-- Campos para el correo electrónico y el teléfono -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <app-form-field label="Correo electrónico">
-        <input type="email" formControlName="email" aria-label="Correo electrónico"
+        <input type="email" formControlName="email" [attr.aria-label]="'account_edit.account_form.account_form.correo_electronico' | t"
           class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </app-form-field>
 
       <app-form-field label="Teléfono">
-        <input type="text" formControlName="phone" aria-label="Teléfono"
+        <input type="text" formControlName="phone" [attr.aria-label]="'account_edit.account_form.account_form.telefono' | t"
           class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </app-form-field>
 
@@ -46,7 +46,7 @@
   </app-form-section>
 
   <!-- Sección para gestionar la contraseña de la cuenta -->
-  <app-form-section title="Seguridad" tone="sage">
+  <app-form-section title="{{ 'account_edit.account_form.account_form.seguridad' | t }}" tone="sage">
     <!-- Icono de seguridad -->
     <svg aria-hidden="true" focusable="false" icon class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -56,23 +56,23 @@
     <!-- Explicación y botón para abrir el modal de cambio de contraseña -->
     <div class="flex items-center justify-between gap-4">
       <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
-        Para cambiarla te pediremos tu contraseña actual.
+        {{ 'account_edit.account_form.account_form.para_cambiarla_te_pediremos_tu_contrasena_actual' | t }}
       </p>
       <app-button type="button" variant="outline" size="md" (click)="changePassword.emit()">
-        Cambiar contraseña
+        {{ 'account_edit.account_form.account_form.cambiar_contrasena' | t }}
       </app-button>
     </div>
 
     <!-- Información sobre la conservación de la contraseña actual -->
     <p class="text-xs mt-2" style="color: rgba(44, 44, 44, 0.45)">
-      Si la dejas vacía, conservaremos tu contraseña actual.
+      {{ 'account_edit.account_form.account_form.si_la_dejas_vacia_conservaremos_tu_contrasena_actual' | t }}
     </p>
   </app-form-section>
 
   <!-- Muestra el mensaje de error cuando existe -->
   @if (errorMessage) {
   <p class="text-sm" style="color: #8a2222" role="alert">
-    {{ errorMessage }}
+    {{ errorMessage | t }}
   </p>
   }
 
@@ -80,10 +80,10 @@
   <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6"
     style="border-top: 1px solid rgba(44, 44, 44, 0.08)">
     <app-button type="button" variant="neutral" size="md" (click)="cancel.emit()">
-      Cancelar
+      {{ 'account_edit.account_form.account_form.cancelar' | t }}
     </app-button>
     <app-button type="submit" variant="primary" size="md">
-      Guardar cambios
+      {{ 'account_edit.account_form.account_form.guardar_cambios' | t }}
     </app-button>
   </div>
 </form>

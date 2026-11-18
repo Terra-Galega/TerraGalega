@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { SubscriptionStatus } from '../../../../models/subscription';
@@ -5,7 +6,7 @@ import { formatSubscriptionDate } from '../../../../services/subscription.servic
 
 @Component({
   selector: 'app-account-actions',
-  imports: [ButtonComponent],
+  imports: [ButtonComponent, TranslatePipe],
   templateUrl: './account-actions.component.html',
   host: { class: 'block h-full' },
 })

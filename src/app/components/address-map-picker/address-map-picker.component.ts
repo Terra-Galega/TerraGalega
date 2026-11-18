@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import {
   AfterViewInit,
   Component,
@@ -25,6 +26,7 @@ type Lookup =
   | { kind: 'reverse'; lat: number; lon: number };
 
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-address-map-picker',
   standalone: true,
   templateUrl: './address-map-picker.component.html',

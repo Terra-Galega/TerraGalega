@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import {
     Component,
     EventEmitter,
@@ -38,7 +39,7 @@ const RATING_LABELS = ['Muy mala', 'Mala', 'Regular', 'Buena', 'Excelente'];
         FormFieldComponent,
         ModalComponent,
         StarIconComponent,
-    ],
+    TranslatePipe],
     templateUrl: './review-modal.component.html',
 })
 export class ReviewModalComponent implements OnInit {

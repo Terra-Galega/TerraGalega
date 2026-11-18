@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -20,7 +21,7 @@ import { getErrorMessage } from '../../utils/http-error';
         PageHeaderComponent,
         EmptyStateComponent,
         CouponCardComponent,
-    ],
+    TranslatePipe],
     templateUrl: './coupons.component.html',
 })
 export class CouponsComponent implements OnInit {

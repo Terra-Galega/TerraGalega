@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
+import { TranslatePipe } from '../../services/translate.pipe';
 
 // Guía de pasos para visitantes sin sesión. Por defecto muestra "cómo pedir" (página de pedidos);
 // otras páginas, como reservas, pasan sus propios pasos con [steps].
 @Component({
   selector: 'app-order-steps',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './order-steps.component.html',
   styleUrl: './order-steps.component.scss'
 })

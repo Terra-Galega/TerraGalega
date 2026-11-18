@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, Input } from '@angular/core';
 
 // Un dato de contacto que se muestra como tarjeta
@@ -15,7 +16,7 @@ export interface ContactInfo {
  */
 @Component({
   selector: 'app-contact-info',
-  imports: [],
+  imports: [TranslatePipe, ],
   templateUrl: './contact-info.component.html',
   styleUrl: './contact-info.component.scss',
 })

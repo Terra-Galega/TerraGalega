@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../services/translate.pipe';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,7 +32,7 @@ type View =
 // Si el cliente venía del tutorial "hacer una reserva", aquí se retoma.
 @Component({
   selector: 'app-reservation-result',
-  imports: [NavbarComponent, FooterComponent, PageHeaderComponent, ButtonComponent],
+  imports: [NavbarComponent, FooterComponent, PageHeaderComponent, ButtonComponent, TranslatePipe],
   templateUrl: './reservation-result.component.html',
 })
 export class ReservationResultComponent implements OnInit {

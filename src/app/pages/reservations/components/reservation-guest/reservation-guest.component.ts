@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component } from '@angular/core';
 import { OrderStepsComponent } from '../../../../components/order-steps/order-steps.component';
 import { ReadyToOrderComponent } from '../../../../components/ready-to-order/ready-to-order.component';
@@ -6,7 +7,7 @@ import { ReadyToOrderComponent } from '../../../../components/ready-to-order/rea
 // los pasos para reservar, muestra los espacios del restaurante e invita a entrar o registrarse.
 @Component({
   selector: 'app-reservation-guest',
-  imports: [OrderStepsComponent, ReadyToOrderComponent],
+  imports: [OrderStepsComponent, ReadyToOrderComponent, TranslatePipe],
   templateUrl: './reservation-guest.component.html',
   styleUrl: './reservation-guest.component.scss',
 })

@@ -6,9 +6,9 @@
         class="text-[12px] tracking-widest uppercase mb-1"
         style="color: rgba(44, 44, 44, 0.38)"
       >
-        Datos
+        {{ 'account.personal_info.personal_info.datos' | t }}
       </p>
-      <h3 class="font-serif text-2xl font-semibold">Información personal</h3>
+      <h3 class="font-serif text-2xl font-semibold">{{ 'account.personal_info.personal_info.informacion_personal' | t }}</h3>
     </div>
     <!--btn de editar-->
     <button
@@ -17,7 +17,7 @@
       class="text-sm font-medium cursor-pointer transition-opacity hover:opacity-70"
       style="color: #556141"
     >
-      Editar<span class="sr-only"> datos personales</span>
+      {{ 'account.personal_info.personal_info.editar' | t }}<span class="sr-only"> {{ 'merge.personal_details' | t }}</span>
     </button>
   </div>
   <!--Mostrar bonito la info del cliente, nombre correo...-->

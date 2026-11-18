@@ -19,13 +19,13 @@
         style="border-color: rgba(44, 44, 44, 0.1)"
       >
         <h2 class="font-serif text-2xl font-semibold text-charcoal">
-          Mi Carrito
+          {{ 'cart.cart.mi_carrito' | t }}
         </h2>
 
         <button
           (click)="closeCart()"
           style="color: rgba(44, 44, 44, 0.4)"
-          aria-label="Cerrar carrito"
+          [attr.aria-label]="'cart.cart.cerrar_carrito' | t"
         >
           <svg aria-hidden="true" focusable="false"
             class="w-5 h-5"
@@ -78,10 +78,10 @@
               />
             </svg>
 
-            <p class="text-md">Tu carrito está vacío</p>
+            <p class="text-md">{{ 'cart.cart.tu_carrito_esta_vacio' | t }}</p>
 
             <app-button variant="outline" size="sm" routerLink="/menu">
-              Ver la carta
+              {{ 'cart.cart.ver_la_carta' | t }}
             </app-button>
           </div>
         } @else {
@@ -131,7 +131,7 @@
                   class="flex-shrink-0"
                   style="color: rgba(44, 44, 44, 0.3)"
                   type="button"
-                  [attr.aria-label]="'Quitar ' + item.product.name + ' del carrito'"
+                  [attr.aria-label]="('merge.remove' | t) + ' ' + item.product.name + ' ' + ('merge.from_cart' | t)"
                   (click)="removeItem(item.id)"
                 >
                   <svg aria-hidden="true" focusable="false"
@@ -158,7 +158,7 @@
       @if (cartItems.length > 0) {
         <div class="p-6 border-t" style="border-color: rgba(44, 44, 44, 0.1)">
           <div class="flex justify-between items-center mb-4 rounded-full p-4">
-            <span class="font-medium text-charcoal"> Total del pedido </span>
+            <span class="font-medium text-charcoal"> {{ 'cart.cart.total_del_pedido' | t }} </span>
 
             <span id="cart-total" class="font-bold text-xl" style="color: #b2571f">
               ${{ total | number }}
@@ -170,14 +170,14 @@
             id="btn-cart-checkout" class="w-full py-3 text-white font-medium rounded-full btn-terra"
             (click)="goToCheckout()"
           >
-            Confirmar pedido
+            {{ 'cart.cart.confirmar_pedido' | t }}
           </button>
 
           <p
             class="text-center text-xs mt-3"
             style="color: rgba(44, 44, 44, 0.4)"
           >
-            Al confirmar el pedido, te llevaremos a la pasarela de pago.
+            {{ 'cart.cart.al_confirmar_el_pedido_te_llevaremos_a_la_pasarela_de_p' | t }}
           </p>
         </div>
       }

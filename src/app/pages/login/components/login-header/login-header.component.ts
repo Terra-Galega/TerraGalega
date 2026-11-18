@@ -1,8 +1,9 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-login-header',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './login-header.component.html',
   styleUrl: './login-header.component.scss',
 })

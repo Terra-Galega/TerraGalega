@@ -19,14 +19,14 @@
     class="flex items-center rounded-full p-0.5"
     style="background: rgba(44, 44, 44, 0.06)"
     role="group"
-    [attr.aria-label]="'Cantidad de ' + addOn.name"
+    [attr.aria-label]="('merge.quantity_of' | t) + ' ' + addOn.name"
   >
     <!-- Quitar uno (deshabilitado cuando no hay ninguna unidad) -->
     <button
       type="button"
       class="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-30"
       style="color: rgba(44, 44, 44, 0.6)"
-      [attr.aria-label]="'Quitar ' + addOn.name"
+      [attr.aria-label]="('merge.remove' | t) + ' ' + addOn.name"
       [disabled]="quantity === 0"
       (click)="changed.emit(-1)"
     >
@@ -40,7 +40,7 @@
       type="button"
       class="w-8 h-8 rounded-full flex items-center justify-center"
       style="color: rgba(44, 44, 44, 0.6)"
-      [attr.aria-label]="'Añadir ' + addOn.name"
+      [attr.aria-label]="('merge.add' | t) + ' ' + addOn.name"
       (click)="changed.emit(1)"
     >
       +

@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -10,7 +11,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-footer',
   standalone: true,
   // RouterLink permite que el logo lleve al inicio sin recargar la página
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })

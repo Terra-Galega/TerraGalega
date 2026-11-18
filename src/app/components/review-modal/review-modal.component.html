@@ -36,7 +36,7 @@
             <div
             class="flex items-center gap-1"
             role="radiogroup"
-            aria-label="Calificación de 1 a 5 estrellas"
+            [attr.aria-label]="'review_modal.review_modal.calificacion_de_1_a_5_estrellas' | t"
             (mouseleave)="hovered = 0"
             >
             @for (star of stars; track star) {
@@ -67,7 +67,7 @@
             [attr.maxlength]="commentMax"
             rows="5"
             required
-            placeholder="Cuéntanos cómo fue tu experiencia…"
+            placeholder="{{ 'review_modal.review_modal.cuentanos_como_fue_tu_experiencia' | t }}"
             class="input-field w-full px-4 py-3 rounded-3xl text-sm text-charcoal resize-none"
             ></textarea>
             <p class="text-[11px] mt-1 text-right" style="color: rgba(44, 44, 44, 0.45)">
@@ -77,7 +77,7 @@
 
         <!-- Error de validación o del servidor -->
         @if (errorMessage) {
-        <p class="text-sm" style="color: #da5858">{{ errorMessage }}</p>
+        <p class="text-sm" style="color: #da5858">{{ errorMessage | t }}</p>
         }
 
         <!-- Botones: Cancelar y Guardar -->
@@ -88,7 +88,7 @@
             [fullWidth]="true"
             (click)="close()"
             >
-            Cancelar
+            {{ 'review_modal.review_modal.cancelar' | t }}
             </app-button>
 
             <app-button
@@ -110,7 +110,7 @@
             style="color: #8a2222"
             (click)="confirmDelete = true"
             >
-            Eliminar mi reseña
+            {{ 'review_modal.review_modal.eliminar_mi_resena' | t }}
             </button>
         </div>
         }
@@ -121,7 +121,7 @@
 <!-- Confirmación antes de eliminar -->
 <app-modal
     [open]="confirmDelete"
-    title="Eliminar reseña"
+    title="{{ 'review_modal.review_modal.eliminar_resena' | t }}"
     message="Tu reseña dejará de aparecer en la página. Esta acción no se puede deshacer."
     confirmLabel="Eliminar"
     cancelLabel="Cancelar"

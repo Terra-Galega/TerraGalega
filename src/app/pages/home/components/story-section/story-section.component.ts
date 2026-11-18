@@ -1,10 +1,11 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component } from '@angular/core';
 import { RevealDirective } from '../../../../directives/reveal.directive';
 
 // Sección Nuestra Historia del home: texto y cifras a un lado e imagen al otro.
 @Component({
   selector: 'app-story-section',
-  imports: [RevealDirective],
+  imports: [RevealDirective, TranslatePipe],
   templateUrl: './story-section.component.html',
   styleUrl: './story-section.component.scss',
 })

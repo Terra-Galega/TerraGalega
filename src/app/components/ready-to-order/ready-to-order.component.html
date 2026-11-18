@@ -4,20 +4,20 @@
   </h2>
 
   <p class="text-[15px] mb-8" style="color: rgba(44, 44, 44, 0.7)">
-    {{ message }}
+    {{ message | t }}
   </p>
 
   <!-- Botones. Si se indicó "redirect", después de entrar se vuelve a esa página -->
   <div class="flex flex-col sm:flex-row gap-3 justify-center">
     <app-button id="cta-login" variant="outline" size="lg" routerLink="/login" [queryParams]="loginParams">
-      Iniciar sesión
+      {{ 'ready_to_order.ready_to_order.iniciar_sesion' | t }}
     </app-button>
     <!-- Lleva al login con la pestaña de registro ya seleccionada -->
     <app-button id="cta-signup" variant="outline" size="lg" [routerLink]="['/login']" [queryParams]="signupParams">
-      Crear una cuenta
+      {{ 'ready_to_order.ready_to_order.crear_una_cuenta' | t }}
     </app-button>
     <app-button variant="outline" size="lg" routerLink="/menu">
-      Ver la carta
+      {{ 'ready_to_order.ready_to_order.ver_la_carta' | t }}
     </app-button>
   </div>
 </div>

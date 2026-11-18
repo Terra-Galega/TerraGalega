@@ -5,36 +5,31 @@
     <div appReveal>
       <!-- Etiqueta superior de la sección. -->
       <p class="text-xs md:text-[13px] font-semibold tracking-[0.22em] uppercase mb-4" style="color: #d99a21">
-        Nuestra historia
+        {{ 'home.story_section.story_section.nuestra_historia' | t }}
       </p>
       <!-- Título de la sección con salto de línea. -->
       <h2 class="font-serif fluid-display font-semibold tracking-tight mb-8"
         style="color: #f5f2eb">
-        Un pedazo de Galicia<br />en cada plato
+        {{ 'home.story_section.story_section.un_pedazo_de_galicia' | t }}<br />{{ 'home.story_section.story_section.en_cada_plato' | t }}
       </h2>
       <!-- Párrafos con la historia del restaurante. -->
       <p class="text-lg leading-relaxed mb-5 max-w-lg" style="color: rgba(245, 242, 235, 0.65)">
-        Terra Galega nació del amor por la gastronomía gallega. Desde 2018,
-        somos el refugio de quienes buscan los auténticos sabores del noroeste
-        español: pulpo fresco, empanadas artesanales y el inconfundible carácter
-        de la cocina marinera.
+        {{ 'home.story_section.story_section.terra_galega_nacio_del_amor_por_la_gastronomia_gallega_' | t }}
       </p>
       <p class="text-lg leading-relaxed max-w-lg" style="color: rgba(245, 242, 235, 0.65)">
-        Nuestros ingredientes viajan directamente desde la costa gallega.
-        Trabajamos con productores locales que comparten nuestra pasión por la
-        calidad y la tradición.
+        {{ 'home.story_section.story_section.nuestros_ingredientes_viajan_directamente_desde_la_cost' | t }}
       </p>
 
       <!-- Cifras del restaurante, en grande y sin tarjeta -->
       <dl class="flex gap-10 md:gap-14 mt-12">
         @for (stat of stats; track stat.label) {
         <div>
-          <dt class="sr-only">{{ stat.label }}</dt>
+          <dt class="sr-only">{{ stat.label | t }}</dt>
           <dd class="font-serif font-semibold text-3xl md:text-4xl tracking-tight" style="color: #f5f2eb">
             {{ stat.value }}
           </dd>
           <dd class="text-xs tracking-[0.15em] uppercase mt-1" style="color: rgba(245, 242, 235, 0.45)" aria-hidden="true">
-            {{ stat.label }}
+            {{ stat.label | t }}
           </dd>
         </div>
         }
@@ -44,7 +39,7 @@
     <!-- Imagen -->
     <div appReveal style="transition-delay: 150ms">
       <img src="https://images.unsplash.com/photo-1712630514718-3830cc6c0d0a?w=800&h=1000&fit=crop&auto=format"
-        alt="Plato gallego elaborado con esmero" class="w-full h-[26rem] md:h-[34rem] object-cover rounded-[2rem]" />
+        alt="{{ 'home.story_section.story_section.plato_gallego_elaborado_con_esmero' | t }}" class="w-full h-[26rem] md:h-[34rem] object-cover rounded-[2rem]" />
     </div>
   </div>
 </section>

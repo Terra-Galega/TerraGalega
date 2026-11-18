@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../services/translate.pipe';
 import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -39,7 +40,7 @@ import { getErrorMessage } from '../../../utils/http-error';
     EmptyStateComponent,
     ModalComponent,
     OrderSummaryComponent,
-  ],
+    TranslatePipe],
   templateUrl: './checkout-confirm.component.html',
 })
 export class CheckoutConfirmComponent implements OnInit {

@@ -36,7 +36,7 @@
         <span class="text-sm ml-1" style="color: rgba(44, 44, 44, 0.55)">COP</span>
       </p>
       <p class="text-[13px] text-right leading-snug" style="color: rgba(44, 44, 44, 0.6)">
-        Pago único por {{ durationDays }} días.<br />Sin renovación automática.
+        Pago único por {{ durationDays }} días.<br />{{ 'subscription_modal.subscription_modal.sin_renovacion_automatica' | t }}
       </p>
     </div>
 
@@ -49,8 +49,8 @@
             stroke-linejoin="round" />
         </svg>
         <div>
-          <p class="text-sm font-semibold text-charcoal">Domicilios gratis</p>
-          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">En todos tus pedidos.</p>
+          <p class="text-sm font-semibold text-charcoal">{{ 'subscription_modal.subscription_modal.domicilios_gratis' | t }}</p>
+          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">{{ 'subscription_modal.subscription_modal.en_todos_tus_pedidos' | t }}</p>
         </div>
       </li>
 
@@ -61,8 +61,8 @@
             stroke-linejoin="round" />
         </svg>
         <div>
-          <p class="text-sm font-semibold text-charcoal">Cupones exclusivos</p>
-          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">Descuentos pensados para suscriptores.</p>
+          <p class="text-sm font-semibold text-charcoal">{{ 'subscription_modal.subscription_modal.cupones_exclusivos' | t }}</p>
+          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">{{ 'subscription_modal.subscription_modal.descuentos_pensados_para_suscriptores' | t }}</p>
         </div>
       </li>
 
@@ -75,11 +75,11 @@
         </svg>
         <div>
           <p class="text-sm font-semibold text-charcoal flex items-center gap-2">
-            Prioridad en reservas de mesa
+            {{ 'subscription_modal.subscription_modal.prioridad_en_reservas_de_mesa' | t }}
             <span class="text-[11px] font-medium px-2 py-0.5 rounded-full"
-              style="background: rgba(44, 44, 44, 0.07); color: rgba(44, 44, 44, 0.6)">Próximamente</span>
+              style="background: rgba(44, 44, 44, 0.07); color: rgba(44, 44, 44, 0.6)">{{ 'subscription_modal.subscription_modal.proximamente' | t }}</span>
           </p>
-          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">Tu reserva pasa primero.</p>
+          <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.6)">{{ 'subscription_modal.subscription_modal.tu_reserva_pasa_primero' | t }}</p>
         </div>
       </li>
     </ul>
@@ -92,13 +92,13 @@
         <path d="M8 4.5v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         <circle cx="8" cy="11" r="0.9" fill="currentColor" />
       </svg>
-      <span>No hay reembolsos: una vez realizado el pago no se devuelve el dinero.</span>
+      <span>{{ 'subscription_modal.subscription_modal.no_hay_reembolsos_una_vez_realizado_el_pago_no_se_devue' | t }}</span>
     </div>
 
     <!-- Acciones -->
     <div class="px-6 md:px-8 pt-6 pb-7 flex flex-col-reverse sm:flex-row gap-3">
       <app-button variant="neutral" size="md" [fullWidth]="true" [disabled]="starting" (click)="cancel.emit()">
-        Ahora no
+        {{ 'subscription_modal.subscription_modal.ahora_no' | t }}
       </app-button>
       <app-button id="btn-subscribe-pay" variant="primary" size="md" [fullWidth]="true" [disabled]="starting"
         (click)="confirm.emit()">

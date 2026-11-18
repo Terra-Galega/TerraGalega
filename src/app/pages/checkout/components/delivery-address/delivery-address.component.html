@@ -1,15 +1,15 @@
 <!-- Se enlaza al mismo formulario del padre -->
 <section [formGroup]="form">
   <h2 class="font-serif text-xl font-semibold text-charcoal">
-    Dirección de entrega
+    {{ 'checkout.delivery_address.delivery_address.direccion_de_entrega' | t }}
   </h2>
   <p class="text-[15px] mt-1 mb-4" style="color: rgba(44, 44, 44, 0.65)">
-    ¿Dónde quieres recibir tu pedido?
+    {{ 'checkout.delivery_address.delivery_address.donde_quieres_recibir_tu_pedido' | t }}
   </p>
 
   @if (loading) {
     <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-      Cargando tus direcciones...
+      {{ 'checkout.delivery_address.delivery_address.cargando_tus_direcciones' | t }}
     </p>
   } @else {
     <!-- Direcciones guardadas: solo el nombre; la elegida muestra además la dirección -->
@@ -18,7 +18,7 @@
         id="address-options"
         class="flex flex-col gap-2.5 mb-3"
         role="radiogroup"
-        aria-label="Direcciones guardadas"
+        [attr.aria-label]="'checkout.delivery_address.delivery_address.direcciones_guardadas' | t"
       >
         @for (address of addresses; track address.id) {
           <label
@@ -49,7 +49,7 @@
                 class="absolute top-0 right-0 rounded-bl-xl px-2.5 py-1 text-[11px] font-medium"
                 style="background: rgba(85, 97, 65, 0.14); color: #556141"
               >
-                Predeterminada
+                {{ 'checkout.delivery_address.delivery_address.predeterminada' | t }}
               </span>
             }
 
@@ -161,7 +161,7 @@
             <app-address-icon kind="plus" />
           </span>
           <span class="text-[15px] font-medium text-charcoal"
-            >Usar otra dirección</span
+            >{{ 'checkout.delivery_address.delivery_address.usar_otra_direccion' | t }}</span
           >
         </label>
       </div>
@@ -179,7 +179,7 @@
       >
         <label class="block px-6 pt-2.5 pb-2">
           <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">
-            Dirección
+            {{ 'checkout.delivery_address.delivery_address.direccion' | t }}
           </span>
 
           <input
@@ -188,7 +188,7 @@
             type="text"
             formControlName="address"
             maxlength="120"
-            placeholder="Ej: Calle 123 #45-67, apto 8"
+            placeholder="{{ 'checkout.delivery_address.delivery_address.ej_calle_123_45_67_apto_8' | t }}"
             autocomplete="street-address"
             class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
           />
@@ -206,7 +206,7 @@
     <div class="flex items-start justify-between gap-4 mt-2">
       <div class="text-sm min-w-0">
         @if (error) {
-          <p style="color: #8a2222">{{ error }}</p>
+          <p style="color: #8a2222">{{ error | t }}</p>
         }
       </div>
 
@@ -251,7 +251,7 @@
             </svg>
           }
         </span>
-        Guardar esta dirección en mi perfil
+        {{ 'checkout.delivery_address.delivery_address.guardar_esta_direccion_en_mi_perfil' | t }}
       </label>
 
       <!-- Nombre con el que se guardará (vacío = "Casa") -->
@@ -265,14 +265,14 @@
         >
           <label class="block px-6 pt-2.5 pb-2">
             <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)"
-              >Nombre de la dirección</span
+              >{{ 'checkout.delivery_address.delivery_address.nombre_de_la_direccion' | t }}</span
             >
             <input
               id="address-name"
               type="text"
               formControlName="addressName"
               maxlength="40"
-              placeholder="Casa"
+              placeholder="{{ 'checkout.delivery_address.delivery_address.casa' | t }}"
               class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1"
             />
           </label>

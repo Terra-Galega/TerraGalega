@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import {
   Component,
   EventEmitter,
@@ -12,7 +13,7 @@ import { ButtonComponent, ButtonVariant } from '../button/button.component';
 @Component({
   selector: 'app-modal',
   // Importa el botón compartido que se usa para las acciones de confirmar y cancelar.
-  imports: [DialogDirective, ButtonComponent],
+  imports: [TranslatePipe, DialogDirective, ButtonComponent],
   templateUrl: './modal.component.html',
 })
 export class ModalComponent {

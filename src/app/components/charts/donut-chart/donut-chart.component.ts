@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../services/translate.pipe';
 import { DecimalPipe } from '@angular/common';
 import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartEvent } from 'chart.js';
@@ -18,7 +19,7 @@ interface Segment extends DonutItem {
 // mouse (también desde la leyenda) y el centro muestra el detalle del arco activo.
 @Component({
   selector: 'app-donut-chart',
-  imports: [DecimalPipe, BaseChartDirective],
+  imports: [DecimalPipe, BaseChartDirective, TranslatePipe],
   templateUrl: './donut-chart.component.html',
 })
 export class DonutChartComponent implements OnChanges {

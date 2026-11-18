@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { Address } from '../../../../models/address';
 import { AddressService } from '../../../../services/address.service';
@@ -18,6 +19,7 @@ import { AddressMapPickerComponent } from '../../../../components/address-map-pi
     FormFieldComponent,
     AddressIconComponent,
     AddressMapPickerComponent,
+    TranslatePipe,
   ],
   templateUrl: './address-list.component.html',
   host: { class: 'block' },
