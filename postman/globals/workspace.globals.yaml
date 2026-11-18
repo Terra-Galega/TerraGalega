@@ -1,2 +1,47 @@
 name: Globals
-values: []
+values:
+  - key: tg_juan
+    value: ''
+    enabled: true
+  - key: tg_marta
+    value: ''
+    enabled: true
+  - key: tg_diego
+    value: ''
+    enabled: true
+  - key: tg_maria
+    value: ''
+    enabled: true
+  - key: tg_admin
+    value: ''
+    enabled: true
+  - key: tg_reqA
+    value: ''
+    enabled: true
+  - key: tg_orderA
+    value: ''
+    enabled: true
+  - key: tg_amountA
+    value: ''
+    enabled: true
+  - key: tg_urlA
+    value: ''
+    enabled: true
+  - key: tg_reqB
+    value: ''
+    enabled: true
+  - key: tg_orderB
+    value: ''
+    enabled: true
+  - key: tg_invoice
+    value: ''
+    enabled: true
+  - key: tg_subUrl
+    value: ''
+    enabled: true
+  - key: tg_reqC
+    value: ''
+    enabled: true
+  - key: tg_orderC
+    value: ''
+    enabled: true
