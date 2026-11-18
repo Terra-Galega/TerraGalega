@@ -34,7 +34,7 @@
         class="text-[12px] tracking-widest uppercase mb-3"
         style="color: rgba(44, 44, 44, 0.38)"
       >
-        Algo salió mal
+        {{ 'error.error.algo_salio_mal' | t }}
       </p>
 
       <!-- Título del error definido por el componente -->
@@ -47,19 +47,19 @@
         class="text-sm leading-relaxed mb-8"
         style="color: rgba(44, 44, 44, 0.62)"
       >
-        {{ message }}
+        {{ message | t }}
       </p>
 
       <!-- Muestra las opciones de navegación según el tipo de usuario -->
       @if (hasPanel) {
         <!-- Permite al administrador u operador regresar a su panel -->
         <app-button size="lg" [fullWidth]="true" (click)="goToPanel()"
-          >Volver al panel</app-button
+          >{{ 'error.error.volver_al_panel' | t }}</app-button
         >
       } @else {
         <!-- Permite a los demás usuarios regresar a la página principal -->
         <app-button size="lg" [fullWidth]="true" (click)="goHome()"
-          >Volver al inicio</app-button
+          >{{ 'error.error.volver_al_inicio' | t }}</app-button
         >
 
         <!-- Acceso alternativo a la carta de productos -->
@@ -68,7 +68,7 @@
           (click)="goMenu()"
           class="inline-flex items-center gap-2 text-[13px] font-medium text-charcoal/45 hover:text-charcoal mt-5 transition-colors"
         >
-          Ver la carta
+          {{ 'error.error.ver_la_carta' | t }}
         </button>
       }
     </div>

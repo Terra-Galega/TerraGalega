@@ -5,15 +5,15 @@
         id="chat-panel"
         class="chat-panel"
         role="dialog"
-        aria-label="Galleguito - Tu asistente de TerraGalega"
+        [attr.aria-label]="'chat.title' | t"
         (keydown.escape)="toggle()"
       >
         <header class="chat-header">
           <div class="chat-header-info">
             <img class="chat-avatar" src="/images/galleguito.svg" alt="" aria-hidden="true" />
             <div>
-              <p class="chat-title">Galleguito - Tu asistente de TerraGalega</p>
-              <p class="chat-subtitle">Recomendaciones, carrito y reservas</p>
+              <p class="chat-title">{{ 'chat.title' | t }}</p>
+              <p class="chat-subtitle">{{ 'chat.subtitle' | t }}</p>
             </div>
           </div>
           <div class="chat-header-actions">
@@ -21,8 +21,8 @@
               <button
                 type="button"
                 class="chat-icon-btn"
-                aria-label="Nueva conversación"
-                title="Nueva conversación"
+                [attr.aria-label]="'chat.new_conversation' | t"
+                [attr.title]="'chat.new_conversation' | t"
                 [disabled]="sending()"
                 (click)="reset()"
               >
@@ -44,7 +44,7 @@
             <button
               type="button"
               class="chat-icon-btn"
-              aria-label="Cerrar asistente"
+              [attr.aria-label]="'chat.close' | t"
               (click)="toggle()"
             >
               <svg
@@ -66,16 +66,14 @@
 
         <div #messages class="chat-messages" aria-live="polite">
           <div class="chat-bubble chat-bubble--model">
-            ¡Hola{{ firstName() ? ", " + firstName() : "" }}! Soy Galleguito, el
-            asistente de TerraGalega. Puedo recomendarte platos, agregarlos a tu
-            carrito o hacerte una reserva.
+            {{ 'chat.hello' | t }}{{ firstName() ? ", " + firstName() : "" }}! {{ 'chat.intro' | t }}
           </div>
 
           @if (bubbles().length === 0) {
             <div class="chat-suggestions">
               @for (s of suggestions; track s) {
                 <button type="button" class="chat-chip" (click)="send(s)">
-                  {{ s }}
+                  {{ s | t }}
                 </button>
               }
             </div>
@@ -97,8 +95,8 @@
                   {{ formatDate(r.date) }} · {{ r.time.slice(0, 5) }}
                 </p>
                 <p class="chat-reservation-line">
-                  {{ r.seats }} {{ r.seats === 1 ? "persona" : "personas" }} ·
-                  Mesa {{ r.tableId }} (piso {{ r.floor }})
+                  {{ r.seats }} {{ (r.seats === 1 ? 'chat.person' : 'chat.people') | t }} ·
+                  {{ 'chat.table' | t }} {{ r.tableId }} ({{ 'chat.floor' | t }} {{ r.floor }})
                 </p>
 
                 @if (r.paymentState === "PENDING" && r.checkoutUrl) {
@@ -107,19 +105,18 @@
                     class="chat-pay"
                     (click)="pay(r.checkoutUrl)"
                   >
-                    Pagar anticipo {{ money(r.depositAmount) }}
+                    {{ 'chat.pay_deposit' | t }} {{ money(r.depositAmount) }}
                   </button>
                   <p class="chat-note">
-                    Tienes 30 minutos para pagarlo; si no, la reserva se cancela
-                    sola.
+                    {{ 'chat.payment_note' | t }}
                   </p>
                 } @else if (r.paymentState === "PAID") {
-                  <p class="chat-paid">✓ Anticipo pagado, reserva confirmada</p>
+                  <p class="chat-paid">✓ {{ 'chat.paid' | t }}</p>
                   <a
                     routerLink="/reservations"
                     class="chat-link"
                     (click)="open.set(false)"
-                    >Ver mi reserva</a
+                    >{{ 'chat.view_reservation' | t }}</a
                   >
                 }
               </div>
@@ -129,7 +126,7 @@
           @if (sending()) {
             <div
               class="chat-bubble chat-bubble--model chat-typing"
-              aria-label="El asistente está escribiendo"
+              [attr.aria-label]="'chat.typing' | t"
             >
               <span></span><span></span><span></span>
             </div>
@@ -141,8 +138,8 @@
             #input
             rows="1"
             class="chat-input"
-            placeholder="Escribe tu mensaje..."
-            aria-label="Mensaje para el asistente"
+            placeholder="{{ 'chat.placeholder' | t }}"
+            [attr.aria-label]="'chat.message_label' | t"
             [maxLength]="maxLength"
             [value]="draft()"
             (input)="draft.set($any($event.target).value)"
@@ -151,7 +148,7 @@
           <button
             type="submit"
             class="chat-send"
-            aria-label="Enviar mensaje"
+            [attr.aria-label]="'chat.send' | t"
             [disabled]="sending() || !draft().trim()"
           >
             <svg
@@ -178,7 +175,7 @@
       class="chat-fab"
       aria-controls="chat-panel"
       [attr.aria-expanded]="open()"
-      [attr.aria-label]="open() ? 'Cerrar asistente' : 'Abrir asistente'"
+      [attr.aria-label]="(open() ? 'chat.close' : 'chat.open') | t"
       (click)="toggle()"
     >
       @if (open()) {

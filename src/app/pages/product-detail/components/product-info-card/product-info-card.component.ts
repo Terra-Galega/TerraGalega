@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, DestroyRef, Input, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -48,7 +49,7 @@ const REFRESH_MS = 10_000;
     StarIconComponent,
     AddonOptionComponent,
     QuantitySelectorComponent,
-  ],
+    TranslatePipe],
   templateUrl: './product-info-card.component.html',
   styleUrl: './product-info-card.component.scss',
 })

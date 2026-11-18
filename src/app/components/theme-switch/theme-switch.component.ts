@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, Input, inject } from '@angular/core';
 import { ThemeService } from '../../services/theme.service';
 
@@ -5,6 +6,7 @@ import { ThemeService } from '../../services/theme.service';
 // - Normal: texto + interruptor (página de la cuenta).
 // - compact: solo el interruptor, para la esquina de las barras superiores (admin y operador).
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-theme-switch',
   templateUrl: './theme-switch.component.html',
   styleUrl: './theme-switch.component.scss',

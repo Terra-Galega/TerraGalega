@@ -6,7 +6,7 @@
   [class.active]="hasActive"
   [attr.aria-expanded]="open"
   aria-haspopup="true"
-  aria-label="Filtrar por características"
+  [attr.aria-label]="'menu.feature_filter.feature_filter.filtrar_por_caracteristicas' | t"
   (click)="open = !open"
 >
   <!-- Icono de filtro: tres líneas horizontales de distinto largo -->
@@ -36,19 +36,19 @@
       class="text-[11px] font-semibold tracking-[0.2em] uppercase mb-4"
       style="color: rgba(44, 44, 44, 0.4)"
     >
-      Filtrar por
+      {{ 'menu.feature_filter.feature_filter.filtrar_por' | t }}
     </p>
 
     <!-- Título de la sección y botón para desmarcar todo -->
     <div class="flex items-center justify-between mb-3">
-      <p class="text-sm font-semibold text-charcoal">Características</p>
+      <p class="text-sm font-semibold text-charcoal">{{ 'menu.feature_filter.feature_filter.caracteristicas' | t }}</p>
       <button
         type="button"
         class="text-[12px] font-medium hover:underline"
         style="color: rgba(44, 44, 44, 0.4)"
         (click)="clear()"
       >
-        Limpiar
+        {{ 'menu.feature_filter.feature_filter.limpiar' | t }}
       </button>
     </div>
 
@@ -57,7 +57,7 @@
       @for (feature of features; track feature.key) {
         <app-check-option
           accent="sage"
-          [label]="feature.filterLabel"
+          [label]="feature.filterLabel | t"
           [checked]="selected.has(feature.key)"
           (changed)="toggle(feature.key)"
         >
@@ -68,7 +68,7 @@
 
     <!-- Aplica las casillas marcadas y cierra el panel -->
     <app-button variant="sage" size="sm" [fullWidth]="true" (click)="apply()"
-      >Aplicar</app-button
+      >{{ 'menu.feature_filter.feature_filter.aplicar' | t }}</app-button
     >
   </div>
 }

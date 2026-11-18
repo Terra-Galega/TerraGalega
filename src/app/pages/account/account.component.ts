@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import {
   Component,
   DestroyRef,
@@ -47,7 +48,7 @@ const MAX_POLLS = 15;
     AddressListComponent,
     ThemeSwitchComponent,
     ButtonComponent,
-  ],
+    TranslatePipe],
   templateUrl: './account.component.html',
 })
 export class AccountComponent implements OnInit {

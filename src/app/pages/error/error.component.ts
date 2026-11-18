@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -9,7 +10,7 @@ import { getErrorTitle } from '../../utils/http-error';
 @Component({
   selector: 'app-error',
   // Componentes utilizados para mostrar la página de error y sus opciones de navegación
-  imports: [NavbarComponent, FooterComponent, ButtonComponent],
+  imports: [NavbarComponent, FooterComponent, ButtonComponent, TranslatePipe],
   templateUrl: './error.component.html',
 })
 export class ErrorComponent {

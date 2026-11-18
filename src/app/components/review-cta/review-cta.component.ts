@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -14,7 +15,7 @@ import { Review } from '../../models/review';
  */
 @Component({
     selector: 'app-review-cta',
-    imports: [ButtonComponent, ReviewModalComponent],
+    imports: [ButtonComponent, ReviewModalComponent, TranslatePipe],
     templateUrl: './review-cta.component.html',
     host: { class: 'block text-center' },
 })

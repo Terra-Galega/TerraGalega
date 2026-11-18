@@ -3,7 +3,7 @@
 <div class="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-end gap-3">
   <!-- Lista de tutoriales: aparece encima del botón al tocarlo -->
   @if (open) {
-  <div id="tutorial-menu" role="menu" aria-label="Tutoriales"
+  <div id="tutorial-menu" role="menu" [attr.aria-label]="'tutorial_fab.tutorial_fab.tutoriales' | t"
     class="mr-3 flex flex-col gap-2 rounded-2xl p-2 shadow-xl"
     style="background-color: rgba(255, 255, 255, 0.96); border: 1px solid rgba(178, 87, 31, 0.25)">
     @if (adminPanel()) {
@@ -14,7 +14,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M3 3v18h18M8 16v-3m5 3V8m5 8V5" />
       </svg>
-      Recorrido del panel de administración
+      {{ 'tutorial_fab.tutorial_fab.recorrido_del_panel_de_administracion' | t }}
     </button>
     } @else {
     <button id="tutorial-order" type="button" role="menuitem"
@@ -25,7 +25,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
-      ¿Cómo hago un pedido?
+      {{ 'tutorial_fab.tutorial_fab.como_hago_un_pedido' | t }}
     </button>
     <button id="tutorial-reservation" type="button" role="menuitem"
       class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
@@ -35,7 +35,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
-      ¿Cómo hago una reserva?
+      {{ 'tutorial_fab.tutorial_fab.como_hago_una_reserva' | t }}
     </button>
     }
   </div>
@@ -45,7 +45,7 @@
   <button id="tutorial-fab" type="button"
     class="group flex items-center rounded-l-full pl-3 pr-2.5 py-3 text-white shadow-xl cursor-pointer transition-all duration-300 hover:pl-4 hover:pr-4 focus-visible:pl-4 focus-visible:pr-4"
     [class.pl-4]="open" [class.pr-4]="open"
-    style="background-color: #b2571f" aria-label="Ver tutoriales" aria-controls="tutorial-menu"
+    style="background-color: #b2571f" [attr.aria-label]="'tutorial_fab.tutorial_fab.ver_tutoriales' | t" aria-controls="tutorial-menu"
     [attr.aria-expanded]="open" (click)="toggle()">
     <!-- Ícono de signo de pregunta: lo único visible con el botón plegado -->
     <svg aria-hidden="true" focusable="false" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,7 +57,7 @@
     <span
       class="overflow-hidden whitespace-nowrap text-sm font-medium tracking-wide max-w-0 opacity-0 ml-0 transition-all duration-300 ease-out group-hover:max-w-[12rem] group-hover:opacity-100 group-hover:ml-2 group-focus-visible:max-w-[12rem] group-focus-visible:opacity-100 group-focus-visible:ml-2"
       [class.max-w-[12rem]]="open" [class.opacity-100]="open" [class.ml-2]="open">
-      ¿Cómo funciona?
+      {{ 'tutorial_fab.tutorial_fab.como_funciona' | t }}
     </span>
   </button>
 </div>

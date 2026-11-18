@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component } from '@angular/core';
 import {
   StatCardsComponent,
@@ -6,7 +7,7 @@ import {
 
 @Component({
   selector: 'app-history-section',
-  imports: [StatCardsComponent],
+  imports: [StatCardsComponent, TranslatePipe],
   templateUrl: './history-section.component.html',
   styleUrl: './history-section.component.scss',
 })

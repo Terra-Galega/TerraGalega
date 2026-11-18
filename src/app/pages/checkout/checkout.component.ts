@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -41,7 +42,7 @@ import { TutorialCheckoutService } from '../../services/tutorial-checkout.servic
     DeliveryAddressComponent,
     PaymentFormComponent,
     CheckoutCouponComponent,
-  ],
+    TranslatePipe],
   templateUrl: './checkout.component.html',
 })
 export class CheckoutComponent implements OnInit {

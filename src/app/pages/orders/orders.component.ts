@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -39,7 +40,7 @@ const REFRESH_MS = 10_000;
     ReadyToOrderComponent,
     EmptyOrdersComponent,
     OrderedComponent,
-  ],
+    TranslatePipe],
   templateUrl: './orders.component.html',
 })
 export class OrdersComponent implements OnInit {

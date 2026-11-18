@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import {
   AfterViewInit,
   Component,
@@ -33,6 +34,7 @@ const phase = (p: number, from: number, to: number) => ease(clamp01((p - from) /
 //   3. las dos palabras suben y se encogen hasta coincidir con las del logo de la barra.
 // El avance sigue al scroll con un pequeño suavizado, para que la rueda del ratón no dé saltos.
 @Component({
+  imports: [TranslatePipe],
   selector: 'app-hero-section',
   templateUrl: './hero-section.component.html',
   styleUrl: './hero-section.component.scss',

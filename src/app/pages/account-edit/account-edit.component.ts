@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -23,7 +24,7 @@ import { getErrorMessage } from '../../utils/http-error';
     ProfileSummaryComponent,
     AccountFormComponent,
     ChangePasswordModalComponent,
-  ],
+    TranslatePipe],
   templateUrl: './account-edit.component.html',
 })
 export class AccountEditComponent implements OnInit {

@@ -31,7 +31,7 @@
           style="color: #d99a21"
         >
           <app-star-icon />
-          Popular<span class="sr-only">: uno de los platos más pedidos</span>
+          {{ 'product_detail.product_info_card.product_info_card.popular' | t }}<span class="sr-only">: {{ 'merge.popular_description' | t }}</span>
         </span>
       }
     </div>
@@ -88,7 +88,7 @@
           class="text-[11px] font-medium tracking-widest uppercase mb-4"
           style="color: rgba(44, 44, 44, 0.35)"
         >
-          Adicionales opcionales
+          {{ 'product_detail.product_info_card.product_info_card.adicionales_opcionales' | t }}
         </p>
         <div class="space-y-3">
           @for (addOn of addons; track addOn.id) {
@@ -110,7 +110,7 @@
           class="text-[11px] uppercase tracking-widest mb-1"
           style="color: rgba(44, 44, 44, 0.35)"
         >
-          Total
+          {{ 'product_detail.product_info_card.product_info_card.total' | t }}
         </p>
         <!-- aria-live: el total se anuncia cuando cambian la cantidad o los adicionales -->
         <span id="product-total" class="font-serif text-3xl font-bold" style="color: #b2571f" aria-live="polite"
@@ -122,7 +122,7 @@
 
     <!-- Botón que verifica el producto y lo agrega al carrito -->
     <app-button id="btn-add-to-order" size="lg" [fullWidth]="true" (click)="addToOrder()"
-      >Añadir a la orden</app-button
+      >{{ 'product_detail.product_info_card.product_info_card.anadir_a_la_orden' | t }}</app-button
     >
   </div>
 </div>

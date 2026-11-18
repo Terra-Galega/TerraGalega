@@ -1,7 +1,8 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { Injectable, inject } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
+import { LanguageService } from './language.service';
 
 const APP_NAME = 'Terra Galega';
 
@@ -17,11 +18,23 @@ const APP_NAME = 'Terra Galega';
 export class PageTitleStrategy extends TitleStrategy {
   private title = inject(Title);
   private announcer = inject(LiveAnnouncer);
+  private language = inject(LanguageService);
+  private currentPage = signal<string | undefined>(undefined);
   private first = true;
+
+  constructor() {
+    super();
+    effect(() => {
+      this.language.language();
+      const page = this.currentPage();
+      this.title.setTitle(page ? `${this.language.t(page)} · ${APP_NAME}` : APP_NAME);
+    });
+  }
 
   override updateTitle(snapshot: RouterStateSnapshot): void {
     const page = this.buildTitle(snapshot);
-    this.title.setTitle(page ? `${page} · ${APP_NAME}` : APP_NAME);
+    this.currentPage.set(page);
+    this.title.setTitle(page ? `${this.language.t(page)} · ${APP_NAME}` : APP_NAME);
 
     // En la primera carga el lector ya lee la página entera: no hace falta moverse
     if (this.first) {
@@ -30,7 +43,7 @@ export class PageTitleStrategy extends TitleStrategy {
     }
 
     if (page) {
-      void this.announcer.announce(page, 'polite');
+      void this.announcer.announce(this.language.t(page), 'polite');
     }
     // Espera a que la página nueva esté pintada (y al fundido entre páginas)
     setTimeout(() => focusMainContent(), 350);

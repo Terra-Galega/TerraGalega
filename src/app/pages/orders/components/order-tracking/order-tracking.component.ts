@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import {
   AfterViewInit,
   Component,
@@ -38,7 +39,7 @@ import { MAP_LOCALE_ES } from '../../../../utils/map-locale';
     NavbarComponent,
     FooterComponent,
     ButtonComponent,
-  ],
+    TranslatePipe],
   templateUrl: './order-tracking.component.html',
 })
 export class OrderTrackingComponent implements AfterViewInit {

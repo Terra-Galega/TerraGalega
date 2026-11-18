@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../../../components/button/button.component';
@@ -13,7 +14,7 @@ import { FormSectionComponent } from '../form-section/form-section.component';
     ButtonComponent,
     FormFieldComponent,
     FormSectionComponent,
-  ],
+    TranslatePipe],
   templateUrl: './account-form.component.html',
   host: { class: 'block' },
 })

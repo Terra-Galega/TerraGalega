@@ -2,6 +2,7 @@ import { Injectable, NgZone, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { driver, Driver, DriveStep } from 'driver.js';
 import { filter } from 'rxjs';
+import { LanguageService } from './language.service';
 
 // Nombres de los tutoriales disponibles
 export type TourName = 'order' | 'reservation';
@@ -90,6 +91,7 @@ export class TutorialService {
     private blurFrame = 0;
     // El seguimiento del blur corre fuera de Angular para no disparar detección de cambios en cada cuadro
     private zone = inject(NgZone);
+    private language = inject(LanguageService);
     // Flujo pendiente: tutorial que continúa en otra página (null = ninguno)
     private flow: TourName | null = null;
     // true mientras se pasa de un paso a otro (puede haber un cambio de página en medio)
@@ -143,11 +145,11 @@ export class TutorialService {
             // Clase propia para el estilo (ver styles.scss)
             popoverClass: 'terra-tour',
             showProgress: true,
-            progressText: '{{current}} de {{total}}',
-            nextBtnText: 'Siguiente',
-            prevBtnText: 'Atrás',
-            doneBtnText: 'Listo',
-            closeBtnLabel: 'Cerrar tutorial',
+            progressText: `{{current}} ${this.language.t('de')} {{total}}`,
+            nextBtnText: this.language.t('Siguiente'),
+            prevBtnText: this.language.t('Atrás'),
+            doneBtnText: this.language.t('Listo'),
+            closeBtnLabel: this.language.t('Cerrar tutorial'),
             steps: this.steps.map((step, index) => this.toDriveStep(step, index)),
             // Al cerrar (X o último paso) se limpia todo
             onDestroyed: () => {
@@ -233,12 +235,12 @@ export class TutorialService {
             element: step.element ? () => this.pickVisible(step.element!) : undefined,
             disableActiveInteraction: step.disableActiveInteraction,
             popover: {
-                title: step.title,
-                description: step.description,
+                title: this.language.t(step.title),
+                description: this.language.t(step.description),
                 side: step.side,
                 align: step.align,
                 showButtons: buttons,
-                nextBtnText: step.nextBtnText,
+                nextBtnText: step.nextBtnText ? this.language.t(step.nextBtnText) : undefined,
                 onPopoverRender: ({ previousButton }) => {
                     if (this.previousStep(index) === null) previousButton.style.display = 'none';
                 },

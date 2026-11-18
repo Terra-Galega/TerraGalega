@@ -1,9 +1,10 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../../../components/button/button.component';
 
 @Component({
   selector: 'app-login-forms',
-  imports: [ButtonComponent],
+  imports: [ButtonComponent, TranslatePipe],
   templateUrl: './login-forms.component.html',
   styleUrl: './login-forms.component.scss',
 })

@@ -1,6 +1,6 @@
 <div class="glass-card rounded-3xl p-6">
   <h2 class="font-serif text-xl font-semibold text-charcoal mb-4">
-    Resumen del pedido
+    {{ 'checkout.order_summary.order_summary.resumen_del_pedido' | t }}
   </h2>
 
   <!-- Lista de productos: cantidad, nombre, adicionales y precio de la línea -->
@@ -44,7 +44,7 @@
       class="flex items-center justify-between text-sm"
       style="color: rgba(44, 44, 44, 0.7)"
     >
-      <span>Subtotal</span>
+      <span>{{ 'checkout.order_summary.order_summary.subtotal' | t }}</span>
       <span id="summary-subtotal">${{ total | number: "1.0-0" }}</span>
     </div>
 
@@ -54,7 +54,7 @@
         class="flex items-center justify-between text-sm"
         style="color: #556141"
       >
-        <span>Domicilio gratis</span>
+        <span>{{ 'checkout.order_summary.order_summary.domicilio_gratis' | t }}</span>
         <span id="summary-delivery-fee">$0</span>
       </div>
     } @else if (deliveryFee > 0) {
@@ -62,7 +62,7 @@
         class="flex items-center justify-between text-sm"
         style="color: rgba(44, 44, 44, 0.7)"
       >
-        <span>Domicilio</span>
+        <span>{{ 'checkout.order_summary.order_summary.domicilio' | t }}</span>
         <span id="summary-delivery-fee"
           >${{ deliveryFee | number: "1.0-0" }}</span
         >
@@ -80,7 +80,7 @@
     }
 
     <div class="flex items-center justify-between">
-      <span class="font-medium text-charcoal">Total</span>
+      <span class="font-medium text-charcoal">{{ 'checkout.order_summary.order_summary.total' | t }}</span>
       <span
         id="summary-total"
         class="font-bold text-2xl"

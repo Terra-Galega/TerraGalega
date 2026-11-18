@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { NavigationEnd, Router } from '@angular/router';
 import { CartComponent } from '../cart/cart.component';
 import { Component, HostListener, OnDestroy, inject } from '@angular/core';
@@ -19,7 +20,7 @@ import {
   selector: 'app-navbar',
   standalone: true,
   // Importa el carrito, que se muestra como panel desde la barra.
-  imports: [CartComponent, AsyncPipe,SettingsMenuComponent, NgTemplateOutlet],
+  imports: [CartComponent, AsyncPipe,SettingsMenuComponent, NgTemplateOutlet, TranslatePipe],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })

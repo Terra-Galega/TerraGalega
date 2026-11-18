@@ -11,12 +11,12 @@
   <button [attr.aria-pressed]="activeTab === 'login'" type="button" id="tab-login-btn" (click)="selectTab('login')"
     class="auth-tab flex-1 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-300"
     [class.active]="activeTab === 'login'">
-    Iniciar sesión
+    {{ 'login.login_header.login_header.iniciar_sesion' | t }}
   </button>
 
   <button [attr.aria-pressed]="activeTab === 'signup'" type="button" id="tab-signup-btn" (click)="selectTab('signup')"
     class="auth-tab flex-1 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-300"
     [class.active]="activeTab === 'signup'">
-    Registrarse
+    {{ 'login.login_header.login_header.registrarse' | t }}
   </button>
 </div>

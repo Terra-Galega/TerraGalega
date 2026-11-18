@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { groupAddOns } from '../../../../models/order';
@@ -5,7 +6,7 @@ import { groupAddOns } from '../../../../models/order';
 @Component({
   selector: 'app-order-summary',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './order-summary.component.html',
 })
 export class OrderSummaryComponent {

@@ -1,11 +1,11 @@
 <section [formGroup]="form">
-  <h2 class="font-serif text-xl font-semibold text-charcoal">Método de pago</h2>
+  <h2 class="font-serif text-xl font-semibold text-charcoal">{{ 'checkout.payment_form.payment_form.metodo_de_pago' | t }}</h2>
   <p class="text-[15px] mt-1 mb-4" style="color: rgba(44, 44, 44, 0.65)">
-    Elige cómo quieres pagar tu pedido.
+    {{ 'checkout.payment_form.payment_form.elige_como_quieres_pagar_tu_pedido' | t }}
   </p>
 
   <!-- Opciones: por dentro son botones de radio, así funcionan con teclado -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Método de pago">
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" [attr.aria-label]="'checkout.payment_form.payment_form.metodo_de_pago' | t">
     @for (option of methods; track option.value) {
     <label
       [id]="'payment-' + option.value" class="flex items-start gap-3 rounded-2xl p-4 cursor-pointer has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-terra"
@@ -25,9 +25,9 @@
       </span>
 
       <span class="min-w-0">
-        <span class="block font-semibold text-charcoal text-[15px]">{{ option.title }}</span>
+        <span class="block font-semibold text-charcoal text-[15px]">{{ option.title | t }}</span>
         <span class="block text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
-          {{ option.description }}
+          {{ option.description | t }}
         </span>
       </span>
     </label>
@@ -42,7 +42,7 @@
   <!-- Contra entrega: solo un aviso, no se pide nada más -->
   @if (method === 'cash') {
   <p id="payment-cash-info" class="text-sm mt-4" style="color: rgba(44, 44, 44, 0.7)">
-    Pagarás el total en efectivo cuando el domiciliario llegue con tu pedido.
+    {{ 'checkout.payment_form.payment_form.pagaras_el_total_en_efectivo_cuando_el_domiciliario_lle' | t }}
   </p>
   }
 
@@ -55,8 +55,7 @@
         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
     </svg>
     <p class="text-sm" style="color: rgba(44, 44, 44, 0.7)">
-      Al confirmar el pedido te llevaremos a la pasarela segura de Stripe para
-      ingresar los datos de tu tarjeta. TerraGalega nunca ve ni guarda tu tarjeta.
+      {{ 'checkout.payment_form.payment_form.al_confirmar_el_pedido_te_llevaremos_a_la_pasarela_segu' | t }}
     </p>
   </div>
   }

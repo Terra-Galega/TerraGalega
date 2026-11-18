@@ -1,7 +1,7 @@
 <section>
-  <h2 class="font-serif text-xl font-semibold text-charcoal">Cupón de descuento</h2>
+  <h2 class="font-serif text-xl font-semibold text-charcoal">{{ 'checkout.checkout_coupon.checkout_coupon.cupon_de_descuento' | t }}</h2>
   <p class="text-[15px] mt-1 mb-4" style="color: rgba(44, 44, 44, 0.65)">
-    ¿Tienes un cupón? Escribe el código o elige uno de los tuyos.
+    {{ 'checkout.checkout_coupon.checkout_coupon.tienes_un_cupon_escribe_el_codigo_o_elige_uno_de_los_tu' | t }}
   </p>
 
   @if (current) {
@@ -30,7 +30,7 @@
     <button id="btn-remove-coupon" type="button"
       class="text-sm font-medium underline underline-offset-4 cursor-pointer flex-shrink-0" style="color: #8a2222"
       (click)="remove()">
-      Quitar cupón
+      {{ 'checkout.checkout_coupon.checkout_coupon.quitar_cupon' | t }}
     </button>
   </div>
   } @else {
@@ -39,9 +39,9 @@
     <div class="flex-1 min-w-0 rounded-full overflow-hidden" style="background-color: rgba(255, 255, 255, 0.85)"
       [style.border]="error ? '1px solid #8a2222' : '1px solid rgba(44, 44, 44, 0.12)'">
       <label class="block px-6 pt-2.5 pb-2">
-        <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">Código del cupón</span>
+        <span class="block text-xs" style="color: rgba(44, 44, 44, 0.55)">{{ 'checkout.checkout_coupon.checkout_coupon.codigo_del_cupon' | t }}</span>
         <input id="coupon-code" type="text" [value]="code" (input)="setCode($event)" (keydown.enter)="onEnter($event)"
-          maxlength="40" placeholder="Ej: BIENVENIDA-1" autocomplete="off"
+          maxlength="40" placeholder="{{ 'checkout.checkout_coupon.checkout_coupon.ej_bienvenida_1' | t }}" autocomplete="off"
           class="w-full bg-transparent outline-none text-[15px] text-charcoal py-1 uppercase" />
       </label>
     </div>
@@ -54,13 +54,13 @@
 
   <!-- Error del cupón (no existe, vencido, ya usado, mínimo no alcanzado...) -->
   @if (error) {
-  <p id="coupon-error" class="text-sm mt-2" style="color: #8a2222">{{ error }}</p>
+  <p id="coupon-error" class="text-sm mt-2" style="color: #8a2222">{{ error | t }}</p>
   }
 
   <!-- Cupones del cliente que puede usar ahora. Los que piden un mínimo que el
        carrito no alcanza se ven apagados y no se pueden elegir -->
   @if (available.length > 0) {
-  <p class="text-sm mt-5 mb-2" style="color: rgba(44, 44, 44, 0.65)">O elige uno de tus cupones:</p>
+  <p class="text-sm mt-5 mb-2" style="color: rgba(44, 44, 44, 0.65)">{{ 'checkout.checkout_coupon.checkout_coupon.o_elige_uno_de_tus_cupones' | t }}</p>
 
   <div class="flex flex-wrap gap-2.5">
     @for (coupon of available; track coupon.id) {

@@ -5,7 +5,7 @@
   <main class="min-h-screen pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
     <app-page-header
       eyebrow="Paso 2 de 2 - Pasarela de pago"
-      title="Revisa tu pedido"
+      title="{{ 'checkout.chekout_confirm.checkout_confirm.revisa_tu_pedido' | t }}"
     />
 
     <!-- Carrito vacío: invita a ir a la carta -->
@@ -26,7 +26,7 @@
             <div class="flex items-start justify-between gap-4">
               <div class="min-w-0">
                 <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-                  Entrega
+                  {{ 'checkout.chekout_confirm.checkout_confirm.entrega' | t }}
                 </p>
                 <p
                   class="text-[15px] font-medium text-charcoal mt-1 break-words"
@@ -37,11 +37,11 @@
                 <!-- Aviso de que la dirección se guardará en el perfil -->
                 @if (draft.saveAddress) {
                   <p class="text-sm mt-3" style="color: rgba(44, 44, 44, 0.7)">
-                    Esta dirección se guardará en tu perfil
+                    {{ 'checkout.chekout_confirm.checkout_confirm.esta_direccion_se_guardara_en_tu_perfil' | t }}
                     @if (draft.addressName) {
                       como «{{ draft.addressName }}»
                     }
-                    para tus próximos pedidos.
+                    {{ 'checkout.chekout_confirm.checkout_confirm.para_tus_proximos_pedidos' | t }}
                   </p>
                 }
               </div>
@@ -52,7 +52,7 @@
                 style="color: #b2571f"
                 (click)="edit()"
               >
-                Editar
+                {{ 'checkout.chekout_confirm.checkout_confirm.editar' | t }}
               </button>
             </div>
           </section>
@@ -63,7 +63,7 @@
               <div class="flex items-start justify-between gap-4">
                 <div class="min-w-0">
                   <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-                    Cupón
+                    {{ 'checkout.chekout_confirm.checkout_confirm.cupon' | t }}
                   </p>
                   <p
                     id="confirm-coupon-code"
@@ -90,7 +90,7 @@
                   style="color: #b2571f"
                   (click)="edit()"
                 >
-                  Editar
+                  {{ 'checkout.chekout_confirm.checkout_confirm.editar' | t }}
                 </button>
               </div>
             </section>
@@ -100,29 +100,29 @@
             <div class="flex items-start justify-between gap-4">
               <div class="min-w-0">
                 <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-                  Método de pago
+                  {{ 'checkout.chekout_confirm.checkout_confirm.metodo_de_pago' | t }}
                 </p>
 
                 <!-- Tarjeta: se paga en Stripe. Contra entrega: pago en efectivo. -->
                 @if (draft.method === "card") {
                   <p class="text-[15px] font-medium text-charcoal mt-1">
-                    Tarjeta de crédito o débito
+                    {{ 'checkout.chekout_confirm.checkout_confirm.tarjeta_de_credito_o_debito' | t }}
                   </p>
                   <p
                     class="text-sm mt-0.5"
                     style="color: rgba(44, 44, 44, 0.6)"
                   >
-                    Ingresarás los datos en la pasarela segura de Stripe.
+                    {{ 'checkout.chekout_confirm.checkout_confirm.ingresaras_los_datos_en_la_pasarela_segura_de_stripe' | t }}
                   </p>
                 } @else {
                   <p class="text-[15px] font-medium text-charcoal mt-1">
-                    Contra entrega
+                    {{ 'checkout.chekout_confirm.checkout_confirm.contra_entrega' | t }}
                   </p>
                   <p
                     class="text-sm mt-0.5"
                     style="color: rgba(44, 44, 44, 0.6)"
                   >
-                    Pagas en efectivo cuando recibas tu pedido.
+                    {{ 'checkout.chekout_confirm.checkout_confirm.pagas_en_efectivo_cuando_recibas_tu_pedido' | t }}
                   </p>
                 }
               </div>
@@ -133,7 +133,7 @@
                 style="color: #b2571f"
                 (click)="edit()"
               >
-                Editar
+                {{ 'checkout.chekout_confirm.checkout_confirm.editar' | t }}
               </button>
             </div>
           </section>
@@ -187,7 +187,7 @@
                 [disabled]="paying"
                 (click)="cancel()"
               >
-                Cancelar compra
+                {{ 'checkout.chekout_confirm.checkout_confirm.cancelar_compra' | t }}
               </button>
             </div>
           </app-order-summary>

@@ -1,7 +1,7 @@
 <!-- Gráfica de barras o líneas (Chart.js; se ajusta al ancho de la tarjeta) -->
 <div class="relative h-[260px] w-full">
     <canvas baseChart [type]="chartType" [data]="data" [options]="options" [plugins]="plugins" role="img"
-        aria-label="Gráfica de ventas"></canvas>
+        [attr.aria-label]="'charts.series_chart.series_chart.grafica_de_ventas' | t"></canvas>
 
     <!-- Aviso cuando no hay datos -->
     @if (!hasData) {

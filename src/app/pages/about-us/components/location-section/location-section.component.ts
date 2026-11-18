@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component } from '@angular/core';
 import {
   ContactInfoComponent,
@@ -8,7 +9,7 @@ import { LocationMapComponent } from '../../../../components/location-map/locati
 @Component({
   selector: 'app-location-section',
   // Componentes utilizados para mostrar los datos de contacto y el mapa
-  imports: [ContactInfoComponent, LocationMapComponent],
+  imports: [ContactInfoComponent, LocationMapComponent, TranslatePipe],
   templateUrl: './location-section.component.html',
   styleUrl: './location-section.component.scss',
 })

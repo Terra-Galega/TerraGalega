@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { CheckOptionComponent } from '../../../../components/check-option/check-option.component';
@@ -8,7 +9,7 @@ import { FEATURES, FeatureKey } from '../../../../models/feature';
 // hasta pulsar "Aplicar"; solo entonces se emite el resultado al padre.
 @Component({
   selector: 'app-feature-filter',
-  imports: [ButtonComponent, CheckOptionComponent, FeatureIconComponent],
+  imports: [ButtonComponent, CheckOptionComponent, FeatureIconComponent, TranslatePipe],
   templateUrl: './feature-filter.component.html',
   styleUrl: './feature-filter.component.scss',
 })

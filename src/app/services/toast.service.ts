@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
+import { LanguageService } from './language.service';
 
 // Define la estructura de los avisos que se muestran en la aplicación.
 export interface Toast {
@@ -11,6 +12,7 @@ export interface Toast {
 // Servicio que permite mostrar y cerrar avisos temporales desde cualquier pantalla.
 @Injectable({ providedIn: 'root' })
 export class ToastService {
+  private readonly language = inject(LanguageService);
   // Almacena el aviso actual y permite que los componentes reaccionen a sus cambios.
   readonly toast = signal<Toast | null>(null);
 
@@ -26,7 +28,7 @@ export class ToastService {
 
     // Actualiza el aviso visible y programa su cierre automático.
     // Siempre es un objeto nuevo: así el aviso se vuelve a animar aunque ya hubiera otro visible.
-    this.toast.set({ title, message, type });
+    this.toast.set({ title: this.language.t(title), message: this.language.t(message), type });
     this.timer = setTimeout(() => this.close(), durationMs);
   }
 

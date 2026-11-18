@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,7 +27,7 @@ const REDIRECTS: Record<string, string> = {
 // registro normal sí exige (apellido, teléfono y una dirección de entrega).
 @Component({
   selector: 'app-complete-profile',
-  imports: [FormsModule, NavbarComponent, FooterComponent, PageHeaderComponent, ButtonComponent],
+  imports: [FormsModule, NavbarComponent, FooterComponent, PageHeaderComponent, ButtonComponent, TranslatePipe],
   templateUrl: './complete-profile.component.html',
 })
 export class CompleteProfileComponent implements OnInit {

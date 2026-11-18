@@ -3,7 +3,7 @@
   <app-navbar></app-navbar>
 
   <main class="min-h-screen pt-32 pb-28 max-w-2xl mx-auto px-6 md:px-8">
-    <app-page-header eyebrow="Pasarela de pago" title="Estado de tu pago" />
+    <app-page-header eyebrow="Pasarela de pago" title="{{ 'checkout.checkout_result.checkout_result.estado_de_tu_pago' | t }}" />
 
     <section
       id="payment-result"
@@ -21,16 +21,16 @@
             aria-hidden="true"
           ></div>
           <p class="text-[15px] text-charcoal mt-5">
-            Confirmando tu pago con Stripe…
+            {{ 'checkout.checkout_result.checkout_result.confirmando_tu_pago_con_stripe' | t }}
           </p>
           <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.6)">
-            No cierres esta página.
+            {{ 'checkout.checkout_result.checkout_result.no_cierres_esta_pagina' | t }}
           </p>
         }
 
         @case ("paid") {
           <h2 class="font-serif text-xl font-semibold text-charcoal">
-            ¡Pago aprobado!
+            {{ 'checkout.checkout_result.checkout_result.pago_aprobado' | t }}
           </h2>
           <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
             Tu pedido #{{ payment?.orderId }} ya llegó al restaurante. Te
@@ -41,13 +41,13 @@
             <div class="mt-6 flex flex-col items-center">
               <img
                 [src]="'data:image/png;base64,' + invoice.qrPngBase64"
-                alt="QR para ver tu factura"
+                alt="{{ 'checkout.checkout_result.checkout_result.qr_para_ver_tu_factura' | t }}"
                 width="180"
                 height="180"
                 class="rounded-2xl bg-white p-3"
               />
               <p class="text-sm mt-3" style="color: rgba(44, 44, 44, 0.6)">
-                Escanéalo con tu celular para ver tu factura y descargarla.
+                {{ 'checkout.checkout_result.checkout_result.escanealo_con_tu_celular_para_ver_tu_factura_y_descarga' | t }}
               </p>
               <a
                 [href]="invoice.previewUrl"
@@ -55,30 +55,29 @@
                 rel="noopener"
                 class="text-sm font-semibold mt-2 underline"
                 style="color: #b2571f"
-                >Abrir factura</a
+                >{{ 'checkout.checkout_result.checkout_result.abrir_factura' | t }}</a
               >
             </div>
           }
 
           <div class="mt-6">
-            <app-button (click)="goToOrders()">Ver mis pedidos</app-button>
+            <app-button (click)="goToOrders()">{{ 'checkout.checkout_result.checkout_result.ver_mis_pedidos' | t }}</app-button>
           </div>
         }
 
         @case ("abandoned") {
           <h2 class="font-serif text-xl font-semibold text-charcoal">
-            No completaste el pago
+            {{ 'checkout.checkout_result.checkout_result.no_completaste_el_pago' | t }}
           </h2>
           <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
-            Tu pedido aún no se ha enviado al restaurante. Puedes volver a la
-            pasarela o cancelarlo; tu carrito se conserva.
+            {{ 'checkout.checkout_result.checkout_result.tu_pedido_aun_no_se_ha_enviado_al_restaurante_puedes_vo' | t }}
           </p>
           <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <app-button
               id="btn-pay-again"
               [disabled]="busy"
               (click)="payAgain()"
-              >Volver a pagar</app-button
+              >{{ 'checkout.checkout_result.checkout_result.volver_a_pagar' | t }}</app-button
             >
             <app-button
               variant="neutral"
@@ -92,63 +91,60 @@
 
         @case ("waiting") {
           <h2 class="font-serif text-xl font-semibold text-charcoal">
-            Seguimos esperando a Stripe
+            {{ 'checkout.checkout_result.checkout_result.seguimos_esperando_a_stripe' | t }}
           </h2>
           <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
-            Si ya pagaste, la confirmación puede tardar un poco. Si no
-            terminaste, puedes volver a la pasarela.
+            {{ 'checkout.checkout_result.checkout_result.si_ya_pagaste_la_confirmacion_puede_tardar_un_poco_si_n' | t }}
           </p>
           <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-            <app-button (click)="check()">Consultar de nuevo</app-button>
+            <app-button (click)="check()">{{ 'checkout.checkout_result.checkout_result.consultar_de_nuevo' | t }}</app-button>
             <app-button variant="neutral" (click)="payAgain()"
-              >Ir a la pasarela</app-button
+              >{{ 'checkout.checkout_result.checkout_result.ir_a_la_pasarela' | t }}</app-button
             >
           </div>
         }
 
         @case ("expired") {
           <h2 class="font-serif text-xl font-semibold text-charcoal">
-            El pago se canceló
+            {{ 'checkout.checkout_result.checkout_result.el_pago_se_cancelo' | t }}
           </h2>
           <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
-            No se hizo ningún cobro. Tu carrito sigue intacto para que lo
-            intentes de nuevo.
+            {{ 'checkout.checkout_result.checkout_result.no_se_hizo_ningun_cobro_tu_carrito_sigue_intacto_para_q' | t }}
           </p>
           <div class="mt-6">
-            <app-button (click)="goToCheckout()">Volver al checkout</app-button>
+            <app-button (click)="goToCheckout()">{{ 'checkout.checkout_result.checkout_result.volver_al_checkout' | t }}</app-button>
           </div>
         }
 
         @case ("refunded") {
           <h2 class="font-serif text-xl font-semibold text-charcoal">
-            Pedido cancelado
+            {{ 'checkout.checkout_result.checkout_result.pedido_cancelado' | t }}
           </h2>
           <p class="text-[15px] mt-2" style="color: rgba(44, 44, 44, 0.7)">
             @if (payment?.state === "REFUNDED") {
-              Te devolvimos el dinero a tu tarjeta.
+              {{ 'checkout.checkout_result.checkout_result.te_devolvimos_el_dinero_a_tu_tarjeta' | t }}
             } @else if (payment?.state === "REFUND_FAILED") {
-              No pudimos hacer el reembolso automático. Contáctanos y lo
-              resolvemos.
+              {{ 'checkout.checkout_result.checkout_result.no_pudimos_hacer_el_reembolso_automatico_contactanos_y_' | t }}
             } @else {
-              Estamos procesando el reembolso a tu tarjeta.
+              {{ 'checkout.checkout_result.checkout_result.estamos_procesando_el_reembolso_a_tu_tarjeta' | t }}
             }
           </p>
           <div class="mt-6">
-            <app-button (click)="goToOrders()">Ver mis pedidos</app-button>
+            <app-button (click)="goToOrders()">{{ 'checkout.checkout_result.checkout_result.ver_mis_pedidos' | t }}</app-button>
           </div>
         }
 
         @case ("error") {
           <h2 class="font-serif text-xl font-semibold text-charcoal">
-            Algo salió mal
+            {{ 'checkout.checkout_result.checkout_result.algo_salio_mal' | t }}
           </h2>
           <p class="text-[15px] mt-2" style="color: #8a2222">
-            {{ errorMessage }}
+            {{ errorMessage | t }}
           </p>
           <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-            <app-button (click)="check()">Reintentar</app-button>
+            <app-button (click)="check()">{{ 'checkout.checkout_result.checkout_result.reintentar' | t }}</app-button>
             <app-button variant="neutral" (click)="goToOrders()"
-              >Ver mis pedidos</app-button
+              >{{ 'checkout.checkout_result.checkout_result.ver_mis_pedidos' | t }}</app-button
             >
           </div>
         }

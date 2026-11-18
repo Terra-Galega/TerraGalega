@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { Params } from '@angular/router';
 import { ButtonComponent } from '../button/button.component';
@@ -7,7 +8,7 @@ import { ButtonComponent } from '../button/button.component';
 // No tiene lógica propia; los botones solo navegan a otras rutas.
 @Component({
   selector: 'app-ready-to-order',
-  imports: [ButtonComponent],
+  imports: [ButtonComponent, TranslatePipe],
   templateUrl: './ready-to-order.component.html',
   styleUrl: './ready-to-order.component.scss',
 })

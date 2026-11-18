@@ -1,3 +1,4 @@
+import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
@@ -41,7 +42,7 @@ const REFRESH_MS = 30_000;
     ProductInfoCardComponent,
     ProductCardComponent,
     FooterComponent,
-  ],
+    TranslatePipe],
   templateUrl: './product-detail.component.html',
 })
 export class ProductDetailComponent implements OnInit {

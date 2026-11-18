@@ -9,17 +9,17 @@
       class="inline-flex items-center gap-1 text-sm font-medium mb-6"
       style="color: #b2571f"
     >
-      ← Mis pedidos
+      {{ 'orders.order_tracking.order_tracking.mis_pedidos' | t }}
     </a>
 
     <p
       class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2"
       style="color: #b2571f"
     >
-      Seguimiento
+      {{ 'orders.order_tracking.order_tracking.seguimiento' | t }}
     </p>
     <h1 class="font-serif text-4xl md:text-5xl font-bold text-charcoal mb-8">
-      Sigue tu pedido
+      {{ 'orders.order_tracking.order_tracking.sigue_tu_pedido' | t }}
     </h1>
 
     @if (!delivery) {
@@ -29,23 +29,23 @@
         style="background-color: #fff; border: 1px solid rgba(44, 44, 44, 0.08)"
       >
         @if (!loaded) {
-          <p style="color: rgba(44, 44, 44, 0.6)">Cargando...</p>
+          <p style="color: rgba(44, 44, 44, 0.6)">{{ 'orders.order_tracking.order_tracking.cargando' | t }}</p>
         } @else if (delivered) {
           <span
             class="inline-block rounded-full px-4 py-1 text-sm font-semibold mb-4"
             style="color: #556141; background-color: rgba(85, 97, 65, 0.12)"
           >
-            Entregado ✓
+            {{ 'orders.order_tracking.order_tracking.entregado' | t }}
           </span>
           <h2 class="font-serif text-2xl font-semibold">
-            Tu pedido llegó. ¡Buen provecho!
+            {{ 'orders.order_tracking.order_tracking.tu_pedido_llego_buen_provecho' | t }}
           </h2>
         } @else {
           <h2 class="font-serif text-2xl font-semibold">
-            No tienes pedidos en camino
+            {{ 'orders.order_tracking.order_tracking.no_tienes_pedidos_en_camino' | t }}
           </h2>
           <p class="mt-2" style="color: rgba(44, 44, 44, 0.6)">
-            Cuando un repartidor salga con tu pedido, lo verás aquí en el mapa.
+            {{ 'orders.order_tracking.order_tracking.cuando_un_repartidor_salga_con_tu_pedido_lo_veras_aqui_' | t }}
           </p>
         }
       </div>
@@ -60,11 +60,10 @@
           "
         >
           <p class="text-sm" style="color: #2c2c2c">
-            Activa las notificaciones y te avisamos cuando tu pedido ya va
-            llegando.
+            {{ 'orders.order_tracking.order_tracking.activa_las_notificaciones_y_te_avisamos_cuando_tu_pedid' | t }}
           </p>
           <app-button size="sm" (click)="enableNotifications()"
-            >Activar avisos</app-button
+            >{{ 'orders.order_tracking.order_tracking.activar_avisos' | t }}</app-button
           >
         </div>
       }
@@ -83,7 +82,7 @@
               <div
                 data-tracking-map
                 class="w-full h-[420px] lg:h-[600px]"
-                aria-label="Mapa del pedido en camino"
+                [attr.aria-label]="'orders.order_tracking.order_tracking.mapa_del_pedido_en_camino' | t"
               ></div>
 
               <div class="absolute left-3 top-3 flex flex-wrap gap-2">
@@ -109,7 +108,7 @@
                   "
                   (click)="showWholeRoute()"
                 >
-                  Ver ruta completa
+                  {{ 'orders.order_tracking.order_tracking.ver_ruta_completa' | t }}
                 </button>
               </div>
             </div>
@@ -127,11 +126,10 @@
               "
             >
               <h2 class="font-serif text-2xl font-semibold">
-                Tu pedido está por salir
+                {{ 'orders.order_tracking.order_tracking.tu_pedido_esta_por_salir' | t }}
               </h2>
               <p class="mt-2" style="color: rgba(44, 44, 44, 0.6)">
-                El mapa aparecerá cuando el repartidor inicie el recorrido. Te
-                avisaremos.
+                {{ 'orders.order_tracking.order_tracking.el_mapa_aparecera_cuando_el_repartidor_inicie_el_recorr' | t }}
               </p>
             </div>
           }
@@ -157,7 +155,7 @@
                   background-color: rgba(178, 87, 31, 0.12);
                 "
               >
-                En camino
+                {{ 'orders.order_tracking.order_tracking.en_camino' | t }}
               </span>
             </div>
 
@@ -170,9 +168,9 @@
                 Última actualización:
                 {{ delivery.locationUpdatedAt | date: "HH:mm:ss" }}
               } @else if (started) {
-                Esperando la ubicación del repartidor...
+                {{ 'orders.order_tracking.order_tracking.esperando_la_ubicacion_del_repartidor' | t }}
               } @else {
-                El repartidor aún no inicia el recorrido.
+                {{ 'orders.order_tracking.order_tracking.el_repartidor_aun_no_inicia_el_recorrido' | t }}
               }
             </p>
 
@@ -182,7 +180,7 @@
                   class="flex items-center justify-between text-xs mb-1.5"
                   style="color: rgba(44, 44, 44, 0.6)"
                 >
-                  <span>Recorrido</span>
+                  <span>{{ 'orders.order_tracking.order_tracking.recorrido' | t }}</span>
                   <span>{{ percent }}%</span>
                 </div>
                 <div
@@ -202,9 +200,9 @@
               class="mt-6 text-[11px] tracking-[0.15em] font-semibold"
               style="color: rgba(44, 44, 44, 0.5)"
             >
-              TU PIN DE ENTREGA
+              {{ 'orders.order_tracking.order_tracking.tu_pin_de_entrega' | t }}
             </p>
-            <div class="mt-2 flex gap-2" aria-label="PIN de entrega">
+            <div class="mt-2 flex gap-2" [attr.aria-label]="'orders.order_tracking.order_tracking.pin_de_entrega' | t">
               @for (digit of pinDigits; track $index) {
                 <span
                   class="w-12 h-14 rounded-xl flex items-center justify-center text-2xl font-bold"
@@ -219,7 +217,7 @@
               }
             </div>
             <p class="mt-2 text-xs" style="color: rgba(44, 44, 44, 0.6)">
-              Díselo al repartidor solo cuando tengas tu pedido en la mano.
+              {{ 'orders.order_tracking.order_tracking.diselo_al_repartidor_solo_cuando_tengas_tu_pedido_en_la' | t }}
             </p>
           </div>
 
@@ -231,10 +229,10 @@
             "
           >
             <h2 class="font-serif text-xl font-semibold">
-              ¿Algún problema con tu pedido?
+              {{ 'orders.order_tracking.order_tracking.algun_problema_con_tu_pedido' | t }}
             </h2>
             <p class="mt-1 text-sm" style="color: rgba(44, 44, 44, 0.6)">
-              Déjanoslo saber.
+              {{ 'orders.order_tracking.order_tracking.dejanoslo_saber' | t }}
             </p>
             <div class="mt-4">
               <a
@@ -242,7 +240,7 @@
                 class="inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-white"
                 style="background: linear-gradient(135deg, #d97b45, #b2571f)"
               >
-                Escríbenos
+                {{ 'orders.order_tracking.order_tracking.escribenos' | t }}
               </a>
             </div>
           </div>

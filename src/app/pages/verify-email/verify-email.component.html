@@ -10,13 +10,13 @@
             class="text-[12px] tracking-widest uppercase mb-3"
             style="color: rgba(44, 44, 44, 0.38)"
           >
-            Un momento
+            {{ 'verify_email.verify_email.un_momento' | t }}
           </p>
           <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
-            Confirmando tu correo…
+            {{ 'verify_email.verify_email.confirmando_tu_correo' | t }}
           </h1>
           <p class="text-sm" style="color: rgba(44, 44, 44, 0.62)">
-            Estamos validando tu enlace.
+            {{ 'verify_email.verify_email.estamos_validando_tu_enlace' | t }}
           </p>
         }
 
@@ -44,20 +44,20 @@
             class="text-[12px] tracking-widest uppercase mb-3"
             style="color: rgba(44, 44, 44, 0.38)"
           >
-            Cuenta activada
+            {{ 'verify_email.verify_email.cuenta_activada' | t }}
           </p>
           <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
-            ¡Correo confirmado!
+            {{ 'verify_email.verify_email.correo_confirmado' | t }}
           </h1>
           <p
             id="verify-message"
             class="text-sm leading-relaxed mb-8"
             style="color: rgba(44, 44, 44, 0.62)"
           >
-            {{ message }}
+            {{ message | t }}
           </p>
           <app-button size="lg" [fullWidth]="true" (click)="goLogin()"
-            >Iniciar sesión</app-button
+            >{{ 'verify_email.verify_email.iniciar_sesion' | t }}</app-button
           >
         }
 
@@ -88,27 +88,27 @@
             class="text-[12px] tracking-widest uppercase mb-3"
             style="color: rgba(44, 44, 44, 0.38)"
           >
-            No pudimos confirmar
+            {{ 'verify_email.verify_email.no_pudimos_confirmar' | t }}
           </p>
           <h1 class="font-serif text-3xl font-semibold text-charcoal mb-4">
-            Enlace no válido
+            {{ 'verify_email.verify_email.enlace_no_valido' | t }}
           </h1>
           <p
             id="verify-message"
             class="text-sm leading-relaxed mb-8"
             style="color: rgba(44, 44, 44, 0.62)"
           >
-            {{ message }}
+            {{ message | t }}
           </p>
           <app-button size="lg" [fullWidth]="true" (click)="goLogin()"
-            >Ir a iniciar sesión</app-button
+            >{{ 'verify_email.verify_email.ir_a_iniciar_sesion' | t }}</app-button
           >
           <button
             type="button"
             (click)="goHome()"
             class="inline-flex items-center gap-2 text-[13px] font-medium text-charcoal/45 hover:text-charcoal mt-5 transition-colors"
           >
-            Volver al inicio
+            {{ 'verify_email.verify_email.volver_al_inicio' | t }}
           </button>
         }
       }

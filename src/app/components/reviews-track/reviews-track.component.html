@@ -1,6 +1,6 @@
 @if (loading) {
 <!-- Tarjetas de espera mientras llegan las reseñas -->
-<div class="carousel" aria-label="Cargando opiniones">
+<div class="carousel" [attr.aria-label]="'reviews_track.reviews_track.cargando_opiniones' | t">
   <div class="track">
     @for (card of placeholderLoop; track $index) {
     <div class="card" aria-hidden="true">
@@ -34,7 +34,7 @@
 } @else if (reviews.length === 0) {
 <!-- Todavía no hay reseñas (o el back no respondió) -->
 <p class="text-center text-sm px-6" style="color: rgba(44, 44, 44, 0.55)">
-  Aún no hay opiniones. ¡Sé el primero en compartir la tuya!
+  {{ 'reviews_track.reviews_track.aun_no_hay_opiniones_se_el_primero_en_compartir_la_tuya' | t }}
 </p>
 } @else if (!animated) {
 <!-- Pocas reseñas: se muestran quietas y centradas -->
@@ -47,7 +47,7 @@
 </div>
 } @else {
 <!-- Carrusel: se desplaza solo y se detiene al pasar el ratón -->
-<div class="carousel" aria-label="Opiniones de clientes">
+<div class="carousel" [attr.aria-label]="'reviews_track.reviews_track.opiniones_de_clientes' | t">
   <div class="track" [style.animation-duration]="duration">
     @for (review of loop; track $index) {
     <!-- Solo las primeras son las reales; las copias se ocultan a lectores de pantalla
