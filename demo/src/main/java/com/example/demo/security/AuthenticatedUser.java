@@ -29,6 +29,9 @@ public class AuthenticatedUser {
     @Autowired
     private DeliveryPersonRepository deliveryPersonRepository;
 
+    @Autowired
+    private com.example.demo.repository.WaiterRepository waiterRepository;
+
     // Correo del usuario que viene en el token. Sin sesión responde 401.
     public String email() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -56,6 +59,15 @@ public class AuthenticatedUser {
             throw ApiException.forbidden("Esta acción es solo para operadores.");
         }
         return operator;
+    }
+
+    // Mesero con sesión iniciada (pedidos de mesa en la app móvil)
+    public com.example.demo.entities.Waiter waiter() {
+        com.example.demo.entities.Waiter waiter = waiterRepository.findByEmail(email());
+        if (waiter == null) {
+            throw ApiException.forbidden("Esta acción es solo para meseros.");
+        }
+        return waiter;
     }
 
     // Domiciliario con sesión iniciada (para la app móvil)
