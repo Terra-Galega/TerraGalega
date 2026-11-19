@@ -9,8 +9,8 @@
         Pedidos de mesa
       </h1>
       <p class="mt-1 text-[15px]" style="color: rgba(44, 44, 44, 0.6)">
-        Los envían los meseros desde la app. Marca cada plato en preparación y
-        luego listo.
+        Los envían los meseros desde la app. Marca cada plato, o el pedido
+        entero, en preparación y luego listo.
       </p>
     </div>
     <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)" aria-live="polite">
@@ -116,6 +116,38 @@
                 </span>
               </div>
 
+              <!-- Acciones sobre el pedido entero (los botones de cada plato siguen abajo) -->
+              @if (canReadyAll(order)) {
+                <div class="mt-3 flex flex-wrap gap-2">
+                  @if (canPrepareAll(order)) {
+                    <button
+                      type="button"
+                      class="min-h-[40px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
+                      style="color: #b2571f; border: 1.5px solid #b2571f; background: transparent"
+                      [disabled]="isOrderBusy(order)"
+                      (click)="advanceOrder(order, 'PREPARING')"
+                      [attr.aria-label]="
+                        'Preparar todo el pedido ' + order.id + ', mesa ' + table.tableId
+                      "
+                    >
+                      Preparar todo
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="min-h-[40px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
+                    style="color: #556141; border: 1.5px solid #556141; background: transparent"
+                    [disabled]="isOrderBusy(order)"
+                    (click)="advanceOrder(order, 'READY')"
+                    [attr.aria-label]="
+                      'Marcar todo el pedido ' + order.id + ' como listo, mesa ' + table.tableId
+                    "
+                  >
+                    Todo listo
+                  </button>
+                </div>
+              }
+
               <ul class="mt-3 space-y-2">
                 @for (item of order.items; track item.id) {
                   <li
@@ -151,7 +183,7 @@
                           next === 'PREPARING' ? '#b2571f' : '#556141'
                         "
                         style="color: #fff"
-                        [disabled]="isBusy(item)"
+                        [disabled]="isBusy(item) || isOrderBusy(order)"
                         (click)="advance(order, item)"
                         [attr.aria-label]="
                           (next === 'PREPARING'

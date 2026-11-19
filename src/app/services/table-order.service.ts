@@ -20,4 +20,9 @@ export class TableOrderService {
   updateItemStatus(orderId: number, itemId: number, status: OrderItemStatus): Observable<TableOrder> {
     return this.http.put<TableOrder>(`${this.apiUrl}/${orderId}/items/${itemId}/status`, { status });
   }
+
+  // Cocina: pasa todos los platos del pedido a la vez a "en preparación" o a "listo"
+  updateOrderStatus(orderId: number, status: OrderItemStatus): Observable<TableOrder> {
+    return this.http.put<TableOrder>(`${this.apiUrl}/${orderId}/status`, { status });
+  }
 }

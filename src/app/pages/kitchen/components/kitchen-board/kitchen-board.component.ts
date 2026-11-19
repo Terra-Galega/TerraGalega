@@ -30,6 +30,8 @@ export class KitchenBoardComponent implements OnInit {
 
   // Platos con un cambio en curso (evita dobles clics)
   private busy = new Set<number>();
+  // Pedidos con un cambio de "todo el pedido" en curso
+  private busyOrders = new Set<number>();
 
   ngOnInit(): void {
     merge(timer(0, REFRESH_MS), fromEvent(document, 'visibilitychange'))
@@ -75,7 +77,7 @@ export class KitchenBoardComponent implements OnInit {
 
   advance(order: TableOrder, item: TableOrderItem): void {
     const next = this.nextStatus(item);
-    if (!next || this.busy.has(item.id)) return;
+    if (!next || this.busy.has(item.id) || this.busyOrders.has(order.id)) return;
 
     this.busy.add(item.id);
     this.service.updateItemStatus(order.id, item.id, next).subscribe({
@@ -86,6 +88,38 @@ export class KitchenBoardComponent implements OnInit {
       error: (error) => {
         this.busy.delete(item.id);
         this.errorMessage = getErrorMessage(error, 'No se pudo cambiar el estado del plato.');
+      },
+    });
+  }
+
+  // ---------- Pedido completo ----------
+
+  // ¿Queda algún plato en espera? (para "Preparar todo")
+  canPrepareAll(order: TableOrder): boolean {
+    return order.items.some((i) => i.status === 'PENDING');
+  }
+
+  // ¿Queda algún plato sin terminar? (para "Todo listo")
+  canReadyAll(order: TableOrder): boolean {
+    return order.items.some((i) => i.status !== 'READY');
+  }
+
+  isOrderBusy(order: TableOrder): boolean {
+    return this.busyOrders.has(order.id) || order.items.some((i) => this.busy.has(i.id));
+  }
+
+  advanceOrder(order: TableOrder, status: OrderItemStatus): void {
+    if (this.isOrderBusy(order)) return;
+
+    this.busyOrders.add(order.id);
+    this.service.updateOrderStatus(order.id, status).subscribe({
+      next: (updated) => {
+        this.busyOrders.delete(order.id);
+        this.replaceOrder(updated);
+      },
+      error: (error) => {
+        this.busyOrders.delete(order.id);
+        this.errorMessage = getErrorMessage(error, 'No se pudo cambiar el estado del pedido.');
       },
     });
   }
