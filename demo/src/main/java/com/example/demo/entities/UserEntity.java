@@ -48,7 +48,7 @@ public class UserEntity {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private boolean emailVerified;
 
     // Id de la cuenta de Google ("sub" del token) si inicia sesión con Google.
@@ -56,15 +56,17 @@ public class UserEntity {
     @JsonIgnore
     @Column(unique = true, length = 255)
     private String googleSubject;
+    @JsonIgnore
+    @Column(unique = true, length = 73)
+    private String microsoftIdentity;
 
     // Un usuario puede tener varios roles y un rol pertenece a muchos usuarios.
-    // EAGER: al traer el usuario siempre se traen sus roles (Spring Security los necesita).
+    // EAGER: al traer el usuario siempre se traen sus roles (Spring Security los
+    // necesita).
     // Sin cascade: borrar un usuario solo borra sus filas en user_roles, no el rol.
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @Builder.Default
     private List<RoleEntity> roles = new ArrayList<>();
 }

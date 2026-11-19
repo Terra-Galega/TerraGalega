@@ -345,7 +345,7 @@ public class NewOrderTest {
                 .findElements(By.tagName("option"));
         WebElement deliveryPerson = deliveryOptions.get(1); // la opción 0 es el texto por defecto
         deliveryPerson.click();
-        String deliveryPersonName = deliveryPerson.getText().split("·")[0].trim();
+        String deliveryPersonName = deliveryPerson.getText().split(" - ")[0].trim();
         operatorElement(By.id("btn-send-order")).click();
 
         operatorAction(orderId, "Completar");

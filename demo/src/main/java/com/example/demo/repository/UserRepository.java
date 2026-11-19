@@ -18,4 +18,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
     // Cuenta enlazada a una cuenta de Google (por el "sub" del token de Google)
     Optional<UserEntity> findByGoogleSubject(String googleSubject);
+
+    Optional<UserEntity> findByMicrosoftIdentity(String microsoftIdentity);
+
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    Optional<UserEntity> findFirstByUsername(String username);
 }

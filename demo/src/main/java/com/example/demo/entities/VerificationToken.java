@@ -42,9 +42,9 @@ public class VerificationToken {
     private String tokenHash;
 
     // OnDelete CASCADE: si se borra el usuario, sus tokens se borran con él
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @Column(nullable = false)
@@ -52,4 +52,9 @@ public class VerificationToken {
 
     @Column(nullable = false)
     private LocalDateTime expiresAt;
+
+    // En el primer acceso con Microsoft todavía puede no existir un usuario local.
+    @Column(unique = true, length = 73)
+    private String microsoftIdentity;
+
 }
