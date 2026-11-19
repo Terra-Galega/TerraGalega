@@ -15,6 +15,21 @@ import {
   NotificationCenterService,
 } from '../../services/notification-center.service';
 
+// Partículas que van pegadas al apellido o nombre siguiente ("De la Cruz", "Van Dyke")
+const NAME_PARTICLES = new Set(['de', 'del', 'la', 'las', 'los', 'y', 'da', 'das', 'do', 'dos', 'van', 'von']);
+
+// Primera palabra de un nombre o apellido. Si empieza con partículas, las conserva junto
+// a la palabra que las sigue: "Pérez Gómez" -> "Pérez", "de la Cruz Rojas" -> "de la Cruz".
+function firstWord(value: string | null | undefined): string {
+  const words = (value ?? '').trim().split(/\s+/).filter(Boolean);
+  const result: string[] = [];
+  for (const word of words) {
+    result.push(word);
+    if (!NAME_PARTICLES.has(word.toLowerCase())) break;
+  }
+  return result.join(' ');
+}
+
 // Barra de navegación principal: enlaces, sesión del usuario, carrito y menú móvil.
 @Component({
   selector: 'app-navbar',
@@ -88,9 +103,10 @@ export class NavbarComponent implements OnDestroy {
       this.isLoggedAdmin = session?.type === 'admin';
       this.isClient = session?.type === 'client';
       this.isOperator = session?.type === 'operator';
-      // Une nombre y apellido sin espacios sobrantes; queda vacío si no hay sesión.
+      // Solo el primer nombre y el primer apellido, para que la barra no se desborde con
+      // nombres largos ("Juan Carlos" "Pérez Gómez" -> "Juan Pérez"); vacío si no hay sesión.
       this.username = session
-        ? `${session.name} ${session.lastName}`.trim()
+        ? `${firstWord(session.name)} ${firstWord(session.lastName)}`.trim()
         : '';
       this.userId = session?.id ?? null;
     });
