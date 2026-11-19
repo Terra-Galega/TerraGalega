@@ -37,6 +37,25 @@ export const routes: Routes = [
     canActivate: [redirectByRoleGuard],
   },
   {
+    // Formulario para pedir el enlace de recuperación de contraseña
+    path: 'forgot-password',
+    title: 'Recuperar contraseña',
+    loadComponent: () =>
+      import('./pages/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent,
+      ),
+  },
+  {
+    // Destino del enlace del correo de recuperación: /reset-password?token=...
+    // Sin guard: debe abrir igual con o sin sesión iniciada.
+    path: 'reset-password',
+    title: 'Nueva contraseña',
+    loadComponent: () =>
+      import('./pages/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent,
+      ),
+  },
+  {
     // Destino del enlace del correo de confirmación: /verify-email?token=...
     // Sin guard: debe abrir igual con o sin sesión iniciada.
     path: 'verify-email',

@@ -171,6 +171,16 @@ export class AuthService {
   }
 
   // Pide un nuevo correo de confirmación (el back responde igual exista o no la cuenta).
+  // Pide el enlace para recuperar la contraseña. El back responde igual exista o no la cuenta.
+  forgotPassword(email: string): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  // Cambia la contraseña con el token que venía en el enlace del correo
+  resetPassword(token: string, newPassword: string): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/reset-password`, { token, newPassword });
+  }
+
   resendVerification(email: string): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(
       `${this.apiUrl}/resend-verification`,

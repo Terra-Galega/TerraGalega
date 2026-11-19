@@ -1,476 +1,313 @@
 <div class="glass-card rounded-3xl p-8">
   <!-- LOGIN -->
   @if (activeTab === "login") {
-    <form
-      id="login-form"
-      class="space-y-4"
-      (submit)="$event.preventDefault(); login()"
-    >
-      <!-- Correo -->
-      <div>
-        <label for="login-email"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          {{ 'login.login_forms.login_forms.correo_electronico' | t }}
-        </label>
+  <form id="login-form" class="space-y-4" (submit)="$event.preventDefault(); login()">
+    <!-- Correo -->
+    <div>
+      <label for="login-email" class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)">
+        {{ 'login.login_forms.login_forms.correo_electronico' | t }}
+      </label>
 
-        <input
-          type="email"
-          id="login-email"
-          name="email"
-          [value]="loginEmail"
-          (input)="setLoginEmail($event)"
-          placeholder="correo&#64;ejemplo.com"
-          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
-        />
-      </div>
+      <input type="email" id="login-email" name="email" [value]="loginEmail" (input)="setLoginEmail($event)"
+        placeholder="correo&#64;ejemplo.com" class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
+    </div>
 
-      <!-- Contraseña -->
-      <div>
-        <label for="login-password"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          {{ 'login.login_forms.login_forms.contrasena' | t }}
-        </label>
+    <!-- Contraseña -->
+    <div>
+      <label for="login-password" class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)">
+        {{ 'login.login_forms.login_forms.contrasena' | t }}
+      </label>
 
-        <div class="relative">
-          <input
-            [type]="showLoginPassword ? 'text' : 'password'"
-            id="login-password"
-            name="password"
-            [value]="loginPassword"
-            (input)="setLoginPassword($event)"
-            placeholder="••••••••"
-            class="password-field input-field w-full px-4 py-3 pr-11 rounded-full text-charcoal text-sm"
-          />
+      <div class="relative">
+        <input [type]="showLoginPassword ? 'text' : 'password'" id="login-password" name="password"
+          [value]="loginPassword" (input)="setLoginPassword($event)" placeholder="••••••••"
+          class="password-field input-field w-full px-4 py-3 pr-11 rounded-full text-charcoal text-sm" />
 
-          <button
-            type="button"
-            (click)="toggleLoginPassword()"
-            class="toggle-password absolute right-3 top-1/2 -translate-y-1/2"
-            style="color: rgba(44, 44, 44, 0.4)"
-            [attr.aria-label]="
+        <button type="button" (click)="toggleLoginPassword()"
+          class="toggle-password absolute right-3 top-1/2 -translate-y-1/2" style="color: rgba(44, 44, 44, 0.4)"
+          [attr.aria-label]="
               showLoginPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
-            "
-          >
+            ">
           <!--Visisbilidad de la contraseña-->
-            @if (!showLoginPassword) {
-              <svg aria-hidden="true" focusable="false"
-                class="eye-open w-4.5 h-4.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.577-3.01-9.964-7.178z"
-                />
+          @if (!showLoginPassword) {
+          <svg aria-hidden="true" focusable="false" class="eye-open w-4.5 h-4.5" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.577-3.01-9.964-7.178z" />
 
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-            } @else {
-              <svg aria-hidden="true" focusable="false"
-                class="eye-closed w-4.5 h-4.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                  d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                />
-              </svg>
-            }
-          </button>
-        </div>
-      </div>
-
-      <!-- Error -->
-      @if (loginError) {
-        <p id="login-error" class="text-xs" style="color: #8a2222">
-          {{ loginError }}
-        </p>
-      }
-
-      <!-- Correo sin confirmar: reenviar el enlace -->
-      @if (emailNotVerified) {
-        <div class="space-y-1.5">
-          <button
-            type="button"
-            id="btn-resend-login"
-            (click)="resend()"
-            [disabled]="resendCooldown > 0"
-            class="text-[13px] font-medium underline underline-offset-2 disabled:opacity-50 disabled:no-underline"
-            style="color: #b2571f"
-          >
-            @if (resendCooldown > 0) {
-              Reenviar correo de confirmación ({{ resendCooldown }}s)
-            } @else {
-              {{ 'login.login_forms.login_forms.reenviar_correo_de_confirmacion' | t }}
-            }
-          </button>
-
-          @if (resendMessage) {
-            <p class="text-xs" style="color: #4a6b3a">{{ resendMessage }}</p>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          } @else {
+          <svg aria-hidden="true" focusable="false" class="eye-closed w-4.5 h-4.5" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+          </svg>
           }
-          @if (resendError) {
-            <p class="text-xs" style="color: #8a2222">{{ resendError }}</p>
-          }
-        </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Error -->
+    @if (loginError) {
+    <p id="login-error" class="text-xs" style="color: #8a2222">
+      {{ loginError }}
+    </p>
+    }
+
+    <!-- Correo sin confirmar: reenviar el enlace -->
+    @if (emailNotVerified) {
+    <div class="space-y-1.5">
+      <button type="button" id="btn-resend-login" (click)="resend()" [disabled]="resendCooldown > 0"
+        class="text-[13px] font-medium underline underline-offset-2 disabled:opacity-50 disabled:no-underline"
+        style="color: #b2571f">
+        @if (resendCooldown > 0) {
+        Reenviar correo de confirmación ({{ resendCooldown }}s)
+        } @else {
+        {{ 'login.login_forms.login_forms.reenviar_correo_de_confirmacion' | t }}
+        }
+      </button>
+
+      @if (resendMessage) {
+      <p class="text-xs" style="color: #4a6b3a">{{ resendMessage }}</p>
       }
+      @if (resendError) {
+      <p class="text-xs" style="color: #8a2222">{{ resendError }}</p>
+      }
+    </div>
+    }
 
-      <!-- Botón: un poco más ancho que su texto y centrado -->
-      <div class="flex justify-center mt-2">
-        <app-button id="btn-login" type="submit" variant="primary">
-          {{ 'login.login_forms.login_forms.iniciar_sesion' | t }}
-        </app-button>
-      </div>
+    <!-- Botón: un poco más ancho que su texto y centrado -->
+    <div class="flex justify-center mt-2">
+      <app-button id="btn-login" type="submit" variant="primary">
+        {{ 'login.login_forms.login_forms.iniciar_sesion' | t }}
+      </app-button>
+    </div>
 
-      <!-- Separador -->
-      <div class="flex items-center gap-3 py-1">
-        <div
-          class="flex-1 h-px"
-          style="background-color: rgba(44, 44, 44, 0.08)"
-        ></div>
+    <!-- Recuperar contraseña (debajo de Iniciar sesión, centrado) -->
+    <div class="flex justify-center -mt-1">
+      <a id="link-forgot-password" routerLink="/forgot-password"
+        class="text-[13px] font-medium underline underline-offset-2 transition-opacity hover:opacity-80"
+        style="color: #b2571f">
+        {{ 'password_reset.forgot_link' | t }}
+      </a>
+    </div>
 
-        <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.3)">
-          {{ 'login.login_forms.login_forms.accesos_de_prueba' | t }}
-        </span>
+    <!-- Separador -->
+    <div class="flex items-center gap-3 py-1">
+      <div class="flex-1 h-px" style="background-color: rgba(44, 44, 44, 0.08)"></div>
 
-        <div
-          class="flex-1 h-px"
-          style="background-color: rgba(44, 44, 44, 0.08)"
-        ></div>
-      </div>
+      <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.3)">
+        {{ 'login.login_forms.login_forms.accesos_de_prueba' | t }}
+      </span>
 
-      <!-- Usuarios de prueba -->
-      <div
-        class="rounded-xl p-4 space-y-2"
-        style="
+      <div class="flex-1 h-px" style="background-color: rgba(44, 44, 44, 0.08)"></div>
+    </div>
+
+    <!-- Usuarios de prueba -->
+    <div class="rounded-xl p-4 space-y-2" style="
           background-color: rgba(44, 44, 44, 0.04);
           border: 1px solid rgba(44, 44, 44, 0.07);
-        "
-      >
-        <button
-          type="button"
-          (click)="fillDemoUser('juan.garcia@gmail.com', 'cliente123')"
-          class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
-          style="color: rgba(44, 44, 44, 0.6)"
-        >
-          <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.cliente_de_prueba' | t }} </span>
+        ">
+      <button type="button" (click)="fillDemoUser('juan.garcia@gmail.com', 'cliente123')"
+        class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
+        style="color: rgba(44, 44, 44, 0.6)">
+        <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.cliente_de_prueba' | t }} </span>
 
-          juan.garcia&#64;gmail.com
-        </button>
+        juan.garcia&#64;gmail.com
+      </button>
 
-        <button
-          type="button"
-          (click)="fillDemoUser('admin@terra.com', 'admin123')"
-          class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
-          style="color: rgba(44, 44, 44, 0.6)"
-        >
-          <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.admin_de_prueba' | t }} </span>
+      <button type="button" (click)="fillDemoUser('admin@terra.com', 'admin123')"
+        class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
+        style="color: rgba(44, 44, 44, 0.6)">
+        <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.admin_de_prueba' | t }} </span>
 
-          admin&#64;terra.com
-        </button>
+        admin&#64;terra.com
+      </button>
 
-        <button
-          type="button"
-          (click)="fillDemoUser('sofia.jimenez@terra.com', 'sofia123')"
-          class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
-          style="color: rgba(44, 44, 44, 0.6)"
-        >
-          <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.operador_de_prueba' | t }} </span>
-          
-          sofia.jimenez&#64;terra.com
-        </button>
+      <button type="button" (click)="fillDemoUser('sofia.jimenez@terra.com', 'sofia123')"
+        class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
+        style="color: rgba(44, 44, 44, 0.6)">
+        <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.operador_de_prueba' | t }} </span>
 
-        <button
-          type="button"
-          (click)="fillDemoUser('cocina@terra.com', 'cocina123')"
-          class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
-          style="color: rgba(44, 44, 44, 0.6)"
-        >
-          <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.cocina_de_prueba' | t }} </span>
+        sofia.jimenez&#64;terra.com
+      </button>
 
-          cocina&#64;terra.com
-        </button>
-      </div>
-    </form>
+      <button type="button" (click)="fillDemoUser('cocina@terra.com', 'cocina123')"
+        class="demo-login-btn w-full text-left px-3 py-2.5 rounded-lg text-[12px] transition-colors"
+        style="color: rgba(44, 44, 44, 0.6)">
+        <span class="font-semibold text-charcoal"> {{ 'login.login_forms.login_forms.cocina_de_prueba' | t }} </span>
+
+        cocina&#64;terra.com
+      </button>
+    </div>
+  </form>
   }
 
   <!-- REGISTRO COMPLETADO: pedir que revise el correo -->
   @if (activeTab === "signup" && pendingEmail) {
-    <div id="signup-pending" class="text-center space-y-4">
-      <div
-        class="w-14 h-14 mx-auto rounded-full flex items-center justify-center"
-        style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%)"
-      >
-        <svg aria-hidden="true" focusable="false"
-          class="w-7 h-7 text-cream"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.8"
-            d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
-          />
-        </svg>
-      </div>
-
-      <h2 class="font-serif text-2xl font-semibold text-charcoal">
-        {{ 'login.login_forms.login_forms.revisa_tu_correo' | t }}
-      </h2>
-
-      <p
-        class="text-sm leading-relaxed"
-        style="color: rgba(44, 44, 44, 0.62)"
-      >
-        {{ 'login.login_forms.login_forms.enviamos_un_enlace_de_confirmacion_a' | t }}
-        <span class="font-semibold text-charcoal">{{ pendingEmail }}</span
-        >{{ 'login.login_forms.login_forms.abre_el_enlace_para_activar_tu_cuenta_vence_en_24_horas' | t }}
-      </p>
-
-      @if (resendMessage) {
-        <p class="text-xs" style="color: #4a6b3a">{{ resendMessage }}</p>
-      }
-      @if (resendError) {
-        <p class="text-xs" style="color: #8a2222">{{ resendError }}</p>
-      }
-
-      <button
-        type="button"
-        id="btn-resend-signup"
-        (click)="resend()"
-        [disabled]="resendCooldown > 0"
-        class="text-[13px] font-medium underline underline-offset-2 disabled:opacity-50 disabled:no-underline"
-        style="color: #b2571f"
-      >
-        @if (resendCooldown > 0) {
-          ¿No te llegó? Reenviar ({{ resendCooldown }}s)
-        } @else {
-          {{ 'login.login_forms.login_forms.no_te_llego_reenviar_correo' | t }}
-        }
-      </button>
-
-      <app-button
-        type="button"
-        variant="primary"
-        [fullWidth]="true"
-        (click)="goBackToLogin()"
-      >
-        {{ 'login.login_forms.login_forms.ir_a_iniciar_sesion' | t }}
-      </app-button>
+  <div id="signup-pending" class="text-center space-y-4">
+    <div class="w-14 h-14 mx-auto rounded-full flex items-center justify-center"
+      style="background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%)">
+      <svg aria-hidden="true" focusable="false" class="w-7 h-7 text-cream" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+          d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+      </svg>
     </div>
+
+    <h2 class="font-serif text-2xl font-semibold text-charcoal">
+      {{ 'login.login_forms.login_forms.revisa_tu_correo' | t }}
+    </h2>
+
+    <p class="text-sm leading-relaxed" style="color: rgba(44, 44, 44, 0.62)">
+      {{ 'login.login_forms.login_forms.enviamos_un_enlace_de_confirmacion_a' | t }}
+      <span class="font-semibold text-charcoal">{{ pendingEmail }}</span>{{
+      'login.login_forms.login_forms.abre_el_enlace_para_activar_tu_cuenta_vence_en_24_horas' | t }}
+    </p>
+
+    @if (resendMessage) {
+    <p class="text-xs" style="color: #4a6b3a">{{ resendMessage }}</p>
+    }
+    @if (resendError) {
+    <p class="text-xs" style="color: #8a2222">{{ resendError }}</p>
+    }
+
+    <button type="button" id="btn-resend-signup" (click)="resend()" [disabled]="resendCooldown > 0"
+      class="text-[13px] font-medium underline underline-offset-2 disabled:opacity-50 disabled:no-underline"
+      style="color: #b2571f">
+      @if (resendCooldown > 0) {
+      ¿No te llegó? Reenviar ({{ resendCooldown }}s)
+      } @else {
+      {{ 'login.login_forms.login_forms.no_te_llego_reenviar_correo' | t }}
+      }
+    </button>
+
+    <app-button type="button" variant="primary" [fullWidth]="true" (click)="goBackToLogin()">
+      {{ 'login.login_forms.login_forms.ir_a_iniciar_sesion' | t }}
+    </app-button>
+  </div>
   }
 
   <!-- REGISTRO -->
 
   @if (activeTab === "signup" && !pendingEmail) {
-    <form
-      id="signup-form"
-      class="space-y-4"
-      (submit)="$event.preventDefault(); signup()"
-    >
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label for="signup-name"
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-            style="color: rgba(44, 44, 44, 0.4)"
-          >
-            {{ 'login.login_forms.login_forms.nombre' | t }}
-          </label>
-
-          <input
-            type="text"
-            id="signup-name"
-            name="name"
-            [value]="signupName"
-            (input)="setSignupName($event)"
-            placeholder="{{ 'login.login_forms.login_forms.juan' | t }}"
-            class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
-          />
-        </div>
-
-        <div>
-          <label for="signup-lastname"
-            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-            style="color: rgba(44, 44, 44, 0.4)"
-          >
-            {{ 'login.login_forms.login_forms.apellido' | t }}
-          </label>
-
-          <input
-            type="text"
-            id="signup-lastname"
-            name="lastName"
-            [value]="signupLastName"
-            (input)="setSignupLastName($event)"
-            placeholder="{{ 'login.login_forms.login_forms.garcia' | t }}"
-            class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
-          />
-        </div>
-      </div>
-
-      <!-- Correo -->
-
+  <form id="signup-form" class="space-y-4" (submit)="$event.preventDefault(); signup()">
+    <div class="grid grid-cols-2 gap-3">
       <div>
-        <label for="signup-email"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          {{ 'login.login_forms.login_forms.correo_electronico' | t }}
+        <label for="signup-name" class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)">
+          {{ 'login.login_forms.login_forms.nombre' | t }}
         </label>
 
-        <input
-          type="email"
-          id="signup-email"
-          name="email"
-          [value]="signupEmail"
-          (input)="setSignupEmail($event)"
-          placeholder="correo&#64;ejemplo.com"
-          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
-        />
+        <input type="text" id="signup-name" name="name" [value]="signupName" (input)="setSignupName($event)"
+          placeholder="{{ 'login.login_forms.login_forms.juan' | t }}"
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
       </div>
 
-      <!-- Contraseña -->
-
       <div>
-        <label for="signup-password"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          {{ 'login.login_forms.login_forms.contrasena' | t }}
+        <label for="signup-lastname" class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+          style="color: rgba(44, 44, 44, 0.4)">
+          {{ 'login.login_forms.login_forms.apellido' | t }}
         </label>
 
-        <div class="relative">
-          <input
-            [type]="showSignupPassword ? 'text' : 'password'"
-            id="signup-password"
-            name="password"
-            [value]="signupPassword"
-            (input)="setSignupPassword($event)"
-            placeholder="••••••••"
-            class="password-field input-field w-full px-4 py-3 pr-11 rounded-full text-charcoal text-sm"
-          />
+        <input type="text" id="signup-lastname" name="lastName" [value]="signupLastName"
+          (input)="setSignupLastName($event)" placeholder="{{ 'login.login_forms.login_forms.garcia' | t }}"
+          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
+      </div>
+    </div>
 
-          <button
-            type="button"
-            (click)="toggleSignupPassword()"
-            class="toggle-password absolute right-3 top-1/2 -translate-y-1/2"
-            style="color: rgba(44, 44, 44, 0.4)"
-            [attr.aria-label]="
+    <!-- Correo -->
+
+    <div>
+      <label for="signup-email" class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)">
+        {{ 'login.login_forms.login_forms.correo_electronico' | t }}
+      </label>
+
+      <input type="email" id="signup-email" name="email" [value]="signupEmail" (input)="setSignupEmail($event)"
+        placeholder="correo&#64;ejemplo.com" class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
+    </div>
+
+    <!-- Contraseña -->
+
+    <div>
+      <label for="signup-password" class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)">
+        {{ 'login.login_forms.login_forms.contrasena' | t }}
+      </label>
+
+      <div class="relative">
+        <input [type]="showSignupPassword ? 'text' : 'password'" id="signup-password" name="password"
+          [value]="signupPassword" (input)="setSignupPassword($event)" placeholder="••••••••"
+          class="password-field input-field w-full px-4 py-3 pr-11 rounded-full text-charcoal text-sm" />
+
+        <button type="button" (click)="toggleSignupPassword()"
+          class="toggle-password absolute right-3 top-1/2 -translate-y-1/2" style="color: rgba(44, 44, 44, 0.4)"
+          [attr.aria-label]="
               showSignupPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
-            "
-          >
+            ">
           <!--mostrar contraseña(ojito)-->
-            @if (!showSignupPassword) {
-              <svg aria-hidden="true" focusable="false"
-                class="eye-open w-4.5 h-4.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                />
+          @if (!showSignupPassword) {
+          <svg aria-hidden="true" focusable="false" class="eye-open w-4.5 h-4.5" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
 
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-            } @else {
-              <svg aria-hidden="true" focusable="false"
-                class="eye-closed w-4.5 h-4.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                  d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                />
-              </svg>
-            }
-          </button>
-        </div>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          } @else {
+          <svg aria-hidden="true" focusable="false" class="eye-closed w-4.5 h-4.5" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.522 10.522 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+          </svg>
+          }
+        </button>
       </div>
+    </div>
 
-      <!-- Teléfono -->
+    <!-- Teléfono -->
 
-      <div>
-        <label for="signup-phone"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          {{ 'login.login_forms.login_forms.telefono' | t }}
-        </label>
+    <div>
+      <label for="signup-phone" class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)">
+        {{ 'login.login_forms.login_forms.telefono' | t }}
+      </label>
 
-        <input
-          type="tel"
-          id="signup-phone"
-          name="phone"
-          [value]="signupPhone"
-          (input)="setSignupPhone($event)"
-          placeholder="+57 300 000 0000"
-          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
-        />
-      </div>
-      <!-- Dirección -->
-        <div>
-        <label for="signup-address"
-          class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
-          style="color: rgba(44, 44, 44, 0.4)"
-        >
-          {{ 'login.login_forms.login_forms.direccion' | t }}
-        </label>
+      <input type="tel" id="signup-phone" name="phone" [value]="signupPhone" (input)="setSignupPhone($event)"
+        placeholder="+57 300 000 0000" class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
+    </div>
+    <!-- Dirección -->
+    <div>
+      <label for="signup-address" class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+        style="color: rgba(44, 44, 44, 0.4)">
+        {{ 'login.login_forms.login_forms.direccion' | t }}
+      </label>
 
-        <input
-          type="text"
-          id="signup-address"
-          name="address"
-          [value]="signupAddress"
-          (input)="setSignupAddress($event)"
-          placeholder="{{ 'login.login_forms.login_forms.direccion' | t }}"
-          class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm"
-        />
-      </div>
-      <!-- Error registro -->
+      <input type="text" id="signup-address" name="address" [value]="signupAddress" (input)="setSignupAddress($event)"
+        placeholder="{{ 'login.login_forms.login_forms.direccion' | t }}"
+        class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm" />
+    </div>
+    <!-- Error registro -->
 
-      @if (signupError) {
-        <p class="text-xs" style="color: #8a2222">
-          {{ signupError }}
-        </p>
-      }
+    @if (signupError) {
+    <p class="text-xs" style="color: #8a2222">
+      {{ signupError }}
+    </p>
+    }
 
-      <!-- Crear cuenta -->
+    <!-- Crear cuenta -->
 
-      <div class="flex justify-center mt-2">
-        <app-button type="submit" variant="primary">
-          {{ 'login.login_forms.login_forms.crear_cuenta' | t }}
-        </app-button>
-      </div>
-    </form>
+    <div class="flex justify-center mt-2">
+      <app-button type="submit" variant="primary">
+        {{ 'login.login_forms.login_forms.crear_cuenta' | t }}
+      </app-button>
+    </div>
+  </form>
   }
 </div>
