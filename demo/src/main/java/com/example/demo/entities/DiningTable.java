@@ -42,8 +42,10 @@ public class DiningTable {
     @Column(nullable = false)
     private Integer floor;
 
-    // Si la mesa está en servicio. La ocupación en una fecha y hora concreta no
-    // se guarda aquí: se calcula con sus reservas.
+    // ¿La mesa está libre AHORA en el salón? Pasa a false cuando el mesero toma un
+    // pedido y vuelve a true cuando no le queda nada en cocina ni por cobrar
+    // (TableOrderServiceImpl.refreshAvailability). Las reservas de otros turnos
+    // NO dependen de esto: se calculan con sus propias fechas y horas.
     @Column(nullable = false)
     private Boolean available;
 

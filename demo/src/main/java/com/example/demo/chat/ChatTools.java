@@ -296,8 +296,8 @@ public class ChatTools {
     // La mesa libre más pequeña que alcance para esas personas
     private DiningTable findFreeTable(Integer clientId, LocalDate date, LocalTime time, int seats) {
         List<Integer> taken = reservationService.getTakenTables(clientId, date, time);
+        // available no se mira: es la ocupación de ahora, y la reserva es para otro turno
         return diningTableRepository.findAll().stream()
-                .filter(t -> Boolean.TRUE.equals(t.getAvailable()))
                 .filter(t -> t.getSeats() >= seats)
                 .filter(t -> !taken.contains(t.getId()))
                 .min(Comparator.comparing(DiningTable::getSeats).thenComparing(DiningTable::getId))

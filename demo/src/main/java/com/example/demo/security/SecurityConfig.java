@@ -185,11 +185,17 @@ public class SecurityConfig {
                                                 .hasAuthority(KITCHEN)
                                                 .requestMatchers(HttpMethod.PUT, "/table-orders/*/items/*/status")
                                                 .hasAuthority(KITCHEN)
-                                                // Mesero (app móvil): mesas, crear, entregar y cancelar
-                                                .requestMatchers(HttpMethod.GET, "/table-orders/tables", "/table-orders/tables/*")
+                                                // Mesero (app móvil): mesas, crear, entregar, cobrar y cancelar
+                                                .requestMatchers(HttpMethod.GET, "/table-orders/tables", "/table-orders/tables/*",
+                                                                "/table-orders/notifications")
+                                                .hasAuthority(WAITER)
+                                                // Bandeja del mesero: marcar avisos como leídos
+                                                .requestMatchers(HttpMethod.PUT, "/table-orders/notifications/read-all",
+                                                                "/table-orders/notifications/*/read")
                                                 .hasAuthority(WAITER)
                                                 .requestMatchers(HttpMethod.POST, "/table-orders",
-                                                                "/table-orders/*/deliver", "/table-orders/*/cancel")
+                                                                "/table-orders/*/deliver", "/table-orders/*/pay",
+                                                                "/table-orders/*/cancel", "/table-orders/tables/*/pay")
                                                 .hasAuthority(WAITER)
                                                 // La carta para tomar el pedido (GET /products/active) ya es pública
                                                 .requestMatchers("/table-orders/**").denyAll()

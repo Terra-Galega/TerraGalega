@@ -28,6 +28,7 @@ import com.example.demo.entities.Product;
 import com.example.demo.entities.Reservation;
 import com.example.demo.entities.TableOrder;
 import com.example.demo.entities.TableOrderStatus;
+import com.example.demo.entities.TablePaymentMethod;
 import com.example.demo.entities.Waiter;
 import com.example.demo.errors.ApiException;
 import com.example.demo.repository.AddOnRepository;
@@ -43,6 +44,9 @@ public class TableOrderServiceImpl implements TableOrderService {
     // Pedidos que siguen en curso: los ve la cocina y bloquean "mesa atendida"
     private static final Set<TableOrderStatus> ACTIVE = Set.of(TableOrderStatus.PENDING,
             TableOrderStatus.IN_PROGRESS);
+
+    // Lo que dura un turno de reserva (los turnos van cada hora y media)
+    private static final int RESERVATION_SLOT_MINUTES = ReservationRules.SLOT_MINUTES;
 
     // Aviso del mesero: reservas que empiezan dentro de este margen (2 h por
     // defecto; se cambia con terra.table-orders.reservation-warning-hours)
@@ -73,6 +77,9 @@ public class TableOrderServiceImpl implements TableOrderService {
     @Autowired
     private AddOnRepository addOns;
 
+    @Autowired
+    private com.example.demo.repository.WaiterNotificationRepository notifications;
+
     // =========================
     // Mesero
     // =========================
@@ -83,7 +90,7 @@ public class TableOrderServiceImpl implements TableOrderService {
         if (floor == null || floor < 1) {
             throw ApiException.badRequest("Elige un piso válido.");
         }
-        List<DiningTable> floorTables = tables.findByFloorAndAvailableTrueOrderByIdAsc(floor);
+        List<DiningTable> floorTables = tables.findByFloorOrderByIdAsc(floor);
         if (floorTables.isEmpty()) {
             throw ApiException.notFound("No hay mesas en el piso " + floor + ".");
         }
@@ -92,11 +99,17 @@ public class TableOrderServiceImpl implements TableOrderService {
         Map<Integer, List<TableOrder>> activeByTable = orders.findWithItemsByStatusIn(ACTIVE).stream()
                 .collect(Collectors.groupingBy(o -> o.getTable().getId()));
 
+        Map<Integer, Long> awaitingByTable = orders.findAwaitingPayment().stream()
+                .collect(Collectors.groupingBy(o -> o.getTable().getId(), Collectors.counting()));
+
         Map<Integer, Reservation> upcoming = upcomingReservations(floor);
+        Map<Integer, Reservation> current = currentReservations(floor);
 
         return floorTables.stream().map(t -> {
             List<TableOrder> active = activeByTable.getOrDefault(t.getId(), List.of());
+            int awaiting = awaitingByTable.getOrDefault(t.getId(), 0L).intValue();
             Reservation next = upcoming.get(t.getId());
+            Reservation now = current.get(t.getId());
             return new WaiterTableDTO(
                     t.getId(),
                     t.getFloor(),
@@ -104,8 +117,12 @@ public class TableOrderServiceImpl implements TableOrderService {
                     Boolean.TRUE.equals(t.getAttended()),
                     active.size(),
                     active.stream().anyMatch(TableOrder::isReady),
+                    awaiting,
+                    !active.isEmpty() || awaiting > 0,
                     next != null ? next.getTime() : null,
-                    next != null ? next.getName() : null);
+                    next != null ? next.getName() : null,
+                    now != null ? now.getTime() : null,
+                    now != null ? now.getName() : null);
         }).toList();
     }
 
@@ -133,13 +150,27 @@ public class TableOrderServiceImpl implements TableOrderService {
         return first;
     }
 
+    // Reserva de hoy cuyo turno empezó hace menos de RESERVATION_SLOT_MINUTES
+    private Map<Integer, Reservation> currentReservations(Integer floor) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusMinutes(RESERVATION_SLOT_MINUTES);
+        LocalTime from = start.toLocalDate().equals(now.toLocalDate()) ? start.toLocalTime() : LocalTime.MIN;
+
+        Map<Integer, Reservation> found = new LinkedHashMap<>();
+        for (Reservation r : reservations.findByTableFloorAndDateAndTimeBetweenOrderByTimeDesc(
+                floor, now.toLocalDate(), from, now.toLocalTime())) {
+            found.putIfAbsent(r.getTable().getId(), r);
+        }
+        return found;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<TableOrderDTO> activeOrdersOfTable(Integer tableId) {
         if (tableId == null || !tables.existsById(tableId)) {
             throw ApiException.notFound("La mesa no existe.");
         }
-        return orders.findWithItemsByTableAndStatusIn(tableId, ACTIVE).stream()
+        return orders.findOpenWithItemsByTable(tableId, ACTIVE).stream()
                 .map(this::toDTO)
                 .toList();
     }
@@ -157,11 +188,9 @@ public class TableOrderServiceImpl implements TableOrderService {
             throw ApiException.forbidden("Tu cuenta de mesero está desactivada.");
         }
 
+        // Una mesa ocupada (available = false) sí admite otra ronda
         DiningTable table = tables.findById(request.tableId())
                 .orElseThrow(() -> ApiException.notFound("La mesa " + request.tableId() + " no existe."));
-        if (!Boolean.TRUE.equals(table.getAvailable())) {
-            throw ApiException.conflict("La mesa " + table.getId() + " no está en servicio.");
-        }
 
         List<NewOrderItemDTO> lines = request.items();
         if (lines == null || lines.isEmpty()) {
@@ -242,8 +271,9 @@ public class TableOrderServiceImpl implements TableOrderService {
             order.getItems().add(item);
         }
 
-        // Un pedido nuevo deja la mesa pendiente de atender
+        // Un pedido nuevo deja la mesa pendiente de atender y OCUPADA
         table.setAttended(false);
+        table.setAvailable(false);
         tables.save(table);
 
         return toDTO(orders.save(order));
@@ -270,6 +300,54 @@ public class TableOrderServiceImpl implements TableOrderService {
 
     @Override
     @Transactional
+    public TableOrderDTO pay(Integer orderId, TablePaymentMethod method) {
+        if (method == null) {
+            throw ApiException.badRequest("Elige el método de pago: efectivo o tarjeta.");
+        }
+        TableOrder order = lock(orderId);
+
+        if (order.getStatus() != TableOrderStatus.DONE) {
+            throw ApiException.conflict("Solo se cobran pedidos ya entregados en la mesa.");
+        }
+        if (order.getPaidAt() != null) {
+            throw ApiException.conflict("Este pedido ya se cobró.");
+        }
+
+        order.setPaymentMethod(method);
+        order.setPaidAt(LocalDateTime.now());
+        TableOrder saved = orders.save(order);
+        refreshAvailability(order.getTable());
+        return toDTO(saved);
+    }
+
+    @Override
+    @Transactional
+    public List<TableOrderDTO> payTable(Integer tableId, TablePaymentMethod method) {
+        if (method == null) {
+            throw ApiException.badRequest("Elige el método de pago: efectivo o tarjeta.");
+        }
+        if (tableId == null || !tables.existsById(tableId)) {
+            throw ApiException.notFound("La mesa no existe.");
+        }
+
+        List<TableOrder> pending = orders.lockAwaitingPaymentByTable(tableId);
+        if (pending.isEmpty()) {
+            throw ApiException.conflict("La mesa " + tableId + " no tiene pedidos entregados por cobrar.");
+        }
+
+        // Todos con la misma hora de pago: fue un solo cobro
+        LocalDateTime now = LocalDateTime.now();
+        for (TableOrder order : pending) {
+            order.setPaymentMethod(method);
+            order.setPaidAt(now);
+        }
+        List<TableOrder> saved = orders.saveAll(pending);
+        refreshAvailability(saved.get(0).getTable());
+        return saved.stream().map(this::toDTO).toList();
+    }
+
+    @Override
+    @Transactional
     public TableOrderDTO cancel(Integer orderId) {
         TableOrder order = lock(orderId);
 
@@ -291,12 +369,24 @@ public class TableOrderServiceImpl implements TableOrderService {
     }
 
     // La mesa queda atendida si ya no le queda ningún otro pedido en curso
-    // (con varias rondas, se espera a que terminen todas)
+    // (con varias rondas, se espera a que terminen todas). Además se recalcula
+    // si sigue ocupada (al cancelar el único pedido, queda libre).
     private void closeTableIfFree(TableOrder order) {
         DiningTable table = order.getTable();
         boolean othersActive = orders.existsByTableIdAndStatusInAndIdNot(table.getId(), ACTIVE, order.getId());
         if (!othersActive) {
             table.setAttended(true);
+            tables.save(table);
+        }
+        refreshAvailability(table);
+    }
+
+    // available = la mesa está libre ahora: nada en cocina ni entregado sin cobrar.
+    // La consulta ve los cambios de esta misma transacción (Hibernate guarda antes).
+    private void refreshAvailability(DiningTable table) {
+        boolean free = !orders.isTableOccupied(table.getId(), ACTIVE);
+        if (!Boolean.valueOf(free).equals(table.getAvailable())) {
+            table.setAvailable(free);
             tables.save(table);
         }
     }
@@ -351,7 +441,76 @@ public class TableOrderServiceImpl implements TableOrderService {
             order.setStatus(TableOrderStatus.IN_PROGRESS);
         }
 
+        // Aviso al mesero que tomó el pedido (en la misma transacción)
+        notifyWaiter(order, item);
+
         return toDTO(orders.save(order));
+    }
+
+    // =========================
+    // Bandeja del mesero
+    // =========================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<com.example.demo.dto.TableOrderDTOs.WaiterNotificationDTO> notifications(Integer waiterId) {
+        return notifications.findTop50ByWaiterIdOrderByCreatedAtDescIdDesc(waiterId).stream()
+                .map(n -> new com.example.demo.dto.TableOrderDTOs.WaiterNotificationDTO(
+                        n.getId(), n.getType().name(), n.getTitle(), n.getMessage(),
+                        n.getTableOrderId(), n.getTableId(), n.isRead(), n.getCreatedAt()))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void markNotificationRead(Integer waiterId, Integer notificationId) {
+        com.example.demo.entities.WaiterNotification n = notifications
+                .findByIdAndWaiterId(notificationId, waiterId)
+                .orElseThrow(() -> ApiException.notFound("El aviso no existe."));
+        n.setRead(true);
+        notifications.save(n);
+    }
+
+    @Override
+    @Transactional
+    public void markAllNotificationsRead(Integer waiterId) {
+        notifications.markAllRead(waiterId);
+    }
+
+    // Plato en preparación, plato listo o, si con este plato queda todo listo,
+    // "pedido listo para servir"
+    private void notifyWaiter(TableOrder order, OrderItem item) {
+        Integer tableId = order.getTable().getId();
+        String dish = item.getProduct().getName();
+        com.example.demo.entities.WaiterNotificationType type;
+        String title;
+        String message;
+
+        if (order.isReady()) {
+            type = com.example.demo.entities.WaiterNotificationType.ORDER_READY;
+            title = "Mesa " + tableId + ": pedido listo";
+            message = "El pedido #" + order.getId() + " de la mesa " + tableId
+                    + " está listo en cocina. Llévalo a la mesa.";
+        } else if (item.getStatus() == OrderItemStatus.READY) {
+            type = com.example.demo.entities.WaiterNotificationType.DISH_READY;
+            title = "Mesa " + tableId + ": plato listo";
+            message = "«" + dish + "» (pedido #" + order.getId() + ") está listo.";
+        } else {
+            type = com.example.demo.entities.WaiterNotificationType.DISH_PREPARING;
+            title = "Mesa " + tableId + ": en preparación";
+            message = "La cocina empezó «" + dish + "» (pedido #" + order.getId() + ").";
+        }
+
+        notifications.save(com.example.demo.entities.WaiterNotification.builder()
+                .waiter(order.getWaiter())
+                .type(type)
+                .title(title)
+                .message(message.length() > 255 ? message.substring(0, 255) : message)
+                .tableOrderId(order.getId())
+                .tableId(tableId)
+                .read(false)
+                .createdAt(LocalDateTime.now())
+                .build());
     }
 
     // =========================
@@ -396,6 +555,9 @@ public class TableOrderServiceImpl implements TableOrderService {
                 o.getStatus(),
                 o.isActive() && o.isReady(),
                 cancellable,
+                o.isAwaitingPayment(),
+                o.getPaymentMethod(),
+                o.getPaidAt(),
                 items);
     }
 }

@@ -32,4 +32,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     // "reserva en 2 horas o menos" del portal del mesero)
     List<Reservation> findByTableFloorAndDateAndTimeBetweenOrderByTimeAsc(Integer floor, LocalDate date,
             LocalTime from, LocalTime to);
+
+    // Reservas de un piso cuyo turno ya empezó y sigue en curso (time entre from y to)
+    List<Reservation> findByTableFloorAndDateAndTimeBetweenOrderByTimeDesc(Integer floor, LocalDate date,
+            LocalTime from, LocalTime to);
 }

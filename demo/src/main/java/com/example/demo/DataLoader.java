@@ -427,7 +427,9 @@ public class DataLoader implements CommandLineRunner {
                         }
                 }
                 tableOrderRepository.save(order);
+                // Arranca con un pedido en curso: la mesa está ocupada
                 table.setAttended(false);
+                table.setAvailable(false);
                 diningTableRepository.save(table);
         }
 

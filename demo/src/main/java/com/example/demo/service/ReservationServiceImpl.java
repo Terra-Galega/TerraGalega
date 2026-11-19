@@ -56,6 +56,11 @@ public class ReservationServiceImpl implements ReservationService {
     @Autowired
     private DiningTableRepository diningTableRepository;
 
+    // Mesas ocupadas ahora por un mesero (pedidos de mesa): bloquean los turnos de
+    // hoy que empiezan antes de que pasen SLOT_MINUTES desde que se ocupó la mesa
+    @Autowired
+    private com.example.demo.repository.TableOrderRepository tableOrderRepository;
+
     @Autowired
     private StripeClient stripe;
 
@@ -205,10 +210,13 @@ public class ReservationServiceImpl implements ReservationService {
         }
         // Cuentan las pagadas y las que esperan pago. La mesa del propio cliente no
         // cuenta, así puede conservarla al editar.
-        return reservationRepository.findByDateAndTime(date, time).stream()
+        java.util.Set<Integer> taken = new java.util.LinkedHashSet<>();
+        reservationRepository.findByDateAndTime(date, time).stream()
                 .filter(r -> !r.getClient().getId().equals(clientId))
-                .map(r -> r.getTable().getId())
-                .toList();
+                .forEach(r -> taken.add(r.getTable().getId()));
+        // Una mesa que un mesero acaba de ocupar no se puede reservar para el turno siguiente
+        taken.addAll(blockedByOccupation(date, time).keySet());
+        return List.copyOf(taken);
     }
 
     // --- Stripe ---
@@ -327,16 +335,15 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> ApiException.notFound("Aún no tienes una reserva."));
     }
 
-    // La mesa debe existir en el plano, estar en servicio y tener sillas suficientes
+    // La mesa debe existir en el plano y tener sillas suficientes. available NO se
+    // mira: indica si está ocupada ahora en el salón, y una mesa ocupada hoy se
+    // puede reservar para otro turno. Los choques entre reservas los revisa checkTableFree.
     private DiningTable findTable(Integer tableId, Integer seats) {
         if (tableId == null) {
             throw ApiException.badRequest("Elige una mesa.");
         }
         DiningTable table = diningTableRepository.findById(tableId)
                 .orElseThrow(() -> ApiException.badRequest("La mesa no es válida."));
-        if (!Boolean.TRUE.equals(table.getAvailable())) {
-            throw ApiException.conflict("Esa mesa no está disponible.");
-        }
         if (seats > table.getSeats()) {
             throw ApiException.badRequest(
                     "Esa mesa admite como máximo " + table.getSeats() + " sillas.");
@@ -351,6 +358,45 @@ public class ReservationServiceImpl implements ReservationService {
                 .ifPresent(r -> {
                     throw ApiException.conflict("Esa mesa ya está reservada en esa fecha y hora.");
                 });
+
+        java.time.LocalDateTime until = blockedByOccupation(date, time).get(table.getId());
+        if (until != null) {
+            throw ApiException.conflict("La mesa " + table.getId() + " está ocupada en el restaurante hasta las "
+                    + until.toLocalTime().withSecond(0).withNano(0) + ". Elige un turno más tarde u otra mesa.");
+        }
+    }
+
+    // Mesas ocupadas en el salón que bloquean ese turno: si un mesero ocupó la
+    // mesa a la hora S, queda bloqueada desde S hasta S + SLOT_MINUTES, redondeado
+    // hacia arriba a la siguiente media hora. Devuelve id de la mesa -> hora de desbloqueo.
+    // Ejemplo: ocupada a las 14:25 -> bloqueada hasta las 16:00 (15:00 no, 16:30 sí).
+    private java.util.Map<Integer, java.time.LocalDateTime> blockedByOccupation(LocalDate date, LocalTime time) {
+        java.util.Map<Integer, java.time.LocalDateTime> blocked = new java.util.HashMap<>();
+        if (date == null || time == null) {
+            return blocked;
+        }
+        java.time.LocalDateTime slot = java.time.LocalDateTime.of(date, time);
+        for (Object[] row : tableOrderRepository.findOccupationStarts(java.util.Set.of(
+                com.example.demo.entities.TableOrderStatus.PENDING,
+                com.example.demo.entities.TableOrderStatus.IN_PROGRESS))) {
+            java.time.LocalDateTime since = (java.time.LocalDateTime) row[1];
+            java.time.LocalDateTime until = roundUpToHalfHour(since.plusMinutes(ReservationRules.SLOT_MINUTES));
+            if (!slot.isBefore(since) && slot.isBefore(until)) {
+                blocked.put((Integer) row[0], until);
+            }
+        }
+        return blocked;
+    }
+
+    // 15:55 -> 16:00, 15:20 -> 15:30, 15:30 -> 15:30 (ya es una media hora exacta)
+    private static java.time.LocalDateTime roundUpToHalfHour(java.time.LocalDateTime time) {
+        java.time.LocalDateTime base = time.withSecond(0).withNano(0);
+        boolean exact = base.equals(time) && base.getMinute() % 30 == 0;
+        if (exact) {
+            return base;
+        }
+        int minutesToAdd = 30 - (base.getMinute() % 30);
+        return base.plusMinutes(minutesToAdd);
     }
 
     private ReservationDTO toDTO(Reservation r) {

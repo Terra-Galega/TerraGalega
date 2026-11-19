@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 // API de pedidos de mesa. Ruta: /table-orders.
 // - Mesero (rol WAITER, app móvil): mesas por piso, pedidos de una mesa, crear,
-//   entregar y cancelar.
+//   entregar, cobrar y cancelar.
 // - Cocina (rol KITCHEN, portal web propio): pedidos en curso y estado de cada plato.
 // Los permisos por rol están en SecurityConfig.
 @RestController
@@ -62,11 +62,47 @@ public class TableOrderController {
         return service.deliver(id);
     }
 
+    @Operation(summary = "Charge a delivered order: cash or card (waiter)")
+    @PostMapping("/{id}/pay")
+    public TableOrderDTO pay(@PathVariable Integer id,
+            @RequestBody com.example.demo.dto.TableOrderDTOs.PaymentDTO request) {
+        authenticatedUser.waiter();
+        return service.pay(id, request == null ? null : request.method());
+    }
+
+    @Operation(summary = "Charge every delivered, unpaid order of a table at once (waiter)")
+    @PostMapping("/tables/{tableId}/pay")
+    public List<TableOrderDTO> payTable(@PathVariable Integer tableId,
+            @RequestBody com.example.demo.dto.TableOrderDTOs.PaymentDTO request) {
+        authenticatedUser.waiter();
+        return service.payTable(tableId, request == null ? null : request.method());
+    }
+
     @Operation(summary = "Cancel an order that the kitchen has not started (waiter)")
     @PostMapping("/{id}/cancel")
     public TableOrderDTO cancel(@PathVariable Integer id) {
         authenticatedUser.waiter();
         return service.cancel(id);
+    }
+
+    // ---------- Bandeja del mesero ----------
+
+    @Operation(summary = "Kitchen notices for the logged-in waiter (latest 50)")
+    @GetMapping("/notifications")
+    public List<com.example.demo.dto.TableOrderDTOs.WaiterNotificationDTO> notifications() {
+        return service.notifications(authenticatedUser.waiter().getId());
+    }
+
+    @Operation(summary = "Mark one notice as read (waiter)")
+    @PutMapping("/notifications/{id}/read")
+    public void markRead(@PathVariable Integer id) {
+        service.markNotificationRead(authenticatedUser.waiter().getId(), id);
+    }
+
+    @Operation(summary = "Mark all notices as read (waiter)")
+    @PutMapping("/notifications/read-all")
+    public void markAllRead() {
+        service.markAllNotificationsRead(authenticatedUser.waiter().getId());
     }
 
     // ---------- Cocina ----------

@@ -33,17 +33,58 @@ public interface TableOrderRepository extends JpaRepository<TableOrder, Integer>
             """)
     List<TableOrder> findWithItemsByStatusIn(@Param("statuses") Collection<TableOrderStatus> statuses);
 
-    // Pedidos de una mesa en esos estados, con sus platos (pantalla de la mesa del mesero)
+    // Pantalla de la mesa del mesero: pedidos en curso y los entregados que
+    // faltan por cobrar, con sus platos
     @Query("""
             select distinct o from TableOrder o
             join fetch o.waiter
             left join fetch o.items i
             left join fetch i.product
             left join fetch i.addOns
-            where o.table.id = :tableId and o.status in :statuses
+            where o.table.id = :tableId
+              and (o.status in :statuses
+                   or (o.status = com.example.demo.entities.TableOrderStatus.DONE and o.paidAt is null))
             order by o.startTime asc
             """)
-    List<TableOrder> findWithItemsByTableAndStatusIn(@Param("tableId") Integer tableId,
+    List<TableOrder> findOpenWithItemsByTable(@Param("tableId") Integer tableId,
+            @Param("statuses") Collection<TableOrderStatus> statuses);
+
+    // Pedidos entregados y aún sin cobrar (portal del mesero: "por cobrar")
+    @Query("""
+            select o from TableOrder o join fetch o.table
+            where o.status = com.example.demo.entities.TableOrderStatus.DONE and o.paidAt is null
+            """)
+    List<TableOrder> findAwaitingPayment();
+
+    // "Cobrar mesa": los pedidos entregados por cobrar de una mesa, bloqueados
+    // mientras se cobran (así no se cobran dos veces a la vez)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select o from TableOrder o
+            where o.table.id = :tableId
+              and o.status = com.example.demo.entities.TableOrderStatus.DONE and o.paidAt is null
+            order by o.startTime asc
+            """)
+    List<TableOrder> lockAwaitingPaymentByTable(@Param("tableId") Integer tableId);
+
+    // Mesas ocupadas ahora en el salón y desde cuándo: [id de la mesa, start_time
+    // de su pedido abierto más antiguo]. Abierto = en cocina o entregado sin cobrar.
+    @Query("""
+            select o.table.id, min(o.startTime) from TableOrder o
+            where (o.status in :statuses
+                   or (o.status = com.example.demo.entities.TableOrderStatus.DONE and o.paidAt is null))
+            group by o.table.id
+            """)
+    List<Object[]> findOccupationStarts(@Param("statuses") Collection<TableOrderStatus> statuses);
+
+    // ¿La mesa sigue ocupada? Tiene algo en cocina o algo entregado sin cobrar
+    @Query("""
+            select count(o) > 0 from TableOrder o
+            where o.table.id = :tableId
+              and (o.status in :statuses
+                   or (o.status = com.example.demo.entities.TableOrderStatus.DONE and o.paidAt is null))
+            """)
+    boolean isTableOccupied(@Param("tableId") Integer tableId,
             @Param("statuses") Collection<TableOrderStatus> statuses);
 
     // ¿La mesa tiene otro pedido en curso además de este?

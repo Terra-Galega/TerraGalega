@@ -9,6 +9,6 @@ import com.example.demo.entities.DiningTable;
 @Repository
 public interface DiningTableRepository extends JpaRepository<DiningTable, Integer> {
 
-    // Pedidos de mesa: las mesas en servicio de un piso, por número
-    java.util.List<DiningTable> findByFloorAndAvailableTrueOrderByIdAsc(Integer floor);
+    // Pedidos de mesa: todas las mesas de un piso (libres y ocupadas), por número
+    java.util.List<DiningTable> findByFloorOrderByIdAsc(Integer floor);
 }

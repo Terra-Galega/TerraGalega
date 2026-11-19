@@ -45,7 +45,9 @@ import lombok.ToString;
         @Index(name = "idx_table_orders_status_start", columnList = "status, start_time"),
         @Index(name = "idx_table_orders_start", columnList = "start_time"),
         @Index(name = "idx_table_orders_table", columnList = "dining_table_id"),
-        @Index(name = "idx_table_orders_waiter", columnList = "waiter_id")
+        @Index(name = "idx_table_orders_waiter", columnList = "waiter_id"),
+        // Pedidos entregados por cobrar de cada mesa
+        @Index(name = "idx_table_orders_table_status_paid", columnList = "dining_table_id, status, paid_at")
 })
 public class TableOrder {
 
@@ -77,6 +79,15 @@ public class TableOrder {
     @Column(nullable = false, length = 20)
     private TableOrderStatus status;
 
+    // Cobro: después de entregarlo (DONE) el mesero registra cómo pagó la mesa.
+    // null = entregado pero aún por cobrar.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method", length = 10)
+    private TablePaymentMethod paymentMethod;
+
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
+
     // Platos del pedido. Se guardan y borran junto con el pedido. Es un Set
     // (ordenado por id) para poder traer platos y adicionales en una sola
     // consulta sin que los platos salgan repetidos.
@@ -89,6 +100,11 @@ public class TableOrder {
     public boolean isReady() {
         return !items.isEmpty()
                 && items.stream().allMatch(i -> i.getStatus() == OrderItemStatus.READY);
+    }
+
+    // Entregado pero aún sin cobrar: el mesero debe registrar el método de pago
+    public boolean isAwaitingPayment() {
+        return status == TableOrderStatus.DONE && paidAt == null;
     }
 
     // Sigue en curso: la cocina lo muestra y el mesero lo ve en la mesa

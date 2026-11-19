@@ -20,6 +20,10 @@ public final class ReservationRules {
             LocalTime.of(16, 30), LocalTime.of(18, 0), LocalTime.of(19, 30),
             LocalTime.of(21, 0));
 
+    // Lo que dura un turno (los turnos van cada hora y media). También es el tiempo
+    // que una mesa ocupada por un mesero queda bloqueada para reservas de hoy.
+    public static final int SLOT_MINUTES = 90;
+
     public static final int NAME_MAX = 60;
     // Mesas de celebración: hasta 20 sillas
     public static final int MIN_SEATS = 1;
