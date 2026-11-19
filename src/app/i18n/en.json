@@ -271,6 +271,7 @@
   "login.login_forms.login_forms.cliente_de_prueba": "Test customer:",
   "login.login_forms.login_forms.admin_de_prueba": "Test admin:",
   "login.login_forms.login_forms.operador_de_prueba": "Test operator:",
+  "login.login_forms.login_forms.cocina_de_prueba": "Test kitchen:",
   "login.login_forms.login_forms.revisa_tu_correo": "Check your email",
   "login.login_forms.login_forms.enviamos_un_enlace_de_confirmacion_a": "We sent a confirmation link to",
   "login.login_forms.login_forms.abre_el_enlace_para_activar_tu_cuenta_vence_en_24_horas": ". Open the link to activate your account; it expires in 24 hours.",

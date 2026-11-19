@@ -271,6 +271,7 @@
   "login.login_forms.login_forms.cliente_de_prueba": "Client de prova:",
   "login.login_forms.login_forms.admin_de_prueba": "Administrador de prova:",
   "login.login_forms.login_forms.operador_de_prueba": "Operador de prova:",
+  "login.login_forms.login_forms.cocina_de_prueba": "Cuina de prova:",
   "login.login_forms.login_forms.revisa_tu_correo": "Revisa el teu correu",
   "login.login_forms.login_forms.enviamos_un_enlace_de_confirmacion_a": "Hem enviat un enllaç de confirmació a",
   "login.login_forms.login_forms.abre_el_enlace_para_activar_tu_cuenta_vence_en_24_horas": ". Obre l'enllaç per activar el compte; caduca al cap de 24 hores.",

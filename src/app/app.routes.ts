@@ -7,6 +7,7 @@ import {
   clientGuard,
   completeProfileGuard,
   operatorGuard,
+  kitchenGuard,
   redirectByRoleGuard,
 } from './guards/role.guards';
 
@@ -200,6 +201,15 @@ export const routes: Routes = [
         (m) => m.OperatorComponent,
       ),
     canActivate: [operatorGuard],
+  },
+  {
+    // Portal de cocina: pedidos de mesa que envían los meseros. Solo la cuenta
+    // de cocina (rol KITCHEN). Carga diferida.
+    path: 'kitchen',
+    title: 'Cocina',
+    loadComponent: () =>
+      import('./pages/kitchen/kitchen.component').then((m) => m.KitchenComponent),
+    canActivate: [kitchenGuard],
   },
   {
     // Página de error genérica; recibe estado y mensaje por queryParams.

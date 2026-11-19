@@ -272,6 +272,7 @@
   "login.login_forms.login_forms.cliente_de_prueba": "Cliente de prueba:",
   "login.login_forms.login_forms.admin_de_prueba": "Admin de prueba:",
   "login.login_forms.login_forms.operador_de_prueba": "Operador de prueba:",
+  "login.login_forms.login_forms.cocina_de_prueba": "Cocina de prueba:",
   "login.login_forms.login_forms.revisa_tu_correo": "Revisa tu correo",
   "login.login_forms.login_forms.enviamos_un_enlace_de_confirmacion_a": "Enviamos un enlace de confirmación a",
   "login.login_forms.login_forms.abre_el_enlace_para_activar_tu_cuenta_vence_en_24_horas": ". Abre el enlace para activar tu cuenta; vence en 24 horas.",

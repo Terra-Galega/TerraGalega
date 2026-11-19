@@ -12,13 +12,6 @@
   <!--Mostrar todos los pedidos activos con los que el operador puede interactuar-->
   <!-- Margen lateral: 16 px en móvil, 32 px desde tablet -->
   <main class="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-16">
-    <!-- Domicilios (lo de siempre) o la pantalla de cocina con los pedidos de mesa -->
-    <app-segmented-control id="operator-section" class="block mb-8" label="Sección del panel"
-      [options]="sections" [value]="section" (valueChange)="section = $any($event)"></app-segmented-control>
-
-    @if (section === 'kitchen') {
-    <app-operator-kitchen></app-operator-kitchen>
-    } @else {
     <app-operator-tracking></app-operator-tracking>
     <header class="mb-8">
       <h1
@@ -38,7 +31,6 @@
       (sendRequested)="openSendModal($event)"
       (detailRequested)="openDetail($event)"
     ></app-operator-orders>
-    }
   </main>
 </div>
 

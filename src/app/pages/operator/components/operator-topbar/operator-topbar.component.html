@@ -23,7 +23,7 @@
 
       <!-- Identifica el área actual sin ocupar espacio en pantallas extra pequeñas. -->
       <span class="hidden sm:block text-xs tracking-widest uppercase">
-        PANEL OPERADOR
+        {{ panelLabel }}
       </span>
     </div>
 
@@ -42,10 +42,12 @@
           <p class="text-[15px] font-semibold truncate" style="color: #f5f2eb">
             {{ operatorName }}
           </p>
-          <p class="text-[13px]" style="color: rgba(245, 242, 235, 0.6)">
-            <!-- El símbolo @ se codifica como entidad HTML para evitar conflictos con la sintaxis de Angular. -->
-            &#64;{{ operatorUsername }}
-          </p>
+          @if (operatorUsername) {
+            <p class="text-[13px]" style="color: rgba(245, 242, 235, 0.6)">
+              <!-- El símbolo @ se codifica como entidad HTML para evitar conflictos con la sintaxis de Angular. -->
+              &#64;{{ operatorUsername }}
+            </p>
+          }
         </div>
       </div>
 

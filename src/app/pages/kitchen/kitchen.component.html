@@ -1,0 +1,9 @@
+<div class="min-h-screen font-sans text-charcoal" style="background-color: #f5f2eb">
+  <!-- Misma barra que el panel del operador, con el nombre de este portal -->
+  <app-operator-topbar panelLabel="PANEL COCINA" [operatorName]="name"
+    (logoutClicked)="logout()"></app-operator-topbar>
+
+  <main class="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-16">
+    <app-kitchen-board></app-kitchen-board>
+  </main>
+</div>

@@ -10,16 +10,16 @@ import { getErrorMessage } from '../../../../utils/http-error';
 // Cada cuánto se consulta la cocina (el resto del panel usa el mismo mecanismo)
 const REFRESH_MS = 3000;
 
-// Pantalla de cocina: pedidos de mesa que mandan los meseros desde la app.
+// Tablero de la cocina (portal /kitchen): pedidos de mesa que mandan los meseros desde la app.
 // Se actualiza sola cada 3 s (y al volver a la pestaña). La cocina avanza cada
 // plato: En espera -> En preparación -> Listo. Cuando todo está listo, el pedido
 // queda "Listo, esperando al mesero" hasta que él lo entregue desde la app.
 @Component({
-  selector: 'app-operator-kitchen',
+  selector: 'app-kitchen-board',
   imports: [DatePipe],
-  templateUrl: './operator-kitchen.component.html',
+  templateUrl: './kitchen-board.component.html',
 })
-export class OperatorKitchenComponent implements OnInit {
+export class KitchenBoardComponent implements OnInit {
   private service = inject(TableOrderService);
   private destroyRef = inject(DestroyRef);
 

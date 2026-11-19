@@ -21,7 +21,7 @@ import { CreateClient } from '../models/client';
 // solo lee sus datos para saber si venció y qué rol tiene el usuario.
 
 // Tipos de sesión de la web (el domiciliario usa la app móvil).
-export type SessionType = 'admin' | 'client' | 'operator';
+export type SessionType = 'admin' | 'client' | 'operator' | 'kitchen';
 
 // Datos de la sesión que usa el front para mostrar el nombre y decidir rutas.
 export interface Session {
@@ -77,6 +77,8 @@ const HOME_BY_TYPE: Record<SessionType, string> = {
   admin: '/admin',
   operator: '/operator',
   client: '/account',
+  // Cuenta de cocina: su propio portal con los pedidos de mesa
+  kitchen: '/kitchen',
 };
 
 // Convierte el rol del back en el tipo de sesión del front.
@@ -88,6 +90,8 @@ function sessionType(role: string | undefined): SessionType | null {
       return 'client';
     case 'OPERATOR':
       return 'operator';
+    case 'KITCHEN':
+      return 'kitchen';
     default:
       return null;
   }

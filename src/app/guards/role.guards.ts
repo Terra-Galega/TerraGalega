@@ -29,7 +29,7 @@ export const clientAreaGuard: CanActivateFn = () => {
   }
 
   const type = auth.session!.type;
-  if (type === 'admin' || type === 'operator') {
+  if (type === 'admin' || type === 'operator' || type === 'kitchen') {
     return router.createUrlTree([auth.homeRoute()]);
   }
 
@@ -83,6 +83,9 @@ export const adminGuard = requireRole('admin');
 
 // Panel del operador
 export const operatorGuard = requireRole('operator');
+
+// Portal de cocina (solo la cuenta de cocina)
+export const kitchenGuard = requireRole('kitchen');
 
 // Páginas del cliente con sesión (cuenta, editar cuenta, cupones)
 export const clientGuard = requireRole('client');
