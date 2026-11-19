@@ -8,9 +8,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 import org.springframework.core.io.ByteArrayResource;
-
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -48,6 +46,12 @@ public class EmailService {
                 + "El enlace vence en 24 horas. Si no creaste esta cuenta, ignora este mensaje.";
 
         send(to, "Confirma tu cuenta en Terra Galega", plain, html);
+    }
+
+    public void sendMicrosoftCode(String to, String code) throws MessagingException {
+        String message = "Introduce este código en Terra Galega para asociar tu cuenta Microsoft: " + code
+                + ". Vence en 10 minutos. Si no lo solicitaste, ignora este mensaje.";
+        send(to, "Confirma tu acceso con Microsoft", message, "<p>" + message + "</p>");
     }
 
     // Factura electrónica del pedido, adjunta en PDF: plantilla

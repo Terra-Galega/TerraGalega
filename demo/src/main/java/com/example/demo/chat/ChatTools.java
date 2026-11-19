@@ -260,7 +260,7 @@ public class ChatTools {
         result.put("hora", created.getTime().toString());
         result.put("personas", created.getSeats());
         result.put("anticipo", money(created.getDepositAmount()));
-        result.put("siguientePaso", "El cliente debe pagar el anticipo con el botón «Pagar anticipo» del chat "
+        result.put("siguientePaso", "El cliente debe pagar el anticipo con el botón \"Pagar anticipo\" del chat "
                 + "en los próximos 30 minutos; si no, la reserva se cancela sola.");
         return result;
     }

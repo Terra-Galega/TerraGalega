@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.AuthResponseDTO;
 import com.example.demo.dto.GoogleLoginRequestDTO;
+import com.example.demo.dto.MicrosoftLoginRequestDTO;
+import com.example.demo.service.MicrosoftAuthService;
+import com.example.demo.errors.ApiException;
 import com.example.demo.service.GoogleAuthService;
 import com.example.demo.dto.LoginRequestDTO;
 import com.example.demo.dto.LoginResponseDTO;
@@ -58,6 +61,17 @@ public class AuthController {
         return googleAuthService.login(request == null ? null : request.idToken());
     }
 
+    @Autowired
+    private MicrosoftAuthService microsoftAuthService;
+
+    @SecurityRequirements
+    @Operation(summary = "Sign up or log in with a Microsoft ID token")
+    @PostMapping("/microsoft")
+    public AuthResponseDTO microsoft(@RequestBody MicrosoftLoginRequestDTO request) {
+        return microsoftAuthService.login(request).orElseThrow(() -> ApiException.emailNotVerified(
+                "Introduce el código que enviamos a tu correo para vincular tu cuenta Microsoft."));
+    }
+
     // Registra un cliente. No inicia sesión: primero debe confirmar su correo
     // con el enlace que se le envía.
     @SecurityRequirements
@@ -91,8 +105,10 @@ public class AuthController {
         return authService.currentUser(authenticatedUser.email());
     }
 
-    // Renueva el JWT antes de que venza, para no cerrar la sesión de quien la está usando.
-    // Exige un token todavía válido: con uno vencido hay que iniciar sesión de nuevo.
+    // Renueva el JWT antes de que venza, para no cerrar la sesión de quien la está
+    // usando.
+    // Exige un token todavía válido: con uno vencido hay que iniciar sesión de
+    // nuevo.
     @Operation(summary = "Renew the JWT of the logged-in user before it expires")
     @PostMapping("/refresh")
     public AuthResponseDTO refresh() {

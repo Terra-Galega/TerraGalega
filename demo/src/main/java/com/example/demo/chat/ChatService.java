@@ -160,7 +160,7 @@ public class ChatService {
                 - Llama a crear_reserva solo después de que el cliente confirme explícitamente, con
                   anticipoAceptado = true. Si dio un motivo (cumpleaños, grado...) pásalo en tematica;
                   si dio un nombre para la reserva, en nombre.
-                - Al crearla, dile que pague el anticipo con el botón «Pagar anticipo» en los próximos
+                - Al crearla, dile que pague el anticipo con el botón "Pagar anticipo" en los próximos
                   30 minutos o la reserva se cancela.
                 - Cada cliente tiene máximo una reserva. Para editarla o cancelarla, que vaya a la página de Reservas.
 
