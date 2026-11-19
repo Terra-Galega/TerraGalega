@@ -4,6 +4,7 @@ import { PageTitleStrategy } from './services/page-title.strategy';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { busyInterceptor } from './interceptors/busy.interceptor';
 import { routes } from './app.routes';
 import {
   ArcElement,
@@ -57,8 +58,9 @@ export const appConfig: ApplicationConfig = {
     // Título de cada página ("Menú - Terra Galega") y aviso al lector de pantalla al navegar
     { provide: TitleStrategy, useClass: PageTitleStrategy },
     // Activa HttpClient para consumir la API con dos interceptores, que se ejecutan en orden:
+    // busyInterceptor deshabilita los botones mientras haya un POST/PUT/PATCH/DELETE en curso;
     // authInterceptor agrega el JWT a cada petición; errorInterceptor maneja los 401/403.
-    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
+    provideHttpClient(withInterceptors([busyInterceptor, authInterceptor, errorInterceptor])),
     // Chart.js: se registran solo las piezas que usa el dashboard (barras, líneas,
     // dona, ejes y tooltip) para no cargar toda la librería en el bundle.
     provideCharts({

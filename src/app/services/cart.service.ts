@@ -1,6 +1,7 @@
 import { API_URL } from '../api-url';
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { SKIP_BUSY } from '../interceptors/busy.interceptor';
 import {
   BehaviorSubject,
   EMPTY,
@@ -35,6 +36,10 @@ export function unavailableMessage(names: string[]): string {
 // Carrito de quien aún no ha iniciado sesión
 const GUEST_KEY = 'terragalega_cart';
 // Carrito compartido con la app (vive en Postgres)
+// El carrito se actualiza primero en pantalla y se guarda en segundo plano:
+// esas peticiones no deben deshabilitar los botones de la página (ver BusyService).
+const BACKGROUND = { context: new HttpContext().set(SKIP_BUSY, true) };
+
 const CART_API = `${API_URL}/cart`;
 // Cada cuánto se revisa si el carrito cambió desde otro dispositivo
 const REFRESH_MS = 10_000;
@@ -97,7 +102,7 @@ export class CartService {
           productId: product.id,
           quantity,
           addOnIds: addOns.map((addOn) => addOn.id),
-        }),
+        }, BACKGROUND),
       );
     }
   }
@@ -132,6 +137,7 @@ export class CartService {
       this.sync(
         this.http.delete<CartItem[]>(
           `${CART_API}/me/items/${encodeURIComponent(id)}`,
+          BACKGROUND,
         ),
       );
     }
@@ -142,7 +148,7 @@ export class CartService {
     this.setItems([]);
 
     if (this.clientId !== null) {
-      this.sync(this.http.delete<CartItem[]>(`${CART_API}/me`));
+      this.sync(this.http.delete<CartItem[]>(`${CART_API}/me`, BACKGROUND));
     }
   }
 
@@ -249,6 +255,7 @@ export class CartService {
               quantity: item.quantity,
               addOnIds: item.addOns.map((addOn) => addOn.id),
             })),
+            BACKGROUND,
           ),
         );
       } else {

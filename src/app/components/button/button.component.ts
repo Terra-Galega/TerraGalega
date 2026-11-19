@@ -1,5 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, Input, inject } from '@angular/core';
+import { BusyService } from '../../services/busy.service';
 import { Params, RouterLink } from '@angular/router';
 
 // Define las variantes visuales permitidas; cada una se corresponde con una clase .btn--<variante> en el SCSS.
@@ -46,6 +47,15 @@ export class ButtonComponent implements AfterViewChecked {
   @Input() fullWidth = false;
   // Si es true, el botón se deshabilita y no responde a clics.
   @Input() disabled = false;
+  // Si es true, el botón sigue activo mientras se guarda algo (p. ej. "Cerrar").
+  @Input() ignoreBusy = false;
+
+  // Mientras haya una petición que crea, edita o borra, el botón también se deshabilita
+  protected busy = inject(BusyService);
+
+  get isDisabled(): boolean {
+    return this.disabled || (!this.ignoreBusy && this.busy.busyVisible());
+  }
 
   // Si se define, se renderiza un <a> con routerLink en lugar de un <button>
   @Input() routerLink?: string | any[];
