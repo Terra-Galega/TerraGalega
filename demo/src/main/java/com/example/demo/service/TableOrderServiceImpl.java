@@ -20,6 +20,7 @@ import com.example.demo.dto.TableOrderDTOs.NewTableOrderDTO;
 import com.example.demo.dto.TableOrderDTOs.OrderItemDTO;
 import com.example.demo.dto.TableOrderDTOs.TableOrderDTO;
 import com.example.demo.dto.TableOrderDTOs.WaiterTableDTO;
+import com.example.demo.entities.AddOn;
 import com.example.demo.entities.DiningTable;
 import com.example.demo.entities.OrderItem;
 import com.example.demo.entities.OrderItemStatus;
@@ -29,6 +30,7 @@ import com.example.demo.entities.TableOrder;
 import com.example.demo.entities.TableOrderStatus;
 import com.example.demo.entities.Waiter;
 import com.example.demo.errors.ApiException;
+import com.example.demo.repository.AddOnRepository;
 import com.example.demo.repository.DiningTableRepository;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.ReservationRepository;
@@ -51,6 +53,7 @@ public class TableOrderServiceImpl implements TableOrderService {
     private static final int MAX_LINES = 50;
     private static final int MAX_QUANTITY = 99;
     private static final int NOTES_MAX = 200;
+    private static final int MAX_ADD_ONS = 20;
 
     @Autowired
     private TableOrderRepository orders;
@@ -66,6 +69,9 @@ public class TableOrderServiceImpl implements TableOrderService {
 
     @Autowired
     private ReservationRepository reservations;
+
+    @Autowired
+    private AddOnRepository addOns;
 
     // =========================
     // Mesero
@@ -200,13 +206,40 @@ public class TableOrderServiceImpl implements TableOrderService {
                         + NOTES_MAX + " caracteres.");
             }
 
-            order.getItems().add(OrderItem.builder()
+            OrderItem item = OrderItem.builder()
                     .order(order)
                     .product(product)
                     .quantity(quantity)
                     .notes(notes)
                     .status(OrderItemStatus.PENDING)
-                    .build());
+                    .build();
+
+            // Adicionales: deben existir, estar activos y ser de la categoría del
+            // plato (misma regla que el checkout a domicilio). Repetidos cuentan una vez.
+            if (line.addOnIds() != null) {
+                if (line.addOnIds().size() > MAX_ADD_ONS) {
+                    throw ApiException.badRequest("«" + product.getName() + "» no puede llevar más de "
+                            + MAX_ADD_ONS + " adicionales.");
+                }
+                for (Integer addOnId : new java.util.LinkedHashSet<>(line.addOnIds())) {
+                    if (addOnId == null) {
+                        throw ApiException.badRequest("Hay un adicional sin elegir en «" + product.getName() + "».");
+                    }
+                    AddOn addOn = addOns.findById(addOnId)
+                            .orElseThrow(() -> ApiException.notFound("El adicional " + addOnId + " no existe."));
+                    if (!Boolean.TRUE.equals(addOn.getActive())) {
+                        throw ApiException.conflict("El adicional «" + addOn.getName() + "» no está disponible.");
+                    }
+                    boolean allowed = product.getCategory() != null && addOn.getCategories().stream()
+                            .anyMatch(c -> c.getId().equals(product.getCategory().getId()));
+                    if (!allowed) {
+                        throw ApiException.badRequest("«" + addOn.getName() + "» no se puede agregar a «"
+                                + product.getName() + "».");
+                    }
+                    item.getAddOns().add(addOn);
+                }
+            }
+            order.getItems().add(item);
         }
 
         // Un pedido nuevo deja la mesa pendiente de atender
@@ -347,6 +380,7 @@ public class TableOrderServiceImpl implements TableOrderService {
                         i.getProduct().getName(),
                         i.getQuantity(),
                         i.getNotes(),
+                        i.getAddOns().stream().map(AddOn::getName).toList(),
                         i.getStatus()))
                 .toList();
         boolean cancellable = o.getStatus() == TableOrderStatus.PENDING

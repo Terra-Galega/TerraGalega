@@ -37,3 +37,4 @@ build/
 mydatabase*.db
 testdb*.db
 .env
+application.properties

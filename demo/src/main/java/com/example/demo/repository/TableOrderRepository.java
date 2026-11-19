@@ -27,6 +27,7 @@ public interface TableOrderRepository extends JpaRepository<TableOrder, Integer>
             join fetch o.waiter
             left join fetch o.items i
             left join fetch i.product
+            left join fetch i.addOns
             where o.status in :statuses
             order by o.startTime asc
             """)
@@ -38,6 +39,7 @@ public interface TableOrderRepository extends JpaRepository<TableOrder, Integer>
             join fetch o.waiter
             left join fetch o.items i
             left join fetch i.product
+            left join fetch i.addOns
             where o.table.id = :tableId and o.status in :statuses
             order by o.startTime asc
             """)

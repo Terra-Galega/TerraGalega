@@ -15,8 +15,8 @@ public final class TableOrderDTOs {
 
     // ---------- Lo que envía el mesero ----------
 
-    // Un plato del pedido nuevo
-    public record NewOrderItemDTO(Integer productId, Integer quantity, String notes) {
+    // Un plato del pedido nuevo. addOnIds: adicionales de su categoría (opcional)
+    public record NewOrderItemDTO(Integer productId, Integer quantity, String notes, List<Integer> addOnIds) {
     }
 
     // POST /table-orders. El mesero sale del token, no se envía.
@@ -35,6 +35,8 @@ public final class TableOrderDTOs {
             String productName,
             Integer quantity,
             String notes,
+            // Nombres de los adicionales, en orden alfabético
+            List<String> addOns,
             OrderItemStatus status) {
     }
 

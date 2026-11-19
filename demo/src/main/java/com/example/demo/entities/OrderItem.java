@@ -1,5 +1,8 @@
 package com.example.demo.entities;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +14,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -27,7 +33,7 @@ import lombok.ToString;
 // No confundir con OrderDetail, que es la línea de un pedido a domicilio.
 @Getter
 @Setter
-@ToString(exclude = { "order", "product" })
+@ToString(exclude = { "order", "product", "addOns" })
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -64,4 +70,15 @@ public class OrderItem {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private OrderItemStatus status;
+
+    // Adicionales del plato (opcionales), solo los de su categoría, igual que en
+    // los pedidos a domicilio. Tabla intermedia order_item_add_ons. Es un Set
+    // para poder traerlo en la misma consulta que los platos (sin N+1).
+    @ManyToMany
+    @JoinTable(name = "order_item_add_ons",
+            joinColumns = @JoinColumn(name = "order_item_id"),
+            inverseJoinColumns = @JoinColumn(name = "add_on_id"))
+    @OrderBy("name ASC")
+    @Builder.Default
+    private Set<AddOn> addOns = new LinkedHashSet<>();
 }

@@ -1,8 +1,8 @@
 package com.example.demo.entities;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -77,11 +77,13 @@ public class TableOrder {
     @Column(nullable = false, length = 20)
     private TableOrderStatus status;
 
-    // Platos del pedido. Se guardan y borran junto con el pedido.
+    // Platos del pedido. Se guardan y borran junto con el pedido. Es un Set
+    // (ordenado por id) para poder traer platos y adicionales en una sola
+    // consulta sin que los platos salgan repetidos.
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     @Builder.Default
-    private List<OrderItem> items = new ArrayList<>();
+    private Set<OrderItem> items = new LinkedHashSet<>();
 
     // Todos los platos están listos (READY): esperando en cocina al mesero
     public boolean isReady() {
