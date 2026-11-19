@@ -143,9 +143,14 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/google`, { idToken });
   }
 
-  microsoftLogin(idToken: string, confirmationCode?: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/microsoft`, { idToken, confirmationCode });
-  }
+  // LOGIN CON MICROSOFT DESACTIVADO (no se puede usar).
+  // La universidad no nos da permisos en Azure (Microsoft Entra ID) para registrar la
+  // aplicación y obtener el Client ID, así que no lo podemos usar. También se intentó
+  // con una cuenta personal de Microsoft, pero tampoco lo permitió.
+  // Se deja comentado por si en el futuro se consiguen los permisos.
+  // microsoftLogin(idToken: string, confirmationCode?: string): Observable<LoginResponse> {
+    // return this.http.post<LoginResponse>(`${this.apiUrl}/microsoft`, { idToken, confirmationCode });
+  // }
 
   // ¿El cliente con sesión debe completar su perfil antes de seguir?
   get needsProfile(): boolean {
