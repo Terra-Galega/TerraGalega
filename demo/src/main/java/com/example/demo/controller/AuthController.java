@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.AuthResponseDTO;
 import com.example.demo.dto.GoogleLoginRequestDTO;
-import com.example.demo.dto.MicrosoftLoginRequestDTO;
-import com.example.demo.service.MicrosoftAuthService;
+// import com.example.demo.dto.MicrosoftLoginRequestDTO;
+// import com.example.demo.service.MicrosoftAuthService;
 import com.example.demo.errors.ApiException;
 import com.example.demo.service.GoogleAuthService;
 import com.example.demo.dto.LoginRequestDTO;
@@ -61,16 +61,21 @@ public class AuthController {
         return googleAuthService.login(request == null ? null : request.idToken());
     }
 
-    @Autowired
-    private MicrosoftAuthService microsoftAuthService;
-
-    @SecurityRequirements
-    @Operation(summary = "Sign up or log in with a Microsoft ID token")
-    @PostMapping("/microsoft")
-    public AuthResponseDTO microsoft(@RequestBody MicrosoftLoginRequestDTO request) {
-        return microsoftAuthService.login(request).orElseThrow(() -> ApiException.emailNotVerified(
-                "Introduce el código que enviamos a tu correo para vincular tu cuenta Microsoft."));
-    }
+    // LOGIN CON MICROSOFT DESACTIVADO (no se puede usar).
+    // La universidad no nos da permisos en Azure (Microsoft Entra ID) para registrar la
+    // aplicación y obtener el Client ID, así que no lo podemos usar. También se intentó
+    // con una cuenta personal de Microsoft, pero tampoco lo permitió.
+    // Se deja comentado por si en el futuro se consiguen los permisos.
+    // @Autowired
+    // private MicrosoftAuthService microsoftAuthService;
+//
+    // @SecurityRequirements
+    // @Operation(summary = "Sign up or log in with a Microsoft ID token")
+    // @PostMapping("/microsoft")
+    // public AuthResponseDTO microsoft(@RequestBody MicrosoftLoginRequestDTO request) {
+        // return microsoftAuthService.login(request).orElseThrow(() -> ApiException.emailNotVerified(
+                // "Introduce el código que enviamos a tu correo para vincular tu cuenta Microsoft."));
+    // }
 
     // Registra un cliente. No inicia sesión: primero debe confirmar su correo
     // con el enlace que se le envía.

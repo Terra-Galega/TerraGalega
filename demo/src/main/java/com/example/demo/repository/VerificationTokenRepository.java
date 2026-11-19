@@ -26,10 +26,15 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
     // Borra todos los tokens de un usuario
     void deleteByUser(UserEntity user);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<VerificationToken> findByMicrosoftIdentity(String identity);
-
-    @Modifying
-    @Query("delete from VerificationToken t where t.microsoftIdentity is not null and t.expiresAt < ?1")
-    void removeExpiredMicrosoft(LocalDateTime now);
+    // LOGIN CON MICROSOFT DESACTIVADO (no se puede usar).
+    // La universidad no nos da permisos en Azure (Microsoft Entra ID) para registrar la
+    // aplicación y obtener el Client ID, así que no lo podemos usar. También se intentó
+    // con una cuenta personal de Microsoft, pero tampoco lo permitió.
+    // Se deja comentado por si en el futuro se consiguen los permisos.
+    // @Lock(LockModeType.PESSIMISTIC_WRITE)
+    // Optional<VerificationToken> findByMicrosoftIdentity(String identity);
+//
+    // @Modifying
+    // @Query("delete from VerificationToken t where t.microsoftIdentity is not null and t.expiresAt < ?1")
+    // void removeExpiredMicrosoft(LocalDateTime now);
 }
