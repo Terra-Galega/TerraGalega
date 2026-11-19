@@ -2,7 +2,7 @@
 <section id="kitchen" aria-labelledby="kitchen-title">
   <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
     <div>
-      <h1 id="kitchen-title" class="font-serif text-3xl font-semibold text-charcoal">Cocina · pedidos de mesa</h1>
+      <h1 id="kitchen-title" class="font-serif text-3xl font-semibold text-charcoal">Cocina - pedidos de mesa</h1>
       <p class="mt-1 text-[15px]" style="color: rgba(44, 44, 44, 0.6)">
         Los envían los meseros desde la app. Marca cada plato en preparación y luego listo.
       </p>
@@ -10,7 +10,7 @@
     <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)" aria-live="polite">
       {{ orderCount }} {{ orderCount === 1 ? 'pedido' : 'pedidos' }} en curso
       @if (checkedAt) {
-        · actualizado {{ checkedAt | date: 'HH:mm:ss' }}
+        - actualizado {{ checkedAt | date: 'HH:mm:ss' }}
       }
     </p>
   </header>
@@ -47,11 +47,11 @@
                   <p class="text-[15px] font-semibold text-charcoal">
                     Pedido #{{ order.id }}
                     @if (table.orders.length > 1) {
-                      <span class="font-normal" style="color: rgba(44, 44, 44, 0.55)">· ronda {{ i + 1 }}</span>
+                      <span class="font-normal" style="color: rgba(44, 44, 44, 0.55)">- ronda {{ i + 1 }}</span>
                     }
                   </p>
                   <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
-                    Llegó {{ order.startTime | date: 'HH:mm' }} · hace {{ minutesSince(order.startTime) }} min ·
+                    Llegó {{ order.startTime | date: 'HH:mm' }} - hace {{ minutesSince(order.startTime) }} min -
                     {{ order.waiterName }}
                   </p>
                 </div>
