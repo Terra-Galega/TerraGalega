@@ -1,0 +1,69 @@
+.festival-art {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 40% 30%, #494337, #272b27 75%);
+  color: #f5f2eb;
+  --engraving-ink: #f5f2eb;
+  --engraving-gold: #d4b477;
+}
+
+.festival-rule {
+  position: absolute;
+  inset: 8%;
+  border: 1px solid rgb(212 180 119 / 0.35);
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgb(212 180 119 / 0.12);
+  }
+}
+
+.festival-primary,
+.festival-secondary {
+  position: absolute;
+  display: block;
+  aspect-ratio: 1;
+}
+
+.festival-primary {
+  width: 32%;
+  top: 16%;
+  left: 25%;
+  transform: rotate(-7deg);
+}
+
+.festival-secondary {
+  width: 19%;
+  top: 32%;
+  right: 22%;
+  transform: rotate(10deg);
+  opacity: 0.8;
+}
+
+.festival-signature,
+.festival-caption {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  text-align: center;
+}
+
+.festival-signature {
+  bottom: 23%;
+  font: italic clamp(24px, 3vw, 42px) Georgia, serif;
+}
+
+.festival-caption {
+  bottom: 14%;
+  font-size: clamp(8px, 1vw, 11px);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #d4b477;
+}
+
+@media (max-width: 767px) {
+  .festival-primary { width: 27%; top: 12%; }
+  .festival-secondary { width: 16%; top: 26%; }
+  .festival-signature { bottom: 23%; }
+}

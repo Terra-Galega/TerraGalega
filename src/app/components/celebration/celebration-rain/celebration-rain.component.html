@@ -1,0 +1,4 @@
+@if (celebration(); as c) {
+  <app-celebration-canvas [celebration]="c" [forceMotion]="forceMotion()"
+    [onLight]="theme() === 'light'" [keepGoing]="true" [startAcross]="true" />
+}

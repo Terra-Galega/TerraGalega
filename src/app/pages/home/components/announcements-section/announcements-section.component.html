@@ -1,7 +1,8 @@
+@let items = slides();
 <!-- Carrusel de anuncios: solo existe si hay al menos uno.
      Mismo fondo que "Favoritos de la casa" y sin espacio inferior: las dos secciones se leen
      como un solo bloque con un único respiro entre ellas. -->
-@if (announcements.length > 0) {
+@if (items.length > 0) {
 <section class="section-y section-y--flush-bottom bg-cream" aria-roledescription="carousel" [attr.aria-label]="'home.announcements_section.announcements_section.anuncios' | t">
   <div class="max-w-[90rem] mx-auto px-4 md:px-6">
     <!-- Mismo encabezado que "Favoritos de la casa" -->
@@ -16,17 +17,27 @@
       <!-- Pista horizontal: se desplaza 100% por cada anuncio -->
       <div class="flex" style="transition: transform 0.8s cubic-bezier(0.32, 0.72, 0, 1)"
         [style.transform]="'translateX(-' + current * 100 + '%)'">
-        @for (announcement of announcements; track announcement.id; let i = $index) {
+        @for (announcement of items; track announcement.key; let i = $index) {
         <!-- Imagen más ancha que el texto (5 de 9 partes). La imagen guarda siempre la
              proporción 4:3 (16:10 en móvil): el admin ve el mismo recorte en su vista previa. -->
         <article class="w-full flex-shrink-0 grid md:grid-cols-[1.25fr_1fr]" [attr.aria-hidden]="i !== current"
-          [attr.aria-label]="i + 1 + ' de ' + announcements.length" role="group">
+          [attr.aria-label]="i + 1 + ' de ' + items.length" role="group">
+          @if (announcement.celebration; as celebration) {
+          <div class="festival-art w-full aspect-[16/10] md:aspect-[4/3]" aria-hidden="true">
+            <span class="festival-rule"></span>
+            <span class="festival-primary"><app-celebration-icon [shape]="celebration.decorations[0]" /></span>
+            <span class="festival-secondary"><app-celebration-icon [shape]="celebration.decorations[1]" /></span>
+            <span class="festival-signature">Terra Galega</span>
+            <span class="festival-caption">{{ 'celebrations.ui.sharedDate' | t }}</span>
+          </div>
+          } @else {
           <img [src]="announcement.imageUrl" [alt]="announcement.title" [attr.loading]="i === 0 ? 'eager' : 'lazy'"
             class="w-full aspect-[16/10] md:aspect-[4/3] object-cover" />
+          }
 
           <div class="flex flex-col justify-center px-7 py-8 md:px-12 md:py-12 lg:px-16">
             <p class="text-xs md:text-[13px] font-semibold tracking-[0.22em] uppercase mb-4" style="color: #b2571f">
-              {{ 'home.announcements_section.announcements_section.novedad' | t }}
+              {{ announcement.celebration ? ('celebrations.ui.header' | t) : ('home.announcements_section.announcements_section.novedad' | t) }}
             </p>
             <h2 class="font-serif fluid-headline font-semibold tracking-tight text-charcoal mb-4 md:mb-5">
               {{ announcement.title }}
@@ -42,7 +53,7 @@
 
     <!-- Controles debajo del carrusel (sin tapar la imagen ni el texto): flecha, puntos en una
          píldora translúcida, flecha y botón de pausa. Todos miden 44 px para pulsarlos con el dedo. -->
-    @if (announcements.length > 1) {
+    @if (items.length > 1) {
     <div class="mt-5 flex items-center justify-center gap-3">
       <button type="button" [attr.aria-label]="'home.announcements_section.announcements_section.anuncio_anterior' | t"
         class="w-11 h-11 rounded-full flex items-center justify-center transition-colors hover:bg-black/10"
@@ -54,7 +65,7 @@
       </button>
 
       <div class="flex items-center gap-2.5 h-11 px-5 rounded-full" style="background-color: rgba(44, 44, 44, 0.07)">
-        @for (announcement of announcements; track announcement.id; let i = $index) {
+        @for (announcement of items; track announcement.key; let i = $index) {
         <button type="button" [attr.aria-label]="'Ir al anuncio ' + (i + 1)" [attr.aria-current]="i === current"
           class="h-2 rounded-full" style="transition: all 0.35s ease" [style.width]="i === current ? '28px' : '8px'"
           [style.background-color]="i === current ? '#2c2c2c' : 'rgba(44, 44, 44, 0.28)'" (click)="goTo(i)"></button>

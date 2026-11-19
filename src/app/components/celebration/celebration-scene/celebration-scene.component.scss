@@ -1,0 +1,179 @@
+// Cubre toda la portada y deja pasar los clics
+:host {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: block;
+  pointer-events: none;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--festival-accent);
+}
+
+// Las figuras caen por delante del resto de la decoración
+app-celebration-canvas {
+  z-index: 4;
+}
+
+.glow {
+  position: absolute;
+  inset: 8% 0;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    color-mix(in srgb, var(--festival-accent) 18%, transparent),
+    transparent 58%
+  );
+  opacity: 0.85;
+  animation: breathe 5s ease-in-out infinite alternate;
+}
+
+.orbit {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: clamp(64px, 7vw, 104px);
+  aspect-ratio: 1;
+  color: var(--festival-accent);
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25));
+  opacity: 0.85;
+  animation: float 9s ease-in-out infinite alternate;
+}
+
+// Cada festividad tiene una composición estable, sin posiciones aleatorias.
+// Las coordenadas de escritorio dejan libre la columna central del contenido.
+.orbit-left {
+  left: var(--first-x);
+  top: var(--first-y);
+  width: var(--first-size, 88px);
+  transform: rotate(var(--first-angle, -12deg));
+}
+
+.orbit-right {
+  left: var(--second-x);
+  top: var(--second-y);
+  width: var(--second-size, 72px);
+  transform: rotate(var(--second-angle, 12deg));
+  animation-delay: -2s;
+}
+
+// Fuegos altos y estrella baja: una diagonal amplia.
+.scene[data-celebration='new-year'] {
+  --first-x: 5%; --first-y: 23%; --first-size: 104px; --first-angle: -8deg;
+  --second-x: calc(100% - 115px); --second-y: 72%; --second-size: 64px; --second-angle: 18deg;
+}
+
+// Corona arriba; regalo apoyado al otro lado.
+.scene[data-celebration='kings'] {
+  --first-x: 8%; --first-y: 35%; --first-size: 80px; --first-angle: -18deg;
+  --second-x: calc(100% - 150px); --second-y: 67%; --second-size: 94px; --second-angle: 8deg;
+}
+
+// Corazón y carta forman un pequeño grupo en el margen izquierdo.
+.scene[data-celebration='valentine'] {
+  --first-x: 3%; --first-y: 38%; --first-size: 70px; --first-angle: -16deg;
+  --second-x: 7%; --second-y: 66%; --second-size: 88px; --second-angle: 14deg;
+}
+
+// Rosa y libro se reúnen en el margen derecho, como un regalo.
+.scene[data-celebration='sant-jordi'] {
+  --first-x: calc(100% - 145px); --first-y: 40%; --first-size: 80px; --first-angle: 16deg;
+  --second-x: calc(100% - 165px); --second-y: 70%; --second-size: 104px; --second-angle: -10deg;
+}
+
+// Florero bajo a la izquierda y bandera elevada a la derecha.
+.scene[data-celebration='colombia'] {
+  --first-x: 6%; --first-y: 70%; --first-size: 96px; --first-angle: -5deg;
+  --second-x: calc(100% - 120px); --second-y: 38%; --second-size: 86px; --second-angle: 8deg;
+}
+
+// Calabaza cerca del suelo; fantasma asomado desde el margen opuesto.
+.scene[data-celebration='halloween'] {
+  --first-x: calc(100% - 145px); --first-y: 75%; --first-size: 110px; --first-angle: 7deg;
+  --second-x: 4%; --second-y: 29%; --second-size: 76px; --second-angle: -18deg;
+}
+
+// Santa saluda desde abajo y el copo flota más arriba, a su mismo lado.
+.scene[data-celebration='christmas'] {
+  --first-x: 5%; --first-y: 72%; --first-size: 110px; --first-angle: -10deg;
+  --second-x: 9%; --second-y: 26%; --second-size: 64px; --second-angle: 15deg;
+}
+@keyframes float {
+  from {
+    translate: 0 0;
+    rotate: -1deg;
+  }
+  to {
+    translate: 0 -6px;
+    rotate: 1deg;
+  }
+}
+
+@keyframes breathe {
+  from {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+// En móvil se usa la franja inferior reservada por el hero. Se conserva una
+// composición distinta por fiesta sin colocar ilustraciones sobre los textos.
+@media (max-width: 1100px) {
+  .orbit-left {
+    top: auto;
+    bottom: var(--first-bottom);
+    left: var(--mobile-first-x);
+    width: var(--mobile-first-size, 44px);
+  }
+
+  .orbit-right {
+    top: auto;
+    bottom: var(--second-bottom);
+    left: var(--mobile-second-x);
+    width: var(--mobile-second-size, 38px);
+  }
+
+  .scene[data-celebration='new-year'] {
+    --mobile-first-x: 8%; --first-bottom: 48px; --mobile-first-size: 48px;
+    --mobile-second-x: 78%; --second-bottom: 18px;
+  }
+  .scene[data-celebration='kings'] {
+    --mobile-first-x: 22%; --first-bottom: 52px;
+    --mobile-second-x: 68%; --second-bottom: 22px; --mobile-second-size: 46px;
+  }
+  .scene[data-celebration='valentine'] {
+    --mobile-first-x: 8%; --first-bottom: 50px; --mobile-first-size: 36px;
+    --mobile-second-x: 26%; --second-bottom: 18px; --mobile-second-size: 46px;
+  }
+  .scene[data-celebration='sant-jordi'] {
+    --mobile-first-x: 78%; --first-bottom: 52px;
+    --mobile-second-x: 58%; --second-bottom: 18px; --mobile-second-size: 48px;
+  }
+  .scene[data-celebration='colombia'] {
+    --mobile-first-x: 16%; --first-bottom: 18px; --mobile-first-size: 48px;
+    --mobile-second-x: 76%; --second-bottom: 52px;
+  }
+  .scene[data-celebration='halloween'] {
+    --mobile-first-x: 74%; --first-bottom: 16px; --mobile-first-size: 50px;
+    --mobile-second-x: 8%; --second-bottom: 58px;
+  }
+  .scene[data-celebration='christmas'] {
+    --mobile-first-x: 10%; --first-bottom: 18px; --mobile-first-size: 50px;
+    --mobile-second-x: 32%; --second-bottom: 58px; --mobile-second-size: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .orbit {
+    animation: none;
+  }
+}

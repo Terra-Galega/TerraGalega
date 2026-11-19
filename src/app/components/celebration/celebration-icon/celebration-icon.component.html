@@ -1,0 +1,6 @@
+<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false" fill="none">
+  @for (part of parts; track $index) {
+    <path [attr.d]="part.d" [attr.class]="part.tone"
+      [attr.stroke-width]="part.stroke" stroke-linecap="round" stroke-linejoin="round" />
+  }
+</svg>

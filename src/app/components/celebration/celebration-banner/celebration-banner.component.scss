@@ -1,0 +1,98 @@
+:host {
+  display: block;
+  --engraving-ink: #594a39;
+  --engraving-gold: #99733e;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: 18px;
+  min-height: 104px;
+  margin: 18px 0 26px;
+  padding: 17px 22px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--festival-accent) 46%, #e9ded1);
+  border-radius: 22px;
+  background: linear-gradient(110deg, #fffaf2, color-mix(in srgb, var(--festival-accent) 11%, #fffaf2));
+  box-shadow: 0 12px 35px rgb(44 44 44 / 0.06);
+}
+
+.icon {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  padding: 3px;
+  border-radius: 0;
+  color: var(--festival-accent);
+  background: transparent;
+
+}
+
+.copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+  color: #3b3432;
+
+  small {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 10px;
+    opacity: 0.65;
+  }
+
+  strong {
+    font: 600 21px Georgia, serif;
+  }
+
+  > span {
+    font-size: 13px;
+  }
+}
+
+.spark {
+  width: 64px;
+  height: 64px;
+  justify-self: end;
+  color: var(--festival-accent);
+  opacity: 0.75;
+  transform: rotate(16deg);
+}
+
+@media (max-width: 640px) {
+  .card {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .spark {
+    display: none;
+  }
+}
+
+:host-context(html[data-theme="dark"]) {
+  --engraving-ink: #f5f2eb;
+  --engraving-gold: #d4b477;
+
+  .card {
+    border-color: color-mix(in srgb, var(--festival-accent) 42%, #5b5247);
+    background: linear-gradient(110deg, #29251f, color-mix(in srgb, var(--festival-accent) 8%, #29251f));
+    box-shadow: 0 12px 35px rgb(0 0 0 / 0.2);
+  }
+
+  .copy { color: #f5f2eb; }
+}
