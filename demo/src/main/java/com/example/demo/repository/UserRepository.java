@@ -19,7 +19,12 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     // Cuenta enlazada a una cuenta de Google (por el "sub" del token de Google)
     Optional<UserEntity> findByGoogleSubject(String googleSubject);
 
-    Optional<UserEntity> findByMicrosoftIdentity(String microsoftIdentity);
+    // LOGIN CON MICROSOFT DESACTIVADO (no se puede usar).
+    // La universidad no nos da permisos en Azure (Microsoft Entra ID) para registrar la
+    // aplicación y obtener el Client ID, así que no lo podemos usar. También se intentó
+    // con una cuenta personal de Microsoft, pero tampoco lo permitió.
+    // Se deja comentado por si en el futuro se consiguen los permisos.
+    // Optional<UserEntity> findByMicrosoftIdentity(String microsoftIdentity);
 
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     Optional<UserEntity> findFirstByUsername(String username);

@@ -48,11 +48,16 @@ public class EmailService {
         send(to, "Confirma tu cuenta en Terra Galega", plain, html);
     }
 
-    public void sendMicrosoftCode(String to, String code) throws MessagingException {
-        String message = "Introduce este código en Terra Galega para asociar tu cuenta Microsoft: " + code
-                + ". Vence en 10 minutos. Si no lo solicitaste, ignora este mensaje.";
-        send(to, "Confirma tu acceso con Microsoft", message, "<p>" + message + "</p>");
-    }
+    // LOGIN CON MICROSOFT DESACTIVADO (no se puede usar).
+    // La universidad no nos da permisos en Azure (Microsoft Entra ID) para registrar la
+    // aplicación y obtener el Client ID, así que no lo podemos usar. También se intentó
+    // con una cuenta personal de Microsoft, pero tampoco lo permitió.
+    // Se deja comentado por si en el futuro se consiguen los permisos.
+    // public void sendMicrosoftCode(String to, String code) throws MessagingException {
+        // String message = "Introduce este código en Terra Galega para asociar tu cuenta Microsoft: " + code
+                // + ". Vence en 10 minutos. Si no lo solicitaste, ignora este mensaje.";
+        // send(to, "Confirma tu acceso con Microsoft", message, "<p>" + message + "</p>");
+    // }
 
     // Factura electrónica del pedido, adjunta en PDF: plantilla
     // templates/email/invoice-email.html

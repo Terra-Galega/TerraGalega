@@ -56,6 +56,9 @@ public class UserEntity {
     @JsonIgnore
     @Column(unique = true, length = 255)
     private String googleSubject;
+    // Login con Microsoft desactivado: la universidad no nos da permisos de Azure y con una
+    // cuenta personal tampoco se pudo. La columna se deja porque la usa la consulta de
+    // verificación de correo y quitarla cambiaría el esquema de la base de datos.
     @JsonIgnore
     @Column(unique = true, length = 73)
     private String microsoftIdentity;

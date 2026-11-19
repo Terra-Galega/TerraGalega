@@ -73,7 +73,8 @@ public class SecurityConfig {
                                                 // Peticiones previas de CORS (el navegador las envía sin token)
                                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                                 .requestMatchers("/auth/login", "/auth/signup", "/auth/google",
-                                                                "/auth/microsoft",
+                                                                // Login con Microsoft desactivado: la universidad no da permisos de Azure
+                                                                // "/auth/microsoft",
                                                                 "/auth/verify-email", "/auth/resend-verification")
                                                 .permitAll()
                                                 // Stripe llama al webhook sin JWT: se protege con la firma
