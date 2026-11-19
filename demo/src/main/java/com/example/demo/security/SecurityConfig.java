@@ -75,7 +75,8 @@ public class SecurityConfig {
                                                 .requestMatchers("/auth/login", "/auth/signup", "/auth/google",
                                                                 // Login con Microsoft desactivado: la universidad no da permisos de Azure
                                                                 // "/auth/microsoft",
-                                                                "/auth/verify-email", "/auth/resend-verification")
+                                                                "/auth/verify-email", "/auth/resend-verification",
+                                                                "/auth/forgot-password", "/auth/reset-password")
                                                 .permitAll()
                                                 // Stripe llama al webhook sin JWT: se protege con la firma
                                                 // Stripe-Signature, que se valida en PaymentService.
