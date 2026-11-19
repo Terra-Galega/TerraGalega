@@ -13,18 +13,55 @@
     <!-- Acceso con Google encima del formulario, en las dos pestañas (oculto mientras se espera
          la confirmación del correo). Se recrea al cambiar de pestaña para que cambie su texto. -->
     @if (!pendingEmail) {
+      <!--
+        LOGIN CON MICROSOFT DESACTIVADO (no se puede usar).
+        La universidad no nos da permisos en Azure (Microsoft Entra ID) para registrar la
+        aplicación y obtener el Client ID, así que no lo podemos usar. También se intentó
+        con una cuenta personal de Microsoft, pero tampoco lo permitió.
+        Se deja comentado por si en el futuro se consiguen los permisos.
+
+        Acceso con Microsoft: la primera vez el back envía un código al correo de la cuenta
+        para vincularla; mientras tanto el botón se cambia por el campo del código.
       @if (!microsoftToken) {
         <app-microsoft-button [disabled]="microsoftBusy" (credential)="microsoftLogin($event)" />
       } @else {
-        <form class="mb-4 space-y-2" (submit)="$event.preventDefault(); microsoftLogin(microsoftToken, code.value.trim())">
-          <label for="ms-code">Código enviado a tu correo por TerraGalega</label>
-          <input #code id="ms-code" class="input-field w-full px-4 py-2" required minlength="12" maxlength="12"
-                 autocomplete="one-time-code" />
-          <button type="submit" [disabled]="microsoftBusy">Confirmar</button>
-          <button type="button" [disabled]="microsoftBusy" (click)="microsoftToken = ''; microsoftError = ''">Volver</button>
+        <form
+          id="microsoft-code-form"
+          class="mb-3 space-y-3"
+          (submit)="$event.preventDefault(); confirmMicrosoftCode(code.value)"
+        >
+          <label
+            for="ms-code"
+            class="block text-[11px] font-medium uppercase tracking-wider mb-1.5"
+            style="color: rgba(44, 44, 44, 0.4)"
+          >
+            {{ 'microsoft.code' | t }} {{ microsoftEmail || 'tu correo' }}
+          </label>
+          <input
+            #code
+            id="ms-code"
+            name="code"
+            required
+            minlength="12"
+            maxlength="12"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            class="input-field w-full px-4 py-3 rounded-full text-charcoal text-sm text-center tracking-widest"
+          />
+          <div class="flex justify-center gap-3">
+            <app-button type="button" variant="neutral" [disabled]="microsoftBusy" (click)="cancelMicrosoft()">
+              {{ 'microsoft.cancel' | t }}
+            </app-button>
+            <app-button type="submit" variant="primary" [disabled]="microsoftBusy">
+              {{ 'microsoft.confirm' | t }}
+            </app-button>
+          </div>
         </form>
       }
-      @if (microsoftError) { <p role="status" class="mb-3 text-sm">{{ microsoftError }}</p> }
+      @if (microsoftError) {
+        <p id="microsoft-error" role="status" class="text-sm text-center mb-3" style="color: #8a2222">{{ microsoftError }}</p>
+      }
+      -->
       @if (activeTab === "login") {
         <app-google-button mode="login" position="top" (credential)="googleLogin($event)"></app-google-button>
       } @else {

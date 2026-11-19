@@ -1,4 +1,5 @@
-import { MicrosoftButtonComponent } from '../../components/microsoft-button/microsoft-button.component';
+// Login con Microsoft desactivado: ver la nota en microsoftLogin() más abajo.
+// import { MicrosoftButtonComponent } from '../../components/microsoft-button/microsoft-button.component';
 import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { inject } from '@angular/core';
@@ -9,6 +10,8 @@ import { FooterComponent } from '../../components/footer/footer.component';
 import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
 import { GoogleButtonComponent } from '../../components/google-button/google-button.component';
+// import { ButtonComponent } from '../../components/button/button.component';
+// import { TranslatePipe } from '../../services/translate.pipe';
 import { ToastService } from '../../services/toast.service';
 import { TutorialAuthService } from '../../services/tutorial-auth.service';
 import { TutorialService } from '../../services/Tutorial.service';
@@ -44,7 +47,10 @@ const TOUR_REDIRECTS = {
     LoginHeaderComponent,
     LoginFormsComponent,
     GoogleButtonComponent,
-    MicrosoftButtonComponent,
+    // Login con Microsoft desactivado (sin permisos de Azure):
+    // MicrosoftButtonComponent,
+    // ButtonComponent,
+    // TranslatePipe,
   ],
   templateUrl: './login.component.html',
 })
@@ -175,27 +181,59 @@ export class LoginComponent implements OnDestroy {
     });
   }
 
-  microsoftError = '';
-  microsoftToken = '';
-  microsoftBusy = false;
-
-  microsoftLogin(idToken: string, confirmationCode?: string) {
-    if (this.microsoftBusy) return;
-    this.microsoftBusy = true;
-    this.microsoftError = '';
-    this.auth.microsoftLogin(idToken, confirmationCode).subscribe({
-      next: (user) => {
-        this.microsoftBusy = false;
-        this.microsoftToken = '';
-        this.socialLoginComplete(user);
-      },
-      error: (error) => {
-        this.microsoftBusy = false;
-        if (error?.error?.code === EMAIL_NOT_VERIFIED_CODE) this.microsoftToken = idToken;
-        this.microsoftError = getErrorMessage(error, 'No se pudo continuar con Microsoft.');
-      },
-    });
-  }
+  // LOGIN CON MICROSOFT DESACTIVADO (no se puede usar).
+  // La universidad no nos da permisos en Azure (Microsoft Entra ID) para registrar la
+  // aplicación y obtener el Client ID, así que no lo podemos usar. También se intentó
+  // con una cuenta personal de Microsoft, pero tampoco lo permitió.
+  // Se deja comentado por si en el futuro se consiguen los permisos.
+  // microsoftError = '';
+  // microsoftToken = '';
+  // microsoftBusy = false;
+//
+  // microsoftLogin(idToken: string, confirmationCode?: string) {
+    // if (this.microsoftBusy) return;
+    // this.microsoftBusy = true;
+    // this.microsoftError = '';
+    // this.auth.microsoftLogin(idToken, confirmationCode).subscribe({
+      // next: (user) => {
+        // this.microsoftBusy = false;
+        // this.microsoftToken = '';
+        // this.socialLoginComplete(user);
+      // },
+      // error: (error) => {
+        // this.microsoftBusy = false;
+        // if (error?.error?.code === EMAIL_NOT_VERIFIED_CODE) this.microsoftToken = idToken;
+        // this.microsoftError = getErrorMessage(error, 'No se pudo continuar con Microsoft.');
+      // },
+    // });
+  // }
+//
+  // // Envía el código de 12 caracteres que el back mandó al correo de la cuenta Microsoft
+  // confirmMicrosoftCode(code: string) {
+    // const value = code.trim();
+    // if (value.length !== 12) {
+      // this.microsoftError = 'El código tiene 12 caracteres. Revisa tu correo.';
+      // return;
+    // }
+    // this.microsoftLogin(this.microsoftToken, value);
+  // }
+//
+  // cancelMicrosoft() {
+    // this.microsoftToken = '';
+    // this.microsoftError = '';
+  // }
+//
+  // // Correo de la cuenta Microsoft, solo para mostrar a dónde llegó el código.
+  // // Lo verifica el back; aquí únicamente se lee del token.
+  // get microsoftEmail(): string {
+    // try {
+      // const payload = this.microsoftToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      // const claims = JSON.parse(decodeURIComponent(escape(atob(payload))));
+      // return claims.email ?? claims.preferred_username ?? '';
+    // } catch {
+      // return '';
+    // }
+  // }
 
   socialLoginComplete(user: LoginResponse) {
     this.auth.setSession(user);
