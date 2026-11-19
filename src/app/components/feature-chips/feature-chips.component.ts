@@ -14,7 +14,7 @@ import { TranslatePipe } from '../../services/translate.pipe';
 export class FeatureChipsComponent {
   // Producto (o cualquier objeto) con las características como true/false
   @Input({ required: true }) product!: FeatureFlags;
-  // sm: tarjetas (etiquetas cortas) · md: detalle del plato (etiquetas completas)
+  // sm: tarjetas (etiquetas cortas) - md: detalle del plato (etiquetas completas)
   @Input() size: 'sm' | 'md' = 'sm';
 
   // Lista de todas las características posibles, para recorrerla en el HTML

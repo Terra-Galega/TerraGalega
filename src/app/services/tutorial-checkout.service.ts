@@ -14,7 +14,7 @@ const has = (selector: string): boolean => !!document.querySelector(selector);
 export class TutorialCheckoutService {
     private tutorial = inject(TutorialService);
 
-    // true cuando el cliente pulsó «Aplicar» o eligió un cupón durante el tutorial
+    // true cuando el cliente pulsó "Aplicar" o eligió un cupón durante el tutorial
     private couponTried = false;
 
     // La llama CheckoutComponent al abrirse (ya con sesión de cliente)
@@ -25,7 +25,7 @@ export class TutorialCheckoutService {
     }
 
     // La llama CheckoutConfirmComponent al abrirse. Es el último tramo: se cierra
-    // el flujo para que «Editar» (volver al paso 1) no reinicie el tutorial.
+    // el flujo para que "Editar" (volver al paso 1) no reinicie el tutorial.
     resumeConfirm(): void {
         if (!this.tutorial.hasFlow('order')) return;
         this.tutorial.endFlow();
@@ -47,13 +47,13 @@ export class TutorialCheckoutService {
 
             // ---- Dirección ----
 
-            // Tiene direcciones guardadas: elegir una o «Usar otra dirección»
+            // Tiene direcciones guardadas: elegir una o "Usar otra dirección"
             {
                 element: '#address-options',
                 when: () => has('#address-options'),
                 title: '¿Dónde lo recibes?',
                 description:
-                    'Estas son tus direcciones guardadas. Toca la que quieras usar, o «Usar otra dirección» para escribir una nueva.',
+                    'Estas son tus direcciones guardadas. Toca la que quieras usar, o "Usar otra dirección" para escribir una nueva.',
                 side: 'right',
                 align: 'start',
                 waitClick: '#address-options label',
@@ -107,7 +107,7 @@ export class TutorialCheckoutService {
                 when: () => has('#address-name'),
                 title: 'Ponle un nombre',
                 description:
-                    'Por ejemplo «Casa» u «Oficina». Escríbelo y toca fuera del campo. Si lo dejas vacío se llamará «Casa».',
+                    'Por ejemplo "Casa" u "Oficina". Escríbelo y toca fuera del campo. Si lo dejas vacío se llamará "Casa".',
                 side: 'bottom',
                 align: 'start',
                 waitInput: { selector: '#address-name', valid: () => true },
@@ -120,7 +120,7 @@ export class TutorialCheckoutService {
                 element: '#checkout-coupon',
                 title: 'Cupón de descuento',
                 description:
-                    'Si tienes un cupón, escribe el código y pulsa «Aplicar», o toca uno de tus cupones. Si no tienes, pulsa «Siguiente».',
+                    'Si tienes un cupón, escribe el código y pulsa "Aplicar", o toca uno de tus cupones. Si no tienes, pulsa "Siguiente".',
                 side: 'right',
                 align: 'start',
                 waitClick: '#btn-apply-coupon, [id^="coupon-option-"]',
@@ -134,7 +134,7 @@ export class TutorialCheckoutService {
                 when: () => this.couponTried && !has('#coupon-applied'),
                 title: 'Validando tu cupón',
                 description:
-                    'Si el código no sirve verás el motivo en rojo: corrígelo y vuelve a pulsar «Aplicar», o pulsa «Siguiente» para seguir sin cupón.',
+                    'Si el código no sirve verás el motivo en rojo: corrígelo y vuelve a pulsar "Aplicar", o pulsa "Siguiente" para seguir sin cupón.',
                 side: 'right',
                 align: 'start',
                 waitElement: '#coupon-applied',
@@ -146,7 +146,7 @@ export class TutorialCheckoutService {
                 when: () => has('#coupon-applied'),
                 title: '¡Cupón aplicado!',
                 description:
-                    'El descuento ya se resta en tu resumen. Si cambias de opinión, puedes quitarlo con «Quitar cupón».',
+                    'El descuento ya se resta en tu resumen. Si cambias de opinión, puedes quitarlo con "Quitar cupón".',
                 side: 'left',
                 align: 'start',
             },
@@ -157,7 +157,7 @@ export class TutorialCheckoutService {
                 element: '#checkout-payment',
                 title: '¿Cómo quieres pagar?',
                 description:
-                    '«Contra entrega» es en efectivo cuando llegue tu pedido; «Tarjeta» es en la pasarela segura de Stripe. Toca una opción.',
+                    '"Contra entrega" es en efectivo cuando llegue tu pedido; "Tarjeta" es en la pasarela segura de Stripe. Toca una opción.',
                 side: 'top',
                 align: 'center',
                 waitClick: '#payment-cash, #payment-card',
@@ -199,7 +199,7 @@ export class TutorialCheckoutService {
                 element: '#btn-continue',
                 title: 'Continúa al paso 2',
                 description:
-                    'Pulsa «Continuar». Si falta algo te lo marcaremos en rojo; corrígelo y vuelve a intentar.',
+                    'Pulsa "Continuar". Si falta algo te lo marcaremos en rojo; corrígelo y vuelve a intentar.',
                 side: 'top',
                 align: 'center',
                 waitNavigation: true,
@@ -220,7 +220,7 @@ export class TutorialCheckoutService {
                 element: '#confirm-delivery',
                 title: 'Dirección de entrega',
                 description:
-                    'Aquí llegará tu pedido. Con «Editar» vuelves al paso 1 sin perder lo que elegiste.',
+                    'Aquí llegará tu pedido. Con "Editar" vuelves al paso 1 sin perder lo que elegiste.',
                 side: 'right',
                 align: 'center',
             },
@@ -235,7 +235,7 @@ export class TutorialCheckoutService {
             {
                 element: '#confirm-payment',
                 title: 'Método de pago',
-                description: 'Así pagarás tu pedido. También puedes cambiarlo con «Editar».',
+                description: 'Así pagarás tu pedido. También puedes cambiarlo con "Editar".',
                 side: 'right',
                 align: 'center',
             },

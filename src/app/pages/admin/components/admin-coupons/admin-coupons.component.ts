@@ -131,7 +131,7 @@ export class AdminCouponsComponent {
             parts.push(`${coupon.maxUses} ${coupon.maxUses === 1 ? 'uso' : 'usos'}`);
         }
 
-        return parts.length > 0 ? parts.join(' · ') : 'Sin condiciones';
+        return parts.length > 0 ? parts.join(' - ') : 'Sin condiciones';
     }
 
     // Activa o desactiva el cupón (botón "Activo/Inactivo" de la fila)

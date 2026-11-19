@@ -10,7 +10,7 @@ import { tween } from '../../utils/tween';
 })
 export class AnimatedNumberComponent implements OnChanges, OnDestroy {
   @Input({ required: true }) value = 0;
-  // money = $1,234 · int = 1,234
+  // money = $1,234 - int = 1,234
   @Input() kind: 'money' | 'int' = 'int';
 
   text = '';

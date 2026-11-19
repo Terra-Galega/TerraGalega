@@ -54,7 +54,7 @@ export const appConfig: ApplicationConfig = {
         },
       }),
     ),
-    // Título de cada página ("Menú · Terra Galega") y aviso al lector de pantalla al navegar
+    // Título de cada página ("Menú - Terra Galega") y aviso al lector de pantalla al navegar
     { provide: TitleStrategy, useClass: PageTitleStrategy },
     // Activa HttpClient para consumir la API con dos interceptores, que se ejecutan en orden:
     // authInterceptor agrega el JWT a cada petición; errorInterceptor maneja los 401/403.

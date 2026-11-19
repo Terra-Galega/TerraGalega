@@ -92,10 +92,10 @@
               <div class="chat-reservation">
                 <p class="chat-reservation-title">{{ r.name }}</p>
                 <p class="chat-reservation-line">
-                  {{ formatDate(r.date) }} · {{ r.time.slice(0, 5) }}
+                  {{ formatDate(r.date) }} - {{ r.time.slice(0, 5) }}
                 </p>
                 <p class="chat-reservation-line">
-                  {{ r.seats }} {{ (r.seats === 1 ? 'chat.person' : 'chat.people') | t }} ·
+                  {{ r.seats }} {{ (r.seats === 1 ? 'chat.person' : 'chat.people') | t }} -
                   {{ 'chat.table' | t }} {{ r.tableId }} ({{ 'chat.floor' | t }} {{ r.floor }})
                 </p>
 

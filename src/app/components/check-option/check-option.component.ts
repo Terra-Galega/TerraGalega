@@ -12,7 +12,7 @@ export class CheckOptionComponent {
   @Input() label = '';
   // Si está marcada o no (lo controla el padre)
   @Input() checked = false;
-  // terra: admin (naranja) · sage: filtros del menú (verde, con icono opcional dentro)
+  // terra: admin (naranja) - sage: filtros del menú (verde, con icono opcional dentro)
   @Input() accent: 'terra' | 'sage' = 'terra';
 
   // Se emite true o false cada vez que el usuario cambia la casilla

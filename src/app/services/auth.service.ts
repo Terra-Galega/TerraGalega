@@ -139,6 +139,10 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/google`, { idToken });
   }
 
+  microsoftLogin(idToken: string, confirmationCode?: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/microsoft`, { idToken, confirmationCode });
+  }
+
   // ¿El cliente con sesión debe completar su perfil antes de seguir?
   get needsProfile(): boolean {
     return this.session?.type === 'client' && this.session.profileComplete === false;
@@ -361,12 +365,12 @@ export class AuthService {
   private saveToken(token: string) {
     try {
       localStorage.setItem(TOKEN_KEY, token);
-    } catch {}
+    } catch { }
   }
 
   private removeToken() {
     try {
       localStorage.removeItem(TOKEN_KEY);
-    } catch {}
+    } catch { }
   }
 }

@@ -319,7 +319,7 @@ export class CheckoutConfirmComponent implements OnInit {
       this.paying = false;
       this.showNotice(
         'El pago anterior caducó',
-        'Vuelve a pulsar «Pagar con tarjeta» para generar un pago nuevo.',
+        'Vuelve a pulsar "Pagar con tarjeta" para generar un pago nuevo.',
       );
       return;
     }

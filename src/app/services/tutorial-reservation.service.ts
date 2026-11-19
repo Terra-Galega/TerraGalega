@@ -14,7 +14,7 @@ export type ReservationPageState =
     | 'paid'; // ya tiene una reserva confirmada
 
 // Servicio auxiliar: tramos del tutorial "hacer una reserva".
-// El primer tramo (clic en «RESERVAS» desde el home) está en TutorialService.stepsFor().
+// El primer tramo (clic en "RESERVAS" desde el home) está en TutorialService.stepsFor().
 //
 //   /reservations         -> resumeReservations(): según el estado de la página
 //   /login, /complete-... -> TutorialAuthService (compartido con el pedido)
@@ -49,7 +49,7 @@ export class TutorialReservationService {
 
     // ---- Sin sesión ----
 
-    // El último paso espera el clic en «Iniciar sesión» o «Crear una cuenta». El flujo
+    // El último paso espera el clic en "Iniciar sesión" o "Crear una cuenta". El flujo
     // sigue armado: el login lo retoma y, al entrar, el cliente vuelve a /reservations.
     private guestSteps(): TourStep[] {
         return [
@@ -57,7 +57,7 @@ export class TutorialReservationService {
                 element: '#reservation-guest-cta',
                 title: 'Primero, tu cuenta',
                 description:
-                    'Para reservar necesitas una cuenta: así guardamos tu mesa y te avisamos de cualquier cambio. Toca «Iniciar sesión» si ya tienes una, o «Crear una cuenta».',
+                    'Para reservar necesitas una cuenta: así guardamos tu mesa y te avisamos de cualquier cambio. Toca "Iniciar sesión" si ya tienes una, o "Crear una cuenta".',
                 side: 'top',
                 align: 'center',
                 waitClick: '#cta-login, #cta-signup',
@@ -83,7 +83,7 @@ export class TutorialReservationService {
                 element: '#reservation-date',
                 title: '¿Qué día vienes?',
                 description:
-                    'Elige la fecha de tu visita (hoy o después). Si es para hoy, pulsa «Siguiente».',
+                    'Elige la fecha de tu visita (hoy o después). Si es para hoy, pulsa "Siguiente".',
                 side: 'bottom',
                 align: 'start',
                 waitInput: { selector: '#reservation-date', valid: (v) => v.length > 0 },
@@ -93,7 +93,7 @@ export class TutorialReservationService {
                 element: '#reservation-time',
                 title: '¿A qué hora?',
                 description:
-                    'Los turnos son cada hora y media. Elige uno, o pulsa «Siguiente» para dejar el que está.',
+                    'Los turnos son cada hora y media. Elige uno, o pulsa "Siguiente" para dejar el que está.',
                 side: 'bottom',
                 align: 'center',
                 waitInput: { selector: '#reservation-time' },
@@ -103,7 +103,7 @@ export class TutorialReservationService {
                 element: '#reservation-party',
                 title: '¿Cuántos vienen?',
                 description:
-                    'Elige el número de comensales. El plano marcará las mesas donde no caben. Pulsa «Siguiente» si ya está bien.',
+                    'Elige el número de comensales. El plano marcará las mesas donde no caben. Pulsa "Siguiente" si ya está bien.',
                 side: 'bottom',
                 align: 'end',
                 waitInput: { selector: '#reservation-party' },
@@ -116,7 +116,7 @@ export class TutorialReservationService {
                 element: '#reservation-floors',
                 title: 'Elige el piso',
                 description:
-                    'El piso 1 tiene el salón principal y los ventanales; el piso 2, el balcón y las salas de celebración. Toca un piso, o pulsa «Siguiente».',
+                    'El piso 1 tiene el salón principal y los ventanales; el piso 2, el balcón y las salas de celebración. Toca un piso, o pulsa "Siguiente".',
                 side: 'bottom',
                 align: 'end',
                 waitClick: '#reservation-floors button',
@@ -147,7 +147,7 @@ export class TutorialReservationService {
                 when: () => has('#reservation-seats'),
                 title: 'Sillas de la sala',
                 description:
-                    'En las salas de celebración eliges cuántas sillas quieres con − y +. Cuando termines, pulsa «Siguiente».',
+                    'En las salas de celebración eliges cuántas sillas quieres con − y +. Cuando termines, pulsa "Siguiente".',
                 side: 'left',
                 align: 'center',
             },
@@ -158,7 +158,7 @@ export class TutorialReservationService {
                 element: '#reservation-name',
                 title: 'Ponle un nombre',
                 description:
-                    'Por ejemplo «Cena de grado» o tu nombre. Escríbelo y toca fuera del campo.',
+                    'Por ejemplo "Cena de grado" o tu nombre. Escríbelo y toca fuera del campo.',
                 side: 'left',
                 align: 'center',
                 waitInput: { selector: '#reservation-name', valid: (v) => v.trim().length > 0 },
@@ -167,7 +167,7 @@ export class TutorialReservationService {
                 element: '#reservation-theme',
                 title: 'Temática',
                 description:
-                    'Si es una ocasión especial, elige la temática y preparamos la mesa para ella. Si no, pulsa «Siguiente».',
+                    'Si es una ocasión especial, elige la temática y preparamos la mesa para ella. Si no, pulsa "Siguiente".',
                 side: 'left',
                 align: 'center',
                 waitInput: { selector: '#reservation-theme' },
@@ -188,7 +188,7 @@ export class TutorialReservationService {
                 element: '#btn-reserve',
                 title: 'Reservar y pagar',
                 description:
-                    'Este es el último paso: al pulsar «Reservar y pagar» pasas a la pasarela segura de Stripe para pagar el anticipo y tu reserva queda confirmada. El tutorial termina aquí. Si el botón está gris, revisa la mesa, el nombre y el anticipo.',
+                    'Este es el último paso: al pulsar "Reservar y pagar" pasas a la pasarela segura de Stripe para pagar el anticipo y tu reserva queda confirmada. El tutorial termina aquí. Si el botón está gris, revisa la mesa, el nombre y el anticipo.',
                 side: 'left',
                 align: 'center',
             },
@@ -210,7 +210,7 @@ export class TutorialReservationService {
                 element: '#my-reservation-actions',
                 title: '¿Pagas ahora?',
                 description:
-                    '«Ir a pagar el anticipo» te lleva a Stripe para pagar. «Cancelar reserva» la anula sin ningún cobro.',
+                    '"Ir a pagar el anticipo" te lleva a Stripe para pagar. "Cancelar reserva" la anula sin ningún cobro.',
                 side: 'top',
                 align: 'center',
                 waitClick: '#my-reservation-actions button',
@@ -233,7 +233,7 @@ export class TutorialReservationService {
                 element: '#my-reservation-actions',
                 title: 'Tu reserva, cuando quieras',
                 description:
-                    '«Editar reserva» te devuelve al plano para cambiar la mesa, la fecha o la hora. «Eliminar reserva» la anula, pero el anticipo no se reembolsa. ¡Aquí termina el tutorial!',
+                    '"Editar reserva" te devuelve al plano para cambiar la mesa, la fecha o la hora. "Eliminar reserva" la anula, pero el anticipo no se reembolsa. ¡Aquí termina el tutorial!',
                 side: 'top',
                 align: 'center',
             },

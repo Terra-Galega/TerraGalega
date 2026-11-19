@@ -1,3 +1,4 @@
+import { MicrosoftButtonComponent } from '../../components/microsoft-button/microsoft-button.component';
 import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { inject } from '@angular/core';
@@ -43,6 +44,7 @@ const TOUR_REDIRECTS = {
     LoginHeaderComponent,
     LoginFormsComponent,
     GoogleButtonComponent,
+    MicrosoftButtonComponent,
   ],
   templateUrl: './login.component.html',
 })
@@ -163,21 +165,7 @@ export class LoginComponent implements OnDestroy {
   googleLogin(idToken: string) {
     this.googleError = '';
     this.auth.googleLogin(idToken).subscribe({
-      next: (user) => {
-        this.auth.setSession(user);
-        if (user.profileComplete === false) {
-          // Se pasa a dónde volver: el del tutorial o el de la URL
-          const flow = this.tutorial.currentFlow();
-          const redirect = flow
-            ? (flow === 'order' ? 'checkout' : 'reservations')
-            : this.route.snapshot.queryParamMap.get('redirect');
-          this.router.navigate(['/complete-profile'], {
-            queryParams: redirect ? { redirect } : {},
-          });
-          return;
-        }
-        this.goByRole(user);
-      },
+      next: (user) => this.socialLoginComplete(user),
       error: (error) => {
         this.googleError = getErrorMessage(
           error,
@@ -185,6 +173,44 @@ export class LoginComponent implements OnDestroy {
         );
       },
     });
+  }
+
+  microsoftError = '';
+  microsoftToken = '';
+  microsoftBusy = false;
+
+  microsoftLogin(idToken: string, confirmationCode?: string) {
+    if (this.microsoftBusy) return;
+    this.microsoftBusy = true;
+    this.microsoftError = '';
+    this.auth.microsoftLogin(idToken, confirmationCode).subscribe({
+      next: (user) => {
+        this.microsoftBusy = false;
+        this.microsoftToken = '';
+        this.socialLoginComplete(user);
+      },
+      error: (error) => {
+        this.microsoftBusy = false;
+        if (error?.error?.code === EMAIL_NOT_VERIFIED_CODE) this.microsoftToken = idToken;
+        this.microsoftError = getErrorMessage(error, 'No se pudo continuar con Microsoft.');
+      },
+    });
+  }
+
+  socialLoginComplete(user: LoginResponse) {
+    this.auth.setSession(user);
+    if (user.profileComplete === false) {
+      // Se pasa a dónde volver: el del tutorial o el de la URL
+      const flow = this.tutorial.currentFlow();
+      const redirect = flow
+        ? (flow === 'order' ? 'checkout' : 'reservations')
+        : this.route.snapshot.queryParamMap.get('redirect');
+      this.router.navigate(['/complete-profile'], {
+        queryParams: redirect ? { redirect } : {},
+      });
+      return;
+    }
+    this.goByRole(user);
   }
 
   // Maneja el inicio de sesión del usuario

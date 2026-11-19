@@ -53,11 +53,11 @@ export interface TourStep {
     // ya venía lleno, p. ej. con una cuenta de prueba)
     canSkip?: boolean;
     // El paso avanza cuando aparece este elemento en la página (p. ej. la pantalla
-    // «Revisa tu correo» tras crear la cuenta). Si el cliente se equivoca y vuelve a
+    // "Revisa tu correo" tras crear la cuenta). Si el cliente se equivoca y vuelve a
     // intentar, el globo se queda esperando en vez de seguir de largo.
     waitElement?: string;
     // El paso espera a que el cliente se vaya de la página (p. ej. al iniciar sesión).
-    // No hay botón «Siguiente»: el tutorial se cierra solo cuando el elemento desaparece.
+    // No hay botón "Siguiente": el tutorial se cierra solo cuando el elemento desaparece.
     waitNavigation?: boolean;
     // Se ejecuta justo después del clic o de escribir (por ejemplo, para cerrar un panel).
     // Recibe el elemento tocado o el campo escrito.
@@ -484,7 +484,7 @@ export class TutorialService {
                     {
                         element: '#nav-menu',
                         title: 'Empieza por la carta',
-                        description: 'Haz clic en «MENÚ» para ver todos nuestros platos.',
+                        description: 'Haz clic en "MENÚ" para ver todos nuestros platos.',
                         side: 'bottom',
                         align: 'center',
                         waitClick: '#nav-menu',
@@ -527,7 +527,7 @@ export class TutorialService {
                         optional: true,
                         title: 'Adicionales',
                         description:
-                            'Si quieres, suma extras con + y −; puedes repetir el mismo. Cuando termines, pulsa «Siguiente».',
+                            'Si quieres, suma extras con + y −; puedes repetir el mismo. Cuando termines, pulsa "Siguiente".',
                         side: 'left',
                         align: 'center',
                     },
@@ -536,7 +536,7 @@ export class TutorialService {
                         element: '#product-quantity',
                         title: 'Cantidad',
                         description:
-                            'Elige cuántos platos quieres con + y −. El total se actualiza solo con los adicionales y la cantidad. Pulsa «Siguiente» cuando estés listo.',
+                            'Elige cuántos platos quieres con + y −. El total se actualiza solo con los adicionales y la cantidad. Pulsa "Siguiente" cuando estés listo.',
                         side: 'top',
                         align: 'start',
                     },
@@ -545,7 +545,7 @@ export class TutorialService {
                         element: '#btn-add-to-order',
                         title: 'Añade el plato',
                         description:
-                            'Revisa el total y pulsa «Añadir a la orden» para guardarlo en tu carrito.',
+                            'Revisa el total y pulsa "Añadir a la orden" para guardarlo en tu carrito.',
                         side: 'top',
                         align: 'center',
                         waitClick: '#btn-add-to-order',
@@ -585,7 +585,7 @@ export class TutorialService {
                         element: '#btn-cart-checkout',
                         title: 'Confirma tu pedido',
                         description:
-                            'Pulsa «Confirmar pedido» para continuar. Si no has iniciado sesión, te pediremos que lo hagas primero.',
+                            'Pulsa "Confirmar pedido" para continuar. Si no has iniciado sesión, te pediremos que lo hagas primero.',
                         side: 'top',
                         align: 'center',
                         waitClick: '#btn-cart-checkout',
@@ -601,7 +601,7 @@ export class TutorialService {
                         element: '#nav-reservations',
                         title: 'Reserva tu mesa',
                         description:
-                            'Haz clic en «RESERVAS» para ver el plano del restaurante y elegir tu mesa.',
+                            'Haz clic en "RESERVAS" para ver el plano del restaurante y elegir tu mesa.',
                         side: 'bottom',
                         align: 'center',
                         waitClick: '#nav-reservations',
@@ -700,7 +700,7 @@ export class TutorialService {
                     {
                         element: productsTab,
                         title: 'Ve a Productos',
-                        description: 'Haz clic en «Productos» en la barra lateral para revisar el catálogo.',
+                        description: 'Haz clic en "Productos" en la barra lateral para revisar el catálogo.',
                         side: 'right',
                         waitClick: productsTab,
                         beforeShow: openSidebar,
@@ -719,14 +719,14 @@ export class TutorialService {
                             '#admin-product-table:not(:has(tbody tr[app-admin-product-row])) thead',
                         title: 'Acciones rápidas de cada fila',
                         description:
-                            'Cuando hay productos en la lista, puedes tocar «Activo» o «Inactivo» para cambiar su disponibilidad. El lápiz abre la edición y la papelera abre la confirmación de eliminación.',
+                            'Cuando hay productos en la lista, puedes tocar "Activo" o "Inactivo" para cambiar su disponibilidad. El lápiz abre la edición y la papelera abre la confirmación de eliminación.',
                         side: 'bottom',
                         disableActiveInteraction: true,
                     },
                     {
                         element: addProduct,
                         title: 'Añade un producto',
-                        description: 'Haz clic en «Añadir producto» para abrir el formulario de creación.',
+                        description: 'Haz clic en "Añadir producto" para abrir el formulario de creación.',
                         side: 'bottom',
                         waitClick: addProduct,
                     },
@@ -734,7 +734,7 @@ export class TutorialService {
                         element: '#admin-product-form',
                         title: 'Formulario de creación',
                         description:
-                            'Aquí defines el nombre, precio, categoría, descripción y URL de imagen. También puedes marcar las características y elegir si el producto quedará activo. Al terminar, «Añadir producto» guarda el registro.',
+                            'Aquí defines el nombre, precio, categoría, descripción y URL de imagen. También puedes marcar las características y elegir si el producto quedará activo. Al terminar, "Añadir producto" guarda el registro.',
                         side: 'right',
                         disableActiveInteraction: true,
                         nextBtnText: 'Cerrar formulario',

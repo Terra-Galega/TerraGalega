@@ -10,7 +10,7 @@ const APP_NAME = 'Terra Galega';
 //
 // En una SPA el navegador no recarga, así que el lector de pantalla no se entera de que la
 // página cambió. Esta estrategia, en cada navegación:
-//   1. Pone el título de la ruta (el "title" de app.routes.ts): "Menú · Terra Galega".
+//   1. Pone el título de la ruta (el "title" de app.routes.ts): "Menú - Terra Galega".
 //   2. Lo anuncia en voz ("Menú") con LiveAnnouncer.
 //   3. Lleva el foco al inicio del contenido nuevo (el <h1> o, si no hay, el <main>), para que
 //      quien navega con teclado o lector siga leyendo desde ahí y no desde el final de la navbar.
@@ -27,14 +27,14 @@ export class PageTitleStrategy extends TitleStrategy {
     effect(() => {
       this.language.language();
       const page = this.currentPage();
-      this.title.setTitle(page ? `${this.language.t(page)} · ${APP_NAME}` : APP_NAME);
+      this.title.setTitle(page ? `${this.language.t(page)} - ${APP_NAME}` : APP_NAME);
     });
   }
 
   override updateTitle(snapshot: RouterStateSnapshot): void {
     const page = this.buildTitle(snapshot);
     this.currentPage.set(page);
-    this.title.setTitle(page ? `${this.language.t(page)} · ${APP_NAME}` : APP_NAME);
+    this.title.setTitle(page ? `${this.language.t(page)} - ${APP_NAME}` : APP_NAME);
 
     // En la primera carga el lector ya lee la página entera: no hace falta moverse
     if (this.first) {

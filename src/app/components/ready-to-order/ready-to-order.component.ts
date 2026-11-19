@@ -18,12 +18,12 @@ export class ReadyToOrderComponent {
   // A dónde volver después de entrar (p. ej. 'reservations'). Vacío = a la cuenta.
   @Input() redirect = '';
 
-  // Parámetros del botón «Iniciar sesión»
+  // Parámetros del botón "Iniciar sesión"
   get loginParams(): Params {
     return this.redirect ? { redirect: this.redirect } : {};
   }
 
-  // Parámetros del botón «Crear una cuenta»: abre la pestaña de registro
+  // Parámetros del botón "Crear una cuenta": abre la pestaña de registro
   get signupParams(): Params {
     return { tab: 'signup', ...this.loginParams };
   }

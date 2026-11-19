@@ -57,7 +57,7 @@ export class CouponCardComponent {
         }
         parts.push('1 uso por cliente');
 
-        return parts.join(' · ');
+        return parts.join(' - ');
     }
 
     // Texto de la etiqueta cuando el cupón ya no se puede usar

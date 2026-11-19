@@ -80,7 +80,7 @@ export class AddressListComponent implements OnInit {
   get deleteMessage(): string {
     const address = this.addressToDelete;
     return address
-      ? `¿Seguro que quieres eliminar la dirección «${address.name}»?`
+      ? `¿Seguro que quieres eliminar la dirección "${address.name}"?`
       : '';
   }
 

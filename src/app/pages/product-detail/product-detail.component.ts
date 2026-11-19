@@ -119,8 +119,8 @@ export class ProductDetailComponent implements OnInit {
         }
 
         this.product = product;
-        // La pestaña (y el lector de pantalla) dicen qué plato es: "Pulpo a la Brasa · Terra Galega"
-        this.title.setTitle(`${product.name} · Terra Galega`);
+        // La pestaña (y el lector de pantalla) dicen qué plato es: "Pulpo a la Brasa - Terra Galega"
+        this.title.setTitle(`${product.name} - Terra Galega`);
 
         // related es null si esa petición falló: en ese caso se conservan los anteriores
         if (related) {
