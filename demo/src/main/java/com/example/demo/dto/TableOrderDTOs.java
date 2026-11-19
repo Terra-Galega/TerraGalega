@@ -104,6 +104,11 @@ public final class TableOrderDTOs {
             // Reserva cuyo turno está en curso ahora mismo (null si no hay): la mesa
             // está reservada; normalmente el pedido es de quien reservó
             LocalTime currentReservation,
-            String currentReservationName) {
+            String currentReservationName,
+            // Mesero que atiende la mesa ocupada (null si está libre)
+            Integer attendingWaiterId,
+            String attendingWaiterName,
+            // true = la atiende quien consulta; false = otro mesero (no puede entrar)
+            boolean mine) {
     }
 }

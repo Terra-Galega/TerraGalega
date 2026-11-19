@@ -77,6 +77,26 @@ public interface TableOrderRepository extends JpaRepository<TableOrder, Integer>
             """)
     List<Object[]> findOccupationStarts(@Param("statuses") Collection<TableOrderStatus> statuses);
 
+    // Pedidos abiertos (en cocina o entregados sin cobrar) con su mesero, del más
+    // antiguo al más nuevo: el mesero del primero es quien atiende la mesa
+    @Query("""
+            select o from TableOrder o join fetch o.waiter join fetch o.table
+            where (o.status in :statuses
+                   or (o.status = com.example.demo.entities.TableOrderStatus.DONE and o.paidAt is null))
+            order by o.startTime asc, o.id asc
+            """)
+    List<TableOrder> findOpenWithWaiter(@Param("statuses") Collection<TableOrderStatus> statuses);
+
+    @Query("""
+            select o from TableOrder o join fetch o.waiter
+            where o.table.id = :tableId
+              and (o.status in :statuses
+                   or (o.status = com.example.demo.entities.TableOrderStatus.DONE and o.paidAt is null))
+            order by o.startTime asc, o.id asc
+            """)
+    List<TableOrder> findOpenWithWaiterByTable(@Param("tableId") Integer tableId,
+            @Param("statuses") Collection<TableOrderStatus> statuses);
+
     // ¿La mesa sigue ocupada? Tiene algo en cocina o algo entregado sin cobrar
     @Query("""
             select count(o) > 0 from TableOrder o

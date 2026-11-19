@@ -184,7 +184,8 @@ public class SecurityConfig {
                                                 // Cocina (portal web propio, solo la cuenta de cocina): ver pedidos y avanzar platos
                                                 .requestMatchers(HttpMethod.GET, "/table-orders/kitchen")
                                                 .hasAuthority(KITCHEN)
-                                                .requestMatchers(HttpMethod.PUT, "/table-orders/*/items/*/status")
+                                                .requestMatchers(HttpMethod.PUT, "/table-orders/*/items/*/status",
+                                                                "/table-orders/*/status")
                                                 .hasAuthority(KITCHEN)
                                                 // Mesero (app móvil): mesas, crear, entregar, cobrar y cancelar
                                                 .requestMatchers(HttpMethod.GET, "/table-orders/tables", "/table-orders/tables/*",

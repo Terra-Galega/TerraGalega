@@ -14,28 +14,28 @@ public interface TableOrderService {
     // ---------- Mesero (app móvil) ----------
 
     // Mesas en servicio de un piso, con sus pedidos en curso y el aviso de reserva
-    List<WaiterTableDTO> tablesByFloor(Integer floor);
+    List<WaiterTableDTO> tablesByFloor(Integer waiterId, Integer floor);
 
     // Pedidos en curso y por cobrar de una mesa
-    List<TableOrderDTO> activeOrdersOfTable(Integer tableId);
+    List<TableOrderDTO> activeOrdersOfTable(Integer waiterId, Integer tableId);
 
     // Registra un pedido (start_time = ahora, PENDING) y deja la mesa sin atender
     TableOrderDTO create(Integer waiterId, NewTableOrderDTO request);
 
     // El mesero entrega el pedido: DONE, end_time = ahora y, si a la mesa no le
     // queda nada en curso, la mesa queda atendida. Todo en una transacción.
-    TableOrderDTO deliver(Integer orderId);
+    TableOrderDTO deliver(Integer waiterId, Integer orderId);
 
     // Cobra un pedido entregado (efectivo o tarjeta). Si a la mesa no le queda
     // nada en cocina ni por cobrar, vuelve a quedar libre.
-    TableOrderDTO pay(Integer orderId, com.example.demo.entities.TablePaymentMethod method);
+    TableOrderDTO pay(Integer waiterId, Integer orderId, com.example.demo.entities.TablePaymentMethod method);
 
     // "Cobrar mesa": cobra de una vez todos los pedidos entregados y sin cobrar
     // de la mesa, con el mismo método. Devuelve los pedidos cobrados.
-    List<TableOrderDTO> payTable(Integer tableId, com.example.demo.entities.TablePaymentMethod method);
+    List<TableOrderDTO> payTable(Integer waiterId, Integer tableId, com.example.demo.entities.TablePaymentMethod method);
 
     // Cancela el pedido: solo si ningún plato se empezó a preparar
-    TableOrderDTO cancel(Integer orderId);
+    TableOrderDTO cancel(Integer waiterId, Integer orderId);
 
     // Bandeja del mesero: avisos de la cocina sobre sus pedidos
     List<com.example.demo.dto.TableOrderDTOs.WaiterNotificationDTO> notifications(Integer waiterId);
@@ -51,4 +51,7 @@ public interface TableOrderService {
 
     // Avanza un plato: PENDING -> PREPARING -> READY
     TableOrderDTO updateItemStatus(Integer orderId, Integer itemId, OrderItemStatus status);
+
+    // Avanza todos los platos del pedido a la vez (PREPARING o READY)
+    TableOrderDTO updateOrderStatus(Integer orderId, OrderItemStatus status);
 }

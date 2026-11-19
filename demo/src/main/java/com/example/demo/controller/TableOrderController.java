@@ -37,15 +37,13 @@ public class TableOrderController {
     @Operation(summary = "Tables of a floor with active orders and upcoming reservations (waiter)")
     @GetMapping("/tables")
     public List<WaiterTableDTO> tables(@RequestParam Integer floor) {
-        authenticatedUser.waiter();
-        return service.tablesByFloor(floor);
+        return service.tablesByFloor(authenticatedUser.waiter().getId(), floor);
     }
 
     @Operation(summary = "Active orders of a table (waiter)")
     @GetMapping("/tables/{tableId}")
     public List<TableOrderDTO> tableOrders(@PathVariable Integer tableId) {
-        authenticatedUser.waiter();
-        return service.activeOrdersOfTable(tableId);
+        return service.activeOrdersOfTable(authenticatedUser.waiter().getId(), tableId);
     }
 
     @Operation(summary = "Register a table order for the logged-in waiter")
@@ -58,31 +56,27 @@ public class TableOrderController {
     @Operation(summary = "Deliver a ready order: DONE and the table attended (waiter)")
     @PostMapping("/{id}/deliver")
     public TableOrderDTO deliver(@PathVariable Integer id) {
-        authenticatedUser.waiter();
-        return service.deliver(id);
+        return service.deliver(authenticatedUser.waiter().getId(), id);
     }
 
     @Operation(summary = "Charge a delivered order: cash or card (waiter)")
     @PostMapping("/{id}/pay")
     public TableOrderDTO pay(@PathVariable Integer id,
             @RequestBody com.example.demo.dto.TableOrderDTOs.PaymentDTO request) {
-        authenticatedUser.waiter();
-        return service.pay(id, request == null ? null : request.method());
+        return service.pay(authenticatedUser.waiter().getId(), id, request == null ? null : request.method());
     }
 
     @Operation(summary = "Charge every delivered, unpaid order of a table at once (waiter)")
     @PostMapping("/tables/{tableId}/pay")
     public List<TableOrderDTO> payTable(@PathVariable Integer tableId,
             @RequestBody com.example.demo.dto.TableOrderDTOs.PaymentDTO request) {
-        authenticatedUser.waiter();
-        return service.payTable(tableId, request == null ? null : request.method());
+        return service.payTable(authenticatedUser.waiter().getId(), tableId, request == null ? null : request.method());
     }
 
     @Operation(summary = "Cancel an order that the kitchen has not started (waiter)")
     @PostMapping("/{id}/cancel")
     public TableOrderDTO cancel(@PathVariable Integer id) {
-        authenticatedUser.waiter();
-        return service.cancel(id);
+        return service.cancel(authenticatedUser.waiter().getId(), id);
     }
 
     // ---------- Bandeja del mesero ----------
@@ -120,5 +114,12 @@ public class TableOrderController {
             @RequestBody ItemStatusDTO request) {
         authenticatedUser.kitchen();
         return service.updateItemStatus(id, itemId, request == null ? null : request.status());
+    }
+
+    @Operation(summary = "Move every dish of an order to PREPARING or READY at once (kitchen)")
+    @PutMapping("/{id}/status")
+    public TableOrderDTO updateOrder(@PathVariable Integer id, @RequestBody ItemStatusDTO request) {
+        authenticatedUser.kitchen();
+        return service.updateOrderStatus(id, request == null ? null : request.status());
     }
 }

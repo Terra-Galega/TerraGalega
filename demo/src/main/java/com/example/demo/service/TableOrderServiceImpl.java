@@ -86,7 +86,7 @@ public class TableOrderServiceImpl implements TableOrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<WaiterTableDTO> tablesByFloor(Integer floor) {
+    public List<WaiterTableDTO> tablesByFloor(Integer waiterId, Integer floor) {
         if (floor == null || floor < 1) {
             throw ApiException.badRequest("Elige un piso válido.");
         }
@@ -102,6 +102,12 @@ public class TableOrderServiceImpl implements TableOrderService {
         Map<Integer, Long> awaitingByTable = orders.findAwaitingPayment().stream()
                 .collect(Collectors.groupingBy(o -> o.getTable().getId(), Collectors.counting()));
 
+        // Quién atiende cada mesa ocupada: el mesero de su pedido abierto más antiguo
+        Map<Integer, Waiter> attending = new java.util.HashMap<>();
+        for (TableOrder o : orders.findOpenWithWaiter(ACTIVE)) {
+            attending.putIfAbsent(o.getTable().getId(), o.getWaiter());
+        }
+
         Map<Integer, Reservation> upcoming = upcomingReservations(floor);
         Map<Integer, Reservation> current = currentReservations(floor);
 
@@ -110,6 +116,7 @@ public class TableOrderServiceImpl implements TableOrderService {
             int awaiting = awaitingByTable.getOrDefault(t.getId(), 0L).intValue();
             Reservation next = upcoming.get(t.getId());
             Reservation now = current.get(t.getId());
+            Waiter by = attending.get(t.getId());
             return new WaiterTableDTO(
                     t.getId(),
                     t.getFloor(),
@@ -122,7 +129,10 @@ public class TableOrderServiceImpl implements TableOrderService {
                     next != null ? next.getTime() : null,
                     next != null ? next.getName() : null,
                     now != null ? now.getTime() : null,
-                    now != null ? now.getName() : null);
+                    now != null ? now.getName() : null,
+                    by != null ? by.getId() : null,
+                    by != null ? fullName(by) : null,
+                    by != null && by.getId().equals(waiterId));
         }).toList();
     }
 
@@ -166,10 +176,11 @@ public class TableOrderServiceImpl implements TableOrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TableOrderDTO> activeOrdersOfTable(Integer tableId) {
+    public List<TableOrderDTO> activeOrdersOfTable(Integer waiterId, Integer tableId) {
         if (tableId == null || !tables.existsById(tableId)) {
             throw ApiException.notFound("La mesa no existe.");
         }
+        checkAttends(waiterId, tableId);
         return orders.findOpenWithItemsByTable(tableId, ACTIVE).stream()
                 .map(this::toDTO)
                 .toList();
@@ -189,8 +200,11 @@ public class TableOrderServiceImpl implements TableOrderService {
         }
 
         // Una mesa ocupada (available = false) sí admite otra ronda
-        DiningTable table = tables.findById(request.tableId())
+        // Bloqueada mientras se toma el pedido: dos meseros no pueden quedarse la misma mesa
+        DiningTable table = tables.lockById(request.tableId())
                 .orElseThrow(() -> ApiException.notFound("La mesa " + request.tableId() + " no existe."));
+        // Otra ronda sí, pero solo del mesero que ya la atiende
+        checkAttends(waiterId, table.getId());
 
         List<NewOrderItemDTO> lines = request.items();
         if (lines == null || lines.isEmpty()) {
@@ -281,8 +295,9 @@ public class TableOrderServiceImpl implements TableOrderService {
 
     @Override
     @Transactional
-    public TableOrderDTO deliver(Integer orderId) {
+    public TableOrderDTO deliver(Integer waiterId, Integer orderId) {
         TableOrder order = lock(orderId);
+        checkAttends(waiterId, order.getTable().getId());
 
         if (!order.isActive()) {
             throw ApiException.conflict("Este pedido ya se entregó o se canceló.");
@@ -300,11 +315,12 @@ public class TableOrderServiceImpl implements TableOrderService {
 
     @Override
     @Transactional
-    public TableOrderDTO pay(Integer orderId, TablePaymentMethod method) {
+    public TableOrderDTO pay(Integer waiterId, Integer orderId, TablePaymentMethod method) {
         if (method == null) {
             throw ApiException.badRequest("Elige el método de pago: efectivo o tarjeta.");
         }
         TableOrder order = lock(orderId);
+        checkAttends(waiterId, order.getTable().getId());
 
         if (order.getStatus() != TableOrderStatus.DONE) {
             throw ApiException.conflict("Solo se cobran pedidos ya entregados en la mesa.");
@@ -322,13 +338,14 @@ public class TableOrderServiceImpl implements TableOrderService {
 
     @Override
     @Transactional
-    public List<TableOrderDTO> payTable(Integer tableId, TablePaymentMethod method) {
+    public List<TableOrderDTO> payTable(Integer waiterId, Integer tableId, TablePaymentMethod method) {
         if (method == null) {
             throw ApiException.badRequest("Elige el método de pago: efectivo o tarjeta.");
         }
         if (tableId == null || !tables.existsById(tableId)) {
             throw ApiException.notFound("La mesa no existe.");
         }
+        checkAttends(waiterId, tableId);
 
         List<TableOrder> pending = orders.lockAwaitingPaymentByTable(tableId);
         if (pending.isEmpty()) {
@@ -348,8 +365,9 @@ public class TableOrderServiceImpl implements TableOrderService {
 
     @Override
     @Transactional
-    public TableOrderDTO cancel(Integer orderId) {
+    public TableOrderDTO cancel(Integer waiterId, Integer orderId) {
         TableOrder order = lock(orderId);
+        checkAttends(waiterId, order.getTable().getId());
 
         if (!order.isActive()) {
             throw ApiException.conflict("Este pedido ya se entregó o se canceló.");
@@ -447,6 +465,40 @@ public class TableOrderServiceImpl implements TableOrderService {
         return toDTO(orders.save(order));
     }
 
+    @Override
+    @Transactional
+    public TableOrderDTO updateOrderStatus(Integer orderId, OrderItemStatus status) {
+        if (status == null || status == OrderItemStatus.PENDING) {
+            throw ApiException.badRequest("Indica si el pedido pasa a preparación o a listo.");
+        }
+
+        TableOrder order = lock(orderId);
+        if (!order.isActive()) {
+            throw ApiException.conflict("Este pedido ya se entregó o se canceló.");
+        }
+
+        // Solo se mueven los platos que van por detrás del nuevo estado: con
+        // "Preparar todo" los que ya están listos se quedan listos
+        List<OrderItem> moved = order.getItems().stream()
+                .filter(i -> i.getStatus().ordinal() < status.ordinal())
+                .toList();
+        if (moved.isEmpty()) {
+            throw ApiException.conflict(status == OrderItemStatus.READY
+                    ? "Todos los platos de este pedido ya están listos."
+                    : "Todos los platos de este pedido ya se están preparando.");
+        }
+        moved.forEach(i -> i.setStatus(status));
+
+        if (order.getStatus() == TableOrderStatus.PENDING) {
+            order.setStatus(TableOrderStatus.IN_PROGRESS);
+        }
+
+        // Un solo aviso por el pedido entero, no uno por plato
+        notifyWaiterOrder(order, status, moved.size());
+
+        return toDTO(orders.save(order));
+    }
+
     // =========================
     // Bandeja del mesero
     // =========================
@@ -513,9 +565,58 @@ public class TableOrderServiceImpl implements TableOrderService {
                 .build());
     }
 
+    // Aviso cuando la cocina cambia el pedido entero de una vez
+    private void notifyWaiterOrder(TableOrder order, OrderItemStatus status, int dishes) {
+        Integer tableId = order.getTable().getId();
+        com.example.demo.entities.WaiterNotificationType type;
+        String title;
+        String message;
+
+        if (order.isReady()) {
+            type = com.example.demo.entities.WaiterNotificationType.ORDER_READY;
+            title = "Mesa " + tableId + ": pedido listo";
+            message = "El pedido #" + order.getId() + " de la mesa " + tableId
+                    + " está listo en cocina. Llévalo a la mesa.";
+        } else {
+            type = com.example.demo.entities.WaiterNotificationType.DISH_PREPARING;
+            title = "Mesa " + tableId + ": en preparación";
+            message = "La cocina empezó " + (dishes == 1 ? "1 plato" : dishes + " platos")
+                    + " del pedido #" + order.getId() + ".";
+        }
+
+        notifications.save(com.example.demo.entities.WaiterNotification.builder()
+                .waiter(order.getWaiter())
+                .type(type)
+                .title(title)
+                .message(message)
+                .tableOrderId(order.getId())
+                .tableId(tableId)
+                .read(false)
+                .createdAt(LocalDateTime.now())
+                .build());
+    }
+
     // =========================
     // Privados
     // =========================
+
+    // Una mesa ocupada solo la maneja el mesero que la atiende (el de su pedido
+    // abierto más antiguo). Libre, cualquiera puede tomarla.
+    private void checkAttends(Integer waiterId, Integer tableId) {
+        List<TableOrder> open = orders.findOpenWithWaiterByTable(tableId, ACTIVE);
+        if (open.isEmpty()) {
+            return;
+        }
+        Waiter by = open.get(0).getWaiter();
+        if (!by.getId().equals(waiterId)) {
+            throw ApiException.forbidden("La mesa " + tableId + " la atiende " + fullName(by)
+                    + ". Solo quien la atiende puede verla y tomar pedidos.");
+        }
+    }
+
+    private static String fullName(Waiter w) {
+        return (w.getName() + " " + (w.getLastName() == null ? "" : w.getLastName())).trim();
+    }
 
     private TableOrder lock(Integer orderId) {
         return orders.lockById(orderId)
