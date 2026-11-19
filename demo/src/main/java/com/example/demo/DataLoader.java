@@ -1734,24 +1734,23 @@ public class DataLoader implements CommandLineRunner {
                 // Anuncios de demostración para el home
                 announcementRepository.save(Announcement.builder()
                                 .title("¡Bienvenidos a Terra Galega!")
-                                .description("Descubre nuestra carta de platos tradicionales y disfruta de la auténtica gastronomía gallega.")
+                                .description("Descubre Terra Galega a través de los sabores que nos reúnen alrededor de la mesa. Nuestra carta celebra la tradición gallega con platos para disfrutar sin prisa, compartir buenas conversaciones y hacer de cada visita una ocasión especial.")
                                 .imageUrl("https://png.pngtree.com/thumb_back/fh260/background/20240425/pngtree-top-desk-with-blur-restaurant-background-wooden-table-image_15665383.jpg")
                                 .build());
 
                 announcementRepository.save(Announcement.builder()
                                 .title("Nuevo: Menú Maridaje Degustación")
-                                .description("Tres copas gallegas elegidas por nuestro sommelier para acompañar entrada, principal y postre.")
+                                .description("El Menú Maridaje Degustación propone un recorrido en tres tiempos, acompañado por copas gallegas elegidas por nuestro sommelier. Desde la entrada hasta el postre, cada vino acompaña los sabores del plato y abre una nueva conversación en la mesa.")
                                 .imageUrl("https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80")
                                 .build());
                 announcementRepository.save(Announcement.builder()
                                 .title("Reserva tu mesa con anticipo")
-                                .description("Elige tu mesa en el plano, en el salón principal o en la galería del segundo piso, y asegúrala con un anticipo.")
+                                .description("Elige la mesa que prefieras en el plano, ya sea en el salón principal o en la galería del segundo piso. Con un anticipo puedes asegurar tu reserva y empezar a imaginar una visita para celebrar, conversar y disfrutar de Terra Galega sin prisa.")
                                 .imageUrl("https://images.unsplash.com/photo-1547595628-c61a29f496f0?w=800&q=80")
                                 .build());
                 announcementRepository.save(Announcement.builder()
                                 .title("Hazte Premium y recibe cupones")
-                                .description("Los clientes Premium reciben descuentos exclusivos y cupones personales cada mes.")
-                                .imageUrl("https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80")
+                                .description("Ser cliente Premium es una forma de seguir disfrutando de Terra Galega con beneficios pensados para volver. Recibe descuentos exclusivos y envios gratis por un mes, y encuentra nuevas ocasiones para compartir nuestros sabores alrededor de la mesa.")                                .imageUrl("https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80")
                                 .build());
 
                 // Reseñas de demostración: una por cliente (relación 1 a 1). Las opiniones
