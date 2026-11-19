@@ -9,6 +9,11 @@ import { OperatorDeliveryModalComponent } from './components/operator-delivery-m
 import { OperatorService } from '../../services/operator.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { OperatorTrackingComponent } from './components/operator-tracking/operator-tracking.component';
+import { OperatorKitchenComponent } from './components/operator-kitchen/operator-kitchen.component';
+import {
+  SegmentOption,
+  SegmentedControlComponent,
+} from '../../components/segmented-control/segmented-control.component';
 @Component({
   selector: 'app-operator',
   imports: [
@@ -17,12 +22,21 @@ import { OperatorTrackingComponent } from './components/operator-tracking/operat
     OperatorDeliveryModalComponent,
     OperatorOrderDetailModalComponent,
     OperatorTrackingComponent,
+    OperatorKitchenComponent,
+    SegmentedControlComponent,
   ],
   templateUrl: './operator.component.html',
 })
 export class OperatorComponent {
   operatorId = 0;
   operatorName = '';
+
+  // Sección visible: los domicilios de siempre o la cocina (pedidos de mesa)
+  section: 'delivery' | 'kitchen' = 'delivery';
+  sections: SegmentOption[] = [
+    { value: 'delivery', label: 'Domicilios' },
+    { value: 'kitchen', label: 'Cocina (mesas)' },
+  ];
   operatorUsername = '';
 
   // Guarda el pedido seleccionado para iniciar el proceso de envío; null indica que no hay ninguno seleccionado
