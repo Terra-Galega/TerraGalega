@@ -30,6 +30,7 @@ public class SecurityConfig {
         private static final String ADMIN = Role.ADMIN.name();
         private static final String OPERATOR = Role.OPERATOR.name();
         private static final String DELIVERY_PERSON = Role.DELIVERY_PERSON.name();
+        private static final String WAITER = Role.WAITER.name();
 
         @Autowired
         private JwtGenerator jwtGenerator;
@@ -174,6 +175,21 @@ public class SecurityConfig {
                                                 .hasAuthority(OPERATOR)
                                                 .requestMatchers(HttpMethod.GET, "/delivery-persons/available")
                                                 .hasAuthority(OPERATOR)
+
+                                                // ================= PEDIDOS DE MESA =================
+                                                // Cocina (panel del operador en la web): ver pedidos y avanzar platos
+                                                .requestMatchers(HttpMethod.GET, "/table-orders/kitchen")
+                                                .hasAuthority(OPERATOR)
+                                                .requestMatchers(HttpMethod.PUT, "/table-orders/*/items/*/status")
+                                                .hasAuthority(OPERATOR)
+                                                // Mesero (app móvil): mesas, crear, entregar y cancelar
+                                                .requestMatchers(HttpMethod.GET, "/table-orders/tables", "/table-orders/tables/*")
+                                                .hasAuthority(WAITER)
+                                                .requestMatchers(HttpMethod.POST, "/table-orders",
+                                                                "/table-orders/*/deliver", "/table-orders/*/cancel")
+                                                .hasAuthority(WAITER)
+                                                // La carta para tomar el pedido (GET /products/active) ya es pública
+                                                .requestMatchers("/table-orders/**").denyAll()
 
                                                 // ================= SEGUIMIENTO DE DOMICILIOS =================
 

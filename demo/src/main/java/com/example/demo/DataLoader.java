@@ -35,6 +35,14 @@ import com.example.demo.entities.ReservationTheme;
 import com.example.demo.entities.Review;
 import com.example.demo.entities.Role;
 import com.example.demo.entities.RoleEntity;
+import com.example.demo.entities.DiningTable;
+import com.example.demo.entities.OrderItem;
+import com.example.demo.entities.OrderItemStatus;
+import com.example.demo.entities.TableOrder;
+import com.example.demo.entities.TableOrderStatus;
+import com.example.demo.entities.Waiter;
+import com.example.demo.repository.TableOrderRepository;
+import com.example.demo.repository.WaiterRepository;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.service.UserAccountService;
 import com.example.demo.repository.AddOnRepository;
@@ -106,6 +114,13 @@ public class DataLoader implements CommandLineRunner {
         // Crea las filas en users con la contraseña cifrada
         @Autowired
         private UserAccountService userAccountService;
+
+        // Pedidos de mesa: meseros y pedidos de ejemplo para la pantalla de cocina
+        @Autowired
+        private WaiterRepository waiterRepository;
+
+        @Autowired
+        private TableOrderRepository tableOrderRepository;
 
         // --- Helpers para reutilizar los productos/addOns ya cargados arriba,
         // en vez de duplicar su creación ---
@@ -372,6 +387,39 @@ public class DataLoader implements CommandLineRunner {
                 operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(),
                                 Role.OPERATOR, true));
                 return operatorRepository.save(operator);
+        }
+
+        private Waiter saveWaiter(Waiter waiter) {
+                waiter.setUser(userAccountService.createUser(waiter.getEmail(), waiter.getPassword(),
+                                Role.WAITER, true));
+                return waiterRepository.save(waiter);
+        }
+
+        // Pedido de mesa de ejemplo. Cada plato: {nombre, cantidad, nota (o null), estado}
+        private void saveTableOrder(int tableId, Waiter waiter, int minutesAgo, Object[]... dishes) {
+                DiningTable table = diningTableRepository.findById(tableId).orElseThrow();
+                TableOrder order = TableOrder.builder()
+                                .table(table)
+                                .waiter(waiter)
+                                .startTime(LocalDateTime.now().minusMinutes(minutesAgo))
+                                .status(TableOrderStatus.PENDING)
+                                .build();
+                for (Object[] d : dishes) {
+                        OrderItemStatus itemStatus = (OrderItemStatus) d[3];
+                        order.getItems().add(OrderItem.builder()
+                                        .order(order)
+                                        .product(findProductByName((String) d[0]))
+                                        .quantity((Integer) d[1])
+                                        .notes((String) d[2])
+                                        .status(itemStatus)
+                                        .build());
+                        if (itemStatus != OrderItemStatus.PENDING) {
+                                order.setStatus(TableOrderStatus.IN_PROGRESS);
+                        }
+                }
+                tableOrderRepository.save(order);
+                table.setAttended(false);
+                diningTableRepository.save(table);
         }
 
         private DeliveryPerson saveDeliveryPerson(DeliveryPerson deliveryPerson) {
@@ -1345,6 +1393,28 @@ public class DataLoader implements CommandLineRunner {
                                                 .email("brayan.cortes@terra.com").password("brayan123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234574")
                                                 .phone("+57 301 500 1008").available(true).active(true).build());
+
+                // Meseros (app móvil, pedidos de mesa). Elena está inactiva.
+                Waiter waiter1 = saveWaiter(Waiter.builder().name("Andrés").lastName("Gómez")
+                                .email("andres.gomez@terra.com").password("andres123")
+                                .role(Role.WAITER).active(true).build());
+                Waiter waiter2 = saveWaiter(Waiter.builder().name("Valeria").lastName("Mora")
+                                .email("valeria.mora@terra.com").password("valeria123")
+                                .role(Role.WAITER).active(true).build());
+                saveWaiter(Waiter.builder().name("Elena").lastName("Castro")
+                                .email("elena.castro@terra.com").password("elena123")
+                                .role(Role.WAITER).active(false).build());
+
+                // Pedidos de mesa en curso para que la cocina tenga algo que mostrar:
+                // la 104 lleva 18 min (un plato ya en preparación), la 210 acaba de llegar
+                // y la 104 pidió una segunda ronda
+                saveTableOrder(104, waiter1, 18,
+                                new Object[] { "Tortilla Española", 1, "Poco cuajada", OrderItemStatus.PREPARING },
+                                new Object[] { "Patatas Bravas", 2, null, OrderItemStatus.PENDING });
+                saveTableOrder(210, waiter2, 6,
+                                new Object[] { "Calamares a la Romana", 1, "Sin limón", OrderItemStatus.PENDING });
+                saveTableOrder(104, waiter1, 2,
+                                new Object[] { "Patatas Bravas", 1, "Muy picantes", OrderItemStatus.PENDING });
 
                 // Los operadores deben existir antes de los pedidos, que los referencian.
                 // operator5 está inactivo (active=false).

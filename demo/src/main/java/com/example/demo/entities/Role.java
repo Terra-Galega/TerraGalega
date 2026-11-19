@@ -5,6 +5,8 @@ public enum Role {
     CLIENT,
     ADMIN,
     OPERATOR,
-    DELIVERY_PERSON
+    DELIVERY_PERSON,
+    // Mesero del salón: registra pedidos de mesa desde la app móvil
+    WAITER
 
 }

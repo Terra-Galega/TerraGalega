@@ -51,6 +51,12 @@ public class DiningTable {
     @Column(nullable = false)
     private Integer seats;
 
+    // Pedidos de mesa: true cuando ya se le entregó todo lo pedido (no le queda
+    // ningún pedido en curso). Vuelve a false al registrar un pedido nuevo.
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean attended = false;
+
     // Reservas de la mesa a lo largo del tiempo. No se envía en el JSON para
     // evitar la recursión DiningTable -> Reservation -> DiningTable.
     @JsonIgnore

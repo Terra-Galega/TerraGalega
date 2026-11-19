@@ -58,6 +58,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private DeliveryPersonRepository deliveryPersonRepository;
 
+    @Autowired
+    private com.example.demo.repository.WaiterRepository waiterRepository;
+
     @Override
     @Transactional
     public AuthResponseDTO login(String email, String password) {
@@ -131,6 +134,11 @@ public class AuthServiceImpl implements AuthService {
         if (deliveryPerson != null) {
             return new LoginResponseDTO(deliveryPerson.getId(), deliveryPerson.getName(),
                     deliveryPerson.getLastName(), deliveryPerson.getRole());
+        }
+
+        com.example.demo.entities.Waiter waiter = waiterRepository.findByEmail(email);
+        if (waiter != null) {
+            return new LoginResponseDTO(waiter.getId(), waiter.getName(), waiter.getLastName(), waiter.getRole());
         }
 
         throw ApiException.notFound("No se encontró el perfil de la cuenta.");
