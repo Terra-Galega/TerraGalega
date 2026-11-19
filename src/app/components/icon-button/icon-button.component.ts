@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
+import { BusyService } from '../../services/busy.service';
 
 // Variantes visuales permitidas: 'soft' tiene fondo suave y 'ghost' es transparente hasta pasar el mouse.
 export type IconButtonVariant = 'soft' | 'ghost';
@@ -17,4 +18,13 @@ export class IconButtonComponent {
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
   // Si es true, el botón se deshabilita y no responde a clics.
   @Input() disabled = false;
+  // Si es true, el botón sigue activo mientras se guarda algo.
+  @Input() ignoreBusy = false;
+
+  // Mientras haya una petición que crea, edita o borra, el botón también se deshabilita
+  protected busy = inject(BusyService);
+
+  get isDisabled(): boolean {
+    return this.disabled || (!this.ignoreBusy && this.busy.busyVisible());
+  }
 }

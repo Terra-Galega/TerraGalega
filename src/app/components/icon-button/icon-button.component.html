@@ -1,5 +1,12 @@
 <!-- Botón de solo icono: el tipo, el estado y la etiqueta accesible llegan desde el componente padre. -->
-<button [type]="type" [disabled]="disabled" [attr.aria-label]="label" [class]="'icon-btn icon-btn--' + variant">
+<button
+  [type]="type"
+  [disabled]="isDisabled"
+  [attr.aria-label]="label"
+  [attr.aria-busy]="busy.busyVisible() && !ignoreBusy ? true : null"
+  [attr.data-busy-ignore]="ignoreBusy ? '' : null"
+  [class]="'icon-btn icon-btn--' + variant"
+>
   <!-- Proyecta el icono (normalmente un SVG) que se escriba dentro de <app-icon-button>. -->
   <ng-content />
 </button>

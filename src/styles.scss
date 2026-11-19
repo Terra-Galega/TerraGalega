@@ -1113,3 +1113,14 @@ html[data-theme="dark"] {
     color: var(--t-forest);
   }
 }
+
+/* Mientras se guarda algo (POST/PUT/PATCH/DELETE), BusyService pone <html data-busy> y
+   frena los clics de todos los botones. app-button y app-icon-button ya quedan :disabled;
+   esto hace que los <button> normales también se vean deshabilitados.
+   Excepción: los que tengan data-busy-ignore. */
+html[data-busy] button:not(:disabled):not([data-busy-ignore]),
+html[data-busy] [role='button']:not([data-busy-ignore]),
+html[data-busy] input[type='submit']:not([data-busy-ignore]) {
+  cursor: progress;
+  opacity: 0.6;
+}

@@ -6,7 +6,13 @@
 </a>
 } @else {
 <!-- En caso contrario, se muestra como un botón nativo con su tipo y estado deshabilitado. -->
-<button [type]="type" [disabled]="disabled" [class]="classes">
+<button
+  [type]="type"
+  [disabled]="isDisabled"
+  [attr.aria-busy]="busy.busyVisible() && !ignoreBusy ? true : null"
+  [attr.data-busy-ignore]="ignoreBusy ? '' : null"
+  [class]="classes"
+>
   <ng-container *ngTemplateOutlet="content" />
 </button>
 }

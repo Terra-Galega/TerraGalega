@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
@@ -14,7 +15,7 @@ type ResetState = 'form' | 'done' | 'invalid';
 // Pide la contraseña nueva dos veces y se la envía al back con el token.
 @Component({
   selector: 'app-reset-password',
-  imports: [NavbarComponent, FooterComponent, ButtonComponent, TranslatePipe, RouterLink],
+  imports: [NavbarComponent, FooterComponent, ButtonComponent, TranslatePipe, RouterLink, NgTemplateOutlet],
   templateUrl: './reset-password.component.html',
 })
 export class ResetPasswordComponent implements OnInit {
@@ -26,7 +27,9 @@ export class ResetPasswordComponent implements OnInit {
   token = '';
   password = '';
   confirm = '';
+  // Cada campo tiene su propio ojo para ver u ocultar lo que se escribe
   showPassword = false;
+  showConfirm = false;
   error = '';
   message = '';
   saving = false;
