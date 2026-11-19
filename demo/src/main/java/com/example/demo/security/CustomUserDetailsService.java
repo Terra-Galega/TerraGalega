@@ -39,6 +39,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private com.example.demo.repository.WaiterRepository waiterRepository;
 
+    @Autowired
+    private com.example.demo.repository.KitchenStaffRepository kitchenStaffRepository;
+
     // En esta aplicación el username es el correo
     @Override
     @Transactional
@@ -61,7 +64,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .toList();
     }
 
-    // Solo los operadores, los domiciliarios y los meseros se pueden desactivar
+    // Solo los operadores, los domiciliarios, los meseros y la cocina se pueden desactivar
     private boolean isActive(String email) {
         Operator operator = operatorRepository.findByEmail(email);
         if (operator != null) {
@@ -74,6 +77,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         com.example.demo.entities.Waiter waiter = waiterRepository.findByEmail(email);
         if (waiter != null) {
             return Boolean.TRUE.equals(waiter.getActive());
+        }
+        com.example.demo.entities.KitchenStaff kitchen = kitchenStaffRepository.findByEmail(email);
+        if (kitchen != null) {
+            return Boolean.TRUE.equals(kitchen.getActive());
         }
         return true;
     }

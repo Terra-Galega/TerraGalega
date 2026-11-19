@@ -31,6 +31,7 @@ public class SecurityConfig {
         private static final String OPERATOR = Role.OPERATOR.name();
         private static final String DELIVERY_PERSON = Role.DELIVERY_PERSON.name();
         private static final String WAITER = Role.WAITER.name();
+        private static final String KITCHEN = Role.KITCHEN.name();
 
         @Autowired
         private JwtGenerator jwtGenerator;
@@ -178,11 +179,11 @@ public class SecurityConfig {
                                                 .hasAuthority(OPERATOR)
 
                                                 // ================= PEDIDOS DE MESA =================
-                                                // Cocina (panel del operador en la web): ver pedidos y avanzar platos
+                                                // Cocina (portal web propio, solo la cuenta de cocina): ver pedidos y avanzar platos
                                                 .requestMatchers(HttpMethod.GET, "/table-orders/kitchen")
-                                                .hasAuthority(OPERATOR)
+                                                .hasAuthority(KITCHEN)
                                                 .requestMatchers(HttpMethod.PUT, "/table-orders/*/items/*/status")
-                                                .hasAuthority(OPERATOR)
+                                                .hasAuthority(KITCHEN)
                                                 // Mesero (app móvil): mesas, crear, entregar y cancelar
                                                 .requestMatchers(HttpMethod.GET, "/table-orders/tables", "/table-orders/tables/*")
                                                 .hasAuthority(WAITER)

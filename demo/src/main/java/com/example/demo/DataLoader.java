@@ -122,6 +122,9 @@ public class DataLoader implements CommandLineRunner {
         @Autowired
         private TableOrderRepository tableOrderRepository;
 
+        @Autowired
+        private com.example.demo.repository.KitchenStaffRepository kitchenStaffRepository;
+
         // --- Helpers para reutilizar los productos/addOns ya cargados arriba,
         // en vez de duplicar su creación ---
         private Product findProductByName(String name) {
@@ -387,6 +390,12 @@ public class DataLoader implements CommandLineRunner {
                 operator.setUser(userAccountService.createUser(operator.getEmail(), operator.getPassword(),
                                 Role.OPERATOR, true));
                 return operatorRepository.save(operator);
+        }
+
+        private com.example.demo.entities.KitchenStaff saveKitchen(com.example.demo.entities.KitchenStaff kitchen) {
+                kitchen.setUser(userAccountService.createUser(kitchen.getEmail(), kitchen.getPassword(),
+                                Role.KITCHEN, true));
+                return kitchenStaffRepository.save(kitchen);
         }
 
         private Waiter saveWaiter(Waiter waiter) {
@@ -1393,6 +1402,11 @@ public class DataLoader implements CommandLineRunner {
                                                 .email("brayan.cortes@terra.com").password("brayan123")
                                                 .role(Role.DELIVERY_PERSON).identification("1001234574")
                                                 .phone("+57 301 500 1008").available(true).active(true).build());
+
+                // Cuenta de la cocina: entra a su propio portal web (/kitchen)
+                saveKitchen(com.example.demo.entities.KitchenStaff.builder().name("Cocina").lastName("Terra Galega")
+                                .email("cocina@terra.com").password("cocina123")
+                                .role(Role.KITCHEN).active(true).build());
 
                 // Meseros (app móvil, pedidos de mesa). Elena está inactiva.
                 Waiter waiter1 = saveWaiter(Waiter.builder().name("Andrés").lastName("Gómez")

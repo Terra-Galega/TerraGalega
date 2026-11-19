@@ -32,6 +32,9 @@ public class AuthenticatedUser {
     @Autowired
     private com.example.demo.repository.WaiterRepository waiterRepository;
 
+    @Autowired
+    private com.example.demo.repository.KitchenStaffRepository kitchenStaffRepository;
+
     // Correo del usuario que viene en el token. Sin sesión responde 401.
     public String email() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -59,6 +62,15 @@ public class AuthenticatedUser {
             throw ApiException.forbidden("Esta acción es solo para operadores.");
         }
         return operator;
+    }
+
+    // Cuenta de cocina con sesión iniciada (portal web de cocina)
+    public com.example.demo.entities.KitchenStaff kitchen() {
+        com.example.demo.entities.KitchenStaff kitchen = kitchenStaffRepository.findByEmail(email());
+        if (kitchen == null) {
+            throw ApiException.forbidden("Esta acción es solo para la cocina.");
+        }
+        return kitchen;
     }
 
     // Mesero con sesión iniciada (pedidos de mesa en la app móvil)

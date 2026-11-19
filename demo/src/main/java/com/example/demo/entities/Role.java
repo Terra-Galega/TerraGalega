@@ -7,6 +7,8 @@ public enum Role {
     OPERATOR,
     DELIVERY_PERSON,
     // Mesero del salón: registra pedidos de mesa desde la app móvil
-    WAITER
+    WAITER,
+    // Cocina: portal web propio donde prepara los pedidos de mesa
+    KITCHEN
 
 }

@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 // API de pedidos de mesa. Ruta: /table-orders.
 // - Mesero (rol WAITER, app móvil): mesas por piso, pedidos de una mesa, crear,
 //   entregar y cancelar.
-// - Cocina (rol OPERATOR, web): pedidos en curso y estado de cada plato.
+// - Cocina (rol KITCHEN, portal web propio): pedidos en curso y estado de cada plato.
 // Los permisos por rol están en SecurityConfig.
 @RestController
 @RequestMapping("/table-orders")
@@ -74,6 +74,7 @@ public class TableOrderController {
     @Operation(summary = "Active table orders grouped by table, oldest first (kitchen)")
     @GetMapping("/kitchen")
     public List<KitchenTableDTO> kitchen() {
+        authenticatedUser.kitchen();
         return service.kitchen();
     }
 
@@ -81,6 +82,7 @@ public class TableOrderController {
     @PutMapping("/{id}/items/{itemId}/status")
     public TableOrderDTO updateItem(@PathVariable Integer id, @PathVariable Integer itemId,
             @RequestBody ItemStatusDTO request) {
+        authenticatedUser.kitchen();
         return service.updateItemStatus(id, itemId, request == null ? null : request.status());
     }
 }
