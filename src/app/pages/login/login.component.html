@@ -6,47 +6,70 @@
        también en móvil (el botón se vuelve a dibujar cuando cambia el ancho). -->
   <div id="auth-card" class="w-full max-w-[400px] mx-auto">
     <!--Barra para login o register-->
-    <app-login-header [activeTab]="activeTab" (tabChange)="selectTab($event)"></app-login-header>
+    <app-login-header
+      [activeTab]="activeTab"
+      (tabChange)="selectTab($event)"
+    ></app-login-header>
     <!-- Acceso con Google encima del formulario, en las dos pestañas (oculto mientras se espera
          la confirmación del correo). Se recrea al cambiar de pestaña para que cambie su texto. -->
     @if (!pendingEmail) {
-    @if (!microsoftToken) {
-    <app-microsoft-button [disabled]="microsoftBusy" (credential)="microsoftLogin($event)" />
-    } @else {
-    <form class="mb-4 space-y-2" (submit)="$event.preventDefault(); microsoftLogin(microsoftToken, code.value.trim())">
-      <label for="ms-code">Código enviado a tu correo por TerraGalega</label>
-      <input #code id="ms-code" class="input-field w-full px-4 py-2" required minlength="12" maxlength="12"
-        autocomplete="one-time-code" />
-      <button type="submit" [disabled]="microsoftBusy">Confirmar</button>
-      <button type="button" [disabled]="microsoftBusy"
-        (click)="microsoftToken = ''; microsoftError = ''">Volver</button>
-    </form>
-    }
-    @if (microsoftError) { <p role="status" class="mb-3 text-sm">{{ microsoftError }}</p> }
-    @if (activeTab === "login") {
-    <app-google-button mode="login" position="top" (credential)="googleLogin($event)"></app-google-button>
-    } @else {
-    <app-google-button mode="signup" position="top" (credential)="googleLogin($event)"></app-google-button>
-    }
-    @if (googleError) {
-    <p id="google-error" class="text-sm text-center -mt-3 mb-5" style="color: #8a2222">{{ googleError }}</p>
-    }
+      @if (!microsoftToken) {
+        <app-microsoft-button [disabled]="microsoftBusy" (credential)="microsoftLogin($event)" />
+      } @else {
+        <form class="mb-4 space-y-2" (submit)="$event.preventDefault(); microsoftLogin(microsoftToken, code.value.trim())">
+          <label for="ms-code">Código enviado a tu correo por TerraGalega</label>
+          <input #code id="ms-code" class="input-field w-full px-4 py-2" required minlength="12" maxlength="12"
+                 autocomplete="one-time-code" />
+          <button type="submit" [disabled]="microsoftBusy">Confirmar</button>
+          <button type="button" [disabled]="microsoftBusy" (click)="microsoftToken = ''; microsoftError = ''">Volver</button>
+        </form>
+      }
+      @if (microsoftError) { <p role="status" class="mb-3 text-sm">{{ microsoftError }}</p> }
+      @if (activeTab === "login") {
+        <app-google-button mode="login" position="top" (credential)="googleLogin($event)"></app-google-button>
+      } @else {
+        <app-google-button mode="signup" position="top" (credential)="googleLogin($event)"></app-google-button>
+      }
+      @if (googleError) {
+        <p id="google-error" class="text-sm text-center -mt-3 mb-5" style="color: #8a2222">{{ googleError }}</p>
+      }
     }
     <!--Formulario-->
-    <app-login-forms [activeTab]="activeTab" [loginEmail]="loginEmail" [loginPassword]="loginPassword"
-      [loginError]="loginError" [signupError]="signupError" [showLoginPassword]="showLoginPassword"
-      [showSignupPassword]="showSignupPassword" (loginEmailChange)="loginEmail = $event"
-      (loginPasswordChange)="loginPassword = $event" (loginSubmit)="login()"
-      (loginPasswordToggle)="toggleLoginPassword()" (signupPasswordToggle)="toggleSignupPassword()"
-      (demoUser)="fillDemoUser($event.email, $event.password)" [signupName]="signupName"
-      [signupLastName]="signupLastName" [signupEmail]="signupEmail" [signupPassword]="signupPassword"
-      [signupPhone]="signupPhone" [signupAddress]="signupAddress" [pendingEmail]="pendingEmail"
-      [emailNotVerified]="emailNotVerified" [resendMessage]="resendMessage" [resendError]="resendError"
-      [resendCooldown]="resendCooldown" (resendVerification)="resendVerification()" (backToLogin)="backToLogin()"
-      (signupNameChange)="setSignupName($event)" (signupLastNameChange)="setSignupLastName($event)"
-      (signupEmailChange)="setSignupEmail($event)" (signupPasswordChange)="setSignupPassword($event)"
-      (signupPhoneChange)="setSignupPhone($event)" (signupAddressChange)="setSignupAddress($event)"
-      (signupSubmit)="signup()"></app-login-forms>
+    <app-login-forms
+      [activeTab]="activeTab"
+      [loginEmail]="loginEmail"
+      [loginPassword]="loginPassword"
+      [loginError]="loginError"
+      [signupError]="signupError"
+      [showLoginPassword]="showLoginPassword"
+      [showSignupPassword]="showSignupPassword"
+      (loginEmailChange)="loginEmail = $event"
+      (loginPasswordChange)="loginPassword = $event"
+      (loginSubmit)="login()"
+      (loginPasswordToggle)="toggleLoginPassword()"
+      (signupPasswordToggle)="toggleSignupPassword()"
+      (demoUser)="fillDemoUser($event.email, $event.password)"
+      [signupName]="signupName"
+      [signupLastName]="signupLastName"
+      [signupEmail]="signupEmail"
+      [signupPassword]="signupPassword"
+      [signupPhone]="signupPhone"
+      [signupAddress]="signupAddress"
+      [pendingEmail]="pendingEmail"
+      [emailNotVerified]="emailNotVerified"
+      [resendMessage]="resendMessage"
+      [resendError]="resendError"
+      [resendCooldown]="resendCooldown"
+      (resendVerification)="resendVerification()"
+      (backToLogin)="backToLogin()"
+      (signupNameChange)="setSignupName($event)"
+      (signupLastNameChange)="setSignupLastName($event)"
+      (signupEmailChange)="setSignupEmail($event)"
+      (signupPasswordChange)="setSignupPassword($event)"
+      (signupPhoneChange)="setSignupPhone($event)"
+      (signupAddressChange)="setSignupAddress($event)"
+      (signupSubmit)="signup()"
+    ></app-login-forms>
   </div>
 </main>
 

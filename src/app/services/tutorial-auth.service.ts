@@ -46,7 +46,7 @@ export class TutorialAuthService {
 
   // ---- Elegir cómo entrar ----
 
-  // Un solo paso que resalta SOLO las pestañas «Iniciar sesión» y «Registrarse».
+  // Un solo paso que resalta SOLO las pestañas "Iniciar sesión" y "Registrarse".
   // Lo demás de la tarjeta (formulario, botón de Google) queda bajo la zona oscura
   // y no se puede tocar: así el cliente no se salta el flujo.
   // Según la pestaña que toque, arranca el tramo que corresponde.
@@ -55,7 +55,7 @@ export class TutorialAuthService {
       {
         element: '#auth-tabs',
         title: '¿Cómo quieres continuar?',
-        description: `Para ${t.goal} necesitas una cuenta. Toca «Iniciar sesión» si ya tienes una, o «Registrarse» para crear una.`,
+        description: `Para ${t.goal} necesitas una cuenta. Toca "Iniciar sesión" si ya tienes una, o "Registrarse" para crear una.`,
         side: 'right',
         align: 'center',
         waitClick: '#auth-tabs button',
@@ -88,12 +88,12 @@ export class TutorialAuthService {
         waitInput: { selector: '#login-email', valid: (v) => isValidEmail(v) },
         waitClick: '.demo-login-btn:first-child',
       },
-      // Contraseña: «Siguiente» por si ya venía llena con la cuenta de prueba
+      // Contraseña: "Siguiente" por si ya venía llena con la cuenta de prueba
       {
         element: '#login-password',
         title: 'Tu contraseña',
         description:
-          'Escríbela y toca fuera del campo. Con el ojito puedes verla. Si ya se llenó sola con la cuenta de prueba, pulsa «Siguiente».',
+          'Escríbela y toca fuera del campo. Con el ojito puedes verla. Si ya se llenó sola con la cuenta de prueba, pulsa "Siguiente".',
         side: 'right',
         align: 'center',
         waitInput: { selector: '#login-password', valid: (v) => v.length > 0 },
@@ -103,7 +103,7 @@ export class TutorialAuthService {
       {
         element: '#btn-login',
         title: 'Entra a tu cuenta',
-        description: `Pulsa «Iniciar sesión». Te llevaremos de vuelta para ${t.back}.`,
+        description: `Pulsa "Iniciar sesión". Te llevaremos de vuelta para ${t.back}.`,
         side: 'right',
         align: 'center',
         waitNavigation: true,
@@ -172,12 +172,12 @@ export class TutorialAuthService {
         align: 'center',
         waitInput: { selector: '#signup-address', valid: (v) => v.trim().length > 0 },
       },
-      // Crear cuenta: avanza cuando aparece la pantalla «Revisa tu correo».
+      // Crear cuenta: avanza cuando aparece la pantalla "Revisa tu correo".
       // Si falta algo, el formulario avisa y el globo se queda esperando.
       {
         element: '#signup-form app-button',
         title: 'Crea tu cuenta',
-        description: 'Pulsa «Crear cuenta». Si algo falta, el formulario te lo dirá.',
+        description: 'Pulsa "Crear cuenta". Si algo falta, el formulario te lo dirá.',
         side: 'right',
         align: 'center',
         waitElement: '#signup-pending',
@@ -226,7 +226,7 @@ export class TutorialAuthService {
       {
         element: '#btn-complete-profile',
         title: 'Guarda y continúa',
-        description: `Pulsa «Guardar y continuar» para ${t.back}.`,
+        description: `Pulsa "Guardar y continuar" para ${t.back}.`,
         side: 'right',
         align: 'center',
         waitNavigation: true,
