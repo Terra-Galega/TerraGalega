@@ -1,0 +1,98 @@
+<!-- Pantalla de cocina: pedidos de mesa en curso, agrupados por mesa y por orden de llegada -->
+<section id="kitchen" aria-labelledby="kitchen-title">
+  <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 id="kitchen-title" class="font-serif text-3xl font-semibold text-charcoal">Cocina · pedidos de mesa</h1>
+      <p class="mt-1 text-[15px]" style="color: rgba(44, 44, 44, 0.6)">
+        Los envían los meseros desde la app. Marca cada plato en preparación y luego listo.
+      </p>
+    </div>
+    <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)" aria-live="polite">
+      {{ orderCount }} {{ orderCount === 1 ? 'pedido' : 'pedidos' }} en curso
+      @if (checkedAt) {
+        · actualizado {{ checkedAt | date: 'HH:mm:ss' }}
+      }
+    </p>
+  </header>
+
+  @if (errorMessage) {
+    <p class="mb-4 text-sm rounded-xl px-4 py-3" role="alert"
+      style="color: #8a2222; background: rgba(138, 34, 34, 0.06)">{{ errorMessage }}</p>
+  }
+
+  @if (loading) {
+    <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">Cargando pedidos…</p>
+  } @else if (tables.length === 0) {
+    <div class="glass-card rounded-3xl p-8 text-center">
+      <p class="font-serif text-xl text-charcoal">No hay pedidos de mesa en curso</p>
+      <p class="text-sm mt-1" style="color: rgba(44, 44, 44, 0.6)">Los nuevos aparecerán aquí solos.</p>
+    </div>
+  } @else {
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3 items-start">
+      @for (table of tables; track table.tableId) {
+        <!-- Una tarjeta por mesa, con sus pedidos del más antiguo al más nuevo -->
+        <article class="glass-card rounded-3xl overflow-hidden" [attr.aria-label]="'Mesa ' + table.tableId">
+          <div class="flex items-center justify-between px-5 py-3" style="background-color: #2c2c2c; color: #f5f2eb">
+            <p class="font-serif text-xl font-semibold">Mesa {{ table.tableId }}</p>
+            <p class="text-xs tracking-widest uppercase" style="color: rgba(245, 242, 235, 0.65)">
+              Piso {{ table.floor }}
+            </p>
+          </div>
+
+          @for (order of table.orders; track order.id; let i = $index) {
+            <div class="px-5 py-4" [style.border-top]="i > 0 ? '1px dashed rgba(44, 44, 44, 0.15)' : 'none'"
+              [style.background-color]="order.ready ? 'rgba(85, 97, 65, 0.08)' : 'transparent'">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-[15px] font-semibold text-charcoal">
+                    Pedido #{{ order.id }}
+                    @if (table.orders.length > 1) {
+                      <span class="font-normal" style="color: rgba(44, 44, 44, 0.55)">· ronda {{ i + 1 }}</span>
+                    }
+                  </p>
+                  <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
+                    Llegó {{ order.startTime | date: 'HH:mm' }} · hace {{ minutesSince(order.startTime) }} min ·
+                    {{ order.waiterName }}
+                  </p>
+                </div>
+                <span class="flex-shrink-0 rounded-full px-2.5 py-1 text-[12px] font-medium"
+                  [style.background]="order.ready ? '#556141' : order.status === 'PENDING' ? 'rgba(44,44,44,0.08)' : 'rgba(178,87,31,0.12)'"
+                  [style.color]="order.ready ? '#f5f2eb' : order.status === 'PENDING' ? 'rgba(44,44,44,0.7)' : '#b2571f'">
+                  {{ orderLabel(order) }}
+                </span>
+              </div>
+
+              <ul class="mt-3 space-y-2">
+                @for (item of order.items; track item.id) {
+                  <li class="flex items-center gap-3 rounded-2xl px-3 py-2"
+                    style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(44, 44, 44, 0.06)">
+                    <div class="min-w-0 flex-1">
+                      <p class="text-[15px] text-charcoal">
+                        <span class="font-semibold">{{ item.quantity }}×</span> {{ item.productName }}
+                      </p>
+                      @if (item.notes) {
+                        <p class="text-sm italic" style="color: #b2571f">“{{ item.notes }}”</p>
+                      }
+                    </div>
+
+                    @if (nextStatus(item); as next) {
+                      <button type="button"
+                        class="flex-shrink-0 min-h-[40px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
+                        [style.background]="next === 'PREPARING' ? '#b2571f' : '#556141'" style="color: #fff"
+                        [disabled]="isBusy(item)" (click)="advance(order, item)"
+                        [attr.aria-label]="(next === 'PREPARING' ? 'Empezar a preparar ' : 'Marcar como listo ') + item.productName + ', mesa ' + table.tableId">
+                        {{ next === 'PREPARING' ? 'Preparar' : 'Listo' }}
+                      </button>
+                    } @else {
+                      <span class="flex-shrink-0 text-[13px] font-semibold" style="color: #556141">✓ Listo</span>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>
