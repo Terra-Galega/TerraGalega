@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.dto.AuthResponseDTO;
+import com.example.demo.dto.ForgotPasswordRequestDTO;
+import com.example.demo.dto.ResetPasswordRequestDTO;
+import com.example.demo.service.PasswordResetService;
 import com.example.demo.dto.GoogleLoginRequestDTO;
 // import com.example.demo.dto.MicrosoftLoginRequestDTO;
 // import com.example.demo.service.MicrosoftAuthService;
@@ -93,6 +96,27 @@ public class AuthController {
     public MessageDTO verifyEmail(@RequestBody VerifyEmailRequestDTO request) {
         emailVerificationService.verify(request.getToken());
         return new MessageDTO("Correo confirmado. Ya puedes iniciar sesión.");
+    }
+
+    @Autowired
+    private PasswordResetService passwordResetService;
+
+    // Envía el enlace para recuperar la contraseña. Responde igual exista o no la cuenta.
+    @SecurityRequirements
+    @Operation(summary = "Send a password reset link to the email")
+    @PostMapping("/forgot-password")
+    public MessageDTO forgotPassword(@RequestBody ForgotPasswordRequestDTO request) {
+        passwordResetService.requestReset(request.email());
+        return new MessageDTO("Si hay una cuenta con ese correo, te enviamos un enlace para recuperar tu contraseña.");
+    }
+
+    // Cambia la contraseña con el token del enlace del correo
+    @SecurityRequirements
+    @Operation(summary = "Set a new password with the token from the email link")
+    @PostMapping("/reset-password")
+    public MessageDTO resetPassword(@RequestBody ResetPasswordRequestDTO request) {
+        passwordResetService.resetPassword(request.token(), request.newPassword());
+        return new MessageDTO("Tu contraseña se cambió. Ya puedes iniciar sesión.");
     }
 
     // Reenvía el correo de confirmación. Responde igual exista o no la cuenta.

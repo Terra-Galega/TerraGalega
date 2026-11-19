@@ -32,6 +32,21 @@ public class EmailService {
     @Value("${terra.mail.from}")
     private String from;
 
+    // Correo para recuperar la contraseña: plantilla templates/email/reset-password.html
+    public void sendPasswordResetEmail(String to, String name, String link) throws MessagingException {
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("link", link);
+        String html = templateEngine.process("email/reset-password", context);
+
+        String plain = "Recupera tu contraseña de Terra Galega\n\n"
+                + "Elige una contraseña nueva abriendo este enlace:\n" + link + "\n\n"
+                + "El enlace vence en 30 minutos y solo se puede usar una vez. "
+                + "Si no pediste cambiar tu contraseña, ignora este mensaje.";
+
+        send(to, "Recupera tu contraseña de Terra Galega", plain, html);
+    }
+
     // Correo para confirmar la cuenta: plantilla templates/email/verify-email.html
     public void sendVerificationEmail(String to, String name, String link) throws MessagingException {
         // Thymeleaf escapa el nombre automáticamente al llenar la plantilla
