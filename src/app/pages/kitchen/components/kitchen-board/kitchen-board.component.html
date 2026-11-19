@@ -130,6 +130,12 @@
                         <span class="font-semibold">{{ item.quantity }}×</span>
                         {{ item.productName }}
                       </p>
+                      <!-- Adicionales del plato -->
+                      @if (item.addOns.length > 0) {
+                        <p class="text-sm" style="color: #556141">
+                          + {{ item.addOns.join(", ") }}
+                        </p>
+                      }
                       @if (item.notes) {
                         <p class="text-sm italic" style="color: #b2571f">
                           “{{ item.notes }}”

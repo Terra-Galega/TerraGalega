@@ -11,6 +11,8 @@ export interface TableOrderItem {
   productName: string;
   quantity: number;
   notes: string | null;
+  // Nombres de los adicionales del plato
+  addOns: string[];
   status: OrderItemStatus;
 }
 
