@@ -136,6 +136,51 @@ interface ApiService {
     @GET("invoices/{orderId}/link")
     suspend fun invoiceLink(@Path("orderId") orderId: Int): InvoiceLink
 
+    // ---------- Direcciones <-> coordenadas (Google Geocoding en el back, igual que la web) ----------
+    // Si no encuentra la dirección el back responde 200 SIN cuerpo; Gson no
+    // acepta un cuerpo vacío, así que se lee como texto (ver MapService.geocode)
+    @GET("maps/search")
+    suspend fun mapSearch(@Query("q") query: String): ResponseBody
+
+    @GET("maps/reverse")
+    suspend fun mapReverse(@Query("lat") lat: Double, @Query("lon") lon: Double): MapAddress
+
+    // ---------- Pedidos de mesa (mesero) ----------
+    // Bandeja del mesero: avisos de la cocina sobre sus pedidos
+    @GET("table-orders/notifications")
+    suspend fun waiterNotifications(): List<AppNotification>
+
+    @PUT("table-orders/notifications/{id}/read")
+    suspend fun waiterNotificationRead(@Path("id") id: Int): ResponseBody
+
+    @PUT("table-orders/notifications/read-all")
+    suspend fun waiterNotificationsReadAll(): ResponseBody
+
+    @GET("table-orders/tables")
+    suspend fun waiterTables(@Query("floor") floor: Int): List<WaiterTable>
+
+    @GET("table-orders/tables/{tableId}")
+    suspend fun tableOrders(@Path("tableId") tableId: Int): List<TableOrder>
+
+    @POST("table-orders")
+    suspend fun createTableOrder(@Body body: NewTableOrder): TableOrder
+
+    // Solo cuando todos los platos están listos: el pedido queda entregado
+    @POST("table-orders/{id}/deliver")
+    suspend fun deliverTableOrder(@Path("id") id: Int): TableOrder
+
+    // Cobra un pedido ya entregado; si a la mesa no le queda nada, queda libre
+    @POST("table-orders/{id}/pay")
+    suspend fun payTableOrder(@Path("id") id: Int, @Body body: PayRequest): TableOrder
+
+    // "Cobrar mesa": todos los pedidos entregados y sin cobrar de la mesa a la vez
+    @POST("table-orders/tables/{tableId}/pay")
+    suspend fun payTable(@Path("tableId") tableId: Int, @Body body: PayRequest): List<TableOrder>
+
+    // Solo mientras la cocina no haya empezado ningún plato
+    @POST("table-orders/{id}/cancel")
+    suspend fun cancelTableOrder(@Path("id") id: Int): TableOrder
+
     @GET("orders/me")
     suspend fun myOrders(): List<Order>
 

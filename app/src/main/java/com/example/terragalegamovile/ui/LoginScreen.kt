@@ -104,11 +104,11 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
         scope.launch {
             try {
                 val user = ApiClient.api.login(LoginRequest(email.trim(), password))
-                if (user.role == "CLIENT" || user.role == "DELIVERY_PERSON") {
+                if (user.role == "CLIENT" || user.role == "DELIVERY_PERSON" || user.role == "WAITER") {
                     Session.user = user
                     onLoggedIn(user)
                 } else {
-                    error = "Esta app es solo para clientes y repartidores."
+                    error = "Esta app es solo para clientes, repartidores y meseros."
                 }
             } catch (e: CancellationException) {
                 throw e
@@ -162,7 +162,7 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                     Session.user = user
                     onLoggedIn(user)
                 } else {
-                    error = "Esta app es solo para clientes y repartidores."
+                    error = "Esta app es solo para clientes, repartidores y meseros."
                 }
             } catch (e: CancellationException) {
                 throw e
@@ -370,11 +370,14 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                         .border(1.dp, Charcoal.copy(alpha = 0.07f), RoundedCornerShape(12.dp))
                         .padding(8.dp)
                 ) {
-                    DemoUser("Cliente de prueba: ", "marta.souto@terra.com") {
-                        email = "marta.souto@terra.com"; password = "marta123"
+                    DemoUser("Cliente de prueba: ", "marta.souto@outlook.com") {
+                        email = "marta.souto@outlook.com"; password = "marta123"
                     }
                     DemoUser("Repartidor de prueba: ", "luisa.fernandez@terra.com") {
                         email = "luisa.fernandez@terra.com"; password = "luisa123"
+                    }
+                    DemoUser("Mesero de prueba: ", "andres.gomez@terra.com") {
+                        email = "andres.gomez@terra.com"; password = "andres123"
                     }
                 }
             }

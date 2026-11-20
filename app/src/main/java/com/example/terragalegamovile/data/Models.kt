@@ -14,6 +14,9 @@ data class LoginResponse(
     val profileComplete: Boolean? = null
 )
 
+// GET /maps/search y /maps/reverse: texto de la dirección y su punto
+data class MapAddress(val label: String, val lat: Double, val lon: Double)
+
 // POST /auth/google
 data class GoogleLoginRequest(val idToken: String)
 
@@ -236,7 +239,9 @@ data class AppNotification(
     val message: String,
     val orderId: Int?,
     val read: Boolean,
-    val createdAt: String?
+    val createdAt: String?,
+    // Solo en los avisos del mesero (DISH_PREPARING | DISH_READY | ORDER_READY)
+    val tableId: Int? = null
 )
 
 // GET /coupons/me (los que se pueden usar ahora, para el checkout)
@@ -267,3 +272,75 @@ data class ClientCoupon(
 
 // GET /coupons/validate: cuánto descontaría el cupón sobre el subtotal
 data class CouponDiscount(val code: String, val description: String?, val discount: Double)
+// ---------- Pedidos de mesa (portal del mesero) ----------
+
+// Una mesa del piso elegido (GET /table-orders/tables?floor=)
+data class WaiterTable(
+    val id: Int,
+    val floor: Int,
+    val seats: Int,
+    // true = ya se le entregó todo
+    val attended: Boolean,
+    // Pedidos en curso
+    val activeOrders: Int,
+    // Algún pedido está listo esperando en cocina
+    val readyToServe: Boolean,
+    // Pedidos entregados que faltan por cobrar. Libre = activeOrders y awaitingPayment en 0.
+    val awaitingPayment: Int = 0,
+    // Ocupada desde que el mesero toma el pedido hasta que se cobra todo
+    val occupied: Boolean = false,
+    // Reserva de hoy en las próximas 2 horas ("19:30:00"), o null
+    val upcomingReservation: String?,
+    val upcomingReservationName: String?,
+    // Reserva cuyo turno está en curso ahora (null si no hay)
+    val currentReservation: String? = null,
+    val currentReservationName: String? = null,
+    // Mesero que atiende la mesa ocupada (null si está libre)
+    val attendingWaiterId: Int? = null,
+    val attendingWaiterName: String? = null,
+    // true = la atiendo yo; ocupada y false = la atiende otro (no se puede entrar)
+    val mine: Boolean = false
+)
+
+// Estado de cada plato: PENDING (en espera) | PREPARING | READY
+data class TableOrderItem(
+    val id: Int,
+    val productId: Int,
+    val productName: String,
+    val quantity: Int,
+    val notes: String?,
+    // Nombres de los adicionales del plato
+    val addOns: List<String> = emptyList(),
+    val status: String
+)
+
+// Estado del pedido: PENDING | IN_PROGRESS | DONE | CANCELLED
+data class TableOrder(
+    val id: Int,
+    val tableId: Int,
+    val floor: Int,
+    val waiterId: Int,
+    val waiterName: String,
+    val startTime: String,
+    val endTime: String?,
+    val status: String,
+    // Todo listo: esperando en cocina a que el mesero lo recoja
+    val ready: Boolean,
+    // Aún se puede cancelar (la cocina no empezó ningún plato)
+    val cancellable: Boolean,
+    // Entregado y aún sin cobrar: el mesero elige efectivo o tarjeta
+    val awaitingPayment: Boolean = false,
+    // CASH | CARD (null mientras no se cobra)
+    val paymentMethod: String? = null,
+    val paidAt: String? = null,
+    val items: List<TableOrderItem>
+)
+
+// addOnIds: adicionales de la categoría del plato (opcional)
+data class NewOrderItem(val productId: Int, val quantity: Int, val notes: String?, val addOnIds: List<Int> = emptyList())
+
+// POST /table-orders/{id}/pay: "CASH" (efectivo) o "CARD" (tarjeta)
+data class PayRequest(val method: String)
+
+// POST /table-orders (el mesero va en el token)
+data class NewTableOrder(val tableId: Int, val items: List<NewOrderItem>)

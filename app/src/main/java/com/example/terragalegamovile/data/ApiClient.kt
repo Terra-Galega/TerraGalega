@@ -12,9 +12,8 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 
 object ApiClient {
 
-    // Emulador de Android: 10.0.2.2 es tu PC (donde corre el backend).
-    // Celular real: pon la IP de tu PC en el wifi, ej. "http://192.168.1.20:8080/"
-    const val BASE_URL = "http://10.195.68.20:8080/"
+    // Emulador de Android: 10.0.2.2 donde corre el backend.
+    const val BASE_URL = "http://10.195.68.121:8080/"
     private val backendUrl = BASE_URL.toHttpUrl()
     private val okHttp = OkHttpClient.Builder()
         //Agrega el JWT a cada peticion si hay sesion
@@ -67,7 +66,7 @@ object ApiClient {
         .create(ApiService::class.java)
 }
 
-// Código de error del backend (ej. "EMAIL_NOT_VERIFIED"), o null si no trae.
+// Código de error del backend
 // Lee el cuerpo, así que se usa en lugar de toUserMessage(), no además.
 fun Throwable.apiError(): ApiErrorBody? = (this as? HttpException)?.let {
     try {

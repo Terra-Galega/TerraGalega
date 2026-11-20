@@ -13,6 +13,7 @@ private val TerraColorScheme = lightColorScheme(
     primary = Terra,
     onPrimary = Color.White,
     secondary = Forest,
+    onSecondaryFixedVariant  = Available,
     onSecondary = Color.White,
     tertiary = Gold,
     onTertiary = Charcoal,

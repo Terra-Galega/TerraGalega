@@ -48,7 +48,7 @@ fun NotificationsScreen(
     onOpen: (AppNotification) -> Unit
 ) {
     TerraScaffold(
-        role = "Cliente",
+        role = if (user.role == "WAITER") "Mesero" else "Cliente",
         name = "${user.name} ${user.lastName}",
         onLogout = onLogout
     ) { padding ->

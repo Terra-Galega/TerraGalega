@@ -46,6 +46,7 @@ import com.example.terragalegamovile.ui.theme.Charcoal
 import com.example.terragalegamovile.ui.theme.Terra
 import com.example.terragalegamovile.ui.theme.TextSoft
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
@@ -54,7 +55,10 @@ import org.maplibre.android.maps.MapView
 
 private const val PICKER_STYLE = "https://tiles.openfreemap.org/styles/liberty"
 
-// Mapa con un pin fijo en el centro: mueves el mapa y la dirección se actualiza sola.
+// Mapa con un pin fijo en el centro, sincronizado con el campo de dirección:
+// - cuando cambia el texto (lo escribe el cliente), el mapa va a esa dirección;
+// - cuando el cliente mueve el mapa o toca un punto, el texto pasa a ser esa dirección.
+// El texto que sale del propio mapa no vuelve a mover el mapa (sin bucles).
 @Composable
 fun AddressMapPicker(
     address: String,
@@ -66,6 +70,10 @@ fun AddressMapPicker(
     var picked by remember { mutableStateOf<LatLon?>(null) }
     var resolving by remember { mutableStateOf(false) }
     var failed by remember { mutableStateOf(false) }
+    // Dirección escrita que no se encontró en el mapa
+    var notFound by remember { mutableStateOf(false) }
+    // Última dirección que salió del mapa: si vuelve como `address` no se busca
+    var lastPicked by remember { mutableStateOf<String?>(null) }
     val currentOnPicked by rememberUpdatedState(onPicked)
 
     val mapView = remember {
@@ -93,6 +101,12 @@ fun AddressMapPicker(
                         m.cameraPosition.target?.let { picked = LatLon(it.latitude, it.longitude) }
                     }
                 }
+                // Tocar un punto también lo elige
+                m.addOnMapClickListener { point ->
+                    m.animateCamera(CameraUpdateFactory.newLatLng(point), 400)
+                    picked = LatLon(point.latitude, point.longitude)
+                    true
+                }
                 map = m
             }
 
@@ -109,13 +123,23 @@ fun AddressMapPicker(
         }
     }
 
-    // Si ya había una dirección, el mapa abre centrado en ella
-    LaunchedEffect(map) {
+    // Cuando cambia el texto, el mapa va a esa dirección. Se reinicia con cada
+    // letra, así que solo busca cuando el cliente deja de escribir 0,7 s.
+    LaunchedEffect(map, address) {
         val m = map ?: return@LaunchedEffect
-        if (address.isNotBlank()) {
-            MapService.geocode(address)?.let {
-                m.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.lat, it.lon), 16.0))
-            }
+        val text = address.trim()
+        if (text == lastPicked?.trim()) return@LaunchedEffect
+        lastPicked = null
+        notFound = false
+        // Muy corto para ser una dirección: no consulta todavía
+        if (text.length < 6 || text.none(Char::isDigit)) return@LaunchedEffect
+        delay(700)
+        val found = MapService.geocode(text)
+        if (found == null) {
+            notFound = true
+        } else {
+            // Movimiento por código: no cuenta como "elegido por el cliente"
+            m.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(found.lat, found.lon), 17.0), 800)
         }
     }
 
@@ -132,8 +156,14 @@ fun AddressMapPicker(
             null
         }
         resolving = false
-        if (text.isNullOrBlank()) failed = true
-        else currentOnPicked(text.take(CheckoutDraft.ADDRESS_MAX))
+        if (text.isNullOrBlank()) {
+            failed = true
+        } else {
+            val value = text.take(CheckoutDraft.ADDRESS_MAX)
+            lastPicked = value
+            notFound = false
+            currentOnPicked(value)
+        }
     }
 
     // El MapView necesita seguir el ciclo de vida de la pantalla
@@ -201,11 +231,17 @@ fun AddressMapPicker(
                 fontSize = 13.sp,
                 color = Burgundy
             )
-            address.isNotBlank() -> Row(verticalAlignment = Alignment.CenterVertically) {
-                AddressIcon(plus = false, color = Terra, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(address, fontSize = 14.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium, color = Charcoal)
-            }
+            notFound -> Text(
+                "No ubicamos esa dirección en el mapa. Mueve el mapa hasta el punto exacto.",
+                fontSize = 13.sp,
+                color = Burgundy
+            )
+            else -> Text(
+                "El mapa sigue lo que escribes. Si el punto no es exacto, mueve el mapa o toca la entrada. " +
+                    "Añade el apartamento o la torre al final del texto.",
+                fontSize = 12.sp,
+                color = TextSoft
+            )
         }
     }
 }

@@ -46,7 +46,6 @@ fun CheckoutScreen(
     var submitted by remember { mutableStateOf(false) }
     var showCancel by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf<String?>(null) }
-    var entry by rememberSaveable { mutableStateOf(0) }   // 0 = escribirla, 1 = ubicar en el mapa
 
     fun isSaved(text: String) = addresses.any { it.label.trim().equals(text.trim(), ignoreCase = true) }
 
@@ -143,35 +142,27 @@ fun CheckoutScreen(
                         Text("Usar otra dirección", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Charcoal)
                     }
                 }
+                // Dirección nueva: texto arriba y mapa debajo, sincronizados.
+                // Escribir mueve el mapa; mover el mapa (o tocarlo) actualiza el texto.
                 if (newMode) {
                     Spacer(Modifier.height(12.dp))
-                    AddressEntryTabs(entry) { entry = it }
-                    Spacer(Modifier.height(12.dp))
-                    if (entry == 0) {
-                        TerraTextField(
-                            label = "Dirección",
-                            value = d.address,
-                            onValueChange = { if (it.length <= CheckoutDraft.ADDRESS_MAX) d.address = it },
-                            placeholder = "Ej: Calle 123 #45-67, apto 8"
-                        )
-                        Text(
-                            "${d.address.length}/120",
-                            fontSize = 12.sp,
-                            color = TextSoft,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    } else {
-                        AddressMapPicker(
-                            address = d.address,
-                            onPicked = { d.address = it }
-                        )
-                        Text(
-                            "¿Falta el apartamento o la torre? Pasa a \"Escribirla\" y agrégalo.",
-                            fontSize = 12.sp,
-                            color = TextSoft,
-                            modifier = Modifier.padding(top = 6.dp)
-                        )
-                    }
+                    TerraTextField(
+                        label = "Dirección",
+                        value = d.address,
+                        onValueChange = { if (it.length <= CheckoutDraft.ADDRESS_MAX) d.address = it },
+                        placeholder = "Ej: Calle 123 #45-67, apto 8"
+                    )
+                    Text(
+                        "${d.address.length}/120",
+                        fontSize = 12.sp,
+                        color = TextSoft,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    AddressMapPicker(
+                        address = d.address,
+                        onPicked = { d.address = it }
+                    )
                 }
                 FieldError(errors["address"])
 
@@ -265,38 +256,6 @@ fun CheckoutScreen(
     }
     notice?.let {
         TerraDialog("Actualizamos tu carrito", it, "Aceptar", onConfirm = { notice = null })
-    }
-}
-
-@Composable
-private fun AddressEntryTabs(selected: Int, onChange: (Int) -> Unit) {
-    val shape = RoundedCornerShape(50)
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(Charcoal.copy(alpha = 0.06f))
-            .padding(4.dp)
-    ) {
-        listOf("Escribirla", "Ubicar en el mapa").forEachIndexed { index, label ->
-            val active = selected == index
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(shape)
-                    .background(if (active) Color.White else Color.Transparent)
-                    .clickable { onChange(index) }
-                    .padding(vertical = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    label,
-                    fontSize = 14.sp,
-                    fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium,
-                    color = if (active) Terra else Charcoal.copy(alpha = 0.55f)
-                )
-            }
-        }
     }
 }
 

@@ -48,6 +48,8 @@ import com.example.terragalegamovile.ui.CartSheet
 import com.example.terragalegamovile.ui.CategoryScreen
 import com.example.terragalegamovile.ui.CheckoutConfirmScreen
 import com.example.terragalegamovile.ui.CompleteProfileScreen
+import com.example.terragalegamovile.ui.WaiterScreen
+import com.example.terragalegamovile.ui.WaiterUi
 import com.example.terragalegamovile.ui.CheckoutScreen
 import com.example.terragalegamovile.ui.ClientHomeScreen
 import com.example.terragalegamovile.ui.ClientScreen
@@ -145,6 +147,7 @@ fun AppNav(lifecycle: Lifecycle) {
         when (session?.role) {
             "CLIENT" -> "client"
             "DELIVERY_PERSON" -> "courier"
+            "WAITER" -> "waiter"
             else -> "login"
         }
     }
@@ -182,7 +185,7 @@ fun AppNav(lifecycle: Lifecycle) {
     DisposableEffect(Unit) {
         NotificationsNav.open = {
             if (
-                Session.user?.role == "CLIENT" &&
+                (Session.user?.role == "CLIENT" || Session.user?.role == "WAITER") &&
                 nav.currentDestination?.route != "notifications"
             ) {
                 nav.navigate("notifications")
@@ -250,7 +253,7 @@ fun AppNav(lifecycle: Lifecycle) {
     ) { }
 
     LaunchedEffect(session?.role) {
-        if (session?.role == "CLIENT" &&
+        if ((session?.role == "CLIENT" || session?.role == "WAITER") &&
             Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(
                 context,
@@ -293,6 +296,7 @@ fun AppNav(lifecycle: Lifecycle) {
                 val destination = when (user.role) {
                     "CLIENT" -> "client"
                     "DELIVERY_PERSON" -> "courier"
+                    "WAITER" -> "waiter"
                     else -> null
                 }
 
@@ -374,6 +378,11 @@ fun AppNav(lifecycle: Lifecycle) {
                     onOpen = { n ->
                         NotificationStore.markRead(n.id)
                         when (n.type) {
+                            // Aviso de cocina: abre la mesa en el portal del mesero
+                            "DISH_PREPARING", "DISH_READY", "ORDER_READY" -> {
+                                WaiterUi.openTable = n.tableId
+                                nav.popBackStack("waiter", false)
+                            }
                             "ORDER_ON_THE_WAY", "ORDER_NEAR" -> nav.navigate("tracking")
                             "COUPON" -> nav.navigate("coupons")
                             "ORDER_CONFIRMED", "ORDER_PREPARING" -> {
@@ -487,6 +496,13 @@ fun AppNav(lifecycle: Lifecycle) {
                     user,
                     logout
                 )
+            }
+        }
+
+        // Portal del mesero: pisos, mesas y pedidos de mesa
+        composable("waiter") {
+            session?.let { user ->
+                WaiterScreen(user = user, onLogout = logout)
             }
         }
     }

@@ -513,8 +513,9 @@ fun TerraScaffold(
     var bottomHeight by remember { mutableStateOf(0.dp) }
     // El perfil solo existe para el cliente
     val onProfile = if (role == "Cliente") ProfileNav.open else null
-    // La campanita solo sale en el inicio del cliente (la izquierda está libre, el carrito va abajo)
-    val onBell = if (role == "Cliente" && bottomBar != null) NotificationsNav.open else null
+    // La campanita sale en el inicio del cliente (la izquierda está libre, el carrito va abajo)
+    // y en todas las pantallas del mesero (avisos de cocina)
+    val onBell = if ((role == "Cliente" && bottomBar != null) || role == "Mesero") NotificationsNav.open else null
 
 
     Box(modifier = Modifier.fillMaxSize()) {

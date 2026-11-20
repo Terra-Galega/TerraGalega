@@ -32,7 +32,7 @@ object Session {
         val saved = AppStorage.loadSession()
 
         user = saved?.takeIf {
-            (it.role == "CLIENT" || it.role == "DELIVERY_PERSON") &&
+            (it.role == "CLIENT" || it.role == "DELIVERY_PERSON" || it.role == "WAITER") &&
                     isTokenCurrent(it.token)
         }
     }

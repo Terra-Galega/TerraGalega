@@ -8,6 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,12 +31,26 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-// Bandeja de notificaciones del cliente: las guarda el back (las mismas de la web,
-// menos los anuncios). Aquí se leen cada pocos segundos y se avisa de las nuevas.
+// Bandeja de notificaciones: las guarda el back y aquí se leen cada pocos segundos.
+// - Cliente: las mismas de la web (menos los anuncios).
+// - Mesero: los avisos de la cocina sobre sus pedidos de mesa; cada aviso nuevo
+//   hace vibrar el teléfono y sale en la bandeja de Android.
 object NotificationStore {
 
     private const val POLL_MILLIS = 8_000L
+    // El mesero necesita enterarse rápido de lo que pasa en cocina
+    private const val WAITER_POLL_MILLIS = 5_000L
     private const val CHANNEL = "general"
+    private const val CHANNEL_KITCHEN = "kitchen"
+
+    // Vibración: corta para un plato, más larga cuando todo el pedido está listo
+    private val VIBRATION_DISH = longArrayOf(0, 200, 120, 200)
+    private val VIBRATION_ORDER_READY = longArrayOf(0, 400, 150, 400, 150, 400)
+
+    private val waiterTypes = setOf("DISH_PREPARING", "DISH_READY", "ORDER_READY")
+
+    // ¿La sesión actual es de mesero? (decide de dónde se leen y marcan los avisos)
+    private val isWaiter: Boolean get() = Session.user?.role == "WAITER"
 
     var items by mutableStateOf<List<AppNotification>>(emptyList())
         private set
@@ -55,23 +72,28 @@ object NotificationStore {
 
         job = scope.launch {
             Session.state
-                .map { user -> user?.takeIf { it.role == "CLIENT" }?.id }
+                // Clientes y meseros tienen bandeja; cada uno lee la suya
+                .map { user -> user?.takeIf { it.role == "CLIENT" || it.role == "WAITER" }?.let { it.role to it.id } }
                 .distinctUntilChanged()
-                .collectLatest { clientId ->
+                .collectLatest { account ->
                     items = emptyList()
                     known.clear()
                     firstLoad = true
-                    if (clientId == null) return@collectLatest
+                    if (account == null) return@collectLatest
+                    val waiter = account.first == "WAITER"
 
                     while (isActive) {
                         try {
-                            receive(app, ApiClient.api.notifications())
+                            receive(
+                                app,
+                                if (waiter) ApiClient.api.waiterNotifications() else ApiClient.api.notifications()
+                            )
                         } catch (e: CancellationException) {
                             throw e
                         } catch (_: Exception) {
                             // Sin conexión: se reintenta en el siguiente ciclo
                         }
-                        delay(POLL_MILLIS)
+                        delay(if (waiter) WAITER_POLL_MILLIS else POLL_MILLIS)
                     }
                 }
         }
@@ -81,7 +103,7 @@ object NotificationStore {
         items = items.map { if (it.id == id) it.copy(read = true) else it }
         scope.launch {
             try {
-                ApiClient.api.notificationRead(id).close()
+                (if (isWaiter) ApiClient.api.waiterNotificationRead(id) else ApiClient.api.notificationRead(id)).close()
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
@@ -93,7 +115,7 @@ object NotificationStore {
         items = items.map { it.copy(read = true) }
         scope.launch {
             try {
-                ApiClient.api.notificationsReadAll().close()
+                (if (isWaiter) ApiClient.api.waiterNotificationsReadAll() else ApiClient.api.notificationsReadAll()).close()
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
@@ -115,6 +137,10 @@ object NotificationStore {
     }
 
     private fun post(context: Context, n: AppNotification) {
+        val kitchen = n.type in waiterTypes
+        // El mesero siente el aviso aunque no haya dado permiso de notificaciones
+        if (kitchen) vibrate(context, if (n.type == "ORDER_READY") VIBRATION_ORDER_READY else VIBRATION_DISH)
+
         // Android 13+: sin permiso no se puede mostrar la notificación
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
@@ -131,18 +157,19 @@ object NotificationStore {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(context, CHANNEL)
+        val notification = NotificationCompat.Builder(context, if (kitchen) CHANNEL_KITCHEN else CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_delivery)
             .setContentTitle(n.title)
             .setContentText(n.message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(n.message))
+            .setPriority(if (kitchen) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pending)
             .setAutoCancel(true)
             .build()
 
         try {
-            // 100000 + id para no chocar con los ids de DeliveryNotifier
-            NotificationManagerCompat.from(context).notify(100_000 + n.id, notification)
+            // 100000 / 200000 + id para no chocar con los ids de DeliveryNotifier
+            NotificationManagerCompat.from(context).notify((if (kitchen) 200_000 else 100_000) + n.id, notification)
         } catch (_: SecurityException) {
             // El permiso se retiró justo ahora
         }
@@ -154,5 +181,30 @@ object NotificationStore {
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL, "Avisos de TerraGalega", NotificationManager.IMPORTANCE_DEFAULT)
         )
+        // Avisos de cocina para el mesero: salen arriba en la pantalla. La vibración
+        // la hace vibrate() (así no vibra dos veces)
+        manager.createNotificationChannel(
+            NotificationChannel(CHANNEL_KITCHEN, "Avisos de cocina (meseros)", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = "La cocina empezó o terminó un plato de tus mesas"
+                enableVibration(false)
+            }
+        )
+    }
+
+    // Vibra con el patrón dado (en ms: espera, vibra, espera, vibra...)
+    private fun vibrate(context: Context, pattern: LongArray) {
+        val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= 31) {
+            context.getSystemService(VibratorManager::class.java)?.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        }
+        if (vibrator == null || !vibrator.hasVibrator()) return
+        if (Build.VERSION.SDK_INT >= 26) {
+            vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(pattern, -1)
+        }
     }
 }
