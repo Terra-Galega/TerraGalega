@@ -1,8 +1,6 @@
 // TIPOGRAFÍAS DEL LOGO
 
-// Carga desde Google Fonts las fuentes del logo.
-@import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
-
+// Las fuentes del logo se cargan desde Google Fonts en styles.scss.
 // Fuente cursiva (Pinyon Script) para la palabra 'Terra'.
 .font-terra {
   font-family: "Pinyon Script", cursive;

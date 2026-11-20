@@ -1,9 +1,9 @@
 @if (open) {
 <!-- Capa oscura: al hacer clic fuera del cuadro se cierra -->
-<div class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+<div class="sheet-overlay fixed inset-0 z-[100] flex items-center justify-center p-4"
   style="background-color: rgba(44, 44, 44, 0.45); backdrop-filter: blur(4px)" (click)="cancel.emit()">
 
-  <div appDialog id="subscription-modal" class="glass-card w-full max-w-md rounded-3xl max-h-[90vh] overflow-y-auto"
+  <div appDialog id="subscription-modal" class="sheet-window glass-card w-full max-w-md rounded-3xl max-h-[90vh] overflow-y-auto"
     style="background: rgba(255, 255, 255, 0.98)"
     aria-labelledby="subscription-modal-title" (click)="$event.stopPropagation()">
 
@@ -29,13 +29,13 @@
     </div>
 
     <!-- Precio -->
-    <div class="mx-6 md:mx-8 mt-5 rounded-2xl px-5 py-4 flex items-center justify-between gap-4"
+    <div class="mx-6 md:mx-8 mt-5 rounded-2xl px-5 py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1"
       style="background: rgba(85, 97, 65, 0.09)">
       <p>
         <span id="subscription-price" class="font-serif text-4xl font-semibold text-charcoal">{{ price }}</span>
         <span class="text-sm ml-1" style="color: rgba(44, 44, 44, 0.55)">COP</span>
       </p>
-      <p class="text-[13px] text-right leading-snug" style="color: rgba(44, 44, 44, 0.6)">
+      <p class="text-[13px] sm:text-right leading-snug" style="color: rgba(44, 44, 44, 0.6)">
         Pago único por {{ durationDays }} días.<br />{{ 'subscription_modal.subscription_modal.sin_renovacion_automatica' | t }}
       </p>
     </div>

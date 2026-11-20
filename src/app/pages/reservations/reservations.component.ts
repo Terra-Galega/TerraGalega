@@ -1,5 +1,5 @@
 import { TranslatePipe } from '../../services/translate.pipe';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit, ViewChild } from '@angular/core';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
@@ -55,6 +55,11 @@ function localDate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+// Ancho del plano en sus propias unidades (viewBox del SVG) y centro aproximado del comedor,
+// donde se sitúa el plano al abrirlo en móvil.
+const PLAN_WIDTH = 900;
+const DINING_CENTER_X = 500;
+
 @Component({
   selector: 'app-reservations',
   imports: [NavbarComponent, FooterComponent, PageHeaderComponent, ReservationGuestComponent, TranslatePipe],
@@ -109,6 +114,45 @@ export class ReservationsComponent implements OnInit {
 
   // --- Estado del plano ---
   floor: Floor = 1; // piso que se ve en el plano
+
+  // ============================================================
+  // RESPONSIVE: plano en móvil
+  // En pantallas estrechas el plano no cabe (tiene un ancho mínimo para que las mesas sigan
+  // siendo pulsables) y se desplaza en horizontal. Para que se entienda de un vistazo:
+  //   - al aparecer, se centra en el comedor y no en la escalera del borde izquierdo;
+  //   - al editar una reserva, se centra en la mesa reservada;
+  //   - los bordes se difuminan del lado donde queda plano por ver (clases more-start/more-end).
+  // En escritorio el plano cabe entero y nada de esto tiene efecto.
+  // ============================================================
+  private mapEl?: HTMLElement;
+
+  @ViewChild('mapViewport') set mapViewport(ref: ElementRef<HTMLElement> | undefined) {
+    const el = ref?.nativeElement;
+    if (el === this.mapEl) return;
+    this.mapEl = el;
+    // Se espera a que el plano tenga su tamaño final antes de medirlo
+    if (el) setTimeout(() => this.centerMapOn(this.selected?.x ?? DINING_CENTER_X));
+  }
+
+  /** Desplaza el plano para que la coordenada x (en unidades del plano, 0-900) quede al centro. */
+  private centerMapOn(x: number): void {
+    const el = this.mapEl;
+    if (!el) return;
+    if (el.scrollWidth > el.clientWidth) {
+      el.scrollLeft = (x / PLAN_WIDTH) * el.scrollWidth - el.clientWidth / 2;
+    }
+    this.updateMapEdges();
+  }
+
+  /** Marca en qué lados queda plano por ver, para difuminar ese borde. */
+  @HostListener('window:resize')
+  updateMapEdges(): void {
+    const el = this.mapEl;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    el.classList.toggle('more-start', el.scrollLeft > 2);
+    el.classList.toggle('more-end', el.scrollLeft < max - 2);
+  }
   date = this.today;
   time = '19:30';
   party = 2; // número de comensales
@@ -243,7 +287,10 @@ export class ReservationsComponent implements OnInit {
       if (found.table.special) this.specialSeats.set(found.table.number, r.seats);
     }
     this.loadTaken(() => {
-      if (found) this.selected = found.table;
+      if (found) {
+        this.selected = found.table;
+        this.centerMapOn(found.table.x);
+      }
     });
   }
 

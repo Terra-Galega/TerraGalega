@@ -4,7 +4,7 @@
     <div>
       <h1
         id="kitchen-title"
-        class="font-serif text-3xl font-semibold text-charcoal"
+        class="font-serif fluid-headline font-semibold text-charcoal"
       >
         Pedidos de mesa
       </h1>
@@ -122,7 +122,7 @@
                   @if (canPrepareAll(order)) {
                     <button
                       type="button"
-                      class="min-h-[40px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
+                      class="min-h-[44px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
                       style="color: #b2571f; border: 1.5px solid #b2571f; background: transparent"
                       [disabled]="isOrderBusy(order)"
                       (click)="advanceOrder(order, 'PREPARING')"
@@ -135,7 +135,7 @@
                   }
                   <button
                     type="button"
-                    class="min-h-[40px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
+                    class="min-h-[44px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
                     style="color: #556141; border: 1.5px solid #556141; background: transparent"
                     [disabled]="isOrderBusy(order)"
                     (click)="advanceOrder(order, 'READY')"
@@ -178,7 +178,7 @@
                     @if (nextStatus(item); as next) {
                       <button
                         type="button"
-                        class="flex-shrink-0 min-h-[40px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
+                        class="flex-shrink-0 min-h-[44px] rounded-full px-4 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
                         [style.background]="
                           next === 'PREPARING' ? '#b2571f' : '#556141'
                         "

@@ -13,6 +13,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import type { FeatureCollection } from 'geojson';
 import type { GeoJSONSource, Map as MapLibreMap, Marker } from 'maplibre-gl';
+import { loadMapLibre } from '../../../../utils/maplibre';
 
 import { NavbarComponent } from '../../../../components/navbar/navbar.component';
 import { FooterComponent } from '../../../../components/footer/footer.component';
@@ -279,7 +280,7 @@ export class OrderTrackingComponent implements AfterViewInit {
     this.loadingMap = true;
 
     try {
-      const { Map, NavigationControl, Marker } = await import('maplibre-gl');
+      const { Map, NavigationControl, Marker } = await loadMapLibre();
       this.MarkerClass = Marker;
 
       const container = this.host.nativeElement.querySelector<HTMLElement>(

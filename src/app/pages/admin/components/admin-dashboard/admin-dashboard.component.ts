@@ -67,6 +67,20 @@ import {
   EmailReportRequest,
 } from './components/dashboard-export-modal/dashboard-export-modal.component';
 import { firstValueFrom } from 'rxjs';
+import {
+  ArcElement,
+  BarController,
+  BarElement,
+  CategoryScale,
+  DoughnutController,
+  Filler,
+  LineController,
+  LineElement,
+  LinearScale,
+  PointElement,
+  Tooltip,
+} from 'chart.js';
+import { provideCharts } from 'ng2-charts';
 import { exportReportToBlob } from '../../../../utils/dashboard-export'; // súmalo al import que ya existe de buildReport/exportReport
 import { getErrorMessage } from '../../../../utils/http-error';
 import { ReportService } from '../../../../services/report.service';
@@ -90,6 +104,26 @@ const RANGE_TO_PERIOD: Record<RangeKey, Granularity> = {
 // Dashboard del administrador: indicadores del día, gráficas, últimos pedidos,
 // pedidos con mucha espera, tabla de platos con su ganancia y descarga de reportes.
 @Component({
+  // Chart.js se registra aquí y no en app.config: así la librería solo se descarga al abrir
+  // el dashboard y no pesa en la carga inicial de la web. Se registran solo las piezas que
+  // usan las gráficas (barras, líneas, dona, ejes y tooltip).
+  providers: [
+    provideCharts({
+      registerables: [
+        BarController,
+        BarElement,
+        LineController,
+        LineElement,
+        PointElement,
+        DoughnutController,
+        ArcElement,
+        CategoryScale,
+        LinearScale,
+        Filler,
+        Tooltip,
+      ],
+    }),
+  ],
   selector: 'app-admin-dashboard',
   imports: [
     SeriesChartComponent,

@@ -6,20 +6,6 @@ import { errorInterceptor } from './interceptors/error.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { busyInterceptor } from './interceptors/busy.interceptor';
 import { routes } from './app.routes';
-import {
-  ArcElement,
-  BarController,
-  BarElement,
-  CategoryScale,
-  DoughnutController,
-  Filler,
-  LineController,
-  LineElement,
-  LinearScale,
-  PointElement,
-  Tooltip,
-} from 'chart.js';
-import { provideCharts } from 'ng2-charts';
 
 // Configuración global de la aplicación, que se pasa a bootstrapApplication en main.ts.
 export const appConfig: ApplicationConfig = {
@@ -52,6 +38,9 @@ export const appConfig: ApplicationConfig = {
           // se salta para que el cambio de página nunca se quede esperando.
           const guard = setTimeout(() => transition.skipTransition(), 1500);
           transition.finished.finally(() => clearTimeout(guard)).catch(() => {});
+          // Al saltar el fundido, el navegador rechaza también la promesa "ready" con un
+          // AbortError; es lo esperado, así que se ignora para que no ensucie la consola.
+          transition.ready.catch(() => {});
         },
       }),
     ),
@@ -61,22 +50,5 @@ export const appConfig: ApplicationConfig = {
     // busyInterceptor deshabilita los botones mientras haya un POST/PUT/PATCH/DELETE en curso;
     // authInterceptor agrega el JWT a cada petición; errorInterceptor maneja los 401/403.
     provideHttpClient(withInterceptors([busyInterceptor, authInterceptor, errorInterceptor])),
-    // Chart.js: se registran solo las piezas que usa el dashboard (barras, líneas,
-    // dona, ejes y tooltip) para no cargar toda la librería en el bundle.
-    provideCharts({
-      registerables: [
-        BarController,
-        BarElement,
-        LineController,
-        LineElement,
-        PointElement,
-        DoughnutController,
-        ArcElement,
-        CategoryScale,
-        LinearScale,
-        Filler,
-        Tooltip,
-      ],
-    }),
   ],
 };

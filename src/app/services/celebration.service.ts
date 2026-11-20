@@ -27,7 +27,7 @@ function readPreview(): string | null {
 // Decide qué festividad se muestra: la del día en Bogotá o la que se elija en la vista previa.
 @Injectable({ providedIn: 'root' })
 export class CelebrationService {
-  // null: usa la fecha real · 'none': sin efecto · un id: fuerza esa festividad
+  // null: usa la fecha real - 'none': sin efecto - un id: fuerza esa festividad
   readonly preview = signal<string | null>(readPreview());
 
   private readonly today = signal(todayInBogota());

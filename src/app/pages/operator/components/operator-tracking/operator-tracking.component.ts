@@ -12,6 +12,7 @@ import { EMPTY, catchError, exhaustMap, filter, timer } from 'rxjs';
 
 import type { FeatureCollection } from 'geojson';
 import type { GeoJSONSource, Map as MapLibreMap, Marker } from 'maplibre-gl';
+import { loadMapLibre } from '../../../../utils/maplibre';
 import {
   COURIER_SVG,
   RESTAURANT_SVG,
@@ -282,7 +283,7 @@ export class OperatorTrackingComponent implements AfterViewInit {
     this.loadingMap = true;
 
     try {
-      const { Map, NavigationControl, Marker } = await import('maplibre-gl');
+      const { Map, NavigationControl, Marker } = await loadMapLibre();
       this.MarkerClass = Marker;
 
       if (this.destroyed || !this.selected) return;

@@ -156,7 +156,8 @@
            2. Encima, un botón por mesa colocado con left/top en porcentaje (x / 9 y y / 8), así las
               mesas siguen alineadas con el dibujo al cambiar el tamaño de la pantalla.
            En pantallas estrechas el plano mantiene un ancho mínimo y se desplaza en horizontal. -->
-      <div id="reservation-map" class="map-viewport" tabindex="0" [attr.aria-label]="'reservations.reservations.plano_desplazable' | t">
+      <div #mapViewport id="reservation-map" class="map-viewport" tabindex="0" (scroll)="updateMapEdges()"
+        [attr.aria-label]="'reservations.reservations.plano_desplazable' | t">
         <div class="plan">
           <!-- Piezas reutilizables (contornos, texturas e iconos) que las capas usan con <use> o url(#...). -->
           <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">

@@ -910,6 +910,37 @@ button {
   }
 }
 
+// ============================================================
+// RESPONSIVE: plano en móvil
+// 1. El recuadro del plano llega hasta los bordes de la tarjeta: se gana el ancho del relleno.
+// 2. El lado por el que queda plano por ver se difumina (clases que pone el componente al
+//    desplazar), así se entiende que se puede deslizar sin tener que leer el aviso.
+// ============================================================
+@media (max-width: 650px) {
+  .map-viewport {
+    // Mismo relleno que la tarjeta (ver .map-card)
+    margin-inline: calc(-1 * clamp(.85rem, 2.2vw, 1.35rem));
+    border-radius: 0;
+    border-inline: 0;
+    overscroll-behavior-x: contain;
+  }
+
+  .map-viewport.more-end {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+  }
+
+  .map-viewport.more-start {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 2.5rem);
+    mask-image: linear-gradient(to right, transparent, #000 2.5rem);
+  }
+
+  .map-viewport.more-start.more-end {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 2.5rem, #000 calc(100% - 2.5rem), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 2.5rem, #000 calc(100% - 2.5rem), transparent);
+  }
+}
+
 // Móvil: aparece el aviso de que el plano se desplaza en horizontal.
 @media (max-width: 650px) {
   .pan-hint {

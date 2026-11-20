@@ -31,7 +31,8 @@
 .chat-root {
   position: fixed;
   right: 1.25rem;
-  bottom: 1.25rem;
+  // Respeta la franja inferior de los iPhone sin botón de inicio
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
   z-index: 45;
   display: flex;
   flex-direction: column;
@@ -72,6 +73,8 @@
 .chat-panel {
   width: min(380px, calc(100vw - 2.5rem));
   height: min(560px, calc(100vh - 7rem));
+  // En móvil la barra del navegador aparece y desaparece: dvh usa el alto visible real
+  height: min(560px, calc(100dvh - 7rem));
   display: flex;
   flex-direction: column;
   overflow: hidden;

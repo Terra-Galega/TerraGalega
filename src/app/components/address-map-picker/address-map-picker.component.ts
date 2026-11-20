@@ -16,6 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, Subject, catchError, switchMap, timer } from 'rxjs';
 
 import type { Map as MapLibreMap } from 'maplibre-gl';
+import { loadMapLibre } from '../../utils/maplibre';
 
 import { MapAddressService } from '../../services/map-address.service';
 import { getErrorMessage } from '../../utils/http-error';
@@ -163,7 +164,7 @@ export class AddressMapPickerComponent implements AfterViewInit, OnChanges {
 
   private async createMap(): Promise<void> {
     try {
-      const { Map, NavigationControl } = await import('maplibre-gl');
+      const { Map, NavigationControl } = await loadMapLibre();
 
       if (this.destroyed) return;
 
