@@ -1,0 +1,14 @@
+@if (celebration(); as c) {
+  <div class="scene" [attr.data-celebration]="c.id" aria-hidden="true" [style.--festival-accent]="c.accent">
+    <span class="glow" aria-hidden="true"></span>
+
+    <app-celebration-canvas [celebration]="c" [forceMotion]="forceMotion()" />
+
+    <span class="orbit orbit-left" aria-hidden="true">
+      <app-celebration-icon [shape]="c.decorations[0]" />
+    </span>
+    <span class="orbit orbit-right" aria-hidden="true">
+      <app-celebration-icon [shape]="c.decorations[1]" />
+    </span>
+  </div>
+}

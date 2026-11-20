@@ -1,5 +1,9 @@
 import { TranslatePipe } from '../../../../services/translate.pipe';
-import { Component, Input, OnChanges } from '@angular/core';
+import { LanguageService } from '../../../../services/language.service';
+import { AfterViewInit, Component, DestroyRef, ElementRef, Input, computed, effect, inject, signal } from '@angular/core';
+import { AnnouncementSlide } from '../../../../models/announcement-slide';
+import { CelebrationService } from '../../../../services/celebration.service';
+import { CelebrationIconComponent } from '../../../../components/celebration/celebration-icon/celebration-icon.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
 import { Announcement } from '../../../../models/announcement';
@@ -10,19 +14,49 @@ import { RevealDirective } from '../../../../directives/reveal.directive';
 const AUTOPLAY_MS = 6_000;
 
 /**
- * Carrusel horizontal de anuncios del home (máximo 3). Muestra uno a la vez,
+ * Carrusel horizontal del home: celebración del día primero y todos los anuncios publicados. Muestra uno a la vez,
  * avanza solo cada AUTOPLAY_MS, se detiene mientras el mouse está encima (o si el
  * usuario pulsa pausa) y se puede mover con las flechas, los puntos o deslizando el dedo.
  * Si el sistema pide reducir el movimiento, no avanza solo.
  */
 @Component({
   selector: 'app-announcements-section',
-  imports: [SectionHeadingComponent, RevealDirective, TranslatePipe],
+  imports: [SectionHeadingComponent, RevealDirective, CelebrationIconComponent, TranslatePipe],
   templateUrl: './announcements-section.component.html',
+  styleUrl: './announcements-section.component.scss',
 })
-export class AnnouncementsSectionComponent implements OnChanges {
+export class AnnouncementsSectionComponent implements AfterViewInit {
   // Anuncios que llegan del home
-  @Input() announcements: Announcement[] = [];
+  private readonly published = signal<Announcement[]>([]);
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly destroyRef = inject(DestroyRef);
+  private inView = false;
+  private readonly celebrations = inject(CelebrationService);
+  private readonly language = inject(LanguageService);
+
+  @Input() set announcements(value: Announcement[]) {
+    this.published.set(value);
+  }
+
+  readonly slides = computed<AnnouncementSlide[]>(() => {
+    const published = this.published().map((item): AnnouncementSlide => ({
+      key: `announcement:${item.id}`,
+      title: item.title,
+      description: item.description,
+      imageUrl: item.imageUrl,
+      celebration: null,
+    }));
+    const celebration = this.celebrations.current();
+    return celebration ? [{
+      key: `celebration:${celebration.id}`,
+      title: this.language.t('celebrations.' + celebration.id + '.name'),
+      description: this.language.t('celebrations.' + celebration.id + '.announcementMessage'),
+      imageUrl: null,
+      celebration,
+    }, ...published] : published;
+  });
+
+  private leadingKey: string | null = null;
 
   // Posición del anuncio visible
   current = 0;
@@ -40,37 +74,52 @@ export class AnnouncementsSectionComponent implements OnChanges {
   private touchStartX = 0;
 
   constructor() {
+    // Al cambiar de festividad (fecha o vista previa), se presenta el primer anuncio.
+    // Una respuesta tardía del backend conserva la celebración en primer lugar.
+    effect(() => {
+      const slides = this.slides();
+      const leadingKey = slides[0]?.key ?? null;
+      if (leadingKey !== this.leadingKey || this.current >= slides.length) {
+        this.current = 0;
+      }
+      this.leadingKey = leadingKey;
+    });
     // Avance automático; se cancela solo cuando el componente se destruye
     timer(AUTOPLAY_MS, AUTOPLAY_MS)
       .pipe(takeUntilDestroyed())
       .subscribe(() => {
         if (
+          this.inView &&
           !this.paused &&
           !this.userPaused &&
           !this.reducedMotion &&
-          this.announcements.length > 1
+          this.slides().length > 1
         ) {
           this.next();
         }
       });
   }
 
-  // Si el admin borra anuncios y la posición queda fuera de rango, se reinicia
-  ngOnChanges() {
-    if (this.current >= this.announcements.length) {
-      this.current = 0;
-    }
+  ngAfterViewInit(): void {
+    // No se pierde la primera diapositiva mientras el usuario sigue en la portada.
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !this.inView) this.current = 0;
+      this.inView = entry.isIntersecting;
+    }, { threshold: 0.15 });
+    observer.observe(this.host.nativeElement);
+    this.destroyRef.onDestroy(() => observer.disconnect());
   }
-
   // Anuncio siguiente (al final vuelve al primero)
   next() {
-    this.current = (this.current + 1) % this.announcements.length;
+    if (this.slides().length < 2) return;
+    this.current = (this.current + 1) % this.slides().length;
   }
 
   // Anuncio anterior (al inicio salta al último)
   prev() {
+    if (this.slides().length < 2) return;
     this.current =
-      (this.current - 1 + this.announcements.length) % this.announcements.length;
+      (this.current - 1 + this.slides().length) % this.slides().length;
   }
 
   // Deslizar el dedo: a la izquierda avanza, a la derecha retrocede (mínimo 50 px)
@@ -79,7 +128,7 @@ export class AnnouncementsSectionComponent implements OnChanges {
   }
 
   onTouchEnd(event: TouchEvent) {
-    if (this.announcements.length < 2) {
+    if (this.slides().length < 2) {
       return;
     }
     const delta = event.changedTouches[0].clientX - this.touchStartX;

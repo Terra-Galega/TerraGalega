@@ -1,0 +1,19 @@
+@if (celebration(); as c) {
+  <section class="card" [style.--festival-accent]="c.accent">
+    <span class="icon">
+      <app-celebration-icon [shape]="c.decorations[0]" />
+    </span>
+
+    <span class="copy">
+      <small>{{ language.t('celebrations.ui.today') }}</small>
+      <strong>{{ language.t('celebrations.' + c.id + '.name') }}</strong>
+      <span>{{ language.t('celebrations.' + c.id + '.message') }}</span>
+    </span>
+
+    <span class="spark" aria-hidden="true">
+      <app-celebration-icon [shape]="c.decorations[1]" />
+    </span>
+
+    <app-celebration-canvas [celebration]="c" [compact]="true" [onLight]="theme() === 'light'" [forceMotion]="forceMotion()" />
+  </section>
+}

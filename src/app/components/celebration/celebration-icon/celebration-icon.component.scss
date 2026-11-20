@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ink { stroke: var(--engraving-ink, #f5f2eb); }
+.gold { stroke: var(--engraving-gold, #d4b477); }
+.detail {
+  stroke: var(--engraving-ink, #f5f2eb);
+  opacity: 0.65;
+}
+
+// Simplifica el rayado fino en los tamaños pequeños sin perder la silueta.
+@media (max-width: 640px) {
+  .detail { opacity: 0.42; }
+}

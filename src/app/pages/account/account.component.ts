@@ -27,6 +27,9 @@ import { ToastService } from '../../services/toast.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { AddressListComponent } from './components/address-list/address-list.component';
 import { ThemeSwitchComponent } from '../../components/theme-switch/theme-switch.component';
+import { CelebrationBannerComponent } from '../../components/celebration/celebration-banner/celebration-banner.component';
+import { CelebrationRainComponent } from '../../components/celebration/celebration-rain/celebration-rain.component';
+import { CelebrationSwitcherComponent } from '../../components/celebration/celebration-switcher/celebration-switcher.component';
 
 // Cada cuánto se pregunta el estado mientras Stripe confirma el pago
 const POLL_MS = 5000;
@@ -47,6 +50,9 @@ const MAX_POLLS = 15;
     AccountActionsComponent,
     AddressListComponent,
     ThemeSwitchComponent,
+    CelebrationBannerComponent,
+    CelebrationRainComponent,
+    CelebrationSwitcherComponent,
     ButtonComponent,
     TranslatePipe],
   templateUrl: './account.component.html',

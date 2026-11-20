@@ -237,3 +237,11 @@
     display: none;
   }
 }
+
+// Espacio para las composiciones festivas en pantallas estrechas.
+// Sin festividad activa se conserva el espaciado habitual de la portada.
+@media (max-width: 1100px) {
+  #hero:has(app-celebration-scene:not(:empty)) {
+    padding-bottom: 128px;
+  }
+}
