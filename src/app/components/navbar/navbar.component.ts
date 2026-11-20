@@ -16,7 +16,20 @@ import {
 } from '../../services/notification-center.service';
 
 // Partículas que van pegadas al apellido o nombre siguiente ("De la Cruz", "Van Dyke")
-const NAME_PARTICLES = new Set(['de', 'del', 'la', 'las', 'los', 'y', 'da', 'das', 'do', 'dos', 'van', 'von']);
+const NAME_PARTICLES = new Set([
+  'de',
+  'del',
+  'la',
+  'las',
+  'los',
+  'y',
+  'da',
+  'das',
+  'do',
+  'dos',
+  'van',
+  'von',
+]);
 
 // Primera palabra de un nombre o apellido. Si empieza con partículas, las conserva junto
 // a la palabra que las sigue: "Pérez Gómez" -> "Pérez", "de la Cruz Rojas" -> "de la Cruz".
@@ -35,7 +48,13 @@ function firstWord(value: string | null | undefined): string {
   selector: 'app-navbar',
   standalone: true,
   // Importa el carrito, que se muestra como panel desde la barra.
-  imports: [CartComponent, AsyncPipe,SettingsMenuComponent, NgTemplateOutlet, TranslatePipe],
+  imports: [
+    CartComponent,
+    AsyncPipe,
+    SettingsMenuComponent,
+    NgTemplateOutlet,
+    TranslatePipe,
+  ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
