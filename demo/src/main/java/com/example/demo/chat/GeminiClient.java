@@ -34,7 +34,8 @@ public class GeminiClient {
 
     private synchronized Client getClient() {
         if (apiKey == null || apiKey.isBlank()) {
-            log.warn("GEMINI_API_KEY no está configurada: revisa el archivo .env y desde qué carpeta arrancas el backend");
+            log.warn(
+                    "GEMINI_API_KEY no está configurada: revisa el archivo .env y desde qué carpeta arrancas el backend");
             throw ApiException.serviceUnavailable("El asistente no está disponible en este momento.");
         }
         if (client == null) {
@@ -46,7 +47,8 @@ public class GeminiClient {
         return client;
     }
 
-    // Una vuelta de la conversación. La respuesta puede traer texto o llamadas a funciones.
+    // Una vuelta de la conversación. La respuesta puede traer texto o llamadas a
+    // funciones.
     public GenerateContentResponse generate(List<Content> contents, GenerateContentConfig config) {
         try {
             return call(model, contents, config);
@@ -79,10 +81,12 @@ public class GeminiClient {
         }
     }
 
+    // Errores en los que vale la pena probar el modelo de respaldo
     private static boolean isOverloaded(RuntimeException e) {
         String detail = String.valueOf(e.getMessage());
         return detail.contains("503") || detail.contains("high demand") || detail.contains("UNAVAILABLE")
-                || detail.contains("429") || detail.contains("RESOURCE_EXHAUSTED");
+                || detail.contains("429") || detail.contains("RESOURCE_EXHAUSTED")
+                || detail.contains("404") || detail.contains("NOT_FOUND");
     }
 
     private static ApiException toApiException(RuntimeException e) {
