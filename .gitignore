@@ -1,1 +1,4 @@
 mydatabase.mv.db
+
+# Configuración privada de Spring Boot
+application.properties
