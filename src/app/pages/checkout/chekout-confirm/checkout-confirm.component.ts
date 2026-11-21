@@ -1,6 +1,6 @@
 import { TranslatePipe } from '../../../services/translate.pipe';
 import { DecimalPipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../../components/navbar/navbar.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
@@ -132,6 +132,57 @@ export class CheckoutConfirmComponent implements OnInit {
           this.showNotice('Quitamos tu cupón', couponMessage);
         }
       });
+    });
+  }
+
+  // Al volver con "Atrás" desde Stripe, el navegador puede restaurar esta misma
+  // instancia con paying=true. Comprobamos el pago antes de habilitar otro intento.
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
+    if (!event.persisted || !this.paying || this.draft.method !== 'card') {
+      return;
+    }
+
+    const pending = this.paymentService.getPending();
+    if (!pending) {
+      // Si no se guardó el pedido, el siguiente clic reutiliza el mismo requestId.
+      this.paying = false;
+      this.serverError = 'Volviste de la pasarela. Puedes intentar pagar de nuevo.';
+      return;
+    }
+
+    this.serverError = 'Comprobando el estado de tu pago...';
+    this.paymentService.status(pending.orderId).subscribe({
+      next: (payment) => {
+        if (payment.state === 'PAID') {
+          this.router.navigate(['/checkout/result'], {
+            queryParams: { order: payment.orderId },
+          });
+        } else if (payment.state === 'PENDING') {
+          this.paying = false;
+          this.serverError = 'Volviste sin completar el pago. Pulsa "Pagar con tarjeta" para continuar en la misma pasarela.';
+        } else if (payment.state === 'EXPIRED' || payment.state === 'REFUNDED') {
+          this.paymentService.clearPending();
+          this.draftService.draft = {
+            ...this.draftService.draft,
+            paymentRequestId: '',
+            paymentRequestBody: '',
+          };
+          this.paying = false;
+          this.serverError = 'El pago anterior ya no está disponible. Pulsa "Pagar con tarjeta" para crear uno nuevo.';
+        } else {
+          // Un reembolso o un estado intermedio debe resolverse en la página de resultado.
+          this.router.navigate(['/checkout/result'], {
+            queryParams: { order: payment.orderId },
+          });
+        }
+      },
+      error: (error) => {
+        console.error('No se pudo comprobar el pago al volver de Stripe:', error);
+        // El requestId se conserva para que un nuevo clic recupere el mismo pedido.
+        this.paying = false;
+        this.serverError = 'No pudimos comprobar el pago. Vuelve a pulsar "Pagar con tarjeta" para reintentar con el mismo pedido.';
+      },
     });
   }
 

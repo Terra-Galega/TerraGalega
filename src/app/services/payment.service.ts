@@ -53,11 +53,12 @@ export class PaymentService {
     }
   }
 
-  getPending(orderId: number): PendingPayment | null {
+  getPending(orderId?: number): PendingPayment | null {
     try {
       const raw = sessionStorage.getItem(PENDING_KEY);
       const pending = raw ? (JSON.parse(raw) as PendingPayment) : null;
-      return pending?.orderId === orderId ? pending : null;
+      return pending && Number.isInteger(pending.orderId) && pending.orderId > 0
+        && (orderId === undefined || pending.orderId === orderId) ? pending : null;
     } catch {
       return null;
     }
