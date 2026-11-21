@@ -4,18 +4,20 @@
             "type": "java",
             "name": "DemoApplication",
             "request": "launch",
-            "mainClass": "com.example.demo.service.DemoApplication",
-            "projectName": "demo"
+            "mainClass": "com.example.demo.DemoApplication",
+            "projectName": "demo",
+            "cwd": "${workspaceFolder}/demo",
+            "envFile": "${workspaceFolder}/demo/.env"
         },
         {
             "type": "java",
             "name": "Spring Boot-DemoApplication<demo>",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/demo",
             "mainClass": "com.example.demo.DemoApplication",
             "projectName": "demo",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/demo/.env"
         }
     ]
 }
