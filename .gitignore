@@ -46,3 +46,6 @@ demo/target/
 # Base de datos H2 local
 *.mv.db
 *.trace.db
+
+# Configuración privada de Spring Boot
+application.properties
