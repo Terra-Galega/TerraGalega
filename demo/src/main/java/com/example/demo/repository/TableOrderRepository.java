@@ -107,6 +107,12 @@ public interface TableOrderRepository extends JpaRepository<TableOrder, Integer>
     boolean isTableOccupied(@Param("tableId") Integer tableId,
             @Param("statuses") Collection<TableOrderStatus> statuses);
 
+    // Reintento de la app: el pedido que ya se creó con ese id
+    Optional<TableOrder> findByClientRequestId(String clientRequestId);
+
+    // ¿La mesa tiene algún pedido en cocina?
+    boolean existsByTableIdAndStatusIn(Integer tableId, Collection<TableOrderStatus> statuses);
+
     // ¿La mesa tiene otro pedido en curso además de este?
     boolean existsByTableIdAndStatusInAndIdNot(Integer tableId, Collection<TableOrderStatus> statuses,
             Integer id);

@@ -35,7 +35,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "reservations")
+// Una mesa solo puede tener una reserva por turno: la base de datos lo garantiza
+// aunque dos clientes reserven en el mismo instante
+@Table(name = "reservations", uniqueConstraints = @jakarta.persistence.UniqueConstraint(
+        name = "uk_reservations_table_date_time", columnNames = { "dining_table_id", "date", "time" }))
 public class Reservation {
 
     @Id
@@ -96,6 +99,11 @@ public class Reservation {
 
     // Segundos epoch en que caduca la sesión de Stripe
     private Long paymentExpiresAt;
+
+    // Cuándo llegó el cliente: el mesero lo sentó y le tomó el primer pedido.
+    // null = aún no llega. Pasado el margen de espera sin llegar, es un no-show.
+    @Column(name = "seated_at")
+    private java.time.LocalDateTime seatedAt;
 
     public boolean isPaid() {
         return PAID.equals(paymentState);

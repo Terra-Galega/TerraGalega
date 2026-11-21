@@ -88,6 +88,11 @@ public class TableOrder {
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
+    // Id que mandó la app al crear el pedido: un reintento con el mismo id no
+    // crea otro pedido (único en la base de datos)
+    @Column(name = "client_request_id", unique = true, length = 64)
+    private String clientRequestId;
+
     // Platos del pedido. Se guardan y borran junto con el pedido. Es un Set
     // (ordenado por id) para poder traer platos y adicionales en una sola
     // consulta sin que los platos salgan repetidos.

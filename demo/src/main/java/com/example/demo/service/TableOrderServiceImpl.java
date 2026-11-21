@@ -53,7 +53,13 @@ public class TableOrderServiceImpl implements TableOrderService {
     @org.springframework.beans.factory.annotation.Value("${terra.table-orders.reservation-warning-hours:2}")
     private int reservationWarningHours;
 
+    // Minutos que se espera a una reserva: pasado ese margen sin llegar es un
+    // no-show y la mesa se puede dar a clientes sin reserva
+    @org.springframework.beans.factory.annotation.Value("${terra.table-orders.no-show-minutes:20}")
+    private int noShowMinutes;
+
     // Límites razonables de un pedido de mesa
+    private static final int CLIENT_REQUEST_ID_MAX = 64;
     private static final int MAX_LINES = 50;
     private static final int MAX_QUANTITY = 99;
     private static final int NOTES_MAX = 200;
@@ -108,6 +114,8 @@ public class TableOrderServiceImpl implements TableOrderService {
             attending.putIfAbsent(o.getTable().getId(), o.getWaiter());
         }
 
+        Map<Integer, ReservationGate> gates = reservationGates(floor);
+
         Map<Integer, Reservation> upcoming = upcomingReservations(floor);
         Map<Integer, Reservation> current = currentReservations(floor);
 
@@ -117,6 +125,8 @@ public class TableOrderServiceImpl implements TableOrderService {
             Reservation next = upcoming.get(t.getId());
             Reservation now = current.get(t.getId());
             Waiter by = attending.get(t.getId());
+            ReservationGate gate = gates.getOrDefault(t.getId(), ReservationGate.NONE);
+            Reservation g = gate.reservation();
             return new WaiterTableDTO(
                     t.getId(),
                     t.getFloor(),
@@ -132,7 +142,13 @@ public class TableOrderServiceImpl implements TableOrderService {
                     now != null ? now.getName() : null,
                     by != null ? by.getId() : null,
                     by != null ? fullName(by) : null,
-                    by != null && by.getId().equals(waiterId));
+                    by != null && by.getId().equals(waiterId),
+                    g != null ? g.getId() : null,
+                    g != null ? g.getTime() : null,
+                    g != null ? g.getName() : null,
+                    g != null && g.isPaid(),
+                    gate.noShow(),
+                    gate.walkInAllowed());
         }).toList();
     }
 
@@ -200,11 +216,35 @@ public class TableOrderServiceImpl implements TableOrderService {
         }
 
         // Una mesa ocupada (available = false) sí admite otra ronda
-        // Bloqueada mientras se toma el pedido: dos meseros no pueden quedarse la misma mesa
+        String requestId = request.clientRequestId() == null ? null : request.clientRequestId().trim();
+        if (requestId != null && (requestId.isEmpty() || requestId.length() > CLIENT_REQUEST_ID_MAX)) {
+            throw ApiException.badRequest("El identificador del pedido no es válido.");
+        }
+
+        // Bloqueada mientras se toma el pedido: dos meseros no pueden quedarse la
+        // misma mesa, y dos reintentos del mismo pedido van uno detrás del otro
         DiningTable table = tables.lockById(request.tableId())
                 .orElseThrow(() -> ApiException.notFound("La mesa " + request.tableId() + " no existe."));
+
+        // Reintento (la app no recibió la respuesta y lo vuelve a mandar): se
+        // devuelve el pedido que ya se creó, sin mandar otro a cocina
+        if (requestId != null) {
+            java.util.Optional<TableOrder> previous = orders.findByClientRequestId(requestId);
+            if (previous.isPresent()) {
+                TableOrder p = previous.get();
+                if (!p.getWaiter().getId().equals(waiterId)) {
+                    throw ApiException.conflict("El identificador del pedido ya se usó.");
+                }
+                return toDTO(p);
+            }
+        }
+
         // Otra ronda sí, pero solo del mesero que ya la atiende
         checkAttends(waiterId, table.getId());
+
+        // Mesa libre: se revisa la reserva antes de sentar a alguien
+        boolean free = !orders.isTableOccupied(table.getId(), ACTIVE);
+        Reservation seating = free ? checkReservation(table, Boolean.TRUE.equals(request.forReservation())) : null;
 
         List<NewOrderItemDTO> lines = request.items();
         if (lines == null || lines.isEmpty()) {
@@ -217,6 +257,7 @@ public class TableOrderServiceImpl implements TableOrderService {
         TableOrder order = TableOrder.builder()
                 .table(table)
                 .waiter(waiter)
+                .clientRequestId(requestId)
                 .startTime(LocalDateTime.now())
                 .status(TableOrderStatus.PENDING)
                 .build();
@@ -285,12 +326,15 @@ public class TableOrderServiceImpl implements TableOrderService {
             order.getItems().add(item);
         }
 
-        // Un pedido nuevo deja la mesa pendiente de atender y OCUPADA
-        table.setAttended(false);
-        table.setAvailable(false);
-        tables.save(table);
+        // Llegaron los de la reserva: queda registrada su llegada
+        if (seating != null) {
+            seating.setSeatedAt(LocalDateTime.now());
+        }
 
-        return toDTO(orders.save(order));
+        TableOrder saved = orders.save(order);
+        // Un pedido nuevo deja la mesa pendiente de atender y OCUPADA
+        refreshFlags(table);
+        return toDTO(saved);
     }
 
     @Override
@@ -308,9 +352,10 @@ public class TableOrderServiceImpl implements TableOrderService {
 
         order.setStatus(TableOrderStatus.DONE);
         order.setEndTime(LocalDateTime.now());
-        closeTableIfFree(order);
+        TableOrder saved = orders.save(order);
+        refreshFlags(order.getTable());
 
-        return toDTO(orders.save(order));
+        return toDTO(saved);
     }
 
     @Override
@@ -332,7 +377,7 @@ public class TableOrderServiceImpl implements TableOrderService {
         order.setPaymentMethod(method);
         order.setPaidAt(LocalDateTime.now());
         TableOrder saved = orders.save(order);
-        refreshAvailability(order.getTable());
+        refreshFlags(order.getTable());
         return toDTO(saved);
     }
 
@@ -359,7 +404,7 @@ public class TableOrderServiceImpl implements TableOrderService {
             order.setPaidAt(now);
         }
         List<TableOrder> saved = orders.saveAll(pending);
-        refreshAvailability(saved.get(0).getTable());
+        refreshFlags(saved.get(0).getTable());
         return saved.stream().map(this::toDTO).toList();
     }
 
@@ -381,32 +426,113 @@ public class TableOrderServiceImpl implements TableOrderService {
 
         order.setStatus(TableOrderStatus.CANCELLED);
         order.setEndTime(LocalDateTime.now());
-        closeTableIfFree(order);
+        TableOrder saved = orders.save(order);
+        refreshFlags(order.getTable());
 
-        return toDTO(orders.save(order));
+        return toDTO(saved);
     }
 
-    // La mesa queda atendida si ya no le queda ningún otro pedido en curso
-    // (con varias rondas, se espera a que terminen todas). Además se recalcula
-    // si sigue ocupada (al cancelar el único pedido, queda libre).
-    private void closeTableIfFree(TableOrder order) {
-        DiningTable table = order.getTable();
-        boolean othersActive = orders.existsByTableIdAndStatusInAndIdNot(table.getId(), ACTIVE, order.getId());
-        if (!othersActive) {
-            table.setAttended(true);
-            tables.save(table);
-        }
-        refreshAvailability(table);
+    // Recalcula las dos banderas de la mesa a partir de sus pedidos, con la mesa
+    // BLOQUEADA: si dos meseros (o mesero y cocina) cambian pedidos de la misma mesa
+    // a la vez, el segundo espera y calcula con lo que guardó el primero.
+    // - available: libre ahora (nada en cocina ni entregado sin cobrar)
+    // - attended: nada en cocina (con varias rondas, cuando terminan todas)
+    private void refreshFlags(DiningTable table) {
+        orders.flush();
+        DiningTable locked = tables.lockById(table.getId()).orElse(table);
+        boolean free = !orders.isTableOccupied(locked.getId(), ACTIVE);
+        boolean attended = !orders.existsByTableIdAndStatusIn(locked.getId(), ACTIVE);
+        locked.setAvailable(free);
+        locked.setAttended(attended);
+        tables.save(locked);
     }
 
-    // available = la mesa está libre ahora: nada en cocina ni entregado sin cobrar.
-    // La consulta ve los cambios de esta misma transacción (Hibernate guarda antes).
-    private void refreshAvailability(DiningTable table) {
-        boolean free = !orders.isTableOccupied(table.getId(), ACTIVE);
-        if (!Boolean.valueOf(free).equals(table.getAvailable())) {
-            table.setAvailable(free);
-            tables.save(table);
+    // ---------- Reservas al sentar clientes ----------
+
+    // Reserva que importa al sentar a alguien en la mesa y si se puede sentar a
+    // clientes sin reserva. NONE = no hay reserva que estorbe.
+    private record ReservationGate(Reservation reservation, boolean noShow, boolean walkInAllowed) {
+        static final ReservationGate NONE = new ReservationGate(null, false, true);
+    }
+
+    // Reglas (sobre reservas de HOY de la mesa, pagadas o esperando el pago, que
+    // aún no han llegado):
+    // - Turno en curso y dentro del margen de espera: la mesa es de la reserva.
+    //   Solo se puede sentar a los de la reserva.
+    // - Turno en curso y pasó el margen sin llegar (no-show): se puede dar a otros.
+    // - Empieza antes de SLOT_MINUTES: un cliente sin reserva no alcanzaría a
+    //   terminar. Solo se puede sentar a los de la reserva (si llegan antes).
+    private ReservationGate gateFor(List<Reservation> todayOfTable, LocalDateTime now) {
+        for (Reservation r : todayOfTable) {
+            if (r.getSeatedAt() != null) {
+                continue;
+            }
+            LocalDateTime start = LocalDateTime.of(r.getDate(), r.getTime());
+            LocalDateTime end = start.plusMinutes(RESERVATION_SLOT_MINUTES);
+            if (!now.isBefore(end)) {
+                continue;
+            }
+            if (!now.isBefore(start)) {
+                boolean noShow = !now.isBefore(start.plusMinutes(noShowMinutes));
+                return new ReservationGate(r, noShow, noShow);
+            }
+            if (start.isBefore(now.plusMinutes(RESERVATION_SLOT_MINUTES))) {
+                return new ReservationGate(r, false, false);
+            }
         }
+        return ReservationGate.NONE;
+    }
+
+    // Reservas de hoy que pueden afectar ahora a cada mesa del piso
+    private Map<Integer, ReservationGate> reservationGates(Integer floor) {
+        LocalDateTime now = LocalDateTime.now();
+        Map<Integer, List<Reservation>> byTable = reservations
+                .findByTableFloorAndDateAndTimeBetweenOrderByTimeAsc(floor, now.toLocalDate(),
+                        windowFrom(now), windowTo(now))
+                .stream()
+                .collect(Collectors.groupingBy(r -> r.getTable().getId()));
+        Map<Integer, ReservationGate> gates = new java.util.HashMap<>();
+        byTable.forEach((tableId, list) -> gates.put(tableId, gateFor(list, now)));
+        return gates;
+    }
+
+    // Al sentar a alguien en una mesa libre. forReservation = el mesero confirma
+    // que son los de la reserva. Devuelve la reserva que llega (o null).
+    private Reservation checkReservation(DiningTable table, boolean forReservation) {
+        LocalDateTime now = LocalDateTime.now();
+        ReservationGate gate = gateFor(reservations.findByTableIdAndDateAndTimeBetweenOrderByTimeAsc(
+                table.getId(), now.toLocalDate(), windowFrom(now), windowTo(now)), now);
+        Reservation r = gate.reservation();
+
+        if (forReservation) {
+            if (r == null) {
+                throw ApiException.badRequest("La mesa " + table.getId()
+                        + " no tiene una reserva por atender ahora. Toma el pedido como cliente sin reserva.");
+            }
+            return r;
+        }
+        if (!gate.walkInAllowed()) {
+            String time = r.getTime().toString().substring(0, 5);
+            boolean started = !now.toLocalTime().isBefore(r.getTime());
+            throw ApiException.conflict(started
+                    ? "La mesa " + table.getId() + " está reservada para «" + r.getName() + "» desde las " + time
+                            + ". Si son ellos, confírmalo; si no, usa otra mesa (se libera a los "
+                            + noShowMinutes + " min si no llegan)."
+                    : "La mesa " + table.getId() + " tiene una reserva («" + r.getName() + "») a las " + time
+                            + " y no alcanzaría a quedar libre. Si son ellos, confírmalo; si no, usa otra mesa.");
+        }
+        return null;
+    }
+
+    // Franja de hoy en la que una reserva puede afectar a la mesa ahora
+    private LocalTime windowFrom(LocalDateTime now) {
+        LocalDateTime from = now.minusMinutes(RESERVATION_SLOT_MINUTES);
+        return from.toLocalDate().equals(now.toLocalDate()) ? from.toLocalTime() : LocalTime.MIN;
+    }
+
+    private LocalTime windowTo(LocalDateTime now) {
+        LocalDateTime to = now.plusMinutes(RESERVATION_SLOT_MINUTES);
+        return to.toLocalDate().equals(now.toLocalDate()) ? to.toLocalTime() : LocalTime.MAX;
     }
 
     // =========================

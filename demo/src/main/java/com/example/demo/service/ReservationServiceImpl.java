@@ -111,7 +111,7 @@ public class ReservationServiceImpl implements ReservationService {
                 .build();
         // Se enlaza también por el lado del cliente para mantener el 1 a 1 coherente
         client.setReservation(reservation);
-        reservation = reservationRepository.save(reservation);
+        reservation = saveChecked(reservation);
 
         openStripeSession(reservation);
         return toDTO(reservation);
@@ -139,7 +139,8 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setTime(dto.getTime());
         reservation.setSeats(seats);
         reservation.setTheme(dto.getTheme() != null ? dto.getTheme() : ReservationTheme.NONE);
-        return toDTO(reservation);
+        // Se guarda ya (y no al terminar) para responder 409 si la base rechaza un choque
+        return toDTO(saveChecked(reservation));
     }
 
     // Elimina la reserva. Si estaba pagada, el anticipo NO se reembolsa. Si el pago
@@ -323,6 +324,18 @@ public class ReservationServiceImpl implements ReservationService {
 
     // --- Utilidades ---
 
+    // Última red de seguridad: si aun así la base de datos rechaza la reserva
+    // (misma mesa y turno, o el cliente ya tiene otra), se responde 409 con un
+    // mensaje claro en vez de un error genérico
+    private Reservation saveChecked(Reservation reservation) {
+        try {
+            return reservationRepository.saveAndFlush(reservation);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw ApiException.conflict("Esa mesa se acaba de reservar en ese turno, o ya tienes otra reserva. "
+                    + "Recarga y elige otra mesa u otra hora.");
+        }
+    }
+
     private void remove(Reservation reservation) {
         // orphanRemoval en Client.reservation la borra de la BD
         reservation.getClient().setReservation(null);
@@ -342,7 +355,9 @@ public class ReservationServiceImpl implements ReservationService {
         if (tableId == null) {
             throw ApiException.badRequest("Elige una mesa.");
         }
-        DiningTable table = diningTableRepository.findById(tableId)
+        // Bloqueada hasta el final de la transacción: si dos clientes reservan la misma
+        // mesa a la vez, el segundo espera y ya ve la reserva del primero
+        DiningTable table = diningTableRepository.lockById(tableId)
                 .orElseThrow(() -> ApiException.badRequest("La mesa no es válida."));
         if (seats > table.getSeats()) {
             throw ApiException.badRequest(
@@ -353,11 +368,11 @@ public class ReservationServiceImpl implements ReservationService {
 
     // Verifica la disponibilidad. ignoreId: al editar, la propia reserva no cuenta.
     private void checkTableFree(DiningTable table, LocalDate date, LocalTime time, Integer ignoreId) {
-        reservationRepository.findByTableIdAndDateAndTime(table.getId(), date, time)
-                .filter(r -> !r.getId().equals(ignoreId))
-                .ifPresent(r -> {
-                    throw ApiException.conflict("Esa mesa ya está reservada en esa fecha y hora.");
-                });
+        boolean taken = reservationRepository.findByTableIdAndDateAndTime(table.getId(), date, time).stream()
+                .anyMatch(r -> !r.getId().equals(ignoreId));
+        if (taken) {
+            throw ApiException.conflict("Esa mesa ya está reservada en esa fecha y hora.");
+        }
 
         java.time.LocalDateTime until = blockedByOccupation(date, time).get(table.getId());
         if (until != null) {

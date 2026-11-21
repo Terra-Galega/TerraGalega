@@ -20,7 +20,13 @@ public final class TableOrderDTOs {
     }
 
     // POST /table-orders. El mesero sale del token, no se envía.
-    public record NewTableOrderDTO(Integer tableId, List<NewOrderItemDTO> items) {
+    // clientRequestId: id que genera la app para este pedido (UUID). Si la app
+    // reintenta el envío (se cortó la red), el back devuelve el mismo pedido en
+    // vez de mandar otro igual a cocina.
+    // forReservation: true = el mesero confirma que son los clientes de la
+    // reserva de esa mesa (los sienta y la reserva queda atendida).
+    public record NewTableOrderDTO(Integer tableId, List<NewOrderItemDTO> items, String clientRequestId,
+            Boolean forReservation) {
     }
 
     // POST /table-orders/{id}/pay (mesero): CASH o CARD
@@ -109,6 +115,17 @@ public final class TableOrderDTOs {
             Integer attendingWaiterId,
             String attendingWaiterName,
             // true = la atiende quien consulta; false = otro mesero (no puede entrar)
-            boolean mine) {
+            boolean mine,
+            // Reserva que el mesero debe tener en cuenta al sentar a alguien (en
+            // curso sin llegar, o que empieza antes de que la mesa quede libre)
+            Integer reservationId,
+            LocalTime reservationTime,
+            String reservationName,
+            // false = anticipo aún sin pagar (la mesa sigue apartada)
+            boolean reservationPaid,
+            // Pasó el margen de espera y no llegaron: la mesa se puede dar a otros
+            boolean reservationNoShow,
+            // ¿Se puede sentar aquí a alguien SIN reserva? (false si choca con la reserva)
+            boolean walkInAllowed) {
     }
 }

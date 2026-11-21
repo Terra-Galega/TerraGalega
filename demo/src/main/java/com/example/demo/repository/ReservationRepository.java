@@ -26,7 +26,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
 
     List<Reservation> findByPaymentState(String paymentState);
 
-    Optional<Reservation> findByTableIdAndDateAndTime(Integer tableId, LocalDate date, LocalTime time);
+    // Lista y no Optional: si alguna vez hubiera dos, no explota con un 500
+    List<Reservation> findByTableIdAndDateAndTime(Integer tableId, LocalDate date, LocalTime time);
+
+    // Pedidos de mesa: reservas de hoy de una mesa entre dos horas (para saber si
+    // el mesero puede sentar a alguien sin reserva)
+    List<Reservation> findByTableIdAndDateAndTimeBetweenOrderByTimeAsc(Integer tableId, LocalDate date,
+            LocalTime from, LocalTime to);
 
     // Pedidos de mesa: reservas de un piso en una franja de hoy (el aviso
     // "reserva en 2 horas o menos" del portal del mesero)
