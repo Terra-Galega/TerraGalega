@@ -1,4 +1,7 @@
 {
+  "reservations.reservation_result.reservation_result.recibimos_el_anticipo_tu_reserva_quedo_confirmada": "Recibimos el anticipo y tu reserva quedó confirmada. ¡Te esperamos!",
+  "reservations.reservation_result.reservation_result.anticipo_pagado": "Anticipo pagado",
+  "reservations.reservation_result.reservation_result.ver_mi_reserva": "Ver mi reserva",
   "password_reset.forgot_link": "¿Olvidaste tu contraseña?",
   "password_reset.forgot_eyebrow": "Recuperar acceso",
   "password_reset.forgot_title": "¿Olvidaste tu contraseña?",

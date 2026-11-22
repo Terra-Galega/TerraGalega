@@ -79,7 +79,7 @@
   <!-- Botones para cancelar la edición o guardar los cambios -->
   <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-6"
     style="border-top: 1px solid rgba(44, 44, 44, 0.08)">
-    <app-button type="button" variant="neutral" size="md" (click)="cancel.emit()">
+    <app-button type="button" variant="danger" size="md" (click)="cancel.emit()">
       {{ 'account_edit.account_form.account_form.cancelar' | t }}
     </app-button>
     <app-button type="submit" variant="primary" size="md">

@@ -5,6 +5,8 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { Reservation, ReservationInput, ReservationTheme, RESERVATION_THEMES } from '../../models/reservation';
 import { ReservationService } from '../../services/reservation.service';
+import { StripeReturnService } from '../../services/stripe-return.service';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ReservationGuestComponent } from './components/reservation-guest/reservation-guest.component';
 import { ToastService } from '../../services/toast.service';
@@ -68,6 +70,8 @@ const DINING_CENTER_X = 500;
 })
 export class ReservationsComponent implements OnInit {
   private reservationService = inject(ReservationService);
+  private stripeReturn = inject(StripeReturnService);
+  private router = inject(Router);
   private toast = inject(ToastService);
   private auth = inject(AuthService);
   // Tutorial "hacer una reserva"
@@ -106,6 +110,7 @@ export class ReservationsComponent implements OnInit {
   editing = false; // true al editar la reserva existente
   confirmingDelete = false; // muestra el aviso de eliminación
   saving = false; // petición en curso
+  paymentNotice = ''; // aviso si volvió de Stripe con "Atrás" sin pagar el anticipo
   reservationName = '';
   theme: ReservationTheme = 'NONE';
   acceptDeposit = false; // aceptar el anticipo (solo al crear)
@@ -194,6 +199,7 @@ export class ReservationsComponent implements OnInit {
       next: (reservation) => {
         this.reservation = reservation;
         this.loading = false;
+        this.checkStripeReturn(reservation);
         // Tutorial: explicar la reserva que ya tiene (pendiente o confirmada)
         this.tutorialReservation.resumeReservations(
           reservation.paymentState === 'PENDING' ? 'pending' : 'paid',
@@ -203,11 +209,59 @@ export class ReservationsComponent implements OnInit {
       error: () => {
         this.reservation = null;
         this.loading = false;
+        this.checkStripeReturn(null);
         this.loadTaken();
         // Tutorial: guiar por el plano para crearla
         this.tutorialReservation.resumeReservations('new');
       },
     });
+  }
+
+  // Al volver con "Atrás" desde Stripe, el navegador puede restaurar esta página
+  // desde su memoria (bfcache) con `saving` todavía en true y los botones
+  // bloqueados. Se desbloquea y se vuelve a leer la reserva para saber qué pasó.
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
+    if (!event.persisted || !this.isLoggedIn) return;
+    this.saving = false;
+    this.reservationService.getReservation().subscribe({
+      next: (reservation) => {
+        this.reservation = reservation;
+        this.checkStripeReturn(reservation);
+      },
+      error: () => {
+        this.reservation = null;
+        this.checkStripeReturn(null);
+        this.loadTaken();
+      },
+    });
+  }
+
+  // Si se salió hacia Stripe y se volvió sin pasar por /reservations/result, el
+  // anticipo no se pagó: se avisa y se deja el botón listo para reintentar.
+  private checkStripeReturn(reservation: Reservation | null): void {
+    if (!this.stripeReturn.take('reservation')) return;
+    this.saving = false;
+
+    if (reservation?.paymentState === 'PAID') {
+      // Sí alcanzó a pagar: la página de resultado lo confirma
+      this.router.navigate(['/reservations/result']);
+      return;
+    }
+
+    if (reservation?.paymentState === 'PENDING') {
+      this.paymentNotice =
+        'Volviste de la pasarela sin terminar el pago, así que no se hizo ningún cobro. ' +
+        'Pulsa "Ir a pagar el anticipo" para volver a intentarlo.';
+      this.toast.error('No se realizó el pago', this.paymentNotice);
+      return;
+    }
+
+    // Ya no hay reserva: el tiempo para pagar terminó y la mesa se liberó
+    this.toast.error(
+      'No se realizó el pago',
+      'El tiempo para pagar el anticipo terminó y la mesa se liberó. Puedes hacer una reserva nueva.',
+    );
   }
 
   // --- Textos ---
@@ -303,6 +357,7 @@ export class ReservationsComponent implements OnInit {
   /** Vuelve a la pasarela para pagar el anticipo pendiente. */
   payNow(): void {
     if (!this.reservation) return;
+    this.paymentNotice = '';
     this.reservationService.redirectToStripe(this.reservation);
   }
 
@@ -322,6 +377,7 @@ export class ReservationsComponent implements OnInit {
       next: () => {
         this.saving = false;
         this.reservation = null;
+        this.paymentNotice = '';
         this.confirmingDelete = false;
         this.reservationName = '';
         this.theme = 'NONE';

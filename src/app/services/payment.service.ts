@@ -1,6 +1,8 @@
 import { API_URL } from '../api-url';
 import { AuthService } from './auth.service';
 import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { StripeReturnService } from './stripe-return.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
@@ -18,6 +20,7 @@ const PENDING_KEY = 'terra.pendingPayment';
 export class PaymentService {
   private auth = inject(AuthService);
   private apiUrl = `${API_URL}/payments`;
+  private stripeReturn = inject(StripeReturnService);
 
   constructor(private http: HttpClient) {}
 
@@ -40,6 +43,8 @@ export class PaymentService {
   // Lleva al cliente a la página de pago de Stripe
   redirectToStripe(payment: Payment): void {
     if (payment.checkoutUrl) {
+      // Si vuelve con "Atrás" sin pagar, la página de confirmación lo sabrá
+      this.stripeReturn.mark('order', payment.orderId);
       window.location.href = payment.checkoutUrl;
     }
   }

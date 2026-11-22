@@ -16,7 +16,7 @@
             {{ review ? "Editar mi reseña" : "Escribir una reseña" }}
         </h2>
 
-        <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+        <app-icon-button [danger]="true" variant="soft" label="Cerrar" (click)="close()">
             <svg aria-hidden="true" focusable="false"
             width="15"
             height="15"
@@ -43,7 +43,7 @@
             <button
                 type="button"
                 role="radio"
-                class="p-1 rounded transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                class="p-1 rounded-full transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 [class.opacity-25]="star > shown"
                 [attr.aria-checked]="rating === star"
                 [attr.aria-label]="star + (star === 1 ? ' estrella' : ' estrellas')"
@@ -84,7 +84,7 @@
         <div class="flex gap-3 pt-2">
             <app-button
             class="flex-1"
-            variant="neutral"
+            variant="danger"
             [fullWidth]="true"
             (click)="close()"
             >
@@ -106,8 +106,7 @@
         <div class="text-center pt-1">
             <button
             type="button"
-            class="text-xs underline cursor-pointer"
-            style="color: #8a2222"
+            class="danger-pill danger-pill--sm"
             (click)="confirmDelete = true"
             >
             {{ 'review_modal.review_modal.eliminar_mi_resena' | t }}

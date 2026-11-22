@@ -48,7 +48,7 @@
     <div class="flex justify-end gap-3 mt-3">
       <!-- El botón de cancelar solo aparece si se definió su etiqueta. -->
       @if (cancelLabel) {
-      <app-button variant="neutral" size="sm" (click)="cancel.emit()">
+      <app-button variant="danger" size="sm" (click)="cancel.emit()">
         {{ cancelLabel }}
       </app-button>
       }

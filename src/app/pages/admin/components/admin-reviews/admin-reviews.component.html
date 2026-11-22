@@ -128,7 +128,7 @@
                 }
               </app-icon-button>
 
-              <app-icon-button
+              <app-icon-button [danger]="true"
                 variant="ghost"
                 [label]="'Eliminar la reseña de ' + review.authorName"
                 (click)="removeReview(review)"

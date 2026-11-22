@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { StripeReturnService } from './stripe-return.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Reservation, ReservationInput } from '../models/reservation';
@@ -12,6 +13,7 @@ import { API_URL } from '../api-url';
 })
 export class ReservationService {
   private apiUrl = `${API_URL}/clients/me/reservation`;
+  private stripeReturn = inject(StripeReturnService);
 
   constructor(private http: HttpClient) {}
 
@@ -52,6 +54,8 @@ export class ReservationService {
   // Lleva al cliente a la página de pago de Stripe.
   redirectToStripe(reservation: Reservation): void {
     if (reservation.checkoutUrl) {
+      // Si vuelve con "Atrás" sin pagar, la página de reservas lo sabrá
+      this.stripeReturn.mark('reservation', reservation.id);
       window.location.href = reservation.checkoutUrl;
     }
   }

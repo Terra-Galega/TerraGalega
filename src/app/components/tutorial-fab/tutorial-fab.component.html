@@ -8,7 +8,7 @@
     style="background-color: rgba(255, 255, 255, 0.96); border: 1px solid rgba(178, 87, 31, 0.25)">
     @if (adminPanel()) {
     <button id="tutorial-admin" type="button" role="menuitem"
-      class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
+      class="flex items-center gap-2 rounded-full px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
       style="color: #2c2c2c" (click)="startAdminTour()">
       <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#b2571f" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -18,7 +18,7 @@
     </button>
     } @else {
     <button id="tutorial-order" type="button" role="menuitem"
-      class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
+      class="flex items-center gap-2 rounded-full px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
       style="color: #2c2c2c" (click)="startTour('order')">
       <!-- Ícono de carrito -->
       <svg aria-hidden="true" focusable="false" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#b2571f">
@@ -28,7 +28,7 @@
       {{ 'tutorial_fab.tutorial_fab.como_hago_un_pedido' | t }}
     </button>
     <button id="tutorial-reservation" type="button" role="menuitem"
-      class="flex items-center gap-2 rounded-xl px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
+      class="flex items-center gap-2 rounded-full px-4 py-2.5 text-left text-sm font-medium cursor-pointer transition-colors hover:bg-black/5"
       style="color: #2c2c2c" (click)="startTour('reservation')">
       <!-- Ícono de calendario -->
       <svg aria-hidden="true" focusable="false" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#b2571f">

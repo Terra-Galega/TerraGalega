@@ -5,7 +5,7 @@
         Enviar pedido #{{ order.id }}
       </h2>
 
-      <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+      <app-icon-button [danger]="true" variant="soft" label="Cerrar" (click)="close()">
         <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -49,7 +49,7 @@
       }
 
       <div class="flex gap-3 pt-2">
-        <app-button class="flex-1" variant="neutral" [fullWidth]="true" (click)="close()">
+        <app-button class="flex-1" variant="danger" [fullWidth]="true" (click)="close()">
           Cancelar
         </app-button>
 
