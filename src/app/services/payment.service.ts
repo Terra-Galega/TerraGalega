@@ -1,7 +1,6 @@
 import { API_URL } from '../api-url';
 import { AuthService } from './auth.service';
 import { Injectable, inject } from '@angular/core';
-import { Injectable, inject } from '@angular/core';
 import { StripeReturnService } from './stripe-return.service';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
