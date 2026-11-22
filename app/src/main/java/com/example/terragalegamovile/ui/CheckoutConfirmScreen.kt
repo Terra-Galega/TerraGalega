@@ -336,7 +336,7 @@ fun CheckoutConfirmScreen(
                             modifier = Modifier.padding(top = 4.dp)
                         )
                         if (d.saveAddress) {
-                            val named = if (d.addressName.isNotBlank()) t(" como «{}»", d.addressName) else ""
+                            val named = if (d.addressName.isNotBlank()) t(" como {}", d.addressName) else ""
                             Text(
                                 t("Esta dirección se guardará en tu perfil{} para tus próximos pedidos.", named),
                                 fontSize = 14.sp,

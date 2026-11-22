@@ -360,6 +360,18 @@ data class CouponDiscount(val code: String, val description: String?, val discou
 // ---------- Pedidos de mesa (portal del mesero) ----------
 
 // Una mesa del piso elegido (GET /table-orders/tables?floor=)
+// Reserva de hoy de una mesa (filtro "Reservadas hoy"). time = "19:30:00"
+data class TodayReservation(
+    val id: Int,
+    val time: String,
+    val name: String?,
+    val clientName: String?,
+    val seats: Int?,
+    val paid: Boolean,
+    // Ya llegaron (se tomó su pedido)
+    val seated: Boolean
+)
+
 data class WaiterTable(
     val id: Int,
     val floor: Int,
@@ -394,7 +406,11 @@ data class WaiterTable(
     // Pasó el margen de espera y no llegaron
     val reservationNoShow: Boolean = false,
     // ¿Se puede sentar aquí a clientes sin reserva?
-    val walkInAllowed: Boolean = true
+    val walkInAllowed: Boolean = true,
+    // Nombre y apellido de quien hizo la reserva de arriba
+    val reservationClientName: String? = null,
+    // Todas las reservas de hoy de la mesa
+    val todayReservations: List<TodayReservation> = emptyList()
 )
 
 // Estado de cada plato: PENDING (en espera) | PREPARING | READY

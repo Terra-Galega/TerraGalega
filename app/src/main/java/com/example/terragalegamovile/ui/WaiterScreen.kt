@@ -1,5 +1,7 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.Gold
+
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -144,6 +146,8 @@ private fun FloorView(
 ) {
     var error by remember { mutableStateOf<String?>(null) }
     var loading by remember(floor) { mutableStateOf(true) }
+    // Filtro "Reservadas hoy"
+    var onlyReserved by remember { mutableStateOf(false) }
     // Deslizar hacia abajo para actualizar
     var reload by remember { mutableStateOf(0) }
     var refreshing by remember { mutableStateOf(false) }
@@ -180,6 +184,8 @@ private fun FloorView(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     PillChip(t("Piso 1"), floor == 1) { onFloor(1) }
                     PillChip(t("Piso 2"), floor == 2) { onFloor(2) }
+                    // Solo las mesas del piso con reservas hoy, con su lista de horas
+                    PillChip(t("Reservadas hoy"), onlyReserved) { onlyReserved = !onlyReserved }
                 }
                 Spacer(Modifier.height(16.dp))
 
@@ -188,6 +194,8 @@ private fun FloorView(
                 val shown = tables.filter { it.floor == floor }
                 if (loading && shown.isEmpty()) {
                     Text(t("Cargando mesas..."), color = TextSoft, fontSize = 14.sp)
+                } else if (onlyReserved) {
+                    ReservedToday(shown, onOpen)
                 } else {
                     // 3 mesas por fila
                     shown.chunked(3).forEach { row ->
@@ -198,6 +206,81 @@ private fun FloorView(
                             repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                         }
                         Spacer(Modifier.height(10.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Mesas del piso con reservas hoy: hora, a nombre de quién, personas y estado
+@Composable
+private fun ReservedToday(tables: List<WaiterTable>, onOpen: (Int) -> Unit) {
+    val reserved = tables.filter { it.todayReservations.isNotEmpty() }
+        .sortedBy { tbl -> tbl.todayReservations.minOf { it.time } }
+    if (reserved.isEmpty()) {
+        Text(t("No hay mesas reservadas hoy en este piso."), color = TextSoft, fontSize = 14.sp)
+        return
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        reserved.forEach { table ->
+            val takenByOther = table.occupied && !table.mine
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Paper.copy(alpha = 0.9f))
+                    .border(1.dp, Gold.copy(alpha = 0.45f), RoundedCornerShape(18.dp))
+                    .clickable(enabled = !takenByOther) { onOpen(table.id) }
+                    .padding(14.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(t("Mesa {}", table.id), fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = Charcoal, modifier = Modifier.weight(1f))
+                    Text(
+                        when {
+                            takenByOther -> t("La atiende otro mesero")
+                            table.occupied -> t("Ocupada")
+                            else -> t("Libre")
+                        },
+                        fontSize = 12.sp,
+                        color = Charcoal.copy(alpha = 0.6f)
+                    )
+                }
+                table.todayReservations.sortedBy { it.time }.forEach { r ->
+                    Spacer(Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            hhmm(r.time),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = TerraText,
+                            modifier = Modifier.width(56.dp)
+                        )
+                        Column(Modifier.weight(1f)) {
+                            Text(r.clientName ?: r.name ?: "-", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Charcoal)
+                            Text(
+                                listOfNotNull(
+                                    r.seats?.let { if (it == 1) t("1 persona") else t("{} personas", it) },
+                                    r.name?.takeIf { it.isNotBlank() && it != r.clientName }?.let { "$it" }
+                                ).joinToString(" · "),
+                                fontSize = 12.sp,
+                                color = Charcoal.copy(alpha = 0.6f)
+                            )
+                        }
+                        Text(
+                            when {
+                                r.seated -> t("Ya llegaron")
+                                r.paid -> t("Anticipo pagado")
+                                else -> t("Sin pagar")
+                            },
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = when {
+                                r.seated -> ForestText
+                                r.paid -> ForestText
+                                else -> ErrorText
+                            }
+                        )
                     }
                 }
             }
@@ -448,7 +531,7 @@ private fun TableView(
 
             // Reserva que importa al sentar a alguien (solo con la mesa libre)
             if (info != null && info.reservationId != null && orders.isEmpty()) {
-                val who = info.reservationName?.let { "«$it»" } ?: t("La reserva")
+                val who = info.reservationName?.let { "$it" } ?: t("La reserva")
                 val time = hhmm(info.reservationTime)
                 val unpaid = if (info.reservationPaid) "" else t(" (anticipo aún sin pagar)")
                 Spacer(Modifier.height(12.dp))
@@ -489,7 +572,7 @@ private fun TableView(
                 ) {
                     Text(t("⚠ Reserva a las {}", hhmm(time)), fontWeight = FontWeight.SemiBold, color = ErrorText, fontSize = 15.sp)
                     Text(
-                        (info.upcomingReservationName?.let { "«$it». " } ?: "") +
+                        (info.upcomingReservationName?.let { "$it. " } ?: "") +
                             t("Ten en cuenta que esta mesa debe quedar libre para entonces."),
                         fontSize = 14.sp,
                         color = Charcoal.copy(alpha = 0.75f)
@@ -621,7 +704,12 @@ private fun TableView(
         val time = hhmm(info.reservationTime)
         TerraDialog(
             title = t("¿Son los de la reserva?"),
-            message = t("La mesa {} tiene la reserva «{}» de las {}.", tableId, info.reservationName ?: "", time) +
+            message = t(
+                "La mesa {} tiene una reserva a las {} a nombre de {}.",
+                tableId, time, info.reservationClientName ?: info.reservationName ?: "-"
+            ) +
+                (info.reservationName?.takeIf { it.isNotBlank() && it != info.reservationClientName }
+                    ?.let { " " + t("Reserva: {}.", it) } ?: "") +
                 if (info.walkInAllowed) "" else t(" Si no son ellos, sienta a estos clientes en otra mesa."),
             confirmLabel = t("Sí, son ellos"),
             onConfirm = {
