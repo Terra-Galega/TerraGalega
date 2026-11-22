@@ -38,7 +38,7 @@
 
       <!-- Toggle activo / inactivo  -->
       <button type="button"
-        class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-xl whitespace-nowrap md:mr-6"
+        class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-full whitespace-nowrap md:mr-6"
         [style.background-color]="operator.active ? 'rgba(85,97,65,0.1)' : 'rgba(44,44,44,0.06)'"
         [style.color]="operator.active ? '#556141' : 'rgba(44,44,44,0.4)'" (click)="toggleOperator(operator)">
         {{ operator.active ? 'Activo' : 'Inactivo' }}
@@ -67,7 +67,7 @@
       </app-icon-button>
 
       <!-- Solicita eliminar este operador; antes se pide confirmación. -->
-      <app-icon-button variant="ghost" [label]="'Eliminar ' + operator.name + ' ' + operator.lastName" (click)="removeOperator(operator.id)">
+      <app-icon-button [danger]="true" variant="ghost" [label]="'Eliminar ' + operator.name + ' ' + operator.lastName" (click)="removeOperator(operator.id)">
         <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 6h18" />

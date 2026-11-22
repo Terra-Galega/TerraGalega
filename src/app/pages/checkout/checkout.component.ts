@@ -25,6 +25,8 @@ import { CouponDiscount } from '../../models/coupon';
 import { AddressService } from '../../services/address.service';
 import { CheckoutDraftService } from '../../services/checkout-draft.service';
 import { TutorialCheckoutService } from '../../services/tutorial-checkout.service';
+import { PaymentService } from '../../services/payment.service';
+import { StripeReturnService } from '../../services/stripe-return.service';
 
 
 // Paso 1 del checkout: dirección de entrega, cupón y método de pago
@@ -56,6 +58,8 @@ export class CheckoutComponent implements OnInit {
   private addressService = inject(AddressService);
   // Tramo del checkout del tutorial "hacer un pedido"
   private tutorialCheckout = inject(TutorialCheckoutService);
+  private paymentService = inject(PaymentService);
+  private stripeReturn = inject(StripeReturnService);
 
   // Id del cliente con sesión (null hasta comprobarla); lo necesita el cupón
   clientId: number | null = null;
@@ -119,6 +123,9 @@ export class CheckoutComponent implements OnInit {
     // había escrito. El cupón no va en el formulario: se reaplica aparte.
     const { address, saveAddress, addressName, method } = this.draftService.draft;
     this.form.patchValue({ address, saveAddress, addressName, method });
+
+    // Volvió de Stripe con "Atrás" y, al recargar, el navegador lo trajo hasta aquí
+    this.checkStripeReturn();
 
     // Direcciones guardadas del cliente; si la carga falla, igual puede escribir una
     this.addressService.getAddresses().subscribe({
@@ -280,6 +287,36 @@ export class CheckoutComponent implements OnInit {
 
   closeCancelModal(): void {
     this.showCancelModal = false;
+  }
+
+  // Si se salió hacia Stripe y se volvió con "Atrás" sin pagar, se avisa que no
+  // hubo cobro. Si sí se alcanzó a pagar, se lleva a la página de resultado.
+  private checkStripeReturn(): void {
+    const redirect = this.stripeReturn.take('order');
+    if (!redirect) return;
+
+    this.paymentService.status(redirect.id).subscribe({
+      next: (payment) => {
+        if (payment.state === 'PENDING' || payment.state === 'EXPIRED') {
+          this.showPaymentNotCompleted();
+        } else {
+          this.router.navigate(['/checkout/result'], {
+            queryParams: { order: payment.orderId },
+          });
+        }
+      },
+      error: () => this.showPaymentNotCompleted(),
+    });
+  }
+
+  private showPaymentNotCompleted(): void {
+    // Se deja elegida la tarjeta para que solo tenga que revisar la dirección
+    this.form.patchValue({ method: 'card' });
+    this.errorTitle = 'No se realizó el pago';
+    this.errorMessage =
+      'Volviste de la pasarela sin terminar el pago, así que no se hizo ningún cobro. ' +
+      'Revisa tus datos y pulsa "Continuar" para volver a intentarlo.';
+    this.showErrorModal = true;
   }
 
   // Cierra el modal de error y limpia el mensaje

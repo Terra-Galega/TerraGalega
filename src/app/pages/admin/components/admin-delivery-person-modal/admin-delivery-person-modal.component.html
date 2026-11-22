@@ -8,7 +8,7 @@
         {{ deliveryPerson ? "Editar domiciliario" : "Añadir domiciliario" }}
       </h2>
 
-      <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+      <app-icon-button [danger]="true" variant="soft" label="Cerrar" (click)="close()">
         <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 18L18 6M6 6l12 12" />
         </svg>
@@ -66,7 +66,7 @@
           </span>
 
           <button type="button" (click)="changePassword.emit()"
-            class="text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer whitespace-nowrap transition-opacity hover:opacity-70"
+            class="text-xs font-semibold px-3 py-1.5 rounded-full cursor-pointer whitespace-nowrap transition-opacity hover:opacity-70"
             style="background-color: rgba(178, 87, 31, 0.1); color: #b2571f">
             Cambiar contraseña
           </button>
@@ -92,7 +92,7 @@
 
       <!-- Botones de acción: cancelar y guardar (el texto cambia según el modo) -->
       <div class="flex gap-3 pt-2">
-        <app-button class="flex-1" variant="neutral" [fullWidth]="true" (click)="close()">
+        <app-button class="flex-1" variant="danger" [fullWidth]="true" (click)="close()">
           Cancelar
         </app-button>
 

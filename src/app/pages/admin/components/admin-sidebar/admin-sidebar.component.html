@@ -45,7 +45,7 @@
       id="tab-dashboard"
       type="button"
       (click)="changeTab('dashboard')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'dashboard'"
     >
       <svg
@@ -72,7 +72,7 @@
       id="tab-products"
       type="button"
       (click)="changeTab('products')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'products'"
     >
       <svg
@@ -99,7 +99,7 @@
       [attr.aria-current]="activeTab === 'categories' ? 'page' : null"
       type="button"
       (click)="changeTab('categories')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'categories'"
     >
       <svg
@@ -124,7 +124,7 @@
       id="tab-addons"
       type="button"
       (click)="changeTab('addons')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'addons'"
     >
       <svg
@@ -150,7 +150,7 @@
       id="tab-coupons"
       type="button"
       (click)="changeTab('coupons')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'coupons'"
     >
       <svg
@@ -178,7 +178,7 @@
       id="tab-announcements"
       type="button"
       (click)="changeTab('announcements')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'announcements'"
     >
       <svg
@@ -204,7 +204,7 @@
       id="tab-reviews"
       type="button"
       (click)="changeTab('reviews')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'reviews'"
     >
       <svg
@@ -230,7 +230,7 @@
       [attr.aria-current]="activeTab === 'orders' ? 'page' : null"
       type="button"
       (click)="changeTab('orders')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'orders'"
     >
       <svg
@@ -281,7 +281,7 @@
       [attr.aria-current]="activeTab === 'users' ? 'page' : null"
       type="button"
       (click)="changeTab('users')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'users'"
     >
       <svg
@@ -307,7 +307,7 @@
       [attr.aria-current]="activeTab === 'operators' ? 'page' : null"
       type="button"
       (click)="changeTab('operators')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'operators'"
     >
       <svg
@@ -333,7 +333,7 @@
       [attr.aria-current]="activeTab === 'deliveries' ? 'page' : null"
       type="button"
       (click)="changeTab('deliveries')"
-      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left"
+      class="admin-tab-btn flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium text-left"
       [class.active]="activeTab === 'deliveries'"
     >
       <svg
@@ -372,7 +372,7 @@
     <button
       type="button"
       (click)="logout()"
-      class="admin-logout-btn flex items-center gap-2 px-4 py-1 text-[12px] font-medium rounded-xl"
+      class="admin-logout-btn flex items-center gap-2 px-4 py-1 text-[12px] font-medium rounded-full"
       style="color: #da5858"
     >
       <svg

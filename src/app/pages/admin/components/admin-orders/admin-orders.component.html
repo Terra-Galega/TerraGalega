@@ -41,7 +41,7 @@
 
   <!-- El botón solo aparece cuando hay algún filtro aplicado. -->
   @if (hasFilters) {
-  <button type="button" class="text-[12px] font-medium px-4 py-2 rounded-xl" style="
+  <button type="button" class="text-[12px] font-medium px-4 py-2 rounded-full" style="
         background-color: rgba(44, 44, 44, 0.06);
         color: rgba(44, 44, 44, 0.65);
       " (click)="clearFilters()">
@@ -58,7 +58,7 @@
 <div class="flex flex-wrap gap-2 mb-5">
   <!-- Un botón por opción; el seleccionado se resalta en verde. -->
   @for (option of filterOptions; track option.value) {
-  <button [attr.aria-pressed]="filter === option.value" type="button" class="text-[12px] font-medium px-4 py-2 rounded-xl" [style.background-color]="
+  <button [attr.aria-pressed]="filter === option.value" type="button" class="text-[12px] font-medium px-4 py-2 rounded-full" [style.background-color]="
         filter === option.value ? '#556141' : 'rgba(44,44,44,0.06)'
       " [style.color]="
         filter === option.value ? '#f5f2eb' : 'rgba(44,44,44,0.55)'

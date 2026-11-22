@@ -1,4 +1,7 @@
 {
+  "reservations.reservation_result.reservation_result.recibimos_el_anticipo_tu_reserva_quedo_confirmada": "We received the deposit and your reservation is confirmed. See you soon!",
+  "reservations.reservation_result.reservation_result.anticipo_pagado": "Deposit paid",
+  "reservations.reservation_result.reservation_result.ver_mi_reserva": "View my reservation",
   "password_reset.forgot_link": "Forgot your password?",
   "password_reset.forgot_eyebrow": "Recover access",
   "password_reset.forgot_title": "Forgot your password?",

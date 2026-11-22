@@ -45,3 +45,9 @@
 .icon-btn--ghost:hover {
   background-color: rgba(44, 44, 44, 0.06);
 }
+
+// Cerrar o eliminar: rojo al pasar el mouse (mismo color que el botón "Cerrar sesión")
+.icon-btn.icon-btn--danger:hover {
+  color: #fff;
+  background-color: #8a2222;
+}

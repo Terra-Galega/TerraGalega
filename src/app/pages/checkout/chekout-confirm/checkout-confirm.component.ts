@@ -22,6 +22,7 @@ import { CheckoutDraftService } from '../../../services/checkout-draft.service';
 import { CouponService } from '../../../services/coupon.service';
 import { OrderService } from '../../../services/order.service';
 import { PaymentService } from '../../../services/payment.service';
+import { StripeReturnService } from '../../../services/stripe-return.service';
 import { TutorialCheckoutService } from '../../../services/tutorial-checkout.service';
 import { CheckoutRequest, DELIVERY_FEE } from '../../../models/checkout';
 import { CouponDiscount } from '../../../models/coupon';
@@ -54,6 +55,7 @@ export class CheckoutConfirmComponent implements OnInit {
   private addressService = inject(AddressService);
   private couponService = inject(CouponService);
   private paymentService = inject(PaymentService);
+  private stripeReturn = inject(StripeReturnService);
   private clientService = inject(ClientService);
   // Último tramo del tutorial "hacer un pedido"
   private tutorialCheckout = inject(TutorialCheckoutService);
@@ -86,6 +88,10 @@ export class CheckoutConfirmComponent implements OnInit {
 
   errorTitle = 'No se pudo procesar el pedido';
   errorMessage = '';
+  // Botones del modal de error. Si el pago no se terminó, el principal lo reintenta.
+  errorConfirmLabel = 'Aceptar';
+  errorCancelLabel = '';
+  private retryOnConfirm = false;
 
   ngOnInit(): void {
     const session = this.auth.session;
@@ -122,6 +128,9 @@ export class CheckoutConfirmComponent implements OnInit {
     // Último tramo del tutorial "hacer un pedido" (si viene de él)
     this.tutorialCheckout.resumeConfirm();
 
+    // Volvió de Stripe con "Atrás" y el navegador recargó la página
+    this.checkStripeReturn();
+
     // Antes de confirmar se quitan los productos que ya no están disponibles.
     // Si hay cupón, se revalida: el subtotal pudo cambiar o el cupón dejó de servir
     this.cartService.removeUnavailable().subscribe((removed) => {
@@ -136,54 +145,77 @@ export class CheckoutConfirmComponent implements OnInit {
   }
 
   // Al volver con "Atrás" desde Stripe, el navegador puede restaurar esta misma
-  // instancia con paying=true. Comprobamos el pago antes de habilitar otro intento.
+  // página desde su memoria (bfcache) con `paying` todavía en true y el botón
+  // bloqueado. pageshow con persisted=true avisa de ese caso.
   @HostListener('window:pageshow', ['$event'])
   onPageShow(event: PageTransitionEvent): void {
-    if (!event.persisted || !this.paying || this.draft.method !== 'card') {
-      return;
+    if (event.persisted) {
+      this.checkStripeReturn();
     }
+  }
 
-    const pending = this.paymentService.getPending();
-    if (!pending) {
-      // Si no se guardó el pedido, el siguiente clic reutiliza el mismo requestId.
-      this.paying = false;
-      this.serverError = 'Volviste de la pasarela. Puedes intentar pagar de nuevo.';
-      return;
-    }
+  // Si se salió hacia Stripe y se volvió sin pasar por /checkout/result, el pago
+  // no se terminó: se desbloquea el botón y se avisa. Antes se consulta el estado
+  // por si sí se alcanzó a pagar (entonces se lleva al resultado).
+  private checkStripeReturn(): void {
+    const redirect = this.stripeReturn.take('order');
+    if (!redirect) return;
 
-    this.serverError = 'Comprobando el estado de tu pago...';
-    this.paymentService.status(pending.orderId).subscribe({
+    this.paying = false;
+    this.paymentService.status(redirect.id).subscribe({
       next: (payment) => {
-        if (payment.state === 'PAID') {
+        if (payment.state === 'PAID' || payment.state === 'REFUNDED'
+            || payment.state === 'REFUND_PENDING' || payment.state === 'REFUND_FAILED') {
+          // Se pagó (o ya se estaba devolviendo): eso se resuelve en la página de resultado
           this.router.navigate(['/checkout/result'], {
             queryParams: { order: payment.orderId },
           });
-        } else if (payment.state === 'PENDING') {
-          this.paying = false;
-          this.serverError = 'Volviste sin completar el pago. Pulsa "Pagar con tarjeta" para continuar en la misma pasarela.';
-        } else if (payment.state === 'EXPIRED' || payment.state === 'REFUNDED') {
+          return;
+        }
+
+        if (payment.state === 'EXPIRED') {
+          // Esa sesión de Stripe ya no sirve: el próximo clic crea un pago nuevo
           this.paymentService.clearPending();
           this.draftService.draft = {
             ...this.draftService.draft,
             paymentRequestId: '',
             paymentRequestBody: '',
           };
-          this.paying = false;
-          this.serverError = 'El pago anterior ya no está disponible. Pulsa "Pagar con tarjeta" para crear uno nuevo.';
-        } else {
-          // Un reembolso o un estado intermedio debe resolverse en la página de resultado.
-          this.router.navigate(['/checkout/result'], {
-            queryParams: { order: payment.orderId },
-          });
         }
+        this.showPaymentNotCompleted();
       },
-      error: (error) => {
-        console.error('No se pudo comprobar el pago al volver de Stripe:', error);
-        // El requestId se conserva para que un nuevo clic recupere el mismo pedido.
-        this.paying = false;
-        this.serverError = 'No pudimos comprobar el pago. Vuelve a pulsar "Pagar con tarjeta" para reintentar con el mismo pedido.';
-      },
+      // Sin poder consultar, se asume lo seguro: no hubo cobro y puede reintentar
+      error: () => this.showPaymentNotCompleted(),
     });
+  }
+
+  private showPaymentNotCompleted(): void {
+    this.paying = false;
+    this.errorTitle = 'No se realizó el pago';
+    this.errorMessage =
+      'Volviste de la pasarela sin terminar el pago, así que no se hizo ningún cobro. ' +
+      'Pulsa "Pagar con tarjeta" para volver a intentarlo.';
+    this.serverError = this.errorMessage;
+    this.errorConfirmLabel = 'Volver a intentar';
+    this.errorCancelLabel = 'Ahora no';
+    this.retryOnConfirm = true;
+    this.showErrorModal = true;
+  }
+
+  // "Ahora no": se cierra el modal pero el aviso sigue junto al botón de pagar
+  onErrorCancel(): void {
+    const notice = this.retryOnConfirm ? this.serverError : '';
+    this.closeErrorModal();
+    this.serverError = notice;
+  }
+
+  // Botón principal del modal de error: si era un pago sin terminar, vuelve a pagar
+  onErrorConfirm(): void {
+    const retry = this.retryOnConfirm;
+    this.closeErrorModal();
+    if (retry) {
+      this.confirm();
+    }
   }
 
   // Lo elegido en el paso 1 (se lee siempre del servicio, porque el cupón puede cambiar aquí)
@@ -455,6 +487,9 @@ export class CheckoutConfirmComponent implements OnInit {
     this.showErrorModal = false;
     this.errorMessage = '';
     this.serverError = '';
+    this.errorConfirmLabel = 'Aceptar';
+    this.errorCancelLabel = '';
+    this.retryOnConfirm = false;
   }
 
   goToMenu(): void {

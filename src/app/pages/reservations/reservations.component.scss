@@ -153,7 +153,7 @@ button {
   position: absolute;
   inset: .2rem auto .2rem .2rem;
   width: calc(50% - .2rem);
-  border-radius: .65rem;
+  border-radius: 999px;
   background: var(--olive);
   transition: transform .5s cubic-bezier(.22, .8, .24, 1);
 }
@@ -167,7 +167,7 @@ button {
   z-index: 1;
   min-height: 44px;
   padding: .4rem 1rem;
-  border-radius: .65rem;
+  border-radius: 999px;
   background: transparent;
   white-space: nowrap;
   font-weight: 600;
@@ -792,7 +792,7 @@ button {
   width: 44px;
   height: 44px;
   border: 1px solid var(--line);
-  border-radius: .7rem;
+  border-radius: 999px;
   background: var(--field);
   font-size: 1.25rem;
   line-height: 1;
@@ -813,9 +813,19 @@ button {
   font: 600 1.4rem var(--serif);
 }
 
+// Botones de acción de reservas: todos con el mismo ancho corto, en píldora y centrados
+// (cabe "Reservar y pagar $50.000"); en pantallas estrechas no pasan del ancho disponible.
+.reserve-button,
+.secondary-button,
+.danger-button,
+.cancel-button {
+  display: block;
+  width: min(100%, 17rem);
+  margin-inline: auto;
+}
+
 .reserve-button {
   min-height: 44px;
-  width: 100%;
   border-radius: 999px; // píldora: extremos completamente redondos
   background: var(--terracotta);
   color: white;
@@ -1008,6 +1018,7 @@ button {
 
 .reservation-actions {
   display: grid;
+  justify-items: center;
   gap: .6rem;
   margin-top: 1.1rem;
 }
@@ -1049,17 +1060,19 @@ button {
 }
 
 .secondary-button,
-.danger-button {
+.danger-button,
+.cancel-button {
   min-height: 44px;
-  width: 100%;
   margin-top: .5rem;
-  border-radius: .75rem;
+  border-radius: 999px;
   padding: .55rem .9rem;
   font-weight: 600;
+  transition: color .2s, background-color .2s, border-color .2s;
 }
 
 .reservation-actions .secondary-button,
-.reservation-actions .danger-button {
+.reservation-actions .danger-button,
+.reservation-actions .cancel-button {
   margin-top: 0;
 }
 
@@ -1073,13 +1086,21 @@ button {
   border-color: var(--terracotta);
 }
 
-.danger-button {
-  background: #9c2f1f;
-  color: white;
+// Cancelar, eliminar o confirmar un borrado: mismo estilo que "Cerrar sesión" del perfil
+// (borde y texto rojizos que se rellenan de rojo al pasar el mouse)
+.danger-button,
+.cancel-button {
+  border: 1px solid rgba(138, 34, 34, 0.3);
+  background: var(--field);
+  color: #8a2222;
+  box-shadow: 0 2px 6px rgba(44, 44, 44, 0.08);
 }
 
-.danger-button:hover:not(:disabled) {
-  background: #7a2216;
+.danger-button:hover:not(:disabled),
+.cancel-button:hover:not(:disabled) {
+  border-color: #8a2222;
+  background: #8a2222;
+  color: white;
 }
 
 // Error al reservar (mesa ocupada, pasarela caída...)

@@ -513,7 +513,89 @@ h3 {
 }
 
 
+// ---------- Botones de cancelar, eliminar y cerrar ----------
+// Mismo aspecto que app-button variant="danger" (el "Cerrar sesión" del perfil): píldora con
+// borde y texto rojizos que se rellena de rojo al pasar el mouse. Para los <button> sueltos.
+.danger-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0.5rem 1.1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(138, 34, 34, 0.3);
+  background-color: transparent;
+  color: #8a2222;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(44, 44, 44, 0.08);
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+
+.danger-pill:hover:not(:disabled) {
+  color: #fff;
+  background-color: #8a2222;
+  border-color: #8a2222;
+}
+
+.danger-pill:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.danger-pill--sm {
+  min-height: 34px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8125rem;
+}
+
+// X de cerrar y papeleras sueltas (carrito, avisos): círculo que se pone rojo al pasar el mouse
+.close-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  border-radius: 9999px;
+  color: rgba(44, 44, 44, 0.45);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.close-x:hover {
+  color: #fff;
+  background-color: #8a2222;
+}
+
 // ---------- Accesibilidad ----------
+// Elementos de Angular CDK que solo son para lectores de pantalla: el aviso al cambiar de página
+// (LiveAnnouncer, que decía "Iniciar sesión", "Menú"... al final de la página) y los topes del
+// foco de los modales. El CDK trae esta regla en su CSS, pero el proyecto no lo carga, así que
+// se define aquí: invisible en pantalla, pero el lector de pantalla lo sigue leyendo.
+.cdk-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  outline: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  left: 0;
+}
+
+[dir="rtl"] .cdk-visually-hidden {
+  left: auto;
+  right: 0;
+}
+
 // "Saltar al contenido": fuera de la pantalla hasta que recibe el foco con Tab
 .skip-link {
   position: fixed;
@@ -876,9 +958,16 @@ html[data-theme="dark"] {
     background-color: rgba(255, 255, 255, 0.08);
   }
 
+  .danger-pill:not(:hover),
+  app-reservations .cancel-button:not(:hover),
+  app-reservations .danger-button:not(:hover),
   .btn--danger:not(:hover) {
     color: var(--t-burgundy);
     border-color: rgba(232, 138, 138, 0.4);
+  }
+
+  .close-x:not(:hover) {
+    color: rgba(245, 242, 235, 0.6);
   }
 
   .icon-btn:not(:hover) {
