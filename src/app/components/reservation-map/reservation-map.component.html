@@ -1,0 +1,257 @@
+<div class="map-card">
+  <header class="map-heading">
+    <div>
+      <h2>Plano del restaurante</h2>
+      <p aria-live="polite">{{ floorNames[floor] }}</p>
+    </div>
+    <div id="reservation-floors" class="floor-control" role="group" aria-label="Cambiar de piso"
+      [attr.data-floor]="floor">
+      @for (option of floors; track option) {
+      <button type="button" [attr.aria-pressed]="floor === option" (click)="changeFloor(option)">
+        Piso {{ option }}
+      </button>
+      }
+    </div>
+  </header>
+
+  <ul class="legend" aria-label="Leyenda del plano">
+    <li><span class="key free" aria-hidden="true"></span> Sin reservas</li>
+    <li>
+      <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#lock-badge" /></svg>
+      Con reservas activas
+    </li>
+    <li>
+      <svg class="key-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#check-badge" /></svg>
+      Seleccionada
+    </li>
+    <li><span class="key match" aria-hidden="true"></span> Coincide con la búsqueda</li>
+    <li><span class="key edge" aria-hidden="true"></span> Ventanal</li>
+    @if (floor === 2) {
+    <li><span class="key deck" aria-hidden="true"></span> Balcón</li>
+    }
+  </ul>
+
+  <div #mapViewport id="reservation-map" class="map-viewport" tabindex="0" (scroll)="updateMapEdges()"
+    aria-label="Plano del restaurante (se desplaza en horizontal)">
+    <div class="plan">
+      <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+        <defs>
+          <path id="shell" d="M40 30H600L860 300V780H600V610H40Z" />
+          <path id="dining-1" d="M40 30H600L860 300V780H600V530L476 400H40Z" />
+          <path id="dining-2" d="M40 30H600L860 300V780H600V610H450V300H40Z" />
+          <pattern id="flagstone" width="44" height="44" patternUnits="userSpaceOnUse">
+            <path d="M0 .5H44M.5 0V44" fill="none" stroke="#e8dec9" stroke-width="1" />
+          </pattern>
+          <pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse">
+            <rect width="10" height="10" fill="#f1e9d9" />
+            <path d="M-2 2l4-4M0 10L10 0M8 12l4-4" stroke="#dacfb9" stroke-width="1.2" />
+          </pattern>
+          <pattern id="busy" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="8" height="8" fill="#e8e2d6" />
+            <path d="M0 0V8" stroke="#d6cdbd" stroke-width="3.5" />
+          </pattern>
+          <pattern id="deck" width="40" height="14" patternUnits="userSpaceOnUse">
+            <rect width="40" height="14" fill="#eadbbd" />
+            <path d="M0 13.5H40M20 0V14" stroke="#d6c39d" stroke-width="1" />
+          </pattern>
+          <symbol id="lock-badge" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10.5" fill="#8d7c64" stroke="#fdfbf7" stroke-width="2" />
+            <path d="M9 11.2V9.4a3 3 0 0 1 6 0v1.8" fill="none" stroke="#fff" stroke-width="1.7"
+              stroke-linecap="round" />
+            <rect x="7.6" y="11" width="8.8" height="6.6" rx="1.8" fill="#fff" />
+          </symbol>
+          <symbol id="check-badge" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10.5" fill="#fff" stroke="#83390f" stroke-width="1.5" />
+            <path d="m7.6 12.4 3 3 5.8-6.4" fill="none" stroke="#b2571f" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </symbol>
+        </defs>
+      </svg>
+
+      @for (level of floors; track level) {
+      <div class="level" [class.active]="level === floor" [class.below]="level < floor"
+        [class.above]="level > floor" [attr.inert]="level === floor ? null : ''">
+        <svg class="architecture" viewBox="0 0 900 800" aria-hidden="true">
+          <use href="#shell" class="drop" transform="translate(7 9)" />
+          <use href="#shell" fill="url(#hatch)" />
+          <use [attr.href]="'#dining-' + level" class="floor-fill" />
+          <use [attr.href]="'#dining-' + level" fill="url(#flagstone)" />
+
+          <path class="partition" d="M140 40V292" />
+          <rect class="stair-box" x="54" y="58" width="76" height="230" rx="4" />
+          <path class="stair-steps"
+            d="M54 72h76M54 88h76M54 104h76M54 120h76M54 136h76M54 152h76M54 168h76M54 184h76M54 200h76M54 216h76M54 232h76M54 248h76M54 264h76M54 280h76" />
+          @if (level === 1) {
+          <path class="stair-trail" d="M92 236V116" />
+          <path class="stair-flow" d="M92 236V116" />
+          <path class="stair-head" d="M80 114 92 90 104 114Q92 107 80 114Z" />
+          <text class="plan-label" x="92" y="49" text-anchor="middle">{{ 'reservations.reservations.subir' | t }}</text>
+          } @else {
+          <path class="stair-trail" d="M92 106V234" />
+          <path class="stair-flow" d="M92 106V234" />
+          <path class="stair-head" d="M80 232 92 256 104 232Q92 239 80 232Z" />
+          <text class="plan-label" x="92" y="49" text-anchor="middle">{{ 'reservations.reservations.bajar' | t }}</text>
+          }
+
+          @if (level === 1) {
+          <rect fill="url(#hatch)" x="40" y="300" width="100" height="100" />
+          <path class="inner-wall" d="M40 300H140V330M140 370V400" />
+          <rect class="service-item" x="56" y="318" width="22" height="22" rx="6" />
+          <rect class="service-item" x="96" y="318" width="22" height="22" rx="6" />
+          <text class="plan-label" x="88" y="372" text-anchor="middle">{{ 'reservations.reservations.banos' | t }}</text>
+
+          @for (stool of [185, 225, 265, 305, 345, 385, 425]; track stool) {
+          <circle class="stool" [attr.cx]="stool" cy="346" r="7.5" />
+          }
+          <rect class="bar" x="160" y="364" width="290" height="26" rx="13" />
+          <text class="counter-label" x="305" y="381" text-anchor="middle">{{ 'reservations.reservations.barra_libre_sin_reserva' | t }}</text>
+
+          <path class="inner-wall" d="M40 400H476L600 530V610" />
+          <text class="room-name" x="300" y="515" text-anchor="middle">{{ 'reservations.reservations.cocina' | t }}</text>
+
+          <text class="plan-label" x="796" y="124" text-anchor="end">{{ 'reservations.reservations.entrada' | t }}</text>
+
+          <circle class="reception" cx="704" cy="204" r="20" />
+          <text class="plan-label" x="684" y="244" text-anchor="middle">{{ 'reservations.reservations.recepcion' | t }}</text>
+
+          <text class="plan-label" x="370" y="19" text-anchor="middle">{{ 'reservations.reservations.ventanales' | t }}</text>
+          <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">{{ 'reservations.reservations.ventanales' | t }}</text>
+          <text class="plan-label muted" x="400" y="218" text-anchor="middle">{{ 'reservations.reservations.salon_principal' | t }}</text>
+          <text class="plan-label muted" x="690" y="516" text-anchor="middle">{{ 'reservations.reservations.salon_lateral' | t }}</text>
+          } @else {
+          <rect fill="url(#hatch)" x="40" y="300" width="100" height="100" />
+          <path class="inner-wall" d="M40 300H140V330M140 370V400" />
+          <rect class="service-item" x="56" y="318" width="22" height="22" rx="6" />
+          <rect class="service-item" x="96" y="318" width="22" height="22" rx="6" />
+          <text class="plan-label" x="88" y="372" text-anchor="middle">{{ 'reservations.reservations.banos' | t }}</text>
+
+          <rect fill="url(#hatch)" x="40" y="400" width="100" height="210" />
+          <path class="inner-wall" d="M40 400H140V480M140 520V610" />
+          <text class="plan-label" x="90" y="560" text-anchor="middle">{{ 'reservations.reservations.servicio' | t }}</text>
+
+          <path class="room-floor" d="M180 300H315V610H180Z" />
+          <path class="room-floor" d="M315 300H450V610H315Z" />
+          <path class="celebration-room" d="M180 300H315V610H180Z" />
+          <path class="celebration-room" d="M315 300H450V610H315Z" />
+          <path class="inner-wall" d="M180 330V300H450V572M450 604V610M180 370V610M315 300V610" />
+          <text class="room-label" x="247" y="328" text-anchor="middle">{{ 'reservations.reservations.sala_1' | t }}</text>
+          <text class="room-label" x="382" y="328" text-anchor="middle">{{ 'reservations.reservations.sala_2' | t }}</text>
+
+          <path class="balcony-zone" fill="url(#deck)" d="M140 34H602L856 297V776H765V338L560 125H140Z" />
+          <path class="rail-band" d="M150 42H599L851 303.5V766" />
+          <path class="rail" d="M150 42H599L851 303.5V766" />
+          <path class="rail-posts" d="M150 42H599L851 303.5V766" />
+          <path class="windows" d="M144 125H328M372 125H560L765 338V432M765 484V772" />
+          <path class="glass" d="M144 125H328M372 125H560L765 338V432M765 484V772" />
+          <path class="balcony-door" d="M328 125h44M765 432v52" />
+          <text class="plan-label exit-label" x="350" y="146" text-anchor="middle">{{ 'reservations.reservations.salida' | t }}</text>
+          <text class="plan-label exit-label" transform="translate(748 458) rotate(-90)"
+            text-anchor="middle">{{ 'reservations.reservations.salida' | t }}</text>
+          <text class="plan-label balcony-tag" transform="translate(154 80) rotate(-90)"
+            text-anchor="middle">{{ 'reservations.reservations.balcon' | t }}</text>
+          <text class="plan-label" x="370" y="19" text-anchor="middle">{{ 'reservations.reservations.balcon' | t }}</text>
+          <text class="plan-label" transform="translate(742 152) rotate(46)" text-anchor="middle">{{ 'reservations.reservations.balcon' | t }}</text>
+          <text class="plan-label" transform="translate(884 540) rotate(90)" text-anchor="middle">{{ 'reservations.reservations.balcon' | t }}</text>
+          <text class="plan-label muted" transform="translate(154 214) rotate(-90)" text-anchor="middle">{{ 'reservations.reservations.salon_alto' | t }}</text>
+          <text class="plan-label muted" x="525" y="594" text-anchor="middle">{{ 'reservations.reservations.galeria' | t }}</text>
+          }
+
+          <use href="#shell" class="wall-outer" />
+          <use href="#shell" class="wall-inner" />
+          @if (level === 1) {
+          <path class="entry-gap" d="M713 147L759 195" />
+          <path class="windows" d="M150 30H600L713 147M759 195L860 300V780" />
+          <path class="glass" d="M150 30H600L713 147M759 195L860 300V780" />
+          }
+
+          <text class="cartouche-title" x="64" y="708">Terra Galega</text>
+          @if (level === 1) {
+          <text class="cartouche-sub" x="64" y="732">{{ 'reservations.reservations.planta_primera_plano_de_sala' | t }}</text>
+          } @else {
+          <text class="cartouche-sub" x="64" y="732">{{ 'reservations.reservations.planta_segunda_plano_de_sala' | t }}</text>
+          }
+          <path class="cartouche-rule" d="M64 748h190M64 742v12M254 742v12" />
+          <g transform="translate(470 712)">
+            <circle class="compass-ring" r="27" />
+            <path class="compass-star" d="M0 -23L5 0 0 23-5 0ZM-23 0L0 5 23 0 0-5Z" />
+            <text class="plan-label" y="-35" text-anchor="middle">N</text>
+          </g>
+        </svg>
+
+        @for (table of tablesOf(level); track table.number) {
+        <button type="button" class="table-marker" [class.special]="table.special"
+          [class.booth]="table.booth !== undefined" [class.booked]="isBooked(table)"
+          [class.dim]="isDim(table)" [class.match]="isMatch(table)" [style.left.%]="table.x / 9"
+          [style.top.%]="table.y / 8" [attr.aria-pressed]="selected === table.number"
+          [attr.aria-label]="labelOf(table)" (click)="tableSelected.emit(table.number)">
+          @if (table.special) {
+          <svg viewBox="0 0 84 236" aria-hidden="true">
+            @for (chair of chairsOf(table); track $index) {
+            <rect class="chair" [attr.x]="chair.x" [attr.y]="chair.y" width="14" height="16" rx="5" />
+            }
+            <rect class="tabletop" x="18" y="8" width="48" height="220" rx="14" />
+            <g transform="rotate(-90 42 108)">
+              <text class="special-title" x="42" y="104" text-anchor="middle">Mesa de celebración</text>
+              <text class="special-sub" x="42" y="120" text-anchor="middle">{{ table.seats }} puestos</text>
+            </g>
+            @if (isBooked(table)) {
+            <use href="#lock-badge" x="30" y="196" width="24" height="24" />
+            } @else if (selected === table.number) {
+            <use href="#check-badge" x="30" y="196" width="24" height="24" />
+            }
+          </svg>
+          } @else if (table.booth !== undefined) {
+          <svg viewBox="0 0 88 88" aria-hidden="true">
+            <g [attr.transform]="'rotate(' + table.booth + ' 44 44)'">
+              <path class="arch" d="M2 44A42 42 0 0 1 86 44" />
+              <path class="sofa" d="M6 44A38 38 0 0 1 82 44H71A27 27 0 0 0 17 44Z" />
+              <rect class="chair" x="27" y="67" width="14" height="11" rx="4" />
+              <rect class="chair" x="47" y="67" width="14" height="11" rx="4" />
+            </g>
+            <circle class="tabletop" cx="44" cy="44" r="18" />
+            <text x="44" y="45" text-anchor="middle" dominant-baseline="middle">{{ table.number }}</text>
+            @if (isBooked(table)) {
+            <use href="#lock-badge" x="60" y="22" width="22" height="22" />
+            } @else if (selected === table.number) {
+            <use href="#check-badge" x="60" y="22" width="22" height="22" />
+            }
+          </svg>
+          } @else {
+          <svg viewBox="0 0 88 76" aria-hidden="true">
+            <g [attr.transform]="table.rotate ? 'rotate(' + table.rotate + ' 44 38)' : null">
+            @if (table.seats === 6) {
+            <rect class="chair" x="20" y="2" width="16" height="11" rx="4" />
+            <rect class="chair" x="52" y="2" width="16" height="11" rx="4" />
+            <rect class="chair" x="20" y="63" width="16" height="11" rx="4" />
+            <rect class="chair" x="52" y="63" width="16" height="11" rx="4" />
+            } @else {
+            <rect class="chair" x="36" y="2" width="16" height="11" rx="4" />
+            <rect class="chair" x="36" y="63" width="16" height="11" rx="4" />
+            }
+            @if (table.seats >= 4) {
+            <rect class="chair" x="6" y="31" width="11" height="14" rx="4" />
+            <rect class="chair" x="71" y="31" width="11" height="14" rx="4" />
+            }
+            <rect class="tabletop" x="19" y="16" width="50" height="44" rx="14" />
+            </g>
+            <text x="44" y="39" text-anchor="middle" dominant-baseline="middle">{{ table.number }}</text>
+            @if (isBooked(table)) {
+            <use href="#lock-badge" x="56" y="6" width="22" height="22" />
+            } @else if (selected === table.number) {
+            <use href="#check-badge" x="56" y="6" width="22" height="22" />
+            }
+          </svg>
+          }
+        </button>
+        }
+
+        <button type="button" class="stairs" [attr.aria-label]="stairLabel(level)"
+          (click)="changeFloor(level === 1 ? 2 : 1)">
+          <span class="tip">{{ stairLabel(level) }}</span>
+        </button>
+      </div>
+      }
+    </div>
+  </div>
+  <p class="pan-hint">Desliza horizontalmente para recorrer el plano.</p>
+</div>

@@ -9,29 +9,56 @@
     (logoutClicked)="logout()"
   ></app-operator-topbar>
 
-  <!--Mostrar todos los pedidos activos con los que el operador puede interactuar-->
-  <!-- Margen lateral: 16 px en móvil, 32 px desde tablet -->
-  <main class="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-16">
-    <app-operator-tracking></app-operator-tracking>
-    <header class="mb-8">
-      <h1
-        id="operator-title"
-        class="font-serif text-3xl font-semibold text-charcoal"
-      >
-        Pedidos activos
-      </h1>
-      <p class="mt-1 text-[15px]" style="color: rgba(44, 44, 44, 0.6)">
-        Toca un pedido para ver el detalle y avanza su estado cuando esté listo.
-      </p>
-    </header>
+  <!-- Navegación vertical a la izquierda (en móvil queda arriba, en horizontal) y contenido a la derecha -->
+  <div class="max-w-[90rem] mx-auto flex flex-col md:flex-row">
+    <nav aria-label="Secciones del panel"
+      class="md:w-56 md:flex-shrink-0 md:sticky md:top-20 md:self-start md:h-[calc(100vh-5rem)] px-4 md:px-4 pt-4 md:pt-10"
+      style="border-bottom: 1px solid rgba(44, 44, 44, 0.08)">
+      <ul class="flex md:flex-col gap-2 pb-3 md:pb-0">
+        @for (item of navItems; track item.id) {
+          <li class="flex-1 md:flex-none">
+            <button type="button" [attr.aria-current]="view === item.id ? 'page' : null"
+              class="w-full min-h-[48px] px-4 rounded-xl text-[15px] font-medium text-left cursor-pointer transition-colors flex items-center gap-3"
+              [style.background-color]="view === item.id ? '#2c2c2c' : 'transparent'"
+              [style.color]="view === item.id ? '#f5f2eb' : '#2c2c2c'" (click)="setView(item.id)">
+              <svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path [attr.d]="item.icon" />
+              </svg>
+              {{ item.label }}
+            </button>
+          </li>
+        }
+      </ul>
+    </nav>
 
-    <!-- Ver detalles de un pedido -->
-    <app-operator-orders
-      [operatorId]="operatorId"
-      (sendRequested)="openSendModal($event)"
-      (detailRequested)="openDetail($event)"
-    ></app-operator-orders>
-  </main>
+    <!-- Margen lateral: 16 px en móvil, 32 px desde tablet -->
+    <main class="flex-1 min-w-0 px-4 md:px-8 pt-8 md:pt-10 pb-16">
+      @if (view === "orders") {
+        <app-operator-tracking></app-operator-tracking>
+        <header class="mb-8">
+          <h1
+            id="operator-title"
+            class="font-serif text-3xl font-semibold text-charcoal"
+          >
+            Pedidos activos
+          </h1>
+          <p class="mt-1 text-[15px]" style="color: rgba(44, 44, 44, 0.6)">
+            Toca un pedido para ver el detalle y avanza su estado cuando esté listo.
+          </p>
+        </header>
+
+        <!-- Ver detalles de un pedido -->
+        <app-operator-orders
+          [operatorId]="operatorId"
+          (sendRequested)="openSendModal($event)"
+          (detailRequested)="openDetail($event)"
+        ></app-operator-orders>
+      } @else {
+        <app-operator-reservations></app-operator-reservations>
+      }
+    </main>
+  </div>
 </div>
 
 <!-- Si la orden ya fue enviada desaparece de la vista de operador-->

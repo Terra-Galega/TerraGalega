@@ -1,0 +1,29 @@
+// Estilos propios del plano en el panel del operador (el resto viene de la página de reservas).
+
+// Mesa con reservas activas: tablero dorado con candado (se puede pulsar para ver el detalle)
+.table-marker.booked {
+  --table-fill: #f3dcae;
+  --chair-fill: #d9a63c;
+  --table-stroke: #a9854e;
+  color: #5b4413;
+}
+
+// Con una búsqueda activa, las mesas que no coinciden se atenúan
+.table-marker.dim {
+  opacity: .28;
+}
+
+// Mesa que coincide con la búsqueda: borde terracota grueso
+.table-marker.match {
+  scale: 1.1;
+}
+
+.table-marker.match .tabletop {
+  stroke: var(--terracotta);
+  stroke-width: 4.5;
+}
+
+.key.match {
+  border: 3px solid var(--terracotta);
+  background: var(--field);
+}

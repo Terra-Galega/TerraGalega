@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { StripeReturnService } from './stripe-return.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Reservation, ReservationInput } from '../models/reservation';
+import { OperatorReservation, Reservation, ReservationInput } from '../models/reservation';
 import { API_URL } from '../api-url';
 
 // Reserva del cliente con sesión iniciada (el back lo identifica por el token).
@@ -50,7 +50,10 @@ export class ReservationService {
     const params = new HttpParams().set('date', date).set('time', time);
     return this.http.get<number[]>(`${this.apiUrl}/taken`, { params });
   }
-
+  // Operador: todas las reservas con anticipo pagado cuyo turno aún no termina.
+  getActiveReservations(): Observable<OperatorReservation[]> {
+    return this.http.get<OperatorReservation[]>(`${API_URL}/reservations/active`);
+  }
   // Lleva al cliente a la página de pago de Stripe.
   redirectToStripe(reservation: Reservation): void {
     if (reservation.checkoutUrl) {
