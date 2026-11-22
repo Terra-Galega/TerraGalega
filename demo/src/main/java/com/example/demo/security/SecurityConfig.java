@@ -199,6 +199,9 @@ public class SecurityConfig {
                                                                 "/table-orders/*/deliver", "/table-orders/*/pay",
                                                                 "/table-orders/*/cancel", "/table-orders/tables/*/pay")
                                                 .hasAuthority(WAITER)
+                                                // Admin: órdenes en punto físico (listado, detalle y dashboard)
+                                                .requestMatchers(HttpMethod.GET, "/table-orders/admin")
+                                                .hasAuthority(ADMIN)
                                                 // La carta para tomar el pedido (GET /products/active) ya es pública
                                                 .requestMatchers("/table-orders/**").denyAll()
 

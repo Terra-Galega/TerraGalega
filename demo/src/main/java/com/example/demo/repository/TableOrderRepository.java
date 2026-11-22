@@ -33,6 +33,23 @@ public interface TableOrderRepository extends JpaRepository<TableOrder, Integer>
             """)
     List<TableOrder> findWithItemsByStatusIn(@Param("statuses") Collection<TableOrderStatus> statuses);
 
+    // Panel del admin: todos los pedidos de mesa de un rango de fechas con mesa,
+    // mesero, platos, producto, categoría y adicionales en una sola consulta,
+    // del más reciente al más antiguo
+    @Query("""
+            select distinct o from TableOrder o
+            join fetch o.table
+            join fetch o.waiter
+            left join fetch o.items i
+            left join fetch i.product p
+            left join fetch p.category
+            left join fetch i.addOns
+            where o.startTime >= :from and o.startTime < :to
+            order by o.startTime desc
+            """)
+    List<TableOrder> findForAdmin(@Param("from") java.time.LocalDateTime from,
+            @Param("to") java.time.LocalDateTime to);
+
     // Pantalla de la mesa del mesero: pedidos en curso y los entregados que
     // faltan por cobrar, con sus platos
     @Query("""

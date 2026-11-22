@@ -122,4 +122,18 @@ public class TableOrderController {
         authenticatedUser.kitchen();
         return service.updateOrderStatus(id, request == null ? null : request.status());
     }
+
+    // ---------- Admin ----------
+
+    @Operation(summary = "Table orders with prices and filters, newest first (admin)")
+    @GetMapping("/admin")
+    public List<com.example.demo.dto.TableOrderDTOs.AdminTableOrderDTO> adminOrders(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate from,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate to,
+            @RequestParam(required = false) Integer productId,
+            @RequestParam(required = false) Integer orderId,
+            @RequestParam(required = false) Integer waiterId,
+            @RequestParam(required = false) Integer tableId) {
+        return service.adminOrders(from, to, productId, orderId, waiterId, tableId);
+    }
 }

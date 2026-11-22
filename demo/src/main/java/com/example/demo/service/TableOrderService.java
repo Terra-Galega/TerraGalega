@@ -54,4 +54,11 @@ public interface TableOrderService {
 
     // Avanza todos los platos del pedido a la vez (PREPARING o READY)
     TableOrderDTO updateOrderStatus(Integer orderId, OrderItemStatus status);
+
+    // ---------- Admin ----------
+
+    // Órdenes en punto físico con filtros opcionales (fechas incluidas, sin
+    // fechas = todo). Del más reciente al más antiguo.
+    List<com.example.demo.dto.TableOrderDTOs.AdminTableOrderDTO> adminOrders(java.time.LocalDate from,
+            java.time.LocalDate to, Integer productId, Integer orderId, Integer waiterId, Integer tableId);
 }
