@@ -11,7 +11,7 @@ import java.util.List;
 public interface AnnouncementService {
 
     // Cantidad máxima de anuncios publicados al mismo tiempo
-    int MAX_ANNOUNCEMENTS = 3;
+    int MAX_ANNOUNCEMENTS = 100;
 
     // Todos los anuncios, en orden de creación
     List<Announcement> getAllAnnouncements();
