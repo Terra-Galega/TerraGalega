@@ -549,12 +549,12 @@ export class TutorialService {
                         side: 'top',
                         align: 'start',
                     },
-                    // 7) Añadir a la orden: avanza cuando el cliente pulsa el botón
+                    // 7) Añadir al carrito: avanza cuando el cliente pulsa el botón
                     {
                         element: '#btn-add-to-order',
                         title: 'Añade el plato',
                         description:
-                            'Revisa el total y pulsa "Añadir a la orden" para guardarlo en tu carrito.',
+                            'Revisa el total y pulsa "Añadir al carrito" para guardarlo.',
                         side: 'top',
                         align: 'center',
                         waitClick: '#btn-add-to-order',
@@ -592,9 +592,9 @@ export class TutorialService {
                     //     checkout) lo retoma con su servicio auxiliar.
                     {
                         element: '#btn-cart-checkout',
-                        title: 'Confirma tu pedido',
+                        title: 'Ve a pagar',
                         description:
-                            'Pulsa "Confirmar pedido" para continuar. Si no has iniciado sesión, te pediremos que lo hagas primero.',
+                            'Pulsa "Ir a pagar" para continuar. Si no has iniciado sesión, te pediremos que lo hagas primero.',
                         side: 'top',
                         align: 'center',
                         waitClick: '#btn-cart-checkout',

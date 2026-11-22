@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { Address } from '../../../../models/address';
 import { AddressService } from '../../../../services/address.service';

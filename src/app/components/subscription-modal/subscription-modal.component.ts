@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { DialogDirective } from '../../directives/dialog.directive';
 import { ButtonComponent } from '../button/button.component';

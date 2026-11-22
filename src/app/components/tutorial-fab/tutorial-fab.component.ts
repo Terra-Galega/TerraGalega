@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Component, inject, input, output } from '@angular/core';
 import { TourName, TutorialService } from '../../services/Tutorial.service';
 

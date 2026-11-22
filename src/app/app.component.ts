@@ -1,4 +1,4 @@
-import { TranslatePipe } from './services/translate.pipe';
+import { TranslatePipe } from './pipes/translate.pipe';
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TooltipService } from './services/tooltip.service';
@@ -7,7 +7,7 @@ import { ChatWidgetComponent } from './components/chat-widget/chat-widget.compon
 import { ThemeService } from './services/theme.service';
 import { ToastComponent } from './components/toast/toast.component';
 import { ClientDeliveryWatcherService } from './services/client-delivery-watcher.service';
-import { focusMainContent } from './services/page-title.strategy';
+import { focusMainContent } from './strategies/page-title.strategy';
 import { NotificationCenterService } from './services/notification-center.service';
 
 @Component({

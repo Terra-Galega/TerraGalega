@@ -7,6 +7,13 @@ export interface Toast {
   message: string;
   // success: acción completada (icono de check verde); error: algo falló (icono rojo)
   type: 'success' | 'error';
+  // Botón opcional dentro del aviso, p. ej. "Ver carrito" después de añadir un plato
+  action?: ToastAction;
+}
+
+export interface ToastAction {
+  label: string;
+  run: () => void;
 }
 
 // Servicio que permite mostrar y cerrar avisos temporales desde cualquier pantalla.
@@ -20,7 +27,13 @@ export class ToastService {
   private timer: ReturnType<typeof setTimeout> | null = null;
 
   // Muestra un aviso durante el tiempo indicado y reemplaza cualquier aviso anterior.
-  show(title: string, message = '', durationMs = 3500, type: Toast['type'] = 'success') {
+  show(
+    title: string,
+    message = '',
+    durationMs = 3500,
+    type: Toast['type'] = 'success',
+    action?: ToastAction,
+  ) {
     // Cancela el temporizador anterior para evitar que cierre el nuevo aviso.
     if (this.timer) {
       clearTimeout(this.timer);
@@ -28,7 +41,12 @@ export class ToastService {
 
     // Actualiza el aviso visible y programa su cierre automático.
     // Siempre es un objeto nuevo: así el aviso se vuelve a animar aunque ya hubiera otro visible.
-    this.toast.set({ title: this.language.t(title), message: this.language.t(message), type });
+    this.toast.set({
+      title: this.language.t(title),
+      message: this.language.t(message),
+      type,
+      action: action ? { label: this.language.t(action.label), run: action.run } : undefined,
+    });
     this.timer = setTimeout(() => this.close(), durationMs);
   }
 

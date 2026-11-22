@@ -7,7 +7,7 @@
 // import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 // import { PublicClientApplication } from '@azure/msal-browser';
 // import { MICROSOFT_CLIENT_ID } from '../../microsoft.config';
-// import { TranslatePipe } from '../../services/translate.pipe';
+// import { TranslatePipe } from '../../pipes/translate.pipe';
 //
 // // Botón "Continuar con Microsoft". Imita al botón oficial de Google (píldora de 40 px, borde gris,
 // // logo a la izquierda y texto centrado) para que los dos accesos se vean como una pareja.

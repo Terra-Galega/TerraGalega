@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../services/translate.pipe';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { DecimalPipe } from '@angular/common';
 import { Component, HostListener, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';

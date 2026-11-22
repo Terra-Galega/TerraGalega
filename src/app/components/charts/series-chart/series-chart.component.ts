@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../services/translate.pipe';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { Component, Input, OnChanges } from '@angular/core';
 import { ChartConfiguration, ChartDataset, ChartType, Plugin } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';

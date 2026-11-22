@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { AfterViewInit, Component, ElementRef, OnDestroy, inject } from '@angular/core';
 import { SectionHeadingComponent } from '../../../../components/section-heading/section-heading.component';
 import { RevealDirective } from '../../../../directives/reveal.directive';

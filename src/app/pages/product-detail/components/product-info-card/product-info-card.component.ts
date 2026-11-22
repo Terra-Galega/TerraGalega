@@ -1,5 +1,7 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { Component, DestroyRef, Input, OnInit, inject } from '@angular/core';
+// Píldora de compra desactivada: al reactivarla, volver a importar ElementRef, NgZone,
+// ViewChild y signal.
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -77,6 +79,49 @@ export class ProductInfoCardComponent implements OnInit {
   // Evita agregar dos veces si se pulsa el botón mientras se verifica
   private verifying = false;
 
+  // PÍLDORA DE COMPRA FLOTANTE: DESACTIVADA (comentada).
+  // Todavía no convence cómo se comporta; se deja comentada hasta tener una idea mejor.
+  // Mientras tanto la cantidad, el total y "Añadir al carrito" están solo en su sitio normal,
+  // debajo de los adicionales.
+  //
+  // // Píldora de compra: visible solo mientras el bloque real de compra está por debajo
+  // // de la pantalla (el cliente aún no ha llegado a él)
+  // readonly showBuyPill = signal(false);
+  // private zone = inject(NgZone);
+  // private observer?: IntersectionObserver;
+//
+  // @ViewChild('purchaseBlock') set purchaseBlock(ref: ElementRef<HTMLElement> | undefined) {
+    // this.observer?.disconnect();
+    // const el = ref?.nativeElement;
+    // if (!el || typeof IntersectionObserver === 'undefined') {
+      // this.showBuyPill.set(false);
+      // return;
+    // }
+//
+    // // "Debajo de la pantalla" = la parte de arriba del bloque queda más abajo que el borde inferior
+    // const update = () => {
+      // const below = el.getBoundingClientRect().top > window.innerHeight;
+      // if (below !== this.showBuyPill()) {
+        // this.zone.run(() => this.showBuyPill.set(below));
+      // }
+    // };
+//
+    // // IntersectionObserver avisa al cruzar el borde (también cuando el bloque se mueve porque
+    // // cargaron los adicionales). Como respaldo se mide también al desplazar o cambiar el tamaño.
+    // this.observer = new IntersectionObserver(update);
+    // this.observer.observe(el);
+    // this.zone.runOutsideAngular(() => {
+      // window.addEventListener('scroll', update, { passive: true });
+      // window.addEventListener('resize', update, { passive: true });
+    // });
+    // this.destroyRef.onDestroy(() => {
+      // this.observer?.disconnect();
+      // window.removeEventListener('scroll', update);
+      // window.removeEventListener('resize', update);
+    // });
+    // update();
+  // }
+
   ngOnInit(): void {
     // Carga los adicionales al abrir, los actualiza cada REFRESH_MS y al volver
     // a la pestaña. Así si el admin cambia, agrega o desactiva un adicional,
@@ -151,7 +196,7 @@ export class ProductInfoCardComponent implements OnInit {
     return (this.product.price + this.addOnsTotal) * this.quantity;
   }
 
-  // Botón "Añadir a la orden"
+  // Botón "Añadir al carrito"
   addToOrder(): void {
     // Si ya hay una verificación en curso, se ignora el clic
     if (this.verifying) {
@@ -184,6 +229,9 @@ export class ProductInfoCardComponent implements OnInit {
         this.toast.show(
           'Añadido al carrito',
           `${quantity}× ${currentProduct.name}`,
+          5000,
+          'success',
+          { label: 'Ver carrito', run: () => this.cartService.requestOpen() },
         );
       },
       error: (error) => {

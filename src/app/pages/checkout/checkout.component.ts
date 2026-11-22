@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { getErrorMessage } from '../../utils/http-error';
@@ -28,6 +28,7 @@ import { CheckoutDraftService } from '../../services/checkout-draft.service';
 import { TutorialCheckoutService } from '../../services/tutorial-checkout.service';
 import { PaymentService } from '../../services/payment.service';
 import { StripeReturnService } from '../../services/stripe-return.service';
+import { DeliveryFeeService } from '../../services/delivery-fee.service';
 
 
 // Paso 1 del checkout: dirección de entrega, cupón y método de pago
@@ -63,6 +64,8 @@ export class CheckoutComponent implements OnInit {
   private tutorialCheckout = inject(TutorialCheckoutService);
   private paymentService = inject(PaymentService);
   private stripeReturn = inject(StripeReturnService);
+  // Domicilio visible desde el paso 1 (gratis si es Premium)
+  protected delivery = inject(DeliveryFeeService);
 
   // Id del cliente con sesión (null hasta comprobarla); lo necesita el cupón
   clientId: number | null = null;
@@ -118,6 +121,7 @@ export class CheckoutComponent implements OnInit {
     }
 
     this.clientId = session.id;
+    this.delivery.refresh();
 
     // Si viene del tutorial "hacer un pedido", sigue con el tramo del checkout
     this.tutorialCheckout.resumeCheckout();
@@ -125,7 +129,13 @@ export class CheckoutComponent implements OnInit {
     // Si el cliente vuelve desde el paso 2 (botón Editar) se recupera lo que
     // había escrito. El cupón no va en el formulario: se reaplica aparte.
     const { address, saveAddress, addressName, method } = this.draftService.draft;
-    this.form.patchValue({ address, saveAddress, addressName, method });
+    // Si aún no eligió en este pedido, se marca el último método que usó (o la tarjeta)
+    this.form.patchValue({
+      address,
+      saveAddress,
+      addressName,
+      method: method || this.draftService.lastMethod,
+    });
 
     // Volvió de Stripe con "Atrás" y, al recargar, el navegador lo trajo hasta aquí
     this.checkStripeReturn();
@@ -273,6 +283,7 @@ export class CheckoutComponent implements OnInit {
       coupon: this.coupon,
     };
 
+    this.draftService.rememberMethod(v.method);
     this.router.navigate(['/checkout/confirm']);
   }
 

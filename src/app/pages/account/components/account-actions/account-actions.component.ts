@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { SubscriptionStatus } from '../../../../models/subscription';

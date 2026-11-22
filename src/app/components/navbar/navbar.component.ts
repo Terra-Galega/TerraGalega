@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { NavigationEnd, Router } from '@angular/router';
 import { CartComponent } from '../cart/cart.component';
 import { Component, HostListener, OnDestroy, inject } from '@angular/core';
@@ -134,6 +134,9 @@ export class NavbarComponent implements OnDestroy {
     this.cartSub = this.cartService.items$.subscribe(() => {
       this.cartCount = this.cartService.count;
     });
+
+    // "Ver carrito" desde un aviso: abre el panel del carrito
+    this.cartSub.add(this.cartService.openRequests$.subscribe(() => this.openCart()));
 
     // Al construirse, router.url aún puede ser '/' (la navegación no terminó).
     // Recalculamos el estado cuando la navegación realmente termina.

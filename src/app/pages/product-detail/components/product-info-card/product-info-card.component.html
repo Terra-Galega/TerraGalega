@@ -1,7 +1,7 @@
 <!-- Tarjeta de vidrio: en pantallas medianas o más grandes la imagen va a la
      izquierda y la información a la derecha; en celular, una encima de otra -->
 <div
-  class="glass-card w-full rounded-3xl overflow-hidden p-5 md:p-10 flex flex-col md:flex-row gap-7 md:gap-14 mb-16"
+  class="glass-card w-full rounded-3xl overflow-clip p-5 md:p-10 flex flex-col md:flex-row gap-7 md:gap-14 mb-16"
 >
   <!-- Imagen del producto: en móvil guarda proporción 4:3 (no ocupa toda la pantalla);
        desde tablet se estira al alto de la tarjeta -->
@@ -102,8 +102,11 @@
       </div>
     }
 
+    <!-- Bloque de compra: cantidad, total y botón, en su sitio normal (la píldora flotante
+         del final de esta plantilla está comentada por ahora). -->
+    <div #purchaseBlock id="product-purchase-bar" class="purchase-block">
     <!-- Cantidad de platos (enlace doble con "quantity") y total a pagar -->
-    <div class="flex items-center justify-between gap-6 mb-6">
+    <div class="flex items-center justify-between gap-6 mb-4">
       <app-quantity-selector id="product-quantity" [(value)]="quantity" />
       <div>
         <p
@@ -113,7 +116,7 @@
           {{ 'product_detail.product_info_card.product_info_card.total' | t }}
         </p>
         <!-- aria-live: el total se anuncia cuando cambian la cantidad o los adicionales -->
-        <span id="product-total" class="font-serif text-3xl font-bold" style="color: #b2571f" aria-live="polite"
+        <span id="product-total" class="font-serif text-2xl md:text-3xl font-bold whitespace-nowrap" style="color: #b2571f" aria-live="polite"
           ><span class="sr-only">{{ totalPrice | number: "1.0-0" }} pesos</span
           ><span aria-hidden="true">${{ totalPrice | number: "1.0-0" }}</span></span
         >
@@ -122,7 +125,29 @@
 
     <!-- Botón que verifica el producto y lo agrega al carrito -->
     <app-button id="btn-add-to-order" size="lg" [fullWidth]="true" (click)="addToOrder()"
-      >{{ 'product_detail.product_info_card.product_info_card.anadir_a_la_orden' | t }}</app-button
+      >{{ 'product_detail.product_info_card.product_info_card.anadir_al_carrito' | t }}</app-button
     >
+    </div>
   </div>
 </div>
+
+<!--
+  PÍLDORA DE COMPRA FLOTANTE: DESACTIVADA (comentada).
+  Todavía no convence cómo se comporta; se deja comentada hasta tener una idea mejor.
+  Mientras tanto la cantidad, el total y "Añadir al carrito" están solo en su sitio normal,
+  debajo de los adicionales.
+
+(Píldora de compra (vidrio, como la barra de navegación). Solo aparece mientras el bloque de compra de arriba sigue por debajo de la pantalla: así se puede pedir sin bajar hasta el final, y al llegar al bloque real la píldora se va y no tapa nada. Va fuera de la tarjeta porque la tarjeta usa backdrop-filter, que "atrapa" a los elementos position: fixed y no los dejaría pegarse a la pantalla.)
+@if (showBuyPill()) {
+  <div id="product-buy-pill" class="buy-pill" role="group"
+    [attr.aria-label]="'product_detail.product_info_card.product_info_card.anadir_al_carrito' | t">
+    <app-quantity-selector [(value)]="quantity" />
+    <app-button class="buy-pill__cta" [fullWidth]="true" (click)="addToOrder()">
+      (En el celular no cabe la frase entera: se acorta a "Añadir")
+      <span class="buy-pill__label buy-pill__label--long">{{ 'product_detail.product_info_card.product_info_card.anadir_al_carrito' | t }}</span>
+      <span class="buy-pill__label buy-pill__label--short">{{ 'product_detail.product_info_card.product_info_card.anadir' | t }}</span>
+      <span class="buy-pill__price">· ${{ totalPrice | number: "1.0-0" }}</span>
+    </app-button>
+  </div>
+}
+-->
