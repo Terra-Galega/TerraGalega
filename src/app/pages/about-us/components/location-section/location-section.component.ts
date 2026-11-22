@@ -29,7 +29,7 @@ export class LocationSectionComponent {
     },
     {
       title: 'Correo',
-      value: 'contacto@terragalega.co',
+      value: 'terragalega0@gmail.com',
       icon: 'email',
     },
     {
