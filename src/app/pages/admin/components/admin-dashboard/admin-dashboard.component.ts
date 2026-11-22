@@ -1,6 +1,7 @@
 import { Component, effect, inject, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ThemeService } from '../../../../services/theme.service';
+import { PaletteService } from '../../../../services/palette.service';
 import {
   EMPTY,
   Subject,
@@ -150,6 +151,7 @@ export class AdminDashboardComponent {
   private toast = inject(ToastService);
   private reports = inject(ReportService);
   private themeService = inject(ThemeService);
+  private paletteService = inject(PaletteService);
 
   // Permite forzar una recarga inmediata (botón de actualizar)
   private reload$ = new Subject<void>();
@@ -253,6 +255,7 @@ export class AdminDashboardComponent {
     // calcular los datos de las gráficas para que tomen la paleta del tema nuevo.
     effect(() => {
       this.themeService.theme();
+      this.paletteService.palette();
       untracked(() => this.recompute());
     });
 

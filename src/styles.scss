@@ -1350,3 +1350,182 @@ html[data-theme="dark"] .order-chat-trigger__dot {
     transition: none;
   }
 }
+
+// ACCESIBILIDAD VISUAL (panel del ojo: PaletteService)
+//   data-contrast="high"        -> alto contraste
+//   data-palette="red-green"    -> daltonismo rojo-verde (protanopía y deuteranopía)
+//   data-palette="blue-yellow"  -> daltonismo azul-amarillo (tritanopía)
+
+// Transparencias de texto gris que aparecen en las plantillas
+$a11y-ink-alphas: (0.3, 0.35, 0.38, 0.4, 0.45, 0.5, 0.55, 0.6, 0.62, 0.65, 0.68, 0.7, 0.75, 0.8);
+
+// Rojos de error tal como están en las plantillas: hex -> su forma rgb()
+$a11y-error-reds: (
+  "#8a2222": "rgb(138, 34, 34)",
+  "#9c2f1f": "rgb(156, 47, 31)",
+  "#da5858": "rgb(218, 88, 88)",
+  "#c62828": "rgb(198, 40, 40)"
+);
+
+// Texto de error -> $color (estilos en línea, en sus dos formas, y la clase de Tailwind)
+@mixin a11y-error-text($color) {
+  @each $hex, $rgb in $a11y-error-reds {
+
+    [style^="color: #{$hex}"],
+    [style*=" color: #{$hex}"],
+    [style^="color: #{$rgb}"],
+    [style*=" color: #{$rgb}"] {
+      color: $color !important;
+    }
+  }
+
+  .text-red-600 {
+    color: $color !important;
+  }
+}
+
+// Variaciones del dashboard (app-delta-badge): "sube" en verde -> $color.
+// Se reconocen los verdes del tema claro (#556141) y del oscuro (#c2d6a8) en forma rgb(),
+// porque el componente los pone con [style.color] / [style.background-color].
+@mixin a11y-delta-up($color, $tint) {
+
+  app-delta-badge [style*=" color: rgb(85, 97, 65)"],
+  app-delta-badge [style*=" color: rgb(194, 214, 168)"] {
+    color: $color !important;
+  }
+
+  app-delta-badge [style*="background-color: rgba(85, 97, 65, 0.16)"],
+  app-delta-badge [style*="background-color: rgba(173, 196, 143, 0.22)"] {
+    background-color: $tint !important;
+  }
+}
+
+// ---------- Alto contraste: tema claro ----------
+// Texto gris -> casi negro (12:1 sobre crema), bordes más marcados, placeholders legibles.
+html[data-contrast="high"]:not([data-theme="dark"]) {
+  @each $alpha in $a11y-ink-alphas {
+
+    [style^="color: rgba(44, 44, 44, #{$alpha})"],
+    [style*=" color: rgba(44, 44, 44, #{$alpha})"] {
+      color: rgba(44, 44, 44, 0.9) !important;
+    }
+  }
+
+  .text-charcoal\/45,
+  .text-charcoal\/50,
+  .text-charcoal\/60,
+  .text-charcoal\/70 {
+    color: rgba(44, 44, 44, 0.9) !important;
+  }
+
+  [style*="solid rgba(44, 44, 44,"],
+  [style*="dashed rgba(44, 44, 44,"],
+  [style*="border-color: rgba(44, 44, 44,"] {
+    border-color: rgba(44, 44, 44, 0.55) !important;
+  }
+
+  ::placeholder {
+    color: rgba(44, 44, 44, 0.72) !important;
+    opacity: 1;
+  }
+
+  // El rojo claro de los errores en línea (#da5858) no llega a 4,5:1 sobre crema
+  @include a11y-error-text(#8a2222);
+}
+
+// ---------- Alto contraste: tema oscuro ----------
+html[data-contrast="high"][data-theme="dark"] {
+  @each $alpha in $a11y-ink-alphas {
+
+    [style^="color: rgba(44, 44, 44, #{$alpha})"],
+    [style*=" color: rgba(44, 44, 44, #{$alpha})"] {
+      color: rgba(245, 242, 235, 0.92) !important;
+    }
+  }
+
+  .text-charcoal\/45,
+  .text-charcoal\/50,
+  .text-charcoal\/60,
+  .text-charcoal\/70 {
+    color: rgba(245, 242, 235, 0.92) !important;
+  }
+
+  [style*="solid rgba(44, 44, 44,"],
+  [style*="dashed rgba(44, 44, 44,"],
+  [style*="border-color: rgba(44, 44, 44,"] {
+    border-color: rgba(245, 242, 235, 0.42) !important;
+  }
+
+  ::placeholder {
+    color: rgba(245, 242, 235, 0.7) !important;
+    opacity: 1;
+  }
+
+  // #da5858 queda en 4,1:1 sobre la superficie oscura
+  @include a11y-error-text(#e88a8a);
+}
+
+// ---------- Alto contraste: ambos temas ----------
+html[data-contrast="high"] {
+
+  // Anillo de foco más grueso para la navegación con teclado
+  :focus-visible {
+    outline: 3px solid currentColor !important;
+    outline-offset: 3px !important;
+  }
+
+  // Los enlaces dentro de texto se distinguen por subrayado, no solo por color
+  :is(p, label, small) a {
+    text-decoration: underline !important;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+  }
+}
+
+// ---------- Daltonismo rojo-verde ----------
+// El error se queda en rojo vino (con protanopía se ve oscuro, pero contrasta bien) y
+// el ÉXITO pasa de verde a azul, que es el eje que sí se distingue.
+html[data-palette="red-green"] {
+  // Icono del toast de éxito (lleva un check blanco: se usa el azul oscuro en los dos temas)
+  .toast-icon[style*="rgb(85, 97, 65)"] {
+    background-color: #1f5f99 !important;
+  }
+}
+
+html[data-palette="red-green"]:not([data-theme="dark"]) {
+  @include a11y-error-text(#8a2222);
+  @include a11y-delta-up(#1f5f99, rgba(31, 95, 153, 0.14));
+}
+
+html[data-palette="red-green"][data-theme="dark"] {
+  @include a11y-error-text(#e88a8a);
+  @include a11y-delta-up(#7fb6ea, rgba(127, 182, 234, 0.2));
+}
+
+// ---------- Daltonismo azul-amarillo ----------
+// Aquí el problema es que el rojo de error se confunde con el terracota de marca: el error
+// pasa a ciruela (claro) o rosa intenso (oscuro), y el éxito a verde azulado.
+html[data-palette="blue-yellow"] {
+  .toast-icon[style*="rgb(85, 97, 65)"] {
+    background-color: #00766c !important;
+  }
+
+  .toast-icon[style*="rgb(156, 47, 31)"] {
+    background-color: #7a1630 !important;
+  }
+}
+
+html[data-palette="blue-yellow"]:not([data-theme="dark"]) {
+  @include a11y-error-text(#7a1630);
+  @include a11y-delta-up(#00766c, rgba(0, 118, 108, 0.14));
+}
+
+html[data-palette="blue-yellow"][data-theme="dark"] {
+  @include a11y-error-text(#ff5c8a);
+  @include a11y-delta-up(#5fd0c2, rgba(95, 208, 194, 0.2));
+
+  // "Baja" del dashboard en tema oscuro
+  app-delta-badge [style*=" color: rgb(242, 168, 168)"] {
+    color: #ff5c8a !important;
+  }
+}

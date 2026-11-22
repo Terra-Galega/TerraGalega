@@ -1,0 +1,58 @@
+<!-- OJO: abre el panel de accesibilidad visual -->
+<button #trigger type="button" class="picker__trigger" [class.picker__trigger--active]="open"
+    [attr.aria-label]="language.t('openColorPalette')" [attr.aria-expanded]="open" [attr.aria-controls]="panelId"
+    (click)="toggle()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true">
+        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+        <circle cx="12" cy="12" r="3" />
+    </svg>
+    <!-- Punto: hay algún ajuste activo (daltonismo o alto contraste) -->
+    @if (palette.anyActive()) {
+    <span class="picker__dot" aria-hidden="true"></span>
+    }
+</button>
+
+<!-- Panel -->
+<div [id]="panelId" class="palette" [class.palette--open]="open" role="group"
+    [attr.aria-label]="language.t('visualAccessibility')" [attr.inert]="open ? null : ''">
+    <p class="palette__title">{{ language.t('visualAccessibility') }}</p>
+
+    <!-- DALTONISMO: una opción a la vez -->
+    <p class="palette__group-label" [id]="groupLabelId">{{ language.t('colorBlindness') }}</p>
+    <div role="radiogroup" [attr.aria-labelledby]="groupLabelId">
+        @for (option of options; track option.id; let i = $index) {
+        <button type="button" role="radio" class="palette__option"
+            [class.palette__option--checked]="palette.palette() === option.id"
+            [attr.aria-checked]="palette.palette() === option.id"
+            [attr.tabindex]="palette.palette() === option.id ? 0 : -1" (click)="choose(option.id)"
+            (keydown)="onOptionKeydown($event, i)">
+            <span class="palette__radio" aria-hidden="true"></span>
+            <span class="palette__text">
+                <span class="palette__name">{{ language.t(option.name) }}</span>
+                <span class="palette__desc">{{ language.t(option.description) }}</span>
+                <!-- Vista previa: los colores de las gráficas con esta paleta -->
+                <span class="palette__swatches" aria-hidden="true">
+                    @for (color of swatches(option.id); track $index) {
+                    <span class="palette__swatch" [style.background-color]="color"></span>
+                    }
+                </span>
+            </span>
+        </button>
+        }
+    </div>
+
+    <div class="palette__divider" aria-hidden="true"></div>
+
+    <!-- ALTO CONTRASTE: se combina con cualquier opción de daltonismo -->
+    <button type="button" role="switch" class="palette__switch-row" [attr.aria-checked]="palette.highContrast()"
+        (click)="palette.toggleHighContrast()">
+        <span class="palette__text">
+            <span class="palette__name">{{ language.t('highContrast') }}</span>
+            <span class="palette__desc">{{ language.t('highContrastDesc') }}</span>
+        </span>
+        <span class="palette__switch" [class.palette__switch--on]="palette.highContrast()" aria-hidden="true">
+            <span class="palette__knob"></span>
+        </span>
+    </button>
+</div>

@@ -2,6 +2,7 @@ import { Order, OrderStatus, OrderSummary } from '../models/order';
 import { Product } from '../models/product';
 import { AdminTableOrder, TablePaymentMethod } from '../models/table-order';
 import { isDarkTheme } from './chart-theme';
+import { Palette, activePalette } from '../services/palette.service';
 
 // =====================================================================
 // Cálculos del dashboard del administrador.
@@ -29,7 +30,6 @@ export const CHART_COLORS = [
 ];
 
 // Misma paleta, más clara, para verse sobre el fondo del tema oscuro.
-// SOLO la usa el dashboard en pantalla: el PDF/Excel exportado sigue con CHART_COLORS.
 export const CHART_COLORS_DARK = [
   '#ee9c68', // terracota
   '#adc48f', // bosque
@@ -41,27 +41,85 @@ export const CHART_COLORS_DARK = [
   '#eab38d', // arcilla
 ];
 
-// Paleta de las gráficas en pantalla según el tema activo
-export function chartColors(): string[] {
-  return isDarkTheme() ? CHART_COLORS_DARK : CHART_COLORS;
+// Daltonismo rojo-verde (protanopía y deuteranopía): separa las series por el eje
+// azul-naranja y por claridad. Validada por simulación: par más parecido en ΔE >= 17
+// (la de marca bajaba a 3-7). Mismo orden de papeles: 0 y 1 principales, 5 apagado.
+export const CHART_COLORS_RG = [
+  '#b2571f', // terracota
+  '#1f5f99', // azul
+  '#c08512', // dorado oscuro
+  '#4f171e', // vino oscuro
+  '#5aa3d6', // azul cielo
+  '#8a847a', // gris cálido (periodo anterior)
+  '#3a3ad0', // índigo
+  '#291f47', // berenjena
+];
+
+export const CHART_COLORS_RG_DARK = [
+  '#ee9c68', // terracota
+  '#6fa8e0', // azul
+  '#f2c260', // dorado
+  '#a8646d', // vino suave
+  '#2f6fa8', // azul profundo
+  '#d6cfc2', // gris claro (periodo anterior)
+  '#6a6ae6', // índigo
+  '#b98ab5', // malva
+];
+
+// Daltonismo azul-amarillo (tritanopía): aquí rojo y verde SÍ se distinguen, así que se
+// conserva el verde de marca. Par más parecido en ΔE >= 18.
+export const CHART_COLORS_BY = [
+  '#b2571f', // terracota
+  '#556141', // bosque
+  '#25a3ad', // turquesa
+  '#4f173c', // ciruela
+  '#c375d7', // orquídea
+  '#8a847a', // gris cálido (periodo anterior)
+  '#d22d2d', // rojo
+  '#5252da', // índigo
+];
+
+export const CHART_COLORS_BY_DARK = [
+  '#ee9c68', // terracota
+  '#adc48f', // bosque
+  '#d22d2d', // rojo
+  '#9446d8', // violeta
+  '#46d86d', // verde vivo
+  '#8f897e', // gris (periodo anterior)
+  '#c62aa7', // magenta
+  '#db9eea', // lila
+];
+
+// Paleta según opción de daltonismo y tema (el panel del ojo la usa para la vista previa)
+export function chartColorsFor(palette: Palette, dark: boolean): string[] {
+  if (palette === 'red-green') {
+    return dark ? CHART_COLORS_RG_DARK : CHART_COLORS_RG;
+  }
+  if (palette === 'blue-yellow') {
+    return dark ? CHART_COLORS_BY_DARK : CHART_COLORS_BY;
+  }
+  return dark ? CHART_COLORS_DARK : CHART_COLORS;
 }
 
+// Paleta de las gráficas en pantalla según el tema y la paleta activos
+export function chartColors(): string[] {
+  return chartColorsFor(activePalette(), isDarkTheme());
+}
+
+type StatusStyles = Record<OrderStatus, { bg: string; color: string }>;
+
 // Colores del estado del pedido (fondo y texto de la etiqueta)
-export const STATUS_STYLE: Record<OrderStatus, { bg: string; color: string }> =
-  {
-    PENDING: { bg: 'rgba(217, 154, 33, 0.2)', color: '#9a6a05' },
-    CONFIRMED: { bg: 'rgba(44, 110, 143, 0.14)', color: '#2c6e8f' },
-    PREPARING: { bg: 'rgba(178, 87, 31, 0.14)', color: '#b2571f' },
-    ON_THE_WAY: { bg: 'rgba(122, 92, 138, 0.16)', color: '#7a5c8a' },
-    DELIVERED: { bg: 'rgba(85, 97, 65, 0.16)', color: '#556141' },
-    CANCELLED: { bg: 'rgba(138, 34, 34, 0.12)', color: '#8a2222' },
-  };
+export const STATUS_STYLE: StatusStyles = {
+  PENDING: { bg: 'rgba(217, 154, 33, 0.2)', color: '#9a6a05' },
+  CONFIRMED: { bg: 'rgba(44, 110, 143, 0.14)', color: '#2c6e8f' },
+  PREPARING: { bg: 'rgba(178, 87, 31, 0.14)', color: '#b2571f' },
+  ON_THE_WAY: { bg: 'rgba(122, 92, 138, 0.16)', color: '#7a5c8a' },
+  DELIVERED: { bg: 'rgba(85, 97, 65, 0.16)', color: '#556141' },
+  CANCELLED: { bg: 'rgba(138, 34, 34, 0.12)', color: '#8a2222' },
+};
 
 // Las mismas etiquetas en tema oscuro: fondo algo más intenso y texto claro
-export const STATUS_STYLE_DARK: Record<
-  OrderStatus,
-  { bg: string; color: string }
-> = {
+export const STATUS_STYLE_DARK: StatusStyles = {
   PENDING: { bg: 'rgba(242, 194, 96, 0.2)', color: '#f5cd78' },
   CONFIRMED: { bg: 'rgba(116, 182, 218, 0.2)', color: '#94c9e6' },
   PREPARING: { bg: 'rgba(238, 156, 104, 0.22)', color: '#f3ad80' },
@@ -70,9 +128,56 @@ export const STATUS_STYLE_DARK: Record<
   CANCELLED: { bg: 'rgba(236, 147, 147, 0.2)', color: '#f2a8a8' },
 };
 
-// Estilo de la etiqueta de estado según el tema activo
+// Rojo-verde: Pendiente neutro, Entregado azul verdoso, Cancelado vino casi negro.
+// Par más parecido en ΔE >= 13 (la de marca bajaba a 2,6).
+export const STATUS_STYLE_RG: StatusStyles = {
+  PENDING: { bg: 'rgba(98, 91, 81, 0.14)', color: '#625b51' },
+  CONFIRMED: { bg: 'rgba(31, 95, 153, 0.14)', color: '#1f5f99' },
+  PREPARING: { bg: 'rgba(178, 87, 31, 0.14)', color: '#b2571f' },
+  ON_THE_WAY: { bg: 'rgba(58, 58, 208, 0.12)', color: '#3a3ad0' },
+  DELIVERED: { bg: 'rgba(47, 111, 115, 0.16)', color: '#2f6f73' },
+  CANCELLED: { bg: 'rgba(79, 23, 30, 0.12)', color: '#4f171e' },
+};
+
+export const STATUS_STYLE_RG_DARK: StatusStyles = {
+  PENDING: { bg: 'rgba(201, 194, 182, 0.18)', color: '#c9c2b6' },
+  CONFIRMED: { bg: 'rgba(127, 182, 234, 0.2)', color: '#7fb6ea' },
+  PREPARING: { bg: 'rgba(243, 173, 128, 0.22)', color: '#f3ad80' },
+  ON_THE_WAY: { bg: 'rgba(143, 143, 240, 0.2)', color: '#8f8ff0' },
+  DELIVERED: { bg: 'rgba(171, 237, 224, 0.18)', color: '#abede0' },
+  CANCELLED: { bg: 'rgba(201, 128, 136, 0.2)', color: '#c98088' },
+};
+
+// Azul-amarillo: Entregado verde y Cancelado ciruela. Par más parecido en ΔE >= 28.
+export const STATUS_STYLE_BY: StatusStyles = {
+  PENDING: { bg: 'rgba(98, 91, 81, 0.14)', color: '#625b51' },
+  CONFIRMED: { bg: 'rgba(27, 18, 84, 0.12)', color: '#1b1254' },
+  PREPARING: { bg: 'rgba(178, 87, 31, 0.14)', color: '#b2571f' },
+  ON_THE_WAY: { bg: 'rgba(167, 42, 198, 0.12)', color: '#a72ac6' },
+  DELIVERED: { bg: 'rgba(37, 126, 61, 0.14)', color: '#257e3d' },
+  CANCELLED: { bg: 'rgba(84, 18, 53, 0.12)', color: '#541235' },
+};
+
+export const STATUS_STYLE_BY_DARK: StatusStyles = {
+  PENDING: { bg: 'rgba(201, 194, 182, 0.18)', color: '#c9c2b6' },
+  CONFIRMED: { bg: 'rgba(120, 135, 226, 0.2)', color: '#7887e2' },
+  PREPARING: { bg: 'rgba(243, 173, 128, 0.22)', color: '#f3ad80' },
+  ON_THE_WAY: { bg: 'rgba(185, 108, 224, 0.2)', color: '#b96ce0' },
+  DELIVERED: { bg: 'rgba(57, 213, 57, 0.16)', color: '#39d539' },
+  CANCELLED: { bg: 'rgba(221, 95, 146, 0.2)', color: '#dd5f92' },
+};
+
+// Estilo de la etiqueta de estado según el tema y la paleta activos
 export function statusStyle(status: OrderStatus): { bg: string; color: string } {
-  return (isDarkTheme() ? STATUS_STYLE_DARK : STATUS_STYLE)[status];
+  const dark = isDarkTheme();
+  const palette = activePalette();
+  if (palette === 'red-green') {
+    return (dark ? STATUS_STYLE_RG_DARK : STATUS_STYLE_RG)[status];
+  }
+  if (palette === 'blue-yellow') {
+    return (dark ? STATUS_STYLE_BY_DARK : STATUS_STYLE_BY)[status];
+  }
+  return (dark ? STATUS_STYLE_DARK : STATUS_STYLE)[status];
 }
 
 // Pedidos que todavía no terminaron (ni entregados ni cancelados)

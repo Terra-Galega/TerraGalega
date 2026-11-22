@@ -36,7 +36,7 @@
       <app-search-input
         class="w-32 sm:w-48 min-w-0"
         variant="soft"
-        placeholder="Buscar…"
+        placeholder="Buscar."
         (valueChange)="searchChanged.emit($event)"
       />
     }
@@ -60,6 +60,9 @@
         <span class="hidden md:inline">{{ addLabel }}</span>
       </app-button>
     }
+
+    <!-- Paleta para daltonismo (el panel se abre debajo) -->
+    <app-palette-picker variant="bar" class="flex-shrink-0" />
 
     <!-- Interruptor de tema claro / oscuro, en la esquina derecha -->
     <app-theme-switch [compact]="true" class="flex-shrink-0" />

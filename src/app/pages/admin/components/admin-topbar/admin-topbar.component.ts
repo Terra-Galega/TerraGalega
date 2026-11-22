@@ -2,10 +2,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { SearchInputComponent } from '../../../../components/search-input/search-input.component';
 import { ThemeSwitchComponent } from '../../../../components/theme-switch/theme-switch.component';
+import { PalettePickerComponent } from '../../../../components/palette-picker/palette-picker.component';
 
 @Component({
   selector: 'app-admin-topbar',
-  imports: [ButtonComponent, SearchInputComponent, ThemeSwitchComponent],
+  imports: [ButtonComponent, SearchInputComponent, ThemeSwitchComponent, PalettePickerComponent],
   templateUrl: './admin-topbar.component.html',
   styleUrl: './admin-topbar.component.scss',
 })

@@ -87,11 +87,9 @@
     visibility: visible;
 }
 
-.settings__action {
-    color: #2c2c2c;
-    background: #f5f2eb;
-    border: 1px solid rgb(44 44 44 / 15%);
-    box-shadow: 0 7px 20px rgb(0 0 0 / 22%);
+/* Los tres elementos de la columna (tema, idioma y el ojo) bajan con la misma animación */
+.settings__action,
+app-palette-picker {
     opacity: 0;
     transform: translateY(-25px) scale(.55);
     transition:
@@ -100,22 +98,34 @@
         background-color 200ms ease;
 }
 
+.settings__action {
+    color: #2c2c2c;
+    background: #f5f2eb;
+    border: 1px solid rgb(44 44 44 / 15%);
+    box-shadow: 0 7px 20px rgb(0 0 0 / 22%);
+}
+
 .settings__action:hover {
     background: #e9d8bd;
 }
 
-/* Primero baja el tema; después, el idioma. */
-.settings__actions--open .settings__action {
+/* Bajan en orden: tema, idioma y paleta. */
+.settings__actions--open .settings__action,
+.settings__actions--open app-palette-picker {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: none;
 }
 
-.settings__actions--open .settings__action:first-child {
+.settings__actions--open > :nth-child(1) {
     transition-delay: 40ms;
 }
 
-.settings__actions--open .settings__action:last-child {
+.settings__actions--open > :nth-child(2) {
     transition-delay: 120ms;
+}
+
+.settings__actions--open > :nth-child(3) {
+    transition-delay: 200ms;
 }
 
 .settings__action svg {
@@ -144,7 +154,8 @@
     .settings__gear,
     .settings__close,
     .settings__action,
-    .settings__actions {
+    .settings__actions,
+    app-palette-picker {
         transition-duration: 0.01ms;
         transition-delay: 0ms;
     }

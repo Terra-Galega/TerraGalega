@@ -11,9 +11,20 @@
        La clave coincide con THEME_KEY de theme.service.ts. -->
   <script>
     try {
+      var root = document.documentElement;
       if (localStorage.getItem('terragalega_theme') === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        document.documentElement.style.colorScheme = 'dark';
+        root.setAttribute('data-theme', 'dark');
+        root.style.colorScheme = 'dark';
+      }
+      var palette = localStorage.getItem('terragalega_palette');
+      if (palette === 'protanopia' || palette === 'deuteranopia') {
+        palette = 'red-green';
+      }
+      if (palette === 'red-green' || palette === 'blue-yellow') {
+        root.setAttribute('data-palette', palette);
+      }
+      if (localStorage.getItem('terragalega_contrast') === 'high') {
+        root.setAttribute('data-contrast', 'high');
       }
     } catch (e) { }
   </script>
