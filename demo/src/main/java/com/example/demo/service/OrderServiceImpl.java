@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import com.example.demo.errors.ApiException;
 import java.time.LocalDate;
+import com.example.demo.dto.PointsDTOs.Payment;
+import com.example.demo.dto.PointsDTOs.Quote;
 import com.example.demo.dto.CheckoutItemDTO;
 import com.example.demo.dto.OrderSummaryDTO;
 import com.example.demo.dto.CheckoutRequestDTO;
@@ -74,6 +76,9 @@ public class OrderServiceImpl implements OrderService {
     private static final List<OrderStatus> FINISHED_STATUSES = List.of(
             OrderStatus.DELIVERED,
             OrderStatus.CANCELLED);
+
+    @Autowired
+    private PointsService points;
 
     private static final double DELIVERY_FEE = 6000.0;
 
@@ -165,6 +170,7 @@ public class OrderServiceImpl implements OrderService {
         // Segunda pasada: ya es seguro, se cancelan los pendientes
         for (Order order : orders) {
             if (order.getStatus() == OrderStatus.PENDING) {
+                points.refund(order);
                 order.setStatus(OrderStatus.CANCELLED);
             }
         }
@@ -195,7 +201,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order checkout(Client client, CheckoutRequestDTO request) {
-        return buildCheckout(client, request, false);
+        Order order = prepareCheckout(client, request);
+        order.setPaymentState("CASH");
+        Order saved = repository.save(order);
+        orderMirrorService.sync(saved);
+        return saved;
     }
 
     @Override
@@ -204,13 +214,54 @@ public class OrderServiceImpl implements OrderService {
             Client client,
             CheckoutRequestDTO request) {
 
-        return buildCheckout(client, request, true);
+        Order order = prepareCheckout(client, request);
+        order.setPaymentState("PENDING");
+        return repository.save(order);
     }
 
-    private Order buildCheckout(
-            Client client,
-            CheckoutRequestDTO request,
-            boolean online) {
+    @Override
+    @Transactional(readOnly = true)
+    public Quote quotePoints(Client client, CheckoutRequestDTO request) {
+        if (!client.isSubscribed()) return points.quote(client, 0);
+        Order order = priceCart(client, request);
+        return points.quote(client, order.getTotal());
+    }
+
+    @Override
+    @Transactional
+    public Order payWithPoints(Client owner, Payment payment) {
+        if (payment == null || payment.requestId() == null || payment.checkout() == null) {
+            throw ApiException.badRequest("Faltan datos del canje.");
+        }
+        Client client = points.lockClient(owner.getId());
+        String key = client.getId() + ":" + payment.requestId();
+        String hash = PaymentService.fingerprint(payment.checkout());
+        Order existing = repository.findByPointsRequestKey(key).orElse(null);
+        if (existing != null) {
+            if (!hash.equals(existing.getPaymentRequestHash()) || existing.getStatus() == OrderStatus.CANCELLED
+                    || existing.getPointsSpent() != payment.expectedPoints() || existing.getTotal() != payment.expectedTotal()) {
+                throw ApiException.conflict("El intento de canje ya corresponde a otro pedido o fue cancelado.");
+            }
+            return existing;
+        }
+        if (!client.isSubscribed()) throw ApiException.forbidden("El pago con puntos requiere Premium activo.");
+        Order order = prepareCheckout(client, payment.checkout());
+        Quote quote = points.quote(client, order.getTotal());
+        if (!quote.canPay() || quote.required() != payment.expectedPoints() || quote.total() != payment.expectedTotal()) {
+            throw ApiException.conflict("Cambió el saldo o el total. Revisa los puntos antes de confirmar.");
+        }
+
+        order.setPaymentState("POINTS");
+        order.setPointsSpent(quote.required());
+        order.setPointsRequestKey(key);
+        order.setPaymentRequestHash(hash);
+        repository.save(order);
+        points.spend(client, order, quote.required());
+        orderMirrorService.sync(order);
+        return order;
+    }
+
+    private Order prepareCheckout(Client client, CheckoutRequestDTO request) {
 
         // Cuentas creadas con Google: sin teléfono ni dirección el restaurante
         // no puede entregar el pedido
@@ -226,6 +277,13 @@ public class OrderServiceImpl implements OrderService {
             throw ApiException.badRequest("Dirección inválida.");
         }
 
+        Order order = priceCart(client, request);
+        order.setAddress(request.getAddress().trim());
+        return order;
+    }
+
+    private Order priceCart(Client client, CheckoutRequestDTO request) {
+        if (request == null) throw ApiException.badRequest("El carrito está vacío.");
         if (request.getItems() != null && request.getItems().size() > 100) {
             throw ApiException.badRequest("Demasiadas líneas en el carrito.");
         }
@@ -243,7 +301,7 @@ public class OrderServiceImpl implements OrderService {
                 .client(client)
                 .status(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
-                .address(request.getAddress().trim())
+                .premiumAtCheckout(client.isSubscribed())
                 .deliveryFee(deliveryFee)
                 .build();
 
@@ -316,7 +374,6 @@ public class OrderServiceImpl implements OrderService {
         order.setDetails(details);
 
         order.setCheckoutSubtotal(order.getSubtotal());
-        order.setPaymentState(online ? "PENDING" : "CASH");
 
         // Cupón opcional: se valida y se calcula el descuento aquí, en el servidor.
         // Si algo falla, la transacción se revierte y el pedido no se crea.
@@ -327,13 +384,7 @@ public class OrderServiceImpl implements OrderService {
             order.setDiscountAmount(couponService.calculateDiscount(coupon, subtotal));
         }
 
-        Order saved = repository.save(order);
-
-        if (!online) {
-            orderMirrorService.sync(saved);
-        }
-
-        return saved;
+        return order;
     }
 
     // Datos para la tabla del operador
@@ -399,6 +450,7 @@ public class OrderServiceImpl implements OrderService {
                     "Solo puedes cancelar pedidos que el restaurante aún no ha confirmado.");
         }
 
+        points.refund(order);
         order.setStatus(OrderStatus.CANCELLED);
 
         Order saved = repository.save(order);
@@ -483,12 +535,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order deliverOrder(Integer orderId) {
 
-        Order order = getOrderById(orderId);
+        Order order = repository.lockById(orderId)
+                .orElseThrow(() -> ApiException.notFound("El pedido no existe."));
 
         if (order.getStatus() != OrderStatus.ON_THE_WAY) {
             throw ApiException.conflict("Solo se pueden completar pedidos que van en camino.");
         }
 
+        points.earn(order);
         order.setStatus(OrderStatus.DELIVERED);
         order.setDeliveredAt(LocalDateTime.now());
 
@@ -534,6 +588,7 @@ public class OrderServiceImpl implements OrderService {
         dto.setAddress(order.getAddress());
         dto.setTotal(order.getTotal());
         dto.setPaymentState(order.getPaymentState());
+        dto.setPointsSpent(order.getPointsSpent());
         dto.setDiscount(order.getDiscountAmount());
         dto.setCouponCode(order.getCoupon() != null ? order.getCoupon().getCode() : null);
 

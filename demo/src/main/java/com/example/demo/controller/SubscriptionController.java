@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import com.example.demo.dto.PointsDTOs.Movement;
+import com.example.demo.repository.PointsMovementRepository;
 import com.example.demo.dto.SubscriptionDTO;
 import com.example.demo.security.AuthenticatedUser;
 import com.example.demo.service.SubscriptionService;
@@ -22,15 +25,23 @@ public class SubscriptionController {
     private final SubscriptionService subscriptions;
     private final AuthenticatedUser auth;
 
-    public SubscriptionController(SubscriptionService subscriptions, AuthenticatedUser auth) {
+    private final PointsMovementRepository movements;
+
+    public SubscriptionController(SubscriptionService subscriptions, AuthenticatedUser auth, PointsMovementRepository movements) {
         this.subscriptions = subscriptions;
         this.auth = auth;
+        this.movements = movements;
     }
 
     @Operation(summary = "Get the subscription status of the logged-in client")
     @GetMapping("/status")
     public SubscriptionDTO status() {
         return subscriptions.status(auth.client().getId());
+    }
+
+    @GetMapping("/points/history")
+    public List<Movement> pointsHistory() {
+        return movements.findHistory(auth.client().getId());
     }
 
     @Operation(summary = "Start (or renew) the Premium subscription payment")

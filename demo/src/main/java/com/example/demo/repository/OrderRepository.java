@@ -81,6 +81,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
   List<Order> findByStatusOrderByCreatedAtAsc(OrderStatus status);
 
+  java.util.Optional<Order> findByPointsRequestKey(String key);
+
   java.util.Optional<Order> findByPaymentReference(String reference);
 
   List<Order> findByPaymentStateIn(Collection<String> states);

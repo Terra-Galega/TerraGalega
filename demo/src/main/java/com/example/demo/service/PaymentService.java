@@ -122,7 +122,7 @@ public class PaymentService {
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
 
-    private String fingerprint(CheckoutRequestDTO request) {
+    static String fingerprint(CheckoutRequestDTO request) {
         try {
             return HexFormat.of().formatHex(
                     MessageDigest.getInstance("SHA-256")
@@ -315,6 +315,9 @@ public class PaymentService {
         }
 
         order.setStripeSessionId(session.getId());
+        if (!"open".equals(session.getStatus())) {
+            order.setStripeCheckoutUrl(null);
+        }
 
         // Un evento repetido no vuelve a procesar un pedido pagado
         // ni revierte una cancelación con reembolso.
@@ -339,6 +342,51 @@ public class PaymentService {
         } else if ("expired".equals(session.getStatus())) {
             order.setPaymentState("EXPIRED");
             order.setStatus(OrderStatus.CANCELLED);
+        }
+    }
+
+    // Abandonar el checkout solo puede cerrar una sesión abierta. Si el cobro
+    // llegó antes, devolvemos ese estado sin cancelar el pedido pagado.
+    public PaymentDTO cancelPending(Integer orderId, Integer clientId) {
+        return transaction(() -> {
+            Order order = lock(orderId);
+            owner(order, clientId);
+            if (order.getPaymentReference() == null) {
+                throw ApiException.badRequest("Este pedido no tiene un pago en línea.");
+            }
+            if ("PENDING".equals(order.getPaymentState())) {
+                closeOpenSession(order);
+            }
+            return view(order);
+        });
+    }
+
+    private void closeOpenSession(Order order) {
+        Session session = session(order);
+
+        if (session != null
+                && "open".equals(session.getStatus())) {
+            try {
+                session = stripe.v1().checkout().sessions()
+                        .expire(session.getId());
+
+            } catch (StripeException e) {
+                // Puede haberse pagado justo al cancelar.
+                try {
+                    session = stripe.v1().checkout().sessions()
+                            .retrieve(session.getId());
+                } catch (StripeException ex) {
+                    throw unavailable();
+                }
+
+                if ("open".equals(session.getStatus())) {
+                    throw unavailable();
+                }
+            }
+        }
+
+        if (session != null) {
+            apply(order, session);
         }
     }
 
@@ -367,32 +415,7 @@ public class PaymentService {
                         "El restaurante ya confirmó este pedido.");
             }
 
-            Session session = session(order);
-
-            if (session != null
-                    && "open".equals(session.getStatus())) {
-                try {
-                    session = stripe.v1().checkout().sessions()
-                            .expire(session.getId());
-
-                } catch (StripeException e) {
-                    // Puede haberse pagado justo al cancelar.
-                    try {
-                        session = stripe.v1().checkout().sessions()
-                                .retrieve(session.getId());
-                    } catch (StripeException ex) {
-                        throw unavailable();
-                    }
-
-                    if ("open".equals(session.getStatus())) {
-                        throw unavailable();
-                    }
-                }
-            }
-
-            if (session != null) {
-                apply(order, session);
-            }
+            closeOpenSession(order);
 
             if ("PAID".equals(order.getPaymentState())) {
                 order.setPaymentState("REFUND_PENDING");

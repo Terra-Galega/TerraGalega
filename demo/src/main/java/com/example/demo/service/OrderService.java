@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CheckoutRequestDTO;
+import com.example.demo.dto.PointsDTOs.Payment;
+import com.example.demo.dto.PointsDTOs.Quote;
 import com.example.demo.dto.OrderSummaryDTO;
 import com.example.demo.entities.Order;
 import com.example.demo.entities.Client;
@@ -29,6 +31,9 @@ public interface OrderService {
     Order getOrderById(Integer id);
 
     Order createOrder(Order order);
+
+    Quote quotePoints(Client client, CheckoutRequestDTO request);
+    Order payWithPoints(Client client, Payment payment);
 
     Order checkout(Client client, CheckoutRequestDTO request);
 

@@ -38,6 +38,11 @@ public class PaymentController {
         return payments.refresh(id, auth.client().getId());
     }
 
+    @PostMapping("/{id}/cancel-pending")
+    public PaymentDTO cancelPending(@PathVariable Integer id) {
+        return payments.cancelPending(id, auth.client().getId());
+    }
+
     @PostMapping("/{id}/cancel")
     public PaymentDTO cancel(@PathVariable Integer id) {
         return payments.cancel(id, auth.client().getId());

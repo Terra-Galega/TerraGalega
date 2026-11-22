@@ -46,7 +46,9 @@ public final class DeliveryDTOs {
                         LocalDateTime locationUpdatedAt,
                         int attemptsLeft,
                         LocalDateTime startedAt,
-                        List<MapPointDTO> route) {
+                        List<MapPointDTO> route,
+                        String paymentState,
+                        double cashToCollect) {
         }
 
         // Operador: seguimiento sin PIN.

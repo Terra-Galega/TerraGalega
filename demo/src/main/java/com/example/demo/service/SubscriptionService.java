@@ -312,7 +312,8 @@ public class SubscriptionService {
                 PRICE_COP,
                 DURATION_DAYS,
                 last != null ? last.getPaymentState() : null,
-                pending ? last.getStripeCheckoutUrl() : null);
+                pending ? last.getStripeCheckoutUrl() : null,
+                client.getPointsBalance(), PointsService.COP_PER_POINT);
     }
 
     // --- Stripe ---

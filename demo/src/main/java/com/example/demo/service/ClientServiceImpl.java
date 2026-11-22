@@ -143,6 +143,8 @@ public class ClientServiceImpl implements ClientService {
         // El id y el rol los decide el servidor: así nadie se registra como ADMIN
         client.setId(null);
         client.setRole(Role.CLIENT);
+        client.setPointsBalance(0);
+        client.setSubscriptionEndsAt(null);
 
         // Crea la cuenta en users (correo + contraseña cifrada + rol CLIENT)
         client.setUser(userAccountService.createUser(client.getEmail(), client.getPassword(), Role.CLIENT, false));
@@ -277,6 +279,7 @@ public class ClientServiceImpl implements ClientService {
         // La suscripción se gestiona solo por /subscriptions: editar el perfil
         // no debe borrarla (el cliente nuevo que llega no trae esta fecha)
         client.setSubscriptionEndsAt(actual.getSubscriptionEndsAt());
+        client.setPointsBalance(actual.getPointsBalance());
         // Guarda los datos actualizados del cliente.
         return repository.save(client);
     }

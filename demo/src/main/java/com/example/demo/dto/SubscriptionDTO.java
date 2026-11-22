@@ -17,5 +17,7 @@ public record SubscriptionDTO(
         // pagado
         String paymentState,
         // Solo viene con valor mientras el último pago está PENDING
-        String checkoutUrl) {
+        String checkoutUrl,
+        long pointsBalance,
+        int pointValueCop) {
 }

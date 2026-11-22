@@ -106,6 +106,12 @@ public class Order {
     @Column(nullable = true)
     private Double discountAmount;
 
+    // La elegibilidad se fija al comprar, aunque la suscripción venza durante la entrega.
+    private Boolean premiumAtCheckout;
+    private Long pointsSpent;
+    @Column(unique = true, length = 64)
+    private String pointsRequestKey;
+
     // Referencia estable para que un reintento no cree otro pago.
     @Column(unique = true, length = 100)
     private String paymentReference;

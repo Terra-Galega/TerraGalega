@@ -39,4 +39,5 @@ public class OrderDTO {
     private String couponCode;
 
     private String paymentState;
+    private Long pointsSpent;
 }

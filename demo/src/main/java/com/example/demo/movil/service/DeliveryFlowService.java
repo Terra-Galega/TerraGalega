@@ -145,7 +145,9 @@ public class DeliveryFlowService {
                         DeliveryTrackingService.MAX_PIN_ATTEMPTS
                                 - t.getFailedAttempts()),
                 t.getStartedAt(),
-                tracking.routeOf(t));
+                tracking.routeOf(t),
+                order.getPaymentState(),
+                order.getPaymentState() == null || "CASH".equals(order.getPaymentState()) ? order.getTotal() : 0);
     }
 
     // El repartidor inicia únicamente un pedido asignado a él.

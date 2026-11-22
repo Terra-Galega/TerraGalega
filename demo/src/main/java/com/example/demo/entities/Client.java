@@ -40,6 +40,7 @@ import lombok.ToString;
 @Builder
 // Indica que esta clase representa una entidad gestionada por JPA.
 @Entity
+@org.hibernate.annotations.DynamicUpdate
 // Define el nombre de la tabla en la base de datos.
 @Table(name = "clients")
 public class Client {
@@ -116,6 +117,10 @@ public class Client {
                 && lastName != null && !lastName.isBlank()
                 && addresses != null && !addresses.isEmpty();
     }
+
+    @JsonIgnore
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    private long pointsBalance;
 
     // Hasta cuándo es premium. null = nunca se ha suscrito.
     // Se guarda solo la fecha: "está suscrito" se calcula comparándola con la
