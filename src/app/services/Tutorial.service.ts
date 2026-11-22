@@ -502,16 +502,25 @@ export class TutorialService {
                         // Si tocó el botón de filtros, el panel quedó abierto: se cierra
                         afterClick: () => setTimeout(() => this.closeFeaturePanel(), 150),
                     },
-                    // 3) En la carta: elegir un plato. Se resalta la primera tarjeta
-                    //    (su id es "menu-card-<id>") y al tocarla se abre el detalle.
+                    // 3) Explica el acceso rápido: el + añade una unidad sin extras.
+                    {
+                        element: '[id^="menu-card-"] .menu-plus-btn',
+                        title: 'Añade directamente con +',
+                        description:
+                            'Si quieres este plato sin adicionales, pulsa + para añadir una unidad directamente al carrito. Para elegir extras o cantidad, toca el resto de la tarjeta. Pulsa "Siguiente" para continuar.',
+                        side: 'left',
+                        align: 'center',
+                        disableActiveInteraction: true,
+                    },
+                    // 4) La tarjeta abre el detalle para personalizar el plato.
                     {
                         element: '[id^="menu-card-"]',
-                        title: 'Elige un plato',
+                        title: 'Personaliza tu plato',
                         description:
-                            'Toca este plato para ver su detalle. En tu pedido real podrás elegir el que quieras.',
+                            'Toca la tarjeta fuera del botón + para ver el detalle y agregar adicionales. En tu pedido real podrás elegir el plato que quieras.',
                         side: 'right',
                         align: 'center',
-                        waitClick: '[id^="menu-card-"]',
+                        waitClick: '[id^="menu-card-"] .card-link',
                     },
                     // 4) En el detalle: presentación (globo centrado). Espera a que cargue el producto.
                     {

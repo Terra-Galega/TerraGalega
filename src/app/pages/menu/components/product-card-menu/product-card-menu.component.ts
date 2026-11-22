@@ -1,10 +1,14 @@
 import { TranslatePipe } from '../../../../services/translate.pipe';
 import { Component, Input, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { FeatureChipsComponent } from '../../../../components/feature-chips/feature-chips.component';
 import { StarIconComponent } from '../../../../components/star-icon/star-icon.component';
 import { Product } from '../../../../models/product';
+import { CartService } from '../../../../services/cart.service';
+import { ProductService } from '../../../../services/product.service';
+import { ToastService } from '../../../../services/toast.service';
+import { getErrorMessage, isNetworkOrServerError } from '../../../../utils/http-error';
 
 // Tarjeta de un producto en la carta: imagen, insignias, nombre, descripción,
 // características y precio. Al hacer clic lleva al detalle del producto.
@@ -17,13 +21,40 @@ import { Product } from '../../../../models/product';
   styleUrl: './product-card-menu.component.scss',
 })
 export class ProductCardMenuComponent {
-  private router = inject(Router);
+  private cartService = inject(CartService);
+  private productService = inject(ProductService);
+  private toast = inject(ToastService);
+  verifying = false;
 
   // Producto que muestra la tarjeta (obligatorio, lo pasa la carta)
   @Input() product!: Product;
 
-  // Lleva a la página de detalle del producto
-  openProductDetail(): void {
-    this.router.navigate(['/productDetails', this.product.id]);
+  // El acceso rápido añade una unidad sin adicionales; el enlace de la tarjeta
+  // lleva al detalle para elegir extras y cantidad.
+  addToCart(): void {
+    if (this.verifying) return;
+    this.verifying = true;
+
+    this.productService.getProductById(this.product.id).subscribe({
+      next: (currentProduct) => {
+        this.verifying = false;
+        if (currentProduct.active === false) {
+          this.toast.error('Producto no disponible', 'Este producto ya no está disponible.');
+          return;
+        }
+
+        this.cartService.addItem(currentProduct, 1, []);
+        this.toast.show('Añadido al carrito', `1× ${currentProduct.name}`);
+      },
+      error: (error) => {
+        this.verifying = false;
+        this.toast.error(
+          'No se pudo añadir el producto',
+          isNetworkOrServerError(error)
+            ? 'No se pudo verificar el producto. Revisa tu conexión e intenta de nuevo.'
+            : getErrorMessage(error, 'Este producto ya no está disponible.'),
+        );
+      },
+    });
   }
 }
