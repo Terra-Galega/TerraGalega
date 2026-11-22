@@ -1,0 +1,58 @@
+<!-- Domicilio vs. punto físico -->
+<section class="glass-card rounded-2xl p-5">
+  <div class="mb-5">
+    <h3 class="font-serif font-semibold text-base">Domicilio vs. punto físico</h3>
+    <p class="text-[11px]" style="color: rgba(44, 44, 44, 0.5)">{{ rangeLabel }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)] gap-6 items-start">
+    <!-- Reparto de las ventas -->
+    <div class="min-w-0 lg:col-span-2 2xl:col-span-1">
+      <app-donut-chart [items]="split" [format]="compact" [centerFormat]="compact" centerLabel="ventas" />
+    </div>
+
+    <!-- Cifras de cada canal -->
+    <div class="min-w-0 space-y-3">
+      @for (row of [
+        { label: 'Domicilio', data: stats.delivery },
+        { label: 'Punto físico', data: stats.table }
+      ]; track row.label) {
+        <div class="rounded-xl px-4 py-3" style="background: rgba(44, 44, 44, 0.04)">
+          <p class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">{{ row.label }}</p>
+          <p class="font-bold text-lg" style="color: #b2571f">{{ money(row.data.revenue) }}</p>
+          <p class="text-[12px]" style="color: rgba(44, 44, 44, 0.55)">
+            {{ row.data.orders }} {{ row.data.orders === 1 ? "pedido" : "pedidos" }} -
+            {{ row.data.units }} platos - ticket {{ money(row.data.average) }}
+          </p>
+        </div>
+      }
+
+      <!-- Cobro del salón -->
+      <div class="rounded-xl px-4 py-3" style="background: rgba(44, 44, 44, 0.04)">
+        <p class="text-[11px] uppercase tracking-wider mb-1" style="color: rgba(44, 44, 44, 0.45)">Cobro en el salón</p>
+        <p class="text-[13px] text-charcoal">Efectivo: <span class="font-semibold">{{ money(stats.cash) }}</span></p>
+        <p class="text-[13px] text-charcoal">Tarjeta: <span class="font-semibold">{{ money(stats.card) }}</span></p>
+        <p class="text-[13px] text-charcoal">Por cobrar: <span class="font-semibold" style="color: #9a6a05">{{ money(stats.unpaid) }}</span></p>
+      </div>
+    </div>
+
+    <!-- Meseros con más ventas -->
+    <div class="min-w-0">
+      <p class="text-[11px] uppercase tracking-wider mb-2" style="color: rgba(44, 44, 44, 0.45)">Meseros con más ventas</p>
+      @if (topWaiters.length === 0) {
+        <p class="text-[13px]" style="color: rgba(44, 44, 44, 0.45)">Sin órdenes en punto físico en este periodo.</p>
+      } @else {
+        <ol class="space-y-2">
+          @for (w of topWaiters; track w.name; let i = $index) {
+            <li class="flex items-center gap-3 text-[13px]">
+              <span class="font-mono w-5" style="color: rgba(44, 44, 44, 0.45)">{{ i + 1 }}</span>
+              <span class="flex-1 min-w-0 truncate text-charcoal">{{ w.name }}</span>
+              <span style="color: rgba(44, 44, 44, 0.5)">{{ w.orders }}</span>
+              <span class="font-semibold w-24 text-right" style="color: #b2571f">{{ money(w.revenue) }}</span>
+            </li>
+          }
+        </ol>
+      }
+    </div>
+  </div>
+</section>

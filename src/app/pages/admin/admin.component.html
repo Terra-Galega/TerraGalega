@@ -11,7 +11,7 @@
   <div class="flex-1 min-w-0 flex flex-col lg:ml-60">
     <!-- Barra superior con título, búsqueda y botón para añadir elementos -->
     <app-admin-topbar [title]="pageTitle" [showAddButton]="showAddButton" [addLabel]="addLabel"
-      [showSearch]="activeTab !== 'orders' && activeTab !== 'dashboard'" (addClicked)="onAddClicked()"
+      [showSearch]="activeTab !== 'orders' && activeTab !== 'tableOrders' && activeTab !== 'dashboard'" (addClicked)="onAddClicked()"
       (menuClicked)="sidebarOpen = true" (searchChanged)="searchProducts($event)"></app-admin-topbar>
 
     <!-- CArga el componente correspondiente a la pestaña seleccionada -->
@@ -57,6 +57,11 @@
       <!-- Sección de pedidos -->
       @if (activeTab === "orders") {
       <app-admin-orders></app-admin-orders>
+      }
+
+      <!-- Sección de órdenes en punto físico (meseros) -->
+      @if (activeTab === "tableOrders") {
+      <app-admin-table-orders></app-admin-table-orders>
       }
 
       <!-- Sección de usuarios -->
