@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 // Mensaje para cuando una lista no tiene nada que mostrar (sin resultados,

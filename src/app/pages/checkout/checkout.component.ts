@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { getErrorMessage } from '../../utils/http-error';
@@ -20,6 +20,9 @@ import {
   CartService,
   unavailableMessage,
 } from '../../services/cart.service';
+import { BehaviorSubject } from 'rxjs';
+import { PointsQuote } from '../../models/checkout';
+import { CheckoutService } from '../../services/checkout.service';
 import { CheckoutErrors, emptyErrors } from '../../models/checkout-errors';
 import { Address } from '../../models/address';
 import { CouponDiscount } from '../../models/coupon';
@@ -28,6 +31,7 @@ import { CheckoutDraftService } from '../../services/checkout-draft.service';
 import { TutorialCheckoutService } from '../../services/tutorial-checkout.service';
 import { PaymentService } from '../../services/payment.service';
 import { StripeReturnService } from '../../services/stripe-return.service';
+import { DeliveryFeeService } from '../../services/delivery-fee.service';
 
 
 // Paso 1 del checkout: dirección de entrega, cupón y método de pago
@@ -50,6 +54,10 @@ import { StripeReturnService } from '../../services/stripe-return.service';
 })
 export class CheckoutComponent implements OnInit {
   // Dependencias inyectadas: formulario, navegación, sesión, carrito, borrador del checkout y direcciones
+  points: PointsQuote | null = null;
+  private checkout = inject(CheckoutService);
+  private couponCode$ = new BehaviorSubject<string | null>(null);
+
   private payments = inject(PaymentService);
   private cancelingPayment = false;
   private fb = inject(FormBuilder);
@@ -63,6 +71,8 @@ export class CheckoutComponent implements OnInit {
   private tutorialCheckout = inject(TutorialCheckoutService);
   private paymentService = inject(PaymentService);
   private stripeReturn = inject(StripeReturnService);
+  // Domicilio visible desde el paso 1 (gratis si es Premium)
+  protected delivery = inject(DeliveryFeeService);
 
   // Id del cliente con sesión (null hasta comprobarla); lo necesita el cupón
   clientId: number | null = null;
@@ -102,7 +112,7 @@ export class CheckoutComponent implements OnInit {
     address: [''],
     saveAddress: [true],
     addressName: [''],
-    method: ['' as 'cash' | 'card' | ''],
+    method: ['' as 'cash' | 'card' | 'points' | ''],
   });
 
   // Al abrir la página: exige sesión de cliente, precarga el formulario y
@@ -118,6 +128,15 @@ export class CheckoutComponent implements OnInit {
     }
 
     this.clientId = session.id;
+    this.delivery.refresh();
+    this.checkout.watchPoints(this.cartService.items$, this.couponCode$)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(quote => {
+        this.points = quote;
+        if (quote && !quote.canPay && this.form.controls.method.value === 'points') {
+          this.form.controls.method.setValue('');
+        }
+      });
 
     // Si viene del tutorial "hacer un pedido", sigue con el tramo del checkout
     this.tutorialCheckout.resumeCheckout();
@@ -125,7 +144,13 @@ export class CheckoutComponent implements OnInit {
     // Si el cliente vuelve desde el paso 2 (botón Editar) se recupera lo que
     // había escrito. El cupón no va en el formulario: se reaplica aparte.
     const { address, saveAddress, addressName, method } = this.draftService.draft;
-    this.form.patchValue({ address, saveAddress, addressName, method });
+    // Si aún no eligió en este pedido, se marca el último método que usó (o la tarjeta)
+    this.form.patchValue({
+      address,
+      saveAddress,
+      addressName,
+      method: method || this.draftService.lastMethod,
+    });
 
     // Volvió de Stripe con "Atrás" y, al recargar, el navegador lo trajo hasta aquí
     this.checkStripeReturn();
@@ -186,6 +211,7 @@ export class CheckoutComponent implements OnInit {
   // El componente del cupón avisa cuando se aplica, cambia o se quita (null)
   onCouponChange(coupon: CouponDiscount | null): void {
     this.coupon = coupon;
+    this.couponCode$.next(coupon?.code ?? null);
   }
 
   // Guarda las direcciones y, si aún no hay una elegida, propone la predeterminada
@@ -241,7 +267,7 @@ export class CheckoutComponent implements OnInit {
     }
 
     // Método de pago obligatorio
-    if (!v.method) {
+    if (!v.method || (v.method === 'points' && !this.points?.canPay)) {
       errors.method = 'Elige cómo quieres pagar.';
     }
 
@@ -273,6 +299,7 @@ export class CheckoutComponent implements OnInit {
       coupon: this.coupon,
     };
 
+    this.draftService.rememberMethod(v.method);
     this.router.navigate(['/checkout/confirm']);
   }
 

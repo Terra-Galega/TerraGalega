@@ -241,8 +241,15 @@ export class TutorialService {
                 align: step.align,
                 showButtons: buttons,
                 nextBtnText: step.nextBtnText ? this.language.t(step.nextBtnText) : undefined,
-                onPopoverRender: ({ previousButton }) => {
+                onPopoverRender: ({ previousButton, title }) => {
                     if (this.previousStep(index) === null) previousButton.style.display = 'none';
+                    // Galleguito acompaña cada indicación dentro del globo.
+                    const guide = document.createElement('img');
+                    guide.src = '/images/galleguito.svg';
+                    guide.alt = '';
+                    guide.setAttribute('aria-hidden', 'true');
+                    guide.className = 'terra-tour-guide';
+                    title.prepend(guide);
                 },
                 // "Siguiente" y "Atrás" pasan por el servicio (no por driver.js) para
                 // esperar a que cargue la página y saltar los pasos opcionales que no existen
@@ -480,6 +487,10 @@ export class TutorialService {
         switch (name) {
             case 'order':
                 return [
+                    {
+                        title: '¡Hola! Soy Galleguito',
+                        description: 'Te voy a acompañar a hacer un pedido. Pulsa "Siguiente" para empezar.',
+                    },
                     // 1) En el home: el cliente debe entrar a la carta
                     {
                         element: '#nav-menu',
@@ -502,16 +513,25 @@ export class TutorialService {
                         // Si tocó el botón de filtros, el panel quedó abierto: se cierra
                         afterClick: () => setTimeout(() => this.closeFeaturePanel(), 150),
                     },
-                    // 3) En la carta: elegir un plato. Se resalta la primera tarjeta
-                    //    (su id es "menu-card-<id>") y al tocarla se abre el detalle.
+                    // 3) Explica el acceso rápido: el + añade una unidad sin extras.
+                    {
+                        element: '[id^="menu-card-"] .menu-plus-btn',
+                        title: 'Añade directamente con +',
+                        description:
+                            'Si quieres este plato sin adicionales, pulsa + para añadir una unidad directamente al carrito. Para elegir extras o cantidad, toca el resto de la tarjeta. Pulsa "Siguiente" para continuar.',
+                        side: 'left',
+                        align: 'center',
+                        disableActiveInteraction: true,
+                    },
+                    // 4) La tarjeta abre el detalle para personalizar el plato.
                     {
                         element: '[id^="menu-card-"]',
-                        title: 'Elige un plato',
+                        title: 'Personaliza tu plato',
                         description:
-                            'Toca este plato para ver su detalle. En tu pedido real podrás elegir el que quieras.',
+                            'Toca la tarjeta fuera del botón + para ver el detalle y agregar adicionales. En tu pedido real podrás elegir el plato que quieras.',
                         side: 'right',
                         align: 'center',
-                        waitClick: '[id^="menu-card-"]',
+                        waitClick: '[id^="menu-card-"] .card-link',
                     },
                     // 4) En el detalle: presentación (globo centrado). Espera a que cargue el producto.
                     {
@@ -540,12 +560,12 @@ export class TutorialService {
                         side: 'top',
                         align: 'start',
                     },
-                    // 7) Añadir a la orden: avanza cuando el cliente pulsa el botón
+                    // 7) Añadir al carrito: avanza cuando el cliente pulsa el botón
                     {
                         element: '#btn-add-to-order',
                         title: 'Añade el plato',
                         description:
-                            'Revisa el total y pulsa "Añadir a la orden" para guardarlo en tu carrito.',
+                            'Revisa el total y pulsa "Añadir al carrito" para guardarlo.',
                         side: 'top',
                         align: 'center',
                         waitClick: '#btn-add-to-order',
@@ -583,9 +603,9 @@ export class TutorialService {
                     //     checkout) lo retoma con su servicio auxiliar.
                     {
                         element: '#btn-cart-checkout',
-                        title: 'Confirma tu pedido',
+                        title: 'Ve a pagar',
                         description:
-                            'Pulsa "Confirmar pedido" para continuar. Si no has iniciado sesión, te pediremos que lo hagas primero.',
+                            'Pulsa "Ir a pagar" para continuar. Si no has iniciado sesión, te pediremos que lo hagas primero.',
                         side: 'top',
                         align: 'center',
                         waitClick: '#btn-cart-checkout',
@@ -594,6 +614,10 @@ export class TutorialService {
                 ];
             case 'reservation':
                 return [
+                    {
+                        title: '¡Hola! Soy Galleguito',
+                        description: 'Te voy a acompañar a hacer una reserva. Pulsa "Siguiente" para empezar.',
+                    },
                     // En el home: entrar a reservas. Es el único paso de este tramo; al pulsar
                     // queda el flujo armado y la página de reservas lo retoma
                     // (TutorialReservationService), con o sin sesión.

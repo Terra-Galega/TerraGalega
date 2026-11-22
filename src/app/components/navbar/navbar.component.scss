@@ -299,8 +299,10 @@
   }
 }
 
-// Hover suave en los enlaces que no están activos.
-.nav-bar.nav-bar--stayed .nav-row .link-nav:hover:not(.active) {
+// Hover suave en los enlaces que no están activos. El contenedor del menú de
+// configuración se excluye: su botón redondo ya pinta su propio círculo, y aquí
+// salía un cuadrado gris detrás.
+.nav-bar.nav-bar--stayed .nav-row .link-nav:hover:not(.active):not(app-settings-menu) {
   background-color: rgba(44, 44, 44, 0.06);
 }
 
@@ -410,7 +412,7 @@
     color: #f5f2eb;
   }
 
-  .nav-bar.nav-bar--stayed .nav-row .link-nav:hover:not(.active) {
+  .nav-bar.nav-bar--stayed .nav-row .link-nav:hover:not(.active):not(app-settings-menu) {
     background-color: rgba(255, 255, 255, 0.08);
   }
 
@@ -450,4 +452,19 @@
   #notification-panel [style*="background-color: rgba(178, 87, 31, 0.06)"] {
     background-color: rgba(229, 142, 87, 0.12) !important;
   }
+}
+
+// "Cerrar sesión" del menú móvil: misma fila que los enlaces, texto rojo discreto.
+// El panel del menú móvil es oscuro en los dos temas, así que el rojo es claro para leerse.
+.mobile-signout {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  color: #f0a08f !important;
+}
+
+.mobile-signout:hover {
+  color: #ffc2b4 !important;
 }

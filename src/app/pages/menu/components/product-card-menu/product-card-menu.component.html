@@ -3,7 +3,7 @@
      Accesibilidad: el nombre del plato es un enlace de verdad (se alcanza con Tab y se abre
      con Enter) y su ::after cubre toda la tarjeta, así el clic en cualquier parte sigue
      funcionando. El lector lee el contenido normal: nombre, descripción, etiquetas y precio.
-     El botón "+" lleva al mismo detalle, donde se eligen cantidad y adicionales. -->
+     El botón "+" añade una unidad sin adicionales directamente al carrito. -->
 <article
   [id]="'menu-card-' + product.id"
   class="product-card glass-card relative rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
@@ -71,7 +71,7 @@
       [product]="product"
     />
 
-    <!-- Precio (sin decimales, ej. 38.900) y botón "+" que abre el detalle para añadirlo.
+    <!-- Precio (sin decimales, ej. 38.900) y botón "+" de acceso rápido al carrito.
          El lector de pantalla oye "Precio: 38.900 pesos" (el "$" lo leería como dólares). -->
     <div class="flex items-center justify-between mt-auto">
       <p class="font-bold text-lg" style="color: #b2571f">
@@ -81,9 +81,10 @@
 
       <button
         type="button"
-        class="menu-plus-btn card-action w-10 h-10 rounded-full flex items-center justify-center cursor-pointer"
-        [attr.aria-label]="'Añadir ' + product.name + ' al pedido'"
-        (click)="openProductDetail()"
+        class="menu-plus-btn card-action w-11 h-11 rounded-full flex items-center justify-center cursor-pointer"
+        [attr.aria-label]="'Añadir ' + product.name + ' al carrito sin adicionales'"
+        [disabled]="verifying"
+        (click)="addToCart()"
       >
         <svg aria-hidden="true" focusable="false"
           class="w-[17px] h-[17px]"

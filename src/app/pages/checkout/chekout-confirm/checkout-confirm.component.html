@@ -114,6 +114,15 @@
                   >
                     {{ 'checkout.chekout_confirm.checkout_confirm.ingresaras_los_datos_en_la_pasarela_segura_de_stripe' | t }}
                   </p>
+                } @else if (draft.method === 'points') {
+                  <p class="font-medium mt-1">{{ 'points.pay' | t }}</p>
+                  @if (points && points.canPay) {
+                    <p>{{ 'points.cost' | t }} {{ points.required }}</p>
+                    <p>{{ 'points.after' | t }} {{ points.balance - points.required }}</p>
+                    <p class="font-semibold">{{ 'points.cashDue' | t }} $0</p>
+                  } @else {
+                    <p>{{ 'points.review' | t }}</p>
+                  }
                 } @else {
                   <p class="text-[15px] font-medium text-charcoal mt-1">
                     {{ 'checkout.chekout_confirm.checkout_confirm.contra_entrega' | t }}
@@ -159,7 +168,7 @@
                 id="btn-confirm-order"
                 size="lg"
                 [fullWidth]="true"
-                [disabled]="paying"
+                [disabled]="paying || (draft.method === 'points' && !points?.canPay)"
                 (click)="confirm()"
               >
                 {{

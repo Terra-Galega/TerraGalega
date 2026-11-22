@@ -16,7 +16,7 @@ import { ChatService } from '../../services/chat.service';
 import { ToastService } from '../../services/toast.service';
 import { ChatBubble, ChatMessage } from '../../models/chat';
 import { LanguageService } from '../../services/language.service';
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { OrderChatHubService } from '../../services/order-chat-hub.service';
 import { OrderChatComponent } from '../order-chat/order-chat.component';
 

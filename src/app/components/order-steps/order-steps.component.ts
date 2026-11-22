@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 // Guía de pasos para visitantes sin sesión. Por defecto muestra "cómo pedir" (página de pedidos);
 // otras páginas, como reservas, pasan sus propios pasos con [steps].

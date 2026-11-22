@@ -1,6 +1,6 @@
 import { ApplicationConfig, inject, provideZoneChangeDetection } from '@angular/core';
 import { Router, TitleStrategy, provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
-import { PageTitleStrategy } from './services/page-title.strategy';
+import { PageTitleStrategy } from './strategies/page-title.strategy';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './interceptors/error.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';

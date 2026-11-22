@@ -1,4 +1,6 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { PointsMovement } from '../../models/checkout';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
   Component,
   DestroyRef,
@@ -41,6 +43,8 @@ const MAX_POLLS = 15;
     NavbarComponent,
     FooterComponent,
     PageHeaderComponent,
+    DatePipe,
+    DecimalPipe,
     ProfileCardComponent,
     PersonalInfoComponent,
     AccountActionsComponent,
@@ -78,6 +82,26 @@ export class AccountComponent implements OnInit {
   errorMessage = '';
   // Estado de la suscripción (precio, días restantes, si puede pagar...). null si no cargó.
   subscription: SubscriptionStatus | null = null;
+
+  history: PointsMovement[] = [];
+  loadingHistory = false;
+  historyError = false;
+
+  loadPointsHistory(open: boolean): void {
+    if (!open || this.loadingHistory) return;
+    this.loadingHistory = true;
+    this.historyError = false;
+    this.subscriptionService.pointsHistory().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: entries => {
+        this.history = entries;
+        this.loadingHistory = false;
+      },
+      error: () => {
+        this.historyError = true;
+        this.loadingHistory = false;
+      },
+    });
+  }
 
   // ---- Suscripción Premium ----
   showSubscribeModal = false;

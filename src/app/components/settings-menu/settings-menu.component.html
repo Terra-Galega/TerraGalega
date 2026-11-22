@@ -49,9 +49,6 @@ class="settings__actions"
     [attr.aria-label]="theme.isDark
     ? language.t('switchToLight')
     : language.t('switchToDark')"
-    [attr.title]="theme.isDark
-    ? language.t('light')
-    : language.t('dark')"
     (click)="theme.toggle()"
 >
     @if (theme.isDark) {
@@ -94,11 +91,6 @@ class="settings__actions"
     : language.nextLanguage() === 'ca'
       ? language.t('switchToCatalan')
       : language.t('switchToSpanish')"
-    [attr.title]="language.language() === 'es'
-    ? language.t('spanish')
-    : language.language() === 'en'
-      ? language.t('english')
-      : language.t('catalan')"
     (click)="language.toggle()"
 >
     {{ language.language().toUpperCase() }}

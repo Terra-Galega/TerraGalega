@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { Component } from '@angular/core';
 import { SectionHeadingComponent } from '../../../../components/section-heading/section-heading.component';
 import { ReviewsTrackComponent } from '../../../../components/reviews-track/reviews-track.component';

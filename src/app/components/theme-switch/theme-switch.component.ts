@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Component, Input, inject } from '@angular/core';
 import { ThemeService } from '../../services/theme.service';
 

@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
   Component,
   EventEmitter,
@@ -6,12 +6,14 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 import { DialogDirective } from '../../directives/dialog.directive';
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { DeliveryFeeService } from '../../services/delivery-fee.service';
 import {
   CartService,
   CartItem,
@@ -43,6 +45,9 @@ export class CartComponent implements OnChanges {
   removedNotice = '';
   groupAddOns = groupAddOns;
 
+  // Domicilio que se muestra en el total (gratis si es Premium)
+  protected delivery = inject(DeliveryFeeService);
+
   constructor(
     private cartService: CartService,
     private router: Router,
@@ -63,6 +68,9 @@ export class CartComponent implements OnChanges {
     this.removedNotice = '';
 
     if (this.isOpen) {
+      // Se revisa si es Premium para mostrar el domicilio correcto
+      this.delivery.refresh();
+
       // El servicio quita los productos inactivos y devuelve sus nombres
       this.cartService.removeUnavailable().subscribe((removed) => {
         if (removed.length > 0) {
@@ -82,9 +90,15 @@ export class CartComponent implements OnChanges {
     return this.cartService.unitPrice(item);
   }
 
-  // Total del pedido, sin domicilio
+  // Subtotal de los productos, sin domicilio
   get total() {
     return this.cartService.total;
+  }
+
+  // Lo que pagará en total: productos + domicilio. Así el total no cambia de
+  // golpe al llegar al último paso del checkout.
+  get grandTotal() {
+    return this.cartService.total + this.delivery.fee;
   }
 
   // Número total de unidades en el carrito
@@ -111,6 +125,13 @@ export class CartComponent implements OnChanges {
     if (session.type === 'client') {
       this.router.navigate(['/checkout']);
     }
+  }
+
+  readonly maxQuantity = CartService.MAX_QUANTITY;
+
+  // "−" / "+" de una línea: cambia la cantidad sin salir del carrito
+  changeQuantity(item: CartItem, delta: number): void {
+    this.cartService.setQuantity(item.id, item.quantity + delta);
   }
 
   // Quita una línea del carrito

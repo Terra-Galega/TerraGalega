@@ -50,6 +50,19 @@
       }
     </div>
 
+    <!-- Acción opcional (p. ej. "Ver carrito"): la ejecuta y cierra el aviso -->
+    @if (toast.action; as action) {
+      <button
+        type="button"
+        id="toast-action"
+        class="toast-action flex-shrink-0 min-h-[44px] px-3 rounded-full text-sm font-semibold"
+        style="color: #b2571f"
+        (click)="action.run(); toastService.close()"
+      >
+        {{ action.label }}
+      </button>
+    }
+
     <!-- Botón para cerrar la notificación mediante el servicio -->
     <button
       type="button"

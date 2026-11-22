@@ -67,3 +67,19 @@
   .festival-secondary { width: 16%; top: 26%; }
   .festival-signature { bottom: 23%; }
 }
+/* Recuadro que sustituye a una imagen de novedad que no cargó */
+.announcement-fallback {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #efe6d6 0%, #e2d3bb 100%);
+}
+
+.announcement-fallback__logo {
+  width: 38%;
+  max-width: 220px;
+  opacity: 0.55;
+}
+
+:host-context(html[data-theme='dark']) .announcement-fallback {
+  background: linear-gradient(135deg, #2a2521 0%, #1e1b18 100%);
+}

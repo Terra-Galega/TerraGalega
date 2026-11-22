@@ -461,9 +461,11 @@
             </span>
           }
 
+          <!-- Cerrar sesión: una fila más del menú, en rojo discreto. Es una acción que saca
+               de la cuenta, así que no debe ser lo más llamativo del menú. -->
           <button
             type="button"
-            class="w-full min-h-[44px] text-xs font-medium tracking-widest text-white rounded-full bg-red-800/80 hover:bg-red-700 text-center transition-colors border-0 cursor-pointer"
+            class="mobile-link mobile-signout"
             (click)="logout()"
           >
             {{ language.t('signOut') }}

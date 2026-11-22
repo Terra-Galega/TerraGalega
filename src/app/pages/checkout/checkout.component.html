@@ -29,13 +29,14 @@
         }
 
         <!-- Método de pago: efectivo o tarjeta (la tarjeta se escribe en Stripe) -->
-        <app-payment-form id="checkout-payment" class="block" [form]="form" [errors]="errors"></app-payment-form>
+        <app-payment-form id="checkout-payment" class="block" [points]="points" [form]="form" [errors]="errors"></app-payment-form>
       </div>
 
       <!-- Derecha: resumen y botón (queda fijo al hacer scroll en escritorio) -->
       <aside class="md:col-span-2 md:sticky md:top-28">
         <!-- El resumen proyecta aquí dentro (ng-content) los botones propios de esta página -->
         <app-order-summary id="checkout-summary" class="block" [items]="items" [total]="total" [unitPrice]="unitPrice"
+          [deliveryFee]="delivery.fee" [freeDelivery]="delivery.free()"
           [discount]="discount" [couponCode]="coupon?.code ?? ''">
           <div class="mt-6 flex flex-col items-center gap-4">
             <app-button id="btn-continue" type="submit" size="lg" [fullWidth]="true">

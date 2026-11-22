@@ -24,7 +24,7 @@
     <!-- Quitar uno (deshabilitado cuando no hay ninguna unidad) -->
     <button
       type="button"
-      class="w-8 h-8 rounded-full flex items-center justify-center disabled:opacity-30"
+      class="w-11 h-11 rounded-full flex items-center justify-center disabled:opacity-30"
       style="color: rgba(44, 44, 44, 0.6)"
       [attr.aria-label]="('merge.remove' | t) + ' ' + addOn.name"
       [disabled]="quantity === 0"
@@ -38,7 +38,7 @@
     <!-- Agregar uno (se puede repetir el mismo adicional varias veces) -->
     <button
       type="button"
-      class="w-8 h-8 rounded-full flex items-center justify-center"
+      class="w-11 h-11 rounded-full flex items-center justify-center"
       style="color: rgba(44, 44, 44, 0.6)"
       [attr.aria-label]="('merge.add' | t) + ' ' + addOn.name"
       (click)="changed.emit(1)"

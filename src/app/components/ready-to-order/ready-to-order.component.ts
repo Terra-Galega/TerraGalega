@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { Params } from '@angular/router';
 import { ButtonComponent } from '../button/button.component';

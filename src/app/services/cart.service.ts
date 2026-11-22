@@ -4,6 +4,7 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { SKIP_BUSY } from '../interceptors/busy.interceptor';
 import {
   BehaviorSubject,
+  Subject,
   EMPTY,
   Observable,
   fromEvent,
@@ -63,6 +64,15 @@ export class CartService {
 
   private itemsSubject = new BehaviorSubject<CartItem[]>([]);
   items$ = this.itemsSubject.asObservable();
+
+  // Pedidos de "abre el panel del carrito" (p. ej. desde el aviso "Ver carrito").
+  // El panel vive en la barra de navegación, que escucha esto.
+  private openSubject = new Subject<void>();
+  readonly openRequests$ = this.openSubject.asObservable();
+
+  requestOpen(): void {
+    this.openSubject.next();
+  }
 
   constructor() {
     this.auth.session$.subscribe((session) => this.switchCart(session));
@@ -127,6 +137,28 @@ export class CartService {
       }),
       catchError(() => of([] as string[])),
     );
+  }
+
+  // Cantidad máxima por línea (la misma que valida el back)
+  static readonly MAX_QUANTITY = 99;
+
+  // Cambia la cantidad de una línea (entre 1 y 99). Para quitarla se usa removeItem.
+  setQuantity(id: string, quantity: number) {
+    const next = Math.min(Math.max(Math.round(quantity), 1), CartService.MAX_QUANTITY);
+    const current = this.items.find((item) => item.id === id);
+    if (!current || current.quantity === next) return;
+
+    this.setItems(this.items.map((item) => (item.id === id ? { ...item, quantity: next } : item)));
+
+    if (this.clientId !== null) {
+      this.sync(
+        this.http.put<CartItem[]>(
+          `${CART_API}/me/items/${encodeURIComponent(id)}`,
+          { quantity: next },
+          BACKGROUND,
+        ),
+      );
+    }
   }
 
   // Elimina una línea completa del carrito

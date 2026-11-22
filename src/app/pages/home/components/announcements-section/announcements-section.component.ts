@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { LanguageService } from '../../../../services/language.service';
 import { AfterViewInit, Component, DestroyRef, ElementRef, Input, computed, effect, inject, signal } from '@angular/core';
 import { AnnouncementSlide } from '../../../../models/announcement-slide';
@@ -26,6 +26,20 @@ const AUTOPLAY_MS = 6_000;
   styleUrl: './announcements-section.component.scss',
 })
 export class AnnouncementsSectionComponent implements AfterViewInit {
+  // Imágenes de novedades que no cargaron: se cambian por un recuadro de marca
+  readonly failedImages = signal(new Set<string>());
+
+  // Sin imagen o con una que falló, se muestra el recuadro de marca
+  imageOk(url: string | null): boolean {
+    return !!url && !this.failedImages().has(url);
+  }
+
+  onImageError(url: string | null): void {
+    if (url) {
+      this.failedImages.update((failed) => new Set(failed).add(url));
+    }
+  }
+
   // Anuncios que llegan del home
   private readonly published = signal<Announcement[]>([]);
   private readonly host = inject(ElementRef<HTMLElement>);

@@ -11,6 +11,28 @@
     <div class="space-y-6">
       <app-profile-card [client]="client"></app-profile-card>
 
+      @if (subscription; as plan) {
+        <section class="glass-card rounded-3xl p-6 md:p-8">
+          <h3 class="font-serif text-2xl font-semibold">{{ 'points.heading' | t }}</h3>
+          <p class="mt-3"><strong class="text-2xl">{{ plan.pointsBalance | number }}</strong>
+            {{ 'points.units' | t }} · ${{ plan.pointsBalance * plan.pointValueCop | number }} COP</p>
+          <p class="text-sm mt-2">{{ (plan.subscribed ? 'points.earnRule' : 'points.paused') | t }}</p>
+          <details class="mt-4" #movements (toggle)="loadPointsHistory(movements.open)">
+            <summary class="cursor-pointer font-semibold">{{ 'points.history' | t }}</summary>
+            @if (historyError) { <p>{{ 'points.historyError' | t }}</p> }
+            @else if (loadingHistory) { <p>{{ 'points.loading' | t }}</p> }
+            @else {
+              @for (entry of history; track entry.orderId + entry.kind) {
+                <div class="flex flex-wrap justify-between gap-2 border-b py-2 text-sm">
+                  <span>{{ ('points.' + entry.kind) | t }} · #{{ entry.orderId }} · {{ entry.createdAt | date:'shortDate' }}</span>
+                  <strong>{{ entry.amount > 0 ? '+' : '' }}{{ entry.amount | number }}</strong>
+                </div>
+              } @empty { <p class="mt-2 text-sm">{{ 'points.empty' | t }}</p> }
+            }
+          </details>
+        </section>
+      }
+
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <app-personal-info class="lg:col-span-2" [client]="client" (edit)="editProfile()"></app-personal-info>
 

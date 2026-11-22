@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { Component } from '@angular/core';
 
 // Encabezado para visitantes sin sesión: explica por qué se necesita una cuenta para ordenar
