@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.foundation.layout.heightIn
+
+import com.example.terragalegamovile.ui.theme.ForestText
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.Selected
 
 import com.example.terragalegamovile.ui.components.ButtonStack
@@ -254,6 +260,10 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
         androidx.compose.foundation.Image(
             painter = androidx.compose.ui.res.painterResource(com.example.terragalegamovile.R.drawable.logo_octopus),
             contentDescription = null,
+            // En modo oscuro el pulpo va en líneas claras (como 4.png del logo)
+            colorFilter = if (com.example.terragalegamovile.ui.theme.ThemeState.dark)
+                androidx.compose.ui.graphics.ColorFilter.tint(com.example.terragalegamovile.ui.theme.CreamFixed)
+            else null,
             modifier = Modifier.size(if (signup) 96.dp else 150.dp)
         )
         Spacer(Modifier.height(8.dp))
@@ -333,7 +343,7 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                         modifier = Modifier.padding(top = 6.dp)
                     )
                     resendMessage?.let {
-                        Text(it, fontSize = 13.sp, color = Forest, modifier = Modifier.padding(top = 8.dp))
+                        Text(it, fontSize = 13.sp, color = ForestText, modifier = Modifier.padding(top = 8.dp))
                     }
                     Text(
                         if (resendCooldown > 0) t("Reenviar correo ({}s)", resendCooldown) else t("Reenviar correo"),
@@ -377,12 +387,14 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
             TerraPasswordField(
                 label = t("Contraseña"),
                 value = password,
-                onValueChange = { password = it }
+                onValueChange = { password = it },
+                // Al iniciar sesión, "Listo" en el teclado entra directo
+                onSubmit = if (!signup) ({ if (!loading && email.isNotBlank() && password.isNotBlank()) login() }) else null
             )
             if (!signup) {
                 Text(
                     t("¿Olvidaste tu contraseña?"),
-                    color = Terra,
+                    color = TerraText,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier
@@ -407,7 +419,8 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                     label = t("Dirección de entrega"),
                     value = address,
                     onValueChange = { address = it.take(120) },
-                    placeholder = "Calle 8 Sur #68C-20"
+                    placeholder = "Calle 8 Sur #68C-20",
+                    onSubmit = { if (!loading) register() }
                 )
             }
 
@@ -474,13 +487,13 @@ private fun GoogleButton(text: String, enabled: Boolean, onClick: () -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .height(44.dp)
+                .heightIn(min = 44.dp)
                 .clip(shape)
                 .background(Selected)
                 .border(1.dp, Color(0xFFDADCE0), shape)
                 .clickable(enabled = enabled, onClick = onClick)
                 .alpha(if (enabled) 1f else 0.6f)
-                .padding(start = 14.dp, end = 22.dp)
+                .padding(start = 14.dp, end = 22.dp, top = 10.dp, bottom = 10.dp)
         ) {
             GoogleLogo(Modifier.size(18.dp))
             Spacer(Modifier.width(12.dp))

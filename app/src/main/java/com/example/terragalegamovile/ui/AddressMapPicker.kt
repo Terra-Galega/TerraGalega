@@ -1,5 +1,7 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.ErrorText
 
 import com.example.terragalegamovile.data.t
@@ -205,7 +207,7 @@ fun AddressMapPicker(
             // Pin fijo: la punta queda justo en el centro del mapa
             AddressIcon(
                 plus = false,
-                color = Terra,
+                color = TerraText,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(y = (-18).dp)

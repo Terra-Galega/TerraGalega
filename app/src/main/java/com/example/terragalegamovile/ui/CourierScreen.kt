@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+
+import androidx.compose.ui.platform.LocalHapticFeedback
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.ui.components.ButtonStack
 
 import com.example.terragalegamovile.data.t
@@ -85,6 +91,7 @@ import com.example.terragalegamovile.data.StartDeliveryRequest
 @SuppressLint("MissingPermission")
 @Composable
 fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
+    val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -224,6 +231,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
             try {
                 ApiClient.api.complete(user.id, current.orderId, CompleteRequest(pin)).close()
                 AppStorage.clearTrip(current.orderId)
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                 message = t("Pedido #{} entregado ✓", current.orderId)
                 pin = ""
                 job = null
@@ -387,6 +395,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
+                .imePadding()
                     .padding(
                         start = 16.dp,
                         end = 16.dp,
@@ -558,7 +567,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                                     t("PIN DEL CLIENTE"),
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.Center,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     letterSpacing = 1.sp,
                                     color = TextSoft
                                 )

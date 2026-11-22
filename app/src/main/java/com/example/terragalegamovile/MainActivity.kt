@@ -1,5 +1,7 @@
 package com.example.terragalegamovile
 
+import com.example.terragalegamovile.data.t
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -78,6 +80,7 @@ class MainActivity : ComponentActivity() {
         AppStorage.init(applicationContext)
         // Idioma de la app (español, inglés o catalán)
         com.example.terragalegamovile.data.I18n.init(applicationContext)
+        com.example.terragalegamovile.data.NetworkState.start(applicationContext)
         // Modo oscuro: el que se eligió en la app o, si no, el del teléfono
         com.example.terragalegamovile.ui.theme.ThemeState.systemDark =
             (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
@@ -177,6 +180,7 @@ fun AppNav(lifecycle: Lifecycle) {
 
     // El efecto de cierre de sesión se encarga de limpiar y navegar.
     val logout: () -> Unit = {
+        com.example.terragalegamovile.ui.ChatStore.forget()
         Session.user = null
     }
 
@@ -294,6 +298,8 @@ fun AppNav(lifecycle: Lifecycle) {
         ActivityResultContracts.RequestPermission()
     ) { }
 
+    // Antes del permiso se explica para qué sirve (una sola vez); luego Android pregunta
+    var askNotifications by remember { mutableStateOf(false) }
     LaunchedEffect(session?.role) {
         if ((session?.role == "CLIENT" || session?.role == "WAITER") &&
             Build.VERSION.SDK_INT >= 33 &&
@@ -302,7 +308,11 @@ fun AppNav(lifecycle: Lifecycle) {
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            if (AppStorage.notificationsExplained()) {
+                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                askNotifications = true
+            }
         }
         // Cliente y mesero: "avisos activos" para que todas las notificaciones lleguen
         // con la app cerrada. Se inicia aquí, con la app abierta (Android no deja
@@ -312,6 +322,26 @@ fun AppNav(lifecycle: Lifecycle) {
         } else {
             AlertsService.stop(context)
         }
+    }
+
+    if (askNotifications) {
+        val waiter = session?.role == "WAITER"
+        com.example.terragalegamovile.ui.components.TerraDialog(
+            title = t("Activa las notificaciones"),
+            message = if (waiter) t("Te avisaremos al instante cuando la cocina empiece o termine los platos de tus mesas.")
+            else t("Te avisaremos cuando confirmen tu pedido, cuando salga hacia tu casa y cuando esté por llegar."),
+            confirmLabel = t("Activar"),
+            onConfirm = {
+                askNotifications = false
+                AppStorage.setNotificationsExplained()
+                if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            },
+            cancelLabel = t("Ahora no"),
+            onCancel = {
+                askNotifications = false
+                AppStorage.setNotificationsExplained()
+            }
+        )
     }
 
     // Se tocó una notificación de domicilio: abre el seguimiento del cliente
@@ -342,7 +372,18 @@ fun AppNav(lifecycle: Lifecycle) {
     ) {
     NavHost(
         navController = nav,
-        startDestination = startDestination
+        startDestination = startDestination,
+        // Al entrar: aparece y se desliza un poco desde la derecha; al volver, al revés
+        enterTransition = {
+            androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220)) +
+                androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(220)) { it / 10 }
+        },
+        exitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(160)) },
+        popEnterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220)) },
+        popExitTransition = {
+            androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(180)) +
+                androidx.compose.animation.slideOutHorizontally(androidx.compose.animation.core.tween(220)) { it / 10 }
+        }
     ) {
 
         composable("login") {

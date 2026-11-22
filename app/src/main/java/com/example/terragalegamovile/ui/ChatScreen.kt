@@ -1,5 +1,13 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+
+import androidx.compose.ui.input.pointer.pointerInput
+
+import androidx.compose.material3.minimumInteractiveComponentSize
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.Paper
 
 import com.example.terragalegamovile.ui.theme.OkText
@@ -145,11 +153,35 @@ object ChatStore {
     fun bind(id: Int?) {
         if (id != clientId) {
             clientId = id
-            bubbles = emptyList()
+            bubbles = if (id != null) load(id) else emptyList()
             sending = false
             open = false
             mode = ChatMode.BOT
         }
+    }
+
+    // Se guarda en el teléfono (máx. 40 mensajes, sin las tarjetas de reserva, como la web)
+    private data class Stored(val role: String, val text: String, val error: Boolean)
+
+    fun save() {
+        val id = clientId ?: return
+        val list = bubbles.takeLast(40).map { Stored(it.role, it.text, it.error) }
+        com.example.terragalegamovile.data.AppStorage.saveChat(id, if (list.isEmpty()) null else com.google.gson.Gson().toJson(list))
+    }
+
+    private fun load(id: Int): List<ChatBubble> = try {
+        val json = com.example.terragalegamovile.data.AppStorage.loadChat(id) ?: "[]"
+        com.google.gson.Gson().fromJson(json, Array<Stored>::class.java).map { ChatBubble(it.role, it.text, error = it.error) }
+    } catch (_: Exception) {
+        emptyList()
+    }
+
+    // Al cerrar sesión la conversación se borra del teléfono
+    fun forget() {
+        clientId?.let { com.example.terragalegamovile.data.AppStorage.saveChat(it, null) }
+        clientId = null
+        bubbles = emptyList()
+        open = false
     }
 }
 
@@ -196,6 +228,8 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
     val context = LocalContext.current
 
     LaunchedEffect(clientId) { ChatStore.bind(clientId); ChatStore.open = true }
+    // Guarda la conversación cada vez que cambia
+    LaunchedEffect(ChatStore.bubbles) { ChatStore.save() }
     BackHandler(onBack = onClose)
 
     // Baja al último mensaje cuando llega algo nuevo
@@ -238,12 +272,23 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
     // Esquina izquierda recta: ahí se une la pestañita, como una carpeta
     val panel = RoundedCornerShape(topStart = 0.dp, topEnd = 24.dp)
 
+    // Arrastrar la pestaña o el encabezado hacia abajo cierra el panel
+    var dragY by remember { mutableStateOf(0f) }
+    val dragToClose = Modifier.pointerInput(Unit) {
+        detectVerticalDragGestures(
+            onDragEnd = { if (dragY > 220f) onClose() else dragY = 0f },
+            onDragCancel = { dragY = 0f },
+            onVerticalDrag = { _, amount -> dragY = (dragY + amount).coerceAtLeast(0f) }
+        )
+    }
+
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = Modifier
             .align(Alignment.BottomCenter)
             .fillMaxWidth()
             .fillMaxHeight(0.9f)
+            .offset { IntOffset(0, dragY.toInt()) }
             .imePadding()
     ) {
         // Pestañita hacia arriba (separador), pegada a la izquierda. Cambia de chat:
@@ -253,6 +298,7 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .offset(y = 1.dp)
+                .then(dragToClose)
                 .width(76.dp)
                 .height(30.dp)
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
@@ -290,13 +336,14 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                 .navigationBarsPadding()
         ) {
             if (ChatStore.mode == ChatMode.SUPPORT) {
-                SupportHeader(onClose)
+                SupportHeader(onClose, dragToClose)
                 SupportChatContent()
             } else {
             // Encabezado terracota con Galleguito, como en la web
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
+                    .then(dragToClose)
                     .fillMaxWidth()
                     .background(Terra)
                     .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -360,8 +407,8 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                                         .clickable(enabled = !ChatStore.sending) { send(t(s)) }
                                         .padding(horizontal = 14.dp, vertical = 10.dp)
                                 ) {
-                                    Text(t(s), color = Terra, fontSize = 14.sp, modifier = Modifier.weight(1f))
-                                    Text("›", color = Terra.copy(alpha = 0.6f), fontSize = 18.sp)
+                                    Text(t(s), color = TerraText, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                                    Text("›", color = TerraText.copy(alpha = 0.6f), fontSize = 18.sp)
                                 }
                             }
                         }
@@ -395,6 +442,10 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                     placeholder = { Text(t("Escribe tu mensaje..."), color = ChatMuted) },
                     shape = RoundedCornerShape(50),
                     maxLines = 4,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Send
+                ),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSend = { send(draft) }),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = ChatSoft,
                         unfocusedContainerColor = ChatSoft,
@@ -427,10 +478,11 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
 
 // Encabezado del chat con el restaurante (como el panel del operador de la web)
 @Composable
-private fun SupportHeader(onClose: () -> Unit) {
+private fun SupportHeader(onClose: () -> Unit, dragModifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
+            .then(dragModifier)
             .fillMaxWidth()
             .background(Terra)
             .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -464,6 +516,7 @@ private fun HeaderButton(
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
+            .minimumInteractiveComponentSize()
             .size(36.dp)
             .clip(CircleShape)
             .clickable(enabled = enabled, onClick = onClick)
@@ -575,7 +628,7 @@ private fun ReservationCard(r: ChatReservation, onPay: (String) -> Unit) {
                 }
                 Text(
                     t("Tienes 30 minutos para pagarlo; si no, la reserva se cancela sola."),
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     color = ChatMuted,
                     modifier = Modifier.padding(top = 6.dp)
                 )

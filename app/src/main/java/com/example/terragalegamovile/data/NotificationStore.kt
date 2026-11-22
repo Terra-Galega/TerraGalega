@@ -59,6 +59,22 @@ object NotificationStore {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var job: Job? = null
+    private var appContext: Context? = null
+
+    // "Desliza para actualizar" de la bandeja
+    suspend fun refreshNow() {
+        val context = appContext ?: return
+        val role = Session.user?.role ?: return
+        try {
+            receive(
+                context,
+                if (role == "WAITER") ApiClient.api.waiterNotifications() else ApiClient.api.notifications()
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+        }
+    }
 
     // Ids ya vistos, para avisar solo de las nuevas (y no de las viejas al abrir la app)
     private val known = HashSet<Int>()
@@ -68,6 +84,7 @@ object NotificationStore {
     fun start(context: Context) {
         if (job != null) return
         val app = context.applicationContext
+        appContext = app
         createChannel(app)
 
         job = scope.launch {

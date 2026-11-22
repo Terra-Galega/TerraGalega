@@ -44,6 +44,17 @@ interface ApiService {
     @POST("clients/me/chat")
     suspend fun chat(@Body body: ChatRequest): ChatResponse
 
+    // ---------- Premium y puntos (los mismos de la web) ----------
+    @GET("subscriptions/status")
+    suspend fun subscriptionStatus(): SubscriptionStatus
+
+    @GET("subscriptions/points/history")
+    suspend fun pointsHistory(): List<PointsMovement>
+
+    // Empieza (o renueva) el pago; trae checkoutUrl de Stripe
+    @POST("subscriptions/start")
+    suspend fun subscriptionStart(): SubscriptionStatus
+
     // ---------- Chat con el restaurante (el mismo de la web) ----------
     // Pedidos en curso del cliente que ya tienen mensajes
     @GET("order-chat/active")

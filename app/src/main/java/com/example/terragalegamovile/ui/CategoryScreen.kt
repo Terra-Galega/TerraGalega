@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.components.RefreshBox
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.data.t
 
 import com.example.terragalegamovile.ui.components.ErrorNotice
@@ -69,7 +73,10 @@ fun CategoryScreen(
     var search by rememberSaveable { mutableStateOf("") }
     var features by remember { mutableStateOf<Set<String>>(emptySet()) }
 
-    LaunchedEffect(Unit) {
+    // Deslizar hacia abajo para actualizar
+    var reload by remember { mutableStateOf(0) }
+    var refreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(reload) {
         while (true) {
             try {
                 products = ApiClient.api.products()
@@ -80,6 +87,7 @@ fun CategoryScreen(
                 if (!loaded) error = e.toUserMessage()
             }
             loaded = true
+            refreshing = false
             delay(10_000)
         }
     }
@@ -113,64 +121,66 @@ fun CategoryScreen(
             )
         },
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = 20.dp,
-                end = 20.dp,
-                top = padding.calculateTopPadding() + 12.dp,
-                bottom = padding.calculateBottomPadding() + 24.dp            ),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            item { BackLink(t("Todas las categorías"), onBack) }
+        RefreshBox(isRefreshing = refreshing, onRefresh = { refreshing = true; reload++ }, topPadding = padding.calculateTopPadding()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 20.dp,
+                    end = 20.dp,
+                    top = padding.calculateTopPadding() + 12.dp,
+                    bottom = padding.calculateBottomPadding() + 24.dp            ),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                item { BackLink(t("Todas las categorías"), onBack) }
 
-            item {
-                PageHeader(
-                    eyebrow = t("Nuestra Carta"),
-                    title = if (category == "Todos") t("Todos los platos") else t(category)
-                )
-            }
-
-            item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = search,
-                        onValueChange = { search = it },
-                        singleLine = true,
-                        placeholder = { Text(t("Buscar platos…"), color = Charcoal.copy(alpha = 0.4f)) },
-                        shape = RoundedCornerShape(50),
-                        colors = terraFieldColors(),
-                        modifier = Modifier.weight(1f)
+                item {
+                    PageHeader(
+                        eyebrow = t("Nuestra Carta"),
+                        title = if (category == "Todos") t("Todos los platos") else t(category)
                     )
-                    Spacer(Modifier.width(8.dp))
-                    FeatureFilterButton(active = features) { features = it }
                 }
-            }
 
-            when {
-                !loaded -> item { Text(t("Cargando platos..."), color = TextSoft) }
-
-                error != null && products.isEmpty() -> item { ErrorNotice(error ?: "") }
-
-                filtered.isEmpty() -> item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(t("No se encontraron platos"), color = Charcoal.copy(alpha = 0.35f), fontSize = 18.sp)
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            t("Quitar filtros"),
-                            color = Terra,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.clickable { search = ""; features = emptySet() }
+                item {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            value = search,
+                            onValueChange = { search = it },
+                            singleLine = true,
+                            placeholder = { Text(t("Buscar platos…"), color = Charcoal.copy(alpha = 0.4f)) },
+                            shape = RoundedCornerShape(50),
+                            colors = terraFieldColors(),
+                            modifier = Modifier.weight(1f)
                         )
+                        Spacer(Modifier.width(8.dp))
+                        FeatureFilterButton(active = features) { features = it }
                     }
                 }
 
-                else -> items(filtered, key = { it.id }) { product ->
-                    ProductCard(product = product, onClick = { onOpenProduct(product.id) })
+                when {
+                    !loaded -> item { Text(t("Cargando platos..."), color = TextSoft) }
+
+                    error != null && products.isEmpty() -> item { ErrorNotice(error ?: "", onRetry = { error = null; loaded = false; reload++ }) }
+
+                    filtered.isEmpty() -> item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(t("No se encontraron platos"), color = Charcoal.copy(alpha = 0.35f), fontSize = 18.sp)
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                t("Quitar filtros"),
+                                color = TerraText,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.clickable { search = ""; features = emptySet() }
+                            )
+                        }
+                    }
+
+                    else -> items(filtered, key = { it.id }) { product ->
+                        ProductCard(product = product, onClick = { onOpenProduct(product.id) })
+                    }
                 }
             }
         }

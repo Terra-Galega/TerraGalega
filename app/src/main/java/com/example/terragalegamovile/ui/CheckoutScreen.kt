@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.ForestText
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.ui.theme.ErrorText
 
 import com.example.terragalegamovile.ui.components.ButtonStack
@@ -108,6 +114,7 @@ fun CheckoutScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .imePadding()
                 .padding(top = padding.calculateTopPadding())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
@@ -335,11 +342,11 @@ private fun CouponBox() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(t("Cupón {}", applied.code), fontWeight = FontWeight.SemiBold, color = Charcoal)
-                    Text(t("Descuento: -{}", Format.money(applied.discount)), fontSize = 14.sp, color = Forest)
+                    Text(t("Descuento: -{}", Format.money(applied.discount)), fontSize = 14.sp, color = ForestText)
                 }
                 Text(
                     t("Quitar"),
-                    color = Terra,
+                    color = TerraText,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.clickable { d.coupon = null; error = "" }.padding(8.dp)
@@ -351,7 +358,8 @@ private fun CouponBox() {
             label = t("Código del cupón"),
             value = code,
             onValueChange = { code = it },
-            placeholder = t("Ej: BIENVENIDA-1")
+            placeholder = t("Ej: BIENVENIDA-1"),
+            onSubmit = { if (!applying && code.isNotBlank()) apply(code) }
         )
         Spacer(Modifier.height(10.dp))
         ButtonStack {

@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui.components
 
+import com.example.terragalegamovile.ui.theme.InkFixed
+
+import androidx.compose.material3.minimumInteractiveComponentSize
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.Selected
 
 import com.example.terragalegamovile.ui.theme.ErrorText
@@ -187,7 +193,8 @@ fun GlassCard(
     )
 }
 
-enum class ButtonStyle { Primary, Outline, Sage, Danger }
+// Gold: el dorado de Premium (.btn--gold de la web), con texto oscuro para que se lea
+enum class ButtonStyle { Primary, Outline, Sage, Danger, Gold }
 
 // Botón redondeado como .btn de la web
 @Composable
@@ -204,6 +211,10 @@ fun TerraButton(
     val background = when (style) {
         ButtonStyle.Primary -> Modifier.background(Brush.linearGradient(listOf(Terra, Burgundy)), shape)
         ButtonStyle.Sage -> Modifier.background(Forest, shape)
+        ButtonStyle.Gold -> Modifier.background(
+            Brush.linearGradient(listOf(Color(0xFFE7B04A), Color(0xFFD99A21), Color(0xFFC4861A))),
+            shape
+        )
         else -> Modifier
     }
     val border = when (style) {
@@ -215,6 +226,7 @@ fun TerraButton(
         ButtonStyle.Primary, ButtonStyle.Sage -> Color.White
         ButtonStyle.Outline -> Charcoal.copy(alpha = 0.7f)
         ButtonStyle.Danger -> ErrorText
+        ButtonStyle.Gold -> InkFixed
     }
 
     Box(
@@ -223,6 +235,8 @@ fun TerraButton(
             .then(
                 if (style == ButtonStyle.Primary && enabled)
                     Modifier.shadow(10.dp, shape, ambientColor = Terra.copy(alpha = 0.3f), spotColor = Terra.copy(alpha = 0.3f))
+                else if (style == ButtonStyle.Gold && enabled)
+                    Modifier.shadow(10.dp, shape, ambientColor = Gold.copy(alpha = 0.35f), spotColor = Gold.copy(alpha = 0.35f))
                 else Modifier
             )
             .clip(shape)
@@ -258,12 +272,14 @@ fun TerraTextField(
     modifier: Modifier = Modifier,
     placeholder: String = "",
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    // Si se pasa, la tecla del teclado es "Enviar/Listo" y ejecuta esto; si no, "Siguiente"
+    onSubmit: (() -> Unit)? = null
 ) {
     Column(modifier = modifier) {
         Text(
             label.uppercase(),
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             letterSpacing = 1.sp,
             color = TextLabel
@@ -275,7 +291,8 @@ fun TerraTextField(
             singleLine = true,
             placeholder = { Text(placeholder, color = Charcoal.copy(alpha = 0.35f)) },
             shape = RoundedCornerShape(50),
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions.withIme(onSubmit),
+            keyboardActions = submitActions(onSubmit),
             visualTransformation = visualTransformation,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = Paper.copy(alpha = 0.7f),
@@ -291,6 +308,19 @@ fun TerraTextField(
     }
 }
 
+// Tecla de acción del teclado: "Siguiente" (pasa al campo de abajo) o, si hay una
+// acción, "Listo/Enviar" para ejecutarla sin tener que tocar el botón
+private fun KeyboardOptions.withIme(onSubmit: (() -> Unit)?): KeyboardOptions =
+    if (imeAction != androidx.compose.ui.text.input.ImeAction.Default) this
+    else copy(
+        imeAction = if (onSubmit != null) androidx.compose.ui.text.input.ImeAction.Done
+        else androidx.compose.ui.text.input.ImeAction.Next
+    )
+
+private fun submitActions(onSubmit: (() -> Unit)?): androidx.compose.foundation.text.KeyboardActions =
+    if (onSubmit == null) androidx.compose.foundation.text.KeyboardActions.Default
+    else androidx.compose.foundation.text.KeyboardActions(onDone = { onSubmit() })
+
 // Campo de contraseña con el ojo para ver u ocultar lo que se escribe (como en la web)
 @Composable
 fun TerraPasswordField(
@@ -298,13 +328,14 @@ fun TerraPasswordField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "••••••••"
+    placeholder: String = "••••••••",
+    onSubmit: (() -> Unit)? = null
 ) {
     var visible by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
         Text(
             label.uppercase(),
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             letterSpacing = 1.sp,
             color = TextLabel
@@ -316,7 +347,9 @@ fun TerraPasswordField(
             singleLine = true,
             placeholder = { Text(placeholder, color = Charcoal.copy(alpha = 0.35f)) },
             shape = RoundedCornerShape(50),
-            keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Password),
+            keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Password)
+                .withIme(onSubmit),
+            keyboardActions = submitActions(onSubmit),
             visualTransformation = if (visible) VisualTransformation.None
             else androidx.compose.ui.text.input.PasswordVisualTransformation(),
             trailingIcon = {
@@ -374,6 +407,38 @@ private fun EyeIcon(open: Boolean, color: Color) {
     }
 }
 
+// "Desliza hacia abajo para actualizar". El círculo de carga sale debajo de la barra
+// de arriba (topPadding) para que no quede escondido detrás del logo.
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun RefreshBox(
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    topPadding: androidx.compose.ui.unit.Dp,
+    modifier: Modifier = Modifier,
+    content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit
+) {
+    val state = androidx.compose.material3.pulltorefresh.rememberPullToRefreshState()
+    androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        state = state,
+        modifier = modifier. fillMaxSize(),
+        indicator = {
+            androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator(
+                state = state,
+                isRefreshing = isRefreshing,
+                color = Terra,
+                containerColor = Paper,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = topPadding)
+            )
+        },
+        content = content
+    )
+}
+
 // Botones a su medida: cada botón mide lo que pide su texto y va centrado. Si hay
 // varios uno encima de otro, todos toman el ancho del más largo. Dentro, los
 // botones usan Modifier.fillMaxWidth() (llenan solo este bloque, no la pantalla).
@@ -404,6 +469,7 @@ fun DarkModeToggle(modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
+            .minimumInteractiveComponentSize()
             .size(38.dp)
             .clip(CircleShape)
             .background(Charcoal.copy(alpha = 0.06f))
@@ -429,6 +495,57 @@ fun DarkModeToggle(modifier: Modifier = Modifier) {
             } else {
                 withTransform({ scale(s, s, pivot = Offset.Zero) }) {
                     drawPath(MOON_PATH, Charcoal, style = Stroke(width = 1.8f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                }
+            }
+        }
+    }
+}
+
+// Engranaje con un menú pequeño: idioma y modo oscuro (para mesero y repartidor)
+@Composable
+fun SettingsButton(modifier: Modifier = Modifier) {
+    var open by remember { mutableStateOf(false) }
+    Box(modifier) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .clickable { open = true }
+                .semantics { contentDescription = t("Ajustes") }
+        ) {
+            Canvas(Modifier.size(24.dp)) {
+                val s = size.minDimension / 24f
+                val c = Offset(12f * s, 12f * s)
+                val stroke = Stroke(width = 1.8f * s, cap = StrokeCap.Round)
+                drawCircle(TerraText, radius = 3.2f * s, center = c, style = stroke)
+                drawCircle(TerraText, radius = 7.2f * s, center = c, style = stroke)
+                for (i in 0 until 8) {
+                    val a = Math.toRadians(i * 45.0)
+                    drawLine(
+                        TerraText,
+                        Offset(c.x + (7.2f * s * Math.cos(a)).toFloat(), c.y + (7.2f * s * Math.sin(a)).toFloat()),
+                        Offset(c.x + (10f * s * Math.cos(a)).toFloat(), c.y + (10f * s * Math.sin(a)).toFloat()),
+                        2.4f * s, StrokeCap.Round
+                    )
+                }
+            }
+        }
+        androidx.compose.material3.DropdownMenu(
+            expanded = open,
+            onDismissRequest = { open = false },
+            containerColor = Paper,
+            shape = RoundedCornerShape(18.dp)
+        ) {
+            Column(Modifier.padding(horizontal = 14.dp, vertical = 8.dp)) {
+                Text(t("Idioma"), fontSize = 12.sp, color = TextLabel)
+                Spacer(Modifier.height(6.dp))
+                LanguagePicker(compact = true)
+                Spacer(Modifier.height(12.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(t("Modo oscuro"), fontSize = 14.sp, color = Charcoal, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(12.dp))
+                    DarkModeToggle()
                 }
             }
         }
@@ -541,7 +658,7 @@ fun InfoLine(label: String, value: String) {
     Column(modifier = Modifier.padding(bottom = 10.dp)) {
         Text(
             label.uppercase(),
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             letterSpacing = 1.sp,
             color = TextLabel
@@ -571,7 +688,7 @@ fun PinDigits(pin: String) {
                     fontFamily = SourceSans,
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp,
-                    color = Terra
+                    color = TerraText
                 )
             }
         }
@@ -624,7 +741,7 @@ fun PinInput(
                                 fontFamily = SourceSans,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 30.sp,
-                                color = Terra
+                                color = TerraText
                             )
                         }
                     }
@@ -663,7 +780,7 @@ fun BellButton(count: Int, onClick: () -> Unit) {
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
-            WebBellIcon(color = Terra, modifier = Modifier.size(26.dp))
+            WebBellIcon(color = TerraText, modifier = Modifier.size(26.dp))
         }
         if (count > 0) {
             Box(
@@ -725,7 +842,7 @@ fun ChatButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        ChatIcon(color = Terra, modifier = Modifier.size(28.dp))
+        ChatIcon(color = TerraText, modifier = Modifier.size(28.dp))
         // Mensajes nuevos del restaurante
         if (com.example.terragalegamovile.ui.SupportStore.hasUnread) {
             com.example.terragalegamovile.ui.UnreadDot(
@@ -805,7 +922,7 @@ private fun ProfileChip(name: String, onClick: () -> Unit, modifier: Modifier = 
         Text(
             t("Mi perfil"),
             fontFamily = SourceSans,
-            fontSize = 10.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             color = Charcoal.copy(alpha = 0.75f),
             maxLines = 1
@@ -920,14 +1037,18 @@ fun TerraScaffold(
                     .padding(end = 16.dp, top = statusTop + 10.dp)
             )
         } else if (bottomBar == null) {
+            // Mesero y repartidor no tienen perfil: idioma y modo oscuro van en este menú
+            SettingsButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = 64.dp, top = statusTop + 10.dp)
+            )
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(end = 16.dp, top = statusTop + 10.dp)
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Paper)
-                    .border(1.dp, Burgundy, CircleShape)
                     .semantics { contentDescription = t("Cerrar sesión") }
                     .clickable(onClick = onLogout),
                 contentAlignment = Alignment.Center
@@ -944,6 +1065,23 @@ fun TerraScaffold(
             ) {
                 bottomBar(hazeState)
             }
+        }
+
+        // Sin internet: aviso fijo bajo el logo
+        if (!com.example.terragalegamovile.data.NetworkState.online) {
+            Text(
+                t("Sin conexión"),
+                color = Color.White,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = statusTop + 56.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(InkFixed.copy(alpha = 0.85f))
+                    .semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite }
+                    .padding(horizontal = 14.dp, vertical = 5.dp)
+            )
         }
 
         if (dim > 0f) {
@@ -995,7 +1133,7 @@ fun CartButton(count: Int, onClick: () -> Unit) {
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
-            WebCartIcon(color = Terra, modifier = Modifier.size(26.dp))
+            WebCartIcon(color = TerraText, modifier = Modifier.size(26.dp))
         }
         if (count > 0) {
             Box(
@@ -1192,7 +1330,7 @@ private fun RowScope.NavItem(
             Text(
                 label,
                 fontFamily = SourceSans,
-                fontSize = 10.sp,
+                fontSize = 11.sp,
                 lineHeight = 11.sp,
                 style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,

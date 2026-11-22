@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui.components
 
+import androidx.compose.ui.semantics.contentDescription
+
+import androidx.compose.ui.semantics.semantics
+
+import androidx.compose.material3.minimumInteractiveComponentSize
+
 import com.example.terragalegamovile.data.t
 
 import androidx.compose.foundation.background
@@ -37,15 +43,35 @@ import com.example.terragalegamovile.ui.theme.TextLabel
 
 // Foto del plato (la misma URL que usa la web); gris suave mientras carga o si falla
 @Composable
-fun ProductImage(url: String?, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.background(Charcoal.copy(alpha = 0.06f))) {
-        if (!url.isNullOrBlank()) {
-            AsyncImage(
-                model = url,
-                contentDescription = null,
+fun ProductImage(url: String?, modifier: Modifier = Modifier, description: String? = null) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    Box(modifier = modifier.background(Charcoal.copy(alpha = 0.06f)), contentAlignment = Alignment.Center) {
+        if (url.isNullOrBlank()) {
+            DishPlaceholder()
+        } else {
+            coil.compose.SubcomposeAsyncImage(
+                model = coil.request.ImageRequest.Builder(context).data(url).crossfade(250).build(),
+                contentDescription = description,
                 contentScale = ContentScale.Crop,
+                error = { DishPlaceholder() },
                 modifier = Modifier.fillMaxSize()
             )
+        }
+    }
+}
+
+// Plato y cubiertos en gris: cuando el plato no tiene foto o no cargó
+@Composable
+private fun DishPlaceholder() {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        androidx.compose.foundation.Canvas(Modifier.size(36.dp)) {
+            val w = size.width
+            val c = Charcoal.copy(alpha = 0.22f)
+            val stroke = androidx.compose.ui.graphics.drawscope.Stroke(width = w * 0.06f)
+            drawCircle(c, radius = w * 0.3f, center = center, style = stroke)
+            drawCircle(c, radius = w * 0.18f, center = center, style = stroke)
+            drawLine(c, androidx.compose.ui.geometry.Offset(w * 0.06f, w * 0.2f), androidx.compose.ui.geometry.Offset(w * 0.06f, w * 0.8f), w * 0.06f)
+            drawLine(c, androidx.compose.ui.geometry.Offset(w * 0.94f, w * 0.2f), androidx.compose.ui.geometry.Offset(w * 0.94f, w * 0.8f), w * 0.06f)
         }
     }
 }
@@ -95,7 +121,7 @@ fun FeatureChips(labels: List<String>, modifier: Modifier = Modifier) {
                     .background(color.copy(alpha = 0.10f))
                     .padding(horizontal = 10.dp, vertical = 4.dp)
             ) {
-                Text(label, color = color, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                Text(label, color = color, fontSize = 12.sp, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -136,9 +162,12 @@ fun QuantityStepper(
 private fun StepButton(symbol: String, enabled: Boolean, size: Dp, onClick: () -> Unit) {
     Box(
         modifier = Modifier
+            // Se ve del mismo tamaño, pero se puede tocar en 48 dp
+            .minimumInteractiveComponentSize()
             .size(size)
             .clip(CircleShape)
-            .clickable(enabled = enabled, onClick = onClick),
+            .clickable(enabled = enabled, onClick = onClick)
+            .semantics { contentDescription = if (symbol == "+") t("Agregar uno") else t("Quitar uno") },
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -155,7 +184,7 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
         text.uppercase(),
         modifier = modifier,
-        fontSize = 11.sp,
+        fontSize = 12.sp,
         fontWeight = FontWeight.Medium,
         letterSpacing = 1.8.sp,
         color = TextLabel

@@ -135,6 +135,27 @@ data class OrderChatSummary(
 
 data class SendChatMessage(val content: String)
 
+// ---------- Suscripción Premium y puntos (GET subscriptions/status, POST subscriptions/start) ----------
+data class SubscriptionStatus(
+    val subscribed: Boolean,
+    val pointsBalance: Long,
+    val pointValueCop: Double,
+    // Vencimiento (ISO); null = nunca se ha suscrito
+    val subscriptionEndsAt: String?,
+    val daysLeft: Int,
+    // Puede pagar ahora (no tiene un pago pendiente ni está suscrito sin poder renovar)
+    val canSubscribe: Boolean,
+    val priceCop: Double,
+    val durationDays: Int,
+    // PENDING, PAID o EXPIRED (null si nunca ha pagado)
+    val paymentState: String?,
+    // Página de Stripe mientras el pago está PENDING
+    val checkoutUrl: String?
+)
+
+// Movimiento de puntos: EARNED, SPENT o RETURNED
+data class PointsMovement(val orderId: Int?, val kind: String, val amount: Long, val createdAt: String?)
+
 // POST auth/reset-password: token del enlace del correo y la contraseña nueva
 data class ResetPasswordRequest(val token: String, val newPassword: String)
 // ---------- Menú, carrito y pedidos (mismos datos que la web) ----------

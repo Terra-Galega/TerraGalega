@@ -1,5 +1,13 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+
+import androidx.compose.ui.platform.LocalHapticFeedback
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.ui.components.ButtonStack
 
 import com.example.terragalegamovile.data.t
@@ -76,6 +84,7 @@ fun ProductScreen(
     onLogout: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
     var product by remember { mutableStateOf<ProductDetail?>(null) }
     var related by remember { mutableStateOf<List<Product>>(emptyList()) }
     var addOns by remember { mutableStateOf<List<AddOnOption>>(emptyList()) }
@@ -168,7 +177,10 @@ fun ProductScreen(
                 }
                 val qty = quantity
                 CartStore.add(current.toProduct(), qty, selected) { error ->
-                    if (error == null) toast = "Añadido al carrito" to "${qty}× ${current.name}"
+                    if (error == null) {
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                        toast = t("Añadido al carrito") to "${qty}× ${current.name}"
+                    }
                     else errorMsg = error
                 }
                 selected = emptyList()
@@ -196,6 +208,7 @@ fun ProductScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                .imePadding()
                     .padding(top = padding.calculateTopPadding())
                     .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 40.dp)
             ) {
@@ -207,7 +220,8 @@ fun ProductScreen(
                     GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
                         ProductImage(
                             p.imageUrl,
-                            Modifier.fillMaxWidth().height(260.dp).clip(RoundedCornerShape(16.dp))
+                            Modifier.fillMaxWidth().height(260.dp).clip(RoundedCornerShape(16.dp)),
+                            description = p.name
                         )
                         Spacer(Modifier.height(20.dp))
 
@@ -215,15 +229,15 @@ fun ProductScreen(
                             p.category?.let {
                                 Text(
                                     it.name.uppercase(),
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     letterSpacing = 1.8.sp,
-                                    color = Terra.copy(alpha = 0.8f)
+                                    color = TerraText.copy(alpha = 0.8f)
                                 )
                                 Spacer(Modifier.width(12.dp))
                             }
                             if (p.popular) {
-                                Text(t("★ Popular"), color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                Text(t("★ Popular"), color = Gold, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                         Spacer(Modifier.height(12.dp))
@@ -263,10 +277,10 @@ fun ProductScreen(
                             ) {
                                 Text(
                                     t("CATEGORÍA: {}", t(c.name).uppercase()),
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     letterSpacing = 1.8.sp,
-                                    color = Terra.copy(alpha = 0.8f)
+                                    color = TerraText.copy(alpha = 0.8f)
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(t(c.description ?: ""), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
@@ -294,7 +308,7 @@ fun ProductScreen(
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(
                                     "TOTAL",
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     letterSpacing = 1.8.sp,
                                     color = Charcoal.copy(alpha = 0.35f)
                                 )
@@ -303,7 +317,7 @@ fun ProductScreen(
                                     fontFamily = Playfair,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 28.sp,
-                                    color = Terra
+                                    color = TerraText
                                 )
                             }
                         }
@@ -326,7 +340,7 @@ fun ProductScreen(
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 3.sp,
-                        color = Terra.copy(alpha = 0.7f)
+                        color = TerraText.copy(alpha = 0.7f)
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(

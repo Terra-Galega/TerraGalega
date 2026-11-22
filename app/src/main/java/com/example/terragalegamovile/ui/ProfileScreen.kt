@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.TerraText
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.ui.theme.ErrorText
 
 import com.example.terragalegamovile.ui.components.ButtonStack
@@ -183,6 +187,7 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                .imePadding()
                     .padding(top = padding.calculateTopPadding())
                     .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
             ) {
@@ -250,6 +255,10 @@ fun ProfileScreen(
                         }
                     }
 
+                    Spacer(Modifier.height(20.dp))
+
+                    // Puntos Premium y suscripción (como "Mi cuenta" de la web)
+                    PremiumSection()
                     Spacer(Modifier.height(20.dp))
 
                     ButtonStack {
@@ -443,7 +452,7 @@ private fun PasswordDialog(onClose: () -> Unit, onSaved: () -> Unit) {
         },
         text = {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier.verticalScroll(rememberScrollState()).imePadding(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TerraPasswordField(t("Contraseña actual"), cur, { cur = it }, Modifier.fillMaxWidth())
@@ -475,7 +484,7 @@ private fun PasswordDialog(onClose: () -> Unit, onSaved: () -> Unit) {
                     }
                 }
             ) {
-                Text(if (saving) t("Guardando...") else t("Guardar"), color = Terra, fontWeight = FontWeight.SemiBold)
+                Text(if (saving) t("Guardando...") else t("Guardar"), color = TerraText, fontWeight = FontWeight.SemiBold)
             }
         },
         dismissButton = {

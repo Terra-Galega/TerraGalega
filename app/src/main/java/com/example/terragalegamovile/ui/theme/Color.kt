@@ -70,6 +70,7 @@ val ErrorSurface: Color get() = if (isDark) Color(0x26E88A8A) else Color(0xFFFBE
 // Verde de "pagado" y terracota como texto
 val OkText: Color get() = if (isDark) Color(0xFFA3B987) else Color(0xFF4A6B3A)
 val TerraText: Color get() = if (isDark) Color(0xFFE58E57) else Terra
+val ForestText: Color get() = if (isDark) Color(0xFFA3B987) else Forest
 
 // Textos y bordes con transparencia, como en la web
 val TextSoft: Color get() = Charcoal.copy(alpha = 0.68f)

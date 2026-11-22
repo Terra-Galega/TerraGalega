@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.components.RefreshBox
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.data.t
 
 import com.example.terragalegamovile.ui.components.ErrorNotice
@@ -62,15 +66,20 @@ fun CouponsScreen(user: LoginResponse, onBack: () -> Unit, onLogout: () -> Unit)
     var loaded by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) {
+    // Deslizar hacia abajo para actualizar
+    var reload by remember { mutableStateOf(0) }
+    var refreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(reload) {
         try {
             coupons = ApiClient.api.myCoupons()
+            error = null
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             error = e.toUserMessage()
         }
         loaded = true
+        refreshing = false
     }
 
     val active = coupons.filter { it.status == "ACTIVE" }
@@ -81,34 +90,37 @@ fun CouponsScreen(user: LoginResponse, onBack: () -> Unit, onLogout: () -> Unit)
         name = "${user.name} ${user.lastName}",
         onLogout = onLogout
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(top = padding.calculateTopPadding())
-                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
-        ) {
-            BackLink(t("Volver"), onBack)
-            Spacer(Modifier.height(6.dp))
-            PageHeader(t("Mi cuenta"), t("Mis cupones"), titleSize = 30.sp)
-            Spacer(Modifier.height(20.dp))
+        RefreshBox(isRefreshing = refreshing, onRefresh = { refreshing = true; reload++ }, topPadding = padding.calculateTopPadding()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+                    .padding(top = padding.calculateTopPadding())
+                    .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
+            ) {
+                BackLink(t("Volver"), onBack)
+                Spacer(Modifier.height(6.dp))
+                PageHeader(t("Mi cuenta"), t("Mis cupones"), titleSize = 30.sp)
+                Spacer(Modifier.height(20.dp))
 
-            when {
-                !loaded -> Text(t("Cargando..."), color = TextSoft)
-                error != null -> ErrorNotice(error ?: "")
-                coupons.isEmpty() -> Text(t("Aún no tienes cupones."), color = TextSoft)
-            }
+                when {
+                    !loaded -> Text(t("Cargando..."), color = TextSoft)
+                    error != null -> ErrorNotice(error ?: "", onRetry = { error = null; loaded = false; reload++ })
+                    coupons.isEmpty() -> Text(t("Aún no tienes cupones."), color = TextSoft)
+                }
 
-            if (active.isNotEmpty()) {
-                Text(t("Activos"), fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Charcoal)
-                Spacer(Modifier.height(10.dp))
-                active.forEach { CouponCard(it) }
-            }
-            if (expired.isNotEmpty()) {
-                Spacer(Modifier.height(16.dp))
-                Text(t("Expirados"), fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Charcoal)
-                Spacer(Modifier.height(10.dp))
-                expired.forEach { CouponCard(it) }
+                if (active.isNotEmpty()) {
+                    Text(t("Activos"), fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Charcoal)
+                    Spacer(Modifier.height(10.dp))
+                    active.forEach { CouponCard(it) }
+                }
+                if (expired.isNotEmpty()) {
+                    Spacer(Modifier.height(16.dp))
+                    Text(t("Expirados"), fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Charcoal)
+                    Spacer(Modifier.height(10.dp))
+                    expired.forEach { CouponCard(it) }
+                }
             }
         }
     }

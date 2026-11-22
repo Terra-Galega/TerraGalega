@@ -1,5 +1,7 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.Paper
 
 import com.example.terragalegamovile.ui.theme.ErrorText
@@ -507,7 +509,7 @@ private fun ColumnScope.OrderConversation(
             Spacer(Modifier.width(10.dp))
             Text(t("Foto lista para enviar. Puedes agregar un comentario."), fontSize = 12.sp, color = SupportMuted, modifier = Modifier.weight(1f))
             Text(
-                t("Quitar"), color = Terra, fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                t("Quitar"), color = TerraText, fontSize = 13.sp, fontWeight = FontWeight.Medium,
                 modifier = Modifier.clickable { pendingPhoto = null }.padding(8.dp)
             )
         }
@@ -531,7 +533,7 @@ private fun ColumnScope.OrderConversation(
                     .clickable(enabled = !sending && !preparing) { attachMenu = true }
                     .semantics { contentDescription = t("Adjuntar foto") }
             ) {
-                if (preparing) Text("…", color = Terra, fontSize = 20.sp) else CameraIcon(Terra, 27.dp)
+                if (preparing) Text("…", color = TerraText, fontSize = 20.sp) else CameraIcon(Terra, 27.dp)
             }
             // Tomar una foto ahora o elegir una de la galería
             androidx.compose.material3.DropdownMenu(
@@ -568,6 +570,10 @@ private fun ColumnScope.OrderConversation(
             },
             shape = RoundedCornerShape(50),
             maxLines = 4,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                imeAction = androidx.compose.ui.text.input.ImeAction.Send
+            ),
+            keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSend = { send() }),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = SupportSoft,
                 unfocusedContainerColor = SupportSoft,
@@ -608,7 +614,7 @@ private fun SupportBubble(orderId: Int, m: OrderChatMessage) {
         if (!mine) {
             Text(
                 t("Restaurante · {}", m.senderName),
-                fontSize = 11.sp, color = SupportMuted,
+                fontSize = 12.sp, color = SupportMuted,
                 modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
             )
         }
@@ -639,7 +645,7 @@ private fun SupportBubble(orderId: Int, m: OrderChatMessage) {
         }
         Text(
             timeLabel(m.createdAt),
-            fontSize = 10.sp, color = SupportMuted,
+            fontSize = 11.sp, color = SupportMuted,
             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
         )
     }

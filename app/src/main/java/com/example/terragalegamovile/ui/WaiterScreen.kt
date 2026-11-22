@@ -1,5 +1,15 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+
+import androidx.compose.ui.platform.LocalHapticFeedback
+
+import com.example.terragalegamovile.ui.components.RefreshBox
+
+import com.example.terragalegamovile.ui.theme.ForestText
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.ErrorText
 
 import com.example.terragalegamovile.ui.theme.Paper
@@ -134,9 +144,12 @@ private fun FloorView(
 ) {
     var error by remember { mutableStateOf<String?>(null) }
     var loading by remember(floor) { mutableStateOf(true) }
+    // Deslizar hacia abajo para actualizar
+    var reload by remember { mutableStateOf(0) }
+    var refreshing by remember { mutableStateOf(false) }
 
     // Recarga el piso cada pocos segundos mientras la pantalla esté abierta
-    LaunchedEffect(floor) {
+    LaunchedEffect(floor, reload) {
         while (isActive) {
             try {
                 onTables(ApiClient.api.waiterTables(floor))
@@ -147,42 +160,45 @@ private fun FloorView(
                 error = e.toUserMessage()
             }
             loading = false
+            refreshing = false
             delay(REFRESH_MS)
         }
     }
 
     TerraScaffold(role = "Mesero", name = "${user.name} ${user.lastName}", onLogout = onLogout) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(top = padding.calculateTopPadding())
-                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
-        ) {
-            PageHeader(t("Portal del mesero"), t("Mesas"))
-            Spacer(Modifier.height(16.dp))
+        RefreshBox(isRefreshing = refreshing, onRefresh = { refreshing = true; reload++ }, topPadding = padding.calculateTopPadding()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = padding.calculateTopPadding())
+                    .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
+            ) {
+                PageHeader(t("Portal del mesero"), t("Mesas"))
+                Spacer(Modifier.height(16.dp))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PillChip(t("Piso 1"), floor == 1) { onFloor(1) }
-                PillChip(t("Piso 2"), floor == 2) { onFloor(2) }
-            }
-            Spacer(Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    PillChip(t("Piso 1"), floor == 1) { onFloor(1) }
+                    PillChip(t("Piso 2"), floor == 2) { onFloor(2) }
+                }
+                Spacer(Modifier.height(16.dp))
 
-            error?.let { ErrorNotice(it, Modifier.padding(bottom = 12.dp)) }
+                error?.let { ErrorNotice(it, Modifier.padding(bottom = 12.dp), onRetry = { error = null; reload++ }) }
 
-            val shown = tables.filter { it.floor == floor }
-            if (loading && shown.isEmpty()) {
-                Text(t("Cargando mesas..."), color = TextSoft, fontSize = 14.sp)
-            } else {
-                // 3 mesas por fila
-                shown.chunked(3).forEach { row ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                        row.forEach { t ->
-                            TableCard(t, Modifier.weight(1f)) { onOpen(t.id) }
+                val shown = tables.filter { it.floor == floor }
+                if (loading && shown.isEmpty()) {
+                    Text(t("Cargando mesas..."), color = TextSoft, fontSize = 14.sp)
+                } else {
+                    // 3 mesas por fila
+                    shown.chunked(3).forEach { row ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            row.forEach { t ->
+                                TableCard(t, Modifier.weight(1f)) { onOpen(t.id) }
+                            }
+                            repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                         }
-                        repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                        Spacer(Modifier.height(10.dp))
                     }
-                    Spacer(Modifier.height(10.dp))
                 }
             }
         }
@@ -263,7 +279,7 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             Text(
                 t("Reservada · {}", hhmm(it)),
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White,
                 modifier = Modifier
@@ -276,7 +292,7 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             Text(
                 t("⚠ Reserva {}", hhmm(it)),
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = ErrorText,
                 modifier = Modifier
@@ -298,6 +314,7 @@ private fun TableView(
     initialInfo: WaiterTable?,
     onBack: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     // Datos de la mesa (reserva, quién la atiende...). Se recargan junto con los
     // pedidos: así el aviso de reserva no se queda con la foto de cuando se entró
@@ -391,6 +408,7 @@ private fun TableView(
             onSent = {
                 newOrder = false
                 reload++
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                 dialog = t("Pedido enviado a cocina") to t("La cocina ya lo ve en su pantalla.")
             }
         )
@@ -673,9 +691,9 @@ private fun OrderCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text("${item.quantity}× ${item.productName}", fontSize = 15.sp, color = Charcoal)
                     if (item.addOns.isNotEmpty()) {
-                        Text("+ ${item.addOns.joinToString(", ")}", fontSize = 13.sp, color = Forest)
+                        Text("+ ${item.addOns.joinToString(", ")}", fontSize = 13.sp, color = ForestText)
                     }
-                    item.notes?.let { Text("“$it”", fontSize = 13.sp, color = Terra) }
+                    item.notes?.let { Text("“$it”", fontSize = 13.sp, color = TerraText) }
                 }
                 Text(itemLabel(item.status), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = itemColor(item.status))
             }
@@ -876,10 +894,10 @@ private fun NewOrderView(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text("${line.quantity}× ${line.product.name}", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Charcoal)
                                 if (line.addOns.isNotEmpty()) {
-                                    Text("+ ${line.addOns.joinToString(", ") { t(it.name) }}", fontSize = 13.sp, color = Forest)
+                                    Text("+ ${line.addOns.joinToString(", ") { t(it.name) }}", fontSize = 13.sp, color = ForestText)
                                 }
                                 if (line.notes.isNotBlank()) {
-                                    Text("“${line.notes.trim()}”", fontSize = 13.sp, color = Terra)
+                                    Text("“${line.notes.trim()}”", fontSize = 13.sp, color = TerraText)
                                 }
                             }
                             Text(
@@ -967,7 +985,7 @@ private fun DishCard(product: Product, count: Int, onClick: () -> Unit) {
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(Format.money(product.price), fontSize = 13.sp, color = TextSoft, modifier = Modifier.weight(1f))
-                Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Terra)
+                Text("+", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TerraText)
             }
         }
     }
@@ -1067,6 +1085,6 @@ private fun WaiterBackButton(text: String, onClick: () -> Unit) {
             Text("←", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.width(12.dp))
-        Text(text, color = Terra, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+        Text(text, color = TerraText, fontSize = 17.sp, fontWeight = FontWeight.Bold)
     }
 }

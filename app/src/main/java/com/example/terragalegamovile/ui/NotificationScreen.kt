@@ -1,5 +1,19 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.runtime.remember
+
+import androidx.compose.runtime.mutableStateOf
+
+import androidx.compose.runtime.setValue
+
+import androidx.compose.runtime.getValue
+
+import kotlinx.coroutines.launch
+
+import com.example.terragalegamovile.ui.components.RefreshBox
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.ui.components.ButtonStack
 
 import com.example.terragalegamovile.data.t
@@ -51,62 +65,74 @@ fun NotificationsScreen(
     onLogout: () -> Unit,
     onOpen: (AppNotification) -> Unit
 ) {
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
     TerraScaffold(
         role = if (user.role == "WAITER") "Mesero" else "Cliente",
         name = "${user.name} ${user.lastName}",
         onLogout = onLogout
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(top = padding.calculateTopPadding())
-                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
-        ) {
-            BackLink(t("Volver"), onBack)
-            Spacer(Modifier.height(6.dp))
-            PageHeader(t("Tu bandeja"), t("Notificaciones"), titleSize = 30.sp)
-            Spacer(Modifier.height(20.dp))
-
-            if (NotificationStore.unread > 0) {
-                ButtonStack {
-                    TerraButton(
-                        t("Marcar todas como leídas"),
-                        onClick = { NotificationStore.markAllRead() },
-                        style = ButtonStyle.Outline,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                Spacer(Modifier.height(16.dp))
-            }
-
-            if (NotificationStore.items.isEmpty()) {
-                Text(t("No tienes notificaciones."), color = TextSoft)
-            }
-
-            NotificationStore.items.forEach { n ->
-                GlassCard(
-                    modifier = Modifier.fillMaxWidth().clickable { onOpen(n) },
-                    contentPadding = 16.dp
+        RefreshBox(
+            isRefreshing = refreshing,
+            onRefresh = {
+                refreshing = true
+                scope.launch { NotificationStore.refreshNow(); refreshing = false }
+            },
+            topPadding = padding.calculateTopPadding()
                 ) {
-                    Row(verticalAlignment = Alignment.Top) {
-                        Box(
-                            modifier = Modifier
-                                .padding(top = 6.dp)
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(if (n.read) Color.Transparent else Terra)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+                    .padding(top = padding.calculateTopPadding())
+                    .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
+            ) {
+                BackLink(t("Volver"), onBack)
+                Spacer(Modifier.height(6.dp))
+                PageHeader(t("Tu bandeja"), t("Notificaciones"), titleSize = 30.sp)
+                Spacer(Modifier.height(20.dp))
+
+                if (NotificationStore.unread > 0) {
+                    ButtonStack {
+                        TerraButton(
+                            t("Marcar todas como leídas"),
+                            onClick = { NotificationStore.markAllRead() },
+                            style = ButtonStyle.Outline,
+                            modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(Modifier.width(12.dp))
-                        Column {
-                            Text(n.title, fontWeight = FontWeight.SemiBold, color = Charcoal)
-                            Text(n.message, fontSize = 14.sp, color = TextSoft)
-                            Text(Format.dateTime(n.createdAt), fontSize = 11.sp, color = TextLabel)
+                    }
+                    Spacer(Modifier.height(16.dp))
+                }
+
+                if (NotificationStore.items.isEmpty()) {
+                    Text(t("No tienes notificaciones."), color = TextSoft)
+                }
+
+                NotificationStore.items.forEach { n ->
+                    GlassCard(
+                        modifier = Modifier.fillMaxWidth().clickable { onOpen(n) },
+                        contentPadding = 16.dp
+                    ) {
+                        Row(verticalAlignment = Alignment.Top) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(top = 6.dp)
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(if (n.read) Color.Transparent else Terra)
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Column {
+                                Text(n.title, fontWeight = FontWeight.SemiBold, color = Charcoal)
+                                Text(n.message, fontSize = 14.sp, color = TextSoft)
+                                Text(Format.dateTime(n.createdAt), fontSize = 12.sp, color = TextLabel)
+                            }
                         }
                     }
+                    Spacer(Modifier.height(10.dp))
                 }
-                Spacer(Modifier.height(10.dp))
             }
-        }
+}
     }
 }

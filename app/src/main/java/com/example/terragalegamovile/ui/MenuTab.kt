@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.components.RefreshBox
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.data.t
 
 import com.example.terragalegamovile.ui.components.ErrorNotice
@@ -69,8 +73,11 @@ fun MenuTab(
     var search by rememberSaveable { mutableStateOf("") }
     val seed = remember { kotlin.random.Random.nextInt(1000) }
 
+    // Deslizar hacia abajo para actualizar
+    var reload by remember { mutableStateOf(0) }
+    var refreshing by remember { mutableStateOf(false) }
     // Carga la carta y la refresca cada 10 s (igual que la web)
-    LaunchedEffect(Unit) {
+    LaunchedEffect(reload) {
         while (true) {
             try {
                 products = ApiClient.api.products()
@@ -82,6 +89,7 @@ fun MenuTab(
                 if (!loaded) error = e.toUserMessage()
             }
             loaded = true
+            refreshing = false
             delay(10_000)
         }
     }
@@ -89,90 +97,92 @@ fun MenuTab(
     val term = search.trim().lowercase()
     val results = if (term.isEmpty()) emptyList() else products.filter { it.name.lowercase().contains(term) }
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 20.dp,
-            end = 20.dp,
-            top = padding.calculateTopPadding() + 16.dp,
-            bottom = padding.calculateBottomPadding() + 24.dp
-        ),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            PageHeader(t("Lo que ofrecemos"), t("Nuestra Carta"))
-        }
-
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            OutlinedTextField(
-                value = search,
-                onValueChange = { search = it },
-                singleLine = true,
-                placeholder = { Text(t("Buscar platos…"), color = Charcoal.copy(alpha = 0.4f)) },
-                shape = RoundedCornerShape(50),
-                colors = terraFieldColors(),
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        when {
-            !loaded -> item(span = { GridItemSpan(maxLineSpan) }) {
-                Text(t("Cargando la carta..."), color = TextSoft)
+    RefreshBox(isRefreshing = refreshing, onRefresh = { refreshing = true; reload++ }, topPadding = padding.calculateTopPadding()) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = padding.calculateTopPadding() + 16.dp,
+                bottom = padding.calculateBottomPadding() + 24.dp
+            ),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                PageHeader(t("Lo que ofrecemos"), t("Nuestra Carta"))
             }
 
-            error != null && products.isEmpty() -> item(span = { GridItemSpan(maxLineSpan) }) {
-                ErrorNotice(error ?: "")
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                OutlinedTextField(
+                    value = search,
+                    onValueChange = { search = it },
+                    singleLine = true,
+                    placeholder = { Text(t("Buscar platos…"), color = Charcoal.copy(alpha = 0.4f)) },
+                    shape = RoundedCornerShape(50),
+                    colors = terraFieldColors(),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
-            // Buscando: se muestran los platos que coinciden, de toda la carta
-            term.isNotEmpty() -> {
-                if (results.isEmpty()) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(t("No se encontraron platos"), color = Charcoal.copy(alpha = 0.35f), fontSize = 18.sp)
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                t("Borrar búsqueda"),
-                                color = Terra,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier.clickable { search = "" }
-                            )
+            when {
+                !loaded -> item(span = { GridItemSpan(maxLineSpan) }) {
+                    Text(t("Cargando la carta..."), color = TextSoft)
+                }
+
+                error != null && products.isEmpty() -> item(span = { GridItemSpan(maxLineSpan) }) {
+                    ErrorNotice(error ?: "", onRetry = { error = null; loaded = false; reload++ })
+                }
+
+                // Buscando: se muestran los platos que coinciden, de toda la carta
+                term.isNotEmpty() -> {
+                    if (results.isEmpty()) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(t("No se encontraron platos"), color = Charcoal.copy(alpha = 0.35f), fontSize = 18.sp)
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    t("Borrar búsqueda"),
+                                    color = TerraText,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.clickable { search = "" }
+                                )
+                            }
+                        }
+                    } else {
+                        items(results, key = { it.id }, span = { GridItemSpan(maxLineSpan) }) { product ->
+                            ProductCard(product = product, onClick = { onOpenProduct(product.id) })
                         }
                     }
-                } else {
-                    items(results, key = { it.id }, span = { GridItemSpan(maxLineSpan) }) { product ->
-                        ProductCard(product = product, onClick = { onOpenProduct(product.id) })
+                }
+
+                // Sin buscar: botones de categoría
+                // La lista usa los nombres internos ("Todos", "Popular"): solo el texto visible se traduce
+                else -> items(listOf("Todos", "Popular") + categories.map { it.name }) { name ->
+                    val dishes = when (name) {
+                        "Todos" -> products
+                        "Popular" -> products.filter { it.popular }
+                        else -> products.filter { it.category?.name == name }
                     }
-                }
-            }
 
-            // Sin buscar: botones de categoría
-            // La lista usa los nombres internos ("Todos", "Popular"): solo el texto visible se traduce
-            else -> items(listOf("Todos", "Popular") + categories.map { it.name }) { name ->
-                val dishes = when (name) {
-                    "Todos" -> products
-                    "Popular" -> products.filter { it.popular }
-                    else -> products.filter { it.category?.name == name }
+                    CategoryTile(
+                        name = t(name),
+                        count = dishes.size,
+                        imageUrl = if (name == "Todos") {
+                            // Un plato al azar (solo de los que tienen foto) en vez del primero
+                            val withImage = dishes.filter { !it.imageUrl.isNullOrBlank() }
+                            if (withImage.isEmpty()) null else withImage[seed % withImage.size].imageUrl
+                        } else {
+                            dishes.firstOrNull()?.imageUrl
+                        },
+                        onClick = { onOpenCategory(name) }
+                    )
                 }
-
-                CategoryTile(
-                    name = t(name),
-                    count = dishes.size,
-                    imageUrl = if (name == "Todos") {
-                        // Un plato al azar (solo de los que tienen foto) en vez del primero
-                        val withImage = dishes.filter { !it.imageUrl.isNullOrBlank() }
-                        if (withImage.isEmpty()) null else withImage[seed % withImage.size].imageUrl
-                    } else {
-                        dishes.firstOrNull()?.imageUrl
-                    },
-                    onClick = { onOpenCategory(name) }
-                )
             }
         }
     }

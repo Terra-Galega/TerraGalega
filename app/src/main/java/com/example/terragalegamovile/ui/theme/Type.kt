@@ -36,5 +36,5 @@ val Typography = Typography(
     bodyMedium = TextStyle(fontFamily = SourceSans, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
     bodySmall = TextStyle(fontFamily = SourceSans, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp),
     labelLarge = TextStyle(fontFamily = SourceSans, fontWeight = FontWeight.Medium, fontSize = 14.sp),
-    labelSmall = TextStyle(fontFamily = SourceSans, fontWeight = FontWeight.Medium, fontSize = 11.sp, letterSpacing = 1.sp)
+    labelSmall = TextStyle(fontFamily = SourceSans, fontWeight = FontWeight.Medium, fontSize = 12.sp, letterSpacing = 1.sp)
 )

@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Saber si hay internet para mostrar "Sin conexión" -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Chat con el restaurante: tomar una foto del pedido. Se pide solo la primera vez.
          Para elegir de la galería no hace falta permiso (selector de fotos de Android). -->
     <uses-permission android:name="android.permission.CAMERA" />

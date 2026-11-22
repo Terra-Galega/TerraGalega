@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui.components
 
+import com.example.terragalegamovile.ui.theme.ForestText
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.ErrorText
 
 import com.example.terragalegamovile.ui.theme.TrackOff
@@ -108,7 +112,7 @@ fun PageHeader(
     Column(modifier = modifier) {
         Text(
             eyebrow.uppercase(),
-            color = Terra,
+            color = TerraText,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             letterSpacing = 3.sp
@@ -433,7 +437,7 @@ fun ProductCard(
             .clickable(onClick = onClick)
     ) {
         Box(modifier = Modifier.fillMaxWidth().height(imageHeight)) {
-            ProductImage(product.imageUrl, Modifier.fillMaxWidth().height(imageHeight))
+            ProductImage(product.imageUrl, Modifier.fillMaxWidth().height(imageHeight), description = product.name)
             if (product.popular) {
                 Row(
                     modifier = Modifier
@@ -444,9 +448,9 @@ fun ProductCard(
                         .padding(horizontal = 12.dp, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("★", color = Terra, fontSize = 11.sp)
+                    Text("★", color = TerraText, fontSize = 12.sp)
                     Spacer(Modifier.width(4.dp))
-                    Text(t("Popular"), color = Terra, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(t("Popular"), color = TerraText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -463,7 +467,7 @@ fun ProductCard(
                             .background(Charcoal.copy(alpha = 0.65f))
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text(t(category.name), color = CreamFixed, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                        Text(t(category.name), color = CreamFixed, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -486,7 +490,7 @@ fun ProductCard(
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.height(2.dp))
-            Text(Format.money(product.price), color = Terra, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text(Format.money(product.price), color = TerraText, fontWeight = FontWeight.Bold, fontSize = 15.sp)
         }
     }
 }
@@ -577,7 +581,7 @@ fun OrderProgress(status: String) {
                     Text(
                         Format.statusLabel(step),
                         modifier = Modifier.padding(top = 8.dp),
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         lineHeight = 13.sp,
                         textAlign = TextAlign.Center,
                         fontWeight = if (state == 1) FontWeight.SemiBold else FontWeight.Medium,
@@ -681,7 +685,7 @@ fun SelectCard(
                     .border(2.dp, if (selected) Terra else Charcoal.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                if (selected) Text("✓", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                if (selected) Text("✓", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.width(12.dp))
             if (icon != null) {
@@ -696,8 +700,8 @@ fun SelectCard(
         if (badge != null) {
             Text(
                 badge,
-                fontSize = 11.sp,
-                color = Forest,
+                fontSize = 12.sp,
+                color = ForestText,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -767,9 +771,9 @@ fun OrderSummaryCard(
                 Text(
                     if (couponCode != null) t("Descuento ({})", couponCode) else t("Descuento"),
                     fontSize = 14.sp,
-                    color = Forest
+                    color = ForestText
                 )
-                Text("-" + Format.money(discount), fontSize = 14.sp, color = Forest)
+                Text("-" + Format.money(discount), fontSize = 14.sp, color = ForestText)
             }
         }
 
@@ -787,7 +791,7 @@ fun OrderSummaryCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(t("Total"), fontWeight = FontWeight.Medium, color = Charcoal)
-            Text(Format.money(subtotal - discount + deliveryFee), fontWeight = FontWeight.Bold, fontSize = 24.sp, color = Terra)        }
+            Text(Format.money(subtotal - discount + deliveryFee), fontWeight = FontWeight.Bold, fontSize = 24.sp, color = TerraText)        }
         content()
     }
 }

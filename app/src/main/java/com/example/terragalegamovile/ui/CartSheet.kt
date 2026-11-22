@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.ui.semantics.contentDescription
+
+import androidx.compose.ui.semantics.semantics
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.ui.theme.TerraText
 
 import com.example.terragalegamovile.ui.theme.Paper
@@ -62,6 +68,14 @@ import com.example.terragalegamovile.ui.theme.Terra
 fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var notice by remember { mutableStateOf<String?>(null) }
+    // Último producto quitado: se puede deshacer durante unos segundos
+    var lastRemoved by remember { mutableStateOf<com.example.terragalegamovile.data.CartItem?>(null) }
+    LaunchedEffect(lastRemoved) {
+        if (lastRemoved != null) {
+            kotlinx.coroutines.delay(6_000)
+            lastRemoved = null
+        }
+    }
 
     // Al abrir (y si la web desactiva algo mientras está abierto) se quitan los productos no disponibles
     LaunchedEffect(CartStore.items) {
@@ -103,8 +117,40 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                 modifier = Modifier
                     .heightIn(max = 380.dp)
                     .verticalScroll(rememberScrollState())
+                .imePadding()
                     .padding(24.dp)
             ) {
+                lastRemoved?.let { removed ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Charcoal.copy(alpha = 0.06f))
+                            .padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp)
+                    ) {
+                        Text(
+                            t("Quitamos {} del carrito.", removed.product.name),
+                            color = Charcoal.copy(alpha = 0.8f),
+                            fontSize = 14.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            t("Deshacer"),
+                            color = TerraText,
+                            fontSize = 14.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50))
+                                .clickable {
+                                    CartStore.add(removed.product, removed.quantity, removed.addOns)
+                                    lastRemoved = null
+                                }
+                                .padding(horizontal = 12.dp, vertical = 10.dp)
+                        )
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
                 notice?.let {
                     Box(
                         modifier = Modifier
@@ -167,7 +213,7 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                                         Format.money(CartStore.unitPrice(item)),
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Terra
+                                        color = TerraText
                                     )
                                     Spacer(Modifier.height(6.dp))
                                     QuantityStepper(
@@ -177,12 +223,16 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                                     )
                                 }
                                 TrashIcon(
-                                    color = Charcoal.copy(alpha = 0.35f),
+                                    color = Charcoal.copy(alpha = 0.45f),
                                     modifier = Modifier
-                                        .size(36.dp)
+                                        .size(44.dp)
                                         .clip(RoundedCornerShape(50))
-                                        .clickable { CartStore.remove(item) }
-                                        .padding(8.dp)
+                                        .clickable {
+                                            CartStore.remove(item)
+                                            lastRemoved = item
+                                        }
+                                        .semantics { contentDescription = t("Quitar {} del carrito", item.product.name) }
+                                        .padding(11.dp)
                                 )
                             }
                         }
@@ -203,7 +253,7 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                             Format.money(CartStore.subtotal),
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Terra
+                            color = TerraText
                         )
                     }
                     Spacer(Modifier.height(16.dp))

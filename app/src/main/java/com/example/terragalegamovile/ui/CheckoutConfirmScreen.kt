@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.TerraText
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.ui.components.ButtonStack
 
 import com.example.terragalegamovile.data.t
@@ -289,6 +293,7 @@ fun CheckoutConfirmScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .imePadding()
                 .padding(top = padding.calculateTopPadding())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
@@ -342,7 +347,7 @@ fun CheckoutConfirmScreen(
                     }
                     Text(
                         t("Editar"),
-                        color = Terra,
+                        color = TerraText,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.clickable(onClick = onEdit).padding(start = 12.dp)
@@ -372,7 +377,7 @@ fun CheckoutConfirmScreen(
                     }
                     Text(
                         t("Editar"),
-                        color = Terra,
+                        color = TerraText,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.clickable(onClick = onEdit).padding(start = 12.dp)

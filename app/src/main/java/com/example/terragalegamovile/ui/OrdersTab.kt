@@ -1,5 +1,15 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.ui.semantics.contentDescription
+
+import androidx.compose.ui.semantics.semantics
+
+import com.example.terragalegamovile.ui.components.RefreshBox
+
+import com.example.terragalegamovile.ui.theme.ForestText
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.Paper
 
 import com.example.terragalegamovile.ui.components.ButtonStack
@@ -82,6 +92,7 @@ fun OrdersTab(
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var reload by remember { mutableStateOf(0) }
+    var refreshing by remember { mutableStateOf(false) }
     var toCancel by remember { mutableStateOf<Order?>(null) }
     var cancelError by remember { mutableStateOf<String?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -101,6 +112,7 @@ fun OrdersTab(
                 if (loading) error = e.toUserMessage()
             }
             loading = false
+            refreshing = false
             delay(6_000)
         }
     }
@@ -108,124 +120,126 @@ fun OrdersTab(
     val active = orders.filter { it.status != "DELIVERED" && it.status != "CANCELLED" }
     val past = orders.filter { it.status == "DELIVERED" || it.status == "CANCELLED" }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 20.dp,
-            end = 20.dp,
-            top = padding.calculateTopPadding() + 16.dp,
-            bottom = padding.calculateBottomPadding() + 24.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        if (ClientUi.paid) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Forest.copy(alpha = 0.08f))
-                        .border(1.dp, Forest.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-                        .padding(horizontal = 20.dp, vertical = 14.dp)
-                ) {
-                    Column {
-                        Text(
-                            t("✓  ¡Tu orden fue añadida con éxito! Ya quedó registrada y está pendiente."),
-                            color = Forest,
-                            fontSize = 14.sp
-                        )
-                        ClientUi.lastPaidOrderId?.let { id ->
+    RefreshBox(isRefreshing = refreshing, onRefresh = { refreshing = true; reload++ }, topPadding = padding.calculateTopPadding()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = padding.calculateTopPadding() + 16.dp,
+                bottom = padding.calculateBottomPadding() + 24.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            if (ClientUi.paid) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Forest.copy(alpha = 0.08f))
+                            .border(1.dp, Forest.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                            .padding(horizontal = 20.dp, vertical = 14.dp)
+                    ) {
+                        Column {
                             Text(
-                                t("Descargar mi factura"),
-                                color = Forest,
-                                fontSize = 14.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                modifier = Modifier
-                                    .padding(top = 8.dp)
-                                    .clickable {
-                                        scope.launch {
-                                            try {
-                                                openStripe(context, ApiClient.api.invoiceLink(id).previewUrl)
-                                            } catch (e: CancellationException) {
-                                                throw e
-                                            } catch (_: Exception) {
+                                t("✓  ¡Tu orden fue añadida con éxito! Ya quedó registrada y está pendiente."),
+                                color = ForestText,
+                                fontSize = 14.sp
+                            )
+                            ClientUi.lastPaidOrderId?.let { id ->
+                                Text(
+                                    t("Descargar mi factura"),
+                                    color = ForestText,
+                                    fontSize = 14.sp,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                    modifier = Modifier
+                                        .padding(top = 8.dp)
+                                        .clickable {
+                                            scope.launch {
+                                                try {
+                                                    openStripe(context, ApiClient.api.invoiceLink(id).previewUrl)
+                                                } catch (e: CancellationException) {
+                                                    throw e
+                                                } catch (_: Exception) {
+                                                }
                                             }
                                         }
-                                    }
-                            )
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        item {
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    // El título cede espacio; el botón nunca se aplasta (en catalán es más largo)
-                    PageHeader(
-                        t("Tu historial"), t("Mis pedidos"), titleSize = 28.sp,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-                    if (orders.isNotEmpty()) {
-                        Spacer(Modifier.width(12.dp))
-                        TerraButton(t("Pedir de nuevo"), onClick = onGoMenu, compact = true)
-                    }
-                }
-                Spacer(Modifier.height(10.dp))
-            }
-        }
-
-        when {
-            loading -> item { Text(t("Cargando tus pedidos..."), color = TextSoft) }
-
-            error != null && orders.isEmpty() -> item { ErrorNotice(error ?: "") }
-
-            orders.isEmpty() -> item {
-                GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 32.dp) {
-                    Text(
-                        t("Todavía no has hecho ningún pedido."),
-                        style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        t("Cuando hagas tu primer pedido aparecerá aquí."),
-                        color = TextSoft,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    ButtonStack {
-                        TerraButton(t("Explorar la carta"), onClick = onGoMenu, modifier = Modifier.fillMaxWidth())
-                    }
-                }
-            }
-
-            else -> {
-                item { SectionTitle(t("Pedidos activos")) }
-                if (active.isEmpty()) {
-                    item {
-                        Text(
-                            t("No tienes pedidos activos en este momento."),
-                            fontSize = 14.sp,
-                            color = Charcoal.copy(alpha = 0.55f)
+            item {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        // El título cede espacio; el botón nunca se aplasta (en catalán es más largo)
+                        PageHeader(
+                            t("Tu historial"), t("Mis pedidos"), titleSize = 28.sp,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
+                        if (orders.isNotEmpty()) {
+                            Spacer(Modifier.width(12.dp))
+                            TerraButton(t("Pedir de nuevo"), onClick = onGoMenu, compact = true)
+                        }
                     }
-                } else {
-                    items(active.size) { i ->
-                        OrderCard(active[i], onCancel = { toCancel = active[i] }, onTrack = onTrack)
+                    Spacer(Modifier.height(10.dp))
+                }
+            }
+
+            when {
+                loading -> item { Text(t("Cargando tus pedidos..."), color = TextSoft) }
+
+                error != null && orders.isEmpty() -> item { ErrorNotice(error ?: "", onRetry = { error = null; loading = true; reload++ }) }
+
+                orders.isEmpty() -> item {
+                    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 32.dp) {
+                        Text(
+                            t("Todavía no has hecho ningún pedido."),
+                            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            t("Cuando hagas tu primer pedido aparecerá aquí."),
+                            color = TextSoft,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(Modifier.height(20.dp))
+                        ButtonStack {
+                            TerraButton(t("Explorar la carta"), onClick = onGoMenu, modifier = Modifier.fillMaxWidth())
+                        }
                     }
                 }
-                if (past.isNotEmpty()) {
-                    item { SectionTitle(t("Pedidos pasados")) }
-                    items(past.size) { i ->
-                        OrderCard(past[i], onCancel = null, onTrack = onTrack)
+
+                else -> {
+                    item { SectionTitle(t("Pedidos activos")) }
+                    if (active.isEmpty()) {
+                        item {
+                            Text(
+                                t("No tienes pedidos activos en este momento."),
+                                fontSize = 14.sp,
+                                color = Charcoal.copy(alpha = 0.55f)
+                            )
+                        }
+                    } else {
+                        items(active.size) { i ->
+                            OrderCard(active[i], onCancel = { toCancel = active[i] }, onTrack = onTrack)
+                        }
+                    }
+                    if (past.isNotEmpty()) {
+                        item { SectionTitle(t("Pedidos pasados")) }
+                        items(past.size) { i ->
+                            OrderCard(past[i], onCancel = null, onTrack = onTrack)
+                        }
                     }
                 }
             }
@@ -293,7 +307,7 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(t("Total"), fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
-                Text(Format.money(order.total), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Terra)
+                Text(Format.money(order.total), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = TerraText)
             }
         }
 
@@ -308,7 +322,7 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column(modifier = Modifier.weight(1f)) {
                         Row {
-                            Text("${line.quantity}×", color = Terra, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                            Text("${line.quantity}×", color = TerraText, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                             Spacer(Modifier.width(6.dp))
                             Text(line.product.name, fontWeight = FontWeight.Medium, fontSize = 15.sp, color = Charcoal)
                         }
@@ -325,7 +339,7 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
                                             .background(Forest.copy(alpha = 0.10f))
                                             .padding(horizontal = 10.dp, vertical = 2.dp)
                                     ) {
-                                        Text("x$count $name", color = Forest, fontSize = 12.sp)
+                                        Text("x$count $name", color = ForestText, fontSize = 12.sp)
                                     }
                                 }
                             }
@@ -348,12 +362,45 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
                 modifier = Modifier.fillMaxWidth().background(Cream).padding(horizontal = 20.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.Top
             ) {
-                AddressIcon(plus = false, color = Forest, modifier = Modifier.size(16.dp))
+                AddressIcon(plus = false, color = ForestText, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text(t("Entrega en"), fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
                     Text(order.address, fontSize = 15.sp, color = Charcoal)
                 }
+            }
+        }
+
+        // Chat con el restaurante sobre este pedido (como en la web), mientras siga en curso
+        if (order.status != "DELIVERED" && order.status != "CANCELLED") {
+            Box(Modifier.fillMaxWidth().height(1.dp).background(Charcoal.copy(alpha = 0.08f)))
+            val unread = order.id in SupportStore.unreadIds
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { SupportStore.openChat(order.id) }
+                    .semantics {
+                        contentDescription = t("¿Problemas con tu pedido?, escríbenos") +
+                            if (unread) ". " + t("Tienes mensajes nuevos del restaurante") else ""
+                    }
+                    .padding(horizontal = 20.dp, vertical = 14.dp)
+            ) {
+                HeadsetIcon(color = TerraText, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    t("¿Problemas con tu pedido?, escríbenos"),
+                    color = TerraText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.weight(1f)
+                )
+                if (unread) {
+                    UnreadDot()
+                    Spacer(Modifier.width(6.dp))
+                    Text(t("Nuevo"), fontSize = 12.sp, color = TerraText, fontWeight = FontWeight.SemiBold)
+                }
+                Text("  ›", color = TerraText, fontSize = 18.sp)
             }
         }
 

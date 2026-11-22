@@ -128,6 +128,20 @@ object AppStorage {
         ).apply()
     }
 
+    // Ya se explicó para qué sirven las notificaciones (antes de pedir el permiso)
+    fun notificationsExplained(): Boolean = prefs.getBoolean("notifications_explained", false)
+
+    fun setNotificationsExplained() {
+        prefs.edit().putBoolean("notifications_explained", true).apply()
+    }
+
+    // Conversación con Galleguito (para que no se pierda al cerrar la app)
+    fun loadChat(clientId: Int): String? = prefs.getString("galleguito_chat_$clientId", null)
+
+    fun saveChat(clientId: Int, json: String?) {
+        prefs.edit().apply { if (json == null) remove("galleguito_chat_$clientId") else putString("galleguito_chat_$clientId", json) }.apply()
+    }
+
     // Modo claro/oscuro elegido en la app (null = como el teléfono)
     fun loadTheme(): String? = prefs.getString("app_theme", null)
 

@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.ForestText
+
+import com.example.terragalegamovile.ui.theme.TerraText
+
 import com.example.terragalegamovile.ui.theme.ErrorText
 
 import com.example.terragalegamovile.ui.components.ButtonStack
@@ -127,7 +131,8 @@ fun ForgotPasswordContent(
                 value = email,
                 onValueChange = { email = it },
                 placeholder = "correo@ejemplo.com",
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                onSubmit = { submit() }
             )
             error?.let {
                 Spacer(Modifier.height(12.dp))
@@ -186,7 +191,7 @@ fun ForgotPasswordContent(
             }
             Text(
                 t("Reenviar enlace"),
-                color = Terra,
+                color = TerraText,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier
@@ -260,7 +265,7 @@ fun ResetPasswordContent(token: String, onDone: () -> Unit) {
 
         when {
             doneMessage != null -> {
-                Text(doneMessage ?: "", fontSize = 14.sp, color = Forest)
+                Text(doneMessage ?: "", fontSize = 14.sp, color = ForestText)
                 Spacer(Modifier.height(20.dp))
                 ButtonStack {
                     TerraButton(text = t("Iniciar sesión"), onClick = onDone, modifier = Modifier.fillMaxWidth())

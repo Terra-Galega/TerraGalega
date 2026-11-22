@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.TerraText
+
+import androidx.compose.foundation.layout.imePadding
+
 import com.example.terragalegamovile.data.t
 
 import com.example.terragalegamovile.ui.components.ErrorNotice
@@ -57,7 +61,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) {    var delivery by remember { mutableStateOf<ClientDelivery?>(null) }
+fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) {
+    var delivery by remember { mutableStateOf<ClientDelivery?>(null) }
+    // Reloj para "hace X s" (se actualiza cada segundo)
+    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1_000)
+            nowMillis = System.currentTimeMillis()
+        }
+    }
     var loaded by remember { mutableStateOf(false) }
     var delivered by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -139,11 +152,12 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .imePadding()
                 .padding(top = padding.calculateTopPadding())
         ) {
             Text(
                 t("← Mis pedidos"),
-                color = Terra,
+                color = TerraText,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
@@ -229,9 +243,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                     )
                     Text(
                         if (courier == null) t("Esperando la ubicación del repartidor...")
-                        else "Última actualización: ${
-                            current.locationUpdatedAt?.substringAfter('T')?.take(8) ?: "-"
-                        }",
+                        else t("Ubicación actualizada {}", agoLabel(current.locationUpdatedAt, nowMillis)),
                         fontSize = 12.sp,
                         color = TextLabel
                     )
@@ -246,7 +258,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                     Spacer(Modifier.height(16.dp))
                     Text(
                         t("TU PIN DE ENTREGA"),
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         letterSpacing = 1.sp,
                         color = TextLabel
                     )
@@ -279,7 +291,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                             onClick = {
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
                                     data = Uri.parse("mailto:")
-                                    putExtra(Intent.EXTRA_EMAIL, arrayOf("contacto@terragalega.co"))
+                                    putExtra(Intent.EXTRA_EMAIL, arrayOf("terragalega0@gmail.com"))
                                     putExtra(
                                         Intent.EXTRA_SUBJECT,
                                         t("Quejas, Reclamos o Comentarios del pedido #{}", current.orderId)
@@ -300,5 +312,28 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                 }
             }
         }
+    }
+}
+
+// "2026-11-22T14:32:07.123" (hora del servidor) -> milisegundos, sin java.time (pide Android 8)
+private fun isoMillis(iso: String?): Long? = try {
+    val d = iso!!.substring(0, 10).split('-')
+    val h = iso.substring(11, 19).split(':')
+    java.util.Calendar.getInstance().apply {
+        set(d[0].toInt(), d[1].toInt() - 1, d[2].toInt(), h[0].toInt(), h[1].toInt(), h[2].toInt())
+        set(java.util.Calendar.MILLISECOND, 0)
+    }.timeInMillis
+} catch (_: Exception) {
+    null
+}
+
+// "ahora mismo", "hace 12 s", "hace 3 min"
+private fun agoLabel(iso: String?, now: Long): String {
+    val at = isoMillis(iso) ?: return "-"
+    val seconds = ((now - at) / 1000).coerceAtLeast(0)
+    return when {
+        seconds < 5 -> t("ahora mismo")
+        seconds < 60 -> t("hace {} s", seconds)
+        else -> t("hace {} min", seconds / 60)
     }
 }
