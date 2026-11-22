@@ -9,11 +9,13 @@ public final class OrderChatDTOs {
     private OrderChatDTOs() {
     }
 
+    // content puede ser null (foto sin comentario); attachmentId es null si no hay foto
     public record MessageDTO(
             Integer id,
             String senderRole,
             String senderName,
             String content,
+            Integer attachmentId,
             LocalDateTime createdAt) {
     }
 
