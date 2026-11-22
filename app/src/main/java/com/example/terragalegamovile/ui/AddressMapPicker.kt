@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.ErrorText
+
+import com.example.terragalegamovile.data.t
+
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
@@ -210,7 +214,7 @@ fun AddressMapPicker(
 
             if (address.isBlank() && picked == null) {
                 Text(
-                    "Mueve el mapa hasta la puerta de tu casa",
+                    t("Mueve el mapa hasta la puerta de tu casa"),
                     fontSize = 12.sp,
                     color = Color.White,
                     modifier = Modifier
@@ -225,20 +229,20 @@ fun AddressMapPicker(
 
         Spacer(Modifier.height(10.dp))
         when {
-            resolving -> Text("Buscando la dirección...", fontSize = 13.sp, color = TextSoft)
+            resolving -> Text(t("Buscando la dirección..."), fontSize = 13.sp, color = TextSoft)
             failed -> Text(
-                "No pudimos leer esta dirección. Mueve un poco el mapa o escríbela.",
+                t("No pudimos leer esta dirección. Mueve un poco el mapa o escríbela."),
                 fontSize = 13.sp,
-                color = Burgundy
+                color = ErrorText
             )
             notFound -> Text(
-                "No ubicamos esa dirección en el mapa. Mueve el mapa hasta el punto exacto.",
+                t("No ubicamos esa dirección en el mapa. Mueve el mapa hasta el punto exacto."),
                 fontSize = 13.sp,
-                color = Burgundy
+                color = ErrorText
             )
             else -> Text(
-                "El mapa sigue lo que escribes. Si el punto no es exacto, mueve el mapa o toca la entrada. " +
-                    "Añade el apartamento o la torre al final del texto.",
+                t("El mapa sigue lo que escribes. Si el punto no es exacto, mueve el mapa o toca la entrada. ") +
+                    t("Añade el apartamento o la torre al final del texto."),
                 fontSize = 12.sp,
                 color = TextSoft
             )

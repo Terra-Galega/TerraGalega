@@ -1,5 +1,13 @@
 package com.example.terragalegamovile.ui.components
 
+import com.example.terragalegamovile.ui.theme.Selected
+
+import com.example.terragalegamovile.ui.theme.ErrorText
+
+import com.example.terragalegamovile.ui.theme.Paper
+
+import com.example.terragalegamovile.data.t
+
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -49,6 +57,7 @@ import com.example.terragalegamovile.ui.theme.TextLabel
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -83,6 +92,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
@@ -123,6 +135,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import com.example.terragalegamovile.R
 import com.example.terragalegamovile.data.NotificationStore
+import com.example.terragalegamovile.ui.theme.Gold
 
 // Logo "Terra" (Pinyon Script) + "GALEGA" (serifa), como en la navbar de la web
 @Composable
@@ -167,7 +180,7 @@ fun GlassCard(
                 spotColor = Charcoal.copy(alpha = 0.08f)
             )
             .clip(shape)
-            .background(Color.White.copy(alpha = 0.7f))
+            .background(Paper.copy(alpha = 0.7f))
             .border(1.dp, Color.White.copy(alpha = 0.6f), shape)
             .padding(contentPadding),
         content = content
@@ -195,13 +208,13 @@ fun TerraButton(
     }
     val border = when (style) {
         ButtonStyle.Outline -> BorderStroke(1.dp, Charcoal.copy(alpha = 0.2f))
-        ButtonStyle.Danger -> BorderStroke(1.dp, Burgundy.copy(alpha = 0.3f))
+        ButtonStyle.Danger -> BorderStroke(1.dp, ErrorText.copy(alpha = 0.35f))
         else -> null
     }
     val textColor = when (style) {
         ButtonStyle.Primary, ButtonStyle.Sage -> Color.White
         ButtonStyle.Outline -> Charcoal.copy(alpha = 0.7f)
-        ButtonStyle.Danger -> Burgundy
+        ButtonStyle.Danger -> ErrorText
     }
 
     Box(
@@ -227,7 +240,12 @@ fun TerraButton(
             color = textColor,
             fontFamily = SourceSans,
             fontWeight = FontWeight.Medium,
-            fontSize = if (compact) 13.sp else 16.sp        )
+            fontSize = if (compact) 13.sp else 16.sp,
+            // Los botones pequeños van en una sola línea; los grandes pueden partirse centrados
+            maxLines = if (compact) 1 else Int.MAX_VALUE,
+            softWrap = !compact,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
     }
 }
 
@@ -260,8 +278,8 @@ fun TerraTextField(
             keyboardOptions = keyboardOptions,
             visualTransformation = visualTransformation,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White.copy(alpha = 0.7f),
-                unfocusedContainerColor = Color.White.copy(alpha = 0.7f),
+                focusedContainerColor = Paper.copy(alpha = 0.7f),
+                unfocusedContainerColor = Paper.copy(alpha = 0.7f),
                 focusedBorderColor = Terra,
                 unfocusedBorderColor = BorderSoft,
                 focusedTextColor = Charcoal,
@@ -308,14 +326,14 @@ fun TerraPasswordField(
                         .size(44.dp)
                         .clip(CircleShape)
                         .clickable { visible = !visible }
-                        .buttonDescription(if (visible) "Ocultar contraseña" else "Mostrar contraseña")
+                        .buttonDescription(if (visible) t("Ocultar contraseña") else t("Mostrar contraseña"))
                 ) {
                     EyeIcon(open = !visible, color = Charcoal.copy(alpha = 0.55f))
                 }
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White.copy(alpha = 0.7f),
-                unfocusedContainerColor = Color.White.copy(alpha = 0.7f),
+                focusedContainerColor = Paper.copy(alpha = 0.7f),
+                unfocusedContainerColor = Paper.copy(alpha = 0.7f),
                 focusedBorderColor = Terra,
                 unfocusedBorderColor = BorderSoft,
                 focusedTextColor = Charcoal,
@@ -352,6 +370,154 @@ private fun EyeIcon(open: Boolean, color: Color) {
         drawCircle(color, radius = w * 0.13f, center = Offset(w * 0.5f, h * 0.5f), style = stroke)
         if (!open) {
             drawLine(color, Offset(w * 0.15f, h * 0.15f), Offset(w * 0.85f, h * 0.85f), strokeWidth = w * 0.08f, cap = StrokeCap.Round)
+        }
+    }
+}
+
+// Botones a su medida: cada botón mide lo que pide su texto y va centrado. Si hay
+// varios uno encima de otro, todos toman el ancho del más largo. Dentro, los
+// botones usan Modifier.fillMaxWidth() (llenan solo este bloque, no la pantalla).
+@Composable
+fun ButtonStack(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+        Column(
+            modifier = Modifier
+                .width(androidx.compose.foundation.layout.IntrinsicSize.Max)
+                .widthIn(min = 200.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            content = content
+        )
+    }
+}
+
+// Interruptor de modo oscuro: luna en modo claro, sol en modo oscuro (mismos trazos
+// de la web). Cambia toda la app al instante y queda guardado en el teléfono.
+private val MOON_PATH = androidx.compose.ui.graphics.vector.PathParser()
+    .parsePathString("M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z").toPath()
+
+@Composable
+fun DarkModeToggle(modifier: Modifier = Modifier) {
+    val dark = com.example.terragalegamovile.ui.theme.ThemeState.dark
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(38.dp)
+            .clip(CircleShape)
+            .background(Charcoal.copy(alpha = 0.06f))
+            .clickable { com.example.terragalegamovile.ui.theme.ThemeState.toggle() }
+            .semantics { contentDescription = if (dark) t("Activar modo claro") else t("Activar modo oscuro") }
+    ) {
+        Canvas(Modifier.size(20.dp)) {
+            val s = size.minDimension / 24f
+            val stroke = Stroke(width = 1.8f * s, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            if (dark) {
+                // Sol
+                drawCircle(Gold, radius = 4.5f * s, center = Offset(12f * s, 12f * s), style = stroke)
+                for (i in 0 until 8) {
+                    val a = Math.toRadians(i * 45.0)
+                    val c = Offset(12f * s, 12f * s)
+                    drawLine(
+                        Gold,
+                        Offset(c.x + (8f * s * Math.cos(a)).toFloat(), c.y + (8f * s * Math.sin(a)).toFloat()),
+                        Offset(c.x + (10.5f * s * Math.cos(a)).toFloat(), c.y + (10.5f * s * Math.sin(a)).toFloat()),
+                        1.8f * s, StrokeCap.Round
+                    )
+                }
+            } else {
+                withTransform({ scale(s, s, pivot = Offset.Zero) }) {
+                    drawPath(MOON_PATH, Charcoal, style = Stroke(width = 1.8f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                }
+            }
+        }
+    }
+}
+
+// Selector de idioma: Español / English / Català. Cambia toda la app al instante
+// y queda guardado en el teléfono.
+@Composable
+fun LanguagePicker(modifier: Modifier = Modifier, compact: Boolean = false) {
+    val shape = RoundedCornerShape(50)
+    Row(
+        modifier = modifier
+            .clip(shape)
+            .background(Charcoal.copy(alpha = 0.06f))
+            .padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        com.example.terragalegamovile.data.I18n.languages.forEach { (code, name) ->
+            val active = com.example.terragalegamovile.data.I18n.lang == code
+            Text(
+                // Compacto: ES / EN / CA (para que quepa junto a un título)
+                if (compact) code.uppercase() else name,
+                fontSize = 13.sp,
+                fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium,
+                color = if (active) Terra else Charcoal.copy(alpha = 0.6f),
+                modifier = Modifier
+                    .clip(shape)
+                    .background(if (active) Selected else Color.Transparent)
+                    .clickable { com.example.terragalegamovile.data.I18n.select(code) }
+                    .semantics {
+                        selected = active
+                        if (compact) contentDescription = name
+                    }
+                    .padding(horizontal = if (compact) 10.dp else 14.dp, vertical = 7.dp)
+            )
+        }
+    }
+}
+
+// Aviso de error como el de la web: caja suave granate, con ícono y, si se puede,
+// un botón para reintentar. Se usa en lugar de un texto rojo suelto.
+@Composable
+fun ErrorNotice(
+    text: String,
+    modifier: Modifier = Modifier,
+    onRetry: (() -> Unit)? = null
+) {
+    val shape = RoundedCornerShape(14.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(ErrorText.copy(alpha = 0.08f))
+            .border(1.dp, ErrorText.copy(alpha = 0.18f), shape)
+            .semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite }
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(22.dp)
+                .clip(CircleShape)
+                .background(ErrorText.copy(alpha = 0.14f))
+        ) {
+            Text("!", color = ErrorText, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.width(10.dp))
+        Text(
+            text,
+            color = ErrorText,
+            fontSize = 14.sp,
+            lineHeight = 19.sp,
+            modifier = Modifier.weight(1f)
+        )
+        if (onRetry != null) {
+            Spacer(Modifier.width(8.dp))
+            Text(
+                t("Reintentar"),
+                color = ErrorText,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .clickable(onClick = onRetry)
+                    .border(1.dp, Burgundy.copy(alpha = 0.3f), RoundedCornerShape(50))
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            )
         }
     }
 }
@@ -396,7 +562,7 @@ fun PinDigits(pin: String) {
                 modifier = Modifier
                     .size(width = 52.dp, height = 64.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color.White)
+                    .background(Paper)
                     .border(1.dp, Terra.copy(alpha = 0.3f), RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center
             ) {
@@ -444,7 +610,7 @@ fun PinInput(
                         modifier = Modifier
                             .size(width = 52.dp, height = 64.dp)
                             .clip(shape)
-                            .background(Color.White)
+                            .background(Paper)
                             .border(
                                 if (active) 2.dp else 1.dp,
                                 if (active) Terra else Terra.copy(alpha = 0.3f),
@@ -493,16 +659,11 @@ fun BellButton(count: Int, onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .semantics { contentDescription = if (count > 0) "Notificaciones, $count sin leer" else "Notificaciones" }
+                .semantics { contentDescription = if (count > 0) t("Notificaciones, {} sin leer", count) else t("Notificaciones") }
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Notifications,
-                contentDescription = null,
-                tint = Terra,
-                modifier = Modifier.size(28.dp)
-            )
+            WebBellIcon(color = Terra, modifier = Modifier.size(26.dp))
         }
         if (count > 0) {
             Box(
@@ -529,6 +690,27 @@ fun BellButton(count: Int, onClick: () -> Unit) {
     }
 }
 
+// Campana de la navbar de la web (mismo trazo SVG, cuadrícula de 24, línea 1.8)
+private val BELL_PATH = androidx.compose.ui.graphics.vector.PathParser()
+    .parsePathString(
+        "M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9"
+    )
+    .toPath()
+
+@Composable
+fun WebBellIcon(color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val scale = size.minDimension / 24f
+        withTransform({ scale(scale, scale, pivot = Offset.Zero) }) {
+            drawPath(
+                BELL_PATH,
+                color,
+                style = Stroke(width = 1.8f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            )
+        }
+    }
+}
+
 // Asistente virtual: solo el ícono de mensaje con signo de pregunta, sin fondo
 @Composable
 fun ChatButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -536,11 +718,20 @@ fun ChatButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier
             .size(40.dp)
             .clip(CircleShape)
-            .semantics { contentDescription = "Asistente virtual" }
+            .semantics {
+                contentDescription = if (com.example.terragalegamovile.ui.SupportStore.hasUnread)
+                    t("Asistente virtual, tienes mensajes nuevos del restaurante") else t("Asistente virtual")
+            }
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         ChatIcon(color = Terra, modifier = Modifier.size(28.dp))
+        // Mensajes nuevos del restaurante
+        if (com.example.terragalegamovile.ui.SupportStore.hasUnread) {
+            com.example.terragalegamovile.ui.UnreadDot(
+                Modifier.align(Alignment.TopEnd).offset(x = (-4).dp, y = 4.dp)
+            )
+        }
     }
 }
 
@@ -612,7 +803,7 @@ private fun ProfileChip(name: String, onClick: () -> Unit, modifier: Modifier = 
         }
         Spacer(Modifier.height(2.dp))
         Text(
-            "Mi perfil",
+            t("Mi perfil"),
             fontFamily = SourceSans,
             fontSize = 10.sp,
             fontWeight = FontWeight.Medium,
@@ -644,15 +835,18 @@ fun TerraScaffold(
     val topArea = statusTop + 66.dp
     val fadeEnd = statusTop + 100.dp
     val solidUntil = ((statusTop + 62.dp) / fadeEnd).coerceIn(0f, 1f)
-    val fadeStops = remember(solidUntil) {
+    // El color se lee aquí (no dentro de remember) para que la barra cambie al instante
+    // al pasar entre modo claro y oscuro
+    val pageColor = Cream
+    val fadeStops = remember(solidUntil, pageColor) {
         buildList {
-            add(0f to Cream)
-            add(solidUntil to Cream)
+            add(0f to pageColor)
+            add(solidUntil to pageColor)
             val steps = 10
             for (i in 1..steps) {
                 val t = i / steps.toFloat()
                 val alpha = 1f - (t * t * (3f - 2f * t))
-                add((solidUntil + (1f - solidUntil) * t) to Cream.copy(alpha = alpha))
+                add((solidUntil + (1f - solidUntil) * t) to pageColor.copy(alpha = alpha))
             }
         }.toTypedArray()
     }
@@ -692,7 +886,7 @@ fun TerraScaffold(
             TerraLogo(
                 scale = 0.8f,
                 terraColor = Terra,
-                galegaColor = Color(0xFF1A1A1A)
+                galegaColor = Charcoal
             )
         }
 
@@ -732,9 +926,9 @@ fun TerraScaffold(
                     .padding(end = 16.dp, top = statusTop + 10.dp)
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color.White)
+                    .background(Paper)
                     .border(1.dp, Burgundy, CircleShape)
-                    .semantics { contentDescription = "Cerrar sesión" }
+                    .semantics { contentDescription = t("Cerrar sesión") }
                     .clickable(onClick = onLogout),
                 contentAlignment = Alignment.Center
             ) {
@@ -791,26 +985,23 @@ fun LogoutIcon(bracket: Color, arrow: Color, modifier: Modifier = Modifier) {
 // Botón redondo del carrito con insignia de cantidad (como el de la navbar de la web)
 @Composable
 fun CartButton(count: Int, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
-
-    Box(contentAlignment = Alignment.TopEnd) {
+    // Igual que el carrito de la navbar de la web: solo el ícono, sin fondo ni borde
+    Box {
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(if (pressed) Terra else Color.White)
-                .border(1.dp, Terra, CircleShape)
-                .semantics { contentDescription = "Carrito" }
-                .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+                .semantics { contentDescription = t("Carrito") }
+                .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
-            CartIcon(color = if (pressed) Color.White else Terra, modifier = Modifier.size(22.dp))
+            WebCartIcon(color = Terra, modifier = Modifier.size(26.dp))
         }
         if (count > 0) {
             Box(
                 modifier = Modifier
-                    .offset(x = 4.dp, y = (-4).dp)
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-2).dp, y = 2.dp)
                     .defaultMinSize(minWidth = 18.dp, minHeight = 18.dp)
                     .clip(CircleShape)
                     .background(Burgundy),
@@ -821,9 +1012,28 @@ fun CartButton(count: Int, onClick: () -> Unit) {
                     color = Color.White,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Default,
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }
+        }
+    }
+}
+
+// Carrito de la navbar de la web (mismo trazo SVG, cuadrícula de 24, línea 1.8)
+private val CART_PATH = androidx.compose.ui.graphics.vector.PathParser()
+    .parsePathString(
+        "M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17" +
+            "m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+    )
+    .toPath()
+
+@Composable
+fun WebCartIcon(color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val scale = size.minDimension / 24f
+        withTransform({ scale(scale, scale, pivot = Offset.Zero) }) {
+            drawPath(CART_PATH, color, style = Stroke(width = 1.8f, cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
     }
 }
@@ -866,6 +1076,8 @@ fun ClientBottomBar(
     onProfile: () -> Unit = { ProfileNav.open?.invoke() }
 ) {
     val pill = RoundedCornerShape(50)
+    // Se lee fuera del bloque del desenfoque: así la barra cambia al instante con el modo oscuro
+    val glassColor = Cream
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -879,7 +1091,7 @@ fun ClientBottomBar(
             .hazeEffect(state = hazeState) {
                 blurRadius = 40.dp
                 noiseFactor = 0.02f
-                backgroundColor = Cream
+                backgroundColor = glassColor
                 tints = listOf(HazeTint(Forest.copy(alpha = 0.55f)))
             }
             .background(
@@ -906,7 +1118,7 @@ fun ClientBottomBar(
                 modifier = Modifier.size(26.dp)
             )
         }
-        NavItem(false, "Carrito", onCart, badge = cartCount) { NavIcon(1, it) }
+        NavItem(false, t("Carrito"), onCart, badge = cartCount) { NavIcon(1, it) }
         NavItem(selected == 1, "Órdenes", onOrders) { NavIcon(2, it) }
         NavItem(selected == 2, "Perfil", onProfile) { NavIcon(3, it) }
 

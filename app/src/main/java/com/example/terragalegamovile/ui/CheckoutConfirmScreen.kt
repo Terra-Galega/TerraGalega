@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -74,7 +80,7 @@ fun CheckoutConfirmScreen(
         }
         val removed = CartStore.removeUnavailable()
         if (removed.isNotEmpty()) {
-            errorTitle = "Actualizamos tu carrito"
+            errorTitle = t("Actualizamos tu carrito")
             errorMessage = unavailableMessage(removed)
         }
     }
@@ -88,8 +94,8 @@ fun CheckoutConfirmScreen(
             throw e
         } catch (e: Exception) {
             d.coupon = null
-            errorTitle = "Quitamos tu cupón"
-            errorMessage = "Quitamos el cupón ${current.code}. ${e.toUserMessage()}"
+            errorTitle = t("Quitamos tu cupón")
+            errorMessage = t("Quitamos el cupón {}. {}", current.code, e.toUserMessage())
         }
     }
 
@@ -119,10 +125,10 @@ fun CheckoutConfirmScreen(
         scope.launch {
             val removed = CartStore.removeUnavailable()
             if (removed.isNotEmpty()) {
-                errorTitle = "Actualizamos tu carrito"
+                errorTitle = t("Actualizamos tu carrito")
                 errorMessage = unavailableMessage(removed)
             } else {
-                errorTitle = "No se pudo procesar el pedido"
+                errorTitle = t("No se pudo procesar el pedido")
                 serverError = message
                 errorMessage = message
             }
@@ -146,17 +152,17 @@ fun CheckoutConfirmScreen(
                 d.paymentRequestBody = ""
                 payment = null
                 paying = false
-                errorTitle = "El pago se canceló"
-                errorMessage = "No se hizo ningún cobro. Tu carrito sigue intacto para que lo intentes de nuevo."
+                errorTitle = t("El pago se canceló")
+                errorMessage = t("No se hizo ningún cobro. Tu carrito sigue intacto para que lo intentes de nuevo.")
                 true
             }
             else -> {
                 // Pedido pagado y luego cancelado: reembolso
                 d.pendingOrderId = null
                 CartStore.refresh()
-                errorTitle = "Pedido cancelado"
-                errorMessage = if (result.state == "REFUNDED") "Te devolvimos el dinero a tu tarjeta."
-                else "Estamos procesando el reembolso a tu tarjeta."
+                errorTitle = t("Pedido cancelado")
+                errorMessage = if (result.state == "REFUNDED") t("Te devolvimos el dinero a tu tarjeta.")
+                else t("Estamos procesando el reembolso a tu tarjeta.")
                 ClientUi.tab = 1
                 onDone()
                 true
@@ -179,7 +185,7 @@ fun CheckoutConfirmScreen(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                errorTitle = "No pudimos consultar tu pago"
+                errorTitle = t("No pudimos consultar tu pago")
                 errorMessage = e.toUserMessage()
             } finally {
                 checking = false
@@ -270,7 +276,7 @@ fun CheckoutConfirmScreen(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                errorTitle = "No pudimos cancelar el pago"
+                errorTitle = t("No pudimos cancelar el pago")
                 errorMessage = e.toUserMessage()
             } finally {
                 checking = false
@@ -286,7 +292,7 @@ fun CheckoutConfirmScreen(
                 .padding(top = padding.calculateTopPadding())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
-            PageHeader("Paso 2 de 2 · Pasarela de pago", "Revisa tu pedido")
+            PageHeader(t("Paso 2 de 2 · Pasarela de pago"), t("Revisa tu pedido"))
             Spacer(Modifier.height(28.dp))
 
             // Volvió de Stripe y el pago sigue pendiente: consultar, volver a pagar o cancelar
@@ -303,9 +309,11 @@ fun CheckoutConfirmScreen(
 
             if (CartStore.items.isEmpty()) {
                 GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 32.dp) {
-                    Text("Tu carrito está vacío. Agrega algo de la carta antes de pagar.", color = TextSoft)
+                    Text(t("Tu carrito está vacío. Agrega algo de la carta antes de pagar."), color = TextSoft)
                     Spacer(Modifier.height(16.dp))
-                    TerraButton("Explorar la carta", onClick = onExit, modifier = Modifier.fillMaxWidth())
+                    ButtonStack {
+                        TerraButton(t("Explorar la carta"), onClick = onExit, modifier = Modifier.fillMaxWidth())
+                    }
                 }
                 return@TerraScaffold
             }
@@ -314,7 +322,7 @@ fun CheckoutConfirmScreen(
             GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 24.dp) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Entrega", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.55f))
+                        Text(t("Entrega"), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.55f))
                         Text(
                             d.address,
                             fontSize = 15.sp,
@@ -323,9 +331,9 @@ fun CheckoutConfirmScreen(
                             modifier = Modifier.padding(top = 4.dp)
                         )
                         if (d.saveAddress) {
-                            val named = if (d.addressName.isNotBlank()) " como «${d.addressName}»" else ""
+                            val named = if (d.addressName.isNotBlank()) t(" como «{}»", d.addressName) else ""
                             Text(
-                                "Esta dirección se guardará en tu perfil$named para tus próximos pedidos.",
+                                t("Esta dirección se guardará en tu perfil{} para tus próximos pedidos.", named),
                                 fontSize = 14.sp,
                                 color = Charcoal.copy(alpha = 0.7f),
                                 modifier = Modifier.padding(top = 12.dp)
@@ -333,7 +341,7 @@ fun CheckoutConfirmScreen(
                         }
                     }
                     Text(
-                        "Editar",
+                        t("Editar"),
                         color = Terra,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
@@ -347,23 +355,23 @@ fun CheckoutConfirmScreen(
             GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 24.dp) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Método de pago", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.55f))
+                        Text(t("Método de pago"), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.55f))
                         Text(
-                            if (d.method == "card") "Tarjeta de crédito o débito" else "Contra entrega",
+                            if (d.method == "card") t("Tarjeta de crédito o débito") else t("Contra entrega"),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Medium,
                             color = Charcoal,
                             modifier = Modifier.padding(top = 4.dp)
                         )
                         Text(
-                            if (d.method == "card") "Ingresarás los datos en la pasarela segura de Stripe."
-                            else "Pagas en efectivo cuando recibas tu pedido.",
+                            if (d.method == "card") t("Ingresarás los datos en la pasarela segura de Stripe.")
+                            else t("Pagas en efectivo cuando recibas tu pedido."),
                             fontSize = 14.sp,
                             color = Charcoal.copy(alpha = 0.6f)
                         )
                     }
                     Text(
-                        "Editar",
+                        t("Editar"),
                         color = Terra,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
@@ -381,30 +389,26 @@ fun CheckoutConfirmScreen(
                 couponCode = d.coupon?.code
             ) {
                 Spacer(Modifier.height(24.dp))
-                TerraButton(
-                    text = when {
-                        d.method == "card" && paying -> "Abriendo la pasarela..."
-                        d.method == "card" -> "Pagar con tarjeta"
-                        paying -> "Confirmando pedido..."
-                        else -> "Confirmar pedido"
-                    },
-                    onClick = { confirm() },
-                    enabled = !paying,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                if (serverError.isNotEmpty()) {
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        serverError,
-                        color = Burgundy,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
+                ButtonStack {
+                    TerraButton(
+                        text = when {
+                            d.method == "card" && paying -> t("Abriendo la pasarela...")
+                            d.method == "card" -> t("Pagar con tarjeta")
+                            paying -> t("Confirmando pedido...")
+                            else -> t("Confirmar pedido")
+                        },
+                        onClick = { confirm() },
+                        enabled = !paying,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
+                if (serverError.isNotEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    ErrorNotice(serverError)
+                }
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Cancelar compra",
+                    t("Cancelar compra"),
                     color = Charcoal.copy(alpha = 0.65f),
                     fontSize = 14.sp,
                     modifier = Modifier
@@ -418,17 +422,17 @@ fun CheckoutConfirmScreen(
 
     if (showCancel) {
         TerraDialog(
-            title = "Cancelar compra",
-            message = "¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará.",
-            confirmLabel = "Sí, cancelar compra",
-            cancelLabel = "Continuar comprando",
+            title = t("Cancelar compra"),
+            message = t("¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará."),
+            confirmLabel = t("Sí, cancelar compra"),
+            cancelLabel = t("Continuar comprando"),
             danger = true,
             onConfirm = { showCancel = false; CheckoutDraft.reset(); onExit() },
             onCancel = { showCancel = false }
         )
     }
     errorMessage?.let {
-        TerraDialog(errorTitle, it, "Aceptar", onConfirm = { errorMessage = null; serverError = "" })
+        TerraDialog(errorTitle, it, t("Aceptar"), onConfirm = { errorMessage = null; serverError = "" })
     }
 }
 
@@ -443,44 +447,46 @@ private fun PendingPaymentCard(
 ) {
     GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 28.dp) {
         Text(
-            if (checking) "Confirmando tu pago con Stripe…" else "Tu pago aún no está confirmado",
+            if (checking) t("Confirmando tu pago con Stripe…") else t("Tu pago aún no está confirmado"),
             fontFamily = Playfair,
             fontWeight = FontWeight.SemiBold,
             fontSize = 20.sp,
             color = Charcoal
         )
         Text(
-            if (checking) "No cierres la app."
-            else "Si ya pagaste, la confirmación puede tardar un poco. Si no terminaste, " +
-                "puedes volver a la pasarela o cancelar el pedido; tu carrito se conserva.",
+            if (checking) t("No cierres la app.")
+            else t("Si ya pagaste, la confirmación puede tardar un poco. Si no terminaste, ") +
+                t("puedes volver a la pasarela o cancelar el pedido; tu carrito se conserva."),
             fontSize = 15.sp,
             color = Charcoal.copy(alpha = 0.7f),
             modifier = Modifier.padding(top = 8.dp)
         )
         Spacer(Modifier.height(20.dp))
-        TerraButton(
-            if (checking) "Consultando..." else "Ya pagué, consultar",
-            onClick = onCheck,
-            enabled = !checking,
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (canPayAgain) {
+        ButtonStack {
+            TerraButton(
+                if (checking) t("Consultando...") else t("Ya pagué, consultar"),
+                onClick = onCheck,
+                enabled = !checking,
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (canPayAgain) {
+                Spacer(Modifier.height(10.dp))
+                TerraButton(
+                    t("Volver a la pasarela"),
+                    onClick = onPayAgain,
+                    enabled = !checking,
+                    style = ButtonStyle.Outline,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Spacer(Modifier.height(10.dp))
             TerraButton(
-                "Volver a la pasarela",
-                onClick = onPayAgain,
+                t("Cancelar pedido"),
+                onClick = onCancel,
                 enabled = !checking,
-                style = ButtonStyle.Outline,
+                style = ButtonStyle.Danger,
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        Spacer(Modifier.height(10.dp))
-        TerraButton(
-            "Cancelar pedido",
-            onClick = onCancel,
-            enabled = !checking,
-            style = ButtonStyle.Danger,
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }

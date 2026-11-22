@@ -13,7 +13,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 object ApiClient {
 
     // Emulador de Android: 10.0.2.2 donde corre el backend.
-    const val BASE_URL = "http://10.195.68.14:8080/"
+    const val BASE_URL = "http://10.195.68.11:8080/"
     private val backendUrl = BASE_URL.toHttpUrl()
     private val okHttp = OkHttpClient.Builder()
         //Agrega el JWT a cada peticion si hay sesion
@@ -84,15 +84,36 @@ fun Throwable.apiError(): ApiErrorBody? = (this as? HttpException)?.let {
     }
 }
 
-// Convierte un error de red o del backend en un texto para mostrar en pantalla.
+// Error con un texto ya pensado para el usuario (por ejemplo, al iniciar con Google)
+class UserMessageException(message: String) : Exception(message)
+
+// Convierte un error de red o del backend en un texto para mostrar en pantalla,
+// igual que getErrorMessage de la web: nunca muestra textos técnicos ("failed to connect…").
 // Si el backend mandó un mensaje (ej. "PIN incorrecto. Te quedan 3 intentos."), se usa ese.
 fun Throwable.toUserMessage(): String = when (this) {
-    is HttpException -> try {
-        Gson().fromJson(response()?.errorBody()?.string(), ApiErrorBody::class.java)?.message
-            ?: "Error ${code()}"
-    } catch (e: Exception) {
-        "Error ${code()}"
+    is HttpException -> {
+        val fromServer = try {
+            Gson().fromJson(response()?.errorBody()?.string(), ApiErrorBody::class.java)?.message
+        } catch (_: Exception) {
+            null
+        }
+        fromServer?.takeIf { it.isNotBlank() } ?: httpMessage(code())
     }
-    is IOException -> "No se pudo conectar: ${this.message}"
-    else -> message ?: "Error inesperado."
+    is java.net.SocketTimeoutException ->
+        t("El servidor tardó demasiado en responder. Inténtalo de nuevo.")
+    is IOException ->
+        t("No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.")
+    is UserMessageException -> message ?: GENERIC_ERROR
+    else -> GENERIC_ERROR
+}
+
+private val GENERIC_ERROR: String get() = t("Ocurrió un error inesperado. Inténtalo de nuevo.")
+
+private fun httpMessage(code: Int): String = when {
+    code == 401 -> t("Tu sesión expiró. Vuelve a iniciar sesión.")
+    code == 403 -> t("No tienes permiso para hacer esto.")
+    code == 404 -> t("No encontramos lo que buscabas.")
+    code == 409 -> t("No se pudo completar porque algo cambió. Actualiza e inténtalo de nuevo.")
+    code >= 500 -> t("El servidor tuvo un problema. Inténtalo de nuevo en un momento.")
+    else -> GENERIC_ERROR
 }

@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -88,7 +92,7 @@ fun ProductScreen(
             try {
                 val p = ApiClient.api.product(productId)
                 if (!p.active) {
-                    unavailable = "Este producto ya no está disponible."
+                    unavailable = t("Este producto ya no está disponible.")
                     break
                 }
                 product = p
@@ -102,7 +106,7 @@ fun ProductScreen(
                 throw e
             } catch (e: Exception) {
                 if (product == null) {
-                    unavailable = if (e is HttpException) "Este producto no existe o ya no está disponible."
+                    unavailable = if (e is HttpException) t("Este producto no existe o ya no está disponible.")
                     else e.toUserMessage()
                     break
                 }
@@ -159,7 +163,7 @@ fun ProductScreen(
             try {
                 val current = ApiClient.api.product(p.id)
                 if (!current.active) {
-                    unavailable = "Este producto ya no está disponible."
+                    unavailable = t("Este producto ya no está disponible.")
                     return@launch
                 }
                 val qty = quantity
@@ -172,8 +176,8 @@ fun ProductScreen(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                if (e is HttpException) unavailable = "Este producto ya no está disponible."
-                else errorMsg = "No se pudo verificar el producto. Revisa tu conexión e intenta de nuevo."
+                if (e is HttpException) unavailable = t("Este producto ya no está disponible.")
+                else errorMsg = t("No se pudo verificar el producto. Revisa tu conexión e intenta de nuevo.")
             } finally {
                 verifying = false
             }
@@ -195,7 +199,7 @@ fun ProductScreen(
                     .padding(top = padding.calculateTopPadding())
                     .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 40.dp)
             ) {
-                BackLink("Volver a la carta", onBack)
+                BackLink(t("Volver a la carta"), onBack)
                 Spacer(Modifier.height(8.dp))
 
                 product?.let { p ->
@@ -219,7 +223,7 @@ fun ProductScreen(
                                 Spacer(Modifier.width(12.dp))
                             }
                             if (p.popular) {
-                                Text("★ Popular", color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                Text(t("★ Popular"), color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                         Spacer(Modifier.height(12.dp))
@@ -235,7 +239,8 @@ fun ProductScreen(
                         Box(Modifier.width(48.dp).height(2.dp).background(Terra))
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            p.description ?: "",
+                            // Datos de la carta: se traducen si están en el diccionario
+                            t(p.description ?: ""),
                             fontSize = 16.sp,
                             lineHeight = 24.sp,
                             color = Charcoal.copy(alpha = 0.65f)
@@ -257,20 +262,20 @@ fun ProductScreen(
                                     .padding(16.dp)
                             ) {
                                 Text(
-                                    "CATEGORÍA: ${c.name.uppercase()}",
+                                    t("CATEGORÍA: {}", t(c.name).uppercase()),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                     letterSpacing = 1.8.sp,
                                     color = Terra.copy(alpha = 0.8f)
                                 )
                                 Spacer(Modifier.height(4.dp))
-                                Text(c.description ?: "", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
+                                Text(t(c.description ?: ""), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
                             }
                         }
 
                         if (addOns.isNotEmpty()) {
                             Spacer(Modifier.height(24.dp))
-                            SectionLabel("Adicionales opcionales")
+                            SectionLabel(t("Adicionales opcionales"))
                             Spacer(Modifier.height(12.dp))
                             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 addOns.forEach { a ->
@@ -303,19 +308,21 @@ fun ProductScreen(
                             }
                         }
                         Spacer(Modifier.height(20.dp))
-                        TerraButton(
-                            text = "Añadir a la orden",
-                            onClick = { addToOrder() },
-                            enabled = !verifying,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        ButtonStack {
+                            TerraButton(
+                                text = t("Añadir a la orden"),
+                                onClick = { addToOrder() },
+                                enabled = !verifying,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
 
                 if (related.isNotEmpty()) {
                     Spacer(Modifier.height(40.dp))
                     Text(
-                        "DE LA MISMA CATEGORÍA",
+                        t("DE LA MISMA CATEGORÍA"),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 3.sp,
@@ -323,7 +330,7 @@ fun ProductScreen(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "También te puede gustar",
+                        t("También te puede gustar"),
                         fontFamily = Playfair,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 28.sp,
@@ -360,17 +367,17 @@ fun ProductScreen(
 
     unavailable?.let {
         TerraDialog(
-            title = "Producto no disponible",
+            title = t("Producto no disponible"),
             message = it,
-            confirmLabel = "Aceptar",
+            confirmLabel = t("Aceptar"),
             onConfirm = { unavailable = null; onBack() }
         )
     }
     errorMsg?.let {
         TerraDialog(
-            title = "No se pudo añadir al carrito",
+            title = t("No se pudo añadir al carrito"),
             message = it,
-            confirmLabel = "Aceptar",
+            confirmLabel = t("Aceptar"),
             onConfirm = { errorMsg = null }
         )
     }

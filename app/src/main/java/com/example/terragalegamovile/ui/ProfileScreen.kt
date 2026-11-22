@@ -1,5 +1,13 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.ErrorText
+
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -134,10 +142,10 @@ fun ProfileScreen(
         val em = fEmail.trim()
         val ph = fPhone.trim()
         when {
-            n.isBlank() || l.isBlank() -> formError = "Escribe tu nombre y tu apellido."
+            n.isBlank() || l.isBlank() -> formError = t("Escribe tu nombre y tu apellido.")
             !EMAIL_REGEX.matches(em) ->
-                formError = "El correo electrónico no es válido. Debe tener algo antes y después del @."
-            ph.isBlank() -> formError = "Escribe tu número de teléfono."
+                formError = t("El correo electrónico no es válido. Debe tener algo antes y después del @.")
+            ph.isBlank() -> formError = t("Escribe tu número de teléfono.")
             else -> {
                 formError = null
                 saving = true
@@ -152,7 +160,7 @@ fun ProfileScreen(
                         phone = ph
                         Session.user = saved          // guarda el token nuevo; el resto de la app ve el nombre nuevo
                         editing = false
-                        toast = "Cambios guardados correctamente"
+                        toast = t("Cambios guardados correctamente")
                     } catch (ex: CancellationException) {
                         throw ex
                     } catch (ex: Exception) {
@@ -178,9 +186,27 @@ fun ProfileScreen(
                     .padding(top = padding.calculateTopPadding())
                     .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
             ) {
-                BackLink("Volver", onBack)
+                BackLink(t("Volver"), onBack)
                 Spacer(Modifier.height(6.dp))
-                PageHeader("Mi cuenta", "Tu perfil", titleSize = 30.sp)
+                // Título y, a la derecha en la misma fila, el idioma de la app
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    PageHeader(
+                        t("Mi cuenta"), t("Tu perfil"), titleSize = 30.sp,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    com.example.terragalegamovile.ui.components.LanguagePicker(
+                        Modifier.padding(bottom = 4.dp),
+                        compact = true
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    // Modo oscuro
+                    com.example.terragalegamovile.ui.components.DarkModeToggle(Modifier.padding(bottom = 4.dp))
+                }
                 Spacer(Modifier.height(20.dp))
 
                 if (!editing) {
@@ -212,40 +238,43 @@ fun ProfileScreen(
                                     color = Charcoal
                                 )
                                 Text(
-                                    if (loaded) email else (loadError ?: "Cargando..."),
+                                    if (loaded) email else (loadError ?: t("Cargando...")),
                                     fontSize = 13.sp,
-                                    color = if (loadError != null) Burgundy else Charcoal.copy(alpha = 0.6f)
+                                    color = if (loadError != null) ErrorText else Charcoal.copy(alpha = 0.6f)
                                 )
                             }
                         }
                         if (loaded) {
                             Spacer(Modifier.height(16.dp))
-                            InfoLine("Teléfono", phone)
+                            InfoLine(t("Teléfono"), phone)
                         }
                     }
 
                     Spacer(Modifier.height(20.dp))
 
-                    TerraButton(
-                        "Mis cupones",
-                        onClick = onOpenCoupons,
-                        style = ButtonStyle.Outline,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    TerraButton(
-                        "Editar perfil",
-                        onClick = startEdit,
-                        enabled = loaded,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    TerraButton(
-                        "Cerrar sesión",
-                        onClick = onLogout,
-                        style = ButtonStyle.Outline,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
-                    )
+                    ButtonStack {
+                        TerraButton(
+                            t("Mis cupones"),
+                            onClick = onOpenCoupons,
+                            style = ButtonStyle.Outline,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        TerraButton(
+                            t("Editar perfil"),
+                            onClick = startEdit,
+                            enabled = loaded,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        TerraButton(
+                            t("Cerrar sesión"),
+                            onClick = onLogout,
+                            style = ButtonStyle.Outline,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
 
                     Spacer(Modifier.height(28.dp))
                     val danger = RoundedCornerShape(24.dp)
@@ -258,75 +287,79 @@ fun ProfileScreen(
                             .padding(20.dp)
                     ) {
                         Text(
-                            "Eliminar cuenta",
+                            t("Eliminar cuenta"),
                             fontFamily = Playfair,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp,
-                            color = Burgundy
+                            color = ErrorText
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            "Esta acción es permanente y no se puede deshacer.",
+                            t("Esta acción es permanente y no se puede deshacer."),
                             fontSize = 13.sp,
                             color = Charcoal.copy(alpha = 0.6f)
                         )
                         Spacer(Modifier.height(14.dp))
-                        TerraButton(
-                            "Eliminar mi cuenta",
-                            onClick = { confirmDelete = true },
-                            style = ButtonStyle.Danger,
-                            modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
-                        )
+                        ButtonStack {
+                            TerraButton(
+                                t("Eliminar mi cuenta"),
+                                onClick = { confirmDelete = true },
+                                style = ButtonStyle.Danger,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 } else {
                     // ---------- Editar ----------
                     GlassCard(modifier = Modifier.fillMaxWidth()) {
                         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                            TerraTextField("Nombre", fName, { fName = it }, Modifier.fillMaxWidth())
-                            TerraTextField("Apellido", fLast, { fLast = it }, Modifier.fillMaxWidth())
+                            TerraTextField(t("Nombre"), fName, { fName = it }, Modifier.fillMaxWidth())
+                            TerraTextField(t("Apellido"), fLast, { fLast = it }, Modifier.fillMaxWidth())
                             TerraTextField(
-                                "Correo electrónico", fEmail, { fEmail = it }, Modifier.fillMaxWidth(),
+                                t("Correo electrónico"), fEmail, { fEmail = it }, Modifier.fillMaxWidth(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                             )
                             TerraTextField(
-                                "Teléfono", fPhone, { fPhone = it }, Modifier.fillMaxWidth(),
+                                t("Teléfono"), fPhone, { fPhone = it }, Modifier.fillMaxWidth(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                             )
                         }
                         formError?.let {
                             Spacer(Modifier.height(12.dp))
-                            Text(it, color = Burgundy, fontSize = 13.sp)
+                            ErrorNotice(it)
                         }
                     }
 
                     Spacer(Modifier.height(20.dp))
-                    TerraButton(
-                        if (saving) "Guardando..." else "Guardar cambios",
-                        onClick = { if (!saving) save() },
-                        enabled = !saving,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    TerraButton(
-                        "Cambiar contraseña",
-                        onClick = { showPassword = true },
-                        style = ButtonStyle.Outline,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    TerraButton(
-                        "Cancelar",
-                        onClick = { editing = false; formError = null },
-                        style = ButtonStyle.Outline,
-                        enabled = !saving,
-                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
-                    )
+                    ButtonStack {
+                        TerraButton(
+                            if (saving) t("Guardando...") else t("Guardar cambios"),
+                            onClick = { if (!saving) save() },
+                            enabled = !saving,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        TerraButton(
+                            t("Cambiar contraseña"),
+                            onClick = { showPassword = true },
+                            style = ButtonStyle.Outline,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        TerraButton(
+                            t("Cancelar"),
+                            onClick = { editing = false; formError = null },
+                            style = ButtonStyle.Outline,
+                            enabled = !saving,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 
             toast?.let {
                 ToastPill(
-                    title = "Listo",
+                    title = t("Listo"),
                     text = it,
                     modifier = Modifier.align(Alignment.BottomCenter).padding(24.dp)
                 )
@@ -339,17 +372,17 @@ fun ProfileScreen(
             onClose = { showPassword = false },
             onSaved = {
                 showPassword = false
-                toast = "Contraseña actualizada"
+                toast = t("Contraseña actualizada")
             }
         )
     }
 
     if (confirmDelete) {
         TerraDialog(
-            title = "Eliminar cuenta",
-            message = "¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer.",
-            confirmLabel = "Eliminar mi cuenta",
-            cancelLabel = "Cancelar",
+            title = t("Eliminar cuenta"),
+            message = t("¿Seguro que quieres eliminar tu cuenta? Esta acción no se puede deshacer."),
+            confirmLabel = t("Eliminar mi cuenta"),
+            cancelLabel = t("Cancelar"),
             danger = true,
             onConfirm = {
                 confirmDelete = false
@@ -370,9 +403,9 @@ fun ProfileScreen(
 
     deleteError?.let {
         TerraDialog(
-            title = "No se pudo eliminar la cuenta",
+            title = t("No se pudo eliminar la cuenta"),
             message = it,
-            confirmLabel = "Aceptar",
+            confirmLabel = t("Aceptar"),
             onConfirm = { deleteError = null }
         )
     }
@@ -402,7 +435,7 @@ private fun PasswordDialog(onClose: () -> Unit, onSaved: () -> Unit) {
         shape = RoundedCornerShape(24.dp),
         title = {
             Text(
-                "Cambiar contraseña",
+                t("Cambiar contraseña"),
                 fontFamily = Playfair,
                 fontWeight = FontWeight.SemiBold,
                 color = Charcoal
@@ -413,13 +446,13 @@ private fun PasswordDialog(onClose: () -> Unit, onSaved: () -> Unit) {
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TerraPasswordField("Contraseña actual", cur, { cur = it }, Modifier.fillMaxWidth())
-                TerraPasswordField("Nueva contraseña", nw, { nw = it }, Modifier.fillMaxWidth())
-                TerraPasswordField("Confirmar nueva contraseña", conf, { conf = it }, Modifier.fillMaxWidth())
+                TerraPasswordField(t("Contraseña actual"), cur, { cur = it }, Modifier.fillMaxWidth())
+                TerraPasswordField(t("Nueva contraseña"), nw, { nw = it }, Modifier.fillMaxWidth())
+                TerraPasswordField(t("Confirmar nueva contraseña"), conf, { conf = it }, Modifier.fillMaxWidth())
                 when {
-                    error != null -> Text(error ?: "", color = Burgundy, fontSize = 13.sp)
-                    mismatch -> Text("Las contraseñas no coinciden.", color = Burgundy, fontSize = 13.sp)
-                    else -> Text("Mínimo 6 caracteres.", color = TextSoft, fontSize = 13.sp)
+                    error != null -> ErrorNotice(error ?: "")
+                    mismatch -> Text(t("Las contraseñas no coinciden."), color = ErrorText, fontSize = 13.sp)
+                    else -> Text(t("Mínimo 6 caracteres."), color = TextSoft, fontSize = 13.sp)
                 }
             }
         },
@@ -442,12 +475,12 @@ private fun PasswordDialog(onClose: () -> Unit, onSaved: () -> Unit) {
                     }
                 }
             ) {
-                Text(if (saving) "Guardando..." else "Guardar", color = Terra, fontWeight = FontWeight.SemiBold)
+                Text(if (saving) t("Guardando...") else t("Guardar"), color = Terra, fontWeight = FontWeight.SemiBold)
             }
         },
         dismissButton = {
             TextButton(enabled = !saving, onClick = onClose) {
-                Text("Cancelar", color = Charcoal.copy(alpha = 0.7f))
+                Text(t("Cancelar"), color = Charcoal.copy(alpha = 0.7f))
             }
         }
     )

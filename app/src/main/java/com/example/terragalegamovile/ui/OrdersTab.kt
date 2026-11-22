@@ -1,5 +1,13 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.Paper
+
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -122,13 +130,13 @@ fun OrdersTab(
                 ) {
                     Column {
                         Text(
-                            "✓  ¡Tu orden fue añadida con éxito! Ya quedó registrada y está pendiente.",
+                            t("✓  ¡Tu orden fue añadida con éxito! Ya quedó registrada y está pendiente."),
                             color = Forest,
                             fontSize = 14.sp
                         )
                         ClientUi.lastPaidOrderId?.let { id ->
                             Text(
-                                "Descargar mi factura",
+                                t("Descargar mi factura"),
                                 color = Forest,
                                 fontSize = 14.sp,
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
@@ -158,9 +166,14 @@ fun OrdersTab(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    PageHeader("Tu historial", "Mis pedidos", titleSize = 28.sp)
+                    // El título cede espacio; el botón nunca se aplasta (en catalán es más largo)
+                    PageHeader(
+                        t("Tu historial"), t("Mis pedidos"), titleSize = 28.sp,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
                     if (orders.isNotEmpty()) {
-                        TerraButton("Pedir de nuevo", onClick = onGoMenu, compact = true)
+                        Spacer(Modifier.width(12.dp))
+                        TerraButton(t("Pedir de nuevo"), onClick = onGoMenu, compact = true)
                     }
                 }
                 Spacer(Modifier.height(10.dp))
@@ -168,36 +181,38 @@ fun OrdersTab(
         }
 
         when {
-            loading -> item { Text("Cargando tus pedidos...", color = TextSoft) }
+            loading -> item { Text(t("Cargando tus pedidos..."), color = TextSoft) }
 
-            error != null && orders.isEmpty() -> item { Text(error ?: "", color = Burgundy) }
+            error != null && orders.isEmpty() -> item { ErrorNotice(error ?: "") }
 
             orders.isEmpty() -> item {
                 GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 32.dp) {
                     Text(
-                        "Todavía no has hecho ningún pedido.",
+                        t("Todavía no has hecho ningún pedido."),
                         style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Cuando hagas tu primer pedido aparecerá aquí.",
+                        t("Cuando hagas tu primer pedido aparecerá aquí."),
                         color = TextSoft,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(Modifier.height(20.dp))
-                    TerraButton("Explorar la carta", onClick = onGoMenu, modifier = Modifier.fillMaxWidth())
+                    ButtonStack {
+                        TerraButton(t("Explorar la carta"), onClick = onGoMenu, modifier = Modifier.fillMaxWidth())
+                    }
                 }
             }
 
             else -> {
-                item { SectionTitle("Pedidos activos") }
+                item { SectionTitle(t("Pedidos activos")) }
                 if (active.isEmpty()) {
                     item {
                         Text(
-                            "No tienes pedidos activos en este momento.",
+                            t("No tienes pedidos activos en este momento."),
                             fontSize = 14.sp,
                             color = Charcoal.copy(alpha = 0.55f)
                         )
@@ -208,7 +223,7 @@ fun OrdersTab(
                     }
                 }
                 if (past.isNotEmpty()) {
-                    item { SectionTitle("Pedidos pasados") }
+                    item { SectionTitle(t("Pedidos pasados")) }
                     items(past.size) { i ->
                         OrderCard(past[i], onCancel = null, onTrack = onTrack)
                     }
@@ -219,10 +234,10 @@ fun OrdersTab(
 
     toCancel?.let { order ->
         TerraDialog(
-            title = "Cancelar pedido",
-            message = "¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.",
-            confirmLabel = "Sí, cancelar pedido",
-            cancelLabel = "Volver",
+            title = t("Cancelar pedido"),
+            message = t("¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer."),
+            confirmLabel = t("Sí, cancelar pedido"),
+            cancelLabel = t("Volver"),
             danger = true,
             onConfirm = {
                 toCancel = null
@@ -243,9 +258,9 @@ fun OrdersTab(
 
     cancelError?.let {
         TerraDialog(
-            title = "No se pudo cancelar el pedido",
+            title = t("No se pudo cancelar el pedido"),
             message = it,
-            confirmLabel = "Aceptar",
+            confirmLabel = t("Aceptar"),
             onConfirm = { cancelError = null }
         )
     }
@@ -264,7 +279,7 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(Color.White)
+            .background(Paper)
             .border(1.dp, Charcoal.copy(alpha = 0.08f), shape)
     ) {
         // Número, fecha y total
@@ -273,11 +288,11 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                Text("Pedido #${order.id}", fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
+                Text(t("Pedido #{}", order.id), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
                 Text(Format.dateTime(order.createdAt), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.55f))
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("Total", fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
+                Text(t("Total"), fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
                 Text(Format.money(order.total), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Terra)
             }
         }
@@ -303,7 +318,7 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                Format.group(line.addOns.map { it.name }).forEach { (name, count) ->
+                                Format.group(line.addOns.map { t(it.name) }).forEach { (name, count) ->
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(50))
@@ -336,7 +351,7 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
                 AddressIcon(plus = false, color = Forest, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(12.dp))
                 Column {
-                    Text("Entrega en", fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
+                    Text(t("Entrega en"), fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
                     Text(order.address, fontSize = 15.sp, color = Charcoal)
                 }
             }
@@ -348,7 +363,7 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
             Column(modifier = Modifier.padding(20.dp)) {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     TerraButton(
-                        "Seguir mi pedido",
+                        t("Seguir mi pedido"),
                         onClick = onTrack,
                         style = ButtonStyle.Sage,
                         compact = true
@@ -362,17 +377,19 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
             Box(Modifier.fillMaxWidth().height(1.dp).background(Charcoal.copy(alpha = 0.08f)))
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(
-                    "Puedes cancelarlo mientras el restaurante no lo confirme.",
+                    t("Puedes cancelarlo mientras el restaurante no lo confirme."),
                     fontSize = 14.sp,
                     color = Charcoal.copy(alpha = 0.55f)
                 )
                 Spacer(Modifier.height(12.dp))
-                TerraButton(
-                    "Cancelar pedido",
-                    onClick = onCancel,
-                    style = ButtonStyle.Danger,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ButtonStack {
+                    TerraButton(
+                        t("Cancelar pedido"),
+                        onClick = onCancel,
+                        style = ButtonStyle.Danger,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }

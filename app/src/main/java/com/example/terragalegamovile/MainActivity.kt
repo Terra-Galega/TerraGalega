@@ -76,6 +76,13 @@ class MainActivity : ComponentActivity() {
 
         // Inicializa el almacenamiento y recupera una sesión vigente.
         AppStorage.init(applicationContext)
+        // Idioma de la app (español, inglés o catalán)
+        com.example.terragalegamovile.data.I18n.init(applicationContext)
+        // Modo oscuro: el que se eligió en la app o, si no, el del teléfono
+        com.example.terragalegamovile.ui.theme.ThemeState.systemDark =
+            (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
+        com.example.terragalegamovile.ui.theme.ThemeState.mode = AppStorage.loadTheme()
         MapService.init(applicationContext)
         Session.restore()
 
@@ -86,6 +93,8 @@ class MainActivity : ComponentActivity() {
         // Avisos de "tu pedido salió" y "ya va llegando" (notificación + vibración)
         DeliveryNotifier.start(applicationContext)
         NotificationStore.start(applicationContext)
+        // Chat con el restaurante: qué pedidos tienen mensajes nuevos del operador
+        com.example.terragalegamovile.ui.SupportStore.start()
         handleNotificationIntent(intent)
 
         enableEdgeToEdge()
@@ -200,7 +209,9 @@ fun AppNav(lifecycle: Lifecycle) {
     DisposableEffect(Unit) {
         com.example.terragalegamovile.ui.components.ChatNav.open = {
             if (Session.user?.role == "CLIENT") {
-                com.example.terragalegamovile.ui.ChatStore.open = true
+                val support = com.example.terragalegamovile.ui.SupportStore
+                if (support.hasUnread) support.openChat(support.unreadIds.first())
+                else com.example.terragalegamovile.ui.ChatStore.open = true
             }
         }
 
@@ -433,6 +444,8 @@ fun AppNav(lifecycle: Lifecycle) {
                             }
                             "ORDER_ON_THE_WAY", "ORDER_NEAR" -> nav.navigate("tracking")
                             "COUPON" -> nav.navigate("coupons")
+                            // El operador escribió: abre el chat de ese pedido
+                            "ORDER_CHAT_MESSAGE" -> com.example.terragalegamovile.ui.SupportStore.openChat(n.orderId)
                             "ORDER_CONFIRMED", "ORDER_PREPARING" -> {
                                 ClientUi.tab = 1
                                 nav.popBackStack("client", false)

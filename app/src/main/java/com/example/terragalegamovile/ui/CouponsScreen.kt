@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -84,25 +88,25 @@ fun CouponsScreen(user: LoginResponse, onBack: () -> Unit, onLogout: () -> Unit)
                 .padding(top = padding.calculateTopPadding())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
-            BackLink("Volver", onBack)
+            BackLink(t("Volver"), onBack)
             Spacer(Modifier.height(6.dp))
-            PageHeader("Mi cuenta", "Mis cupones", titleSize = 30.sp)
+            PageHeader(t("Mi cuenta"), t("Mis cupones"), titleSize = 30.sp)
             Spacer(Modifier.height(20.dp))
 
             when {
-                !loaded -> Text("Cargando...", color = TextSoft)
-                error != null -> Text(error ?: "", color = Burgundy)
-                coupons.isEmpty() -> Text("Aún no tienes cupones.", color = TextSoft)
+                !loaded -> Text(t("Cargando..."), color = TextSoft)
+                error != null -> ErrorNotice(error ?: "")
+                coupons.isEmpty() -> Text(t("Aún no tienes cupones."), color = TextSoft)
             }
 
             if (active.isNotEmpty()) {
-                Text("Activos", fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Charcoal)
+                Text(t("Activos"), fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Charcoal)
                 Spacer(Modifier.height(10.dp))
                 active.forEach { CouponCard(it) }
             }
             if (expired.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
-                Text("Expirados", fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Charcoal)
+                Text(t("Expirados"), fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, color = Charcoal)
                 Spacer(Modifier.height(10.dp))
                 expired.forEach { CouponCard(it) }
             }
@@ -119,9 +123,9 @@ private fun CouponCard(c: ClientCoupon) {
             Text(
                 when (c.status) {
                     "ACTIVE" -> Format.couponValue(c.discountType, c.discountValue)
-                    "USED" -> "Usado"
-                    "EXHAUSTED" -> "Agotado"
-                    else -> "Vencido"
+                    "USED" -> t("Usado")
+                    "EXHAUSTED" -> t("Agotado")
+                    else -> t("Vencido")
                 },
                 fontWeight = FontWeight.SemiBold,
                 color = if (isActive) Forest else TextSoft
@@ -129,10 +133,10 @@ private fun CouponCard(c: ClientCoupon) {
         }
         c.description?.let { Text(it, fontSize = 14.sp, color = TextSoft) }
         c.minOrderAmount?.let {
-            Text("Pedido mínimo ${Format.money(it)}", fontSize = 12.sp, color = TextLabel)
+            Text(t("Pedido mínimo {}", Format.money(it)), fontSize = 12.sp, color = TextLabel)
         }
         c.expiresAt?.let {
-            Text("Vence: ${Format.dateTime(it)}", fontSize = 12.sp, color = TextLabel)
+            Text(t("Vence: {}", Format.dateTime(it)), fontSize = 12.sp, color = TextLabel)
         }
     }
     Spacer(Modifier.height(10.dp))

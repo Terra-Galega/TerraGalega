@@ -1,5 +1,13 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.TerraText
+
+import com.example.terragalegamovile.ui.theme.Paper
+
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -76,7 +84,7 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Mi Carrito",
+                    t("Mi Carrito"),
                     fontFamily = Playfair,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 24.sp,
@@ -104,7 +112,7 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                             .clip(RoundedCornerShape(8.dp))
                             .background(Terra.copy(alpha = 0.10f))
                             .padding(12.dp)
-                    ) { Text(it, color = Color(0xFF8A4A1A), fontSize = 14.sp) }
+                    ) { Text(it, color = TerraText, fontSize = 14.sp) }
                     Spacer(Modifier.height(16.dp))
                 }
 
@@ -114,13 +122,13 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            "Tu carrito está vacío",
+                            t("Tu carrito está vacío"),
                             color = Charcoal.copy(alpha = 0.75f),
                             fontSize = 16.sp,
                             textAlign = TextAlign.Center
                         )
                         Spacer(Modifier.height(16.dp))
-                        TerraButton("Ver la carta", onClick = onGoMenu, style = ButtonStyle.Outline)
+                        TerraButton(t("Ver la carta"), onClick = onGoMenu, style = ButtonStyle.Outline)
                     }
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -129,7 +137,7 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(Color.White)
+                                    .background(Paper)
                                     .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -148,7 +156,7 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                                     )
                                     if (item.addOns.isNotEmpty()) {
                                         Text(
-                                            Format.group(item.addOns.map { it.name })
+                                            Format.group(item.addOns.map { t(it.name) })
                                                 .joinToString("  ") { "x${it.second} ${it.first}" },
                                             fontSize = 12.sp,
                                             color = Charcoal.copy(alpha = 0.5f),
@@ -190,7 +198,7 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Total del pedido", fontWeight = FontWeight.Medium, color = Charcoal)
+                        Text(t("Total del pedido"), fontWeight = FontWeight.Medium, color = Charcoal)
                         Text(
                             Format.money(CartStore.subtotal),
                             fontWeight = FontWeight.Bold,
@@ -199,10 +207,12 @@ fun CartSheet(onClose: () -> Unit, onCheckout: () -> Unit, onGoMenu: () -> Unit)
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    TerraButton("Confirmar pedido", onClick = onCheckout, modifier = Modifier.fillMaxWidth())
+                    ButtonStack {
+                        TerraButton(t("Confirmar pedido"), onClick = onCheckout, modifier = Modifier.fillMaxWidth())
+                    }
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        "Al confirmar el pedido, te llevaremos a la pasarela de pago.",
+                        t("Al confirmar el pedido, te llevaremos a la pasarela de pago."),
                         fontSize = 12.sp,
                         color = Charcoal.copy(alpha = 0.4f),
                         textAlign = TextAlign.Center,

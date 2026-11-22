@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -54,9 +60,9 @@ fun CompleteProfileScreen(user: LoginResponse, onLogout: () -> Unit) {
         val a = address.trim()
         when {
             n.isEmpty() || l.isEmpty() || p.isEmpty() || (needsAddress && a.isEmpty()) ->
-                error = "Completa todos los campos para continuar."
+                error = t("Completa todos los campos para continuar.")
             !Regex("^\\+?[\\d\\s-]{7,}$").matches(p) ->
-                error = "Escribe un número de teléfono válido."
+                error = t("Escribe un número de teléfono válido.")
             else -> {
                 saving = true
                 error = null
@@ -88,21 +94,21 @@ fun CompleteProfileScreen(user: LoginResponse, onLogout: () -> Unit) {
                 .padding(top = padding.calculateTopPadding())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
-            PageHeader("Ya casi está", "Completa tu perfil")
+            PageHeader(t("Ya casi está"), t("Completa tu perfil"))
             Text(
-                "Creaste tu cuenta con Google. Para poder entregarte tus pedidos necesitamos algunos datos más.",
+                t("Creaste tu cuenta con Google. Para poder entregarte tus pedidos necesitamos algunos datos más."),
                 fontSize = 15.sp,
                 color = Charcoal.copy(alpha = 0.7f),
                 modifier = Modifier.padding(top = 12.dp, bottom = 24.dp)
             )
 
             GlassCard(modifier = Modifier.fillMaxWidth()) {
-                TerraTextField(label = "Nombre", value = name, onValueChange = { name = it.take(70) })
+                TerraTextField(label = t("Nombre"), value = name, onValueChange = { name = it.take(70) })
                 Spacer(Modifier.height(16.dp))
-                TerraTextField(label = "Apellido", value = lastName, onValueChange = { lastName = it.take(70) })
+                TerraTextField(label = t("Apellido"), value = lastName, onValueChange = { lastName = it.take(70) })
                 Spacer(Modifier.height(16.dp))
                 TerraTextField(
-                    label = "Teléfono",
+                    label = t("Teléfono"),
                     value = phone,
                     onValueChange = { phone = it.take(25) },
                     placeholder = "3001234567",
@@ -111,7 +117,7 @@ fun CompleteProfileScreen(user: LoginResponse, onLogout: () -> Unit) {
                 if (needsAddress) {
                     Spacer(Modifier.height(16.dp))
                     TerraTextField(
-                        label = "Dirección de entrega",
+                        label = t("Dirección de entrega"),
                         value = address,
                         onValueChange = { address = it.take(CheckoutDraft.ADDRESS_MAX) },
                         placeholder = "Calle 8 Sur #68C-20"
@@ -120,19 +126,21 @@ fun CompleteProfileScreen(user: LoginResponse, onLogout: () -> Unit) {
 
                 error?.let {
                     Spacer(Modifier.height(12.dp))
-                    Text(it, color = Burgundy, fontSize = 14.sp)
+                    ErrorNotice(it)
                 }
 
                 Spacer(Modifier.height(24.dp))
-                TerraButton(
-                    text = if (saving) "Guardando..." else "Guardar y continuar",
-                    onClick = { save() },
-                    enabled = !saving,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ButtonStack {
+                    TerraButton(
+                        text = if (saving) t("Guardando...") else t("Guardar y continuar"),
+                        onClick = { save() },
+                        enabled = !saving,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    "Cerrar sesión",
+                    t("Cerrar sesión"),
                     color = Charcoal.copy(alpha = 0.65f),
                     fontSize = 14.sp,
                     modifier = Modifier

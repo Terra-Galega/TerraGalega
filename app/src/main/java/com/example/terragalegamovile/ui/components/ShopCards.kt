@@ -1,5 +1,19 @@
 package com.example.terragalegamovile.ui.components
 
+import com.example.terragalegamovile.ui.theme.ErrorText
+
+import com.example.terragalegamovile.ui.theme.TrackOff
+
+import com.example.terragalegamovile.ui.theme.CreamFixed
+
+import com.example.terragalegamovile.ui.theme.InkFixed
+
+import com.example.terragalegamovile.ui.theme.Paper
+
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -74,8 +88,8 @@ import androidx.compose.ui.unit.TextUnit
 
 @Composable
 fun terraFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedContainerColor = Color.White.copy(alpha = 0.7f),
-    unfocusedContainerColor = Color.White.copy(alpha = 0.7f),
+    focusedContainerColor = Paper.copy(alpha = 0.7f),
+    unfocusedContainerColor = Paper.copy(alpha = 0.7f),
     focusedBorderColor = Terra,
     unfocusedBorderColor = BorderSoft,
     focusedTextColor = Charcoal,
@@ -139,7 +153,7 @@ fun TerraDialog(
         text = { Text(message, color = TextSoft) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(confirmLabel, color = if (danger) Burgundy else Terra, fontWeight = FontWeight.SemiBold)
+                Text(confirmLabel, color = if (danger) ErrorText else Terra, fontWeight = FontWeight.SemiBold)
             }
         },
         dismissButton = {
@@ -158,7 +172,7 @@ fun ToastPill(title: String, text: String, modifier: Modifier = Modifier) {
         modifier = modifier
             .shadow(12.dp, shape)
             .clip(shape)
-            .background(Charcoal)
+            .background(InkFixed)
             .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
@@ -173,7 +187,7 @@ fun PillChip(text: String, active: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(shape)
-            .background(if (active) Terra else Color.White.copy(alpha = 0.7f))
+            .background(if (active) Terra else Paper.copy(alpha = 0.7f))
             .border(1.dp, if (active) Terra else BorderSoft, shape)
             .clickable(onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 10.dp)
@@ -271,7 +285,7 @@ fun FeatureFilterButton(active: Set<String>, onApply: (Set<String>) -> Unit) {
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(if (has) Terra else Color.White.copy(alpha = 0.7f))
+                .background(if (has) Terra else Paper.copy(alpha = 0.7f))
                 .border(1.dp, if (has) Terra else BorderSoft, CircleShape)
                 .clickable { draft = active; open = !open },
             contentAlignment = Alignment.Center
@@ -284,20 +298,20 @@ fun FeatureFilterButton(active: Set<String>, onApply: (Set<String>) -> Unit) {
         DropdownMenu(
             expanded = open,
             onDismissRequest = { open = false },
-            containerColor = Color.White,
+            containerColor = Paper,
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(modifier = Modifier.width(250.dp).padding(horizontal = 20.dp, vertical = 12.dp)) {
-                SectionLabel("Filtrar por")
+                SectionLabel(t("Filtrar por"))
                 Spacer(Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Características", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
+                    Text(t("Características"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
                     Text(
-                        "Limpiar",
+                        t("Limpiar"),
                         fontSize = 12.sp,
                         color = TextLabel,
                         modifier = Modifier.clickable { draft = emptySet() }
@@ -306,7 +320,7 @@ fun FeatureFilterButton(active: Set<String>, onApply: (Set<String>) -> Unit) {
                 Spacer(Modifier.height(6.dp))
                 FEATURE_FILTERS.forEach { (key, label) ->
                     CheckRow(
-                        label = label,
+                        label = t(label),
                         checked = key in draft,
                         icon = key,
                         modifier = Modifier.fillMaxWidth()
@@ -315,12 +329,14 @@ fun FeatureFilterButton(active: Set<String>, onApply: (Set<String>) -> Unit) {
                     }
                 }
                 Spacer(Modifier.height(12.dp))
-                TerraButton(
-                    text = "Aplicar",
-                    onClick = { onApply(draft); open = false },
-                    style = ButtonStyle.Sage,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ButtonStack {
+                    TerraButton(
+                        text = t("Aplicar"),
+                        onClick = { onApply(draft); open = false },
+                        style = ButtonStyle.Sage,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }
@@ -379,7 +395,7 @@ fun FeatureBadge(
             .clip(CircleShape)
             .background(if (active) Forest.copy(alpha = 0.92f) else Charcoal.copy(alpha = 0.22f))
             .border(1.dp, Color.White.copy(alpha = 0.35f), CircleShape)
-            .semantics { contentDescription = label },
+            .semantics { contentDescription = t(label) },
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.size(size * 0.58f)) {
@@ -412,7 +428,7 @@ fun ProductCard(
                 spotColor = Charcoal.copy(alpha = 0.08f)
             )
             .clip(shape)
-            .background(Color.White.copy(alpha = 0.7f))
+            .background(Paper.copy(alpha = 0.7f))
             .border(1.dp, Color.White.copy(alpha = 0.6f), shape)
             .clickable(onClick = onClick)
     ) {
@@ -430,7 +446,7 @@ fun ProductCard(
                 ) {
                     Text("★", color = Terra, fontSize = 11.sp)
                     Spacer(Modifier.width(4.dp))
-                    Text("Popular", color = Terra, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(t("Popular"), color = Terra, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -447,7 +463,7 @@ fun ProductCard(
                             .background(Charcoal.copy(alpha = 0.65f))
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Text(category.name, color = Cream, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                        Text(t(category.name), color = CreamFixed, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -484,14 +500,14 @@ fun AddOnRow(addOn: AddOnOption, quantity: Int, onChange: (Int) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(if (selected) Terra.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.7f))
+            .background(if (selected) Terra.copy(alpha = 0.06f) else Paper.copy(alpha = 0.7f))
             .border(1.dp, if (selected) Terra else BorderSoft, shape)
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(addOn.name, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Charcoal.copy(alpha = 0.75f))
+            Text(t(addOn.name), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Charcoal.copy(alpha = 0.75f))
             Text("+${Format.money(addOn.price)}", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.45f))
         }
         QuantityStepper(value = quantity, onChange = onChange, min = 0, compact = true)
@@ -502,7 +518,7 @@ fun AddOnRow(addOn: AddOnOption, quantity: Int, onChange: (Int) -> Unit) {
 @Composable
 fun OrderProgress(status: String) {
     if (status == "CANCELLED") {
-        StatusPill("✕ Pedido cancelado", Burgundy)
+        StatusPill(t("✕ Pedido cancelado"), ErrorText)
         return
     }
     val flow = listOf("PENDING", "CONFIRMED", "PREPARING", "ON_THE_WAY", "DELIVERED")
@@ -544,7 +560,7 @@ fun OrderProgress(status: String) {
                                 when (state) {
                                     0 -> Forest
                                     1 -> Terra
-                                    else -> Color(0xFFECE9E1)
+                                    else -> TrackOff
                                 }
                             )
                             .then(
@@ -705,7 +721,7 @@ fun OrderSummaryCard(
     val subtotal = items.sumOf { CartStore.unitPrice(it) * it.quantity }
     GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 24.dp) {
         Text(
-            "Resumen del pedido",
+            t("Resumen del pedido"),
             fontFamily = Playfair,
             fontWeight = FontWeight.SemiBold,
             fontSize = 20.sp,
@@ -723,7 +739,7 @@ fun OrderSummaryCard(
                     )
                     if (item.addOns.isNotEmpty()) {
                         Text(
-                            Format.group(item.addOns.map { it.name })
+                            Format.group(item.addOns.map { t(it.name) })
                                 .joinToString(", ") { "x${it.second} ${it.first}" },
                             fontSize = 12.sp,
                             color = Charcoal.copy(alpha = 0.5f)
@@ -742,14 +758,14 @@ fun OrderSummaryCard(
         Box(Modifier.fillMaxWidth().height(1.dp).background(Charcoal.copy(alpha = 0.1f)))
         Spacer(Modifier.height(12.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Subtotal", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.7f))
+            Text(t("Subtotal"), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.7f))
             Text(Format.money(subtotal), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.7f))
         }
         if (discount > 0) {
             Spacer(Modifier.height(8.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
-                    if (couponCode != null) "Descuento ($couponCode)" else "Descuento",
+                    if (couponCode != null) t("Descuento ({})", couponCode) else t("Descuento"),
                     fontSize = 14.sp,
                     color = Forest
                 )
@@ -760,7 +776,7 @@ fun OrderSummaryCard(
         if (deliveryFee > 0) {
             Spacer(Modifier.height(8.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Domicilio", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.7f))
+                Text(t("Domicilio"), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.7f))
                 Text(Format.money(deliveryFee), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.7f))
             }
         }
@@ -770,7 +786,7 @@ fun OrderSummaryCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Total", fontWeight = FontWeight.Medium, color = Charcoal)
+            Text(t("Total"), fontWeight = FontWeight.Medium, color = Charcoal)
             Text(Format.money(subtotal - discount + deliveryFee), fontWeight = FontWeight.Bold, fontSize = 24.sp, color = Terra)        }
         content()
     }

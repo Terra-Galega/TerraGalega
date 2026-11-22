@@ -180,13 +180,13 @@ object NotificationStore {
         if (Build.VERSION.SDK_INT < 26) return
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, "Avisos de TerraGalega", NotificationManager.IMPORTANCE_DEFAULT)
+            NotificationChannel(CHANNEL, t("Avisos de TerraGalega"), NotificationManager.IMPORTANCE_DEFAULT)
         )
         // Avisos de cocina para el mesero: salen arriba en la pantalla. La vibración
         // la hace vibrate() (así no vibra dos veces)
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL_KITCHEN, "Avisos de cocina (meseros)", NotificationManager.IMPORTANCE_HIGH).apply {
-                description = "La cocina empezó o terminó un plato de tus mesas"
+            NotificationChannel(CHANNEL_KITCHEN, t("Avisos de cocina (meseros)"), NotificationManager.IMPORTANCE_HIGH).apply {
+                description = t("La cocina empezó o terminó un plato de tus mesas")
                 enableVibration(false)
             }
         )

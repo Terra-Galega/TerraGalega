@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-// "Avisos activos": servicio en primer plano mientras hay una sesión de cliente o
+// t("Avisos activos"): servicio en primer plano mientras hay una sesión de cliente o
 // de mesero. Mantiene viva la app aunque se cierre, se quite de recientes o se
 // apague la pantalla, así siguen llegando todas las notificaciones:
 //  - Cliente: su bandeja (pedido confirmado, en cocina, reservas, cupones...) y
@@ -47,6 +47,7 @@ class AlertsService : Service() {
         super.onCreate()
         // Si Android reinició el servicio con la app cerrada, se prepara todo aquí
         AppStorage.init(applicationContext)
+        I18n.init(applicationContext)
         if (Session.user == null) Session.restore()
         NotificationStore.start(applicationContext)
         DeliveryNotifier.start(applicationContext)
@@ -89,8 +90,8 @@ class AlertsService : Service() {
         if (Build.VERSION.SDK_INT >= 26 && manager != null) {
             manager.createNotificationChannel(
                 // Importancia mínima: no suena ni sale arriba, solo queda en la bandeja
-                NotificationChannel(CHANNEL, "Avisos activos", NotificationManager.IMPORTANCE_MIN).apply {
-                    description = "Mantiene llegando tus notificaciones aunque cierres la app"
+                NotificationChannel(CHANNEL, t("Avisos activos"), NotificationManager.IMPORTANCE_MIN).apply {
+                    description = t("Mantiene llegando tus notificaciones aunque cierres la app")
                     setShowBadge(false)
                 }
             )
@@ -109,8 +110,8 @@ class AlertsService : Service() {
             .setContentTitle("Terra Galega")
             .setContentText(
                 Session.user?.name?.trim()?.takeIf { it.isNotEmpty() }
-                    ?.let { "Es un placer tenerte de vuelta, $it." }
-                    ?: "Es un placer tenerte de vuelta."
+                    ?.let { t("Es un placer tenerte de vuelta, {}.", it) }
+                    ?: t("Es un placer tenerte de vuelta.")
             )
             .setOngoing(true)
             .setOnlyAlertOnce(true)

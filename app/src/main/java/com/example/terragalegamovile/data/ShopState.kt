@@ -45,10 +45,10 @@ object ClientUi {
 // Mismo texto que unavailableMessage() de la web
 fun unavailableMessage(names: List<String>): String =
     if (names.size == 1) {
-        "El producto ${names[0]} ya no está disponible y lo quitamos de tu carrito."
+        t("El producto {} ya no está disponible y lo quitamos de tu carrito.", names[0])
     } else {
         val list = names.joinToString(", ") { "\"$it\"" }
-        "Estos productos ya no están disponibles y los quitamos de tu carrito: $list."
+        t("Estos productos ya no están disponibles y los quitamos de tu carrito: {}.", list)
     }
 
 // Quita del carrito los productos que el admin desactivó y devuelve sus nombres

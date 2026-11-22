@@ -1,5 +1,7 @@
 package com.example.terragalegamovile.ui.components
 
+import com.example.terragalegamovile.data.t
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,12 +58,12 @@ fun featureLabels(
     seafood: Boolean,
     gluten: Boolean
 ): List<String> = buildList {
-    if (vegetarian) add("Vegetariano")
-    if (spicyMild) add("Picante ligero")
-    if (spicyHot) add("Picante intenso")
-    if (nuts) add("Nueces")
-    if (seafood) add("Mariscos")
-    if (gluten) add("Gluten")
+    if (vegetarian) add(t("Vegetariano"))
+    if (spicyMild) add(t("Picante ligero"))
+    if (spicyHot) add(t("Picante intenso"))
+    if (nuts) add(t("Nueces"))
+    if (seafood) add(t("Mariscos"))
+    if (gluten) add(t("Gluten"))
 }
 
 fun Product.featureLabels() =

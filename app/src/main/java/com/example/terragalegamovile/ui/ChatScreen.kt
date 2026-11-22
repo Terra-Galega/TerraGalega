@@ -1,5 +1,17 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.Paper
+
+import com.example.terragalegamovile.ui.theme.OkText
+
+import com.example.terragalegamovile.ui.theme.ErrorText
+
+import com.example.terragalegamovile.ui.theme.ErrorSurface
+
+import com.example.terragalegamovile.ui.theme.SoftSurface
+
+import com.example.terragalegamovile.data.t
+
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
@@ -95,12 +107,12 @@ import java.util.Locale
 private const val MAX_LENGTH = 500
 
 // Colores del widget de la web (chat-widget.component.scss)
-private val ChatSoft = Color(0xFFF5F2EB)
+private val ChatSoft: Color get() = SoftSurface
 private val ChatLine = Color(0x33B2571F)
-private val ChatMuted = Charcoal.copy(alpha = 0.6f)
-private val ChatErrorBg = Color(0xFFFBEAEA)
-private val ChatErrorText = Color(0xFF8A2222)
-private val ChatOk = Color(0xFF4A6B3A)
+private val ChatMuted: Color get() = Charcoal.copy(alpha = 0.6f)
+private val ChatErrorBg: Color get() = ErrorSurface
+private val ChatErrorText: Color get() = ErrorText
+private val ChatOk: Color get() = OkText
 private val ChatGlow = Color(0x59B2571F)
 
 private val SUGGESTIONS = listOf(
@@ -127,6 +139,8 @@ object ChatStore {
     var bubbles by mutableStateOf<List<ChatBubble>>(emptyList())
     var sending by mutableStateOf(false)
     var open by mutableStateOf(false)
+    // Galleguito (asistente) o Soporte (chat con el restaurante); la pestañita cambia
+    var mode by mutableStateOf(ChatMode.BOT)
 
     fun bind(id: Int?) {
         if (id != clientId) {
@@ -134,9 +148,12 @@ object ChatStore {
             bubbles = emptyList()
             sending = false
             open = false
+            mode = ChatMode.BOT
         }
     }
 }
+
+enum class ChatMode { BOT, SUPPORT }
 
 // Galleguito, el pulpo de la web. Su imagen viene con fondo negro y una máscara
 // aparte (así está en galleguito.svg): aquí se recorta con la máscara.
@@ -208,7 +225,7 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                 throw e
             } catch (e: Exception) {
                 if (ChatStore.clientId != clientId) return@launch
-                val msg = e.apiError()?.message ?: "No pude conectarme con el asistente. Intenta de nuevo."
+                val msg = e.apiError()?.message ?: t("No pude conectarme con el asistente. Intenta de nuevo.")
                 // El mensaje del cliente queda marcado para no mandarlo en el historial
                 ChatStore.bubbles = ChatStore.bubbles.map { if (it === user) it.copy(error = true) else it } +
                     ChatBubble("model", msg, error = true)
@@ -229,7 +246,9 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
             .fillMaxHeight(0.9f)
             .imePadding()
     ) {
-        // Pestañita hacia arriba (separador), pegada a la izquierda, con el ícono de soporte; tocarla cierra
+        // Pestañita hacia arriba (separador), pegada a la izquierda. Cambia de chat:
+        // con Galleguito muestra el ícono de soporte; en soporte muestra a Galleguito.
+        val inBot = ChatStore.mode == ChatMode.BOT
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -238,10 +257,27 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                 .height(30.dp)
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 .background(color= tab)
-                .clickable(onClick = onClose)
-                .semantics { contentDescription = "Cerrar asistente" }
+                .clickable { ChatStore.mode = if (inBot) ChatMode.SUPPORT else ChatMode.BOT }
+                .semantics {
+                    contentDescription = if (inBot) t("Chatear con el restaurante") else t("Volver con Galleguito")
+                }
         ) {
-            ChatIcon(color = Color.White, modifier = Modifier.size(20.dp))
+            if (inBot) {
+                HeadsetIcon(color = Color.White, modifier = Modifier.size(20.dp))
+                if (SupportStore.hasUnread) {
+                    UnreadDot(Modifier.align(Alignment.TopEnd).offset(x = (-14).dp, y = 4.dp))
+                }
+            } else {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                ) {
+                    Galleguito(Modifier.size(20.dp))
+                }
+            }
         }
 
         Column(
@@ -249,10 +285,14 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                 .fillMaxSize()
                 .shadow(24.dp, panel, ambientColor = ChatGlow, spotColor = ChatGlow)
                 .clip(panel)
-                .background(Color.White)
+                .background(Paper)
                 .border(1.dp, ChatGlow, panel)
                 .navigationBarsPadding()
         ) {
+            if (ChatStore.mode == ChatMode.SUPPORT) {
+                SupportHeader(onClose)
+                SupportChatContent()
+            } else {
             // Encabezado terracota con Galleguito, como en la web
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -274,20 +314,20 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        "Galleguito - Tu asistente de TerraGalega",
+                        t("Galleguito - Tu asistente de TerraGalega"),
                         color = Color.White,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 15.sp,
                         lineHeight = 18.sp
                     )
-                    Text("Recomendaciones, carrito y reservas", color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
+                    Text(t("Recomendaciones, carrito y reservas"), color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
                 }
                 if (ChatStore.bubbles.isNotEmpty()) {
-                    HeaderButton("Nueva conversación", enabled = !ChatStore.sending, onClick = { ChatStore.bubbles = emptyList() }) {
+                    HeaderButton(t("Nueva conversación"), enabled = !ChatStore.sending, onClick = { ChatStore.bubbles = emptyList() }) {
                         RefreshIcon()
                     }
                 }
-                HeaderButton("Cerrar asistente", onClick = onClose) { CloseIcon() }
+                HeaderButton(t("Cerrar asistente"), onClick = onClose) { CloseIcon() }
             }
 
             LazyColumn(
@@ -303,8 +343,8 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                         Bubble(
                             ChatBubble(
                                 "model",
-                                "¡Hola${if (firstName.isNotBlank()) ", $firstName" else ""}! Soy Galleguito, el asistente de " +
-                                    "TerraGalega. Puedo recomendarte platos, agregarlos a tu carrito o hacerte una reserva."
+                                t("¡Hola{}! Soy Galleguito, el asistente de ", if (firstName.isNotBlank()) ", $firstName" else "") +
+                                    t("TerraGalega. Puedo recomendarte platos, agregarlos a tu carrito o hacerte una reserva.")
                             )
                         )
                         if (ChatStore.bubbles.isEmpty()) {
@@ -317,10 +357,10 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                                         .padding(bottom = 6.dp)
                                         .clip(RoundedCornerShape(12.dp))
                                         .border(1.dp, ChatLine, RoundedCornerShape(12.dp))
-                                        .clickable(enabled = !ChatStore.sending) { send(s) }
+                                        .clickable(enabled = !ChatStore.sending) { send(t(s)) }
                                         .padding(horizontal = 14.dp, vertical = 10.dp)
                                 ) {
-                                    Text(s, color = Terra, fontSize = 14.sp, modifier = Modifier.weight(1f))
+                                    Text(t(s), color = Terra, fontSize = 14.sp, modifier = Modifier.weight(1f))
                                     Text("›", color = Terra.copy(alpha = 0.6f), fontSize = 18.sp)
                                 }
                             }
@@ -352,7 +392,7 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                 OutlinedTextField(
                     value = draft,
                     onValueChange = { draft = it.take(MAX_LENGTH) },
-                    placeholder = { Text("Escribe tu mensaje...", color = ChatMuted) },
+                    placeholder = { Text(t("Escribe tu mensaje..."), color = ChatMuted) },
                     shape = RoundedCornerShape(50),
                     maxLines = 4,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -375,12 +415,42 @@ fun BoxScope.ChatSheet(clientId: Int, firstName: String, onClose: () -> Unit) {
                         .clip(CircleShape)
                         .background(if (canSend) Terra else Terra.copy(alpha = 0.4f))
                         .clickable(enabled = canSend) { send(draft) }
-                        .semantics { contentDescription = "Enviar mensaje" }
+                        .semantics { contentDescription = t("Enviar mensaje") }
                 ) {
                     SendIcon()
                 }
             }
+            }
         }
+    }
+}
+
+// Encabezado del chat con el restaurante (como el panel del operador de la web)
+@Composable
+private fun SupportHeader(onClose: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Terra)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.18f))
+                .border(2.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+        ) {
+            HeadsetIcon(color = Color.White, modifier = Modifier.size(22.dp))
+        }
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(t("Chat con el restaurante"), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+            Text(t("Un operador te responde sobre tu pedido"), color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
+        }
+        HeaderButton(t("Cerrar chat"), onClick = onClose) { CloseIcon() }
     }
 }
 
@@ -451,7 +521,7 @@ private fun TypingBubble() {
             .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 5.dp))
             .background(ChatSoft)
             .padding(horizontal = 16.dp, vertical = 14.dp)
-            .semantics { contentDescription = "El asistente está escribiendo" }
+            .semantics { contentDescription = t("El asistente está escribiendo") }
     ) {
         repeat(3) { i ->
             val y by transition.animateFloat(
@@ -479,7 +549,7 @@ private fun ReservationCard(r: ChatReservation, onPay: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth(0.85f)
             .clip(RoundedCornerShape(14.dp))
-            .background(Color.White)
+            .background(Paper)
             .border(1.dp, ChatLine, RoundedCornerShape(14.dp))
             .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
@@ -496,23 +566,22 @@ private fun ReservationCard(r: ChatReservation, onPay: (String) -> Unit) {
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .padding(top = 10.dp)
-                        .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .background(Terra)
                         .clickable { r.checkoutUrl?.let(onPay) }
-                        .padding(vertical = 10.dp)
+                        .padding(horizontal = 18.dp, vertical = 10.dp)
                 ) {
-                    Text("Pagar anticipo ${money(r.depositAmount)}", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text(t("Pagar anticipo {}", money(r.depositAmount)), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Text(
-                    "Tienes 30 minutos para pagarlo; si no, la reserva se cancela sola.",
+                    t("Tienes 30 minutos para pagarlo; si no, la reserva se cancela sola."),
                     fontSize = 11.sp,
                     color = ChatMuted,
                     modifier = Modifier.padding(top = 6.dp)
                 )
             }
             r.paymentState == "PAID" -> Text(
-                "✓ Anticipo pagado, reserva confirmada",
+                t("✓ Anticipo pagado, reserva confirmada"),
                 color = ChatOk,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,

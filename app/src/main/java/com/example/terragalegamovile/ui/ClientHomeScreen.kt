@@ -1,5 +1,7 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.data.t
+
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription

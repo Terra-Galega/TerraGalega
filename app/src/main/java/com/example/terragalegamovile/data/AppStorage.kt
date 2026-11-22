@@ -111,6 +111,37 @@ object AppStorage {
     // Se guarda en cada cambio: si se cierra la app, se cae la red o vence la
     // sesión, al volver a la mesa el pedido sigue ahí. La clave lleva el mesero.
 
+    // Chat con el restaurante: último mensaje visto de cada pedido (para el puntito de nuevos)
+    fun loadChatSeen(clientId: Int): Map<Int, Int> = try {
+        (prefs.getString("order_chat_seen_$clientId", "") ?: "")
+            .split(',')
+            .mapNotNull { pair -> pair.split(':').takeIf { it.size == 2 }?.let { it[0].toInt() to it[1].toInt() } }
+            .toMap()
+    } catch (_: Exception) {
+        emptyMap()
+    }
+
+    fun saveChatSeen(clientId: Int, seen: Map<Int, Int>) {
+        prefs.edit().putString(
+            "order_chat_seen_$clientId",
+            seen.entries.toList().takeLast(50).joinToString(",") { "${it.key}:${it.value}" }
+        ).apply()
+    }
+
+    // Modo claro/oscuro elegido en la app (null = como el teléfono)
+    fun loadTheme(): String? = prefs.getString("app_theme", null)
+
+    fun saveTheme(mode: String?) {
+        prefs.edit().putString("app_theme", mode).apply()
+    }
+
+    // Idioma elegido en la app (null = nunca se eligió)
+    fun loadLanguage(): String? = prefs.getString("app_language", null)
+
+    fun saveLanguage(code: String) {
+        prefs.edit().putString("app_language", code).apply()
+    }
+
     fun saveWaiterDraft(waiterId: Int, tableId: Int, draft: WaiterDraft?) {
         val key = "waiterDraft:$waiterId:$tableId"
         val editor = prefs.edit()

@@ -1,5 +1,11 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -160,7 +166,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
         if (starting || started || !routeReady) return
 
         if (Simulation.USE_REAL_GPS && !hasPermission) {
-            locationError = "Autoriza la ubicación y vuelve a pulsar Iniciar entrega."
+            locationError = t("Autoriza la ubicación y vuelve a pulsar Iniciar entrega.")
 
             permissionLauncher.launch(
                 arrayOf(
@@ -218,7 +224,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
             try {
                 ApiClient.api.complete(user.id, current.orderId, CompleteRequest(pin)).close()
                 AppStorage.clearTrip(current.orderId)
-                message = "Pedido #${current.orderId} entregado ✓"
+                message = t("Pedido #{} entregado ✓", current.orderId)
                 pin = ""
                 job = null
                 // Deja todo listo para el siguiente pedido
@@ -394,13 +400,13 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                 }
 
                 when {
-                    loading -> Text("Cargando pedido...", color = TextSoft)
+                    loading -> Text(t("Cargando pedido..."), color = TextSoft)
 
                     loadError != null -> {
-                        Text(loadError!!, color = Burgundy)
+                        ErrorNotice(loadError!!)
                         Spacer(Modifier.height(12.dp))
                         TerraButton(
-                            "Reintentar",
+                            t("Reintentar"),
                             onClick = { loadJob() },
                             style = ButtonStyle.Outline
                         )
@@ -408,17 +414,17 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
 
                     job == null -> {
                         Text(
-                            "No tienes pedidos en camino",
+                            t("No tienes pedidos en camino"),
                             style = MaterialTheme.typography.titleLarge
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            "Cuando el operador te asigne un pedido, aparecerá aquí.",
+                            t("Cuando el operador te asigne un pedido, aparecerá aquí."),
                             color = TextSoft
                         )
                         Spacer(Modifier.height(16.dp))
                         TerraButton(
-                            "Actualizar",
+                            t("Actualizar"),
                             onClick = { loadJob() },
                             style = ButtonStyle.Outline
                         )
@@ -435,30 +441,30 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    "Pedido #${current.orderId}",
+                                    t("Pedido #{}", current.orderId),
                                     style = MaterialTheme.typography.titleLarge
                                 )
-                                StatusPill(if (started) "En camino" else "Por iniciar", Terra)
+                                StatusPill(if (started) t("En camino") else t("Por iniciar"), Terra)
                             }
                             Spacer(Modifier.height(12.dp))
-                            InfoLine("Sales de", Restaurant.ADDRESS)
-                            InfoLine("Dirección de entrega", current.address ?: "-")
-                            InfoLine("Cliente", current.clientName ?: "-")
-                            InfoLine("Teléfono", current.clientPhone ?: "-")
+                            InfoLine(t("Sales de"), Restaurant.ADDRESS)
+                            InfoLine(t("Dirección de entrega"), current.address ?: "-")
+                            InfoLine(t("Cliente"), current.clientName ?: "-")
+                            InfoLine(t("Teléfono"), current.clientPhone ?: "-")
 
                             // Llamar al cliente: abajo a la derecha de la tarjeta
                             current.clientPhone?.takeIf { it.isNotBlank() }?.let { phone ->
                                 Spacer(Modifier.height(8.dp))
                                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                                     TerraButton(
-                                        text = "Llamar al cliente",
+                                        text = t("Llamar al cliente"),
                                         onClick = {
                                             try {
                                                 context.startActivity(
                                                     Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
                                                 )
                                             } catch (_: Exception) {
-                                                message = "Este dispositivo no tiene app de teléfono"
+                                                message = t("Este dispositivo no tiene app de teléfono")
                                             }
                                         },
                                         style = ButtonStyle.Sage,
@@ -488,26 +494,24 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
 
                         if (!started) {
                             // Botón "Iniciar entrega"
-                            TerraButton(
-                                text = when {
-                                    starting -> "Iniciando entrega..."
-                                    !routeReady -> "Preparando ruta..."
-                                    else -> "Iniciar entrega"
-                                },
-                                onClick = { startTrip() },
-                                enabled = routeReady && !starting,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                            ButtonStack {
+                                TerraButton(
+                                    text = when {
+                                        starting -> t("Iniciando entrega...")
+                                        !routeReady -> t("Preparando ruta...")
+                                        else -> t("Iniciar entrega")
+                                    },
+                                    onClick = { startTrip() },
+                                    enabled = routeReady && !starting,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                             if (geocodeDone && destination == null) {
                                 Spacer(Modifier.height(8.dp))
-                                Text(
-                                    "No se pudo ubicar la dirección en el mapa. Revisa tu conexión.",
-                                    color = Burgundy,
-                                    fontSize = 14.sp
-                                )
+                                ErrorNotice(t("No se pudo ubicar la dirección en el mapa. Revisa tu conexión."))
                                 Spacer(Modifier.height(8.dp))
                                 TerraButton(
-                                    "Reintentar",
+                                    t("Reintentar"),
                                     onClick = { geocodeDone = false; retry++ },
                                     style = ButtonStyle.Outline
                                 )
@@ -516,10 +520,10 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                             // Estado del recorrido
                             val status = when {
                                 Simulation.USE_REAL_GPS ->
-                                    if (myPos == null) "Buscando tu ubicación..." else "Enviando tu ubicación en vivo"
+                                    if (myPos == null) t("Buscando tu ubicación...") else t("Enviando tu ubicación en vivo")
 
-                                arrived -> "Llegaste al destino. Pídele su PIN al cliente."
-                                else -> "En camino al destino: $progress %"
+                                arrived -> t("Llegaste al destino. Pídele su PIN al cliente.")
+                                else -> t("En camino al destino: {} %", progress)
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
@@ -536,7 +540,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
 
                         locationError?.let {
                             Spacer(Modifier.height(4.dp))
-                            Text(it, color = Burgundy, fontSize = 13.sp)
+                            ErrorNotice(it)
                         }
 
                         // PIN: solo aparece al llegar
@@ -544,14 +548,14 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                             Spacer(Modifier.height(16.dp))
                             GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 20.dp) {
                                 Text(
-                                    "Finalizar entrega",
+                                    t("Finalizar entrega"),
                                     style = MaterialTheme.typography.titleLarge
                                 )
                                 Spacer(Modifier.height(4.dp))
-                                Text("Pídele al cliente su PIN de 4 dígitos.", color = TextSoft)
+                                Text(t("Pídele al cliente su PIN de 4 dígitos."), color = TextSoft)
                                 Spacer(Modifier.height(16.dp))
                                 Text(
-                                    "PIN DEL CLIENTE",
+                                    t("PIN DEL CLIENTE"),
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.Center,
                                     fontSize = 11.sp,
@@ -562,7 +566,7 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                                 PinInput(value = pin, onValueChange = { pin = it })
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    "Intentos restantes: ${current.attemptsLeft}",
+                                    t("Intentos restantes: {}", current.attemptsLeft),
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.Center,
                                     fontSize = 12.sp,
@@ -570,15 +574,17 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                                 )
                                 pinError?.let {
                                     Spacer(Modifier.height(8.dp))
-                                    Text(it, color = Burgundy, fontSize = 14.sp)
+                                    ErrorNotice(it)
                                 }
                                 Spacer(Modifier.height(16.dp))
-                                TerraButton(
-                                    text = if (sending) "Validando..." else "Entregar pedido",
-                                    onClick = { finishOrder() },
-                                    enabled = pin.length == 4 && !sending,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                                ButtonStack {
+                                    TerraButton(
+                                        text = if (sending) t("Validando...") else t("Entregar pedido"),
+                                        onClick = { finishOrder() },
+                                        enabled = pin.length == 4 && !sending,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
                             }
                         }
                     }

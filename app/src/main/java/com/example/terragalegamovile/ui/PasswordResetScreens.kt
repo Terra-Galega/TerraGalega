@@ -1,5 +1,13 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.ErrorText
+
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -84,7 +92,7 @@ fun ForgotPasswordContent(
         if (sending) return
         val target = email.trim()
         if (!RESET_EMAIL_REGEX.matches(target)) {
-            error = "El correo electrónico no es válido. Debe tener algo antes y después del @."
+            error = t("El correo electrónico no es válido. Debe tener algo antes y después del @.")
             return
         }
         error = null
@@ -104,18 +112,18 @@ fun ForgotPasswordContent(
     }
 
     Column {
-        Text("Recuperar contraseña", fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Charcoal)
+        Text(t("Recuperar contraseña"), fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Charcoal)
         Spacer(Modifier.height(6.dp))
 
         if (!sent) {
             Text(
-                "Escribe el correo de tu cuenta y te enviaremos un enlace para elegir una contraseña nueva.",
+                t("Escribe el correo de tu cuenta y te enviaremos un enlace para elegir una contraseña nueva."),
                 fontSize = 14.sp,
                 color = Charcoal.copy(alpha = 0.65f)
             )
             Spacer(Modifier.height(16.dp))
             TerraTextField(
-                label = "Correo electrónico",
+                label = t("Correo electrónico"),
                 value = email,
                 onValueChange = { email = it },
                 placeholder = "correo@ejemplo.com",
@@ -123,15 +131,17 @@ fun ForgotPasswordContent(
             )
             error?.let {
                 Spacer(Modifier.height(12.dp))
-                Text(it, color = Burgundy, fontSize = 14.sp)
+                ErrorNotice(it)
             }
             Spacer(Modifier.height(20.dp))
-            TerraButton(
-                text = if (sending) "Enviando..." else "Enviar enlace",
-                onClick = { submit() },
-                enabled = !sending && email.isNotBlank(),
-                modifier = Modifier.fillMaxWidth()
-            )
+            ButtonStack {
+                TerraButton(
+                    text = if (sending) t("Enviando...") else t("Enviar enlace"),
+                    onClick = { submit() },
+                    enabled = !sending && email.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         } else {
             Column(
                 modifier = Modifier
@@ -141,10 +151,10 @@ fun ForgotPasswordContent(
                     .border(1.dp, Forest.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                     .padding(16.dp)
             ) {
-                Text("Revisa tu correo", fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
+                Text(t("Revisa tu correo"), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
                 Text(
-                    "Si hay una cuenta con ${email.trim()}, te enviamos un enlace para recuperar tu contraseña. " +
-                        "Ábrelo desde este teléfono y elige \"TerraGalega\" para cambiarla aquí.",
+                    t("Si hay una cuenta con {}, te enviamos un enlace para recuperar tu contraseña. ", email.trim()) +
+                        t("Ábrelo desde este teléfono y elige \"TerraGalega\" para cambiarla aquí."),
                     fontSize = 14.sp,
                     color = Charcoal.copy(alpha = 0.75f),
                     modifier = Modifier.padding(top = 6.dp)
@@ -153,27 +163,29 @@ fun ForgotPasswordContent(
             Spacer(Modifier.height(16.dp))
             // Por si el enlace se abrió en otro lado: se puede pegar aquí
             TerraTextField(
-                label = "¿Tienes el enlace? Pégalo aquí",
+                label = t("¿Tienes el enlace? Pégalo aquí"),
                 value = link,
                 onValueChange = { link = it; linkError = null },
                 placeholder = "https://…/reset-password?token=…"
             )
             linkError?.let {
                 Spacer(Modifier.height(8.dp))
-                Text(it, color = Burgundy, fontSize = 13.sp)
+                ErrorNotice(it)
             }
             Spacer(Modifier.height(16.dp))
-            TerraButton(
-                text = "Continuar",
-                onClick = {
-                    val token = PasswordResetLink.tokenFrom(link)
-                    if (token == null) linkError = "Ese enlace no es válido." else onToken(token)
-                },
-                enabled = link.isNotBlank(),
-                modifier = Modifier.fillMaxWidth()
-            )
+            ButtonStack {
+                TerraButton(
+                    text = t("Continuar"),
+                    onClick = {
+                        val token = PasswordResetLink.tokenFrom(link)
+                        if (token == null) linkError = t("Ese enlace no es válido.") else onToken(token)
+                    },
+                    enabled = link.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Text(
-                "Reenviar enlace",
+                t("Reenviar enlace"),
                 color = Terra,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
@@ -185,7 +197,7 @@ fun ForgotPasswordContent(
         }
 
         Text(
-            "Volver a iniciar sesión",
+            t("Volver a iniciar sesión"),
             color = Charcoal.copy(alpha = 0.6f),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
@@ -214,9 +226,9 @@ fun ResetPasswordContent(token: String, onDone: () -> Unit) {
     fun submit() {
         if (saving) return
         error = when {
-            password.length < 6 -> "La nueva contraseña debe tener al menos 6 caracteres."
-            password.length > 70 -> "La nueva contraseña es demasiado larga."
-            password != confirm -> "Las contraseñas no coinciden."
+            password.length < 6 -> t("La nueva contraseña debe tener al menos 6 caracteres.")
+            password.length > 70 -> t("La nueva contraseña es demasiado larga.")
+            password != confirm -> t("Las contraseñas no coinciden.")
             else -> null
         }
         if (error != null) return
@@ -224,7 +236,7 @@ fun ResetPasswordContent(token: String, onDone: () -> Unit) {
         scope.launch {
             try {
                 doneMessage = ApiClient.api.resetPassword(ResetPasswordRequest(token, password)).message
-                    ?: "Tu contraseña se cambió. Ya puedes iniciar sesión."
+                    ?: t("Tu contraseña se cambió. Ya puedes iniciar sesión.")
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -243,41 +255,47 @@ fun ResetPasswordContent(token: String, onDone: () -> Unit) {
     }
 
     Column {
-        Text("Nueva contraseña", fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Charcoal)
+        Text(t("Nueva contraseña"), fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Charcoal)
         Spacer(Modifier.height(6.dp))
 
         when {
             doneMessage != null -> {
                 Text(doneMessage ?: "", fontSize = 14.sp, color = Forest)
                 Spacer(Modifier.height(20.dp))
-                TerraButton(text = "Iniciar sesión", onClick = onDone, modifier = Modifier.fillMaxWidth())
+                ButtonStack {
+                    TerraButton(text = t("Iniciar sesión"), onClick = onDone, modifier = Modifier.fillMaxWidth())
+                }
             }
             invalidMessage != null -> {
-                Text(invalidMessage ?: "", fontSize = 14.sp, color = Burgundy)
+                ErrorNotice(invalidMessage ?: "")
                 Spacer(Modifier.height(20.dp))
-                TerraButton(text = "Volver", onClick = onDone, modifier = Modifier.fillMaxWidth())
+                ButtonStack {
+                    TerraButton(text = t("Volver"), onClick = onDone, modifier = Modifier.fillMaxWidth())
+                }
             }
             else -> {
-                Text("Escribe tu nueva contraseña dos veces.", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.65f))
+                Text(t("Escribe tu nueva contraseña dos veces."), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.65f))
                 Spacer(Modifier.height(16.dp))
-                TerraPasswordField("Nueva contraseña", password, { password = it; error = null })
+                TerraPasswordField(t("Nueva contraseña"), password, { password = it; error = null })
                 Spacer(Modifier.height(16.dp))
-                TerraPasswordField("Confirmar contraseña", confirm, { confirm = it; error = null })
+                TerraPasswordField(t("Confirmar contraseña"), confirm, { confirm = it; error = null })
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    error ?: "Mínimo 6 caracteres.",
-                    color = if (error != null) Burgundy else Charcoal.copy(alpha = 0.5f),
+                    error ?: t("Mínimo 6 caracteres."),
+                    color = if (error != null) ErrorText else Charcoal.copy(alpha = 0.5f),
                     fontSize = 13.sp
                 )
                 Spacer(Modifier.height(20.dp))
-                TerraButton(
-                    text = if (saving) "Guardando..." else "Cambiar contraseña",
-                    onClick = { submit() },
-                    enabled = !saving && password.isNotEmpty() && confirm.isNotEmpty(),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ButtonStack {
+                    TerraButton(
+                        text = if (saving) t("Guardando...") else t("Cambiar contraseña"),
+                        onClick = { submit() },
+                        enabled = !saving && password.isNotEmpty() && confirm.isNotEmpty(),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
                 Text(
-                    "Cancelar",
+                    t("Cancelar"),
                     color = Charcoal.copy(alpha = 0.6f),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,

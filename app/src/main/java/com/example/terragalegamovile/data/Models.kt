@@ -104,6 +104,37 @@ data class ChatResponse(
     val reservation: ChatReservation?
 )
 
+// ---------- Chat con el restaurante (operador) sobre un pedido: /order-chat ----------
+
+// senderRole: CLIENT u OPERATOR. content es null si es solo una foto; attachmentId null si es solo texto
+data class OrderChatMessage(
+    val id: Int,
+    val senderRole: String,
+    val senderName: String,
+    val content: String?,
+    val attachmentId: Int?,
+    val createdAt: String
+)
+
+// open = false cuando el pedido ya terminó (entregado o cancelado)
+data class OrderChat(
+    val orderId: Int,
+    val orderStatus: String,
+    val open: Boolean,
+    val messages: List<OrderChatMessage>
+)
+
+// Pedido activo que ya tiene mensajes
+data class OrderChatSummary(
+    val orderId: Int,
+    val orderStatus: String,
+    val lastMessageId: Int,
+    val lastSenderRole: String,
+    val lastMessageAt: String?
+)
+
+data class SendChatMessage(val content: String)
+
 // POST auth/reset-password: token del enlace del correo y la contraseña nueva
 data class ResetPasswordRequest(val token: String, val newPassword: String)
 // ---------- Menú, carrito y pedidos (mismos datos que la web) ----------

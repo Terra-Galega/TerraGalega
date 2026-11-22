@@ -37,13 +37,13 @@ suspend fun requestGoogleIdToken(context: Context): String? {
         ) {
             GoogleIdTokenCredential.createFrom(credential.data).idToken
         } else {
-            throw IllegalStateException("Google no devolvió una cuenta válida.")
+            throw UserMessageException(t("Google no devolvió una cuenta válida. Inténtalo de nuevo."))
         }
     } catch (_: GetCredentialCancellationException) {
         null
     } catch (_: NoCredentialException) {
-        throw IllegalStateException("No hay ninguna cuenta de Google en este dispositivo.")
+        throw UserMessageException(t("No hay ninguna cuenta de Google en este teléfono. Agrega una en Ajustes."))
     } catch (e: GetCredentialException) {
-        throw IllegalStateException("No se pudo usar Google: ${e.message ?: e.type}")
+        throw UserMessageException(t("No se pudo iniciar sesión con Google. Inténtalo de nuevo."))
     }
 }

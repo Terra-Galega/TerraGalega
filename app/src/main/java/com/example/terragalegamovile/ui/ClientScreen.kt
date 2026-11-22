@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -138,7 +142,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                 .padding(top = padding.calculateTopPadding())
         ) {
             Text(
-                "← Mis pedidos",
+                t("← Mis pedidos"),
                 color = Terra,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -156,13 +160,13 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     when {
-                        !loaded -> Text("Cargando...", color = TextSoft)
+                        !loaded -> Text(t("Cargando..."), color = TextSoft)
 
                         delivered -> {
-                            StatusPill("Entregado ✓", Forest)
+                            StatusPill(t("Entregado ✓"), Forest)
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                "Tu pedido llegó. ¡Buen provecho!",
+                                t("Tu pedido llegó. ¡Buen provecho!"),
                                 style = MaterialTheme.typography.titleLarge,
                                 textAlign = TextAlign.Center
                             )
@@ -170,13 +174,13 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
 
                         else -> {
                             Text(
-                                "No tienes pedidos en camino",
+                                t("No tienes pedidos en camino"),
                                 style = MaterialTheme.typography.titleLarge,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                "Cuando un repartidor salga con tu pedido, lo verás aquí en el mapa.",
+                                t("Cuando un repartidor salga con tu pedido, lo verás aquí en el mapa."),
                                 color = TextSoft,
                                 textAlign = TextAlign.Center
                             )
@@ -184,7 +188,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                     }
                     error?.let {
                         Spacer(Modifier.height(12.dp))
-                        Text(it, color = Burgundy)
+                        ErrorNotice(it)
                     }
                 }
             } else {
@@ -213,10 +217,10 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "Pedido #${current.orderId}",
+                            t("Pedido #{}", current.orderId),
                             style = MaterialTheme.typography.titleLarge
                         )
-                        StatusPill("En camino", Terra)
+                        StatusPill(t("En camino"), Terra)
                     }
                     Spacer(Modifier.height(6.dp))
                     Text(
@@ -224,7 +228,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                         color = TextSoft
                     )
                     Text(
-                        if (courier == null) "Esperando la ubicación del repartidor..."
+                        if (courier == null) t("Esperando la ubicación del repartidor...")
                         else "Última actualización: ${
                             current.locationUpdatedAt?.substringAfter('T')?.take(8) ?: "-"
                         }",
@@ -233,7 +237,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                     )
                     current.progress?.let { p ->
                         Text(
-                            "Recorrido: ${(p * 100).toInt()} %",
+                            t("Recorrido: {} %", (p * 100).toInt()),
                             fontSize = 12.sp,
                             color = TextLabel
                         )
@@ -241,7 +245,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
 
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        "TU PIN DE ENTREGA",
+                        t("TU PIN DE ENTREGA"),
                         fontSize = 11.sp,
                         letterSpacing = 1.sp,
                         color = TextLabel
@@ -250,7 +254,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                     PinDigits(current.pin ?: "")
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Díselo al repartidor solo cuando tengas tu pedido en la mano.",
+                        t("Díselo al repartidor solo cuando tengas tu pedido en la mano."),
                         fontSize = 12.sp,
                         color = TextSoft
                     )
@@ -264,21 +268,21 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                         .padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
                     contentPadding = 20.dp
                 ) {
-                    Text("¿Algún problema con tu pedido?", style = MaterialTheme.typography.titleLarge)
+                    Text(t("¿Algún problema con tu pedido?"), style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(4.dp))
-                    Text("Déjanoslo saber.", color = TextSoft)
+                    Text(t("Déjanoslo saber."), color = TextSoft)
                     Spacer(Modifier.height(14.dp))
                     Spacer(Modifier.height(14.dp))
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         TerraButton(
-                            text = "Escríbenos",
+                            text = t("Escríbenos"),
                             onClick = {
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
                                     data = Uri.parse("mailto:")
                                     putExtra(Intent.EXTRA_EMAIL, arrayOf("contacto@terragalega.co"))
                                     putExtra(
                                         Intent.EXTRA_SUBJECT,
-                                        "Quejas, Reclamos o Comentarios del pedido #${current.orderId}"
+                                        t("Quejas, Reclamos o Comentarios del pedido #{}", current.orderId)
                                     )
                                 }
                                 try {
@@ -286,7 +290,7 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                                 } catch (_: Exception) {
                                     Toast.makeText(
                                         context,
-                                        "No hay una app de correo instalada",
+                                        t("No hay una app de correo instalada"),
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }

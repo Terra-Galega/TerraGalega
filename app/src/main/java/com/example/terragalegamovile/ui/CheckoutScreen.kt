@@ -1,5 +1,13 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.ErrorText
+
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +31,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 private fun FieldError(text: String?) {
-    if (text != null) Text(text, color = Burgundy, fontSize = 14.sp, modifier = Modifier.padding(top = 6.dp))
+    if (text != null) Text(text, color = ErrorText, fontSize = 14.sp, modifier = Modifier.padding(top = 6.dp))
 }
 
 @Composable
@@ -70,16 +78,16 @@ fun CheckoutScreen(
     fun validate(): Map<String, String> {
         val e = mutableMapOf<String, String>()
         val address = d.address.trim()
-        if (address.isEmpty()) e["address"] = "Escribe la dirección donde quieres recibir tu pedido."
-        else if (address.length > CheckoutDraft.ADDRESS_MAX) e["address"] = "La dirección no puede superar 120 caracteres."
+        if (address.isEmpty()) e["address"] = t("Escribe la dirección donde quieres recibir tu pedido.")
+        else if (address.length > CheckoutDraft.ADDRESS_MAX) e["address"] = t("La dirección no puede superar 120 caracteres.")
 
         val name = d.addressName.trim()
         if (d.saveAddress && address.isNotEmpty() && !isSaved(address)) {
-            if (name.length > CheckoutDraft.NAME_MAX) e["addressName"] = "El nombre no puede superar 40 caracteres."
+            if (name.length > CheckoutDraft.NAME_MAX) e["addressName"] = t("El nombre no puede superar 40 caracteres.")
             else if (name.isNotEmpty() && addresses.any { (it.name ?: "").trim().equals(name, ignoreCase = true) })
-                e["addressName"] = "Ya tienes una dirección con ese nombre."
+                e["addressName"] = t("Ya tienes una dirección con ese nombre.")
         }
-        if (d.method.isEmpty()) e["method"] = "Elige cómo quieres pagar."
+        if (d.method.isEmpty()) e["method"] = t("Elige cómo quieres pagar.")
         // La tarjeta no se valida aquí: se escribe en la página de Stripe
         return e
     }
@@ -103,22 +111,24 @@ fun CheckoutScreen(
                 .padding(top = padding.calculateTopPadding())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
-            PageHeader("Paso 1 de 2 · Pasarela de pago", "Entrega y pago")
+            PageHeader(t("Paso 1 de 2 · Pasarela de pago"), t("Entrega y pago"))
             Spacer(Modifier.height(28.dp))
 
             if (CartStore.items.isEmpty()) {
                 GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 32.dp) {
-                    Text("Tu carrito está vacío. Agrega algo de la carta antes de pagar.", color = TextSoft)
+                    Text(t("Tu carrito está vacío. Agrega algo de la carta antes de pagar."), color = TextSoft)
                     Spacer(Modifier.height(16.dp))
-                    TerraButton("Explorar la carta", onClick = onExit, modifier = Modifier.fillMaxWidth())
+                    ButtonStack {
+                        TerraButton(t("Explorar la carta"), onClick = onExit, modifier = Modifier.fillMaxWidth())
+                    }
                 }
                 return@TerraScaffold
             }
 
             // ---------- Dirección ----------
-            StepTitle("Dirección de entrega", "¿Dónde quieres recibir tu pedido?")
+            StepTitle(t("Dirección de entrega"), t("¿Dónde quieres recibir tu pedido?"))
             if (!addressesLoaded) {
-                Text("Cargando tus direcciones...", fontSize = 14.sp, color = TextSoft)
+                Text(t("Cargando tus direcciones..."), fontSize = 14.sp, color = TextSoft)
             } else {
                 addresses.forEach { a ->
                     val selected = !newMode && d.address.trim().equals(a.label.trim(), ignoreCase = true)
@@ -128,7 +138,7 @@ fun CheckoutScreen(
                         badge = if (a.defaultAddress == true) "Predeterminada" else null,
                         icon = { AddressIconBox(selected) }
                     ) {
-                        Text(a.name ?: "Casa", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Charcoal)
+                        Text(a.name ?: t("Casa"), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Charcoal)
                         if (selected) Text(a.label, fontSize = 14.sp, color = TextSoft)
                     }
                     Spacer(Modifier.height(10.dp))
@@ -139,7 +149,7 @@ fun CheckoutScreen(
                         onClick = { newMode = true; d.address = ""; d.addressName = ""; d.saveAddress = true },
                         icon = { AddressIconBox(newMode, plus = true) }
                     ) {
-                        Text("Usar otra dirección", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Charcoal)
+                        Text(t("Usar otra dirección"), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Charcoal)
                     }
                 }
                 // Dirección nueva: texto arriba y mapa debajo, sincronizados.
@@ -147,10 +157,10 @@ fun CheckoutScreen(
                 if (newMode) {
                     Spacer(Modifier.height(12.dp))
                     TerraTextField(
-                        label = "Dirección",
+                        label = t("Dirección"),
                         value = d.address,
                         onValueChange = { if (it.length <= CheckoutDraft.ADDRESS_MAX) d.address = it },
-                        placeholder = "Ej: Calle 123 #45-67, apto 8"
+                        placeholder = t("Ej: Calle 123 #45-67, apto 8")
                     )
                     Text(
                         "${d.address.length}/120",
@@ -168,15 +178,15 @@ fun CheckoutScreen(
 
                 if (newMode && d.address.isNotBlank() && !isSaved(d.address)) {
                     Spacer(Modifier.height(8.dp))
-                    CheckRow("Guardar esta dirección en mi perfil", d.saveAddress, accent = Terra) {
+                    CheckRow(t("Guardar esta dirección en mi perfil"), d.saveAddress, accent = Terra) {
                         d.saveAddress = !d.saveAddress
                     }
                     if (d.saveAddress) {
                         TerraTextField(
-                            label = "Nombre de la dirección",
+                            label = t("Nombre de la dirección"),
                             value = d.addressName,
                             onValueChange = { if (it.length <= CheckoutDraft.NAME_MAX) d.addressName = it },
-                            placeholder = "Casa"
+                            placeholder = t("Casa")
                         )
                         FieldError(errors["addressName"])
                     }
@@ -185,22 +195,22 @@ fun CheckoutScreen(
 
             // ---------- Método de pago ----------
             Spacer(Modifier.height(36.dp))
-            StepTitle("Método de pago", "Elige cómo quieres pagar tu pedido.")
+            StepTitle(t("Método de pago"), t("Elige cómo quieres pagar tu pedido."))
             SelectCard(selected = d.method == "cash", onClick = { d.method = "cash" }) {
-                Text("Contra entrega", fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
-                Text("Pagas en efectivo cuando recibas tu pedido.", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
+                Text(t("Contra entrega"), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
+                Text(t("Pagas en efectivo cuando recibas tu pedido."), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
             }
             Spacer(Modifier.height(10.dp))
             SelectCard(selected = d.method == "card", onClick = { d.method = "card" }) {
-                Text("Tarjeta", fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
-                Text("Crédito o débito, en la pasarela segura de Stripe.", fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
+                Text(t("Tarjeta"), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
+                Text(t("Crédito o débito, en la pasarela segura de Stripe."), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.6f))
             }
             FieldError(errors["method"])
 
             if (d.method == "cash") {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Pagarás el total en efectivo cuando el domiciliario llegue con tu pedido.",
+                    t("Pagarás el total en efectivo cuando el domiciliario llegue con tu pedido."),
                     fontSize = 14.sp,
                     color = Charcoal.copy(alpha = 0.7f)
                 )
@@ -209,8 +219,8 @@ fun CheckoutScreen(
             if (d.method == "card") {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Al confirmar el pedido abriremos la pasarela segura de Stripe para que " +
-                        "ingreses tu tarjeta. TerraGalega nunca ve ni guarda sus datos.",
+                    t("Al confirmar el pedido abriremos la pasarela segura de Stripe para que ") +
+                        t("ingreses tu tarjeta. TerraGalega nunca ve ni guarda sus datos."),
                     fontSize = 14.sp,
                     color = Charcoal.copy(alpha = 0.7f)
                 )
@@ -228,10 +238,12 @@ fun CheckoutScreen(
                 discount = d.coupon?.discount ?: 0.0,
                 couponCode = d.coupon?.code) {
                 Spacer(Modifier.height(24.dp))
-                TerraButton("Continuar", onClick = { goNext() }, modifier = Modifier.fillMaxWidth())
+                ButtonStack {
+                    TerraButton(t("Continuar"), onClick = { goNext() }, modifier = Modifier.fillMaxWidth())
+                }
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Cancelar compra",
+                    t("Cancelar compra"),
                     color = Charcoal.copy(alpha = 0.65f),
                     fontSize = 14.sp,
                     modifier = Modifier
@@ -245,17 +257,17 @@ fun CheckoutScreen(
 
     if (showCancel) {
         TerraDialog(
-            title = "Cancelar compra",
-            message = "¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará.",
-            confirmLabel = "Sí, cancelar compra",
-            cancelLabel = "Continuar comprando",
+            title = t("Cancelar compra"),
+            message = t("¿Seguro que quieres cancelar la compra?\n\nTu carrito se conservará."),
+            confirmLabel = t("Sí, cancelar compra"),
+            cancelLabel = t("Continuar comprando"),
             danger = true,
             onConfirm = { showCancel = false; CheckoutDraft.reset(); onExit() },
             onCancel = { showCancel = false }
         )
     }
     notice?.let {
-        TerraDialog("Actualizamos tu carrito", it, "Aceptar", onConfirm = { notice = null })
+        TerraDialog(t("Actualizamos tu carrito"), it, t("Aceptar"), onConfirm = { notice = null })
     }
 }
 
@@ -289,14 +301,14 @@ private fun CouponBox() {
             throw e
         } catch (e: Exception) {
             d.coupon = null
-            error = "Quitamos el cupón ${current.code}. ${e.toUserMessage()}"
+            error = t("Quitamos el cupón {}. {}", current.code, e.toUserMessage())
         }
     }
 
     fun apply(text: String) {
         val value = text.trim()
         if (value.isEmpty()) {
-            error = "Escribe el código de tu cupón."
+            error = t("Escribe el código de tu cupón.")
             return
         }
         if (applying) return
@@ -315,18 +327,18 @@ private fun CouponBox() {
         }
     }
 
-    StepTitle("Cupón de descuento", "¿Tienes un cupón? Escribe el código o elige uno.")
+    StepTitle(t("Cupón de descuento"), t("¿Tienes un cupón? Escribe el código o elige uno."))
 
     val applied = d.coupon
     if (applied != null) {
         GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 16.dp) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Cupón ${applied.code}", fontWeight = FontWeight.SemiBold, color = Charcoal)
-                    Text("Descuento: -${Format.money(applied.discount)}", fontSize = 14.sp, color = Forest)
+                    Text(t("Cupón {}", applied.code), fontWeight = FontWeight.SemiBold, color = Charcoal)
+                    Text(t("Descuento: -{}", Format.money(applied.discount)), fontSize = 14.sp, color = Forest)
                 }
                 Text(
-                    "Quitar",
+                    t("Quitar"),
                     color = Terra,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
@@ -336,25 +348,27 @@ private fun CouponBox() {
         }
     } else {
         TerraTextField(
-            label = "Código del cupón",
+            label = t("Código del cupón"),
             value = code,
             onValueChange = { code = it },
-            placeholder = "Ej: BIENVENIDA-1"
+            placeholder = t("Ej: BIENVENIDA-1")
         )
         Spacer(Modifier.height(10.dp))
-        TerraButton(
-            if (applying) "Aplicando..." else "Aplicar",
-            onClick = { apply(code) },
-            enabled = !applying,
-            style = ButtonStyle.Outline,
-            modifier = Modifier.fillMaxWidth()
-        )
+        ButtonStack {
+            TerraButton(
+                if (applying) t("Aplicando...") else t("Aplicar"),
+                onClick = { apply(code) },
+                enabled = !applying,
+                style = ButtonStyle.Outline,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         available.forEach { c ->
             Spacer(Modifier.height(10.dp))
             SelectCard(selected = false, onClick = { apply(c.code) }) {
                 Text(c.code, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = Charcoal)
                 Text(
-                    "${Format.couponValue(c.discountType, c.discountValue)} de descuento" +
+                    t("{} de descuento", Format.couponValue(c.discountType, c.discountValue)) +
                             (c.description?.let { " · $it" } ?: ""),
                     fontSize = 14.sp,
                     color = Charcoal.copy(alpha = 0.6f)
@@ -364,6 +378,6 @@ private fun CouponBox() {
     }
     if (error.isNotEmpty()) {
         Spacer(Modifier.height(8.dp))
-        Text(error, color = Burgundy, fontSize = 14.sp)
+        ErrorNotice(error)
     }
 }

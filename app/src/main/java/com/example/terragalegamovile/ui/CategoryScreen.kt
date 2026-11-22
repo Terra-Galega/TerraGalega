@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -118,12 +122,12 @@ fun CategoryScreen(
                 bottom = padding.calculateBottomPadding() + 24.dp            ),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            item { BackLink("Todas las categorías", onBack) }
+            item { BackLink(t("Todas las categorías"), onBack) }
 
             item {
                 PageHeader(
-                    eyebrow = "Nuestra Carta",
-                    title = if (category == "Todos") "Todos los platos" else category
+                    eyebrow = t("Nuestra Carta"),
+                    title = if (category == "Todos") t("Todos los platos") else t(category)
                 )
             }
 
@@ -133,7 +137,7 @@ fun CategoryScreen(
                         value = search,
                         onValueChange = { search = it },
                         singleLine = true,
-                        placeholder = { Text("Buscar platos…", color = Charcoal.copy(alpha = 0.4f)) },
+                        placeholder = { Text(t("Buscar platos…"), color = Charcoal.copy(alpha = 0.4f)) },
                         shape = RoundedCornerShape(50),
                         colors = terraFieldColors(),
                         modifier = Modifier.weight(1f)
@@ -144,19 +148,19 @@ fun CategoryScreen(
             }
 
             when {
-                !loaded -> item { Text("Cargando platos...", color = TextSoft) }
+                !loaded -> item { Text(t("Cargando platos..."), color = TextSoft) }
 
-                error != null && products.isEmpty() -> item { Text(error ?: "", color = Burgundy) }
+                error != null && products.isEmpty() -> item { ErrorNotice(error ?: "") }
 
                 filtered.isEmpty() -> item {
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("No se encontraron platos", color = Charcoal.copy(alpha = 0.35f), fontSize = 18.sp)
+                        Text(t("No se encontraron platos"), color = Charcoal.copy(alpha = 0.35f), fontSize = 18.sp)
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "Quitar filtros",
+                            t("Quitar filtros"),
                             color = Terra,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,

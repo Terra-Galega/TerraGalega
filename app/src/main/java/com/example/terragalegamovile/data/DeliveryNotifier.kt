@@ -108,20 +108,20 @@ object DeliveryNotifier {
                     context,
                     id = delivery.orderId * 10 + 2,
                     channel = CHANNEL_NEAR,
-                    title = "¡Ya va llegando! Alístate",
-                    text = "Pedido #${delivery.orderId}: tu repartidor está a punto de llegar. " +
-                        "Ten tu PIN a la mano.",
+                    title = t("¡Ya va llegando! Alístate"),
+                    text = t("Pedido #{}: tu repartidor está a punto de llegar. ", delivery.orderId) +
+                        t("Ten tu PIN a la mano."),
                 )
             } else if (startedDue) {
                 AppStorage.markAlerted(tripKey, "started")
-                val who = delivery.deliveryPersonName ?: "El repartidor"
+                val who = delivery.deliveryPersonName ?: t("El repartidor")
                 post(
                     context,
                     id = delivery.orderId * 10 + 1,
                     channel = CHANNEL_STARTED,
-                    title = "¡Tu pedido ya va en camino!",
-                    text = "Pedido #${delivery.orderId}: $who inició el recorrido. " +
-                        "Síguelo en el mapa.",
+                    title = t("¡Tu pedido ya va en camino!"),
+                    text = t("Pedido #{}: {} inició el recorrido. ", delivery.orderId, who) +
+                        t("Síguelo en el mapa."),
                 )
             }
         }
@@ -191,16 +191,16 @@ object DeliveryNotifier {
         manager.createNotificationChannel(
             channel(
                 CHANNEL_STARTED,
-                "Pedido en camino",
-                "Avisa cuando el repartidor inicia el recorrido",
+                t("Pedido en camino"),
+                t("Avisa cuando el repartidor inicia el recorrido"),
                 VIBRATION_STARTED
             )
         )
         manager.createNotificationChannel(
             channel(
                 CHANNEL_NEAR,
-                "Tu pedido ya va llegando",
-                "Vibra y avisa cuando el recorrido va por el 85 %",
+                t("Tu pedido ya va llegando"),
+                t("Vibra y avisa cuando el recorrido va por el 85 %"),
                 VIBRATION_NEAR
             )
         )

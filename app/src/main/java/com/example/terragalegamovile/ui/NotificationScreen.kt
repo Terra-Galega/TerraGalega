@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -59,23 +63,25 @@ fun NotificationsScreen(
                 .padding(top = padding.calculateTopPadding())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
-            BackLink("Volver", onBack)
+            BackLink(t("Volver"), onBack)
             Spacer(Modifier.height(6.dp))
-            PageHeader("Tu bandeja", "Notificaciones", titleSize = 30.sp)
+            PageHeader(t("Tu bandeja"), t("Notificaciones"), titleSize = 30.sp)
             Spacer(Modifier.height(20.dp))
 
             if (NotificationStore.unread > 0) {
-                TerraButton(
-                    "Marcar todas como leídas",
-                    onClick = { NotificationStore.markAllRead() },
-                    style = ButtonStyle.Outline,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ButtonStack {
+                    TerraButton(
+                        t("Marcar todas como leídas"),
+                        onClick = { NotificationStore.markAllRead() },
+                        style = ButtonStyle.Outline,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
                 Spacer(Modifier.height(16.dp))
             }
 
             if (NotificationStore.items.isEmpty()) {
-                Text("No tienes notificaciones.", color = TextSoft)
+                Text(t("No tienes notificaciones."), color = TextSoft)
             }
 
             NotificationStore.items.forEach { n ->

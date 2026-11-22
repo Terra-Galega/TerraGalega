@@ -22,16 +22,16 @@ object Format {
         if (iso == null || iso.length < 16) return ""
         val month = iso.substring(5, 7).toIntOrNull() ?: return iso
         if (month !in 1..12) return iso
-        return "${iso.substring(8, 10)} ${months[month - 1]} ${iso.substring(0, 4)}, ${iso.substring(11, 16)}"
+        return "${iso.substring(8, 10)} ${t(months[month - 1])} ${iso.substring(0, 4)}, ${iso.substring(11, 16)}"
     }
 
     fun statusLabel(status: String): String = when (status) {
-        "PENDING" -> "Pendiente"
-        "CONFIRMED" -> "Confirmado"
-        "PREPARING" -> "Preparando"
-        "ON_THE_WAY" -> "En camino"
-        "DELIVERED" -> "Entregado"
-        "CANCELLED" -> "Cancelado"
+        "PENDING" -> t("Pendiente")
+        "CONFIRMED" -> t("Confirmado")
+        "PREPARING" -> t("Preparando")
+        "ON_THE_WAY" -> t("En camino")
+        "DELIVERED" -> t("Entregado")
+        "CANCELLED" -> t("Cancelado")
         else -> status
     }
 

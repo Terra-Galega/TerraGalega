@@ -1,5 +1,9 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -98,7 +102,7 @@ fun MenuTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            PageHeader("Lo que ofrecemos", "Nuestra Carta")
+            PageHeader(t("Lo que ofrecemos"), t("Nuestra Carta"))
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
@@ -106,7 +110,7 @@ fun MenuTab(
                 value = search,
                 onValueChange = { search = it },
                 singleLine = true,
-                placeholder = { Text("Buscar platos…", color = Charcoal.copy(alpha = 0.4f)) },
+                placeholder = { Text(t("Buscar platos…"), color = Charcoal.copy(alpha = 0.4f)) },
                 shape = RoundedCornerShape(50),
                 colors = terraFieldColors(),
                 modifier = Modifier.fillMaxWidth()
@@ -115,11 +119,11 @@ fun MenuTab(
 
         when {
             !loaded -> item(span = { GridItemSpan(maxLineSpan) }) {
-                Text("Cargando la carta...", color = TextSoft)
+                Text(t("Cargando la carta..."), color = TextSoft)
             }
 
             error != null && products.isEmpty() -> item(span = { GridItemSpan(maxLineSpan) }) {
-                Text(error ?: "", color = Burgundy)
+                ErrorNotice(error ?: "")
             }
 
             // Buscando: se muestran los platos que coinciden, de toda la carta
@@ -130,10 +134,10 @@ fun MenuTab(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("No se encontraron platos", color = Charcoal.copy(alpha = 0.35f), fontSize = 18.sp)
+                            Text(t("No se encontraron platos"), color = Charcoal.copy(alpha = 0.35f), fontSize = 18.sp)
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                "Borrar búsqueda",
+                                t("Borrar búsqueda"),
                                 color = Terra,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
@@ -149,6 +153,7 @@ fun MenuTab(
             }
 
             // Sin buscar: botones de categoría
+            // La lista usa los nombres internos ("Todos", "Popular"): solo el texto visible se traduce
             else -> items(listOf("Todos", "Popular") + categories.map { it.name }) { name ->
                 val dishes = when (name) {
                     "Todos" -> products
@@ -157,7 +162,7 @@ fun MenuTab(
                 }
 
                 CategoryTile(
-                    name = name,
+                    name = t(name),
                     count = dishes.size,
                     imageUrl = if (name == "Todos") {
                         // Un plato al azar (solo de los que tienen foto) en vez del primero

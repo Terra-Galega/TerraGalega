@@ -1,5 +1,15 @@
 package com.example.terragalegamovile.ui
 
+import com.example.terragalegamovile.ui.theme.ErrorText
+
+import com.example.terragalegamovile.ui.theme.Paper
+
+import com.example.terragalegamovile.ui.components.ButtonStack
+
+import com.example.terragalegamovile.data.t
+
+import com.example.terragalegamovile.ui.components.ErrorNotice
+
 import android.R
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.semantics
@@ -46,9 +56,9 @@ private fun hhmm(time: String?): String = time?.take(5) ?: ""
 private fun clock(dateTime: String): String = dateTime.substringAfter('T').take(5)
 
 private fun itemLabel(status: String) = when (status) {
-    "PENDING" -> "En espera"
-    "PREPARING" -> "En preparación"
-    else -> "Listo"
+    "PENDING" -> t("En espera")
+    "PREPARING" -> t("En preparación")
+    else -> t("Listo")
 }
 
 private fun itemColor(status: String) = when (status) {
@@ -149,20 +159,20 @@ private fun FloorView(
                 .padding(top = padding.calculateTopPadding())
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
-            PageHeader("Portal del mesero", "Mesas")
+            PageHeader(t("Portal del mesero"), t("Mesas"))
             Spacer(Modifier.height(16.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PillChip("Piso 1", floor == 1) { onFloor(1) }
-                PillChip("Piso 2", floor == 2) { onFloor(2) }
+                PillChip(t("Piso 1"), floor == 1) { onFloor(1) }
+                PillChip(t("Piso 2"), floor == 2) { onFloor(2) }
             }
             Spacer(Modifier.height(16.dp))
 
-            error?.let { Text(it, color = Burgundy, fontSize = 14.sp, modifier = Modifier.padding(bottom = 12.dp)) }
+            error?.let { ErrorNotice(it, Modifier.padding(bottom = 12.dp)) }
 
             val shown = tables.filter { it.floor == floor }
             if (loading && shown.isEmpty()) {
-                Text("Cargando mesas...", color = TextSoft, fontSize = 14.sp)
+                Text(t("Cargando mesas..."), color = TextSoft, fontSize = 14.sp)
             } else {
                 // 3 mesas por fila
                 shown.chunked(3).forEach { row ->
@@ -192,12 +202,12 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
         else -> Forest
     }
     val label = when {
-        takenByOther -> t.attendingWaiterName?.let { "Atiende $it" } ?: "La atiende otro mesero"
-        t.readyToServe -> "¡Para servir!"
-        t.activeOrders > 0 -> if (t.activeOrders == 1) "En cocina" else "${t.activeOrders} en cocina"
+        takenByOther -> t.attendingWaiterName?.let { t("Atiende {}", it) } ?: t("La atiende otro mesero")
+        t.readyToServe -> t("¡Para servir!")
+        t.activeOrders > 0 -> if (t.activeOrders == 1) t("En cocina") else t("{} en cocina", t.activeOrders)
         // Ya comió: falta registrar el pago para liberar la mesa
-        t.awaitingPayment > 0 -> "Por cobrar"
-        else -> "Sin pedidos"
+        t.awaitingPayment > 0 -> t("Por cobrar")
+        else -> t("Sin pedidos")
     }
     val shape = RoundedCornerShape(18.dp)
     Column(
@@ -213,7 +223,7 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
             .border(1.5.dp, if (takenByOther) Charcoal.copy(alpha = 0.15f) else main, shape)
             .clickable(enabled = !takenByOther, onClick = onClick)
             .semantics {
-                if (takenByOther) stateDescription = "Deshabilitada, la atiende otro mesero"
+                if (takenByOther) stateDescription = t("Deshabilitada, la atiende otro mesero")
             }
             .padding(12.dp)
     ) {
@@ -235,7 +245,7 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
             )
         }
         Text(
-            if (t.occupied) "Ocupada" else "Libre",
+            if (t.occupied) t("Ocupada") else t("Libre"),
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = main
@@ -252,7 +262,7 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
         t.currentReservation?.let {
             Spacer(Modifier.height(6.dp))
             Text(
-                "Reservada · ${hhmm(it)}",
+                t("Reservada · {}", hhmm(it)),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White,
@@ -265,10 +275,10 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
         t.upcomingReservation?.let {
             Spacer(Modifier.height(6.dp))
             Text(
-                "⚠ Reserva ${hhmm(it)}",
+                t("⚠ Reserva {}", hhmm(it)),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Burgundy,
+                color = ErrorText,
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .background(Gold.copy(alpha = 0.18f))
@@ -363,7 +373,7 @@ private fun TableView(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                dialog = "No se pudo completar" to e.toUserMessage()
+                dialog = t("No se pudo completar") to e.toUserMessage()
                 reload++
             } finally {
                 busy = false
@@ -381,7 +391,7 @@ private fun TableView(
             onSent = {
                 newOrder = false
                 reload++
-                dialog = "Pedido enviado a cocina" to "La cocina ya lo ve en su pantalla."
+                dialog = t("Pedido enviado a cocina") to t("La cocina ya lo ve en su pantalla.")
             }
         )
         return
@@ -397,19 +407,19 @@ private fun TableView(
         ) {
             // El gesto/botón "atrás" del teléfono también vuelve a las mesas
             BackHandler(onBack = onBack)
-            WaiterBackButton("Volver a las mesas", onClick = onBack)
+            WaiterBackButton(t("Volver a las mesas"), onClick = onBack)
             Spacer(Modifier.height(8.dp))
             PageHeader(
-                if (info != null) "Piso ${info.floor} · ${info.seats} sillas" else "Mesa",
-                "Mesa $tableId"
+                if (info != null) t("Piso {} · {} sillas", info.floor, info.seats) else t("Mesa"),
+                t("Mesa {}", tableId)
             )
 
             loadError?.let {
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    "Sin actualizar: $it",
+                    t("No pudimos actualizar la mesa. {}", it),
                     fontSize = 13.sp,
-                    color = Burgundy,
+                    color = ErrorText,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
@@ -420,9 +430,9 @@ private fun TableView(
 
             // Reserva que importa al sentar a alguien (solo con la mesa libre)
             if (info != null && info.reservationId != null && orders.isEmpty()) {
-                val who = info.reservationName?.let { "«$it»" } ?: "La reserva"
+                val who = info.reservationName?.let { "«$it»" } ?: t("La reserva")
                 val time = hhmm(info.reservationTime)
-                val unpaid = if (info.reservationPaid) "" else " (anticipo aún sin pagar)"
+                val unpaid = if (info.reservationPaid) "" else t(" (anticipo aún sin pagar)")
                 Spacer(Modifier.height(12.dp))
                 Column(
                     modifier = Modifier
@@ -433,15 +443,15 @@ private fun TableView(
                         .padding(14.dp)
                 ) {
                     Text(
-                        if (info.reservationNoShow) "$who no ha llegado ($time)" else "Reservada · $time",
+                        if (info.reservationNoShow) t("{} no ha llegado ({})", who, time) else t("Reservada · {}", time),
                         fontWeight = FontWeight.SemiBold,
-                        color = Burgundy,
+                        color = ErrorText,
                         fontSize = 15.sp
                     )
                     Text(
                         when {
-                            info.reservationNoShow -> "Pasó el tiempo de espera: ya puedes dar la mesa a otros clientes. Si llegan, confírmalo al tomar el pedido."
-                            else -> "$who$unpaid. Solo puedes sentar aquí a los de la reserva."
+                            info.reservationNoShow -> t("Pasó el tiempo de espera: ya puedes dar la mesa a otros clientes. Si llegan, confírmalo al tomar el pedido.")
+                            else -> t("{}{}. Solo puedes sentar aquí a los de la reserva.", who, unpaid)
                         },
                         fontSize = 14.sp,
                         color = Charcoal.copy(alpha = 0.75f)
@@ -459,10 +469,10 @@ private fun TableView(
                         .border(1.dp, Gold.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
                         .padding(14.dp)
                 ) {
-                    Text("⚠ Reserva a las ${hhmm(time)}", fontWeight = FontWeight.SemiBold, color = Burgundy, fontSize = 15.sp)
+                    Text(t("⚠ Reserva a las {}", hhmm(time)), fontWeight = FontWeight.SemiBold, color = ErrorText, fontSize = 15.sp)
                     Text(
                         (info.upcomingReservationName?.let { "«$it». " } ?: "") +
-                            "Ten en cuenta que esta mesa debe quedar libre para entonces.",
+                            t("Ten en cuenta que esta mesa debe quedar libre para entonces."),
                         fontSize = 14.sp,
                         color = Charcoal.copy(alpha = 0.75f)
                     )
@@ -470,11 +480,13 @@ private fun TableView(
             }
 
             Spacer(Modifier.height(16.dp))
-            TerraButton(
-                if (savedDraft != null) "Seguir pedido sin enviar (${savedDraft.lines.sumOf { it.quantity }})" else "Nuevo pedido",
-                onClick = { startOrder() },
-                modifier = Modifier.fillMaxWidth()
-            )
+            ButtonStack {
+                TerraButton(
+                    if (savedDraft != null) t("Seguir pedido sin enviar ({})", savedDraft.lines.sumOf { it.quantity }) else t("Nuevo pedido"),
+                    onClick = { startOrder() },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Spacer(Modifier.height(20.dp))
 
             // Cobrar mesa: con 2 o más pedidos por cobrar, se cobran todos de una vez
@@ -488,23 +500,23 @@ private fun TableView(
                         .border(1.dp, Gold.copy(alpha = 0.6f), RoundedCornerShape(20.dp))
                         .padding(16.dp)
                 ) {
-                    Text("Cobrar mesa", fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Charcoal)
+                    Text(t("Cobrar mesa"), fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Charcoal)
                     Text(
-                        "${awaiting.size} pedidos entregados por cobrar. Se cobran todos juntos.",
+                        t("{} pedidos entregados por cobrar. Se cobran todos juntos.", awaiting.size),
                         fontSize = 14.sp,
                         color = Charcoal.copy(alpha = 0.7f),
                         modifier = Modifier.padding(top = 2.dp, bottom = 10.dp)
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         TerraButton(
-                            "Efectivo",
+                            t("Efectivo"),
                             onClick = { toPayTable = "CASH" },
                             enabled = !busy,
                             style = ButtonStyle.Sage,
                             modifier = Modifier.weight(1f)
                         )
                         TerraButton(
-                            "Tarjeta",
+                            t("Tarjeta"),
                             onClick = { toPayTable = "CARD" },
                             enabled = !busy,
                             modifier = Modifier.weight(1f)
@@ -515,9 +527,9 @@ private fun TableView(
             }
 
             when {
-                loading -> Text("Cargando pedidos...", color = TextSoft, fontSize = 14.sp)
+                loading -> Text(t("Cargando pedidos..."), color = TextSoft, fontSize = 14.sp)
                 orders.isEmpty() -> Text(
-                    "Mesa libre: no tiene pedidos en curso ni por cobrar.",
+                    t("Mesa libre: no tiene pedidos en curso ni por cobrar."),
                     color = TextSoft,
                     fontSize = 15.sp
                 )
@@ -527,7 +539,7 @@ private fun TableView(
                         round = if (orders.size > 1) index + 1 else null,
                         busy = busy,
                         onDeliver = {
-                            act({ ApiClient.api.deliverTableOrder(order.id) }, "Pedido entregado")
+                            act({ ApiClient.api.deliverTableOrder(order.id) }, t("Pedido entregado"))
                         },
                         onCancel = { toCancel = order },
                         onPay = { method -> toPay = order to method }
@@ -543,15 +555,15 @@ private fun TableView(
         val count = orders.count { it.awaitingPayment }
         val stillCooking = orders.count { it.status == "PENDING" || it.status == "IN_PROGRESS" }
         TerraDialog(
-            title = "Cobrar mesa $tableId",
-            message = "¿La mesa pagó en $label? Se cobran los $count pedidos entregados." +
-                if (stillCooking > 0) "\n\nOjo: aún hay pedidos en cocina; se cobran cuando se entreguen."
-                else "\n\nLa mesa quedará libre.",
-            confirmLabel = "Sí, cobrar en $label",
-            cancelLabel = "Volver",
+            title = t("Cobrar mesa {}", tableId),
+            message = t("¿La mesa pagó en {}? Se cobran los {} pedidos entregados.", label, count) +
+                if (stillCooking > 0) t("\n\nOjo: aún hay pedidos en cocina; se cobran cuando se entreguen.")
+                else t("\n\nLa mesa quedará libre."),
+            confirmLabel = t("Sí, cobrar en {}", label),
+            cancelLabel = t("Volver"),
             onConfirm = {
                 toPayTable = null
-                act({ ApiClient.api.payTable(tableId, PayRequest(method)) }, "Mesa cobrada en $label")
+                act({ ApiClient.api.payTable(tableId, PayRequest(method)) }, t("Mesa cobrada en {}", label))
             },
             onCancel = { toPayTable = null }
         )
@@ -560,14 +572,14 @@ private fun TableView(
     toPay?.let { (order, method) ->
         val label = if (method == "CASH") "efectivo" else "tarjeta"
         TerraDialog(
-            title = "Cobrar pedido #${order.id}",
-            message = "¿La mesa pagó en $label? Al confirmarlo el pedido queda cobrado" +
-                " y, si no le queda nada más, la mesa vuelve a estar libre.",
-            confirmLabel = "Sí, cobrar en $label",
-            cancelLabel = "Volver",
+            title = t("Cobrar pedido #{}", order.id),
+            message = t("¿La mesa pagó en {}? Al confirmarlo el pedido queda cobrado", label) +
+                t(" y, si no le queda nada más, la mesa vuelve a estar libre."),
+            confirmLabel = t("Sí, cobrar en {}", label),
+            cancelLabel = t("Volver"),
             onConfirm = {
                 toPay = null
-                act({ ApiClient.api.payTableOrder(order.id, PayRequest(method)) }, "Pedido cobrado en $label")
+                act({ ApiClient.api.payTableOrder(order.id, PayRequest(method)) }, t("Pedido cobrado en {}", label))
             },
             onCancel = { toPay = null }
         )
@@ -575,14 +587,14 @@ private fun TableView(
 
     toCancel?.let { order ->
         TerraDialog(
-            title = "Cancelar pedido #${order.id}",
-            message = "¿Seguro? Solo se puede porque la cocina aún no lo empezó.",
-            confirmLabel = "Sí, cancelar",
-            cancelLabel = "No",
+            title = t("Cancelar pedido #{}", order.id),
+            message = t("¿Seguro? Solo se puede porque la cocina aún no lo empezó."),
+            confirmLabel = t("Sí, cancelar"),
+            cancelLabel = t("No"),
             danger = true,
             onConfirm = {
                 toCancel = null
-                act({ ApiClient.api.cancelTableOrder(order.id) }, "Pedido cancelado")
+                act({ ApiClient.api.cancelTableOrder(order.id) }, t("Pedido cancelado"))
             },
             onCancel = { toCancel = null }
         )
@@ -590,16 +602,16 @@ private fun TableView(
     if (askReservation && info != null) {
         val time = hhmm(info.reservationTime)
         TerraDialog(
-            title = "¿Son los de la reserva?",
-            message = "La mesa $tableId tiene la reserva «${info.reservationName ?: ""}» de las $time." +
-                if (info.walkInAllowed) "" else " Si no son ellos, sienta a estos clientes en otra mesa.",
-            confirmLabel = "Sí, son ellos",
+            title = t("¿Son los de la reserva?"),
+            message = t("La mesa {} tiene la reserva «{}» de las {}.", tableId, info.reservationName ?: "", time) +
+                if (info.walkInAllowed) "" else t(" Si no son ellos, sienta a estos clientes en otra mesa."),
+            confirmLabel = t("Sí, son ellos"),
             onConfirm = {
                 askReservation = false
                 forReservation = true
                 newOrder = true
             },
-            cancelLabel = if (info.walkInAllowed) "No, otros clientes" else "No, otra mesa",
+            cancelLabel = if (info.walkInAllowed) t("No, otros clientes") else t("No, otra mesa"),
             onCancel = {
                 askReservation = false
                 if (info.walkInAllowed) {
@@ -610,13 +622,13 @@ private fun TableView(
         )
     }
     lostAccess?.let { message ->
-        TerraDialog("Ya no puedes ver esta mesa", message, "Volver a las mesas", onConfirm = {
+        TerraDialog(t("Ya no puedes ver esta mesa"), message, t("Volver a las mesas"), onConfirm = {
             lostAccess = null
             onBack()
         })
     }
     dialog?.let { (title, message) ->
-        TerraDialog(title, message.ifBlank { " " }, "Aceptar", onConfirm = { dialog = null })
+        TerraDialog(title, message.ifBlank { " " }, t("Aceptar"), onConfirm = { dialog = null })
     }
 }
 
@@ -633,7 +645,7 @@ private fun OrderCard(
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "Pedido #${order.id}" + (round?.let { " · ronda $it" } ?: ""),
+                    t("Pedido #{}", order.id) + (round?.let { t(" · ronda {}", it) } ?: ""),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = Charcoal
@@ -642,10 +654,10 @@ private fun OrderCard(
             }
             StatusPill(
                 when {
-                    order.awaitingPayment -> "Entregado · por cobrar"
-                    order.ready -> "Listo en cocina"
-                    order.status == "PENDING" -> "En espera"
-                    else -> "En preparación"
+                    order.awaitingPayment -> t("Entregado · por cobrar")
+                    order.ready -> t("Listo en cocina")
+                    order.status == "PENDING" -> t("En espera")
+                    else -> t("En preparación")
                 },
                 when {
                     order.awaitingPayment -> Gold
@@ -672,40 +684,44 @@ private fun OrderCard(
         when {
             // Entregado: el mesero registra cómo pagó la mesa
             order.awaitingPayment -> Column {
-                Text("Método de pago", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
+                Text(t("Método de pago"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     TerraButton(
-                        "Efectivo",
+                        t("Efectivo"),
                         onClick = { onPay("CASH") },
                         enabled = !busy,
                         style = ButtonStyle.Sage,
                         modifier = Modifier.weight(1f)
                     )
                     TerraButton(
-                        "Tarjeta",
+                        t("Tarjeta"),
                         onClick = { onPay("CARD") },
                         enabled = !busy,
                         modifier = Modifier.weight(1f)
                     )
                 }
             }
-            order.ready -> TerraButton(
-                if (busy) "Entregando..." else "Entregar en la mesa",
-                onClick = onDeliver,
-                enabled = !busy,
-                style = ButtonStyle.Sage,
-                modifier = Modifier.fillMaxWidth()
-            )
-            order.cancellable -> TerraButton(
-                "Cancelar pedido",
-                onClick = onCancel,
-                enabled = !busy,
-                style = ButtonStyle.Danger,
-                modifier = Modifier.fillMaxWidth()
-            )
+            order.ready -> ButtonStack {
+                TerraButton(
+                    if (busy) t("Entregando...") else t("Entregar en la mesa"),
+                    onClick = onDeliver,
+                    enabled = !busy,
+                    style = ButtonStyle.Sage,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            order.cancellable -> ButtonStack {
+                TerraButton(
+                    t("Cancelar pedido"),
+                    onClick = onCancel,
+                    enabled = !busy,
+                    style = ButtonStyle.Danger,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             else -> Text(
-                "La cocina ya lo está preparando: no se puede cancelar.",
+                t("La cocina ya lo está preparando: no se puede cancelar."),
                 fontSize = 13.sp,
                 color = TextSoft
             )
@@ -770,7 +786,7 @@ private fun NewOrderView(
     fun send() {
         if (sending) return
         if (draft.isEmpty()) {
-            error = "Agrega al menos un plato."
+            error = t("Agrega al menos un plato.")
             return
         }
         sending = true
@@ -816,21 +832,21 @@ private fun NewOrderView(
         ) {
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 BackHandler(onBack = onCancel)
-                WaiterBackButton("Volver a la mesa $tableId", onClick = onCancel)
+                WaiterBackButton(t("Volver a la mesa {}", tableId), onClick = onCancel)
                 Spacer(Modifier.height(8.dp))
-                PageHeader("Mesa $tableId", "Nuevo pedido")
+                PageHeader(t("Mesa {}", tableId), t("Nuevo pedido"))
                 Spacer(Modifier.height(16.dp))
-                TerraTextField(label = "Buscar plato", value = search, onValueChange = { search = it }, placeholder = "Ej: pulpo")
+                TerraTextField(label = t("Buscar plato"), value = search, onValueChange = { search = it }, placeholder = t("Ej: pulpo"))
                 Spacer(Modifier.height(20.dp))
                 if (products.isEmpty() && error == null) {
-                    Text("Cargando la carta...", color = TextSoft, fontSize = 14.sp)
+                    Text(t("Cargando la carta..."), color = TextSoft, fontSize = 14.sp)
                 }
             }
 
             // Una fila por categoría, en el orden de la carta
             val shown = products.filter { it.active && it.name.contains(search.trim(), ignoreCase = true) }
-            shown.groupBy { it.category?.name ?: "Otros" }.forEach { (category, items) ->
-                SectionLabel(category, modifier = Modifier.padding(horizontal = 20.dp))
+            shown.groupBy { it.category?.name ?: t("Otros") }.forEach { (category, items) ->
+                SectionLabel(t(category), modifier = Modifier.padding(horizontal = 20.dp))
                 Spacer(Modifier.height(8.dp))
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 20.dp),
@@ -850,25 +866,25 @@ private fun NewOrderView(
             // ---------- Tu pedido ----------
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 18.dp) {
-                    Text("Tu pedido", fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Charcoal)
+                    Text(t("Tu pedido"), fontFamily = Playfair, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = Charcoal)
                     Spacer(Modifier.height(8.dp))
                     if (draft.isEmpty()) {
-                        Text("Toca un plato de la carta para agregarlo.", fontSize = 14.sp, color = TextSoft)
+                        Text(t("Toca un plato de la carta para agregarlo."), fontSize = 14.sp, color = TextSoft)
                     }
                     draft.forEachIndexed { index, line ->
                         Row(verticalAlignment = Alignment.Top, modifier = Modifier.padding(vertical = 6.dp)) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text("${line.quantity}× ${line.product.name}", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Charcoal)
                                 if (line.addOns.isNotEmpty()) {
-                                    Text("+ ${line.addOns.joinToString(", ") { it.name }}", fontSize = 13.sp, color = Forest)
+                                    Text("+ ${line.addOns.joinToString(", ") { t(it.name) }}", fontSize = 13.sp, color = Forest)
                                 }
                                 if (line.notes.isNotBlank()) {
                                     Text("“${line.notes.trim()}”", fontSize = 13.sp, color = Terra)
                                 }
                             }
                             Text(
-                                "Quitar",
-                                color = Burgundy,
+                                t("Quitar"),
+                                color = ErrorText,
                                 fontSize = 13.sp,
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(50))
@@ -880,23 +896,25 @@ private fun NewOrderView(
                 }
 
                 error?.let {
-                    Text(it, color = Burgundy, fontSize = 14.sp, modifier = Modifier.padding(vertical = 10.dp))
+                    ErrorNotice(it, Modifier.padding(vertical = 10.dp))
                 }
 
                 val count = draft.sumOf { it.quantity }
                 Spacer(Modifier.height(14.dp))
-                TerraButton(
-                    when {
-                        sending -> "Enviando..."
-                        count == 0 -> "Agrega platos al pedido"
-                        else -> "Enviar a cocina ($count ${if (count == 1) "plato" else "platos"})"
-                    },
-                    onClick = { send() },
-                    enabled = !sending && count > 0,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(10.dp))
-                TerraButton("Cancelar", onClick = onCancel, style = ButtonStyle.Outline, modifier = Modifier.fillMaxWidth())
+                ButtonStack {
+                    TerraButton(
+                        when {
+                            sending -> t("Enviando...")
+                            count == 0 -> t("Agrega platos al pedido")
+                            else -> t("Enviar a cocina ({} {})", count, if (count == 1) t("plato") else t("platos"))
+                        },
+                        onClick = { send() },
+                        enabled = !sending && count > 0,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    TerraButton(t("Cancelar"), onClick = onCancel, style = ButtonStyle.Outline, modifier = Modifier.fillMaxWidth())
+                }
             }
         }
     }
@@ -922,7 +940,7 @@ private fun DishCard(product: Product, count: Int, onClick: () -> Unit) {
         modifier = Modifier
             .width(150.dp)
             .clip(shape)
-            .background(Color.White.copy(alpha = 0.9f))
+            .background(Paper.copy(alpha = 0.9f))
             .border(if (count > 0) 1.5.dp else 1.dp, if (count > 0) Terra else BorderSoft, shape)
             .clickable(onClick = onClick)
     ) {
@@ -983,18 +1001,18 @@ private fun DishDialog(product: Product, onDismiss: () -> Unit, onAdd: (DraftLin
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Cantidad", fontSize = 15.sp, color = Charcoal, modifier = Modifier.weight(1f))
+                    Text(t("Cantidad"), fontSize = 15.sp, color = Charcoal, modifier = Modifier.weight(1f))
                     QuantityStepper(value = quantity, onChange = { quantity = it }, min = 1, max = 99, compact = true)
                 }
                 Spacer(Modifier.height(14.dp))
-                Text("Adicionales", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
+                Text(t("Adicionales"), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
                 Spacer(Modifier.height(4.dp))
                 when {
-                    options == null -> Text("Cargando...", fontSize = 13.sp, color = TextSoft)
-                    options!!.isEmpty() -> Text("Este plato no tiene adicionales.", fontSize = 13.sp, color = TextSoft)
+                    options == null -> Text(t("Cargando..."), fontSize = 13.sp, color = TextSoft)
+                    options!!.isEmpty() -> Text(t("Este plato no tiene adicionales."), fontSize = 13.sp, color = TextSoft)
                     else -> options!!.forEach { addOn ->
                         CheckRow(
-                            label = "${addOn.name} (+${Format.money(addOn.price)})",
+                            label = "${t(addOn.name)} (+${Format.money(addOn.price)})",
                             checked = chosen.any { it.id == addOn.id },
                             accent = Terra
                         ) {
@@ -1004,22 +1022,22 @@ private fun DishDialog(product: Product, onDismiss: () -> Unit, onAdd: (DraftLin
                 }
                 Spacer(Modifier.height(12.dp))
                 TerraTextField(
-                    label = "Nota para cocina (opcional)",
+                    label = t("Nota para cocina (opcional)"),
                     value = notes,
                     onValueChange = { notes = it.take(200) },
-                    placeholder = "Ej: sin cebolla, término medio"
+                    placeholder = t("Ej: sin cebolla, término medio")
                 )
             }
         },
         confirmButton = {
             TerraButton(
-                "Agregar al pedido",
+                t("Agregar al pedido"),
                 onClick = { onAdd(DraftLine(product, quantity, notes, chosen.toList())) },
                 compact = true
             )
         },
         dismissButton = {
-            TerraButton("Cancelar", onClick = onDismiss, style = ButtonStyle.Outline, compact = true)
+            TerraButton(t("Cancelar"), onClick = onDismiss, style = ButtonStyle.Outline, compact = true)
         }
     )
 }

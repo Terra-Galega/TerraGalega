@@ -8,6 +8,10 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.DELETE
 import retrofit2.http.Query
+import retrofit2.http.Multipart
+import retrofit2.http.Part
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 // El usuario con sesión se identifica por el token que el interceptor de ApiClient
 // agrega en cada petición, así que las rutas del propio usuario no llevan su id.
@@ -39,6 +43,27 @@ interface ApiService {
     // que espera más tiempo la respuesta.
     @POST("clients/me/chat")
     suspend fun chat(@Body body: ChatRequest): ChatResponse
+
+    // ---------- Chat con el restaurante (el mismo de la web) ----------
+    // Pedidos en curso del cliente que ya tienen mensajes
+    @GET("order-chat/active")
+    suspend fun orderChatActive(): List<OrderChatSummary>
+
+    // Mensajes de un pedido; con "after" solo llegan los nuevos
+    @GET("order-chat/{orderId}/messages")
+    suspend fun orderChatMessages(@Path("orderId") orderId: Int, @Query("after") after: Int?): OrderChat
+
+    @POST("order-chat/{orderId}/messages")
+    suspend fun sendOrderChat(@Path("orderId") orderId: Int, @Body body: SendChatMessage): OrderChatMessage
+
+    // Foto (JPG) con comentario opcional. Se llama con ApiClient.chatApi (subir tarda más)
+    @Multipart
+    @POST("order-chat/{orderId}/attachments")
+    suspend fun sendOrderChatPhoto(
+        @Path("orderId") orderId: Int,
+        @Part file: MultipartBody.Part,
+        @Part("content") content: RequestBody?
+    ): OrderChatMessage
 
     // "Continuar con Google": crea la cuenta o inicia sesión con el ID token de Google
     @POST("auth/google")
