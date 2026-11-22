@@ -29,7 +29,7 @@
         }
 
         <!-- Método de pago: efectivo o tarjeta (la tarjeta se escribe en Stripe) -->
-        <app-payment-form id="checkout-payment" class="block" [form]="form" [errors]="errors"></app-payment-form>
+        <app-payment-form id="checkout-payment" class="block" [points]="points" [form]="form" [errors]="errors"></app-payment-form>
       </div>
 
       <!-- Derecha: resumen y botón (queda fijo al hacer scroll en escritorio) -->

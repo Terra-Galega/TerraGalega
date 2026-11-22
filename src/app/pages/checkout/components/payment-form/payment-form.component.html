@@ -8,10 +8,14 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" [attr.aria-label]="'checkout.payment_form.payment_form.metodo_de_pago' | t">
     @for (option of methods; track option.value) {
     <label
+      [style.opacity]="option.value === 'points' && !points?.canPay ? 0.65 : 1"
+      [style.filter]="option.value === 'points' && !points?.canPay ? 'grayscale(1)' : null"
+      [style.cursor]="option.value === 'points' && !points?.canPay ? 'not-allowed' : null"
       [id]="'payment-' + option.value" class="flex items-start gap-3 rounded-2xl p-4 cursor-pointer has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-terra"
       [style.background-color]="method === option.value ? 'rgba(178, 87, 31, 0.06)' : 'rgba(255, 255, 255, 0.85)'"
       [style.border]="method === option.value ? '1.5px solid #b2571f' : '1.5px solid rgba(44, 44, 44, 0.12)'">
-      <input type="radio" formControlName="method" [value]="option.value" class="sr-only" />
+      <input type="radio" formControlName="method" [value]="option.value"
+        [attr.disabled]="option.value === 'points' && !points?.canPay ? '' : null" class="sr-only" />
 
       <!-- Círculo de selección -->
       <span class="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
@@ -27,7 +31,18 @@
       <span class="min-w-0">
         <span class="block font-semibold text-charcoal text-[15px]">{{ option.title | t }}</span>
         <span class="block text-sm mt-0.5" style="color: rgba(44, 44, 44, 0.6)">
-          {{ option.description | t }}
+          @if (option.value !== 'points') {
+            {{ option.description | t }}
+          } @else if (!points) {
+            {{ 'points.unavailable' | t }}
+          } @else if (!points.subscribed) {
+            {{ 'points.premiumOnly' | t }}
+          } @else {
+            {{ 'points.cost' | t }} {{ points.required }} · {{ 'points.balance' | t }} {{ points.balance }}
+            @if (points.balance < points.required) {
+              <span class="block">{{ 'points.missing' | t }} {{ points.required - points.balance }}</span>
+            }
+          }
         </span>
       </span>
     </label>

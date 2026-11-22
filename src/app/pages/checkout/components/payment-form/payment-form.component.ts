@@ -1,3 +1,4 @@
+import { PointsQuote } from '../../../../models/checkout';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -22,6 +23,8 @@ export class PaymentFormComponent {
   // Mensaje de error de cada campo del checkout
   @Input() errors: CheckoutErrors = emptyErrors();
 
+  @Input() points: PointsQuote | null = null;
+
   // Opciones de pago que se pintan como tarjetas seleccionables
   methods = [
     {
@@ -34,6 +37,7 @@ export class PaymentFormComponent {
       title: 'Tarjeta',
       description: 'Crédito o débito, en la pasarela segura de Stripe.',
     },
+    { value: 'points', title: 'points.pay', description: '' },
   ];
 
   // Método elegido actualmente ('cash' | 'card' | '')

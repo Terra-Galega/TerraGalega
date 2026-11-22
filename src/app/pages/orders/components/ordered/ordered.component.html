@@ -28,6 +28,9 @@
           >
             ${{ order.total | number: "1.0-0" }}
           </p>
+          @if (order.pointsSpent) {
+            <p class="text-sm">{{ (order.status === 'CANCELLED' ? 'points.RETURNED' : 'points.SPENT') | t }} · {{ order.pointsSpent }} {{ 'points.units' | t }}</p>
+          }
         </div>
       </div>
 

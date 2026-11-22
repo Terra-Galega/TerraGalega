@@ -9,7 +9,7 @@ export interface CheckoutDraft {
   saveAddress: boolean;
   // Forma de pago; vacío mientras el cliente no haya elegido.
   // 'card' = pasarela de Stripe: los datos de la tarjeta se escriben allí.
-  method: 'cash' | 'card' | '';
+  method: 'cash' | 'card' | 'points' | '';
   // Nombre con el que se guarda la dirección nueva (vacío = el back usa "Casa")
   addressName: string;
   // Cupón aplicado en el paso 1 (null = sin cupón)
@@ -61,8 +61,8 @@ export class CheckoutDraftService {
     }
   }
 
-  rememberMethod(method: 'cash' | 'card' | ''): void {
-    if (!method) return;
+  rememberMethod(method: 'cash' | 'card' | 'points' | ''): void {
+    if (!method || method === 'points') return;
     try {
       localStorage.setItem(LAST_METHOD_KEY, method);
     } catch {

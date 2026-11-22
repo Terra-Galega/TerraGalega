@@ -1,3 +1,18 @@
+export interface PointsQuote {
+  subscribed: boolean;
+  balance: number;
+  required: number;
+  total: number;
+  canPay: boolean;
+}
+
+export interface PointsMovement {
+  orderId: number;
+  kind: 'EARNED' | 'SPENT' | 'RETURNED';
+  amount: number;
+  createdAt: string;
+}
+
 export interface CheckoutItem {
   productId: number;
   quantity: number;

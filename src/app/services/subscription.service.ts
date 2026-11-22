@@ -2,6 +2,7 @@ import { API_URL } from '../api-url';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { PointsMovement } from '../models/checkout';
 import { SubscriptionStatus } from '../models/subscription';
 
 @Injectable({ providedIn: 'root' })
@@ -13,6 +14,10 @@ export class SubscriptionService {
   // Estado actual. El back consulta a Stripe si hay un pago pendiente.
   status(): Observable<SubscriptionStatus> {
     return this.http.get<SubscriptionStatus>(`${this.apiUrl}/status`);
+  }
+
+  pointsHistory(): Observable<PointsMovement[]> {
+    return this.http.get<PointsMovement[]>(this.apiUrl + '/points/history');
   }
 
   // Abre el pago (o reutiliza el abierto). Si aún no puede pagar, el back responde 409.

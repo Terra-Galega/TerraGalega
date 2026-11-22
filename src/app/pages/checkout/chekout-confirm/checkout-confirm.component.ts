@@ -1,3 +1,7 @@
+import { BehaviorSubject } from 'rxjs';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PointsQuote } from '../../../models/checkout';
 import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { DecimalPipe } from '@angular/common';
 import { Component, HostListener, OnInit, inject } from '@angular/core';
@@ -46,6 +50,9 @@ import { getErrorMessage } from '../../../utils/http-error';
 })
 export class CheckoutConfirmComponent implements OnInit {
   // Dependencias inyectadas: navegación, sesión, carrito, checkout, borrador, pedidos, direcciones y cupones
+  points: PointsQuote | null = null;
+  private couponCode$ = new BehaviorSubject<string | null>(null);
+  private destroyRef = inject(DestroyRef);
   private router = inject(Router);
   private auth = inject(AuthService);
   private cartService = inject(CartService);
@@ -104,6 +111,13 @@ export class CheckoutConfirmComponent implements OnInit {
     if (this.items.length > 0 && (!this.draft.method || !this.draft.address)) {
       this.router.navigate(['/checkout'], { replaceUrl: true });
       return;
+    }
+
+    if (this.draft.method === 'points') {
+      this.couponCode$.next(this.coupon?.code ?? null);
+      this.checkoutService.watchPoints(this.cartService.items$, this.couponCode$)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(quote => this.points = quote);
     }
 
     // Se consulta si es Premium antes de mostrar la página, para no enseñar un
@@ -197,6 +211,7 @@ export class CheckoutConfirmComponent implements OnInit {
   // Cambia el cupón del borrador (null = quitarlo)
   private setCoupon(coupon: CouponDiscount | null): void {
     this.draftService.draft = { ...this.draftService.draft, coupon };
+    this.couponCode$.next(coupon?.code ?? null);
   }
 
   // Vuelve a validar el cupón con el subtotal actual. Si sigue sirviendo, se
@@ -248,7 +263,8 @@ export class CheckoutConfirmComponent implements OnInit {
   // pedido en efectivo o lleva al cliente a pagar en Stripe.
   // No hace nada si ya se está pagando, si falta el cliente o si el carrito está vacío.
   confirm(): void {
-    if (this.paying || this.clientId === null || this.items.length === 0) {
+    if (this.paying || this.clientId === null || this.items.length === 0 ||
+        (this.draft.method === 'points' && !this.points?.canPay)) {
       return;
     }
 
@@ -282,10 +298,10 @@ export class CheckoutConfirmComponent implements OnInit {
       return;
     }
 
-    // Contra entrega: el pedido se crea ya
-    this.checkoutService
-      .checkout(request)
-      .subscribe({
+    const order$ = this.draft.method === 'points' && this.points
+      ? this.checkoutService.payWithPoints(request, this.requestIdFor(request, this.points), this.points)
+      : this.checkoutService.checkout(request);
+    order$.subscribe({
         // Éxito: se guarda la dirección nueva (si se pidió), se vacía el carrito,
         // se limpia el borrador y se redirige a /orders (paid=true muestra el aviso verde)
         next: () => {
@@ -313,7 +329,16 @@ export class CheckoutConfirmComponent implements OnInit {
   private payWithCard(request: CheckoutRequest): void {
     // Mismo carrito = mismo requestId: reintentar tras un fallo de red no crea
     // otro pedido. Si el carrito cambió, se usa un intento nuevo.
-    const body = JSON.stringify(request);
+    this.paymentService
+      .start({ requestId: this.requestIdFor(request), checkout: request })
+      .subscribe({
+        next: (payment) => this.goToStripe(payment),
+        error: (error) => this.onCheckoutError(error),
+      });
+  }
+
+  private requestIdFor(request: CheckoutRequest, quote?: PointsQuote): string {
+    const body = quote ? JSON.stringify([request, quote.required, quote.total]) : JSON.stringify(request);
 
     if (!this.draft.paymentRequestId || this.draft.paymentRequestBody !== body) {
       this.draftService.draft = {
@@ -323,12 +348,7 @@ export class CheckoutConfirmComponent implements OnInit {
       };
     }
 
-    this.paymentService
-      .start({ requestId: this.draft.paymentRequestId, checkout: request })
-      .subscribe({
-        next: (payment) => this.goToStripe(payment),
-        error: (error) => this.onCheckoutError(error),
-      });
+    return this.draft.paymentRequestId;
   }
 
   private goToStripe(payment: Payment): void {
@@ -377,6 +397,8 @@ export class CheckoutConfirmComponent implements OnInit {
     );
 
     this.paying = false;
+
+    if (this.draft.method === 'points') this.couponCode$.next(this.coupon?.code ?? null);
 
     // El fallo puede venir de un producto que dejó de estar disponible o
     // del cupón. Se revisan los dos: lo que ya no sirve se quita y se
