@@ -28,7 +28,6 @@ import { SubscriptionModalComponent } from '../../components/subscription-modal/
 import { ToastService } from '../../services/toast.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { AddressListComponent } from './components/address-list/address-list.component';
-import { ThemeSwitchComponent } from '../../components/theme-switch/theme-switch.component';
 import { CelebrationBannerComponent } from '../../components/celebration/celebration-banner/celebration-banner.component';
 import { CelebrationRainComponent } from '../../components/celebration/celebration-rain/celebration-rain.component';
 import { CelebrationSwitcherComponent } from '../../components/celebration/celebration-switcher/celebration-switcher.component';
@@ -53,13 +52,13 @@ const MAX_POLLS = 15;
     SubscriptionModalComponent,
     AccountActionsComponent,
     AddressListComponent,
-    ThemeSwitchComponent,
     CelebrationBannerComponent,
     CelebrationRainComponent,
     CelebrationSwitcherComponent,
     ButtonComponent,
     TranslatePipe],
   templateUrl: './account.component.html',
+  styleUrl: './account.component.scss',
 })
 export class AccountComponent implements OnInit {
   //Injextar los servicios que se van a usar

@@ -51,3 +51,18 @@
   color: #fff;
   background-color: #8a2222;
 }
+
+// Se ve de 36 px, pero responde al toque en 44 px (zona invisible)
+.icon-btn {
+  position: relative;
+}
+
+.icon-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}

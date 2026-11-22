@@ -6,11 +6,11 @@
      El botón "+" añade una unidad sin adicionales directamente al carrito. -->
 <article
   [id]="'menu-card-' + product.id"
-  class="product-card glass-card relative rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
+  class="product-card glass-card relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-1 hover:shadow-xl flex flex-col h-full"
   [attr.aria-labelledby]="'menu-product-' + product.id"
 >
   <!-- Imagen del producto: siempre con la misma proporción, tenga o no etiquetas el plato -->
-  <div class="relative aspect-[4/3] flex-shrink-0 overflow-hidden">
+  <div class="relative aspect-square sm:aspect-[4/3] flex-shrink-0 overflow-hidden">
     <img
       [src]="product.imageUrl"
       [alt]="product.name"
@@ -20,7 +20,7 @@
     <!-- Insignia Popular (arriba a la izquierda, solo en productos populares) -->
     @if (product.popular) {
       <span
-        class="absolute top-3 left-3 flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider"
+        class="absolute top-2 left-2 sm:top-3 sm:left-3 flex items-center gap-1 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold tracking-wider"
         style="
           background-color: rgba(245, 242, 235, 0.88);
           backdrop-filter: blur(12px);
@@ -35,7 +35,7 @@
 
     <!-- Categoría (arriba a la derecha; el "?" evita error si no tiene categoría) -->
     <span
-      class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-medium"
+      class="max-sm:hidden absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-medium"
       style="
         background-color: rgba(44, 44, 44, 0.65);
         backdrop-filter: blur(8px);
@@ -47,18 +47,19 @@
   </div>
 
   <!-- Información: ocupa el alto que sobra en la fila y el precio queda siempre abajo -->
-  <div class="px-5 pt-4 pb-5 flex flex-col flex-grow">
+  <!-- En el celular, como en la app móvil: solo nombre y precio (sin descripción ni etiquetas) -->
+  <div class="px-3 pt-2.5 pb-3 sm:px-5 sm:pt-4 sm:pb-5 flex flex-col flex-grow">
     <!-- Nombre -->
     <h3
       [id]="'menu-product-' + product.id"
-      class="menu-product-name font-serif text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-1"
+      class="menu-product-name font-serif text-[15px] sm:text-xl font-semibold text-charcoal group-hover:text-terra transition-colors leading-snug mb-1 max-sm:line-clamp-2"
     >
       <a class="card-link" [routerLink]="['/productDetails', product.id]">{{ product.name }}</a>
     </h3>
 
     <!-- Descripción (se recorta a 2 líneas) -->
     <p
-      class="text-sm leading-relaxed line-clamp-2 mb-2.5"
+      class="max-sm:hidden text-sm leading-relaxed line-clamp-2 mb-2.5"
       style="color: rgba(44, 44, 44, 0.75)"
     >
       {{ product.description }}
@@ -67,14 +68,14 @@
     <!-- Características del plato -->
     <!-- Reserva el alto de una fila de etiquetas para que los precios queden alineados -->
     <app-feature-chips
-      class="flex flex-wrap content-start gap-1.5 mb-3 min-h-[1.625rem]"
+      class="max-sm:hidden flex flex-wrap content-start gap-1.5 mb-3 min-h-[1.625rem]"
       [product]="product"
     />
 
     <!-- Precio (sin decimales, ej. 38.900) y botón "+" de acceso rápido al carrito.
          El lector de pantalla oye "Precio: 38.900 pesos" (el "$" lo leería como dólares). -->
     <div class="flex items-center justify-between mt-auto">
-      <p class="font-bold text-lg" style="color: #b2571f">
+      <p class="font-bold text-[15px] sm:text-lg" style="color: #b2571f">
         <span class="sr-only">Precio: {{ product.price | number: "1.0-0" }} pesos</span>
         <span aria-hidden="true">${{ product.price | number: "1.0-0" }}</span>
       </p>

@@ -139,12 +139,13 @@ button {
 }
 
 // Selector de piso con una píldora que se desliza.
+// Selector de piso: todo es una píldora (el fondo y la parte verde que se desliza)
 .floor-control {
   position: relative;
   display: inline-grid;
   grid-template-columns: 1fr 1fr;
   padding: .2rem;
-  border-radius: .8rem;
+  border-radius: 999px;
   background: #ede9e0;
 }
 

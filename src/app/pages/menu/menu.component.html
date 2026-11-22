@@ -15,7 +15,8 @@
 
   <!-- Fila de filtros: botones de categoría (ocupan el espacio sobrante) y,
        a la derecha, el botón con el panel de características -->
-  <div id="menu-filters" class="flex items-center gap-3 mb-12">
+  <div #menuFilters id="menu-filters" class="menu-filters flex items-center gap-3 mb-12"
+    [class.menu-filters--stuck]="filtersStuck">
     <app-category-filter
       class="flex-1 min-w-0"
       [categories]="categoriesList"
@@ -31,7 +32,7 @@
   <!-- Cuadrícula de productos: 1 columna en celular, 2 en pantallas medianas
        y 3 en grandes. Si no hay resultados, muestra un aviso con un botón
        para quitar los filtros. -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+  <div #productsGrid id="menu-products" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-7">
     @for (product of filteredProducts; track product.id) {
       <app-product-card-menu [product]="product" />
     } @empty {

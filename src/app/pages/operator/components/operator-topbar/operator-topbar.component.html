@@ -9,10 +9,11 @@
     <div class="flex items-center gap-4">
       <a class="flex flex-col items-start leading-none select-none" aria-label="Terra Galega">
         <!-- Separa el nombre de la marca en dos líneas y aplica los estilos tipográficos propios del proyecto. -->
-        <span class="font-terra text-2xl leading-[0.6]" style="color: #f5f2eb">
+        <!-- Mismo logo que la barra del home (también lo usa la cocina) -->
+        <span class="font-terra text-[24px] leading-[0.6]" style="color: #e58e57">
           Terra
         </span>
-        <span class="font-galega text-sm tracking-[0.22em] uppercase font-semibold -mt-1" style="color: #f5f2eb">
+        <span class="font-galega text-[22px] tracking-[0.05em] uppercase -mt-1" style="color: #f5f2eb">
           Galega
         </span>
       </a>
@@ -51,18 +52,21 @@
         </div>
       </div>
 
-      <!-- Emite el evento al componente padre para que este ejecute la lógica de cierre de sesión. -->
-      <app-button size="md" variant="glass-dark" aria-label="Cerrar sesión" (click)="logoutClicked.emit()">
-        <!-- Icono SVG de salida; hereda el color del texto del botón mediante currentColor. -->
-        <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+      <!-- Cerrar sesión con el mismo estilo que el del panel de administración (icono y texto en
+           rojo suave, fondo al pasar el cursor). Emite el evento al padre, que cierra la sesión. -->
+      <button type="button" class="operator-logout-btn flex items-center gap-2 min-h-[44px] px-4 text-[13px] font-medium rounded-full whitespace-nowrap"
+        (click)="logoutClicked.emit()">
+        <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+          <path d="M16 17l5-5-5-5" />
+          <path d="M21 12H9" />
         </svg>
-        <span class="hidden sm:inline">Cerrar sesión</span>
-      </app-button>
+        Cerrar sesión
+      </button>
 
-      <!-- Interruptor de tema claro / oscuro, en la esquina derecha -->
-      <app-theme-switch [compact]="true" class="flex-shrink-0" />
+      <!-- Configuración (sin idioma): tema claro/oscuro y paleta de accesibilidad -->
+      <app-settings-menu [showLanguage]="false" class="flex-shrink-0" />
     </div>
   </div>
 </header>

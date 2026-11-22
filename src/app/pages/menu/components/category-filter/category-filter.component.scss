@@ -2,7 +2,19 @@
   display: flex;
   gap: 0.625rem;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
+  // Sin barra de desplazamiento (era la línea naranja de debajo): un desvanecido en el borde
+  // derecho indica que hay más categorías. El relleno deja ver entera la última al final.
+  scrollbar-width: none;
+  // Relleno para que la sombra de la píldora activa no se recorte en un rectángulo
+  // (el overflow corta lo que sale de la caja); los márgenes negativos lo compensan.
+  padding: 0.375rem 1.75rem 0.75rem 0.375rem;
+  margin: -0.375rem 0 -0.75rem -0.375rem;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 1.75rem), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.75rem), transparent);
+}
+
+:host::-webkit-scrollbar {
+  display: none;
 }
 
 .category-btn {
@@ -25,4 +37,18 @@
   color: #fff;
   border: 1px solid transparent;
   box-shadow: 0 4px 16px rgba(178, 87, 31, 0.3);
+}
+// Con la barra fija (vidrio crema), las píldoras son blancas y sólidas: sobre una foto
+// detrás ya no se ven grises ni sucias
+:host-context(.menu-filters--stuck) .category-btn:not(.active) {
+  background-color: #fff;
+  backdrop-filter: none;
+  border-color: rgba(44, 44, 44, 0.08);
+  color: rgba(44, 44, 44, 0.75);
+}
+
+:host-context(html[data-theme='dark']) :host-context(.menu-filters--stuck) .category-btn:not(.active) {
+  background-color: #2a2622;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(245, 242, 235, 0.8);
 }

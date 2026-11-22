@@ -9,6 +9,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class LoginHeaderComponent {
   @Input() activeTab: 'login' | 'signup' = 'login';
+  // Clave de traducción con el motivo ("para terminar tu pedido"...). Vacía = sin aviso.
+  @Input() reasonKey = '';
   //eventos para cambiar de "pestaña"
   @Output() tabChange = new EventEmitter<'login' | 'signup'>();
 

@@ -8,6 +8,7 @@
     <!--Barra para login o register-->
     <app-login-header
       [activeTab]="activeTab"
+      [reasonKey]="loginReasonKey"
       (tabChange)="selectTab($event)"
     ></app-login-header>
     <!-- Acceso con Google encima del formulario, en las dos pestañas (oculto mientras se espera

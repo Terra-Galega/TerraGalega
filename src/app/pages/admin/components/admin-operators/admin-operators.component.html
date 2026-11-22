@@ -38,7 +38,7 @@
 
       <!-- Toggle activo / inactivo  -->
       <button type="button"
-        class="flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-full whitespace-nowrap md:mr-6"
+        class="relative tap-target flex items-center gap-1.5 text-[11px] font-medium px-3 py-2 rounded-full whitespace-nowrap md:mr-6"
         [style.background-color]="operator.active ? 'rgba(85,97,65,0.1)' : 'rgba(44,44,44,0.06)'"
         [style.color]="operator.active ? '#556141' : 'rgba(44,44,44,0.4)'" (click)="toggleOperator(operator)">
         {{ operator.active ? 'Activo' : 'Inactivo' }}

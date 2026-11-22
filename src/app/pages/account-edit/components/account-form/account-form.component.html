@@ -53,8 +53,9 @@
         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
     </svg>
 
-    <!-- Explicación y botón para abrir el modal de cambio de contraseña -->
-    <div class="flex items-center justify-between gap-4">
+    <!-- Explicación y botón para abrir el modal de cambio de contraseña.
+         En pantallas pequeñas van uno debajo del otro (lado a lado no caben). -->
+    <div class="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-4">
       <p class="text-sm" style="color: rgba(44, 44, 44, 0.6)">
         {{ 'account_edit.account_form.account_form.para_cambiarla_te_pediremos_tu_contrasena_actual' | t }}
       </p>

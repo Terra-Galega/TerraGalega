@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, viewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, inject, viewChild } from '@angular/core';
 import { ThemeService } from '../../services/theme.service';
 import { LanguageService } from '../../services/language.service';
 import { PalettePickerComponent } from '../palette-picker/palette-picker.component';
@@ -17,6 +17,9 @@ export class SettingsMenuComponent {
     private readonly picker = viewChild(PalettePickerComponent);
 
     open = false;
+
+    // El admin y el operador no cambian de idioma: allí solo se ven el tema y la paleta
+    @Input() showLanguage = true;
 
     toggle(): void {
         this.open = !this.open;

@@ -212,6 +212,11 @@ export class OperatorOrdersComponent implements OnInit {
     return action ? actionText(action) : null;
   }
 
+  // Nombre del cliente del pedido que tiene el chat abierto (para el título del chat)
+  chatClientName(orderId: number): string {
+    return this.orders.find((order) => order.id === orderId)?.clientName ?? '';
+  }
+
   clientName(orderSummary: OrderSummary): string {
     // Evita mostrar un valor vacío cuando el cliente asociado ya no existe.
     return orderSummary.clientName ?? 'Cliente eliminado';

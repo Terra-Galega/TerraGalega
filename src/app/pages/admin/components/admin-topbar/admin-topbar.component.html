@@ -1,6 +1,6 @@
 <!-- Barra superior con título, campo de búsqueda y botón de acción -->
 <div
-  class="h-[60px] flex items-center justify-between gap-3 px-4 md:px-8 border-b flex-shrink-0"
+  class="min-h-[60px] flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 md:px-8 py-2 sm:py-0 border-b flex-shrink-0"
   style="
     background-color: rgba(245, 242, 235, 0.85);
     backdrop-filter: blur(16px);
@@ -33,12 +33,15 @@
   <div class="flex items-center gap-2 md:gap-3 min-w-0">
     <!-- Campo de búsqueda visible cuando showSearch está habilitado (en Orders no )-->
     @if (showSearch) {
-      <app-search-input
-        class="w-32 sm:w-48 min-w-0"
-        variant="soft"
-        placeholder="Buscar."
-        (valueChange)="searchChanged.emit($event)"
-      />
+      <!-- Desde 640 px va en la fila; en pantallas más pequeñas, en su propia fila (abajo) -->
+      <!-- (El div lleva las clases: el buscador fija su propio display y las anularía) -->
+      <div class="hidden sm:block sm:w-48 min-w-0">
+        <app-search-input
+          variant="soft"
+          placeholder="Buscar."
+          (valueChange)="searchChanged.emit($event)"
+        />
+      </div>
     }
 
     <!-- Botón de añadir visible cuando showAddButton está habilitado -->
@@ -61,10 +64,20 @@
       </app-button>
     }
 
-    <!-- Paleta para daltonismo (el panel se abre debajo) -->
-    <app-palette-picker variant="bar" class="flex-shrink-0" />
-
-    <!-- Interruptor de tema claro / oscuro, en la esquina derecha -->
-    <app-theme-switch [compact]="true" class="flex-shrink-0" />
+    <!-- Configuración (igual que en la web del cliente, pero sin idioma): tema claro/oscuro
+         y paleta de accesibilidad se despliegan desde este único botón -->
+    <app-settings-menu [showLanguage]="false" class="flex-shrink-0" />
   </div>
+
+  <!-- Celular: el buscador ocupa una segunda fila completa. Junto al título, el "+", la
+       paleta y el tema solo le quedaban unos 54 px y casi no se podía escribir. -->
+  @if (showSearch) {
+    <div class="sm:hidden basis-full min-w-0">
+      <app-search-input
+        variant="soft"
+        placeholder="Buscar."
+        (valueChange)="searchChanged.emit($event)"
+      />
+    </div>
+  }
 </div>

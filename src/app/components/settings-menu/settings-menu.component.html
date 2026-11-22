@@ -82,6 +82,7 @@ class="settings__actions"
     }
 </button>
 
+@if (showLanguage) {
 <!-- IDIOMA: muestra el idioma activo -->
 <button
     type="button"
@@ -95,6 +96,7 @@ class="settings__actions"
 >
     {{ language.language().toUpperCase() }}
 </button>
+}
 
 <!-- PALETA: ojo con el panel de opciones de daltonismo -->
 <app-palette-picker variant="menu" />

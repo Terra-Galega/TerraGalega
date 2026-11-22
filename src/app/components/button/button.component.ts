@@ -6,6 +6,7 @@ import { Params, RouterLink } from '@angular/router';
 // Define las variantes visuales permitidas; cada una se corresponde con una clase .btn--<variante> en el SCSS.
 export type ButtonVariant =
   | 'primary'
+  | 'gold'
   | 'outline'
   | 'neutral'
   | 'sage'

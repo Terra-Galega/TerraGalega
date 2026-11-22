@@ -166,9 +166,10 @@
                 }
               </p>
 
-              <!-- Chat con el cliente (arriba) y botón para avanzar el estado (abajo) -->
+              <!-- Chat con el cliente y botón para avanzar el estado: lado a lado y del mismo
+                   tamaño en cualquier pantalla (dos columnas iguales) -->
               @if (actionLabel(order); as label) {
-                <div class="card-action w-full sm:w-52 flex flex-col gap-2">
+                <div class="card-action operator-actions w-full sm:w-[22rem] grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     class="order-chat-trigger order-chat-trigger--operator"
@@ -201,8 +202,10 @@
                         d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
                       />
                     </svg>
+                    <!-- En el celular no cabe la frase entera en media tarjeta -->
                     <span class="order-chat-trigger__label"
-                      >Chat con el cliente</span
+                      ><span class="sm:hidden">Chat</span
+                      ><span class="max-sm:hidden">Chat con el cliente</span></span
                     >
                     @if (chatHub.isUnread(order.id)) {
                       <span
@@ -311,6 +314,7 @@
     <app-order-chat
       [docked]="true"
       [orderId]="chatOrderId"
+      [counterpartName]="chatClientName(chatOrderId)"
       role="OPERATOR"
       (seen)="chatHub.markSeen(chatOrderId, $event)"
       (closed)="closeChat()"
