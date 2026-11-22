@@ -33,3 +33,12 @@
     0 12px 32px rgba(44, 44, 44, 0.14),
     0 2px 8px rgba(44, 44, 44, 0.06);
 }
+// Con la barra de categorías fija, el botón de filtros también es sólido
+:host-context(.menu-filters--stuck) .feature-filter-btn:not(.active) {
+  background-color: #fff;
+  backdrop-filter: none;
+}
+
+:host-context(html[data-theme='dark']) :host-context(.menu-filters--stuck) .feature-filter-btn:not(.active) {
+  background-color: #2a2622;
+}

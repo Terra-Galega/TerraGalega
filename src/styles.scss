@@ -2024,3 +2024,75 @@ html.theme-transition::view-transition-new(root) {
     transform: translateY(-6px) scale(0.97);
   }
 }
+
+// Botones del operador (chat + avanzar estado): dos columnas iguales, mismo alto (44 px).
+// El botón de la acción llena su columna aunque en el celular los botones anchos se ajusten
+// a su texto (regla de .btn--full en button.component.scss).
+.operator-actions > * {
+  min-width: 0;
+}
+
+.operator-actions .order-chat-trigger,
+.operator-actions .btn {
+  width: 100% !important;
+  min-height: 44px;
+  margin: 0 !important;
+  padding-inline: 0.75rem;
+  white-space: nowrap;
+}
+
+// Más mensajes de error con otros colores o clases (modales del admin y del operador, mapa,
+// seguimiento del pedido...): el mismo aspecto de franja roja con icono "!".
+p[style*="color: #da5858"],
+p[style*="color: #9c2f1f"],
+p.text-red-600,
+p.error,
+p.tracking-error,
+p.points-error {
+  position: relative;
+  display: block;
+  padding: 0.6rem 0.85rem 0.6rem 2.15rem !important;
+  border: 1px solid rgba(138, 34, 34, 0.3);
+  border-left-width: 4px;
+  border-radius: 0.75rem;
+  background-color: rgba(138, 34, 34, 0.08);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+html:not([data-theme="dark"]) :is(p[style*="color: #da5858"], p[style*="color: #9c2f1f"], p.text-red-600, p.error, p.tracking-error, p.points-error) {
+  // El rojo claro (#da5858) apenas se leía sobre blanco: se usa el rojo oscuro de la paleta
+  color: #8a2222 !important;
+}
+
+p[style*="color: #da5858"]::before,
+p[style*="color: #9c2f1f"]::before,
+p.text-red-600::before,
+p.error::before,
+p.tracking-error::before,
+p.points-error::before {
+  content: '!';
+  position: absolute;
+  left: 0.65rem;
+  top: 0.62rem;
+  display: grid;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 9999px;
+  background-color: #8a2222;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+html[data-theme="dark"] :is(p[style*="color: #da5858"], p[style*="color: #9c2f1f"], p.text-red-600, p.error, p.tracking-error, p.points-error) {
+  border-color: rgba(240, 140, 120, 0.4);
+  background-color: rgba(240, 120, 100, 0.12);
+}
+
+html[data-theme="dark"] :is(p[style*="color: #da5858"], p[style*="color: #9c2f1f"], p.text-red-600, p.error, p.tracking-error, p.points-error)::before {
+  background-color: #e0786a;
+  color: #1e1b18;
+}

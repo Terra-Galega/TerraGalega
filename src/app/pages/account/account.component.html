@@ -61,7 +61,7 @@
                 </summary>
                 <!-- La lista no alarga la tarjeta: si hay muchos movimientos, se desplaza dentro -->
                 <div class="max-h-48 overflow-y-auto pr-1">
-                  @if (historyError) { <p class="text-sm">{{ 'points.historyError' | t }}</p> }
+                  @if (historyError) { <p class="points-error text-sm mt-2" role="alert">{{ 'points.historyError' | t }}</p> }
                   @else if (loadingHistory) { <p class="text-sm">{{ 'points.loading' | t }}</p> }
                   @else {
                     @for (entry of history; track entry.orderId + entry.kind) {
