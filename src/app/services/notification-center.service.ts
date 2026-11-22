@@ -12,6 +12,7 @@ import {
 } from 'rxjs';
 import { API_URL } from '../api-url';
 import { AuthService } from './auth.service';
+import { OrderChatHubService } from './order-chat-hub.service';
 import { ToastService } from './toast.service';
 
 // Lo que manda el back en GET /notifications/me
@@ -47,6 +48,7 @@ export class NotificationCenterService {
   private auth = inject(AuthService);
   private http = inject(HttpClient);
   private toast = inject(ToastService);
+  private chatHub = inject(OrderChatHubService);
 
   private subject = new BehaviorSubject<AppNotification[]>([]);
   // Ids ya conocidos, para avisar en pantalla solo de las nuevas
@@ -111,6 +113,22 @@ export class NotificationCenterService {
 
   private receive(list: NotificationDTO[]): void {
     const items = list.map((n) => this.toItem(n));
+    const openChatId = this.chatHub.openOrderId();
+
+    // Mensaje del operador de un chat que el cliente ya tiene abierto: ya lo está viendo,
+    // así que se marca leído y no se avisa en pantalla
+    for (const n of items) {
+      if (
+        n.type === 'ORDER_CHAT_MESSAGE' &&
+        !n.read &&
+        n.orderId === openChatId
+      ) {
+        n.read = true;
+        this.http
+          .put(`${API_URL}/notifications/${n.id}/read`, {})
+          .subscribe({ error: () => {} });
+      }
+    }
 
     // Aviso en pantalla de las nuevas (no en la primera carga). "Salió" y
     // "ya va llegando" los avisa ClientDeliveryWatcherService (con vibración).
@@ -134,7 +152,11 @@ export class NotificationCenterService {
     let link = '/home';
     let queryParams: Record<string, string | number> | undefined;
 
-    if (n.type === 'ORDER_CONFIRMED' || n.type === 'ORDER_PREPARING') {
+    if (
+      n.type === 'ORDER_CONFIRMED' ||
+      n.type === 'ORDER_PREPARING' ||
+      n.type === 'ORDER_CHAT_MESSAGE'
+    ) {
       link = '/orders';
     } else if (n.type === 'ORDER_ON_THE_WAY' || n.type === 'ORDER_NEAR') {
       link = '/orders/tracking';

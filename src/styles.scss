@@ -1213,3 +1213,82 @@ html[data-busy] input[type='submit']:not([data-busy-ignore]) {
   cursor: progress;
   opacity: 0.6;
 }
+
+// ======================================================================================
+// CHAT CON EL OPERADOR: botón que lo abre desde las tarjetas de pedido
+// (cliente: "Mis pedidos"; operador: tarjeta del pedido)
+// ======================================================================================
+.order-chat-trigger {
+  display: inline-flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.125rem;
+  border: 1.5px solid rgba(85, 97, 65, 0.55);
+  border-radius: 999px;
+  background-color: #ffffff;
+  color: #556141;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.order-chat-trigger:hover {
+  background-color: rgba(85, 97, 65, 0.1);
+}
+
+.order-chat-trigger:focus-visible {
+  outline: 3px solid #b2571f;
+  outline-offset: 2px;
+}
+
+.order-chat-trigger svg {
+  flex-shrink: 0;
+}
+
+.order-chat-trigger__label {
+  overflow-wrap: anywhere;
+}
+
+.order-chat-trigger__dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background-color: #b2571f;
+}
+
+@media (min-width: 640px) {
+  .order-chat-trigger:not(.order-chat-trigger--operator) {
+    width: auto;
+  }
+}
+
+html[data-theme="dark"] .order-chat-trigger {
+  background-color: var(--t-surface);
+  color: var(--t-forest);
+  border-color: rgba(163, 185, 135, 0.55);
+}
+
+html[data-theme="dark"] .order-chat-trigger:hover {
+  background-color: rgba(163, 185, 135, 0.14);
+}
+
+html[data-theme="dark"] .order-chat-trigger:focus-visible {
+  outline-color: var(--t-terra);
+}
+
+html[data-theme="dark"] .order-chat-trigger__dot {
+  background-color: var(--t-terra);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-chat-trigger {
+    transition: none;
+  }
+}

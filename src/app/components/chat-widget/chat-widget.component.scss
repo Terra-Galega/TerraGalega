@@ -42,6 +42,7 @@
 
 // ---------- Botón flotante ----------
 .chat-fab {
+  position: relative;
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 9999px;
@@ -419,6 +420,114 @@
   &:disabled {
     opacity: 0.45;
     cursor: default;
+  }
+}
+
+// ---------- Menú: Galleguito / Operador ----------
+.chat-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  animation: chat-menu-in 0.18s ease-out;
+}
+
+@keyframes chat-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+// Cada opción: etiqueta visible + botón redondo (todo es un solo botón)
+.chat-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  // Alinea los botones redondos con el centro del botón flotante (3.5rem vs 3rem)
+  margin-right: 0.25rem;
+  cursor: pointer;
+  border-radius: 9999px;
+
+  &:hover .chat-menu-btn {
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--chat-terra-text);
+    outline-offset: 3px;
+  }
+}
+
+.chat-menu-label {
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  background-color: var(--chat-bg);
+  color: var(--chat-text);
+  border: 1px solid var(--chat-line);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.chat-menu-btn {
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  transition: transform 0.2s ease;
+}
+
+.chat-menu-btn--bot {
+  background-color: #fff;
+  border: 2px solid var(--chat-terra);
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    object-fit: cover;
+  }
+}
+
+.chat-menu-btn--operator {
+  color: #fff;
+  background-color: #556141;
+
+  svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+}
+
+// Puntito de mensajes nuevos del operador
+.chat-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 9999px;
+  background-color: #d99a21;
+  border: 2px solid var(--chat-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-menu {
+    animation: none;
+  }
+
+  .chat-menu-btn {
+    transition: none;
   }
 }
 

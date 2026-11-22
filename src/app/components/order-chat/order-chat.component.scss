@@ -1,0 +1,317 @@
+// Mismo tamaño, forma y colores base que el panel de Galleguito (chat-widget).
+// Encabezado verde para distinguir que se habla con una persona del restaurante.
+:host {
+  --oc-bg: #ffffff;
+  --oc-soft: #f5f2eb;
+  --oc-text: #2c2c2c;
+  --oc-muted: rgba(44, 44, 44, 0.66);
+  --oc-line: rgba(85, 97, 65, 0.22);
+  --oc-input-border: rgba(44, 44, 44, 0.45);
+  --oc-forest: #556141;
+  --oc-forest-text: #556141;
+  --oc-mine-bg: #b2571f;
+  --oc-other-bg: rgba(85, 97, 65, 0.1);
+  --oc-focus: #b2571f;
+  --oc-error: #b3261e;
+  display: block;
+}
+
+:host-context(html[data-theme="dark"]) {
+  --oc-bg: #262320;
+  --oc-soft: #2f2b26;
+  --oc-text: #f5f2eb;
+  --oc-muted: rgba(245, 242, 235, 0.72);
+  --oc-line: rgba(245, 242, 235, 0.14);
+  --oc-input-border: rgba(245, 242, 235, 0.42);
+  --oc-forest-text: #a3b987;
+  --oc-other-bg: rgba(163, 185, 135, 0.14);
+  --oc-focus: #e58e57;
+  --oc-error: #e88a8a;
+}
+
+// Operador: el panel se ubica solo en la esquina (en el cliente lo ubica el widget)
+:host(.order-chat-docked) {
+  position: fixed;
+  right: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  z-index: 45;
+}
+
+:is(button, input, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--oc-focus);
+  outline-offset: 2px;
+}
+
+// ---------- Panel ----------
+.oc-panel {
+  width: min(380px, calc(100vw - 2.5rem));
+  height: min(560px, calc(100vh - 7rem));
+  height: min(560px, calc(100dvh - 7rem));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background-color: var(--oc-bg);
+  color: var(--oc-text);
+  border: 1px solid var(--oc-line);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  animation: oc-in 0.2s ease-out;
+}
+
+@keyframes oc-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.oc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  color: #fff;
+  background-color: var(--oc-forest);
+}
+
+.oc-header-info {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.oc-header-text {
+  min-width: 0;
+}
+
+.oc-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  background-color: #fff;
+  color: #556141;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+
+  svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+}
+
+.oc-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.oc-subtitle {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.oc-order-select {
+  margin-top: 0.15rem;
+  max-width: 100%;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: #2c2c2c;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.oc-icon-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+  }
+
+  &:focus-visible {
+    outline-color: #fff;
+    outline-offset: -3px;
+  }
+}
+
+// ---------- Mensajes ----------
+.oc-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+
+  &:focus-visible {
+    outline-offset: -3px;
+  }
+}
+
+.oc-bubble {
+  align-self: flex-start;
+  max-width: 85%;
+  padding: 0.6rem 0.85rem;
+  border-radius: 1rem;
+  border-bottom-left-radius: 0.3rem;
+  background-color: var(--oc-other-bg);
+  color: var(--oc-text);
+}
+
+.oc-bubble--mine {
+  align-self: flex-end;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 0.3rem;
+  background-color: var(--oc-mine-bg);
+  color: #fff;
+}
+
+.oc-sender {
+  margin-bottom: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--oc-forest-text);
+  overflow-wrap: anywhere;
+}
+
+.oc-text {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.oc-time {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  text-align: right;
+  opacity: 0.85;
+}
+
+.oc-empty {
+  margin: auto;
+  padding: 1.5rem 0.5rem;
+  font-size: 0.85rem;
+  color: var(--oc-muted);
+  text-align: center;
+}
+
+// ---------- Escribir ----------
+.oc-form {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-top: 1px solid var(--oc-line);
+}
+
+.oc-field {
+  flex: 1;
+  min-width: 0;
+}
+
+// Barra de texto totalmente redondeada
+.oc-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--oc-input-border);
+  border-radius: 999px;
+  background-color: var(--oc-soft);
+  color: var(--oc-text);
+  // 16 px: evita que el iPhone haga zoom al enfocar
+  font-size: 1rem;
+
+  &::placeholder {
+    color: var(--oc-muted);
+  }
+
+  &[aria-invalid="true"] {
+    border-color: var(--oc-error);
+  }
+}
+
+.oc-count {
+  margin-top: 0.25rem;
+  padding-left: 1rem;
+  font-size: 0.72rem;
+  color: var(--oc-muted);
+}
+
+// Botón de enviar: círculo, solo la flecha
+.oc-send {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background-color: var(--oc-forest);
+  cursor: pointer;
+  transition: filter 0.15s;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ---------- Avisos ----------
+.oc-error {
+  padding: 0 0.75rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--oc-error);
+}
+
+.oc-notice {
+  padding: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--oc-muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oc-panel {
+    animation: none;
+  }
+
+  .oc-send,
+  .oc-icon-btn {
+    transition: none;
+  }
+}

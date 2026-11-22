@@ -1,0 +1,116 @@
+<section
+  class="oc-panel"
+  role="dialog"
+  [attr.aria-labelledby]="baseId + '-title'"
+  [attr.aria-describedby]="orderOptions.length > 1 ? null : baseId + '-subtitle'"
+  (keydown.escape)="closed.emit()"
+>
+  <!-- Encabezado -->
+  <header class="oc-header">
+    <div class="oc-header-info">
+      <span class="oc-avatar" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" focusable="false">
+          <path d="M3 14v-2a9 9 0 0118 0v2" />
+          <path d="M21 15a2 2 0 01-2 2h-1v-5h1a2 2 0 012 2zM3 15a2 2 0 002 2h1v-5H5a2 2 0 00-2 2z" />
+          <path d="M18 17v1a3 3 0 01-3 3h-3" />
+        </svg>
+      </span>
+      <div class="oc-header-text">
+        <h2 class="oc-title" [id]="baseId + '-title'">{{ title() }}</h2>
+        @if (orderOptions.length > 1) {
+          <label class="cdk-visually-hidden" [for]="baseId + '-order'">{{ tr('order_chat.switch_order') }}</label>
+          <select
+            [id]="baseId + '-order'"
+            class="oc-order-select"
+            [ngModel]="orderId"
+            (ngModelChange)="orderChange.emit($event)"
+          >
+            @for (id of orderOptions; track id) {
+              <option [ngValue]="id">{{ tr('order_chat.order', { id: id }) }}</option>
+            }
+          </select>
+        } @else {
+          <p class="oc-subtitle" [id]="baseId + '-subtitle'">{{ tr('order_chat.order', { id: orderId }) }}</p>
+        }
+      </div>
+    </div>
+    <button type="button" class="oc-icon-btn" [attr.aria-label]="tr('order_chat.close')" (click)="closed.emit()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- Mensajes: role="log" hace que el lector lea los nuevos automáticamente -->
+  <div
+    #scrollBox
+    class="oc-log"
+    role="log"
+    aria-live="polite"
+    aria-relevant="additions"
+    tabindex="0"
+    [attr.aria-label]="tr('order_chat.log_label', { id: orderId })"
+  >
+    @for (m of messages; track m.id) {
+      <div class="oc-bubble" [class.oc-bubble--mine]="isMine(m)">
+        <span class="cdk-visually-hidden">{{ srIntro(m) }}</span>
+        @if (!isMine(m)) {
+          <p class="oc-sender" aria-hidden="true">{{ senderLabel(m) }}</p>
+        }
+        <p class="oc-text">{{ m.content }}</p>
+        <time class="oc-time" [attr.datetime]="m.createdAt">{{ m.createdAt | date: 'HH:mm' }}</time>
+      </div>
+    } @empty {
+      <p class="oc-empty">
+        {{ role === 'CLIENT' ? tr('order_chat.empty_client') : tr('order_chat.empty_operator') }}
+      </p>
+    }
+  </div>
+
+  @if (loadFailures >= 2) {
+    <p class="oc-notice" role="status">{{ tr('order_chat.load_error') }}</p>
+  }
+
+  <!-- Escribir -->
+  @if (chatOpen) {
+    <form class="oc-form" (ngSubmit)="send()" novalidate>
+      <label class="cdk-visually-hidden" [for]="baseId + '-input'">{{ inputLabel() }}</label>
+      <div class="oc-field">
+        <input
+          #input
+          [id]="baseId + '-input'"
+          name="draft"
+          type="text"
+          [(ngModel)]="draft"
+          [maxlength]="maxLength"
+          autocomplete="off"
+          enterkeyhint="send"
+          class="oc-input"
+          [placeholder]="tr('order_chat.placeholder')"
+          [attr.aria-describedby]="baseId + '-count' + (errorMessage ? ' ' + baseId + '-error' : '')"
+          [attr.aria-invalid]="errorMessage ? true : null"
+        />
+        <p [id]="baseId + '-count'" class="oc-count">
+          {{ tr('order_chat.chars', { n: draft.length, max: maxLength }) }}
+        </p>
+      </div>
+      <button
+        type="submit"
+        class="oc-send"
+        [disabled]="sending || !draft.trim()"
+        [attr.aria-label]="sending ? tr('order_chat.sending') : tr('order_chat.send')"
+        [attr.aria-busy]="sending ? true : null"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.25" d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </button>
+    </form>
+    @if (errorMessage) {
+      <p [id]="baseId + '-error'" class="oc-error" role="alert">{{ errorMessage }}</p>
+    }
+  } @else {
+    <p class="oc-notice" role="status">{{ tr('order_chat.closed') }}</p>
+  }
+</section>

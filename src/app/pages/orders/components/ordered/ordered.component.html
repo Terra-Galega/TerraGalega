@@ -20,7 +20,9 @@
           </p>
         </div>
         <div class="text-right">
-          <p class="text-xs" style="color: rgba(44, 44, 44, 0.5)">{{ 'orders.ordered.ordered.total' | t }}</p>
+          <p class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
+            {{ "orders.ordered.ordered.total" | t }}
+          </p>
           <p
             [id]="'order-total-' + order.id"
             class="text-2xl font-bold"
@@ -95,33 +97,76 @@
         }
       </div>
 
-      <!-- Dirección -->
-      <!-- Dirección de entrega (solo si el pedido la tiene) -->
-      @if (order.address) {
+      <!-- Dirección + chat con el restaurante (misma fila, el chat a la derecha) -->
+      @if (order.address || isChatAvailable(order)) {
         <div
-          class="px-7 py-4 flex items-start gap-3"
+          class="px-7 py-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
           style="background-color: #f5f2eb"
         >
-          <svg aria-hidden="true" focusable="false"
-            class="flex-shrink-0 mt-0.5"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#556141"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z" />
-            <circle cx="12" cy="10" r="2.5" />
-          </svg>
-          <div>
-            <p class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
-              {{ 'orders.ordered.ordered.entrega_en' | t }}
-            </p>
-            <p class="text-[15px] text-charcoal">{{ order.address }}</p>
-          </div>
+          @if (order.address) {
+            <div class="flex items-start gap-3 min-w-0 flex-1 basis-56">
+              <svg
+                aria-hidden="true"
+                focusable="false"
+                class="flex-shrink-0 mt-0.5"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#556141"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+              <div class="min-w-0">
+                <p class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
+                  {{ "orders.ordered.ordered.entrega_en" | t }}
+                </p>
+                <p class="text-[15px] text-charcoal break-words">
+                  {{ order.address }}
+                </p>
+              </div>
+            </div>
+          }
+
+          @if (isChatAvailable(order)) {
+            <button
+              type="button"
+              class="order-chat-trigger sm:ml-auto"
+              aria-haspopup="dialog"
+              [attr.aria-expanded]="chatHub.openOrderId() === order.id"
+              (click)="openChat(order.id, $event)"
+            >
+              <svg
+                aria-hidden="true"
+                focusable="false"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+                />
+              </svg>
+              <span class="order-chat-trigger__label">{{
+                "order_chat.client_trigger" | t
+              }}</span>
+              @if (chatHub.isUnread(order.id)) {
+                <span class="order-chat-trigger__dot" aria-hidden="true"></span>
+                <span class="cdk-visually-hidden">{{
+                  "order_chat.new_messages" | t
+                }}</span>
+              }
+            </button>
+          }
         </div>
       }
 
@@ -132,7 +177,10 @@
           style="border-top: 1px solid rgba(44, 44, 44, 0.08)"
         >
           <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-            {{ 'orders.ordered.ordered.tu_pedido_va_en_camino_mira_donde_esta_tu_repartidor' | t }}
+            {{
+              "orders.ordered.ordered.tu_pedido_va_en_camino_mira_donde_esta_tu_repartidor"
+                | t
+            }}
           </p>
           <app-button
             variant="sage"
@@ -141,7 +189,7 @@
             [queryParams]="{ order: order.id }"
             (click)="enableNotifications()"
           >
-            {{ 'orders.ordered.ordered.seguir_mi_pedido' | t }}
+            {{ "orders.ordered.ordered.seguir_mi_pedido" | t }}
           </app-button>
         </div>
       }
@@ -153,10 +201,13 @@
           style="border-top: 1px solid rgba(44, 44, 44, 0.08)"
         >
           <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">
-            {{ 'orders.ordered.ordered.puedes_cancelarlo_mientras_el_restaurante_no_lo_confirm' | t }}
+            {{
+              "orders.ordered.ordered.puedes_cancelarlo_mientras_el_restaurante_no_lo_confirm"
+                | t
+            }}
           </p>
           <app-button variant="danger" size="sm" (click)="askCancel(order)">
-            {{ 'orders.ordered.ordered.cancelar_pedido' | t }}
+            {{ "orders.ordered.ordered.cancelar_pedido" | t }}
           </app-button>
         </div>
       }

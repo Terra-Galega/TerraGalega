@@ -4,6 +4,7 @@ import { CartComponent } from '../cart/cart.component';
 import { Component, HostListener, OnDestroy, inject } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { OrderChatHubService } from '../../services/order-chat-hub.service';
 import { CartService } from '../../services/cart.service';
 import { SettingsMenuComponent } from '../settings-menu/settings-menu.component';
 import { LanguageService } from '../../services/language.service';
@@ -284,13 +285,15 @@ export class NavbarComponent implements OnDestroy {
   // =========================
 
   readonly center = inject(NotificationCenterService);
+  private chatHub = inject(OrderChatHubService);
   bellOpen = false;
 
   toggleBell(): void {
     this.bellOpen = !this.bellOpen;
   }
 
-  // Clic en una notificación: la marca leída y va al seguimiento
+  // Clic en una notificación: la marca leída y va a su página.
+  // Si es un mensaje del operador, además abre ese chat.
   openNotification(notification: AppNotification): void {
     this.center.markRead(notification.id);
     this.bellOpen = false;
@@ -298,6 +301,10 @@ export class NavbarComponent implements OnDestroy {
     this.router.navigate([notification.link], {
       queryParams: notification.queryParams,
     });
+
+    if (notification.type === 'ORDER_CHAT_MESSAGE' && notification.orderId) {
+      this.chatHub.open(notification.orderId);
+    }
   }
 
   // Cierra el panel al hacer clic fuera o con Escape

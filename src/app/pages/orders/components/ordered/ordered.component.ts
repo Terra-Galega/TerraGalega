@@ -6,6 +6,7 @@ import { Order, OrderDetail, groupAddOns } from '../../../../models/order';
 import { OrderService } from '../../../../services/order.service';
 import { AuthService } from '../../../../services/auth.service';
 import { ToastService } from '../../../../services/toast.service';
+import { OrderChatHubService } from '../../../../services/order-chat-hub.service';
 import { ModalComponent } from '../../../../components/modal/modal.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
@@ -33,7 +34,7 @@ export class OrderedComponent {
   private auth = inject(AuthService);
   private toast = inject(ToastService);
   private watcher = inject(ClientDeliveryWatcherService);
-
+  readonly chatHub = inject(OrderChatHubService);
   // Avisa a la página que un pedido cambió para que recargue la lista
   @Output() orderCancelled = new EventEmitter<void>();
 
@@ -107,5 +108,13 @@ export class OrderedComponent {
       0,
     );
     return (item.unitPrice + addOnsTotal) * item.quantity;
+  }
+  // El chat está disponible desde que se paga hasta que el pedido finaliza
+  isChatAvailable(order: Order): boolean {
+    return order.status !== 'DELIVERED' && order.status !== 'CANCELLED';
+  }
+  // Abre el chat con el operador en el espacio de Galleguito
+  openChat(orderId: number, event: Event) {
+    this.chatHub.open(orderId, event.currentTarget as HTMLElement);
   }
 }

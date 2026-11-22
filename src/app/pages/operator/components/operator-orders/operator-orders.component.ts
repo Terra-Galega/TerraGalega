@@ -2,6 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   inject,
   DestroyRef,
@@ -17,6 +18,8 @@ import {
   timer,
 } from 'rxjs';
 import { OrderService } from '../../../../services/order.service';
+import { OrderChatHubService } from '../../../../services/order-chat-hub.service';
+import { OrderChatComponent } from '../../../../components/order-chat/order-chat.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { OrderProgressComponent } from '../../../../components/order-progress/order-progress.component';
 import { OrderStatus, OrderSummary } from '../../../../models/order';
@@ -59,13 +62,32 @@ function actionText(action: OperatorAction): string {
 
 @Component({
   selector: 'app-operator-orders',
-  imports: [DatePipe, DecimalPipe, ButtonComponent, OrderProgressComponent],
+  imports: [DatePipe, DecimalPipe, ButtonComponent,OrderChatComponent, OrderProgressComponent],
   templateUrl: './operator-orders.component.html',
   styleUrl: './operator-orders.component.scss',
 })
-export class OperatorOrdersComponent {
+export class OperatorOrdersComponent implements OnInit {
   private orderService = inject(OrderService);
   private destroyRef = inject(DestroyRef);
+    readonly chatHub = inject(OrderChatHubService);
+
+  // operatorId llega como @Input, por eso se arranca aquí y no en el constructor
+  ngOnInit() {
+    this.chatHub.start('OPERATOR', this.operatorId);
+    this.destroyRef.onDestroy(() => this.chatHub.stop());
+  }
+
+  openChat(orderId: number, event: Event) {
+    this.chatHub.open(orderId, event.currentTarget as HTMLElement);
+  }
+
+  closeChat() {
+    const opener = this.chatHub.opener;
+    this.chatHub.close();
+    setTimeout(() => {
+      if (opener?.isConnected) opener.focus();
+    });
+  }
 
   @Input({ required: true }) operatorId!: number;
   @Output() sendRequested = new EventEmitter<OrderSummary>();

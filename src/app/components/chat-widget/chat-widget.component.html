@@ -168,37 +168,72 @@
         </form>
       </section>
     }
+        <!-- Chat con el operador: mismo espacio que Galleguito -->
+    @if (operatorOrderId(); as chatOrderId) {
+      <app-order-chat
+        [orderId]="chatOrderId"
+        role="CLIENT"
+        [orderOptions]="chatOrderIds()"
+        (orderChange)="hub.switchTo($event)"
+        (seen)="hub.markSeen(chatOrderId, $event)"
+        (closed)="closeOperator()"
+      ></app-order-chat>
+    }
+
+    <!-- Opciones que salen hacia arriba del botón flotante -->
+    @if (menuOpen()) {
+      <div
+        id="chat-menu"
+        class="chat-menu"
+        role="group"
+        [attr.aria-label]="'order_chat.menu_label' | t"
+        (keydown.escape)="closeMenu()"
+      >
+        @if (hasOperatorChat()) {
+          <button type="button" class="chat-menu-item" (click)="openOperator()">
+            <span class="chat-menu-label">{{ 'order_chat.menu_operator' | t }}</span>
+            <span class="chat-menu-btn chat-menu-btn--operator" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="M3 14v-2a9 9 0 0118 0v2" />
+                <path d="M21 15a2 2 0 01-2 2h-1v-5h1a2 2 0 012 2zM3 15a2 2 0 002 2h1v-5H5a2 2 0 00-2 2z" />
+                <path d="M18 17v1a3 3 0 01-3 3h-3" />
+              </svg>
+              @if (hub.hasUnread()) {
+                <span class="chat-dot"></span>
+              }
+            </span>
+            @if (hub.hasUnread()) {
+              <span class="cdk-visually-hidden">{{ 'order_chat.new_messages' | t }}</span>
+            }
+          </button>
+        }
+
+        <button #botOption type="button" class="chat-menu-item" (click)="openBot()">
+          <span class="chat-menu-label">{{ 'chat.title' | t }}</span>
+          <span class="chat-menu-btn chat-menu-btn--bot" aria-hidden="true">
+            <img src="/images/galleguito.svg" alt="" />
+          </span>
+        </button>
+      </div>
+    }
 
     <button
+      #fab
       id="chat-fab"
       type="button"
       class="chat-fab"
-      aria-controls="chat-panel"
-      [attr.aria-expanded]="open()"
-      [attr.aria-label]="(open() ? 'chat.close' : 'chat.open') | t"
-      (click)="toggle()"
+      [attr.aria-controls]="open() ? 'chat-panel' : menuOpen() ? 'chat-menu' : null"
+      [attr.aria-expanded]="menuOpen() || anyPanelOpen()"
+      [attr.aria-label]="(anyPanelOpen() ? 'chat.close' : menuOpen() ? 'order_chat.menu_close' : 'chat.open') | t"
+      (click)="onFabClick()"
     >
-      @if (open()) {
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
+      @if (anyPanelOpen() || menuOpen()) {
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       } @else {
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -206,6 +241,10 @@
             d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
           />
         </svg>
+        @if (hub.hasUnread()) {
+          <span class="chat-dot" aria-hidden="true"></span>
+          <span class="cdk-visually-hidden">{{ 'order_chat.new_messages' | t }}</span>
+        }
       }
     </button>
   </div>
