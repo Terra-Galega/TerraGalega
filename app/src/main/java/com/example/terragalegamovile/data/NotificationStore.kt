@@ -158,7 +158,8 @@ object NotificationStore {
         )
 
         val notification = NotificationCompat.Builder(context, if (kitchen) CHANNEL_KITCHEN else CHANNEL)
-            .setSmallIcon(R.drawable.ic_stat_delivery)
+            .setSmallIcon(R.drawable.ic_stat_logo)
+            .setColor(0xFFB2571F.toInt())
             .setContentTitle(n.title)
             .setContentText(n.message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(n.message))

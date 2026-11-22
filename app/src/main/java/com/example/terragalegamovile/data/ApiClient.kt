@@ -13,7 +13,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 object ApiClient {
 
     // Emulador de Android: 10.0.2.2 donde corre el backend.
-    const val BASE_URL = "http://10.195.68.121:8080/"
+    const val BASE_URL = "http://10.195.68.14:8080/"
     private val backendUrl = BASE_URL.toHttpUrl()
     private val okHttp = OkHttpClient.Builder()
         //Agrega el JWT a cada peticion si hay sesion
@@ -61,6 +61,14 @@ object ApiClient {
     val api: ApiService = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .client(okHttp)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(ApiService::class.java)
+
+    // El asistente puede tardar varios segundos en responder: espera hasta 60 s
+    val chatApi: ApiService = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(okHttp.newBuilder().readTimeout(60, TimeUnit.SECONDS).build())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(ApiService::class.java)

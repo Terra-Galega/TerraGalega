@@ -111,12 +111,12 @@ fun BackLink(text: String, onClick: () -> Unit) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .clickable(onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 6.dp),
+            .padding(horizontal = 4.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("←", color = Charcoal.copy(alpha = 0.45f), fontSize = 16.sp)
+        Text("←", color = Charcoal.copy(alpha = 0.7f), fontSize = 22.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.width(8.dp))
-        Text(text, color = Charcoal.copy(alpha = 0.45f), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Text(text, color = Charcoal.copy(alpha = 0.7f), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 

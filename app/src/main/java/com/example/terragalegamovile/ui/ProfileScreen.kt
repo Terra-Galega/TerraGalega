@@ -1,5 +1,6 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +53,7 @@ import com.example.terragalegamovile.ui.components.PageHeader
 import com.example.terragalegamovile.ui.components.TerraButton
 import com.example.terragalegamovile.ui.components.TerraDialog
 import com.example.terragalegamovile.ui.components.TerraScaffold
+import com.example.terragalegamovile.ui.components.TerraPasswordField
 import com.example.terragalegamovile.ui.components.TerraTextField
 import com.example.terragalegamovile.ui.components.ToastPill
 import com.example.terragalegamovile.ui.theme.Burgundy
@@ -177,7 +179,7 @@ fun ProfileScreen(
                     .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
             ) {
                 BackLink("Volver", onBack)
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(6.dp))
                 PageHeader("Mi cuenta", "Tu perfil", titleSize = 30.sp)
                 Spacer(Modifier.height(20.dp))
 
@@ -228,21 +230,21 @@ fun ProfileScreen(
                         "Mis cupones",
                         onClick = onOpenCoupons,
                         style = ButtonStyle.Outline,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
                     )
                     Spacer(Modifier.height(12.dp))
                     TerraButton(
                         "Editar perfil",
                         onClick = startEdit,
                         enabled = loaded,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
                     )
                     Spacer(Modifier.height(12.dp))
                     TerraButton(
                         "Cerrar sesión",
                         onClick = onLogout,
                         style = ButtonStyle.Outline,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
                     )
 
                     Spacer(Modifier.height(28.dp))
@@ -273,7 +275,7 @@ fun ProfileScreen(
                             "Eliminar mi cuenta",
                             onClick = { confirmDelete = true },
                             style = ButtonStyle.Danger,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
                         )
                     }
                 } else {
@@ -302,14 +304,14 @@ fun ProfileScreen(
                         if (saving) "Guardando..." else "Guardar cambios",
                         onClick = { if (!saving) save() },
                         enabled = !saving,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
                     )
                     Spacer(Modifier.height(12.dp))
                     TerraButton(
                         "Cambiar contraseña",
                         onClick = { showPassword = true },
                         style = ButtonStyle.Outline,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
                     )
                     Spacer(Modifier.height(12.dp))
                     TerraButton(
@@ -317,7 +319,7 @@ fun ProfileScreen(
                         onClick = { editing = false; formError = null },
                         style = ButtonStyle.Outline,
                         enabled = !saving,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.align(Alignment.CenterHorizontally).widthIn(min = 220.dp)
                     )
                 }
             }
@@ -411,18 +413,9 @@ private fun PasswordDialog(onClose: () -> Unit, onSaved: () -> Unit) {
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TerraTextField(
-                    "Contraseña actual", cur, { cur = it }, Modifier.fillMaxWidth(),
-                    keyboardOptions = password, visualTransformation = PasswordVisualTransformation()
-                )
-                TerraTextField(
-                    "Nueva contraseña", nw, { nw = it }, Modifier.fillMaxWidth(),
-                    keyboardOptions = password, visualTransformation = PasswordVisualTransformation()
-                )
-                TerraTextField(
-                    "Confirmar nueva contraseña", conf, { conf = it }, Modifier.fillMaxWidth(),
-                    keyboardOptions = password, visualTransformation = PasswordVisualTransformation()
-                )
+                TerraPasswordField("Contraseña actual", cur, { cur = it }, Modifier.fillMaxWidth())
+                TerraPasswordField("Nueva contraseña", nw, { nw = it }, Modifier.fillMaxWidth())
+                TerraPasswordField("Confirmar nueva contraseña", conf, { conf = it }, Modifier.fillMaxWidth())
                 when {
                     error != null -> Text(error ?: "", color = Burgundy, fontSize = 13.sp)
                     mismatch -> Text("Las contraseñas no coinciden.", color = Burgundy, fontSize = 13.sp)

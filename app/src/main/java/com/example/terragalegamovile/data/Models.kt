@@ -73,6 +73,39 @@ data class MessageResponse(val message: String?)
 
 // POST /auth/resend-verification
 data class EmailRequest(val email: String)
+
+// ---------- Asistente virtual (POST clients/me/chat, el mismo de la web) ----------
+
+// role: "user" o "model"
+data class ChatMessage(val role: String, val text: String)
+
+data class ChatRequest(val message: String, val history: List<ChatMessage>)
+
+// Reserva que el asistente creó o consultó (para la tarjeta con el botón de pagar)
+data class ChatReservation(
+    val id: Int,
+    val name: String,
+    val tableId: Int,
+    val floor: Int,
+    // AAAA-MM-DD y HH:mm:ss
+    val date: String,
+    val time: String,
+    val seats: Int,
+    val depositAmount: Double,
+    // PENDING, PAID...
+    val paymentState: String?,
+    val checkoutUrl: String?
+)
+
+// cartChanged: el asistente cambió el carrito y hay que recargarlo
+data class ChatResponse(
+    val reply: String,
+    val cartChanged: Boolean,
+    val reservation: ChatReservation?
+)
+
+// POST auth/reset-password: token del enlace del correo y la contraseña nueva
+data class ResetPasswordRequest(val token: String, val newPassword: String)
 // ---------- Menú, carrito y pedidos (mismos datos que la web) ----------
 
 data class CategoryRef(val id: Int, val name: String)
@@ -299,7 +332,17 @@ data class WaiterTable(
     val attendingWaiterId: Int? = null,
     val attendingWaiterName: String? = null,
     // true = la atiendo yo; ocupada y false = la atiende otro (no se puede entrar)
-    val mine: Boolean = false
+    val mine: Boolean = false,
+    // Reserva a tener en cuenta al sentar a alguien (en curso sin llegar, o que
+    // empieza antes de que la mesa quede libre). null = ninguna.
+    val reservationId: Int? = null,
+    val reservationTime: String? = null,
+    val reservationName: String? = null,
+    val reservationPaid: Boolean = false,
+    // Pasó el margen de espera y no llegaron
+    val reservationNoShow: Boolean = false,
+    // ¿Se puede sentar aquí a clientes sin reserva?
+    val walkInAllowed: Boolean = true
 )
 
 // Estado de cada plato: PENDING (en espera) | PREPARING | READY
@@ -343,4 +386,12 @@ data class NewOrderItem(val productId: Int, val quantity: Int, val notes: String
 data class PayRequest(val method: String)
 
 // POST /table-orders (el mesero va en el token)
-data class NewTableOrder(val tableId: Int, val items: List<NewOrderItem>)
+// clientRequestId: id del pedido generado en la app. Si se reintenta el envío
+// (se cortó la red), el back devuelve el mismo pedido y no manda otro a cocina.
+// forReservation: true = son los clientes de la reserva de la mesa.
+data class NewTableOrder(
+    val tableId: Int,
+    val items: List<NewOrderItem>,
+    val clientRequestId: String? = null,
+    val forReservation: Boolean? = null
+)

@@ -196,7 +196,7 @@ fun ProductScreen(
                     .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 40.dp)
             ) {
                 BackLink("Volver a la carta", onBack)
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(8.dp))
 
                 product?.let { p ->
                     val total = (p.price + selected.sumOf { it.price }) * quantity

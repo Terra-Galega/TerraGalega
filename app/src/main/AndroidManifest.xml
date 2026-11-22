@@ -7,6 +7,13 @@
     <!-- Avisos de domicilio: "tu pedido salió" y "ya va llegando" (con vibración) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Avisos activos (cliente y mesero): servicio en primer plano para recibir
+         las notificaciones con la app cerrada o la pantalla apagada -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Volver a encender los avisos al reiniciar el teléfono -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
     <application
@@ -41,7 +48,37 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="terragalega" android:host="pago" />
             </intent-filter>
+
+            <!-- Enlace "recuperar contraseña" del correo (/reset-password?token=...):
+                 Android ofrece abrirlo con la app o con el navegador -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPrefix="/reset-password" />
+            </intent-filter>
         </activity>
+
+        <service
+            android:name=".data.AlertsService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Notificaciones en tiempo real de pedidos, reservas y avisos de cocina" />
+        </service>
+
+        <receiver
+            android:name=".data.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

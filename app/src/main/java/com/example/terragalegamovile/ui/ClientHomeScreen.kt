@@ -1,5 +1,16 @@
 package com.example.terragalegamovile.ui
 
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import com.example.terragalegamovile.data.CartStore
 import com.example.terragalegamovile.data.ClientUi
@@ -14,7 +25,8 @@ fun ClientHomeScreen(
     onOpenProduct: (Int) -> Unit,
     onOpenCategory: (String) -> Unit,   // <-- NUEVO
     onOpenCart: () -> Unit,
-    onTrack: () -> Unit
+    onTrack: () -> Unit,
+    onOpenChat: () -> Unit = {}
 ) {
     TerraScaffold(
         role = "Cliente",
@@ -34,14 +46,17 @@ fun ClientHomeScreen(
             )
         }
     ) { padding ->
-        if (ClientUi.tab == 0) {
-            MenuTab(padding = padding, onOpenProduct = onOpenProduct, onOpenCategory = onOpenCategory)        } else {
-            OrdersTab(
-                user = user,
-                padding = padding,
-                onTrack = onTrack,
-                onGoMenu = { ClientUi.tab = 0 }
-            )
+        androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.fillMaxSize()) {
+            if (ClientUi.tab == 0) {
+                MenuTab(padding = padding, onOpenProduct = onOpenProduct, onOpenCategory = onOpenCategory)
+            } else {
+                OrdersTab(
+                    user = user,
+                    padding = padding,
+                    onTrack = onTrack,
+                    onGoMenu = { ClientUi.tab = 0 }
+                )
+            }
         }
     }
 }

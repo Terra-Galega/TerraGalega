@@ -140,10 +140,11 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
             Text(
                 "← Mis pedidos",
                 color = Terra,
-                fontWeight = FontWeight.Medium,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .clickable(onClick = onBack)
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
             )
             val current = delivery
 

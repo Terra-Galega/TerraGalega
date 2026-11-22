@@ -106,4 +106,37 @@ object AppStorage {
             prefs.edit().putStringSet("delivery_alerts", kept).apply()
         }
     }
+
+    // ---------- Borrador del pedido de mesa (mesero) ----------
+    // Se guarda en cada cambio: si se cierra la app, se cae la red o vence la
+    // sesión, al volver a la mesa el pedido sigue ahí. La clave lleva el mesero.
+
+    fun saveWaiterDraft(waiterId: Int, tableId: Int, draft: WaiterDraft?) {
+        val key = "waiterDraft:$waiterId:$tableId"
+        val editor = prefs.edit()
+        if (draft == null || draft.lines.isEmpty()) editor.remove(key) else editor.putString(key, gson.toJson(draft))
+        editor.apply()
+    }
+
+    fun loadWaiterDraft(waiterId: Int, tableId: Int): WaiterDraft? = try {
+        gson.fromJson(prefs.getString("waiterDraft:$waiterId:$tableId", null), WaiterDraft::class.java)
+            ?.takeIf { it.lines.isNotEmpty() && it.requestId.isNotBlank() }
+    } catch (_: Exception) {
+        null
+    }
 }
+
+// Pedido de mesa que se está armando. requestId se mantiene en los reintentos y
+// cambia solo cuando el pedido llega a cocina.
+data class WaiterDraft(
+    val requestId: String,
+    val forReservation: Boolean?,
+    val lines: List<WaiterDraftLine>
+)
+
+data class WaiterDraftLine(
+    val product: Product,
+    val quantity: Int,
+    val notes: String,
+    val addOns: List<AddOnOption>
+)

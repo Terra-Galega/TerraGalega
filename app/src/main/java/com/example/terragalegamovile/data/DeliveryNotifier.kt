@@ -150,7 +150,8 @@ object DeliveryNotifier {
         val vibration = if (channel == CHANNEL_NEAR) VIBRATION_NEAR else VIBRATION_STARTED
 
         val notification = NotificationCompat.Builder(context, channel)
-            .setSmallIcon(R.drawable.ic_stat_delivery)
+            .setSmallIcon(R.drawable.ic_stat_logo)
+            .setColor(0xFFB2571F.toInt())
             .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

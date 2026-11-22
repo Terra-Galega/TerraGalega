@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.platform.LocalContext
 import com.example.terragalegamovile.data.GOOGLE_WEB_CLIENT_ID
 import com.example.terragalegamovile.data.GoogleLoginRequest
@@ -58,7 +59,9 @@ import com.example.terragalegamovile.data.toUserMessage
 import com.example.terragalegamovile.ui.components.GlassCard
 import com.example.terragalegamovile.ui.components.TerraButton
 import com.example.terragalegamovile.ui.components.TerraLogo
+import com.example.terragalegamovile.ui.components.TerraPasswordField
 import com.example.terragalegamovile.ui.components.TerraTextField
+import androidx.compose.runtime.collectAsState
 import com.example.terragalegamovile.ui.theme.Burgundy
 import com.example.terragalegamovile.ui.theme.Charcoal
 import com.example.terragalegamovile.ui.theme.Terra
@@ -70,6 +73,11 @@ private val SIGNUP_EMAIL_REGEX = Regex("^[^\\s@]+@[^\\s@]+$")
 @Composable
 fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
     var signup by remember { mutableStateOf(false) }
+    // Recuperar contraseña: formulario del correo, y token del enlace para elegir la nueva
+    var forgot by remember { mutableStateOf(false) }
+    val linkToken by PasswordResetLink.token.collectAsState()
+    var pastedToken by remember { mutableStateOf<String?>(null) }
+    val resetToken = linkToken ?: pastedToken
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -231,7 +239,14 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
             .padding(horizontal = 24.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(if (signup) 32.dp else 72.dp))
+        Spacer(Modifier.height(if (signup) 24.dp else 48.dp))
+        // Logo de Terra Galega (el pulpo grabado)
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(com.example.terragalegamovile.R.drawable.logo_octopus),
+            contentDescription = null,
+            modifier = Modifier.size(if (signup) 96.dp else 150.dp)
+        )
+        Spacer(Modifier.height(8.dp))
         TerraLogo(scale = 2.2f)
         Spacer(Modifier.height(12.dp))
         Text(
@@ -242,6 +257,29 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(32.dp))
+
+        if (resetToken != null) {
+            GlassCard(modifier = Modifier.fillMaxWidth()) {
+                ResetPasswordContent(token = resetToken) {
+                    PasswordResetLink.token.value = null
+                    pastedToken = null
+                    forgot = false
+                    signup = false
+                    password = ""
+                }
+            }
+            return@Column
+        }
+        if (forgot) {
+            GlassCard(modifier = Modifier.fillMaxWidth()) {
+                ForgotPasswordContent(
+                    initialEmail = email,
+                    onBack = { forgot = false },
+                    onToken = { pastedToken = it }
+                )
+            }
+            return@Column
+        }
 
         GlassCard(modifier = Modifier.fillMaxWidth()) {
             AuthTabs(signup = signup) {
@@ -310,13 +348,24 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
             Spacer(Modifier.height(16.dp))
-            TerraTextField(
+            TerraPasswordField(
                 label = "Contraseña",
                 value = password,
-                onValueChange = { password = it },
-                placeholder = "••••••••",
-                visualTransformation = PasswordVisualTransformation()
+                onValueChange = { password = it }
             )
+            if (!signup) {
+                Text(
+                    "¿Olvidaste tu contraseña?",
+                    color = Terra,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(top = 8.dp)
+                        .clickable(enabled = !loading) { forgot = true; error = null }
+                        .padding(vertical = 4.dp)
+                )
+            }
 
             if (signup) {
                 Spacer(Modifier.height(16.dp))

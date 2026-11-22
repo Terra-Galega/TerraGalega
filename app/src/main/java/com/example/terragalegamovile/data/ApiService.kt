@@ -27,6 +27,19 @@ interface ApiService {
     @POST("auth/resend-verification")
     suspend fun resendVerification(@Body body: EmailRequest): MessageResponse
 
+    // Recuperar contraseña (igual que la web): envía el enlace al correo
+    // (responde igual exista o no la cuenta) y cambia la contraseña con el token del enlace
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(@Body body: EmailRequest): MessageResponse
+
+    @POST("auth/reset-password")
+    suspend fun resetPassword(@Body body: ResetPasswordRequest): MessageResponse
+
+    // Asistente virtual del cliente (Gemini en el back). Se llama con ApiClient.chatApi,
+    // que espera más tiempo la respuesta.
+    @POST("clients/me/chat")
+    suspend fun chat(@Body body: ChatRequest): ChatResponse
+
     // "Continuar con Google": crea la cuenta o inicia sesión con el ID token de Google
     @POST("auth/google")
     suspend fun googleLogin(@Body body: GoogleLoginRequest): LoginResponse
@@ -38,6 +51,10 @@ interface ApiService {
     // Comprueba que el token y la cuenta siguen siendo válidos.
     @GET("auth/me")
     suspend fun checkSession(): ResponseBody
+
+    // Token nuevo para la misma sesión (antes de que venza el actual)
+    @POST("auth/refresh")
+    suspend fun refreshToken(): LoginResponse
     // ---------- Seguimiento del cliente ----------
     @GET("delivery/client/{clientId}/active")
     suspend fun clientActive(@Path("clientId") clientId: Int): List<ClientDelivery>

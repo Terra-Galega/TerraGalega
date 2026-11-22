@@ -85,7 +85,7 @@ fun CouponsScreen(user: LoginResponse, onBack: () -> Unit, onLogout: () -> Unit)
                 .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 40.dp)
         ) {
             BackLink("Volver", onBack)
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(6.dp))
             PageHeader("Mi cuenta", "Mis cupones", titleSize = 30.sp)
             Spacer(Modifier.height(20.dp))
 

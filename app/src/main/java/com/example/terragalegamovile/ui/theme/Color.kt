@@ -6,6 +6,8 @@ import androidx.compose.ui.graphics.Color
 val Terra = Color(0xFFB2571F)
 val Gold = Color(0xFFD99A21)
 val Burgundy = Color(0xFF8A2222)
+val tab = Color(0xFF622316)
+
 val Cream = Color(0xFFF5F2EB)
 val Forest = Color(0xFF566034)
 val Available = Color(0xFF6E8532)

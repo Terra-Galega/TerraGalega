@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TerraGalegaMovile" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Fondo crema mientras abre la app (sin destello blanco) -->
+    <style name="Theme.TerraGalegaMovile" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/logo_background</item>
+    </style>
 </resources>

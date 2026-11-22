@@ -104,7 +104,7 @@ fun WaiterScreen(user: LoginResponse, onLogout: () -> Unit) {
             user = user,
             onLogout = onLogout,
             tableId = table,
-            info = tables.firstOrNull { it.id == table },
+            initialInfo = tables.firstOrNull { it.id == table },
             onBack = { selectedTable = null }
         )
     }
@@ -285,10 +285,21 @@ private fun TableView(
     user: LoginResponse,
     onLogout: () -> Unit,
     tableId: Int,
-    info: WaiterTable?,
+    initialInfo: WaiterTable?,
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    // Datos de la mesa (reserva, quién la atiende...). Se recargan junto con los
+    // pedidos: así el aviso de reserva no se queda con la foto de cuando se entró
+    var infoState by remember { mutableStateOf(initialInfo) }
+    val info = infoState
+    // Error al recargar: se muestra en la pantalla (no una ventana cada pocos segundos)
+    var loadError by remember { mutableStateOf<String?>(null) }
+    // Otro mesero tomó la mesa: se avisa una vez y se vuelve a las mesas
+    var lostAccess by remember { mutableStateOf<String?>(null) }
+    // Pregunta "¿son los de la reserva?" antes de tomar el primer pedido
+    var askReservation by remember { mutableStateOf(false) }
+    var forReservation by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var orders by remember { mutableStateOf<List<TableOrder>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var newOrder by rememberSaveable { mutableStateOf(false) }
@@ -305,13 +316,39 @@ private fun TableView(
         while (isActive) {
             try {
                 orders = ApiClient.api.tableOrders(tableId)
+                val floor = info?.floor ?: (tableId / 100)
+                ApiClient.api.waiterTables(floor).firstOrNull { it.id == tableId }?.let { infoState = it }
+                loadError = null
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                dialog = "No se pudieron cargar los pedidos" to e.toUserMessage()
+                if ((e as? retrofit2.HttpException)?.code() == 403) {
+                    lostAccess = e.toUserMessage()
+                    break
+                }
+                loadError = e.toUserMessage()
             }
             loading = false
             delay(REFRESH_MS)
+        }
+    }
+
+    // Borrador guardado de esta mesa (si se cerró la app o venció la sesión)
+    val savedDraft = remember(newOrder, tableId) { AppStorage.loadWaiterDraft(user.id, tableId) }
+
+    fun startOrder() {
+        when {
+            // Hay un pedido sin enviar: se sigue con él (ya se respondió la pregunta)
+            savedDraft != null -> {
+                forReservation = savedDraft.forReservation
+                newOrder = true
+            }
+            // Mesa libre con una reserva que importa: primero se pregunta
+            orders.isEmpty() && info?.reservationId != null -> askReservation = true
+            else -> {
+                forReservation = null
+                newOrder = true
+            }
         }
     }
 
@@ -339,6 +376,7 @@ private fun TableView(
             user = user,
             onLogout = onLogout,
             tableId = tableId,
+            forReservation = forReservation,
             onCancel = { newOrder = false },
             onSent = {
                 newOrder = false
@@ -366,7 +404,52 @@ private fun TableView(
                 "Mesa $tableId"
             )
 
-            info?.upcomingReservation?.let { time ->
+            loadError?.let {
+                Spacer(Modifier.height(10.dp))
+                Text(
+                    "Sin actualizar: $it",
+                    fontSize = 13.sp,
+                    color = Burgundy,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Burgundy.copy(alpha = 0.07f))
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                )
+            }
+
+            // Reserva que importa al sentar a alguien (solo con la mesa libre)
+            if (info != null && info.reservationId != null && orders.isEmpty()) {
+                val who = info.reservationName?.let { "«$it»" } ?: "La reserva"
+                val time = hhmm(info.reservationTime)
+                val unpaid = if (info.reservationPaid) "" else " (anticipo aún sin pagar)"
+                Spacer(Modifier.height(12.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background((if (info.walkInAllowed) Gold else Burgundy).copy(alpha = 0.1f))
+                        .border(1.dp, (if (info.walkInAllowed) Gold else Burgundy).copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+                        .padding(14.dp)
+                ) {
+                    Text(
+                        if (info.reservationNoShow) "$who no ha llegado ($time)" else "Reservada · $time",
+                        fontWeight = FontWeight.SemiBold,
+                        color = Burgundy,
+                        fontSize = 15.sp
+                    )
+                    Text(
+                        when {
+                            info.reservationNoShow -> "Pasó el tiempo de espera: ya puedes dar la mesa a otros clientes. Si llegan, confírmalo al tomar el pedido."
+                            else -> "$who$unpaid. Solo puedes sentar aquí a los de la reserva."
+                        },
+                        fontSize = 14.sp,
+                        color = Charcoal.copy(alpha = 0.75f)
+                    )
+                }
+            }
+
+            info?.upcomingReservation?.takeIf { info.reservationId == null || orders.isNotEmpty() }?.let { time ->
                 Spacer(Modifier.height(12.dp))
                 Column(
                     modifier = Modifier
@@ -387,7 +470,11 @@ private fun TableView(
             }
 
             Spacer(Modifier.height(16.dp))
-            TerraButton("Nuevo pedido", onClick = { newOrder = true }, modifier = Modifier.fillMaxWidth())
+            TerraButton(
+                if (savedDraft != null) "Seguir pedido sin enviar (${savedDraft.lines.sumOf { it.quantity }})" else "Nuevo pedido",
+                onClick = { startOrder() },
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(Modifier.height(20.dp))
 
             // Cobrar mesa: con 2 o más pedidos por cobrar, se cobran todos de una vez
@@ -500,6 +587,34 @@ private fun TableView(
             onCancel = { toCancel = null }
         )
     }
+    if (askReservation && info != null) {
+        val time = hhmm(info.reservationTime)
+        TerraDialog(
+            title = "¿Son los de la reserva?",
+            message = "La mesa $tableId tiene la reserva «${info.reservationName ?: ""}» de las $time." +
+                if (info.walkInAllowed) "" else " Si no son ellos, sienta a estos clientes en otra mesa.",
+            confirmLabel = "Sí, son ellos",
+            onConfirm = {
+                askReservation = false
+                forReservation = true
+                newOrder = true
+            },
+            cancelLabel = if (info.walkInAllowed) "No, otros clientes" else "No, otra mesa",
+            onCancel = {
+                askReservation = false
+                if (info.walkInAllowed) {
+                    forReservation = false
+                    newOrder = true
+                }
+            }
+        )
+    }
+    lostAccess?.let { message ->
+        TerraDialog("Ya no puedes ver esta mesa", message, "Volver a las mesas", onConfirm = {
+            lostAccess = null
+            onBack()
+        })
+    }
     dialog?.let { (title, message) ->
         TerraDialog(title, message.ifBlank { " " }, "Aceptar", onConfirm = { dialog = null })
     }
@@ -608,13 +723,35 @@ private fun NewOrderView(
     user: LoginResponse,
     onLogout: () -> Unit,
     tableId: Int,
+    forReservation: Boolean?,
     onCancel: () -> Unit,
     onSent: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var products by remember { mutableStateOf<List<Product>>(emptyList()) }
     var search by remember { mutableStateOf("") }
-    val draft = remember { mutableStateListOf<DraftLine>() }
+    // El borrador se recupera del teléfono: sobrevive a cerrar la app, a perder
+    // la red y a que venza la sesión
+    val saved = remember(tableId) { AppStorage.loadWaiterDraft(user.id, tableId) }
+    val draft = remember(tableId) {
+        mutableStateListOf<DraftLine>().apply {
+            saved?.lines?.forEach { add(DraftLine(it.product, it.quantity, it.notes, it.addOns)) }
+        }
+    }
+    // Id del pedido: el mismo en todos los reintentos, así cocina no lo recibe dos veces
+    val requestId = remember(tableId) { saved?.requestId ?: java.util.UUID.randomUUID().toString() }
+    val reservationChoice = saved?.forReservation ?: forReservation
+
+    // Guarda el borrador en cada cambio
+    LaunchedEffect(tableId) {
+        snapshotFlow { draft.toList() }.collect { lines ->
+            AppStorage.saveWaiterDraft(
+                user.id,
+                tableId,
+                WaiterDraft(requestId, reservationChoice, lines.map { WaiterDraftLine(it.product, it.quantity, it.notes, it.addOns) })
+            )
+        }
+    }
     // Plato que se está configurando en la ventana (null = cerrada)
     var choosing by remember { mutableStateOf<Product?>(null) }
     var sending by remember { mutableStateOf(false) }
@@ -642,6 +779,8 @@ private fun NewOrderView(
             try {
                 ApiClient.api.createTableOrder(
                     NewTableOrder(
+                        clientRequestId = requestId,
+                        forReservation = reservationChoice,
                         tableId = tableId,
                         items = draft.map { line ->
                             NewOrderItem(
@@ -653,6 +792,8 @@ private fun NewOrderView(
                         }
                     )
                 )
+                // Ya está en cocina: se borra el borrador
+                AppStorage.saveWaiterDraft(user.id, tableId, null)
                 onSent()
             } catch (e: CancellationException) {
                 throw e

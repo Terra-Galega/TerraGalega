@@ -21,6 +21,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import com.example.terragalegamovile.ui.ChatSheet
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.blur
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +41,7 @@ import androidx.navigation.navArgument
 import com.example.terragalegamovile.data.ApiClient
 import com.example.terragalegamovile.data.AppStorage
 import com.example.terragalegamovile.data.CartStore
+import com.example.terragalegamovile.data.AlertsService
 import com.example.terragalegamovile.data.CheckoutDraft
 import com.example.terragalegamovile.data.ClientUi
 import com.example.terragalegamovile.data.DeliveryNotifier
@@ -126,6 +130,16 @@ class MainActivity : ComponentActivity() {
     // Tocar la notificación de domicilio abre la pantalla de seguimiento
     private fun handleNotificationIntent(intent: Intent?) {
         if (intent == null) return
+        // Enlace "recuperar contraseña" del correo abierto con la app
+        val data = intent.data
+        if (intent.action == Intent.ACTION_VIEW && data != null &&
+            data.path?.startsWith("/reset-password") == true
+        ) {
+            data.getQueryParameter("token")?.takeIf { it.isNotBlank() }?.let {
+                com.example.terragalegamovile.ui.PasswordResetLink.token.value = it
+            }
+            intent.data = null
+        }
         if (intent.getBooleanExtra(DeliveryNotifier.EXTRA_OPEN_TRACKING, false)) {
             DeliveryNotifier.openTrackingRequest.value = true
             intent.removeExtra(DeliveryNotifier.EXTRA_OPEN_TRACKING)
@@ -181,6 +195,20 @@ fun AppNav(lifecycle: Lifecycle) {
         }
     }
 
+    // El ícono de ayuda de la barra abre el asistente virtual (solo clientes): un panel
+    // encima de la pantalla actual, no otra pantalla.
+    DisposableEffect(Unit) {
+        com.example.terragalegamovile.ui.components.ChatNav.open = {
+            if (Session.user?.role == "CLIENT") {
+                com.example.terragalegamovile.ui.ChatStore.open = true
+            }
+        }
+
+        onDispose {
+            com.example.terragalegamovile.ui.components.ChatNav.open = null
+        }
+    }
+
     // La campanita de la barra abre la bandeja de notificaciones.
     DisposableEffect(Unit) {
         NotificationsNav.open = {
@@ -230,6 +258,9 @@ fun AppNav(lifecycle: Lifecycle) {
                     break
                 }
 
+                // Al token le queda poco: se pide uno nuevo sin cerrar la sesión
+                Session.renewIfNeeded()
+
                 try {
                     ApiClient.api.checkSession().close()
                 } catch (e: CancellationException) {
@@ -262,6 +293,14 @@ fun AppNav(lifecycle: Lifecycle) {
         ) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
+        // Cliente y mesero: "avisos activos" para que todas las notificaciones lleguen
+        // con la app cerrada. Se inicia aquí, con la app abierta (Android no deja
+        // hacerlo desde segundo plano); después sigue solo, incluso tras reiniciar.
+        if (AlertsService.shouldRun(session?.role)) {
+            AlertsService.start(context)
+        } else {
+            AlertsService.stop(context)
+        }
     }
 
     // Se tocó una notificación de domicilio: abre el seguimiento del cliente
@@ -281,6 +320,15 @@ fun AppNav(lifecycle: Lifecycle) {
         }
     }
 
+    val chatOpen = com.example.terragalegamovile.ui.ChatStore.open && session?.role == "CLIENT"
+    val chatBlur by androidx.compose.animation.core.animateDpAsState(
+        if (chatOpen) 14.dp else 0.dp, label = "chatBlur"
+    )
+    androidx.compose.foundation.layout.Box(
+        androidx.compose.ui.Modifier
+            .fillMaxSize()
+            .then(if (chatBlur > 0.dp) androidx.compose.ui.Modifier.blur(chatBlur) else androidx.compose.ui.Modifier)
+    ) {
     NavHost(
         navController = nav,
         startDestination = startDestination
@@ -503,6 +551,32 @@ fun AppNav(lifecycle: Lifecycle) {
         composable("waiter") {
             session?.let { user ->
                 WaiterScreen(user = user, onLogout = logout)
+            }
+        }
+    }
+
+    }
+
+    // Asistente virtual: panel encima de todo con el fondo desenfocado
+    androidx.compose.animation.AnimatedVisibility(
+        visible = chatOpen,
+        enter = androidx.compose.animation.fadeIn(),
+        exit = androidx.compose.animation.fadeOut()
+    ) {
+        com.example.terragalegamovile.ui.ChatScrim { com.example.terragalegamovile.ui.ChatStore.open = false }
+    }
+    androidx.compose.animation.AnimatedVisibility(
+        visible = chatOpen,
+        enter = androidx.compose.animation.slideInVertically { it },
+        exit = androidx.compose.animation.slideOutVertically { it }
+    ) {
+        androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.fillMaxSize()) {
+            session?.let { user ->
+                ChatSheet(
+                    clientId = user.id,
+                    firstName = user.name,
+                    onClose = { com.example.terragalegamovile.ui.ChatStore.open = false }
+                )
             }
         }
     }

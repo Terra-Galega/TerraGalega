@@ -82,6 +82,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.role
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
@@ -117,7 +118,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import com.example.terragalegamovile.R
@@ -255,7 +256,7 @@ fun TerraTextField(
             onValueChange = onValueChange,
             singleLine = true,
             placeholder = { Text(placeholder, color = Charcoal.copy(alpha = 0.35f)) },
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(50),
             keyboardOptions = keyboardOptions,
             visualTransformation = visualTransformation,
             colors = OutlinedTextFieldDefaults.colors(
@@ -269,6 +270,89 @@ fun TerraTextField(
             ),
             modifier = Modifier.fillMaxWidth()
         )
+    }
+}
+
+// Campo de contraseña con el ojo para ver u ocultar lo que se escribe (como en la web)
+@Composable
+fun TerraPasswordField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "••••••••"
+) {
+    var visible by remember { mutableStateOf(false) }
+    Column(modifier = modifier) {
+        Text(
+            label.uppercase(),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 1.sp,
+            color = TextLabel
+        )
+        Spacer(Modifier.height(6.dp))
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            placeholder = { Text(placeholder, color = Charcoal.copy(alpha = 0.35f)) },
+            shape = RoundedCornerShape(50),
+            keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Password),
+            visualTransformation = if (visible) VisualTransformation.None
+            else androidx.compose.ui.text.input.PasswordVisualTransformation(),
+            trailingIcon = {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .clickable { visible = !visible }
+                        .buttonDescription(if (visible) "Ocultar contraseña" else "Mostrar contraseña")
+                ) {
+                    EyeIcon(open = !visible, color = Charcoal.copy(alpha = 0.55f))
+                }
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.White.copy(alpha = 0.7f),
+                unfocusedContainerColor = Color.White.copy(alpha = 0.7f),
+                focusedBorderColor = Terra,
+                unfocusedBorderColor = BorderSoft,
+                focusedTextColor = Charcoal,
+                unfocusedTextColor = Charcoal,
+                cursorColor = Terra
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+private fun Modifier.buttonDescription(description: String): Modifier =
+    this.then(
+        Modifier.semantics {
+            contentDescription = description
+            role = androidx.compose.ui.semantics.Role.Button
+        }
+    )
+
+// Ojo dibujado a mano (abierto, o tachado cuando la contraseña se ve)
+@Composable
+private fun EyeIcon(open: Boolean, color: Color) {
+    Canvas(Modifier.size(22.dp)) {
+        val w = size.width
+        val h = size.height
+        val stroke = androidx.compose.ui.graphics.drawscope.Stroke(width = w * 0.08f, cap = StrokeCap.Round)
+        val eye = Path().apply {
+            moveTo(w * 0.06f, h * 0.5f)
+            quadraticTo(w * 0.5f, h * 0.02f, w * 0.94f, h * 0.5f)
+            quadraticTo(w * 0.5f, h * 0.98f, w * 0.06f, h * 0.5f)
+            close()
+        }
+        drawPath(eye, color, style = stroke)
+        drawCircle(color, radius = w * 0.13f, center = Offset(w * 0.5f, h * 0.5f), style = stroke)
+        if (!open) {
+            drawLine(color, Offset(w * 0.15f, h * 0.15f), Offset(w * 0.85f, h * 0.85f), strokeWidth = w * 0.08f, cap = StrokeCap.Round)
+        }
     }
 }
 
@@ -396,6 +480,11 @@ object NotificationsNav {
     var open: (() -> Unit)? = null
 }
 
+// Abre el asistente virtual desde la barra de arriba (lo asigna AppNav)
+object ChatNav {
+    var open: (() -> Unit)? = null
+}
+
 // Campanita con el número de notificaciones sin leer
 @Composable
 fun BellButton(count: Int, onClick: () -> Unit) {
@@ -404,21 +493,22 @@ fun BellButton(count: Int, onClick: () -> Unit) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(Color.White)
-                .border(1.dp, Terra, CircleShape)
-                .semantics { contentDescription = "Notificaciones" }
+                .semantics { contentDescription = if (count > 0) "Notificaciones, $count sin leer" else "Notificaciones" }
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.Notifications,
-                contentDescription = "Notificaciones"
+                imageVector = Icons.Outlined.Notifications,
+                contentDescription = null,
+                tint = Terra,
+                modifier = Modifier.size(28.dp)
             )
         }
         if (count > 0) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
+                    .offset(x = (-2).dp, y = 2.dp)
                     .size(18.dp)
                     .clip(CircleShape)
                     .background(Burgundy),
@@ -428,10 +518,66 @@ fun BellButton(count: Int, onClick: () -> Unit) {
                     if (count > 9) "9+" else "$count",
                     color = Color.White,
                     fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    // Fuente normal del sistema (no la del tema)
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Default,
+                    lineHeight = 10.sp,
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                 )
             }
         }
+    }
+}
+
+// Asistente virtual: solo el ícono de mensaje con signo de pregunta, sin fondo
+@Composable
+fun ChatButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .semantics { contentDescription = "Asistente virtual" }
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        ChatIcon(color = Terra, modifier = Modifier.size(28.dp))
+    }
+}
+
+// Globo de conversación con un signo de pregunta (ayuda), dibujado a mano
+@Composable
+fun ChatIcon(color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val sw = w * 0.085f
+        val stroke = Stroke(width = sw, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val bubble = Path().apply {
+            moveTo(w * 0.22f, h * 0.12f)
+            lineTo(w * 0.78f, h * 0.12f)
+            quadraticTo(w * 0.94f, h * 0.12f, w * 0.94f, h * 0.28f)
+            lineTo(w * 0.94f, h * 0.60f)
+            quadraticTo(w * 0.94f, h * 0.76f, w * 0.78f, h * 0.76f)
+            lineTo(w * 0.44f, h * 0.76f)
+            lineTo(w * 0.24f, h * 0.92f)
+            lineTo(w * 0.26f, h * 0.76f)
+            lineTo(w * 0.22f, h * 0.76f)
+            quadraticTo(w * 0.06f, h * 0.76f, w * 0.06f, h * 0.60f)
+            lineTo(w * 0.06f, h * 0.28f)
+            quadraticTo(w * 0.06f, h * 0.12f, w * 0.22f, h * 0.12f)
+            close()
+        }
+        drawPath(bubble, color, style = stroke)
+        // Signo de pregunta
+        val q = Path().apply {
+            moveTo(w * 0.40f, h * 0.34f)
+            quadraticTo(w * 0.40f, h * 0.24f, w * 0.50f, h * 0.24f)
+            quadraticTo(w * 0.61f, h * 0.24f, w * 0.61f, h * 0.34f)
+            quadraticTo(w * 0.61f, h * 0.41f, w * 0.50f, h * 0.45f)
+            lineTo(w * 0.50f, h * 0.51f)
+        }
+        drawPath(q, color, style = Stroke(width = w * 0.075f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        drawCircle(color, radius = w * 0.045f, center = Offset(w * 0.50f, h * 0.62f))
     }
 }
 
@@ -495,7 +641,7 @@ fun TerraScaffold(
     val density = LocalDensity.current
     val imeOpen = WindowInsets.ime.getBottom(density) > 0
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val topArea = statusTop + 84.dp
+    val topArea = statusTop + 66.dp
     val fadeEnd = statusTop + 100.dp
     val solidUntil = ((statusTop + 62.dp) / fadeEnd).coerceIn(0f, 1f)
     val fadeStops = remember(solidUntil) {
@@ -511,8 +657,8 @@ fun TerraScaffold(
         }.toTypedArray()
     }
     var bottomHeight by remember { mutableStateOf(0.dp) }
-    // El perfil solo existe para el cliente
-    val onProfile = if (role == "Cliente") ProfileNav.open else null
+    // El asistente virtual solo existe para el cliente (el perfil está en la barra de abajo)
+    val onChat = if (role == "Cliente") ChatNav.open else null
     // La campanita sale en el inicio del cliente (la izquierda está libre, el carrito va abajo)
     // y en todas las pantallas del mesero (avisos de cocina)
     val onBell = if ((role == "Cliente" && bottomBar != null) || role == "Mesero") NotificationsNav.open else null
@@ -571,14 +717,13 @@ fun TerraScaffold(
             }
         }
 
-        // Derecha: perfil del cliente o, en otros roles, el botón de salir
-        if (onProfile != null) {
-            ProfileChip(
-                name = name,
-                onClick = onProfile,
+        // Derecha: asistente virtual del cliente o, en otros roles, el botón de salir
+        if (onChat != null) {
+            ChatButton(
+                onClick = onChat,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(end = 14.dp, top = statusTop + 6.dp)
+                    .padding(end = 16.dp, top = statusTop + 10.dp)
             )
         } else if (bottomBar == null) {
             Box(
@@ -715,13 +860,16 @@ fun ClientBottomBar(
     onMenu: () -> Unit,
     onCart: () -> Unit,
     onOrders: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    // Se lee al tocar (no al dibujar): al abrir la app ProfileNav.open aún no está
+    // asignado y la opción no aparecía hasta navegar
+    onProfile: () -> Unit = { ProfileNav.open?.invoke() }
 ) {
     val pill = RoundedCornerShape(50)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 12.dp)
+            .padding(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 10.dp)
             .shadow(
                 16.dp, pill,
                 ambientColor = Color.Black.copy(alpha = 0.18f),
@@ -746,7 +894,7 @@ fun ClientBottomBar(
                 ),
                 pill
             )
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(horizontal = 6.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         NavItem(selected == 0, "Carta", onMenu) {
@@ -755,11 +903,12 @@ fun ClientBottomBar(
                     if (selected == 0) R.drawable.nav_home_on else R.drawable.nav_home_off
                 ),
                 contentDescription = null,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(26.dp)
             )
         }
         NavItem(false, "Carrito", onCart, badge = cartCount) { NavIcon(1, it) }
         NavItem(selected == 1, "Órdenes", onOrders) { NavIcon(2, it) }
+        NavItem(selected == 2, "Perfil", onProfile) { NavIcon(3, it) }
 
     }
 }
@@ -794,10 +943,10 @@ private fun RowScope.NavItem(
                     if (selected) Color.White.copy(alpha = 0.45f) else Color.Transparent,
                     RoundedCornerShape(50)
                 )
-                .padding(horizontal = 14.dp, vertical = 6.dp),
+                .padding(horizontal = 12.dp, vertical = 3.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.height(30.dp), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.height(26.dp), contentAlignment = Alignment.Center) {
                 icon(contentColor)
                 if (badge > 0) {
                     Box(
@@ -828,11 +977,12 @@ private fun RowScope.NavItem(
                     }
                 }
             }
-            Spacer(Modifier.height(2.dp))
             Text(
                 label,
                 fontFamily = SourceSans,
                 fontSize = 10.sp,
+                lineHeight = 11.sp,
+                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                 color = contentColor,
                 maxLines = 1
@@ -840,10 +990,10 @@ private fun RowScope.NavItem(
         }
     }
 }
-// Íconos de la barra: 0 = carta, 1 = carrito, 2 = órdenes
+// Íconos de la barra: 0 = carta, 1 = carrito, 2 = órdenes, 3 = perfil
 @Composable
 private fun NavIcon(kind: Int, color: Color) {
-    Canvas(modifier = Modifier.size(26.dp)) {
+    Canvas(modifier = Modifier.size(24.dp)) {
         val w = size.width
         val h = size.height
         val sw = w * 0.085f
@@ -871,6 +1021,15 @@ private fun NavIcon(kind: Int, color: Color) {
                 drawPath(cart, color, style = stroke)
                 drawCircle(color, w * 0.065f, Offset(w * 0.38f, h * 0.82f))
                 drawCircle(color, w * 0.065f, Offset(w * 0.76f, h * 0.82f))
+            }
+            3 -> { // perfil: cabeza y hombros
+                drawCircle(color, w * 0.19f, Offset(w * 0.5f, h * 0.30f), style = stroke)
+                val body = Path().apply {
+                    moveTo(w * 0.16f, h * 0.90f)
+                    quadraticTo(w * 0.16f, h * 0.58f, w * 0.5f, h * 0.58f)
+                    quadraticTo(w * 0.84f, h * 0.58f, w * 0.84f, h * 0.90f)
+                }
+                drawPath(body, color, style = stroke)
             }
             else -> { // órdenes
                 drawRoundRect(
