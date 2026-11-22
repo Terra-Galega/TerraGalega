@@ -6,10 +6,10 @@ import {
   EMPTY,
   Subject,
   catchError,
+  exhaustMap,
   filter,
   fromEvent,
   merge,
-  switchMap,
   timer,
 } from 'rxjs';
 import { DashboardService } from '../../../../services/dashboard.service';
@@ -272,9 +272,9 @@ export class AdminDashboardComponent {
       .pipe(
         // Solo se piden datos si la pestaña está visible (no gasta peticiones en segundo plano)
         filter(() => document.visibilityState === 'visible'),
-        switchMap(() => {
+        // así una carga lenta no se cancela y vuelve a empezar cada 10 s
+        exhaustMap(() => {
           this.loadingNow = true;
-          // switchMap cancela la petición anterior si llega una nueva antes de terminar
           return this.dashboardService.load().pipe(
             catchError((error) => {
               console.error('Error cargando el dashboard:', error);

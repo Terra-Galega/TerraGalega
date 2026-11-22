@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { EMPTY, Subject, catchError, filter, fromEvent, merge, switchMap, timer } from 'rxjs';
 import { TableOrderService } from '../../../../services/table-order.service';
 import { ProductService } from '../../../../services/product.service';
 import { ProductOption } from '../../../../models/product';
@@ -12,12 +14,15 @@ import {
 } from '../../../../models/table-order';
 import { getErrorMessage } from '../../../../utils/http-error';
 
+// Cada cuánto se vuelve a pedir la lista (milisegundos), igual que el dashboard
+const REFRESH_MS = 10_000;
+
 // Filtro rápido por estado: todos o una de las etapas del pedido de mesa
 type StageFilter = 'all' | TableOrderStage;
 
 // Órdenes en punto físico (las que registran los meseros desde la app): se filtran
 // por fechas, producto, número de pedido, mesero, mesa y estado, y cada una se
-// abre para ver sus platos, precios, cobro y tiempos.
+// abre para ver sus platos, precios, cobro y tiempos. La lista se actualiza sola.
 @Component({
   selector: 'app-admin-table-orders',
   imports: [DatePipe, DecimalPipe],
@@ -27,10 +32,15 @@ export class AdminTableOrdersComponent {
   private tableOrderService = inject(TableOrderService);
   private productService = inject(ProductService);
 
+  // Avisa que hay que recargar ya (cambió un filtro del back)
+  private reload$ = new Subject<void>();
+
   orders: AdminTableOrder[] = [];
   products: ProductOption[] = [];
   loading = true;
   errorMessage = '';
+  // Hora de la última actualización correcta
+  checkedAt: Date | null = null;
 
   // Filtros que se resuelven en el back
   dateFrom = '';
@@ -43,7 +53,7 @@ export class AdminTableOrdersComponent {
   tableId: number | null = null;
   stage: StageFilter = 'all';
 
-  // Pedido abierto para ver su detalle
+  // Pedido abierto para ver su detalle (se conserva entre actualizaciones)
   openId: number | null = null;
 
   readonly stageLabel = TABLE_STAGE_LABEL;
@@ -67,7 +77,35 @@ export class AdminTableOrdersComponent {
   };
 
   constructor() {
-    this.loadOrders();
+    // Carga al abrir, cada REFRESH_MS, al volver a la pestaña y cuando cambia un filtro.
+    merge(timer(0, REFRESH_MS), fromEvent(document, 'visibilitychange'), this.reload$)
+      .pipe(
+        // No gasta peticiones con la pestaña en segundo plano
+        filter(() => document.visibilityState === 'visible'),
+        // Si llega una recarga nueva (p. ej. otro filtro), se cancela la anterior
+        switchMap(() =>
+          this.tableOrderService.adminOrders(this.backFilters()).pipe(
+            catchError((error) => {
+              console.error('Error cargando órdenes en punto físico:', error);
+              this.loading = false;
+              // Si falla, se queda lo que ya se veía
+              this.errorMessage = getErrorMessage(
+                error,
+                'No se pudieron cargar las órdenes en punto físico.',
+              );
+              return EMPTY;
+            }),
+          ),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe((orders) => {
+        this.orders = orders;
+        this.errorMessage = '';
+        this.loading = false;
+        this.checkedAt = new Date();
+      });
+
     this.productService.getProductOptions().subscribe({
       next: (products) =>
         (this.products = [...products].sort((a, b) =>
@@ -77,32 +115,21 @@ export class AdminTableOrdersComponent {
     });
   }
 
-  loadOrders() {
+  // Filtros que viajan al back, con los valores que haya en este momento
+  private backFilters() {
     const parsed = this.orderNumber.trim() ? Number(this.orderNumber) : null;
+    return {
+      from: this.dateFrom,
+      to: this.dateTo,
+      productId: this.productId,
+      orderId: parsed !== null && !Number.isNaN(parsed) ? parsed : null,
+    };
+  }
+
+  // Recarga ya con los filtros actuales (muestra "Cargando…" solo si la lista está vacía)
+  loadOrders() {
     this.loading = true;
-    this.tableOrderService
-      .adminOrders({
-        from: this.dateFrom,
-        to: this.dateTo,
-        productId: this.productId,
-        orderId: parsed !== null && !Number.isNaN(parsed) ? parsed : null,
-      })
-      .subscribe({
-        next: (orders) => {
-          this.orders = orders;
-          this.errorMessage = '';
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error cargando órdenes en punto físico:', error);
-          this.orders = [];
-          this.loading = false;
-          this.errorMessage = getErrorMessage(
-            error,
-            'No se pudieron cargar las órdenes en punto físico.',
-          );
-        },
-      });
+    this.reload$.next();
   }
 
   onDateFromChange(event: Event) {
