@@ -38,6 +38,21 @@
   font-size: 0.875rem;
 }
 
+// Botón pequeño: se ve de 39 px, pero responde al toque en 44 px (zona invisible)
+.btn--sm {
+  position: relative;
+}
+
+.btn--sm::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
 .btn--md {
   padding: 0.875rem 2rem;
 }

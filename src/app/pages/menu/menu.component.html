@@ -15,7 +15,8 @@
 
   <!-- Fila de filtros: botones de categoría (ocupan el espacio sobrante) y,
        a la derecha, el botón con el panel de características -->
-  <div id="menu-filters" class="flex items-center gap-3 mb-12">
+  <div #menuFilters id="menu-filters" class="menu-filters flex items-center gap-3 mb-12"
+    [class.menu-filters--stuck]="filtersStuck">
     <app-category-filter
       class="flex-1 min-w-0"
       [categories]="categoriesList"

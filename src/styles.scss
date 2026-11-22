@@ -1846,3 +1846,18 @@ html[data-palette="blue-yellow"][data-theme="dark"] {
     color: #ff5c8a !important;
   }
 }
+// ======================================================================================
+// ZONA PULSABLE DE 44 PX (recomendación de Apple para tocar con el dedo)
+// Para botones de texto o iconos pequeños ("Editar", "Eliminar", el ojo de la contraseña):
+// un pseudo-elemento invisible centrado amplía el área que responde al toque a 44x44 px,
+// sin cambiar el aspecto. El elemento tiene que estar posicionado (clase relative o absolute).
+// ======================================================================================
+.tap-target::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}

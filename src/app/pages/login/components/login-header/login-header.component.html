@@ -4,6 +4,12 @@
   <p class="text-[12px] font-medium tracking-[0.3em] uppercase mb-2" style="color: #b2571f">
     {{ activeTab === "login" ? "Bienvenido de vuelta" : "Únete a nosotros" }}
   </p>
+  <!-- Si se llegó aquí desde una acción (pagar, reservar...), se explica para qué -->
+  @if (reasonKey) {
+    <p id="login-reason" class="text-sm max-w-xs mt-1 leading-relaxed" style="color: rgba(44, 44, 44, 0.72)">
+      {{ reasonKey | t }}
+    </p>
+  }
 </div>
 
 <div id="auth-tabs" class="flex w-full rounded-full p-1 mb-8" style="background-color: rgba(44, 44, 44, 0.06)">

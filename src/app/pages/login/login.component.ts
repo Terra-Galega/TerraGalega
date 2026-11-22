@@ -33,6 +33,17 @@ const REDIRECTS: Record<string, string> = {
   aboutUs: '/aboutUs',
 };
 
+// Por qué se pide iniciar sesión, según de dónde viene (se muestra bajo el título)
+const LOGIN_REASONS: Record<string, string> = {
+  checkout: 'login.reason.checkout',
+  order: 'login.reason.checkout',
+  reservations: 'login.reason.reservations',
+  reservation: 'login.reason.reservations',
+  orders: 'login.reason.orders',
+  home: 'login.reason.review',
+  aboutUs: 'login.reason.review',
+};
+
 // Página a la que vuelve si viene de un tutorial (aunque la URL no traiga redirect)
 const TOUR_REDIRECTS = {
   order: '/checkout',
@@ -94,6 +105,13 @@ export class LoginComponent implements OnDestroy {
   private tutorialAuth = inject(TutorialAuthService);
   // Para saber si el cliente viene de un tutorial y devolverlo a su página
   private tutorial = inject(TutorialService);
+
+  // Motivo para la cabecera: el del tutorial en curso o el de ?redirect=
+  get loginReasonKey(): string {
+    const flow = this.tutorial.currentFlow();
+    const from = flow ?? this.route.snapshot.queryParamMap.get('redirect') ?? '';
+    return LOGIN_REASONS[from] ?? '';
+  }
   constructor() {
     // /login?tab=signup abre directo la pestaña de crear cuenta
     if (this.route.snapshot.queryParamMap.get('tab') === 'signup') {

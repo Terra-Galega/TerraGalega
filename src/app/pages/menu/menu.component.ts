@@ -1,5 +1,5 @@
 import { TranslatePipe } from '../../pipes/translate.pipe';
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   EMPTY,
@@ -45,9 +45,26 @@ const REFRESH_MS = 10_000;
     ProductCardMenuComponent,
     TranslatePipe],
   templateUrl: './menu.component.html',
+  styleUrl: './menu.component.scss',
 })
 export class MenuComponent {
   private productService = inject(ProductService);
+
+  // Fila de categorías y filtros: se queda fija bajo la barra de navegación al bajar.
+  // Mientras está fija lleva el mismo efecto de vidrio que la barra (menu.component.scss).
+  @ViewChild('menuFilters') private menuFilters?: ElementRef<HTMLElement>;
+  filtersStuck = false;
+
+  @HostListener('window:scroll')
+  @HostListener('window:resize')
+  updateFiltersStuck(): void {
+    const el = this.menuFilters?.nativeElement;
+    if (!el) return;
+    // "top" del sticky (76 px en el celular, 92 px desde tablet): si ya llegó ahí, está fija
+    const stickyTop = parseFloat(getComputedStyle(el).top) || 0;
+    const stuck = window.scrollY > 0 && el.getBoundingClientRect().top <= stickyTop + 1;
+    if (stuck !== this.filtersStuck) this.filtersStuck = stuck;
+  }
   private categoryService = inject(CategoryService);
 
   // Todos los productos activos que llegaron del servidor
