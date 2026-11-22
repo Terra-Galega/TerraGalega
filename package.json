@@ -25,6 +25,7 @@
     "chart.js": "^4.6.1",
     "driver.js": "^1.14.0",
     "exceljs": "^4.4.0",
+    "heic2any": "^0.0.4",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.9",
     "maplibre-gl": "^6.19.0",

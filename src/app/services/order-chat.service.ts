@@ -23,6 +23,24 @@ export class OrderChatService {
     return this.http.post<OrderChatMessage>(`${this.apiUrl}/${orderId}/messages`, { content });
   }
 
+  // Foto (ya preparada en el front) con comentario opcional
+  sendPhoto(orderId: number, photo: Blob, content: string): Observable<OrderChatMessage> {
+    const form = new FormData();
+    const name = photo.type === 'image/png' ? 'foto.png' : 'foto.jpg';
+    form.append('file', photo, name);
+    if (content) {
+      form.append('content', content);
+    }
+    return this.http.post<OrderChatMessage>(`${this.apiUrl}/${orderId}/attachments`, form);
+  }
+
+  // La foto se pide con el token (el interceptor lo agrega), por eso llega como Blob
+  getAttachment(orderId: number, attachmentId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${orderId}/attachments/${attachmentId}`, {
+      responseType: 'blob',
+    });
+  }
+
   // Chats activos (pedidos sin terminar que ya tienen mensajes)
   getActive(): Observable<OrderChatSummary[]> {
     return this.http.get<OrderChatSummary[]>(`${this.apiUrl}/active`);

@@ -53,12 +53,36 @@
     [attr.aria-label]="tr('order_chat.log_label', { id: orderId })"
   >
     @for (m of messages; track m.id) {
-      <div class="oc-bubble" [class.oc-bubble--mine]="isMine(m)">
+      <div class="oc-bubble" [class.oc-bubble--mine]="isMine(m)" [class.oc-bubble--photo]="m.attachmentId">
         <span class="cdk-visually-hidden">{{ srIntro(m) }}</span>
         @if (!isMine(m)) {
           <p class="oc-sender" aria-hidden="true">{{ senderLabel(m) }}</p>
         }
-        <p class="oc-text">{{ m.content }}</p>
+
+        <!-- Foto adjunta: al tocarla se abre en tamaño completo -->
+        @if (m.attachmentId; as attachmentId) {
+          @if (photoUrl(attachmentId); as url) {
+            <a
+              class="oc-photo-link"
+              [href]="url"
+              target="_blank"
+              rel="noopener"
+              [attr.aria-label]="photoAlt(m) + '. ' + tr('order_chat.photo_open')"
+            >
+              <img class="oc-photo" [src]="url" [alt]="photoAlt(m)" (load)="onPhotoLoaded(m)" />
+            </a>
+          } @else if (failedPhotos.has(attachmentId)) {
+            <p class="oc-photo-placeholder">{{ tr('order_chat.photo_unavailable') }}</p>
+          } @else {
+            <div class="oc-photo-placeholder" role="img" [attr.aria-label]="tr('order_chat.photo_loading')">
+              <span class="oc-photo-spinner" aria-hidden="true"></span>
+            </div>
+          }
+        }
+
+        @if (m.content) {
+          <p class="oc-text">{{ m.content }}</p>
+        }
         <time class="oc-time" [attr.datetime]="m.createdAt">{{ m.createdAt | date: 'HH:mm' }}</time>
       </div>
     } @empty {
@@ -74,7 +98,52 @@
 
   <!-- Escribir -->
   @if (chatOpen) {
+    <!-- Foto elegida, pendiente de enviar -->
+    @if (pendingPreview) {
+      <div class="oc-pending" role="group" [attr.aria-label]="tr('order_chat.photo_pending')">
+        <img class="oc-pending-img" [src]="pendingPreview" [alt]="tr('order_chat.photo_preview_alt')" />
+        <p class="oc-pending-text">{{ tr('order_chat.photo_ready') }}</p>
+        <button type="button" class="oc-pending-remove" [attr.aria-label]="tr('order_chat.photo_remove')"
+          (click)="removePending()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    @if (preparingPhoto) {
+      <p class="oc-notice" role="status">{{ tr('order_chat.photo_preparing') }}</p>
+    }
+
     <form class="oc-form" (ngSubmit)="send()" novalidate>
+      @if (canAttach()) {
+        <!-- El input real está oculto; lo abre el botón de la cámara -->
+        <input
+          #fileInput
+          type="file"
+          class="cdk-visually-hidden"
+          tabindex="-1"
+          aria-hidden="true"
+          [accept]="photoAccept"
+          (change)="onFileSelected($event)"
+        />
+        <button
+          type="button"
+          class="oc-attach"
+          [attr.aria-label]="tr('order_chat.photo_attach')"
+          [attr.title]="tr('order_chat.photo_attach')"
+          [disabled]="sending || preparingPhoto"
+          (click)="openFilePicker()"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+        </button>
+      }
+
       <label class="cdk-visually-hidden" [for]="baseId + '-input'">{{ inputLabel() }}</label>
       <div class="oc-field">
         <input
@@ -87,7 +156,7 @@
           autocomplete="off"
           enterkeyhint="send"
           class="oc-input"
-          [placeholder]="tr('order_chat.placeholder')"
+          [placeholder]="pendingPhoto ? tr('order_chat.photo_placeholder') : tr('order_chat.placeholder')"
           [attr.aria-describedby]="baseId + '-count' + (errorMessage ? ' ' + baseId + '-error' : '')"
           [attr.aria-invalid]="errorMessage ? true : null"
         />
@@ -98,7 +167,7 @@
       <button
         type="submit"
         class="oc-send"
-        [disabled]="sending || !draft.trim()"
+        [disabled]="!canSend()"
         [attr.aria-label]="sending ? tr('order_chat.sending') : tr('order_chat.send')"
         [attr.aria-busy]="sending ? true : null"
       >

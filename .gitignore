@@ -49,3 +49,4 @@ demo/target/
 
 # Configuración privada de Spring Boot
 application.properties
+desktop.ini
