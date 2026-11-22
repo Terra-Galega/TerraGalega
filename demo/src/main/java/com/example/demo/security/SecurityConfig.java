@@ -167,8 +167,8 @@ public class SecurityConfig {
                                                 .hasAuthority(CLIENT)
                                                 .requestMatchers(HttpMethod.GET, "/orders/me").hasAuthority(CLIENT)
                                                 .requestMatchers(HttpMethod.PUT, "/orders/*/cancel")
-                                                .hasAuthority(CLIENT).requestMatchers("/notifications/**")
-                                                .hasAuthority(CLIENT)
+                                                .hasAuthority(CLIENT).requestMatchers("/notifications/**").hasAuthority(CLIENT)
+                                                .requestMatchers("/order-chat/**").hasAnyAuthority(CLIENT, OPERATOR)
 
                                                 // ================= OPERADOR =================
                                                 .requestMatchers(HttpMethod.GET, "/operators/me").hasAuthority(OPERATOR)

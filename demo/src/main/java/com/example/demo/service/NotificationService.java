@@ -78,7 +78,35 @@ public class NotificationService {
         }
         create(clientId, type, title, message, order.getId());
     }
+    
+    // Mensaje del operador en el chat del pedido.
+    // Si el cliente aún no ha leído el aviso de ese pedido, se actualiza el mismo
+    // (último mensaje y hora) en vez de llenar la campanita.
+    @Transactional
+    public void notifyChatMessage(Order order, String content) {
+        if (order.getClient() == null) {
+            return;
+        }
+        Integer clientId = order.getClient().getId();
 
+        // El título debe ser igual al valor de "notifications.order_chat_message" en es.json
+        // (el front lo traduce con el pipe t)
+        String title = "Nuevo mensaje del restaurante";
+        String preview = content.length() > 200 ? content.substring(0, 200) + "…" : content;
+        String message = "#" + order.getId() + " · " + preview;
+
+        Notification unread = repository.findFirstByClientIdAndTypeAndOrderIdAndReadFalse(
+                clientId, NotificationType.ORDER_CHAT_MESSAGE, order.getId());
+
+        if (unread != null) {
+            unread.setMessage(message);
+            unread.setCreatedAt(LocalDateTime.now());
+            repository.save(unread);
+            return;
+        }
+
+        create(clientId, NotificationType.ORDER_CHAT_MESSAGE, title, message, order.getId());
+    }
     // Bienvenida cuando se crea una cuenta
     @Transactional
     public void notifyWelcome(Client client) {

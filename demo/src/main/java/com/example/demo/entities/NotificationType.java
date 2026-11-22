@@ -8,5 +8,6 @@ public enum NotificationType {
     ORDER_CONFIRMED,
     ORDER_PREPARING,
     ORDER_ON_THE_WAY,
-    ORDER_NEAR
+    ORDER_NEAR,
+    ORDER_CHAT_MESSAGE // el operador escribió en el chat del pedido
 }

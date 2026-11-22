@@ -26,4 +26,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     List<Notification> findByClientIdAndReadFalse(Integer clientId);
 
     void deleteByClientId(Integer clientId);
+    // Aviso de chat aún sin leer de un pedido (para actualizarlo en vez de crear otro)
+    Notification findFirstByClientIdAndTypeAndOrderIdAndReadFalse(Integer clientId, NotificationType type,Integer orderId);
 }
