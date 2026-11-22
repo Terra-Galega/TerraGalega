@@ -128,4 +128,40 @@ public final class TableOrderDTOs {
             // ¿Se puede sentar aquí a alguien SIN reserva? (false si choca con la reserva)
             boolean walkInAllowed) {
     }
+
+    // ---------- Panel del admin: órdenes en punto físico ----------
+
+    // Plato con sus precios del momento del pedido. subtotal = (unitPrice + addOnsPrice) × quantity
+    public record AdminTableOrderItemDTO(
+            Integer id,
+            Integer productId,
+            String productName,
+            String category,
+            Integer quantity,
+            Double unitPrice,
+            List<String> addOns,
+            Double addOnsPrice,
+            Double subtotal,
+            String notes,
+            OrderItemStatus status) {
+    }
+
+    // GET /table-orders/admin: pedido de mesa completo para el listado, el detalle y el dashboard
+    public record AdminTableOrderDTO(
+            Integer id,
+            Integer tableId,
+            Integer floor,
+            Integer waiterId,
+            String waiterName,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            TableOrderStatus status,
+            // Entregado y aún sin cobrar
+            boolean awaitingPayment,
+            com.example.demo.entities.TablePaymentMethod paymentMethod,
+            LocalDateTime paidAt,
+            int units,
+            Double total,
+            List<AdminTableOrderItemDTO> items) {
+    }
 }

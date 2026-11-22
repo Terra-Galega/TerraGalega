@@ -71,6 +71,15 @@ public class OrderItem {
     @Column(nullable = false, length = 20)
     private OrderItemStatus status;
 
+    // Precio del plato y suma de sus adicionales AL MOMENTO del pedido (como
+    // unitPrice en OrderDetail): si luego cambia el precio en la carta, las
+    // ventas ya registradas no cambian. Por unidad.
+    @Column(name = "unit_price")
+    private Double unitPrice;
+
+    @Column(name = "add_ons_price")
+    private Double addOnsPrice;
+
     // Adicionales del plato (opcionales), solo los de su categoría, igual que en
     // los pedidos a domicilio. Tabla intermedia order_item_add_ons. Es un Set
     // para poder traerlo en la misma consulta que los platos (sin N+1).

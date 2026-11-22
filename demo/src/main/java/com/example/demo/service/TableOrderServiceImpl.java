@@ -296,6 +296,7 @@ public class TableOrderServiceImpl implements TableOrderService {
                     .quantity(quantity)
                     .notes(notes)
                     .status(OrderItemStatus.PENDING)
+                    .unitPrice(product.getPrice())
                     .build();
 
             // Adicionales: deben existir, estar activos y ser de la categoría del
@@ -323,6 +324,8 @@ public class TableOrderServiceImpl implements TableOrderService {
                     item.getAddOns().add(addOn);
                 }
             }
+            item.setAddOnsPrice(item.getAddOns().stream()
+                    .mapToDouble(a -> a.getPrice() == null ? 0 : a.getPrice()).sum());
             order.getItems().add(item);
         }
 
@@ -755,6 +758,70 @@ public class TableOrderServiceImpl implements TableOrderService {
             case PREPARING -> "preparación";
             case READY -> "listo";
         };
+    }
+
+    // ---------- Admin: órdenes en punto físico ----------
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<com.example.demo.dto.TableOrderDTOs.AdminTableOrderDTO> adminOrders(LocalDate from, LocalDate to,
+            Integer productId, Integer orderId, Integer waiterId, Integer tableId) {
+        if (from != null && to != null && from.isAfter(to)) {
+            throw ApiException.badRequest("La fecha inicial no puede ser posterior a la final.");
+        }
+        // Sin fechas = todo; "hasta" incluye el día completo
+        LocalDateTime start = from == null ? LocalDateTime.of(2000, 1, 1, 0, 0) : from.atStartOfDay();
+        LocalDateTime end = to == null ? LocalDateTime.of(3000, 1, 1, 0, 0) : to.plusDays(1).atStartOfDay();
+
+        return orders.findForAdmin(start, end).stream()
+                .filter(o -> orderId == null || o.getId().equals(orderId))
+                .filter(o -> waiterId == null || o.getWaiter().getId().equals(waiterId))
+                .filter(o -> tableId == null || o.getTable().getId().equals(tableId))
+                .filter(o -> productId == null || o.getItems().stream()
+                        .anyMatch(i -> i.getProduct().getId().equals(productId)))
+                .map(this::toAdminDTO)
+                .toList();
+    }
+
+    private com.example.demo.dto.TableOrderDTOs.AdminTableOrderDTO toAdminDTO(TableOrder o) {
+        Waiter w = o.getWaiter();
+        List<com.example.demo.dto.TableOrderDTOs.AdminTableOrderItemDTO> items = o.getItems().stream()
+                .map(i -> {
+                    Product p = i.getProduct();
+                    // Pedidos creados antes de guardar el precio: se usa el de la carta
+                    double unit = i.getUnitPrice() != null ? i.getUnitPrice()
+                            : (p.getPrice() == null ? 0 : p.getPrice());
+                    double extras = i.getAddOnsPrice() != null ? i.getAddOnsPrice()
+                            : i.getAddOns().stream().mapToDouble(a -> a.getPrice() == null ? 0 : a.getPrice()).sum();
+                    return new com.example.demo.dto.TableOrderDTOs.AdminTableOrderItemDTO(
+                            i.getId(),
+                            p.getId(),
+                            p.getName(),
+                            p.getCategory() == null ? null : p.getCategory().getName(),
+                            i.getQuantity(),
+                            unit,
+                            i.getAddOns().stream().map(AddOn::getName).toList(),
+                            extras,
+                            (unit + extras) * i.getQuantity(),
+                            i.getNotes(),
+                            i.getStatus());
+                })
+                .toList();
+        return new com.example.demo.dto.TableOrderDTOs.AdminTableOrderDTO(
+                o.getId(),
+                o.getTable().getId(),
+                o.getTable().getFloor(),
+                w.getId(),
+                fullName(w),
+                o.getStartTime(),
+                o.getEndTime(),
+                o.getStatus(),
+                o.isAwaitingPayment(),
+                o.getPaymentMethod(),
+                o.getPaidAt(),
+                items.stream().mapToInt(com.example.demo.dto.TableOrderDTOs.AdminTableOrderItemDTO::quantity).sum(),
+                items.stream().mapToDouble(com.example.demo.dto.TableOrderDTOs.AdminTableOrderItemDTO::subtotal).sum(),
+                items);
     }
 
     private TableOrderDTO toDTO(TableOrder o) {
