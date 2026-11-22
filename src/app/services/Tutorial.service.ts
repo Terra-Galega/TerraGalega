@@ -241,8 +241,15 @@ export class TutorialService {
                 align: step.align,
                 showButtons: buttons,
                 nextBtnText: step.nextBtnText ? this.language.t(step.nextBtnText) : undefined,
-                onPopoverRender: ({ previousButton }) => {
+                onPopoverRender: ({ previousButton, title }) => {
                     if (this.previousStep(index) === null) previousButton.style.display = 'none';
+                    // Galleguito acompaña cada indicación dentro del globo.
+                    const guide = document.createElement('img');
+                    guide.src = '/images/galleguito.svg';
+                    guide.alt = '';
+                    guide.setAttribute('aria-hidden', 'true');
+                    guide.className = 'terra-tour-guide';
+                    title.prepend(guide);
                 },
                 // "Siguiente" y "Atrás" pasan por el servicio (no por driver.js) para
                 // esperar a que cargue la página y saltar los pasos opcionales que no existen
@@ -480,6 +487,10 @@ export class TutorialService {
         switch (name) {
             case 'order':
                 return [
+                    {
+                        title: '¡Hola! Soy Galleguito',
+                        description: 'Te voy a acompañar a hacer un pedido. Pulsa "Siguiente" para empezar.',
+                    },
                     // 1) En el home: el cliente debe entrar a la carta
                     {
                         element: '#nav-menu',
@@ -603,6 +614,10 @@ export class TutorialService {
                 ];
             case 'reservation':
                 return [
+                    {
+                        title: '¡Hola! Soy Galleguito',
+                        description: 'Te voy a acompañar a hacer una reserva. Pulsa "Siguiente" para empezar.',
+                    },
                     // En el home: entrar a reservas. Es el único paso de este tramo; al pulsar
                     // queda el flujo armado y la página de reservas lo retoma
                     // (TutorialReservationService), con o sin sesión.
