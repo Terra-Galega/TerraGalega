@@ -207,17 +207,21 @@ fun ClientScreen(user: LoginResponse, onLogout: () -> Unit, onBack: () -> Unit) 
                 }
             } else {
                 val mapHeight = (LocalConfiguration.current.screenHeightDp * 0.62f).dp
-                TrackingMap(
-                    courier = courier,
-                    destination = destination,
-                    route = route,
-                    restaurant = Restaurant.location,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(mapHeight)
-                        .padding(horizontal = 12.dp, vertical = 12.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                )
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TrackingMap(
+                        courier = courier,
+                        destination = destination,
+                        route = route,
+                        restaurant = Restaurant.location,
+                        modifier = Modifier
+                            .fillMaxWidth(0.88f)
+                            .height(mapHeight)
+                            .clip(RoundedCornerShape(24.dp))
+                    )
+                }
 
                 GlassCard(
                     modifier = Modifier

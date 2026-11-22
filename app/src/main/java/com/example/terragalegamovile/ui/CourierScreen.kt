@@ -488,16 +488,18 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                         // Mapa: restaurante, tu posición, destino y ruta
                         // Mapa: restaurante, tu posición, destino y ruta
                         val mapHeight = (LocalConfiguration.current.screenHeightDp * 0.62f).dp
-                        TrackingMap(
-                            courier = courierPos,
-                            destination = destination,
-                            route = shownRoute,
-                            restaurant = Restaurant.location,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(mapHeight)
-                                .clip(RoundedCornerShape(24.dp))
-                        )
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            TrackingMap(
+                                courier = courierPos,
+                                destination = destination,
+                                route = shownRoute,
+                                restaurant = Restaurant.location,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.88f)
+                                    .height(mapHeight)
+                                    .clip(RoundedCornerShape(24.dp))
+                            )
+                        }
 
                         Spacer(Modifier.height(16.dp))
 
