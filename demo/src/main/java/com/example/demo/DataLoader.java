@@ -404,7 +404,8 @@ public class DataLoader implements CommandLineRunner {
                 return waiterRepository.save(waiter);
         }
 
-        // Pedido de mesa de ejemplo. Cada plato: {nombre, cantidad, nota (o null), estado}
+        // Pedido de mesa de ejemplo. Cada plato: {nombre, cantidad, nota (o null),
+        // estado}
         private void saveTableOrder(int tableId, Waiter waiter, int minutesAgo, Object[]... dishes) {
                 DiningTable table = diningTableRepository.findById(tableId).orElseThrow();
                 TableOrder order = TableOrder.builder()
@@ -1750,7 +1751,8 @@ public class DataLoader implements CommandLineRunner {
                                 .build());
                 announcementRepository.save(Announcement.builder()
                                 .title("Hazte Premium y recibe cupones")
-                                .description("Ser cliente Premium es una forma de seguir disfrutando de Terra Galega con beneficios pensados para volver. Recibe descuentos exclusivos y envios gratis por un mes, y encuentra nuevas ocasiones para compartir nuestros sabores alrededor de la mesa.")                                .imageUrl("https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80")
+                                .description("Ser cliente Premium es una forma de seguir disfrutando de Terra Galega con beneficios pensados para volver. Recibe descuentos exclusivos y envios gratis por un mes, y encuentra nuevas ocasiones para compartir nuestros sabores alrededor de la mesa.")
+                                .imageUrl("https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80")
                                 .build());
 
                 // Reseñas de demostración: una por cliente (relación 1 a 1). Las opiniones
@@ -1858,9 +1860,12 @@ public class DataLoader implements CommandLineRunner {
                 };
                 // Hace cuántos días escribió cada reseña (en el mismo orden que la lista).
                 // Hay del mes actual, de meses anteriores y de 2025.
-                int[] reviewDaysAgo = { 5, 380, 12, 41, 505, 63, 220, 8, 148, 331, 27, 460, 95, 17, 270, 410, 52, 185,
-                                24, 355, 120, 440, 70, 300, 38, 430, 2, 160, 240, 85, 400, 33, 100, 90, 84, 76, 70, 64,
-                                58, 51, 46, 39, 33, 29, 22, 18, 13, 9 };
+                int[] reviewDaysAgo = new int[reviews.length];
+                for (int i = 0; i < reviews.length; i++) {
+                        reviewDaysAgo[i] = i < 32
+                                        ? 5 + (int) ((i * 211L) % 505) // antiguos: repartidos en 18 meses
+                                        : 115 - (i - 32) * 6; // nuevos: de 115 días hasta 7
+                }
                 if (reviewDaysAgo.length != reviews.length) {
                         throw new IllegalStateException("reviewDaysAgo y reviews deben tener la misma cantidad");
                 }
