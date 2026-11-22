@@ -679,6 +679,48 @@ html[data-theme="dark"] :is(.product-card, .stretch-card):has(.card-link:focus-v
 }
 
 // ======================================================================================
+// CONTRASTE DEL TEXTO GRIS (tema claro)
+// Muchos textos secundarios usan style="color: rgba(44, 44, 44, 0.4)" y parecidos. Sobre el
+// fondo crema eso da 2,2-3,8:1 y no se lee bien; el mínimo para texto es 4,5:1 (WCAG AA).
+// Se suben aquí, con la misma técnica que el tema oscuro (selector del estilo en línea +
+// !important), así el tema oscuro sigue reconociendo los valores originales.
+//   0,30-0,55 -> 0,68 (4,8:1 sobre crema)   texto secundario
+//   0,60-0,65 -> 0,72 (5,3:1)               texto de apoyo un poco más fuerte
+// ======================================================================================
+$light-ink-text: (
+  0.3: 0.68,
+  0.35: 0.68,
+  0.38: 0.68,
+  0.4: 0.68,
+  0.45: 0.68,
+  0.5: 0.68,
+  0.55: 0.68,
+  0.6: 0.72,
+  0.62: 0.72,
+  0.65: 0.72
+);
+
+html:not([data-theme="dark"]) {
+  @each $alpha, $value in $light-ink-text {
+
+    [style^="color: rgba(44, 44, 44, #{$alpha})"],
+    [style*=" color: rgba(44, 44, 44, #{$alpha})"] {
+      color: rgba(44, 44, 44, $value) !important;
+    }
+  }
+}
+
+// Clases de Tailwind equivalentes. :where() deja la especificidad de una sola clase, así
+// hover:text-charcoal sigue ganando al pasar el cursor.
+:where(html:not([data-theme="dark"])) .text-charcoal\/45 {
+  color: rgba(44, 44, 44, 0.68);
+}
+
+:where(html:not([data-theme="dark"])) .text-charcoal\/60 {
+  color: rgba(44, 44, 44, 0.72);
+}
+
+// ======================================================================================
 // TEMA OSCURO
 // ThemeService pone data-theme="dark" en <html> (el switch de "Mi cuenta"). Todo lo de este
 // bloque solo se aplica con ese atributo, así que el tema claro queda exactamente como estaba.

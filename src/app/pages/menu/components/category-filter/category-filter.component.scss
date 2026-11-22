@@ -6,6 +6,8 @@
 }
 
 .category-btn {
+  // Alto mínimo de 44 px para pulsarlas con el dedo
+  min-height: 2.75rem;
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   color: rgba(44, 44, 44, 0.6);

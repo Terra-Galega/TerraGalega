@@ -7,7 +7,7 @@ import { ChatService } from '../../services/chat.service';
 import { ToastService } from '../../services/toast.service';
 import { ChatBubble, ChatMessage } from '../../models/chat';
 import { LanguageService } from '../../services/language.service';
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 // Máximo de mensajes que se guardan en sessionStorage
 const MAX_STORED = 40;

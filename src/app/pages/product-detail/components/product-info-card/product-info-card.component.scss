@@ -7,3 +7,132 @@
     0 4px 24px rgba(44, 44, 44, 0.07),
     0 1px 4px rgba(44, 44, 44, 0.04);
 }
+/* Bloque de compra en su sitio normal (debajo de los adicionales) */
+.purchase-block {
+  margin-top: 0.5rem;
+}
+
+// PÍLDORA DE COMPRA FLOTANTE: DESACTIVADA (comentada).
+// Todavía no convence cómo se comporta; se deja comentada hasta tener una idea mejor.
+// Mientras tanto la cantidad, el total y "Añadir al carrito" están solo en su sitio normal,
+// debajo de los adicionales.
+//
+// /* Píldora de compra con efecto vidrio (mismo material que la barra de navegación).
+   // Flota abajo, centrada; solo existe mientras el bloque real está fuera de la pantalla. */
+// .buy-pill {
+  // position: fixed;
+  // left: 50%;
+  // bottom: calc(1rem + env(safe-area-inset-bottom));
+  // z-index: 40;
+  // display: flex;
+  // align-items: center;
+  // gap: 0.5rem;
+  // width: min(460px, calc(100vw - 2rem));
+  // padding: 0.4rem 0.4rem 0.4rem 0.6rem;
+  // border-radius: 9999px;
+  // transform: translateX(-50%);
+//
+  // background-color: rgba(206, 206, 206, 0.505);
+  // backdrop-filter: blur(35px) saturate(180%);
+  // -webkit-backdrop-filter: blur(35px) saturate(180%);
+  // border-top: 1px solid rgba(255, 255, 255, 0.9);
+  // border-left: 1px solid rgba(255, 255, 255, 0.4);
+  // border-right: 1px solid rgba(255, 255, 255, 0.4);
+  // border-bottom: 1px solid rgba(75, 75, 75, 0.12);
+  // box-shadow:
+    // 0 0 0 1px rgba(44, 44, 44, 0.05),
+    // 0 10px 30px rgba(44, 44, 44, 0.18);
+//
+  // animation: buy-pill-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+// }
+//
+// .buy-pill__cta {
+  // flex: 1;
+  // min-width: 0;
+// }
+//
+// .buy-pill__price {
+  // white-space: nowrap;
+  // opacity: 0.9;
+// }
+//
+// .buy-pill__label {
+  // white-space: nowrap;
+// }
+//
+// .buy-pill__label--short {
+  // display: none;
+// }
+//
+// @media (max-width: 479px) {
+  // .buy-pill__label--long {
+    // display: none;
+  // }
+//
+  // .buy-pill__label--short {
+    // display: inline;
+  // }
+// }
+//
+// @keyframes buy-pill-in {
+  // from {
+    // opacity: 0;
+    // transform: translate(-50%, 16px);
+  // }
+//
+  // to {
+    // opacity: 1;
+    // transform: translate(-50%, 0);
+  // }
+// }
+//
+// /* En el celular el botón del chat flota abajo a la derecha: la píldora se alinea a la
+   // izquierda y le deja ese espacio. */
+// @media (max-width: 767px) {
+  // .buy-pill {
+    // left: 1rem;
+    // right: 5.25rem;
+    // width: auto;
+    // transform: none;
+    // animation-name: buy-pill-in-mobile;
+  // }
+//
+  // @keyframes buy-pill-in-mobile {
+    // from {
+      // opacity: 0;
+      // transform: translateY(16px);
+    // }
+//
+    // to {
+      // opacity: 1;
+      // transform: translateY(0);
+    // }
+  // }
+// }
+//
+// @media (prefers-reduced-motion: reduce) {
+  // .buy-pill {
+    // animation: none;
+  // }
+// }
+//
+// :host-context(html[data-theme='dark']) .buy-pill {
+  // background-color: rgba(27, 25, 22, 0.72);
+  // border-top-color: rgba(255, 255, 255, 0.12);
+  // border-left-color: rgba(255, 255, 255, 0.06);
+  // border-right-color: rgba(255, 255, 255, 0.06);
+  // border-bottom-color: rgba(0, 0, 0, 0.4);
+  // box-shadow:
+    // 0 0 0 1px rgba(255, 255, 255, 0.05),
+    // 0 10px 30px rgba(0, 0, 0, 0.45);
+// }
+//
+// /* En la píldora el espacio es poco: el botón usa menos relleno lateral y la cantidad
+   // se compacta (los botones − y + siguen midiendo 44 px para pulsarlos con el dedo). */
+// :host ::ng-deep .buy-pill .buy-pill__cta .btn {
+  // padding-inline: 1rem;
+// }
+//
+// :host ::ng-deep .buy-pill app-quantity-selector .w-12 {
+  // width: 1.75rem;
+// }

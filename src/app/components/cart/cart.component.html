@@ -122,9 +122,16 @@
                     ${{ unitPrice(item) | number: "1.0-0" }}
                   </p>
 
-                  <p class="text-xs" style="color: rgba(44, 44, 44, 0.4)">
-                    × {{ item.quantity }}
-                  </p>
+                  <!-- Cantidad de la línea: se puede cambiar aquí mismo (para quitarla, la papelera) -->
+                  <div class="cart-qty" role="group"
+                    [attr.aria-label]="('merge.dish_quantity' | t) + ': ' + item.product.name">
+                    <button type="button" class="cart-qty__btn" [disabled]="item.quantity <= 1"
+                      [attr.aria-label]="'merge.remove_dish' | t" (click)="changeQuantity(item, -1)">−</button>
+                    <span class="cart-qty__value" aria-live="polite"
+                      ><span class="sr-only">{{ 'merge.quantity' | t }}: </span>{{ item.quantity }}</span>
+                    <button type="button" class="cart-qty__btn" [disabled]="item.quantity >= maxQuantity"
+                      [attr.aria-label]="'merge.add_dish' | t" (click)="changeQuantity(item, 1)">+</button>
+                  </div>
                 </div>
 
                 <!-- Quitar la línea del carrito -->
@@ -157,11 +164,28 @@
       <!-- Footer: total y botón de confirmar, solo si hay productos -->
       @if (cartItems.length > 0) {
         <div class="p-6 border-t" style="border-color: rgba(44, 44, 44, 0.1)">
+          <!-- Subtotal y domicilio desde el carrito: el total ya es el que se paga -->
+          <dl class="space-y-1.5 px-4 pt-2 text-sm" style="color: rgba(44, 44, 44, 0.7)">
+            <div class="flex justify-between">
+              <dt>{{ 'checkout.order_summary.order_summary.subtotal' | t }}</dt>
+              <dd id="cart-subtotal">${{ total | number }}</dd>
+            </div>
+            <div class="flex justify-between">
+              @if (delivery.free()) {
+                <dt>{{ 'checkout.order_summary.order_summary.domicilio_gratis' | t }}</dt>
+                <dd id="cart-delivery" style="color: #4a6b3a">$0</dd>
+              } @else {
+                <dt>{{ 'checkout.order_summary.order_summary.domicilio' | t }}</dt>
+                <dd id="cart-delivery">${{ delivery.fee | number }}</dd>
+              }
+            </div>
+          </dl>
+
           <div class="flex justify-between items-center mb-4 rounded-full p-4">
             <span class="font-medium text-charcoal"> {{ 'cart.cart.total_del_pedido' | t }} </span>
 
             <span id="cart-total" class="font-bold text-xl" style="color: #b2571f">
-              ${{ total | number }}
+              ${{ grandTotal | number }}
             </span>
           </div>
 
@@ -170,14 +194,14 @@
             id="btn-cart-checkout" class="w-full py-3 text-white font-medium rounded-full btn-terra"
             (click)="goToCheckout()"
           >
-            {{ 'cart.cart.confirmar_pedido' | t }}
+            {{ 'cart.cart.ir_a_pagar' | t }}
           </button>
 
           <p
             class="text-center text-xs mt-3"
             style="color: rgba(44, 44, 44, 0.4)"
           >
-            {{ 'cart.cart.al_confirmar_el_pedido_te_llevaremos_a_la_pasarela_de_p' | t }}
+            {{ 'cart.cart.en_el_siguiente_paso_eliges_la_direccion_y_como_pagar' | t }}
           </p>
         </div>
       }

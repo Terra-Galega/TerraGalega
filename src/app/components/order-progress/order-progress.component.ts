@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Component, Input } from '@angular/core';
 import { OrderStatus, orderStatusLabel } from '../../models/order';
 

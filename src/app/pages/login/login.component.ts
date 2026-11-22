@@ -11,7 +11,7 @@ import { LoginHeaderComponent } from './components/login-header/login-header.com
 import { LoginFormsComponent } from './components/login-forms/login-forms.component';
 import { GoogleButtonComponent } from '../../components/google-button/google-button.component';
 // import { ButtonComponent } from '../../components/button/button.component';
-// import { TranslatePipe } from '../../services/translate.pipe';
+// import { TranslatePipe } from '../../pipes/translate.pipe';
 import { ToastService } from '../../services/toast.service';
 import { TutorialAuthService } from '../../services/tutorial-auth.service';
 import { TutorialService } from '../../services/Tutorial.service';

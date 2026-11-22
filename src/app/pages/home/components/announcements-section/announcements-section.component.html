@@ -30,9 +30,14 @@
             <span class="festival-signature">Terra Galega</span>
             <span class="festival-caption">{{ 'celebrations.ui.sharedDate' | t }}</span>
           </div>
-          } @else {
+          } @else if (imageOk(announcement.imageUrl)) {
           <img [src]="announcement.imageUrl" [alt]="announcement.title" [attr.loading]="i === 0 ? 'eager' : 'lazy'"
-            class="w-full aspect-[16/10] md:aspect-[4/3] object-cover" />
+            class="w-full aspect-[16/10] md:aspect-[4/3] object-cover" (error)="onImageError(announcement.imageUrl)" />
+          } @else {
+          <!-- La imagen no cargó (enlace roto o bloqueado): recuadro de marca en vez de una tarjeta vacía -->
+          <div class="announcement-fallback w-full aspect-[16/10] md:aspect-[4/3]" aria-hidden="true">
+            <img src="images/logo-octopus.svg" alt="" class="announcement-fallback__logo" />
+          </div>
           }
 
           <div class="flex flex-col justify-center px-7 py-8 md:px-12 md:py-12 lg:px-16">

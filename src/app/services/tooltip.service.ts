@@ -90,6 +90,13 @@ export class TooltipService {
       return;
     }
 
+    // Si además tiene title, el navegador mostraría su tooltip gris encima del nuestro:
+    // se guarda aparte mientras dure y se devuelve al ocultar.
+    if (el.hasAttribute('title')) {
+      el.setAttribute('data-native-title', el.getAttribute('title') ?? '');
+      el.removeAttribute('title');
+    }
+
     // Guarda el elemento activo y programa mostrar el tooltip tras el retardo configurado.
     this.current = el;
     this.timer = setTimeout(() => this.show(el), TooltipService.DELAY_MS);
@@ -134,7 +141,10 @@ export class TooltipService {
       // No intercepta clics ni eventos del ratón.
       'pointer-events:none',
       // Apariencia: tamaño máximo, espaciado, bordes redondeados y colores.
-      'max-width:240px',
+      // Los textos largos ("Añadir Patatas Bravas al carrito sin adicionales") pasan a
+      // dos líneas en vez de salirse de la caja; nunca más ancho que la pantalla.
+      'width:max-content',
+      'max-width:min(260px, calc(100vw - 16px))',
       'padding:6px 10px',
       'border-radius:8px',
       'background:#2c2c2c',
@@ -142,7 +152,10 @@ export class TooltipService {
       'font-size:12px',
       'font-weight:500',
       'line-height:1.3',
-      'white-space:nowrap',
+      'white-space:normal',
+      'overflow-wrap:break-word',
+      'text-align:center',
+      'text-wrap:balance',
       'box-shadow:0 4px 14px rgba(0,0,0,0.25)',
       // Empieza transparente y se vuelve visible con una transición suave.
       'opacity:0',
@@ -151,6 +164,20 @@ export class TooltipService {
 
     // Se añade al DOM para poder conocer su tamaño real (offsetWidth/offsetHeight).
     document.body.appendChild(tip);
+
+    // Si el texto pasó a dos líneas, CSS deja la caja con el ancho máximo aunque las
+    // líneas sean más cortas (sobra espacio a los lados). Se mide la línea más larga y
+    // la caja se ajusta a ella, para que quede pegada al texto.
+    const text = tip.firstChild;
+    if (text) {
+      const range = document.createRange();
+      range.selectNodeContents(text);
+      const widest = Math.max(...Array.from(range.getClientRects(), (r) => r.width));
+      if (widest > 0 && widest + 20 < tip.offsetWidth) {
+        // 20 px = relleno izquierdo + derecho (10 + 10)
+        tip.style.width = `${Math.ceil(widest) + 20}px`;
+      }
+    }
 
     // Posición y tamaño del elemento objetivo respecto a la ventana.
     const rect = el.getBoundingClientRect();
@@ -191,6 +218,12 @@ export class TooltipService {
     // Elimina el tooltip del DOM (si existe) y limpia las referencias.
     this.tip?.remove();
     this.tip = null;
+
+    // Devuelve el title que se guardó para que no saliera el tooltip del navegador
+    if (this.current?.hasAttribute('data-native-title')) {
+      this.current.setAttribute('title', this.current.getAttribute('data-native-title') ?? '');
+      this.current.removeAttribute('data-native-title');
+    }
     this.current = null;
   }
 }

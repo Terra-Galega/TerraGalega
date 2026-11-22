@@ -2,7 +2,7 @@ import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { effect, Injectable, inject, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
-import { LanguageService } from './language.service';
+import { LanguageService } from '../services/language.service';
 
 const APP_NAME = 'Terra Galega';
 

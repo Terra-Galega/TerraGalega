@@ -36,6 +36,7 @@
       <aside class="md:col-span-2 md:sticky md:top-28">
         <!-- El resumen proyecta aquí dentro (ng-content) los botones propios de esta página -->
         <app-order-summary id="checkout-summary" class="block" [items]="items" [total]="total" [unitPrice]="unitPrice"
+          [deliveryFee]="delivery.fee" [freeDelivery]="delivery.free()"
           [discount]="discount" [couponCode]="coupon?.code ?? ''">
           <div class="mt-6 flex flex-col items-center gap-4">
             <app-button id="btn-continue" type="submit" size="lg" [fullWidth]="true">

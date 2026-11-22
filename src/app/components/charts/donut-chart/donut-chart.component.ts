@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../services/translate.pipe';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { DecimalPipe } from '@angular/common';
 import { Component, Input, OnChanges, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartEvent } from 'chart.js';

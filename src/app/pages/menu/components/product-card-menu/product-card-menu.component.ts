@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -44,7 +44,10 @@ export class ProductCardMenuComponent {
         }
 
         this.cartService.addItem(currentProduct, 1, []);
-        this.toast.show('Añadido al carrito', `1× ${currentProduct.name}`);
+        this.toast.show('Añadido al carrito', `1× ${currentProduct.name}`, 5000, 'success', {
+          label: 'Ver carrito',
+          run: () => this.cartService.requestOpen(),
+        });
       },
       error: (error) => {
         this.verifying = false;

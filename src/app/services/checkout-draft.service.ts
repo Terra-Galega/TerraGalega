@@ -23,6 +23,8 @@ export interface CheckoutDraft {
 
 // Guarda en memoria el borrador entre el paso 1 y el paso 2. No usa
 // localStorage: si se recarga la página, el cliente vuelve al paso 1.
+const LAST_METHOD_KEY = 'terra.lastPaymentMethod';
+
 @Injectable({ providedIn: 'root' })
 export class CheckoutDraftService {
 
@@ -47,6 +49,27 @@ export class CheckoutDraftService {
   }
 
   // Borra el borrador (por ejemplo, al confirmar el pedido)
+  // Último método de pago que usó el cliente en este navegador. Se preselecciona en el
+  // paso 1 (un clic y un error de formulario menos). Si nunca pagó aquí, la tarjeta.
+  // localStorage: es solo una comodidad de este navegador; si falla, se usa la tarjeta.
+  get lastMethod(): 'cash' | 'card' {
+    try {
+      const saved = localStorage.getItem(LAST_METHOD_KEY);
+      return saved === 'cash' || saved === 'card' ? saved : 'card';
+    } catch {
+      return 'card';
+    }
+  }
+
+  rememberMethod(method: 'cash' | 'card' | ''): void {
+    if (!method) return;
+    try {
+      localStorage.setItem(LAST_METHOD_KEY, method);
+    } catch {
+      // Sin almacenamiento solo se pierde la preselección
+    }
+  }
+
   reset(): void {
     this.draft = this.emptyDraft();
   }

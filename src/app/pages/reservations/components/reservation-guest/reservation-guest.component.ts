@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../../../services/translate.pipe';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { Component } from '@angular/core';
 import { OrderStepsComponent } from '../../../../components/order-steps/order-steps.component';
 import { ReadyToOrderComponent } from '../../../../components/ready-to-order/ready-to-order.component';

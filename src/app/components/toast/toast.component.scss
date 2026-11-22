@@ -43,3 +43,16 @@
     animation: none;
   }
 }
+
+/* Botón de acción del aviso ("Ver carrito") */
+.toast-action {
+  transition: background-color 0.2s;
+}
+
+.toast-action:hover {
+  background-color: rgba(178, 87, 31, 0.08);
+}
+
+:host-context(html[data-theme='dark']) .toast-action:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}

@@ -1,4 +1,4 @@
-import { TranslatePipe } from '../../services/translate.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { DatePipe } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
 import { ClientCoupon, isCouponActive } from '../../models/coupon';
