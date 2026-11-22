@@ -1,0 +1,215 @@
+// Colores del panel de reservas del operador (claro). Los temas solo cambian estas variables.
+:host {
+  display: block;
+  --ink: #2c2c2c;
+  --surface: #fdfbf7;
+  --line: #dcd5c9;
+  --muted: #625b51;
+  --field: #ffffff;
+  --accent: #b2571f;
+  --tint: rgba(44, 44, 44, 0.05);
+  --shadow: 0 8px 24px rgb(44 44 44 / 0.045);
+  --ok: #556141;
+  --ok-bg: rgba(85, 97, 65, 0.12);
+  --wait: #8a5a00;
+  --wait-bg: rgba(217, 154, 33, 0.18);
+  --seated: #1f5f8b;
+  --seated-bg: rgba(31, 95, 139, 0.12);
+  --danger: #8a2222;
+  --danger-bg: rgba(138, 34, 34, 0.1);
+}
+
+// Tema oscuro (misma paleta que styles.scss: --t-surface, --t-surface-2, --t-terra...)
+:host-context(html[data-theme="dark"]) {
+  --ink: #f5f2eb;
+  --surface: #262320;
+  --line: rgba(245, 242, 235, 0.14);
+  --muted: rgba(245, 242, 235, 0.66);
+  --field: #2f2b26;
+  --accent: #e58e57;
+  --tint: rgba(245, 242, 235, 0.06);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --ok: #a3b987;
+  --ok-bg: rgba(163, 185, 135, 0.16);
+  --wait: #e0b250;
+  --wait-bg: rgba(224, 178, 80, 0.16);
+  --seated: #8cc3ea;
+  --seated-bg: rgba(140, 195, 234, 0.16);
+  --danger: #e88a8a;
+  --danger-bg: rgba(232, 138, 138, 0.15);
+}
+
+// Alto contraste oscuro ("Dark High Contrast"): negro, blanco y bordes celestes
+:host-context(html[data-contrast="high"][data-theme="dark"]) {
+  --ink: #ffffff;
+  --surface: #000000;
+  --line: #6fc3df;
+  --muted: #ffffff;
+  --field: #000000;
+  --accent: #ffd24d;
+  --tint: #000000;
+  --shadow: none;
+}
+
+:host-context(html[data-contrast="high"]) .res-status,
+:host-context(html[data-contrast="high"]) .panel-stat,
+:host-context(html[data-contrast="high"]) .reservation-item {
+  border: 1px solid var(--line);
+}
+
+// ---------- Distribución: plano a la izquierda, panel a la derecha ----------
+.reservations-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+// ---------- Panel de la mesa ----------
+.table-panel {
+  position: sticky;
+  top: 6rem;
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background-color: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  // Al bajar hasta el panel en móvil, que no quede debajo de la barra superior
+  scroll-margin-top: 5.5rem;
+}
+
+.panel-eyebrow,
+.panel-section-title {
+  color: var(--muted);
+}
+
+.panel-title {
+  color: var(--ink);
+}
+
+.panel-muted {
+  color: var(--muted);
+}
+
+.panel-close {
+  color: var(--ink);
+  transition: background-color 0.15s ease;
+}
+
+.panel-close:hover {
+  background-color: var(--tint);
+}
+
+.panel-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.panel-stat {
+  background-color: var(--tint);
+}
+
+.panel-stat dt {
+  color: var(--muted);
+}
+
+// Cada reserva de la mesa
+.reservation-item {
+  border: 1px solid var(--line);
+  background-color: var(--field);
+}
+
+.reservation-time {
+  color: var(--accent);
+}
+
+.reservation-item a {
+  color: inherit;
+}
+
+.reservation-item a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+// Estado de la reserva (lleva texto: el color no es el único indicador)
+.res-status {
+  white-space: nowrap;
+}
+
+.res-status--upcoming {
+  color: var(--ok);
+  background-color: var(--ok-bg);
+}
+
+.res-status--waiting {
+  color: var(--wait);
+  background-color: var(--wait-bg);
+}
+
+.res-status--seated {
+  color: var(--seated);
+  background-color: var(--seated-bg);
+}
+
+.res-status--no-show {
+  color: var(--danger);
+  background-color: var(--danger-bg);
+}
+
+// ============================================================
+// RESPONSIVE
+// Mismos cortes que la página de reservas (960 / 650 / 520). Se suma 1180 px porque aquí la
+// navegación lateral del operador ocupa 14rem: por debajo de ese ancho el plano y el panel
+// ya no caben lado a lado sin que el plano quede demasiado estrecho.
+// ============================================================
+
+// Tablet y portátil pequeño: el panel pasa debajo del plano y deja de ser fijo
+@media (max-width: 1180px) {
+  .reservations-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .table-panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+// Móvil
+@media (max-width: 650px) {
+  .table-panel {
+    padding: 1rem;
+  }
+
+  .reservation-item {
+    padding: 0.85rem;
+  }
+
+  .reservation-time {
+    font-size: 1.125rem;
+  }
+}
+
+// Móvil pequeño: el estado baja debajo de la hora si no cabe al lado
+@media (max-width: 520px) {
+  .reservation-head {
+    flex-wrap: wrap;
+  }
+
+  .res-status {
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-close {
+    transition: none;
+  }
+}

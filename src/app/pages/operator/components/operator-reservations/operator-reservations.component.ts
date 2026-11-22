@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { EMPTY, catchError, exhaustMap, filter, timer } from 'rxjs';
@@ -20,15 +20,17 @@ import {
 // Cada cuánto se vuelve a pedir la lista (milisegundos)
 const REFRESH_MS = 10_000;
 
-// Texto y colores de cada estado
-const STATUS_STYLE: Record<
-  OperatorReservationStatus,
-  { label: string; color: string; bg: string }
-> = {
-  UPCOMING: { label: 'Próxima', color: '#556141', bg: 'rgba(85, 97, 65, 0.12)' },
-  WAITING: { label: 'Esperando al cliente', color: '#8a5a00', bg: 'rgba(217, 154, 33, 0.18)' },
-  SEATED: { label: 'En la mesa', color: '#1f5f8b', bg: 'rgba(31, 95, 139, 0.12)' },
-  NO_SHOW: { label: 'No llegó', color: '#8a2222', bg: 'rgba(138, 34, 34, 0.1)' },
+// Ancho por debajo del cual el panel queda debajo del plano (igual que en el .scss)
+const STACKED_QUERY = '(max-width: 1180px)';
+
+type StatusTone = 'upcoming' | 'waiting' | 'seated' | 'no-show';
+
+// Texto de cada estado y su tono (los colores están en el .scss, con su versión oscura)
+const STATUS_STYLE: Record<OperatorReservationStatus, { label: string; tone: StatusTone }> = {
+  UPCOMING: { label: 'Próxima', tone: 'upcoming' },
+  WAITING: { label: 'Esperando al cliente', tone: 'waiting' },
+  SEATED: { label: 'En la mesa', tone: 'seated' },
+  NO_SHOW: { label: 'No llegó', tone: 'no-show' },
 };
 
 // Todas las mesas del plano, para buscarlas por número
@@ -40,17 +42,20 @@ function normalize(text: string): string {
 }
 
 // Panel del operador: plano de mesas con las reservas activas (pagadas y con el turno sin
-// terminar). Al pulsar una mesa se abre, a la derecha, su número y sus reservas con la hora.
-// Arriba del plano se puede buscar por número de mesa o por el nombre de la reserva / cliente.
+// terminar). Al pulsar una mesa se abre, a la derecha (debajo en tablet y móvil), su número y
+// sus reservas con la hora. Arriba del plano se puede buscar por número de mesa o por el nombre
+// de la reserva / cliente.
 @Component({
   selector: 'app-operator-reservations',
   imports: [DatePipe, ReservationMapComponent],
   templateUrl: './operator-reservations.component.html',
+  styleUrl: './operator-reservations.component.scss',
 })
 export class OperatorReservationsComponent {
   private reservationService = inject(ReservationService);
 
   @ViewChild(ReservationMapComponent) private map?: ReservationMapComponent;
+  @ViewChild('tablePanel') private panel?: ElementRef<HTMLElement>;
 
   reservations: OperatorReservation[] = [];
   // Reservas agrupadas por número de mesa
@@ -138,11 +143,26 @@ export class OperatorReservationsComponent {
     this.selectedNumber = this.selectedNumber === number ? null : number;
     if (this.selectedNumber !== null) {
       this.map?.centerOnTable(this.selectedNumber);
+      this.revealPanel();
     }
   }
 
   closePanel() {
     this.selectedNumber = null;
+  }
+
+  // En tablet y móvil el panel queda debajo del plano: se baja hasta él para que el operador
+  // vea el detalle sin tener que buscarlo. Sin animación si el usuario pidió reducir movimiento.
+  private revealPanel() {
+    if (!window.matchMedia(STACKED_QUERY).matches) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Se espera a que Angular pinte el contenido nuevo del panel
+    setTimeout(() =>
+      this.panel?.nativeElement.scrollIntoView({
+        behavior: reduce ? 'auto' : 'smooth',
+        block: 'start',
+      }),
+    );
   }
 
   // Busca por número de mesa, nombre de la reserva o nombre del cliente
