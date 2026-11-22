@@ -2,7 +2,8 @@ import { TranslatePipe } from '../../../services/translate.pipe';
 import { Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription, timer } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { exhaustMap, Subscription, timer } from 'rxjs';
 import { NavbarComponent } from '../../../components/navbar/navbar.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
@@ -66,7 +67,7 @@ export class CheckoutResultComponent implements OnInit {
   busy = false;
 
   private orderId = 0;
-  private canceled = false;
+  private resume = false;
   private polls = 0;
   private poll?: Subscription;
 
@@ -82,7 +83,7 @@ export class CheckoutResultComponent implements OnInit {
 
     const params = this.route.snapshot.queryParamMap;
     this.orderId = Number(params.get('order'));
-    this.canceled = params.get('canceled') === 'true';
+    this.resume = params.get('resume') === 'true' || params.get('canceled') === 'true';
 
     if (!Number.isInteger(this.orderId) || this.orderId <= 0) {
       this.showError('No encontramos el pago que buscas.');
@@ -110,21 +111,31 @@ export class CheckoutResultComponent implements OnInit {
     this.polls = 0;
     this.poll?.unsubscribe();
 
-    this.poll = timer(0, POLL_MS)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
+    this.poll = timer(0, POLL_MS).pipe(
+      exhaustMap(() => this.paymentService.status(this.orderId)),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (payment) => {
         this.polls++;
+        this.apply(payment);
+      },
+      error: (error) => {
+        if (this.resume && error instanceof HttpErrorResponse && [403, 404].includes(error.status)) {
+          this.paymentService.clearPending(this.orderId);
+          this.router.navigate(['/checkout'], { replaceUrl: true });
+          return;
+        }
+        this.showError(getErrorMessage(error, 'No pudimos consultar tu pago.'));
+      },
+    });
+  }
 
-        this.paymentService.status(this.orderId).subscribe({
-          next: (payment) => this.apply(payment),
-          error: (error) => {
-            this.poll?.unsubscribe();
-            this.showError(
-              getErrorMessage(error, 'No pudimos consultar tu pago.'),
-            );
-          },
-        });
-      });
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
+    if (event.persisted && this.payment?.state === 'PENDING') {
+      this.resume = true;
+      this.check();
+    }
   }
 
   private apply(payment: Payment): void {
@@ -132,7 +143,7 @@ export class CheckoutResultComponent implements OnInit {
 
     if (payment.state === 'PENDING') {
       // Pulsó "volver" en Stripe: no tiene sentido seguir esperando
-      if (this.canceled) {
+      if (this.resume && payment.checkoutUrl) {
         this.stop('abandoned');
       } else if (this.polls >= MAX_POLLS) {
         this.stop('waiting');
@@ -144,10 +155,19 @@ export class CheckoutResultComponent implements OnInit {
       this.poll?.unsubscribe();
       this.finish();
     } else if (payment.state === 'EXPIRED') {
+      this.releaseAttempt();
       this.stop('expired');
     } else {
+      this.releaseAttempt();
       this.stop('refunded');
     }
+  }
+
+  private releaseAttempt(): void {
+    if (this.paymentService.pendingOrderId() === this.orderId) {
+      this.draftService.draft = { ...this.draftService.draft, paymentRequestId: '', paymentRequestBody: '' };
+    }
+    this.paymentService.clearPending(this.orderId);
   }
 
   private stop(view: View): void {
@@ -174,11 +194,13 @@ export class CheckoutResultComponent implements OnInit {
         });
     }
 
-    this.paymentService.clearPending();
-    this.cartService.clear();
+    if (this.paymentService.pendingOrderId() === this.orderId) {
+      this.cartService.clear();
+      this.draftService.reset();
+    }
+    this.paymentService.clearPending(this.orderId);
     this.orderService.refresh();
     this.couponService.refresh();
-    this.draftService.reset();
 
     // En vez de saltar a /orders, se queda aquí para mostrar el QR de la factura
     this.view = 'paid';
@@ -200,16 +222,11 @@ export class CheckoutResultComponent implements OnInit {
     if (this.busy) return;
     this.busy = true;
 
-    this.paymentService.cancel(this.orderId).subscribe({
+    this.paymentService.cancelPending(this.orderId).subscribe({
       next: (payment) => {
         this.busy = false;
-        this.paymentService.clearPending();
         this.apply(payment);
-
-        // Si justo se había pagado, apply() ya terminó el pedido
-        if (payment.state === 'EXPIRED') {
-          this.router.navigate(['/checkout'], { replaceUrl: true });
-        }
+        if (payment.state === 'PENDING' && !payment.checkoutUrl) this.check();
       },
       error: (error) => {
         this.busy = false;

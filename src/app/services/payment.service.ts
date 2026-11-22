@@ -1,4 +1,5 @@
 import { API_URL } from '../api-url';
+import { AuthService } from './auth.service';
 import { Injectable, inject } from '@angular/core';
 import { StripeReturnService } from './stripe-return.service';
 import { HttpClient } from '@angular/common/http';
@@ -16,6 +17,7 @@ const PENDING_KEY = 'terra.pendingPayment';
 // escriben en la página de Stripe: nunca pasan por esta app ni por el back.
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
+  private auth = inject(AuthService);
   private apiUrl = `${API_URL}/payments`;
   private stripeReturn = inject(StripeReturnService);
 
@@ -32,10 +34,9 @@ export class PaymentService {
     return this.http.get<Payment>(`${this.apiUrl}/${orderId}`);
   }
 
-  // Cancela el pago: si aún no se pagó, cierra la sesión de Stripe;
-  // si ya se pagó y el restaurante no lo confirmó, lo reembolsa.
-  cancel(orderId: number): Observable<Payment> {
-    return this.http.post<Payment>(`${this.apiUrl}/${orderId}/cancel`, {});
+  // El backend comprueba el estado bajo bloqueo antes de cerrar la sesión.
+  cancelPending(orderId: number): Observable<Payment> {
+    return this.http.post<Payment>(`${this.apiUrl}/${orderId}/cancel-pending`, {});
   }
 
   // Lleva al cliente a la página de pago de Stripe
@@ -47,32 +48,58 @@ export class PaymentService {
     }
   }
 
-  // ---- Lo pendiente de hacer al volver de Stripe (sessionStorage) ----
+  private get clientKey(): string | null {
+    const session = this.auth.session;
+    return session?.type === 'client' ? PENDING_KEY + '.' + session.id : null;
+  }
 
   savePending(pending: PendingPayment): void {
+    const key = this.clientKey;
+    if (!key) return;
     try {
-      sessionStorage.setItem(PENDING_KEY, JSON.stringify(pending));
-    } catch {
-      // Sin almacenamiento solo se pierde guardar la dirección en el perfil
-    }
+      // Solo el identificador sobrevive al cierre de la pestaña.
+      localStorage.setItem(key, String(pending.orderId));
+    } catch { /* Se puede recuperar con los datos de esta pestaña. */ }
+    try {
+      sessionStorage.setItem(key, JSON.stringify(pending));
+    } catch { /* La dirección es opcional para confirmar el pago. */ }
+  }
+
+  pendingOrderId(): number | null {
+    const key = this.clientKey;
+    if (!key) return null;
+    try {
+      const id = Number(localStorage.getItem(key));
+      if (Number.isSafeInteger(id) && id > 0) return id;
+    } catch { /* Continuar con el almacenamiento de la pestaña. */ }
+    return this.getPending()?.orderId ?? null;
   }
 
   getPending(orderId?: number): PendingPayment | null {
+    const key = this.clientKey;
+    if (!key) return null;
     try {
-      const raw = sessionStorage.getItem(PENDING_KEY);
-      const pending = raw ? (JSON.parse(raw) as PendingPayment) : null;
-      return pending && Number.isInteger(pending.orderId) && pending.orderId > 0
-        && (orderId === undefined || pending.orderId === orderId) ? pending : null;
+      // PENDING_KEY sin sufijo se utilizaba en versiones anteriores.
+      const raw = sessionStorage.getItem(key) ?? sessionStorage.getItem(PENDING_KEY);
+      const data: PendingPayment | null = raw && JSON.parse(raw);
+      if (!data || !Number.isSafeInteger(data.orderId) || data.orderId <= 0) return null;
+      return orderId === undefined || data.orderId === orderId ? data : null;
     } catch {
       return null;
     }
   }
 
-  clearPending(): void {
+  clearPending(orderId: number): void {
+    const key = this.clientKey;
+    if (!key) return;
     try {
-      sessionStorage.removeItem(PENDING_KEY);
-    } catch {
-      // nada que limpiar
+      if (localStorage.getItem(key) === String(orderId)) localStorage.removeItem(key);
+    } catch { /* El almacenamiento puede estar deshabilitado. */ }
+    for (const sessionKey of [key, PENDING_KEY]) {
+      try {
+        const raw = sessionStorage.getItem(sessionKey);
+        if (raw && JSON.parse(raw)?.orderId === orderId) sessionStorage.removeItem(sessionKey);
+      } catch { /* La otra clave aún puede ser válida. */ }
     }
   }
 

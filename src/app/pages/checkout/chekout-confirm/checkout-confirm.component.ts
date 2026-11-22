@@ -216,6 +216,20 @@ export class CheckoutConfirmComponent implements OnInit {
     if (retry) {
       this.confirm();
     }
+
+    const orderId = this.paymentService.pendingOrderId();
+    if (orderId) {
+      this.openPayment(orderId);
+    } else {
+      this.paying = false;
+      this.serverError = 'Volviste de la pasarela. Puedes consultar de nuevo el mismo intento de pago.';
+    }
+  }
+
+  private openPayment(orderId: number): void {
+    this.router.navigate(['/checkout/result'], {
+      queryParams: { order: orderId, resume: true }, replaceUrl: true,
+    });
   }
 
   // Lo elegido en el paso 1 (se lee siempre del servicio, porque el cupón puede cambiar aquí)
@@ -309,6 +323,11 @@ export class CheckoutConfirmComponent implements OnInit {
       return;
     }
 
+    const pending = this.paymentService.pendingOrderId();
+    if (pending) {
+      this.openPayment(pending);
+      return;
+    }
     this.serverError = '';
 
     const address = this.draft.address;
@@ -385,7 +404,7 @@ export class CheckoutConfirmComponent implements OnInit {
 
   private goToStripe(payment: Payment): void {
     // Ese intento ya se pagó (p. ej. se volvió atrás después de pagar)
-    if (payment.state === 'PAID') {
+    if (payment.state !== 'EXPIRED' && (payment.state !== 'PENDING' || !payment.checkoutUrl)) {
       this.router.navigate(['/checkout/result'], {
         queryParams: { order: payment.orderId },
       });
@@ -393,7 +412,7 @@ export class CheckoutConfirmComponent implements OnInit {
     }
 
     // El intento anterior caducó o se canceló: se prepara uno nuevo
-    if (payment.state !== 'PENDING' || !payment.checkoutUrl) {
+    if (payment.state === 'EXPIRED') {
       this.draftService.draft = {
         ...this.draftService.draft,
         paymentRequestId: '',
@@ -473,7 +492,20 @@ export class CheckoutConfirmComponent implements OnInit {
   }
 
   confirmCancel(): void {
+    if (this.paying) return;
     this.showCancelModal = false;
+    const orderId = this.paymentService.pendingOrderId();
+    if (orderId) {
+      this.paying = true;
+      this.paymentService.cancelPending(orderId).subscribe({
+        next: () => this.openPayment(orderId),
+        error: (error) => {
+          this.paying = false;
+          this.showNotice('No se pudo cancelar la compra', getErrorMessage(error));
+        },
+      });
+      return;
+    }
     this.draftService.reset();
     this.router.navigate(['/menu']);
   }

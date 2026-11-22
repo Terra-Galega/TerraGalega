@@ -1,6 +1,8 @@
 import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PaymentService } from '../../services/payment.service';
+import { getErrorMessage } from '../../utils/http-error';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -49,6 +51,8 @@ import { StripeReturnService } from '../../services/stripe-return.service';
 })
 export class CheckoutComponent implements OnInit {
   // Dependencias inyectadas: formulario, navegación, sesión, carrito, borrador del checkout y direcciones
+  private payments = inject(PaymentService);
+  private cancelingPayment = false;
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private auth = inject(AuthService);
@@ -281,6 +285,27 @@ export class CheckoutComponent implements OnInit {
 
   confirmCancel(): void {
     this.showCancelModal = false;
+    if (this.cancelingPayment) return;
+    const orderId = this.payments.pendingOrderId();
+    if (orderId) {
+      // Otra pestaña pudo abrir la pasarela mientras este formulario seguía abierto.
+      this.cancelingPayment = true;
+      this.payments.cancelPending(orderId).subscribe({
+        next: () => {
+          this.cancelingPayment = false;
+          this.router.navigate(['/checkout/result'], {
+            queryParams: { order: orderId, resume: true }, replaceUrl: true,
+          });
+        },
+        error: (error) => {
+          this.cancelingPayment = false;
+          this.errorTitle = 'No se pudo cancelar la compra';
+          this.errorMessage = getErrorMessage(error);
+          this.showErrorModal = true;
+        },
+      });
+      return;
+    }
     this.draftService.reset();
     this.router.navigate(['/menu']);
   }
