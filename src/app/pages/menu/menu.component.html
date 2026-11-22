@@ -32,7 +32,7 @@
   <!-- Cuadrícula de productos: 1 columna en celular, 2 en pantallas medianas
        y 3 en grandes. Si no hay resultados, muestra un aviso con un botón
        para quitar los filtros. -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+  <div #productsGrid id="menu-products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
     @for (product of filteredProducts; track product.id) {
       <app-product-card-menu [product]="product" />
     } @empty {

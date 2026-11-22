@@ -1,0 +1,54 @@
+// Fila de categorías y filtros de la carta.
+// Se queda fija justo debajo de la barra de navegación al bajar (la carta es larga).
+// El relleno es el mismo fija o no, así no "salta" al pegarse; solo cambia el fondo.
+.menu-filters {
+  position: sticky;
+  // La barra de navegación termina en 68 px (celular) / 82 px (tablet en adelante)
+  top: 76px;
+  z-index: 30;
+  margin-inline: -0.5rem;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  transition:
+    background-color 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+@media (min-width: 768px) {
+  .menu-filters {
+    top: 92px;
+  }
+}
+
+// Fija: el mismo vidrio esmerilado de la barra de navegación
+.menu-filters--stuck {
+  background-color: rgba(206, 206, 206, 0.505);
+  backdrop-filter: blur(35px) saturate(180%);
+  -webkit-backdrop-filter: blur(35px) saturate(180%);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  border-left-color: rgba(255, 255, 255, 0.4);
+  border-right-color: rgba(255, 255, 255, 0.4);
+  border-bottom-color: rgba(75, 75, 75, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(44, 44, 44, 0.05),
+    0 8px 24px rgba(44, 44, 44, 0.12);
+}
+
+:host-context(html[data-theme='dark']) .menu-filters--stuck {
+  background-color: rgba(27, 25, 22, 0.72);
+  border-top-color: rgba(255, 255, 255, 0.12);
+  border-left-color: rgba(255, 255, 255, 0.06);
+  border-right-color: rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-filters {
+    transition: none;
+  }
+}

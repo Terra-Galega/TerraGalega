@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ButtonComponent } from '../../../../components/button/button.component';
-import { ThemeSwitchComponent } from '../../../../components/theme-switch/theme-switch.component';
+import { SettingsMenuComponent } from '../../../../components/settings-menu/settings-menu.component';
 
 @Component({
   selector: 'app-operator-topbar',
-  imports: [ButtonComponent, ThemeSwitchComponent],
+  imports: [SettingsMenuComponent],
+  styleUrl: './operator-topbar.component.scss',
   templateUrl: './operator-topbar.component.html',
 })
 export class OperatorTopbarComponent {

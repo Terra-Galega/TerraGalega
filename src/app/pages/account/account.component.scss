@@ -1,0 +1,15 @@
+
+// Cuadro "Tu plan" cuando el cliente es Premium: acento dorado de la paleta (#d99a21)
+.account-plan--premium {
+  border-color: rgba(217, 154, 33, 0.55);
+  background-image: linear-gradient(180deg, rgba(217, 154, 33, 0.12) 0%, rgba(217, 154, 33, 0) 45%);
+}
+
+// Los puntos son un beneficio Premium: el número en dorado oscuro (legible sobre blanco)
+.account-plan--premium .account-points {
+  color: #8a5a00;
+}
+
+:host-context(html[data-theme='dark']) .account-plan--premium .account-points {
+  color: #f2c260;
+}

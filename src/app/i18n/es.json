@@ -1,4 +1,6 @@
 {
+  "order_chat.chat_with": "Chat con {name}",
+  "order_chat.operator_title": "Chat con el cliente",
   "login.reason.checkout": "Inicia sesión o crea una cuenta para terminar tu pedido. Tu carrito se conserva.",
   "login.reason.reservations": "Inicia sesión o crea una cuenta para reservar tu mesa.",
   "login.reason.orders": "Inicia sesión para ver tus pedidos.",

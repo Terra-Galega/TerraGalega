@@ -44,6 +44,8 @@ export class OrderChatComponent implements OnChanges, AfterViewInit, OnDestroy {
   // Pedidos con chat para el selector del encabezado (solo si hay más de uno)
   @Input() orderOptions: number[] = [];
   @Input() docked = false;
+  // Nombre de la otra persona del chat (el operador pasa el del cliente del pedido)
+  @Input() counterpartName = '';
 
   @Output() closed = new EventEmitter<void>();
   // Último mensaje visto (para quitar el puntito de mensajes nuevos)
@@ -105,7 +107,15 @@ export class OrderChatComponent implements OnChanges, AfterViewInit, OnDestroy {
     return text;
   }
 
+  // "Chat con {nombre}": el cliente ve el nombre del operador que le responde (en cuanto
+  // haya escrito); el operador ve el del cliente del pedido.
   title(): string {
+    const other = this.role === 'CLIENT' ? 'OPERATOR' : 'CLIENT';
+    const fromMessages = [...this.messages].reverse()
+      .find((m) => m.senderRole === other && m.senderName?.trim())?.senderName.trim();
+    const name = (this.role === 'OPERATOR' ? this.counterpartName?.trim() : '') || fromMessages;
+
+    if (name) return this.tr('order_chat.chat_with', { name });
     return this.role === 'CLIENT'
       ? this.tr('order_chat.client_modal_title')
       : this.tr('order_chat.operator_title');

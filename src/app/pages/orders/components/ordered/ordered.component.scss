@@ -1,0 +1,12 @@
+
+// Fila "Entrega en" + chat: tono propio (verde salvia de la paleta) para que no se confunda
+// con el fondo de la página
+.order-delivery-row {
+  background-color: rgba(85, 97, 65, 0.09);
+  border-top: 1px solid rgba(85, 97, 65, 0.16);
+}
+
+:host-context(html[data-theme='dark']) .order-delivery-row {
+  background-color: rgba(143, 163, 112, 0.12);
+  border-top-color: rgba(143, 163, 112, 0.22);
+}

@@ -53,6 +53,7 @@ export class MenuComponent {
   // Fila de categorías y filtros: se queda fija bajo la barra de navegación al bajar.
   // Mientras está fija lleva el mismo efecto de vidrio que la barra (menu.component.scss).
   @ViewChild('menuFilters') private menuFilters?: ElementRef<HTMLElement>;
+  @ViewChild('productsGrid') private productsGrid?: ElementRef<HTMLElement>;
   filtersStuck = false;
 
   @HostListener('window:scroll')
@@ -157,6 +158,21 @@ export class MenuComponent {
   selectCategory(category: string): void {
     this.currentCategory = category;
     this.filterMenuItems();
+    this.scrollToProducts();
+  }
+
+  // Si ya se bajó por la carta (la barra de categorías está fija), al cambiar de categoría
+  // o de filtros se vuelve al primer plato: si no, uno queda a mitad de la lista nueva.
+  private scrollToProducts(): void {
+    const filters = this.menuFilters?.nativeElement;
+    const grid = this.productsGrid?.nativeElement;
+    if (!filters || !grid || !this.filtersStuck) return;
+
+    // Los platos empiezan justo debajo de la barra fija (su "top" + su alto + un respiro)
+    const stickyTop = parseFloat(getComputedStyle(filters).top) || 0;
+    const target = grid.getBoundingClientRect().top + window.scrollY - stickyTop - filters.offsetHeight - 16;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: Math.max(0, target), behavior: reduce ? 'auto' : 'smooth' });
   }
 
   // El usuario escribió en el buscador
@@ -169,6 +185,7 @@ export class MenuComponent {
   applyFeatureFilters(features: FeatureKey[]): void {
     this.activeFeatureFilters = features;
     this.filterMenuItems();
+    this.scrollToProducts();
   }
 
   // Quita todos los filtros y vuelve a mostrar toda la carta

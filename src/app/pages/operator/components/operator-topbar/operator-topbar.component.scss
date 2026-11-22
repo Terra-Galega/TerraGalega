@@ -1,0 +1,18 @@
+// "Cerrar sesión" con el mismo estilo que el del panel de administración
+.operator-logout-btn {
+  color: #e07a7a;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.operator-logout-btn:hover {
+  color: #f5f2eb;
+  background-color: rgba(105, 47, 47, 0.35);
+}
+
+.operator-logout-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}

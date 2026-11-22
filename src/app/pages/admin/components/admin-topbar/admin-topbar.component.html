@@ -64,11 +64,9 @@
       </app-button>
     }
 
-    <!-- Paleta para daltonismo (el panel se abre debajo) -->
-    <app-palette-picker variant="bar" class="flex-shrink-0" />
-
-    <!-- Interruptor de tema claro / oscuro, en la esquina derecha -->
-    <app-theme-switch [compact]="true" class="flex-shrink-0" />
+    <!-- Configuración (igual que en la web del cliente, pero sin idioma): tema claro/oscuro
+         y paleta de accesibilidad se despliegan desde este único botón -->
+    <app-settings-menu [showLanguage]="false" class="flex-shrink-0" />
   </div>
 
   <!-- Celular: el buscador ocupa una segunda fila completa. Junto al título, el "+", la

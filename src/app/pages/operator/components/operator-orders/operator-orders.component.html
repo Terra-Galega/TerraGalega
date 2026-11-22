@@ -311,6 +311,7 @@
     <app-order-chat
       [docked]="true"
       [orderId]="chatOrderId"
+      [counterpartName]="chatClientName(chatOrderId)"
       role="OPERATOR"
       (seen)="chatHub.markSeen(chatOrderId, $event)"
       (closed)="closeChat()"

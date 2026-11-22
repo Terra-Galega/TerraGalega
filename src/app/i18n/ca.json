@@ -1,4 +1,6 @@
 {
+  "order_chat.chat_with": "Xat amb {name}",
+  "order_chat.operator_title": "Xat amb el client",
   "login.reason.checkout": "Inicia la sessió o crea un compte per acabar la comanda. La cistella es conserva.",
   "login.reason.reservations": "Inicia la sessió o crea un compte per reservar la teva taula.",
   "login.reason.orders": "Inicia la sessió per veure les teves comandes.",

@@ -32,6 +32,19 @@
   width: 100%;
 }
 
+// En el celular los botones "anchos" no ocupan toda la pantalla: miden según su texto,
+// centrados, con un ancho mínimo cómodo para pulsarlos (y 44 px de alto).
+@media (max-width: 639px) {
+  .btn--full {
+    display: flex;
+    width: auto;
+    min-width: min(100%, 13rem);
+    max-width: 100%;
+    min-height: 44px;
+    margin-inline: auto;
+  }
+}
+
 // Tamaños (equivalen a px-4 py-2 / px-8 py-3.5 / px-10 py-4 de Tailwind)
 .btn--sm {
   padding: 0.5rem 1rem;
@@ -67,6 +80,13 @@
   color: #fff;
   background: linear-gradient(135deg, #b2571f 0%, #8a2222 100%);
   box-shadow: 0 6px 28px rgba(178, 87, 31, 0.3);
+}
+
+// Dorado: el amarillo de la paleta (#d99a21) para lo Premium. Texto oscuro para que se lea.
+.btn--gold {
+  color: #2c2c2c;
+  background: linear-gradient(135deg, #e7b04a 0%, #d99a21 55%, #c4861a 100%);
+  box-shadow: 0 6px 24px rgba(217, 154, 33, 0.32);
 }
 
 // Contorno: borde gris que se rellena con el degradado al pasar el mouse.

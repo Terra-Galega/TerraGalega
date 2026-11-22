@@ -185,76 +185,80 @@
         }
       }
 
-      @if (isClient) {
-        <div class="relative" data-bell>
-          <button [attr.aria-expanded]="bellOpen"
-            id="nav-bell"
-            type="button"
-            class="link-nav relative flex items-center justify-center p-2"
-            [attr.aria-label]="language.t('notifications')"
-            [class.active]="bellOpen"
-            (click)="toggleBell()"
-          >
-            <svg aria-hidden="true" focusable="false"
-              class="w-[22px] h-[22px]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+      <!-- Tercera sección de la derecha: notificaciones, carrito y configuración juntos
+           (cada botón sigue siendo independiente). Así a cada lado del logo hay 3 secciones. -->
+      <div id="nav-icons" class="flex items-center gap-1">
+        @if (isClient) {
+          <div class="relative" data-bell>
+            <button [attr.aria-expanded]="bellOpen"
+              id="nav-bell"
+              type="button"
+              class="link-nav relative flex items-center justify-center p-2"
+              [attr.aria-label]="language.t('notifications')"
+              [class.active]="bellOpen"
+              (click)="toggleBell()"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.8"
-                d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9"
-              />
-            </svg>
-
-            @if (center.unreadCount$ | async; as unread) {
-              <span
-                class="absolute top-0 right-0 bg-terra text-white text-[11px] rounded-full w-5 h-5 flex items-center justify-center font-medium"
+              <svg aria-hidden="true" focusable="false"
+                class="w-[22px] h-[22px]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                {{ unread > 9 ? "9+" : unread }}
-              </span>
-            }
-          </button>
-          <ng-container *ngTemplateOutlet="bellPanel"></ng-container>
-        </div>
-      }
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.8"
+                  d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9"
+                />
+              </svg>
 
-      <!-- CARRITO -->
-      <button
-        id="nav-cart"
-        type="button"
-        class="link-nav relative flex items-center justify-center p-2"
-        [attr.aria-label]="language.t('cart')"
-        [class.active]="cartOpen"
-        (click)="openCart()"
-      >
-        <svg aria-hidden="true" focusable="false"
-          class="w-[22px] h-[22px]"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.8"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-          />
-        </svg>
-
-        @if (cartCount > 0) {
-          <span
-            class="absolute top-0 right-0 bg-terra text-white text-[11px] rounded-full w-5 h-5 flex items-center justify-center font-medium"
-          >
-            {{ cartCount }}
-          </span>
+              @if (center.unreadCount$ | async; as unread) {
+                <span
+                  class="absolute top-0 right-0 bg-terra text-white text-[11px] rounded-full w-5 h-5 flex items-center justify-center font-medium"
+                >
+                  {{ unread > 9 ? "9+" : unread }}
+                </span>
+              }
+            </button>
+            <ng-container *ngTemplateOutlet="bellPanel"></ng-container>
+          </div>
         }
-      </button>
 
-      <!-- CONFIGURACIÓN: a la derecha del carrito -->
-      <app-settings-menu class="link-nav" />
+        <!-- CARRITO -->
+        <button
+          id="nav-cart"
+          type="button"
+          class="link-nav relative flex items-center justify-center p-2"
+          [attr.aria-label]="language.t('cart')"
+          [class.active]="cartOpen"
+          (click)="openCart()"
+        >
+          <svg aria-hidden="true" focusable="false"
+            class="w-[22px] h-[22px]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+            />
+          </svg>
+
+          @if (cartCount > 0) {
+            <span
+              class="absolute top-0 right-0 bg-terra text-white text-[11px] rounded-full w-5 h-5 flex items-center justify-center font-medium"
+            >
+              {{ cartCount }}
+            </span>
+          }
+        </button>
+
+        <!-- CONFIGURACIÓN: a la derecha del carrito -->
+        <app-settings-menu class="link-nav" />
+      </div>
     </div>
   </div>
 
@@ -473,7 +477,7 @@
         } @else {
           <button
             type="button"
-            class="w-full min-h-[44px] text-xs font-medium tracking-widest text-white rounded-full btn-terra text-center cursor-pointer"
+            class="self-center w-auto min-w-[13rem] px-10 min-h-[44px] text-xs font-medium tracking-widest text-white rounded-full btn-terra text-center cursor-pointer"
             (click)="goToLogin()"
           >
             {{ language.t('signIn') }}

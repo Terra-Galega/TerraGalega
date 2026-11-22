@@ -1,10 +1,14 @@
 @for (category of categories; track category) {
   <button [attr.aria-pressed]="selected === category"
     type="button"
-    class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium"
+    class="category-btn whitespace-nowrap px-6 py-2.5 rounded-full text-[13px] font-medium inline-flex items-center gap-1.5"
     [class.active]="selected === category"
     (click)="selectedChange.emit(category)"
   >
+    <!-- "Popular" lleva la misma estrella dorada que la insignia de los platos populares -->
+    @if (category === 'Popular') {
+      <app-star-icon />
+    }
     {{ category }}
   </button>
 }

@@ -25,6 +25,7 @@ import { getErrorMessage } from '../../../../utils/http-error';
     OrderProgressComponent,
     TranslatePipe],
   templateUrl: './ordered.component.html',
+  styleUrl: './ordered.component.scss',
 })
 export class OrderedComponent {
   // Pedidos a mostrar, enviados por la página

@@ -25,8 +25,9 @@ export class ThemeService {
 
   // Cambia al tema indicado y lo recuerda
   set(theme: Theme): void {
+    const changed = theme !== this.theme();
     this.theme.set(theme);
-    this.apply(theme);
+    this.applyWithTransition(theme, changed);
     try {
       localStorage.setItem(THEME_KEY, theme);
     } catch {
@@ -49,6 +50,25 @@ export class ThemeService {
       // Sin acceso al almacenamiento
     }
     return 'light';
+  }
+
+  // Al cambiar de tema, la página se funde suavemente al nuevo (View Transitions). Sin soporte
+  // del navegador o con "reducir movimiento", el cambio es directo como antes.
+  private applyWithTransition(theme: Theme, changed: boolean): void {
+    const doc = typeof document === 'undefined' ? null : document;
+    const start = doc && 'startViewTransition' in doc
+      ? (doc as Document & { startViewTransition(cb: () => void): { finished: Promise<void> } }).startViewTransition.bind(doc)
+      : null;
+    const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!changed || !start || reduce) {
+      this.apply(theme);
+      return;
+    }
+
+    const root = doc!.documentElement;
+    root.classList.add('theme-transition');
+    start(() => this.apply(theme)).finished.finally(() => root.classList.remove('theme-transition'));
   }
 
   // Marca <html>: data-theme activa los estilos y color-scheme hace que los controles del
