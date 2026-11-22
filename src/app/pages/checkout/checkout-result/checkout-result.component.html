@@ -98,9 +98,10 @@
           </p>
           <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <app-button (click)="check()">{{ 'checkout.checkout_result.checkout_result.consultar_de_nuevo' | t }}</app-button>
-            <app-button variant="neutral" (click)="payAgain()"
-              >{{ 'checkout.checkout_result.checkout_result.ir_a_la_pasarela' | t }}</app-button
-            >
+            @if (payment?.checkoutUrl) {
+              <app-button variant="neutral" (click)="payAgain()"
+                >{{ 'checkout.checkout_result.checkout_result.ir_a_la_pasarela' | t }}</app-button>
+            }
           </div>
         }
 

@@ -143,46 +143,18 @@ export class CheckoutConfirmComponent implements OnInit {
       return;
     }
 
-    const pending = this.paymentService.getPending();
-    if (!pending) {
-      // Si no se guardó el pedido, el siguiente clic reutiliza el mismo requestId.
+    const orderId = this.paymentService.pendingOrderId();
+    if (orderId) {
+      this.openPayment(orderId);
+    } else {
       this.paying = false;
-      this.serverError = 'Volviste de la pasarela. Puedes intentar pagar de nuevo.';
-      return;
+      this.serverError = 'Volviste de la pasarela. Puedes consultar de nuevo el mismo intento de pago.';
     }
+  }
 
-    this.serverError = 'Comprobando el estado de tu pago...';
-    this.paymentService.status(pending.orderId).subscribe({
-      next: (payment) => {
-        if (payment.state === 'PAID') {
-          this.router.navigate(['/checkout/result'], {
-            queryParams: { order: payment.orderId },
-          });
-        } else if (payment.state === 'PENDING') {
-          this.paying = false;
-          this.serverError = 'Volviste sin completar el pago. Pulsa "Pagar con tarjeta" para continuar en la misma pasarela.';
-        } else if (payment.state === 'EXPIRED' || payment.state === 'REFUNDED') {
-          this.paymentService.clearPending();
-          this.draftService.draft = {
-            ...this.draftService.draft,
-            paymentRequestId: '',
-            paymentRequestBody: '',
-          };
-          this.paying = false;
-          this.serverError = 'El pago anterior ya no está disponible. Pulsa "Pagar con tarjeta" para crear uno nuevo.';
-        } else {
-          // Un reembolso o un estado intermedio debe resolverse en la página de resultado.
-          this.router.navigate(['/checkout/result'], {
-            queryParams: { order: payment.orderId },
-          });
-        }
-      },
-      error: (error) => {
-        console.error('No se pudo comprobar el pago al volver de Stripe:', error);
-        // El requestId se conserva para que un nuevo clic recupere el mismo pedido.
-        this.paying = false;
-        this.serverError = 'No pudimos comprobar el pago. Vuelve a pulsar "Pagar con tarjeta" para reintentar con el mismo pedido.';
-      },
+  private openPayment(orderId: number): void {
+    this.router.navigate(['/checkout/result'], {
+      queryParams: { order: orderId, resume: true }, replaceUrl: true,
     });
   }
 
@@ -277,6 +249,11 @@ export class CheckoutConfirmComponent implements OnInit {
       return;
     }
 
+    const pending = this.paymentService.pendingOrderId();
+    if (pending) {
+      this.openPayment(pending);
+      return;
+    }
     this.serverError = '';
 
     const address = this.draft.address;
@@ -353,7 +330,7 @@ export class CheckoutConfirmComponent implements OnInit {
 
   private goToStripe(payment: Payment): void {
     // Ese intento ya se pagó (p. ej. se volvió atrás después de pagar)
-    if (payment.state === 'PAID') {
+    if (payment.state !== 'EXPIRED' && (payment.state !== 'PENDING' || !payment.checkoutUrl)) {
       this.router.navigate(['/checkout/result'], {
         queryParams: { order: payment.orderId },
       });
@@ -361,7 +338,7 @@ export class CheckoutConfirmComponent implements OnInit {
     }
 
     // El intento anterior caducó o se canceló: se prepara uno nuevo
-    if (payment.state !== 'PENDING' || !payment.checkoutUrl) {
+    if (payment.state === 'EXPIRED') {
       this.draftService.draft = {
         ...this.draftService.draft,
         paymentRequestId: '',
@@ -441,7 +418,20 @@ export class CheckoutConfirmComponent implements OnInit {
   }
 
   confirmCancel(): void {
+    if (this.paying) return;
     this.showCancelModal = false;
+    const orderId = this.paymentService.pendingOrderId();
+    if (orderId) {
+      this.paying = true;
+      this.paymentService.cancelPending(orderId).subscribe({
+        next: () => this.openPayment(orderId),
+        error: (error) => {
+          this.paying = false;
+          this.showNotice('No se pudo cancelar la compra', getErrorMessage(error));
+        },
+      });
+      return;
+    }
     this.draftService.reset();
     this.router.navigate(['/menu']);
   }

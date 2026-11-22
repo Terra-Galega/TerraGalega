@@ -1,0 +1,150 @@
+@if (celebration(); as holiday) {
+  <svg class="festive-layer" viewBox="0 0 100 100" aria-hidden="true" focusable="false"
+    fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- El filete interior se abre abajo para alojar el motivo de la festividad. -->
+    <circle cx="50" cy="50" r="47" class="outer-rim" />
+    <path class="inner-rim" d="M36 90.55 A42.9 42.9 0 1 1 64 90.55" />
+    <g class="engraving" transform="rotate(180 50 50)">
+      <circle cx="36" cy="9.45" r=".95" />
+      <circle cx="64" cy="9.45" r=".95" />
+      <path d="M46 94.6h1.6m4.8 0H54" stroke="currentColor" stroke-width=".8" />
+      <path d="m50 93 1.5 1.6-1.5 1.6-1.5-1.6Z" />
+    </g>
+
+    <g class="motif" transform="translate(50 89)">
+      @switch (holiday.id) {
+        @case ('christmas') {
+          <!-- Dos hojas de acebo y tres bayas esmaltadas. -->
+          <g fill="#516c58" stroke="#3e5a46" stroke-width=".6">
+            <path d="M-1 2Q-5-5-11-4l1.1 2.4-2.1.4 2.5 1.5-.8 1.3Q-5.1 3.6-1 2Z" />
+            <path d="M1 2Q5-5 11-4L9.9-1.6l2.1.4-2.5 1.5.8 1.3Q5.1 3.6 1 2Z" />
+          </g>
+          <path d="M-9-2-2 1.6M9-2 2 1.6" stroke="#cbb686" stroke-width=".75" />
+          <g fill="#963f45" stroke="#f5f2eb" stroke-width=".55">
+            <circle cx="-1.8" cy="2" r="1.8" /><circle cx="1.6" cy="1.6" r="1.8" />
+            <circle cx=".1" cy="4.5" r="1.8" />
+          </g>
+        }
+        @case ('new-year') {
+          <!-- Estrella principal y dos destellos pequeños. -->
+          <path d="M0-5.6Q.9-.9 4.7.3.9 1.4 0 6.1-.9 1.4-4.7.3-.9-.9 0-5.6Z"
+            fill="#b78a40" stroke="#8a622a" stroke-width=".65" />
+          <path d="m-8.7-2 .8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8Zm17.4-1 .7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7Z"
+            fill="#8b733e" />
+        }
+        @case ('kings') {
+          <path d="m-8.7-2.5 4.8 2.8L0-4.3 3.9.3l4.8-2.8-2.1 6.6H-6.6Z"
+            fill="#ead8ab" stroke="#8a6834" stroke-width="1.1" />
+          <path d="M-6 6H6" stroke="#8a6834" stroke-width="1.1" />
+          <path d="m0-.1 1.5 1.7L0 3.3l-1.5-1.7Z" fill="#85505a" />
+        }
+        @case ('valentine') {
+          <!-- El segundo corazón queda abierto detrás del primero. -->
+          <path d="M1.8-2.5C4.4-6.5 10-3.7 8.3.2 7.4 2.2 4.5 4.7 2.3 6"
+            stroke="#ac8460" stroke-width="1.15" />
+          <path d="M-2.9 5.8C-5.3 4-9.4 1.2-9.4-1.6c0-3.4 4.3-4.7 6.5-1.6C-.7-6 3.5-5 3.5-1.7c0 2.6-3.7 5.6-6.4 7.5Z"
+            fill="#a55463" />
+        }
+        @case ('sant-jordi') {
+          <path d="M-9 4.8Q-2 4.8 3 .1" stroke="#50664c" stroke-width="1.3" />
+          <path d="M-3.2 3.8Q-7.8 3.5-9 .1q4.5-.9 5.8 3.7ZM-.9 2.8q1 2.9 4.4 2.2Q2.7 2.5-.9 2.8Z" fill="#667854" />
+          <path d="M1.3.7C-.9-1.2-.1-3.6 2.2-4c1-2 4-2 5.2-.3 2.5.2 3.5 2.6 1.9 4.5-.4 2.4-3.4 3.2-5.1 2.2C2.9 2.7 1.7 1.9 1.3.7Z"
+            fill="#9e454f" />
+          <path d="M2.4-2q.7 2.7 3.3 2.2 1.8-.6.7-2-.9-.9-2.1-.1" stroke="#ead2bc" stroke-width=".8" />
+        }
+        @case ('colombia') {
+          <!-- Cinta de esmalte tricolor con la curvatura del borde. -->
+          <path d="M-11-.9Q0 2.3 11-.9" stroke="#c49a37" stroke-width="3.2" />
+          <path d="M-10.6 2.1Q0 5.2 10.6 2.1" stroke="#364e74" stroke-width="1.7" />
+          <path d="M-10.1 4.5Q0 7.5 10.1 4.5" stroke="#a34b4b" stroke-width="1.7" />
+        }
+        @case ('halloween') {
+          <path d="M1.6-4.7A5.6 5.6 0 1 0 3.3 4.9 5.9 5.9 0 0 1 1.6-4.7Z"
+            fill="#55485f" stroke="#463a51" stroke-width=".6" />
+          <path d="m7.4-3.7.9 2.3 2.2.8-2.2.8-.9 2.4-.8-2.4-2.2-.8 2.2-.8Z" fill="#b28749" />
+        }
+      }
+    </g>
+    <!-- Accesorios que sobresalen del borde del medallón. -->
+    @switch (holiday.id) {
+      @case ('valentine') {
+        <!-- Un mismo dibujo de plumas reflejado a cada lado del círculo. -->
+        @for (wing of ['left', 'right']; track wing) {
+          <g class="cupid-wing" [attr.transform]="wing === 'right' ? 'translate(100 0) scale(-1 1)' : null">
+            <path d="M5.7 52.8C5.2 44.2.8 40.2-4.8 37.5c-5.8-2.8-10.3-7.6-14.3-13.5
+                     -1.7 7.2 1.4 14.4 6.9 20-2.5-.5-4.6-1.7-6.1-3.1
+                     1.1 6.4 6.3 11.4 11.8 13.5-2.1.4-3.9.1-5.7-.6
+                     3.3 5.2 9.8 7.1 14 4.9 2.4-1.2 3.6-3.4 3.9-5.9Z"
+              fill="#fffbf0" stroke="#a88a65" stroke-width="1.05" />
+            <path d="M2.4 53.8C1 48-1.8 45.4-5.6 44.1c-4.8-1.6-7.6-5.1-9.9-9.2
+                     M1.1 55.6c-3.2-3.7-7.3-3.2-12.6-8.5"
+              stroke="#ceb795" stroke-width="1" />
+            <path d="M3.6 55.2c-1.3-3.3-3.5-3.4-4.9-5.6 2.2.4 2.8-1.4 1.2-3.5
+                     3.1.8 5.2 4.8 3.7 9.1Z" fill="#ebd5c1" />
+          </g>
+        }
+      }
+      @case ('colombia') {
+        <!-- Sombrero vueltiao: ala levantada, vueltas oscuras y pinta de rombos en la copa. -->
+        <g class="headpiece" transform="rotate(-8 50 7)" stroke="#302b26">
+          <path d="M12 1Q21 5 32 2l35-1q12 4 21-3c-.2 7.3-11.6 15.2-35.4 17
+                   C30.6 16.7 16.2 10.5 12 1Z" fill="#f2e2bf" stroke-width="1.1" />
+          <path d="M14 3.2C27.4 13.7 67.4 16 86.8.6" stroke-width="2.1" />
+          <path d="M17.8 7.2C33.6 16.5 68.6 15 83 5.7" stroke-width="1.5" />
+          <path d="M26.5 4C30.6 1.9 31.7-9.9 35.6-15.1c2.8-3.8 7.5-1.2 11.8-.7
+                   5.4.7 9.2-4.6 14.6-2.4 5.3 2.2 6.2 13.3 12.2 20.3
+                   C64.4 8.1 37.8 10 26.5 4Z" fill="#f7ead1" stroke-width="1.25" />
+          <path d="M34.3-11.5q6.9 4.5 15.7 3.2T64-13M32.7-7.9q8.8 4.8 18.6 3.4t14.6-4.8"
+            stroke-width="1.55" />
+          <path d="M30.7-3.5C41.9.8 57-.4 68.5-5l2.7 5.2C57.4 6 40.6 6.4 28.1 2Z"
+            fill="#332e28" stroke="none" />
+          <path d="m34.2.3 2.3-1.2 2 2.1-2.5 1Zm8.5 1.8 2.2-1.5 2.3 1.8-2.3 1.4Zm8.8 0 2.1-1.9 2.4 1.4-2.2 1.9Zm8.7-1.4 1.9-2.1 2.7 1-2.1 2.2Z"
+            fill="#f7ead1" stroke="none" />
+        </g>
+      }
+      @case ('christmas') {
+        <g class="headpiece" transform="translate(7.5 2) scale(.85) rotate(18 50 50)">
+          <path d="M27 8 C31 -17 51 -31 71 -24 C81 -20 88 -10 86 2 C81 -7 75 -9 69 -6 C71 -1 72 3 73 8 Z"
+            fill="#c8102e" stroke="#8f0b20" stroke-width="1" />
+          <path d="M45 -20 C52 -24 61 -25 68 -22" fill="none" stroke="#e0435b" stroke-width="2"
+            stroke-linecap="round" opacity="0.7" />
+          <rect x="20" y="2" width="60" height="13" rx="6.5" fill="#fffdf8" stroke="rgba(44,44,44,0.2)" />
+          <circle cx="86" cy="4" r="7" fill="#fffdf8" stroke="rgba(44,44,44,0.2)" />
+        </g>
+      }
+      @case ('new-year') {
+        <g class="headpiece" transform="translate(7.5 2) scale(.85) rotate(-16 50 50)">
+          <path d="M37 9 L52 -30 L64 9 Z" fill="#d99a21" stroke="#9c6c10" stroke-width="1" stroke-linejoin="round" />
+          <path d="M39.5 2 L46 -2 L52 2 L58 -2 L62.5 1" fill="none" stroke="#556141" stroke-width="2" />
+          <path d="M45.5 -11 L49 -14 L52 -11 L55 -14 L57.3 -11.5" fill="none" stroke="#556141" stroke-width="2" />
+          <ellipse cx="50.5" cy="9" rx="14" ry="3.5" fill="#556141" />
+          <path d="M55 -34 q6 -6 12 -2 M54 -36 q2 -8 9 -9" fill="none" stroke="#d99a21" stroke-width="1.5"
+            stroke-linecap="round" />
+          <circle cx="52" cy="-31" r="5" fill="#f5f2eb" stroke="rgba(44,44,44,0.2)" />
+        </g>
+      }
+      @case ('kings') {
+        <g class="headpiece" transform="translate(7.5 2) scale(.85) rotate(-8 50 50)">
+          <path d="M28 12 L25 -15 L38 -3 L50 -21 L62 -3 L75 -15 L72 12 Z" fill="#e8b93a" stroke="#a67812"
+            stroke-width="1.2" stroke-linejoin="round" />
+          <rect x="27" y="3" width="46" height="10" rx="2" fill="#d19d22" stroke="#a67812" />
+          <circle cx="38" cy="8" r="2.6" fill="#c8102e" />
+          <circle cx="50" cy="8" r="3" fill="#1f5fbf" />
+          <circle cx="62" cy="8" r="2.6" fill="#2f8a4a" />
+          <circle cx="25" cy="-16" r="3" fill="#f6d779" stroke="#a67812" />
+          <circle cx="50" cy="-22" r="3.2" fill="#f6d779" stroke="#a67812" />
+          <circle cx="75" cy="-16" r="3" fill="#f6d779" stroke="#a67812" />
+        </g>
+      }
+      @case ('halloween') {
+        <g class="headpiece" transform="translate(7.5 2) scale(.85) rotate(-14 50 50)">
+          <ellipse cx="50" cy="7" rx="34" ry="7" fill="#2b2140" stroke="#17111f" />
+          <path d="M33 6 C37 -8 44 -22 52 -32 C57 -38 65 -41 72 -37 C65 -35 61 -29 60 -21 C61 -11 64 -2 67 6 Z"
+            fill="#2b2140" stroke="#17111f" stroke-width="1" />
+          <path d="M35 0 L65 0 L64 -6 L36.5 -6 Z" fill="#7c4dbf" />
+          <rect x="46" y="-6.5" width="8" height="7" rx="1" fill="none" stroke="#f2c14e" stroke-width="1.6" />
+        </g>
+      }
+    }
+  </svg>
+}

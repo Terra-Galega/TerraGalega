@@ -1,4 +1,6 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { PaymentService } from './services/payment.service';
+import { CanActivateFn, Router, Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { ErrorComponent } from './pages/error/error.component';
 import {
@@ -10,6 +12,13 @@ import {
   kitchenGuard,
   redirectByRoleGuard,
 } from './guards/role.guards';
+
+const recoverOrderPayment: CanActivateFn = () => {
+  const id = inject(PaymentService).pendingOrderId();
+  return id ? inject(Router).createUrlTree(['/checkout/result'], {
+    queryParams: { order: id, resume: true },
+  }) : true;
+};
 
 // Las rutas del usuario no llevan su id: el back lo identifica por el token,
 // así nadie puede cambiar un número en la URL para ver la cuenta de otra persona.
@@ -140,7 +149,7 @@ export const routes: Routes = [
       import('./pages/checkout/checkout.component').then(
         (m) => m.CheckoutComponent,
       ),
-    canActivate: [clientAreaGuard],
+    canActivate: [clientAreaGuard, recoverOrderPayment],
   },
   {
     // Confirmación del pedido tras finalizar la compra.
@@ -150,7 +159,7 @@ export const routes: Routes = [
       import('./pages/checkout/chekout-confirm/checkout-confirm.component').then(
         (m) => m.CheckoutConfirmComponent,
       ),
-    canActivate: [clientAreaGuard],
+    canActivate: [clientAreaGuard, recoverOrderPayment],
   },
   {
     // Vuelta desde Stripe: /checkout/result?order=ID[&canceled=true]

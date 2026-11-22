@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
+import { CelebrationAvatarDecorationComponent } from '../celebration/celebration-avatar-decoration/celebration-avatar-decoration.component';
 
-// Círculo con las iniciales del usuario
+// Círculo con las iniciales del usuario; en festividades lleva un accesorio decorativo.
 @Component({
   selector: 'app-user-avatar',
+  imports: [CelebrationAvatarDecorationComponent],
   templateUrl: './user-avatar.component.html',
   styleUrl: './user-avatar.component.scss',
 })
@@ -13,10 +15,11 @@ export class UserAvatarComponent {
   @Input() lastName = '';
   // Tamaño del avatar: 'lg' (grande, por defecto) o 'md' (mediano).
   @Input() size: 'md' | 'lg' = 'lg';
+  // false: el avatar nunca se decora, aunque haya festividad.
+  @Input() festive = true;
 
   // Calcula las iniciales en mayúsculas a partir del nombre y el apellido.
   get initials(): string {
-    // Toma la primera letra de cada texto; si no hay valor, usa una cadena vacía.
     const first = this.name?.charAt(0) ?? '';
     const last = this.lastName?.charAt(0) ?? '';
     return (first + last).toUpperCase();
