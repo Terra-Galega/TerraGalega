@@ -35,8 +35,13 @@ public class OrderMessage {
     @Column(nullable = false, length = 100)
     private String senderName;
 
-    @Column(nullable = false, length = 500)
+    // Puede ser null si el mensaje es solo una foto
+    @Column(nullable = true, length = 500)
     private String content;
+
+    // Foto adjunta (id en order_attachments). Null si es solo texto
+    @Column(nullable = true)
+    private Integer attachmentId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
