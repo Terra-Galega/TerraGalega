@@ -305,6 +305,136 @@
   text-align: center;
 }
 
+// ---------- Fotos en el chat ----------
+.oc-bubble--photo {
+  // Deja más espacio a las fotos
+  max-width: min(85%, 16rem);
+}
+
+.oc-photo-link {
+  display: block;
+  margin-bottom: 0.25rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+
+  &:focus-visible {
+    outline: 3px solid var(--oc-focus);
+    outline-offset: 2px;
+  }
+}
+
+.oc-photo {
+  display: block;
+  width: 100%;
+  max-height: 15rem;
+  object-fit: cover;
+  background-color: var(--oc-soft);
+}
+
+.oc-photo-placeholder {
+  display: grid;
+  place-items: center;
+  width: 12rem;
+  max-width: 100%;
+  height: 8rem;
+  margin-bottom: 0.25rem;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background-color: var(--oc-soft);
+  color: var(--oc-muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.oc-photo-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  border: 3px solid var(--oc-line);
+  border-top-color: var(--oc-forest-text);
+  animation: oc-spin 0.8s linear infinite;
+}
+
+@keyframes oc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Foto elegida, pendiente de enviar
+.oc-pending {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--oc-line);
+  background-color: var(--oc-soft);
+}
+
+.oc-pending-img {
+  width: 3.5rem;
+  height: 3.5rem;
+  flex-shrink: 0;
+  border-radius: 0.6rem;
+  object-fit: cover;
+}
+
+.oc-pending-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  color: var(--oc-muted);
+}
+
+.oc-pending-remove {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  color: var(--oc-text);
+  cursor: pointer;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  &:hover {
+    background-color: var(--oc-other-bg);
+  }
+}
+
+// Botón de la cámara: círculo con borde, al lado del campo de texto
+.oc-attach {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  border: 1.5px solid var(--oc-input-border);
+  color: var(--oc-forest-text);
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--oc-other-bg);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .oc-panel {
     animation: none;
@@ -312,6 +442,13 @@
 
   .oc-send,
   .oc-icon-btn {
+    transition: none;
+  }
+  .oc-photo-spinner {
+    animation: none;
+  }
+
+  .oc-attach {
     transition: none;
   }
 }

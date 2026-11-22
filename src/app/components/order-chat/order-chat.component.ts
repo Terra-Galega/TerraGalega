@@ -14,18 +14,19 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Subscription, catchError, filter, of, switchMap, timer } from 'rxjs';
+import { Observable, Subscription, catchError, filter, of, switchMap, timer } from 'rxjs';
 import es from '../../i18n/es.json';
 import { LanguageService } from '../../services/language.service';
 import { OrderChatService } from '../../services/order-chat.service';
 import { ChatRole, OrderChatMessage } from '../../models/order-chat';
+import { CHAT_PHOTO_ACCEPT, ChatPhotoError, prepareChatPhoto } from '../../utils/chat-photo';
 
 const POLL_MS = 3000;
 const ES = es as Record<string, string>;
 
 // Panel flotante del chat con el operador. Mismo tamaño y posición que el de Galleguito.
-// - Cliente: lo muestra el widget del chatbot dentro de su contenedor.
-// - Operador: [docked]="true" lo fija abajo a la derecha por su cuenta.
+// - Cliente: lo muestra el widget del chatbot dentro de su contenedor; puede adjuntar fotos.
+// - Operador: [docked]="true" lo fija abajo a la derecha por su cuenta; ve las fotos.
 // No oscurece la pantalla: es un diálogo no modal (Esc o la X lo cierran).
 @Component({
   selector: 'app-order-chat',
@@ -51,8 +52,10 @@ export class OrderChatComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   @ViewChild('scrollBox') scrollBox?: ElementRef<HTMLDivElement>;
   @ViewChild('input') inputEl?: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
 
   readonly maxLength = 500;
+  readonly photoAccept = CHAT_PHOTO_ACCEPT;
 
   messages: OrderChatMessage[] = [];
   chatOpen = true;
@@ -60,6 +63,16 @@ export class OrderChatComponent implements OnChanges, AfterViewInit, OnDestroy {
   sending = false;
   errorMessage = '';
   loadFailures = 0;
+
+  // Foto elegida y aún sin enviar
+  pendingPhoto: Blob | null = null;
+  pendingPreview: string | null = null;
+  preparingPhoto = false;
+
+  // Fotos ya descargadas: id de la foto -> URL local (blob:)
+  private photoUrls = new Map<number, string>();
+  private loadingPhotos = new Set<number>();
+  failedPhotos = new Set<number>();
 
   private lastId?: number;
   private poll?: Subscription;
@@ -80,6 +93,8 @@ export class OrderChatComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.poll?.unsubscribe();
+    this.releasePhotos();
+    this.clearPending();
   }
 
   tr(key: string, params: Record<string, string | number> = {}): string {
@@ -119,33 +134,112 @@ export class OrderChatComponent implements OnChanges, AfterViewInit, OnDestroy {
       : this.tr('order_chat.other_said', { name: this.senderLabel(message) });
   }
 
+  // ---------- Fotos ----------
+
+  // Solo el cliente adjunta fotos, y solo con el chat abierto
+  canAttach(): boolean {
+    return this.role === 'CLIENT' && this.chatOpen;
+  }
+
+  canSend(): boolean {
+    return (
+      this.chatOpen &&
+      !this.sending &&
+      !this.preparingPhoto &&
+      (this.pendingPhoto !== null || this.draft.trim().length > 0)
+    );
+  }
+
+  photoUrl(attachmentId: number): string | null {
+    return this.photoUrls.get(attachmentId) ?? null;
+  }
+
+  photoAlt(message: OrderChatMessage): string {
+    return this.isMine(message)
+      ? this.tr('order_chat.photo_alt_mine')
+      : this.tr('order_chat.photo_alt_other', { name: this.senderLabel(message) });
+  }
+
+  openFilePicker() {
+    this.fileInput?.nativeElement.click();
+  }
+
+  async onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    // Se limpia para poder elegir otra vez la misma foto
+    input.value = '';
+    if (!file) return;
+
+    this.errorMessage = '';
+    this.preparingPhoto = true;
+    try {
+      const photo = await prepareChatPhoto(file);
+      this.clearPending();
+      this.pendingPhoto = photo;
+      this.pendingPreview = URL.createObjectURL(photo);
+      setTimeout(() => this.inputEl?.nativeElement.focus());
+    } catch (error) {
+      const code = error instanceof ChatPhotoError ? error.code : 'convert';
+      this.errorMessage = this.tr(`order_chat.photo_error_${code}`);
+    } finally {
+      this.preparingPhoto = false;
+    }
+  }
+
+  removePending() {
+    this.clearPending();
+    setTimeout(() => this.inputEl?.nativeElement.focus());
+  }
+
+  // Al cargar una foto la burbuja crece: si es la última, se baja para verla completa
+  onPhotoLoaded(message: OrderChatMessage) {
+    if (message.id === this.lastId) {
+      this.scrollToBottom();
+    }
+  }
+
+  // ---------- Enviar ----------
+
   send() {
+    if (!this.canSend()) return;
+
     const text = this.draft.trim();
-    if (!text || this.sending || !this.chatOpen) return;
+    const withPhoto = this.pendingPhoto !== null;
+    const request$: Observable<OrderChatMessage> = this.pendingPhoto
+      ? this.chatService.sendPhoto(this.orderId, this.pendingPhoto, text)
+      : this.chatService.sendMessage(this.orderId, text);
 
     this.sending = true;
     this.errorMessage = '';
 
-    this.chatService.sendMessage(this.orderId, text).subscribe({
+    request$.subscribe({
       next: (message) => {
         this.draft = '';
         this.sending = false;
+        this.clearPending();
         this.addMessages([message]);
       },
       error: (error) => {
         this.sending = false;
-        if (error instanceof HttpErrorResponse && error.status === 409) {
+        if (error instanceof HttpErrorResponse && error.status === 409 && !withPhoto) {
           this.chatOpen = false;
           return;
         }
-        this.errorMessage = this.tr('order_chat.send_error');
+        this.errorMessage = withPhoto
+          ? this.tr('order_chat.photo_error_upload')
+          : this.tr('order_chat.send_error');
       },
     });
   }
 
+  // ---------- Internos ----------
+
   // Al cambiar de pedido se empieza de cero
   private restart() {
     this.poll?.unsubscribe();
+    this.releasePhotos();
+    this.clearPending();
     this.messages = [];
     this.lastId = undefined;
     this.chatOpen = true;
@@ -183,9 +277,47 @@ export class OrderChatComponent implements OnChanges, AfterViewInit, OnDestroy {
     this.lastId = this.messages[this.messages.length - 1].id;
     this.seen.emit(this.lastId);
 
+    for (const m of nuevos) {
+      if (m.attachmentId) this.loadPhoto(m.attachmentId);
+    }
+
     if (nearBottom || nuevos.some((m) => this.isMine(m))) {
       this.scrollToBottom();
     }
+  }
+
+  private loadPhoto(attachmentId: number) {
+    if (this.photoUrls.has(attachmentId) || this.loadingPhotos.has(attachmentId)) return;
+    this.loadingPhotos.add(attachmentId);
+    const orderId = this.orderId;
+
+    this.chatService.getAttachment(orderId, attachmentId).subscribe({
+      next: (blob) => {
+        this.loadingPhotos.delete(attachmentId);
+        // Si mientras tanto se cambió de pedido, se descarta
+        if (orderId !== this.orderId) return;
+        this.photoUrls.set(attachmentId, URL.createObjectURL(blob));
+      },
+      error: () => {
+        this.loadingPhotos.delete(attachmentId);
+        this.failedPhotos.add(attachmentId);
+      },
+    });
+  }
+
+  private releasePhotos() {
+    this.photoUrls.forEach((url) => URL.revokeObjectURL(url));
+    this.photoUrls.clear();
+    this.loadingPhotos.clear();
+    this.failedPhotos.clear();
+  }
+
+  private clearPending() {
+    if (this.pendingPreview) {
+      URL.revokeObjectURL(this.pendingPreview);
+    }
+    this.pendingPhoto = null;
+    this.pendingPreview = null;
   }
 
   private scrollToBottom() {

@@ -883,5 +883,21 @@
   "order_chat.menu_close": "Cerrar opciones de chat",
   "order_chat.new_messages": "Tienes mensajes nuevos del restaurante",
   "order_chat.switch_order": "Cambiar de pedido",
-  "notifications.order_chat_message": "Nuevo mensaje del restaurante"
+  "notifications.order_chat_message": "Nuevo mensaje del restaurante",
+    "order_chat.photo_attach": "Adjuntar foto (JPG, JPEG, PNG o HEIC)",
+  "order_chat.photo_preparing": "Preparando la foto…",
+  "order_chat.photo_ready": "Foto lista para enviar. Puedes agregar un comentario.",
+  "order_chat.photo_pending": "Foto por enviar",
+  "order_chat.photo_preview_alt": "Vista previa de la foto que vas a enviar",
+  "order_chat.photo_remove": "Quitar la foto",
+  "order_chat.photo_placeholder": "Agrega un comentario (opcional)…",
+  "order_chat.photo_alt_mine": "Foto que enviaste",
+  "order_chat.photo_alt_other": "Foto enviada por {name}",
+  "order_chat.photo_open": "Abrir en tamaño completo",
+  "order_chat.photo_loading": "Cargando foto…",
+  "order_chat.photo_unavailable": "No se pudo cargar la foto.",
+  "order_chat.photo_error_type": "Solo puedes enviar fotos JPG, JPEG, PNG o HEIC.",
+  "order_chat.photo_error_size": "La foto es demasiado pesada. Prueba con otra.",
+  "order_chat.photo_error_convert": "No pudimos procesar la foto. Prueba con otra o envíala en JPG.",
+  "order_chat.photo_error_upload": "No se pudo enviar la foto. Inténtalo de nuevo."
 }

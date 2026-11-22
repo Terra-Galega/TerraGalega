@@ -882,5 +882,21 @@
   "order_chat.menu_close": "Tanca les opcions de xat",
   "order_chat.new_messages": "Tens missatges nous del restaurant",
   "order_chat.switch_order": "Canvia de comanda",
-  "notifications.order_chat_message": "Missatge nou del restaurant"
+  "notifications.order_chat_message": "Missatge nou del restaurant",
+  "order_chat.photo_attach": "Adjunta una foto (JPG, JPEG, PNG o HEIC)",
+  "order_chat.photo_preparing": "S'està preparant la foto…",
+  "order_chat.photo_ready": "Foto a punt per enviar. Pots afegir-hi un comentari.",
+  "order_chat.photo_pending": "Foto per enviar",
+  "order_chat.photo_preview_alt": "Previsualització de la foto que enviaràs",
+  "order_chat.photo_remove": "Treu la foto",
+  "order_chat.photo_placeholder": "Afegeix un comentari (opcional)…",
+  "order_chat.photo_alt_mine": "Foto que has enviat",
+  "order_chat.photo_alt_other": "Foto enviada per {name}",
+  "order_chat.photo_open": "Obre a mida completa",
+  "order_chat.photo_loading": "S'està carregant la foto…",
+  "order_chat.photo_unavailable": "No s'ha pogut carregar la foto.",
+  "order_chat.photo_error_type": "Només pots enviar fotos JPG, JPEG, PNG o HEIC.",
+  "order_chat.photo_error_size": "La foto pesa massa. Prova'n una altra.",
+  "order_chat.photo_error_convert": "No hem pogut processar la foto. Prova'n una altra o envia-la en JPG.",
+  "order_chat.photo_error_upload": "No s'ha pogut enviar la foto. Torna-ho a provar."
 }
