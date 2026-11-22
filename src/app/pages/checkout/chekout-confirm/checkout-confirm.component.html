@@ -182,8 +182,7 @@
 
               <button
                 type="button"
-                class="text-sm underline underline-offset-4 cursor-pointer"
-                style="color: rgba(44, 44, 44, 0.65)"
+                class="danger-pill"
                 [disabled]="paying"
                 (click)="cancel()"
               >
@@ -214,8 +213,9 @@
   [open]="showErrorModal"
   [title]="errorTitle"
   [message]="errorMessage"
-  confirmLabel="Aceptar"
+  [confirmLabel]="errorConfirmLabel"
+  [cancelLabel]="errorCancelLabel"
   variant="error"
-  (confirm)="closeErrorModal()"
-  (cancel)="closeErrorModal()"
+  (confirm)="onErrorConfirm()"
+  (cancel)="onErrorCancel()"
 ></app-modal>

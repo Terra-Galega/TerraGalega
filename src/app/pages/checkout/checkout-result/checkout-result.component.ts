@@ -1,5 +1,5 @@
 import { TranslatePipe } from '../../../services/translate.pipe';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, timer } from 'rxjs';
@@ -14,6 +14,7 @@ import { CheckoutDraftService } from '../../../services/checkout-draft.service';
 import { CouponService } from '../../../services/coupon.service';
 import { OrderService } from '../../../services/order.service';
 import { PaymentService } from '../../../services/payment.service';
+import { StripeReturnService } from '../../../services/stripe-return.service';
 import { Payment, InvoiceLink } from '../../../models/payment';
 import { getErrorMessage } from '../../../utils/http-error';
 
@@ -55,6 +56,7 @@ export class CheckoutResultComponent implements OnInit {
   private couponService = inject(CouponService);
   private orderService = inject(OrderService);
   private paymentService = inject(PaymentService);
+  private stripeReturn = inject(StripeReturnService);
 
   view: View = 'checking';
   payment: Payment | null = null;
@@ -75,6 +77,9 @@ export class CheckoutResultComponent implements OnInit {
       return;
     }
 
+    // Se llegó desde Stripe por el camino normal: ya no hace falta el aviso de "Atrás"
+    this.stripeReturn.clear();
+
     const params = this.route.snapshot.queryParamMap;
     this.orderId = Number(params.get('order'));
     this.canceled = params.get('canceled') === 'true';
@@ -85,6 +90,17 @@ export class CheckoutResultComponent implements OnInit {
     }
 
     this.check();
+  }
+
+  // Si se fue otra vez a Stripe ("Volver a pagar") y regresó con "Atrás", el navegador
+  // puede mostrar esta página guardada en memoria: se vuelve a consultar el pago.
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
+    if (event.persisted && this.orderId > 0) {
+      this.stripeReturn.clear();
+      this.busy = false;
+      this.check();
+    }
   }
 
   // Consulta el estado. El back también pregunta a Stripe, así que la

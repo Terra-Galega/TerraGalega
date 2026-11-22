@@ -1,4 +1,7 @@
 {
+  "reservations.reservation_result.reservation_result.recibimos_el_anticipo_tu_reserva_quedo_confirmada": "Hem rebut la bestreta i la teva reserva ha quedat confirmada. T'esperem!",
+  "reservations.reservation_result.reservation_result.anticipo_pagado": "Bestreta pagada",
+  "reservations.reservation_result.reservation_result.ver_mi_reserva": "Veure la meva reserva",
   "password_reset.forgot_link": "Has oblidat la contrasenya?",
   "password_reset.forgot_eyebrow": "Recuperar l'accés",
   "password_reset.forgot_title": "Has oblidat la contrasenya?",

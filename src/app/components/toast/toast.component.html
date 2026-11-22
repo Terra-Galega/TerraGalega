@@ -53,8 +53,7 @@
     <!-- Botón para cerrar la notificación mediante el servicio -->
     <button
       type="button"
-      class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-black/5"
-      style="color: rgba(44, 44, 44, 0.5)"
+      class="close-x w-8 h-8 flex-shrink-0"
       [attr.aria-label]="'toast.toast.cerrar_aviso' | t"
       (click)="toastService.close()"
     >

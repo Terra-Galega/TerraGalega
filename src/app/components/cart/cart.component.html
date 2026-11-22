@@ -23,8 +23,9 @@
         </h2>
 
         <button
+          type="button"
+          class="close-x"
           (click)="closeCart()"
-          style="color: rgba(44, 44, 44, 0.4)"
           [attr.aria-label]="'cart.cart.cerrar_carrito' | t"
         >
           <svg aria-hidden="true" focusable="false"
@@ -128,8 +129,7 @@
 
                 <!-- Quitar la línea del carrito -->
                 <button
-                  class="flex-shrink-0"
-                  style="color: rgba(44, 44, 44, 0.3)"
+                  class="close-x flex-shrink-0"
                   type="button"
                   [attr.aria-label]="('merge.remove' | t) + ' ' + item.product.name + ' ' + ('merge.from_cart' | t)"
                   (click)="removeItem(item.id)"

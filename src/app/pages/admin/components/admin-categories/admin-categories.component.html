@@ -82,7 +82,7 @@
                 </app-icon-button>
 
                 <!-- Eliminar (ícono de caneca de basura) -->
-                <app-icon-button
+                <app-icon-button [danger]="true"
                   variant="ghost"
                   [label]="'Eliminar ' + category.name"
                   (click)="removeCategory(category)"

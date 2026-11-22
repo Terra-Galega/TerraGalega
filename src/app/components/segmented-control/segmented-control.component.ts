@@ -10,12 +10,12 @@ export interface SegmentOption {
 @Component({
   selector: 'app-segmented-control',
   template: `
-    <div role="group" [attr.aria-label]="label || null" class="inline-flex gap-1 p-1 rounded-xl" style="background-color: rgba(44, 44, 44, 0.06)">
+    <div role="group" [attr.aria-label]="label || null" class="inline-flex gap-1 p-1 rounded-full" style="background-color: rgba(44, 44, 44, 0.06)">
       @for (option of options; track option.value) {
         <button
           type="button"
           [attr.aria-pressed]="value === option.value"
-          class="text-(length:--dfs-12) font-medium px-3 py-1.5 rounded-lg"
+          class="text-(length:--dfs-12) font-medium px-3 py-1.5 rounded-full"
           style="transition: all 0.2s ease"
           [style.background-color]="value === option.value ? '#556141' : 'transparent'"
           [style.color]="value === option.value ? '#f5f2eb' : 'rgba(44, 44, 44, 0.55)'"

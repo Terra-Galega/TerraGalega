@@ -5,7 +5,7 @@
   [attr.aria-label]="label"
   [attr.aria-busy]="busy.busyVisible() && !ignoreBusy ? true : null"
   [attr.data-busy-ignore]="ignoreBusy ? '' : null"
-  [class]="'icon-btn icon-btn--' + variant"
+  [class]="'icon-btn icon-btn--' + variant + (danger ? ' icon-btn--danger' : '')"
 >
   <!-- Proyecta el icono (normalmente un SVG) que se escriba dentro de <app-icon-button>. -->
   <ng-content />

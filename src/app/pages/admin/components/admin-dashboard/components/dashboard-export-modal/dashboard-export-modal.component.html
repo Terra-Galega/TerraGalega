@@ -24,7 +24,7 @@
           Elige el periodo, el formato y si quieres las gráficas.
         </p>
       </div>
-      <app-icon-button variant="soft" label="Cerrar" (click)="close()">
+      <app-icon-button [danger]="true" variant="soft" label="Cerrar" (click)="close()">
         <svg aria-hidden="true" focusable="false"
           width="15"
           height="15"
@@ -298,7 +298,7 @@
     <div class="flex gap-3">
       <app-button
         class="flex-1"
-        variant="neutral"
+        variant="danger"
         [fullWidth]="true"
         (click)="close()"
         >Cancelar</app-button

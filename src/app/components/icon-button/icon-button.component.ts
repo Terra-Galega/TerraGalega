@@ -14,6 +14,8 @@ export class IconButtonComponent {
   @Input() variant: IconButtonVariant = 'soft';
   // Texto accesible que describe la acción, ya que el botón solo muestra un icono.
   @Input() label = '';
+  // Cerrar o eliminar: al pasar el mouse se pone rojo, como el botón "Cerrar sesión"
+  @Input() danger = false;
   // Tipo nativo del botón; por defecto 'button' para que no envíe formularios sin querer.
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
   // Si es true, el botón se deshabilita y no responde a clics.

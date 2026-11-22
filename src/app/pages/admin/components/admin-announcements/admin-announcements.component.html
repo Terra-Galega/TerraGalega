@@ -51,7 +51,7 @@
                 </svg>
               </app-icon-button>
 
-              <app-icon-button variant="ghost" [label]="'Eliminar ' + announcement.title" (click)="removeAnnouncement(announcement)">
+              <app-icon-button [danger]="true" variant="ghost" [label]="'Eliminar ' + announcement.title" (click)="removeAnnouncement(announcement)">
                 <svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
                   <path d="M3 6h18" />

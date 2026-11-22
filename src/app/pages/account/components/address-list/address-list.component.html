@@ -40,7 +40,7 @@
           (picked)="editLabel = $event"></app-address-map-picker>
 
         <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-      <app-button type="button" variant="neutral" size="sm" (click)="cancelEdit()">
+      <app-button type="button" variant="danger" size="sm" (click)="cancelEdit()">
             {{ 'account.address_list.address_list.cancelar' | t }}
           </app-button>
       <app-button type="button" variant="primary" size="sm" (click)="saveEdit()">
@@ -87,8 +87,7 @@
           {{ 'account.address_list.address_list.editar' | t }}<span class="sr-only"> {{ 'merge.the_address' | t }} {{ address.name }}</span>
         </button>
         <button type="button" (click)="askDelete(address)"
-          class="ml-auto min-h-[44px] px-3 text-[13px] font-medium cursor-pointer transition-opacity hover:opacity-70"
-          style="color: #8a2222">
+          class="danger-pill danger-pill--sm ml-auto">
           {{ 'account.address_list.address_list.eliminar' | t }}<span class="sr-only"> {{ 'merge.the_address' | t }} {{ address.name }}</span>
         </button>
       </div>

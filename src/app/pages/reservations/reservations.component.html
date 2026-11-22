@@ -53,14 +53,17 @@
       <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelDelete()">{{ 'reservations.reservations.conservar' | t }}</button>
     </div>
     } @else if (paymentPending) {
+    @if (paymentNotice) {
+    <p id="reservation-payment-notice" class="feedback error" role="alert">{{ paymentNotice }}</p>
+    }
     <div id="my-reservation-actions" class="reservation-actions">
       <button class="reserve-button" type="button" (click)="payNow()">{{ 'reservations.reservations.ir_a_pagar_el_anticipo' | t }}</button>
-      <button class="secondary-button" type="button" (click)="askDelete()">{{ 'reservations.reservations.cancelar_reserva' | t }}</button>
+      <button class="cancel-button" type="button" (click)="askDelete()">{{ 'reservations.reservations.cancelar_reserva' | t }}</button>
     </div>
     } @else {
     <div id="my-reservation-actions" class="reservation-actions">
       <button class="reserve-button" type="button" (click)="startEdit()">{{ 'reservations.reservations.editar_reserva' | t }}</button>
-      <button class="secondary-button" type="button" (click)="askDelete()">{{ 'reservations.reservations.eliminar_reserva' | t }}</button>
+      <button class="cancel-button" type="button" (click)="askDelete()">{{ 'reservations.reservations.eliminar_reserva' | t }}</button>
     </div>
     }
   </section>
@@ -495,7 +498,7 @@
         }
       </button>
       @if (editing) {
-      <button class="secondary-button" type="button" [disabled]="saving" (click)="cancelEdit()">{{ 'reservations.reservations.cancelar_edicion' | t }}</button>
+      <button class="cancel-button" type="button" [disabled]="saving" (click)="cancelEdit()">{{ 'reservations.reservations.cancelar_edicion' | t }}</button>
       }
       @if (!date || date < today) {
       <p class="note" role="status">{{ 'reservations.reservations.elige_la_fecha_de_hoy_o_una_posterior' | t }}</p>
