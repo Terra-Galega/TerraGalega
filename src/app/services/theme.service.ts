@@ -10,6 +10,9 @@ const THEME_KEY = 'terragalega_theme';
 // Maneja el tema de la app. Pone el atributo data-theme="light|dark" en <html>, y desde ahí
 // styles.scss cambia todos los colores. Se usa desde el switch de "Mi cuenta".
 // La elección se guarda en este navegador; si nunca se eligió, se usa el tema claro.
+// Lo que tarda la bolita del interruptor en deslizarse (theme-switch.component.scss)
+const SWITCH_ANIMATION_MS = 280;
+
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   // Tema activo (signal: los componentes que lo leen se actualizan solos)
@@ -66,9 +69,12 @@ export class ThemeService {
       return;
     }
 
+    // Primero se ve la bolita del interruptor deslizarse; luego la página se funde al tema nuevo
     const root = doc!.documentElement;
-    root.classList.add('theme-transition');
-    start(() => this.apply(theme)).finished.finally(() => root.classList.remove('theme-transition'));
+    setTimeout(() => {
+      root.classList.add('theme-transition');
+      start(() => this.apply(theme)).finished.finally(() => root.classList.remove('theme-transition'));
+    }, SWITCH_ANIMATION_MS);
   }
 
   // Marca <html>: data-theme activa los estilos y color-scheme hace que los controles del

@@ -8,12 +8,13 @@
      CONTENIDO PRINCIPAL
      ============================================================ -->
 
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-10 items-start pb-12">
+    <!-- Celular: marca arriba (ancho completo), contacto y horario en dos columnas, redes abajo -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-9 md:gap-10 items-start pb-12">
       <!-- ==========================================================
        COLUMNA 1: LOGO Y SUBTÍTULO
        ========================================================== -->
 
-      <div class="md:col-span-3 lg:col-span-2 flex flex-col items-start">
+      <div class="col-span-2 md:col-span-3 lg:col-span-2 flex flex-col items-start">
         <!-- El logo es un enlace al inicio -->
         <a
           routerLink="/home"
@@ -67,7 +68,7 @@
             class="text-sm font-medium"
             style="color: rgba(245, 242, 235, 0.85)"
           >
-            contacto&#64;terragalega.co
+            <span class="break-all">contacto&#64;terragalega.co</span>
           </p>
         </div>
       </div>
@@ -114,7 +115,7 @@
        COLUMNA 4: REDES SOCIALES
        ========================================================== -->
 
-      <div class="space-y-3">
+      <div class="col-span-2 md:col-span-1 space-y-3">
         <p
           class="text-[10px] uppercase tracking-[0.2em] mb-2.5"
           style="color: rgba(245, 242, 235, 0.4)"
@@ -126,7 +127,7 @@
              noreferrer" evita que esa pestaña pueda controlar esta página. Al
              pasar el mouse el enlace sube un poco y el icono se agranda. -->
 
-        <ul class="space-y-3 text-sm font-medium">
+        <ul class="flex flex-wrap gap-x-6 gap-y-3 md:flex-col md:gap-3 text-sm font-medium">
           <!-- Instagram -->
 
           <li>

@@ -37,7 +37,9 @@
 @media (max-width: 639px) {
   .btn--full {
     display: flex;
-    width: auto;
+    // fit-content (no auto): los app-button con routerLink son <a>, y un <a> en flex con
+    // width:auto ocupa todo el ancho; un <button> no. Así los dos miden según su texto.
+    width: fit-content;
     min-width: min(100%, 13rem);
     max-width: 100%;
     min-height: 44px;

@@ -33,7 +33,7 @@
 :host(.order-chat-docked) {
   position: fixed;
   right: 1.25rem;
-  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  bottom: calc(1.25rem + env(safe-area-inset-bottom) + var(--kb-inset, 0px));
   z-index: 45;
 }
 
@@ -47,6 +47,8 @@
   width: min(380px, calc(100vw - 2.5rem));
   height: min(560px, calc(100vh - 7rem));
   height: min(560px, calc(100dvh - 7rem));
+  // Con el teclado abierto, el panel se encoge a lo que queda visible encima de él
+  height: min(560px, calc(var(--vv-height, 100dvh) - 6rem));
   display: flex;
   flex-direction: column;
   overflow: hidden;

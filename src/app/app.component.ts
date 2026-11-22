@@ -1,6 +1,7 @@
 import { TranslatePipe } from './pipes/translate.pipe';
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { KeyboardInsetService } from './services/keyboard-inset.service';
 import { TooltipService } from './services/tooltip.service';
 import { AuthService } from './services/auth.service';
 import { ChatWidgetComponent } from './components/chat-widget/chat-widget.component';
@@ -23,6 +24,9 @@ export class AppComponent {
 
     // activa las descripciones al pasar el cursor sobre los botones de icono
     inject(TooltipService).init();
+
+    // Mide el teclado del celular para que los chats no queden tapados al escribir
+    inject(KeyboardInsetService).init();
 
     // Si eliminan tu cuenta mientras tienes la sesión abierta, te saca al inicio
     inject(AuthService).startSessionWatch();
