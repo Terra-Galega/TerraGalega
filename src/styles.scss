@@ -1400,85 +1400,402 @@ $a11y-error-reds: (
   }
 }
 
-// ---------- Alto contraste: tema claro ----------
-// Texto gris -> casi negro (12:1 sobre crema), bordes más marcados, placeholders legibles.
-html[data-contrast="high"]:not([data-theme="dark"]) {
+// ---------- Alto contraste (estilo "High Contrast" de Visual Studio Code) ----------
+// Se toma como referencia los temas "Dark High Contrast" y "Light High Contrast" de VS Code:
+//   - Fondo plano (negro puro / blanco puro), sin degradados suaves, vidrio ni sombras.
+//   - Texto principal en un solo color (blanco / casi negro): nada de grises semitransparentes.
+//   - Cada superficie (tarjetas, campos, botones) se delimita con un borde de contraste.
+//   - Pasar el cursor -> contorno DISCONTINUO del color activo; foco -> contorno SÓLIDO.
+//   - Enlaces en el azul de enlace de VS Code y subrayados.
+// Colores de VS Code:
+//   oscuro: borde #6fc3df, activo #f38518, enlace #21a6ff, error #f48771, éxito #89d185
+//   claro:  borde #0f4a85, activo #006bbd, enlace #0f4a85, error #b5200d, éxito #2f6a18
+// La terracota de marca se mantiene como acento, ajustada para llegar a 7:1.
+
+// Reglas comunes a los dos temas de alto contraste
+@mixin a11y-hc-theme($bg, $fg, $border, $active, $link, $error, $success, $accent, $placeholder) {
+  body {
+    background-color: $bg !important;
+    color: $fg !important;
+  }
+
+  // Texto gris semitransparente (estilos en línea y Tailwind) -> color de texto pleno
   @each $alpha in $a11y-ink-alphas {
 
     [style^="color: rgba(44, 44, 44, #{$alpha})"],
     [style*=" color: rgba(44, 44, 44, #{$alpha})"] {
-      color: rgba(44, 44, 44, 0.9) !important;
+      color: $fg !important;
     }
   }
 
+  .text-charcoal,
   .text-charcoal\/45,
   .text-charcoal\/50,
   .text-charcoal\/60,
-  .text-charcoal\/70 {
-    color: rgba(44, 44, 44, 0.9) !important;
+  .text-charcoal\/70,
+  .text-charcoal\/80 {
+    color: $fg !important;
   }
 
-  [style*="solid rgba(44, 44, 44,"],
-  [style*="dashed rgba(44, 44, 44,"],
-  [style*="border-color: rgba(44, 44, 44,"] {
-    border-color: rgba(44, 44, 44, 0.55) !important;
-  }
+  // Texto de marca (terracota) -> acento de alto contraste
+  @each $hex in ("#b2571f", "#a24a17", "#8a4a1a", "rgb(178, 87, 31)", "rgb(162, 74, 23)") {
 
-  ::placeholder {
-    color: rgba(44, 44, 44, 0.72) !important;
-    opacity: 1;
-  }
-
-  // El rojo claro de los errores en línea (#da5858) no llega a 4,5:1 sobre crema
-  @include a11y-error-text(#8a2222);
-}
-
-// ---------- Alto contraste: tema oscuro ----------
-html[data-contrast="high"][data-theme="dark"] {
-  @each $alpha in $a11y-ink-alphas {
-
-    [style^="color: rgba(44, 44, 44, #{$alpha})"],
-    [style*=" color: rgba(44, 44, 44, #{$alpha})"] {
-      color: rgba(245, 242, 235, 0.92) !important;
+    [style^="color: #{$hex}"],
+    [style*=" color: #{$hex}"] {
+      color: $accent !important;
     }
   }
 
-  .text-charcoal\/45,
-  .text-charcoal\/50,
-  .text-charcoal\/60,
-  .text-charcoal\/70 {
-    color: rgba(245, 242, 235, 0.92) !important;
+  .text-terra {
+    color: $accent !important;
   }
 
+  // Texto de éxito (verde)
+  @each $hex in ("#556141", "#4a6b3a", "rgb(85, 97, 65)", "rgb(74, 107, 58)") {
+
+    [style^="color: #{$hex}"],
+    [style*=" color: #{$hex}"] {
+      color: $success !important;
+    }
+  }
+
+  // Bordes: todos pasan al color de contraste, opacos
   [style*="solid rgba(44, 44, 44,"],
   [style*="dashed rgba(44, 44, 44,"],
-  [style*="border-color: rgba(44, 44, 44,"] {
-    border-color: rgba(245, 242, 235, 0.42) !important;
+  [style*="border-color: rgba(44, 44, 44,"],
+  .border,
+  .border-b,
+  .border-t,
+  .border-black\/5 {
+    border-color: $border !important;
+  }
+
+  // Superficies: planas, con borde de contraste y sin vidrio ni sombra
+  .glass-card,
+  .tracking-panel,
+  .format-card,
+  .feature-filter-panel,
+  .sheet-window {
+    background: $bg !important;
+    border: 1px solid $border !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  [class*="shadow"] {
+    box-shadow: none !important;
+  }
+
+  // Tarjetas de los carruseles (opiniones y platos populares) y de las cuadrículas equivalentes
+  app-review-card > div,
+  .carousel .card > div,
+  .product-card {
+    border: 1px solid $border !important;
+    box-shadow: none !important;
+  }
+
+  // Campos de formulario
+  .input-field,
+  .search__input,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    background-color: $bg !important;
+    color: $fg !important;
+    border: 1px solid $border !important;
+    box-shadow: none !important;
+  }
+
+  .input-field:focus,
+  .search__input:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: $active !important;
+    outline: 1px solid $active !important;
+    outline-offset: -1px !important;
   }
 
   ::placeholder {
-    color: rgba(245, 242, 235, 0.7) !important;
+    color: $placeholder !important;
     opacity: 1;
   }
 
-  // #da5858 queda en 4,1:1 sobre la superficie oscura
-  @include a11y-error-text(#e88a8a);
-}
+  select option,
+  select optgroup {
+    background-color: $bg;
+    color: $fg;
+  }
 
-// ---------- Alto contraste: ambos temas ----------
-html[data-contrast="high"] {
+  select option:checked {
+    background-color: $active;
+    color: $bg;
+  }
 
-  // Anillo de foco más grueso para la navegación con teclado
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: $active;
+  }
+
+  // Botones: borde de contraste, sin sombra ni efecto de escala
+  .btn,
+  .icon-btn,
+  .category-btn,
+  .feature-filter-btn,
+  .preset-chip,
+  .menu-plus-btn,
+  .qty-btn,
+  .tracking-actions button {
+    border: 1px solid $border !important;
+    box-shadow: none !important;
+  }
+
+  .btn:not(.btn--full):hover {
+    transform: none;
+  }
+
+  // Botones de contorno / neutros: texto pleno (en VS Code, botón secundario = fondo de
+  // página + borde de contraste)
+  .btn--outline,
+  .btn--neutral,
+  .btn--glass-light,
+  .btn--glass-dark,
+  .icon-btn,
+  .close-x,
+  .qty-btn,
+  .menu-plus-btn {
+    color: $fg !important;
+    background: $bg !important;
+  }
+
+  .btn--danger {
+    color: $error !important;
+    border-color: $error !important;
+  }
+
+  // Elemento activo/seleccionado: borde del color activo (como la pestaña activa de VS Code)
+  .category-btn.active,
+  .feature-filter-btn.active,
+  .addon.selected,
+  .format-card--on,
+  .auth-tab.active,
+  [aria-selected="true"],
+  [aria-current="page"] {
+    outline: 2px solid $active !important;
+    outline-offset: 1px;
+  }
+
+  // Cursor encima -> contorno discontinuo del color activo
+  :is(button, a, summary, [role="button"], [role="switch"], [role="tab"], .btn):hover:not(:disabled) {
+    outline: 1px dashed $active !important;
+    outline-offset: 2px !important;
+  }
+
+  // Foco por teclado -> contorno sólido del color activo
   :focus-visible {
-    outline: 3px solid currentColor !important;
-    outline-offset: 3px !important;
+    outline: 2px solid $active !important;
+    outline-offset: 2px !important;
   }
 
-  // Los enlaces dentro de texto se distinguen por subrayado, no solo por color
-  :is(p, label, small) a {
+  // Enlaces dentro de texto: color de enlace y subrayado (no solo color)
+  :is(p, label, small, li) a {
+    color: $link !important;
     text-decoration: underline !important;
     text-decoration-thickness: 1.5px;
     text-underline-offset: 3px;
+  }
+
+  // Detalles plegables (historial de puntos y similares)
+  summary {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  hr {
+    border-color: $border !important;
+  }
+
+  .text-red-600 {
+    color: $error !important;
+  }
+
+  @include a11y-error-text($error);
+
+  // Barra de navegación fija: plana, con borde de contraste
+  .nav-bar.nav-bar--stayed {
+    background-color: $bg !important;
+    border: 1px solid $border !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .nav-bar.nav-bar--stayed .link-nav,
+  .nav-bar.nav-bar--stayed .logo-terra,
+  .nav-bar.nav-bar--stayed .logo-galega {
+    color: $fg !important;
+  }
+
+  .nav-bar.nav-bar--stayed .nav-row .link-nav.active {
+    background-color: $bg !important;
+    color: $fg !important;
+    box-shadow: none !important;
+    outline: 2px solid $active !important;
+    outline-offset: -2px;
+  }
+
+  #mobile-menu {
+    background-color: $bg !important;
+    border: 1px solid $border !important;
+  }
+
+  #mobile-menu .link-nav,
+  #mobile-menu .mobile-link {
+    color: $fg !important;
+  }
+
+  // Barra de desplazamiento en el color de contraste
+  @supports (-moz-appearance: none) {
+    * {
+      scrollbar-color: $border transparent;
+    }
+  }
+
+  @supports not (-moz-appearance: none) {
+    ::-webkit-scrollbar-thumb {
+      background-color: $border;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: $active;
+    }
+  }
+}
+
+// ---------- Alto contraste: tema claro ("Light High Contrast") ----------
+html[data-contrast="high"]:not([data-theme="dark"]) {
+  // Colores de Tailwind (bg-cream, text-charcoal, text-terra...)
+  --color-cream: #ffffff;
+  --color-charcoal: #292929;
+  --color-terra: #8a3a10;
+  --color-forest: #2f6a18;
+
+  @include a11y-hc-theme($bg: #ffffff,
+    $fg: #292929,
+    $border: #0f4a85,
+    $active: #006bbd,
+    $link: #0f4a85,
+    $error: #b5200d,
+    $success: #2f6a18,
+    $accent: #8a3a10,
+    $placeholder: #5c5c5c);
+
+  // Fondos crema / beige / blancos de los estilos en línea -> blanco puro
+  @each $hex, $pair in $dark-solid-bgs {
+    $rgb: list.nth($pair, 1);
+
+    [style*="background-color: #{$hex};"],
+    [style*="background: #{$hex};"],
+    [style*="background-color: #{$rgb};"],
+    [style*="background: #{$rgb};"] {
+      background-color: #ffffff !important;
+    }
+  }
+
+  @each $alpha in (0.98, 0.96, 0.95, 0.92, 0.88, 0.85, 0.72, 0.7, 0.6, 0.35) {
+
+    [style*="background-color: rgba(255, 255, 255, #{$alpha});"],
+    [style*="background: rgba(255, 255, 255, #{$alpha});"],
+    [style*="background-color: rgba(245, 242, 235, #{$alpha});"],
+    [style*="background: rgba(245, 242, 235, #{$alpha});"] {
+      background-color: #ffffff !important;
+    }
+  }
+
+  .bg-white {
+    background-color: #ffffff;
+  }
+}
+
+// ---------- Alto contraste: tema oscuro ("Dark High Contrast") ----------
+html[data-contrast="high"][data-theme="dark"] {
+  // Mismas variables que el tema oscuro, llevadas a negro puro y blanco puro
+  --t-bg: #000000;
+  --t-bg-alt: #000000;
+  --t-surface: #000000;
+  --t-surface-2: #000000;
+  --t-text: #ffffff;
+  --t-line: #6fc3df;
+  --t-terra: #f38518;
+  --t-burgundy: #f48771;
+  --t-forest: #89d185;
+
+  @include a11y-hc-theme($bg: #000000,
+    $fg: #ffffff,
+    $border: #6fc3df,
+    $active: #f38518,
+    $link: #21a6ff,
+    $error: #f48771,
+    $success: #89d185,
+    $accent: #f38518,
+    $placeholder: #c8c8c8);
+
+  // Fondos translúcidos y tintes que el tema oscuro aclara un poco -> negro
+  @each $alpha in (0.98, 0.96, 0.95, 0.88, 0.85, 0.72, 0.7, 0.6, 0.35) {
+
+    [style*="background-color: rgba(255, 255, 255, #{$alpha});"],
+    [style*="background: rgba(255, 255, 255, #{$alpha});"],
+    [style*="background-color: rgba(245, 242, 235, #{$alpha});"],
+    [style*="background: rgba(245, 242, 235, #{$alpha});"] {
+      background-color: #000000 !important;
+    }
+  }
+
+  @each $alpha, $light in $dark-ink-tints {
+
+    [style*="background-color: rgba(44, 44, 44, #{$alpha});"],
+    [style*="background: rgba(44, 44, 44, #{$alpha});"] {
+      background-color: #000000 !important;
+    }
+  }
+
+  .bg-white,
+  .bg-cream {
+    background-color: #000000;
+  }
+
+  // Texto crema translúcido y bordes claros translúcidos -> blanco pleno y borde de contraste
+  @each $alpha in $a11y-ink-alphas {
+
+    [style^="color: rgba(245, 242, 235, #{$alpha})"],
+    [style*=" color: rgba(245, 242, 235, #{$alpha})"] {
+      color: #ffffff !important;
+    }
+  }
+
+  [style*="solid rgba(245, 242, 235,"],
+  [style*="solid rgba(255, 255, 255,"] {
+    border-color: #6fc3df !important;
+  }
+
+  // Oro de "pendiente" y estados de reserva
+  .status-pill.pending {
+    color: #ffd24d;
+  }
+
+  app-reservations,
+  app-reservation-guest {
+    --ink: #ffffff;
+    --surface: #000000;
+    --line: #6fc3df;
+    --muted: #ffffff;
+    --field: #000000;
+  }
+
+  .auth-tab.active {
+    background-color: #000000;
+    color: #ffffff;
   }
 }
 

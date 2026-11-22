@@ -71,7 +71,9 @@
 
 .settings__actions {
     position: absolute;
-    top: calc(100% + 8px);
+    /* Baja lo suficiente para que los botones empiecen por debajo del borde de la navbar
+       (con la barra compacta quedan ~12px entre la tuerca y su borde inferior). */
+    top: calc(100% + 24px);
     right: 0;
     z-index: 1;
     display: flex;
