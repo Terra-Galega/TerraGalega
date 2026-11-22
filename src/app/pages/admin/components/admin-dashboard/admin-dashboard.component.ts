@@ -29,6 +29,8 @@ import {
   computeKpis,
   compareSeries,
   categoryStats,
+  channelStats,
+  ChannelStats,
   delayedOrders,
   dishRows,
   fmtCompact,
@@ -61,6 +63,7 @@ import { DeltaBadgeComponent } from '../../../../components/delta-badge/delta-ba
 import { DashboardKpisComponent } from './components/dashboard-kpis/dashboard-kpis.component';
 import { DashboardOrdersComponent } from './components/dashboard-orders/dashboard-orders.component';
 import { DashboardDishesComponent } from './components/dashboard-dishes/dashboard-dishes.component';
+import { DashboardChannelsComponent } from './components/dashboard-channels/dashboard-channels.component';
 import {
   DashboardExportModalComponent,
   ExportRequest,
@@ -134,6 +137,7 @@ const RANGE_TO_PERIOD: Record<RangeKey, Granularity> = {
     DashboardKpisComponent,
     DashboardOrdersComponent,
     DashboardDishesComponent,
+    DashboardChannelsComponent,
     DashboardExportModalComponent,
   ],
   templateUrl: './admin-dashboard.component.html',
@@ -208,6 +212,8 @@ export class AdminDashboardComponent {
   latest: DashOrder[] = [];
   delayed: DelayedOrder[] = [];
   dishes: DishRow[] = [];
+  // Domicilio vs. punto físico del periodo elegido
+  channels: ChannelStats | null = null;
 
   // =========================
   // Opciones de los selectores
@@ -566,5 +572,6 @@ export class AdminDashboardComponent {
     this.latest = latestOrders(model, 8);
     this.delayed = delayedOrders(model, now, this.delayThreshold);
     this.dishes = dishRows(model, pair.current);
+    this.channels = channelStats(model, pair.current);
   }
 }

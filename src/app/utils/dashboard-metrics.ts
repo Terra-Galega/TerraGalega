@@ -1,5 +1,6 @@
 import { Order, OrderStatus, OrderSummary } from '../models/order';
 import { Product } from '../models/product';
+import { AdminTableOrder, TablePaymentMethod } from '../models/table-order';
 import { isDarkTheme } from './chart-theme';
 
 // =====================================================================
@@ -119,7 +120,16 @@ export interface DashOrder {
   profit: number;
   // false si está cancelado: no cuenta como venta
   counted: boolean;
+  // De dónde viene: domicilio (web) o punto físico (mesero en la app)
+  channel: OrderChannel;
+  // Solo en punto físico
+  tableId?: number;
+  waiterName?: string;
+  paymentMethod?: TablePaymentMethod | null;
+  awaitingPayment?: boolean;
 }
+
+export type OrderChannel = 'delivery' | 'table';
 
 export interface DelayedOrder extends DashOrder {
   // Minutos que lleva sin terminar
@@ -411,6 +421,7 @@ export function buildModel(
   orders: Order[],
   summaries: OrderSummary[],
   products: Product[],
+  tableOrders: AdminTableOrder[] = [],
 ): DashboardModel {
   const clientNames = new Map<number, string>();
   summaries.forEach((s) => {
@@ -480,6 +491,55 @@ export function buildModel(
       total,
       profit: total * PROFIT_SHARE,
       counted,
+      channel: 'delivery',
+    });
+  }
+
+  // Órdenes en punto físico: cuentan en las ventas, productos y categorías igual
+  // que los domicilios. Su estado se traduce al más parecido de un domicilio
+  // (en cocina = en preparación, entregado = entregado) para las etiquetas.
+  for (const t of tableOrders) {
+    const date = new Date(t.startTime);
+    if (Number.isNaN(date.getTime())) continue;
+
+    const counted = t.status !== 'CANCELLED';
+    for (const i of t.items ?? []) {
+      const revenue = num(i.subtotal);
+      lines.push({
+        orderId: t.id,
+        date,
+        counted,
+        productId: i.productId,
+        name: i.productName,
+        units: num(i.quantity),
+        revenue,
+        profit: revenue * PROFIT_SHARE,
+      });
+    }
+
+    const total = num(t.total);
+    dashOrders.push({
+      id: t.id,
+      date,
+      clientName: `Mesa ${t.tableId} - ${t.waiterName}`,
+      status:
+        t.status === 'CANCELLED'
+          ? 'CANCELLED'
+          : t.status === 'DONE'
+            ? 'DELIVERED'
+            : 'PREPARING',
+      items: (t.items ?? [])
+        .map((i) => `${i.quantity}× ${i.productName}`)
+        .join(', '),
+      units: num(t.units),
+      total,
+      profit: total * PROFIT_SHARE,
+      counted,
+      channel: 'table',
+      tableId: t.tableId,
+      waiterName: t.waiterName,
+      paymentMethod: t.paymentMethod,
+      awaitingPayment: t.awaitingPayment,
     });
   }
 
@@ -819,4 +879,78 @@ export function delayedOrders(
 
 function cap(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+// Domicilio frente a punto físico
+export interface ChannelTotals {
+  revenue: number;
+  orders: number;
+  units: number;
+  average: number;
+}
+
+export interface WaiterStat {
+  name: string;
+  orders: number;
+  revenue: number;
+}
+
+export interface ChannelStats {
+  delivery: ChannelTotals;
+  table: ChannelTotals;
+  // Solo punto físico: cobrado en efectivo, con tarjeta y entregado sin cobrar
+  cash: number;
+  card: number;
+  unpaid: number;
+  // Meseros con más ventas en el intervalo
+  waiters: WaiterStat[];
+}
+
+// Ventas de cada canal en el intervalo (los cancelados no cuentan)
+export function channelStats(
+  model: DashboardModel,
+  range: DateRange,
+): ChannelStats {
+  const empty = (): ChannelTotals => ({
+    revenue: 0,
+    orders: 0,
+    units: 0,
+    average: 0,
+  });
+  const stats: ChannelStats = {
+    delivery: empty(),
+    table: empty(),
+    cash: 0,
+    card: 0,
+    unpaid: 0,
+    waiters: [],
+  };
+  const waiters = new Map<string, WaiterStat>();
+
+  for (const o of model.orders) {
+    if (!o.counted || !inRange(o.date, range)) continue;
+    const c = stats[o.channel];
+    c.revenue += o.total;
+    c.orders += 1;
+    c.units += o.units;
+
+    if (o.channel !== 'table') continue;
+    if (o.paymentMethod === 'CASH') stats.cash += o.total;
+    else if (o.paymentMethod === 'CARD') stats.card += o.total;
+    else if (o.awaitingPayment) stats.unpaid += o.total;
+
+    const name = o.waiterName || 'Mesero';
+    const w = waiters.get(name) ?? { name, orders: 0, revenue: 0 };
+    w.orders += 1;
+    w.revenue += o.total;
+    waiters.set(name, w);
+  }
+
+  for (const c of [stats.delivery, stats.table]) {
+    c.average = c.orders ? c.revenue / c.orders : 0;
+  }
+  stats.waiters = [...waiters.values()].sort(
+    (a, b) => b.revenue - a.revenue || a.name.localeCompare(b.name),
+  );
+  return stats;
 }

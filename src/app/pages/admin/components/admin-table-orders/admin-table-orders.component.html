@@ -1,0 +1,213 @@
+<!-- Filtros: fechas, producto y número de pedido (en el back); mesero y mesa (aquí) -->
+<div class="grid grid-cols-2 md:flex md:flex-wrap items-end gap-3 mb-4">
+  <label class="flex flex-col gap-1 min-w-0">
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Desde</span>
+    <input type="date" class="text-[12px] px-4 py-2 rounded-full w-full md:w-auto min-w-0" style="background-color: rgba(44, 44, 44, 0.06)"
+      [value]="dateFrom" [attr.max]="dateTo || null" (change)="onDateFromChange($event)" />
+  </label>
+
+  <label class="flex flex-col gap-1 min-w-0">
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Hasta</span>
+    <input type="date" class="text-[12px] px-4 py-2 rounded-full w-full md:w-auto min-w-0" style="background-color: rgba(44, 44, 44, 0.06)"
+      [value]="dateTo" [attr.min]="dateFrom || null" (change)="onDateToChange($event)" />
+  </label>
+
+  <label class="flex flex-col gap-1 min-w-0">
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Producto</span>
+    <select class="text-[12px] px-4 py-2 rounded-full w-full md:w-auto min-w-0" style="background-color: rgba(44, 44, 44, 0.06)"
+      (change)="onProductChange($event)">
+      <option value="" [selected]="productId === null">Todos los productos</option>
+      @for (product of products; track product.id) {
+      <option [value]="product.id" [selected]="productId === product.id">{{ product.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="flex flex-col gap-1 min-w-0">
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Mesero</span>
+    <select class="text-[12px] px-4 py-2 rounded-full w-full md:w-auto min-w-0" style="background-color: rgba(44, 44, 44, 0.06)"
+      (change)="onWaiterChange($event)">
+      <option value="" [selected]="waiterId === null">Todos los meseros</option>
+      @for (waiter of waiters; track waiter.id) {
+      <option [value]="waiter.id" [selected]="waiterId === waiter.id">{{ waiter.name }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="flex flex-col gap-1 min-w-0">
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Mesa</span>
+    <select class="text-[12px] px-4 py-2 rounded-full w-full md:w-auto min-w-0" style="background-color: rgba(44, 44, 44, 0.06)"
+      (change)="onTableChange($event)">
+      <option value="" [selected]="tableId === null">Todas las mesas</option>
+      @for (table of tables; track table) {
+      <option [value]="table" [selected]="tableId === table">Mesa {{ table }}</option>
+      }
+    </select>
+  </label>
+
+  <label class="flex flex-col gap-1 min-w-0">
+    <span class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">N.º de pedido</span>
+    <input type="number" min="1" placeholder="Ej. 12" class="text-[12px] px-4 py-2 rounded-full w-full md:w-28"
+      style="background-color: rgba(44, 44, 44, 0.06)" [value]="orderNumber" (change)="onOrderNumberChange($event)" />
+  </label>
+
+  @if (hasFilters) {
+  <button type="button" class="text-[12px] font-medium px-4 py-2 rounded-xl"
+    style="background-color: rgba(44, 44, 44, 0.06); color: rgba(44, 44, 44, 0.65)" (click)="clearFilters()">
+    Limpiar filtros
+  </button>
+  }
+</div>
+
+@if (errorMessage) {
+<p class="text-sm mb-4" style="color: #8a2222">{{ errorMessage }}</p>
+}
+
+<!-- Filtro por estado -->
+<div class="flex flex-wrap gap-2 mb-4">
+  @for (option of stageOptions; track option.value) {
+  <button [attr.aria-pressed]="stage === option.value" type="button" class="text-[12px] font-medium px-4 py-2 rounded-xl"
+    [style.background-color]="stage === option.value ? '#556141' : 'rgba(44,44,44,0.06)'"
+    [style.color]="stage === option.value ? '#f5f2eb' : 'rgba(44,44,44,0.55)'" (click)="stage = option.value">
+    {{ option.label }}
+  </button>
+  }
+</div>
+
+<!-- Resumen de lo que se está viendo -->
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
+  <div class="px-4 py-3 rounded-2xl" style="background-color: rgba(255, 255, 255, 0.72); border: 1px solid rgba(255, 255, 255, 0.55)">
+    <p class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Pedidos</p>
+    <p class="font-bold text-sm mt-1" style="color: #b2571f">{{ summary.count }}</p>
+  </div>
+  <div class="px-4 py-3 rounded-2xl" style="background-color: rgba(255, 255, 255, 0.72); border: 1px solid rgba(255, 255, 255, 0.55)">
+    <p class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Vendido</p>
+    <p class="font-bold text-sm mt-1" style="color: #b2571f">${{ summary.sales | number: "1.0-0" }}</p>
+  </div>
+  <div class="px-4 py-3 rounded-2xl" style="background-color: rgba(255, 255, 255, 0.72); border: 1px solid rgba(255, 255, 255, 0.55)">
+    <p class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Ticket promedio</p>
+    <p class="font-bold text-sm mt-1" style="color: #b2571f">${{ summary.average | number: "1.0-0" }}</p>
+  </div>
+  <div class="px-4 py-3 rounded-2xl" style="background-color: rgba(255, 255, 255, 0.72); border: 1px solid rgba(255, 255, 255, 0.55)">
+    <p class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Efectivo / Tarjeta</p>
+    <p class="font-bold text-sm mt-1" style="color: #b2571f">${{ summary.cash | number: "1.0-0" }} / ${{ summary.card | number: "1.0-0" }}</p>
+  </div>
+  <div class="px-4 py-3 rounded-2xl" style="background-color: rgba(255, 255, 255, 0.72); border: 1px solid rgba(255, 255, 255, 0.55)">
+    <p class="text-[11px] uppercase tracking-wider" style="color: rgba(44, 44, 44, 0.45)">Por cobrar</p>
+    <p class="font-bold text-sm mt-1" style="color: #b2571f">${{ summary.unpaid | number: "1.0-0" }}</p>
+  </div>
+</div>
+
+<!-- Lista de pedidos de mesa; cada fila se abre para ver el detalle -->
+<div class="space-y-3">
+  @if (loading && orders.length === 0) {
+  <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">Cargando órdenes…</p>
+  } @else if (filteredOrders.length === 0) {
+  <p class="py-12 text-center" style="color: rgba(44, 44, 44, 0.45)">No hay órdenes en punto físico en esta vista.</p>
+  } @else {
+  @for (order of filteredOrders; track order.id) {
+  <div class="rounded-2xl overflow-hidden" style="
+          background-color: rgba(255, 255, 255, 0.72);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.55);
+        ">
+    <button type="button" class="w-full text-left flex flex-wrap md:flex-nowrap items-center gap-x-4 md:gap-x-5 gap-y-2 px-4 md:px-6 py-4 cursor-pointer"
+      [attr.aria-expanded]="openId === order.id" [attr.aria-controls]="'table-order-' + order.id" (click)="toggle(order)">
+      <span class="font-mono text-sm font-semibold w-12 md:w-16 flex-shrink-0" style="color: rgba(44, 44, 44, 0.55)">#{{ order.id }}</span>
+
+      <div class="flex-1 min-w-0 basis-[calc(100%-4rem)] md:basis-0">
+        <p class="font-medium text-charcoal text-sm">
+          Mesa {{ order.tableId }} <span class="font-normal" style="color: rgba(44, 44, 44, 0.5)">- piso {{ order.floor }}</span>
+        </p>
+        <p class="truncate" style="font-size: 12px; color: rgba(44, 44, 44, 0.45)">
+          {{ order.waiterName }} - {{ order.startTime | date: "dd MMM yyyy, HH:mm" }} - {{ order.units }}
+          {{ order.units === 1 ? "plato" : "platos" }}
+        </p>
+      </div>
+
+      <span class="text-[11px] font-medium px-3 py-1 rounded-full ml-16 md:ml-0"
+        [style.background-color]="stageStyle[stageOf(order)].bg" [style.color]="stageStyle[stageOf(order)].color">
+        {{ stageLabel[stageOf(order)] }}
+        @if (order.paymentMethod) { - {{ paymentLabel[order.paymentMethod] }} }
+      </span>
+      <span class="font-bold ml-auto md:ml-0 md:w-24 md:text-right" style="color: #b2571f">${{ order.total | number: "1.0-0" }}</span>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        style="color: rgba(44, 44, 44, 0.4); transition: transform 0.2s"
+        [style.transform]="openId === order.id ? 'rotate(180deg)' : 'none'">
+        <path d="M6 9l6 6 6-6" />
+      </svg>
+    </button>
+
+    @if (openId === order.id) {
+    <div [id]="'table-order-' + order.id" class="px-4 md:px-6 pb-5 pt-1" style="border-top: 1px dashed rgba(44, 44, 44, 0.12)">
+      <!-- Datos del pedido -->
+      <dl class="grid grid-cols-2 md:grid-cols-4 gap-3 my-4 text-[12px]">
+        <div>
+          <dt style="color: rgba(44, 44, 44, 0.45)">Mesero</dt>
+          <dd class="font-medium text-charcoal">{{ order.waiterName }}</dd>
+        </div>
+        <div>
+          <dt style="color: rgba(44, 44, 44, 0.45)">Tomado</dt>
+          <dd class="font-medium text-charcoal">{{ order.startTime | date: "dd MMM, HH:mm" }}</dd>
+        </div>
+        <div>
+          <dt style="color: rgba(44, 44, 44, 0.45)">{{ order.status === "CANCELLED" ? "Cancelado" : "Entregado" }}</dt>
+          <dd class="font-medium text-charcoal">
+            @if (order.endTime) {
+            {{ order.endTime | date: "dd MMM, HH:mm" }} ({{ durationMin(order) }} min)
+            } @else {
+            En cocina hace {{ durationMin(order) }} min
+            }
+          </dd>
+        </div>
+        <div>
+          <dt style="color: rgba(44, 44, 44, 0.45)">Cobro</dt>
+          <dd class="font-medium text-charcoal">
+            @if (order.paidAt && order.paymentMethod) {
+            {{ paymentLabel[order.paymentMethod] }} - {{ order.paidAt | date: "HH:mm" }}
+            } @else if (order.status === "CANCELLED") {
+            No aplica
+            } @else {
+            Pendiente
+            }
+          </dd>
+        </div>
+      </dl>
+
+      <!-- Platos -->
+      <ul class="space-y-2">
+        @for (item of order.items; track item.id) {
+        <li class="flex items-start gap-3 rounded-xl px-3 py-2" style="background: rgba(44, 44, 44, 0.035)">
+          <div class="min-w-0 flex-1">
+            <p class="text-sm text-charcoal">
+              <span class="font-semibold">{{ item.quantity }}×</span> {{ item.productName }}
+              @if (item.category) {
+              <span class="text-[11px]" style="color: rgba(44, 44, 44, 0.45)">- {{ item.category }}</span>
+              }
+            </p>
+            <p class="text-[12px]" style="color: rgba(44, 44, 44, 0.5)">
+              ${{ item.unitPrice | number: "1.0-0" }} c/u
+              @if (item.addOns.length > 0) {
+              - <span style="color: #556141">+ {{ item.addOns.join(", ") }} (${{ item.addOnsPrice | number: "1.0-0" }})</span>
+              }
+              - {{ itemStatusLabel(item.status) }}
+            </p>
+            @if (item.notes) {
+            <p class="text-[12px] italic" style="color: #b2571f">“{{ item.notes }}”</p>
+            }
+          </div>
+          <span class="text-sm font-semibold flex-shrink-0 text-charcoal">${{ item.subtotal | number: "1.0-0" }}</span>
+        </li>
+        }
+      </ul>
+
+      <p class="flex justify-end gap-2 mt-3 text-sm">
+        <span style="color: rgba(44, 44, 44, 0.55)">Total</span>
+        <span class="font-bold" style="color: #b2571f">${{ order.total | number: "1.0-0" }}</span>
+      </p>
+    </div>
+    }
+  </div>
+  }
+  }
+</div>

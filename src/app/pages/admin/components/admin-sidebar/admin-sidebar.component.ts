@@ -10,6 +10,7 @@ export type AdminTab =
   | 'announcements'
   | 'reviews'
   | 'orders'
+  | 'tableOrders'
   | 'users'
   | 'operators'
   | 'deliveries';

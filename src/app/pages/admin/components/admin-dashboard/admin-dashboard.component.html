@@ -295,6 +295,13 @@
       </section>
     </div>
 
+    <!-- Domicilio vs. punto físico (meseros) -->
+    @if (channels) {
+      <div id="admin-dashboard-channels" class="dash-in" style="animation-delay: 370ms">
+        <app-dashboard-channels [stats]="channels" [rangeLabel]="pair.label" />
+      </div>
+    }
+
     <!-- Últimos pedidos y pedidos con mucha espera -->
     <div id="admin-dashboard-orders" class="dash-in" style="animation-delay: 400ms">
       <app-dashboard-orders

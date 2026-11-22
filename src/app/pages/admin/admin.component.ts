@@ -11,6 +11,7 @@ import {
 import { AdminTopbarComponent } from './components/admin-topbar/admin-topbar.component';
 import { AdminProductsComponent } from './components/admin-products/admin-products.component';
 import { AdminOrdersComponent } from './components/admin-orders/admin-orders.component';
+import { AdminTableOrdersComponent } from './components/admin-table-orders/admin-table-orders.component';
 import { AdminUsersComponent } from './components/admin-users/admin-users.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AdminOperatorsComponent } from './components/admin-operators/admin-operators.component';
@@ -48,6 +49,7 @@ import { TutorialService } from '../../services/Tutorial.service';
     AdminTopbarComponent,
     AdminProductsComponent,
     AdminOrdersComponent,
+    AdminTableOrdersComponent,
     AdminUsersComponent,
     AdminOperatorsComponent,
     AdminDeliveryPersonsComponent,
@@ -188,6 +190,8 @@ export class AdminComponent {
         return 'Reseñas';
       case 'orders':
         return 'Ordenes';
+      case 'tableOrders':
+        return 'Órdenes en punto físico';
       case 'users':
         return 'Usuarios';
       case 'operators':
