@@ -116,6 +116,23 @@ public class TableOrderServiceImpl implements TableOrderService {
 
         Map<Integer, ReservationGate> gates = reservationGates(floor);
 
+        // Reservas de hoy de cada mesa del piso (pagadas o esperando el pago)
+        Map<Integer, List<com.example.demo.dto.TableOrderDTOs.TodayReservationDTO>> today =
+                reservations.findByTableFloorAndDateAndTimeBetweenOrderByTimeAsc(
+                        floor, LocalDate.now(), LocalTime.MIN, LocalTime.MAX)
+                        .stream()
+                        .filter(r -> r.isPaid() || "PENDING".equals(r.getPaymentState()))
+                        .collect(Collectors.groupingBy(
+                                r -> r.getTable().getId(),
+                                Collectors.mapping(r -> new com.example.demo.dto.TableOrderDTOs.TodayReservationDTO(
+                                        r.getId(),
+                                        r.getTime(),
+                                        r.getName(),
+                                        clientName(r),
+                                        r.getSeats(),
+                                        r.isPaid(),
+                                        r.getSeatedAt() != null), Collectors.toList())));
+
         Map<Integer, Reservation> upcoming = upcomingReservations(floor);
         Map<Integer, Reservation> current = currentReservations(floor);
 
@@ -148,7 +165,9 @@ public class TableOrderServiceImpl implements TableOrderService {
                     g != null ? g.getName() : null,
                     g != null && g.isPaid(),
                     gate.noShow(),
-                    gate.walkInAllowed());
+                    gate.walkInAllowed(),
+                    g != null ? clientName(g) : null,
+                    today.getOrDefault(t.getId(), List.of()));
         }).toList();
     }
 
@@ -269,15 +288,15 @@ public class TableOrderServiceImpl implements TableOrderService {
             Product product = products.findById(line.productId())
                     .orElseThrow(() -> ApiException.notFound("El plato " + line.productId() + " no existe."));
             if (!Boolean.TRUE.equals(product.getActive())) {
-                throw ApiException.conflict("El plato «" + product.getName() + "» no está disponible.");
+                throw ApiException.conflict("El plato " + product.getName() + " no está disponible.");
             }
 
             Integer quantity = line.quantity();
             if (quantity == null || quantity < 1) {
-                throw ApiException.badRequest("La cantidad de «" + product.getName() + "» debe ser al menos 1.");
+                throw ApiException.badRequest("La cantidad de " + product.getName() + " debe ser al menos 1.");
             }
             if (quantity > MAX_QUANTITY) {
-                throw ApiException.badRequest("La cantidad de «" + product.getName() + "» no puede pasar de "
+                throw ApiException.badRequest("La cantidad de " + product.getName() + " no puede pasar de "
                         + MAX_QUANTITY + ".");
             }
 
@@ -286,7 +305,7 @@ public class TableOrderServiceImpl implements TableOrderService {
                 notes = null;
             }
             if (notes != null && notes.length() > NOTES_MAX) {
-                throw ApiException.badRequest("La nota de «" + product.getName() + "» no puede pasar de "
+                throw ApiException.badRequest("La nota de " + product.getName() + " no puede pasar de "
                         + NOTES_MAX + " caracteres.");
             }
 
@@ -303,23 +322,23 @@ public class TableOrderServiceImpl implements TableOrderService {
             // plato (misma regla que el checkout a domicilio). Repetidos cuentan una vez.
             if (line.addOnIds() != null) {
                 if (line.addOnIds().size() > MAX_ADD_ONS) {
-                    throw ApiException.badRequest("«" + product.getName() + "» no puede llevar más de "
+                    throw ApiException.badRequest("" + product.getName() + " no puede llevar más de "
                             + MAX_ADD_ONS + " adicionales.");
                 }
                 for (Integer addOnId : new java.util.LinkedHashSet<>(line.addOnIds())) {
                     if (addOnId == null) {
-                        throw ApiException.badRequest("Hay un adicional sin elegir en «" + product.getName() + "».");
+                        throw ApiException.badRequest("Hay un adicional sin elegir en " + product.getName() + ".");
                     }
                     AddOn addOn = addOns.findById(addOnId)
                             .orElseThrow(() -> ApiException.notFound("El adicional " + addOnId + " no existe."));
                     if (!Boolean.TRUE.equals(addOn.getActive())) {
-                        throw ApiException.conflict("El adicional «" + addOn.getName() + "» no está disponible.");
+                        throw ApiException.conflict("El adicional " + addOn.getName() + " no está disponible.");
                     }
                     boolean allowed = product.getCategory() != null && addOn.getCategories().stream()
                             .anyMatch(c -> c.getId().equals(product.getCategory().getId()));
                     if (!allowed) {
-                        throw ApiException.badRequest("«" + addOn.getName() + "» no se puede agregar a «"
-                                + product.getName() + "».");
+                        throw ApiException.badRequest("" + addOn.getName() + " no se puede agregar a "
+                                + product.getName() + ".");
                     }
                     item.getAddOns().add(addOn);
                 }
@@ -518,10 +537,10 @@ public class TableOrderServiceImpl implements TableOrderService {
             String time = r.getTime().toString().substring(0, 5);
             boolean started = !now.toLocalTime().isBefore(r.getTime());
             throw ApiException.conflict(started
-                    ? "La mesa " + table.getId() + " está reservada para «" + r.getName() + "» desde las " + time
+                    ? "La mesa " + table.getId() + " está reservada para " + r.getName() + " desde las " + time
                             + ". Si son ellos, confírmalo; si no, usa otra mesa (se libera a los "
                             + noShowMinutes + " min si no llegan)."
-                    : "La mesa " + table.getId() + " tiene una reserva («" + r.getName() + "») a las " + time
+                    : "La mesa " + table.getId() + " tiene una reserva (" + r.getName() + ") a las " + time
                             + " y no alcanzaría a quedar libre. Si son ellos, confírmalo; si no, usa otra mesa.");
         }
         return null;
@@ -675,11 +694,11 @@ public class TableOrderServiceImpl implements TableOrderService {
         } else if (item.getStatus() == OrderItemStatus.READY) {
             type = com.example.demo.entities.WaiterNotificationType.DISH_READY;
             title = "Mesa " + tableId + ": plato listo";
-            message = "«" + dish + "» (pedido #" + order.getId() + ") está listo.";
+            message = "" + dish + " (pedido #" + order.getId() + ") está listo.";
         } else {
             type = com.example.demo.entities.WaiterNotificationType.DISH_PREPARING;
             title = "Mesa " + tableId + ": en preparación";
-            message = "La cocina empezó «" + dish + "» (pedido #" + order.getId() + ").";
+            message = "La cocina empezó " + dish + " (pedido #" + order.getId() + ").";
         }
 
         notifications.save(com.example.demo.entities.WaiterNotification.builder()
@@ -822,6 +841,16 @@ public class TableOrderServiceImpl implements TableOrderService {
                 items.stream().mapToInt(com.example.demo.dto.TableOrderDTOs.AdminTableOrderItemDTO::quantity).sum(),
                 items.stream().mapToDouble(com.example.demo.dto.TableOrderDTOs.AdminTableOrderItemDTO::subtotal).sum(),
                 items);
+    }
+
+    // Nombre y apellido de quien hizo la reserva
+    private static String clientName(Reservation r) {
+        if (r.getClient() == null) {
+            return null;
+        }
+        String full = ((r.getClient().getName() == null ? "" : r.getClient().getName()) + " "
+                + (r.getClient().getLastName() == null ? "" : r.getClient().getLastName())).trim();
+        return full.isEmpty() ? null : full;
     }
 
     private TableOrderDTO toDTO(TableOrder o) {

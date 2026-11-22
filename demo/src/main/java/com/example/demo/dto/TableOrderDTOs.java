@@ -126,7 +126,22 @@ public final class TableOrderDTOs {
             // Pasó el margen de espera y no llegaron: la mesa se puede dar a otros
             boolean reservationNoShow,
             // ¿Se puede sentar aquí a alguien SIN reserva? (false si choca con la reserva)
-            boolean walkInAllowed) {
+            boolean walkInAllowed,
+            // Nombre y apellido del cliente que hizo esa reserva (para preguntar "¿son ellos?")
+            String reservationClientName,
+            // Todas las reservas de HOY de la mesa (filtro "Reservadas hoy" del mesero)
+            List<TodayReservationDTO> todayReservations) {
+    }
+
+    // Reserva de hoy de una mesa. seated = ya llegaron (se tomó su pedido)
+    public record TodayReservationDTO(
+            Integer id,
+            LocalTime time,
+            String name,
+            String clientName,
+            Integer seats,
+            boolean paid,
+            boolean seated) {
     }
 
     // ---------- Panel del admin: órdenes en punto físico ----------
