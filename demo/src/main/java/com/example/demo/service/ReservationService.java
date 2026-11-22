@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.example.demo.dto.OperatorReservationDTO;
 import com.example.demo.dto.ReservationDTO;
 import com.stripe.model.checkout.Session;
 
@@ -32,4 +33,7 @@ public interface ReservationService {
 
     // Números de las mesas ya reservadas por OTROS clientes en esa fecha y hora
     List<Integer> getTakenTables(Integer clientId, LocalDate date, LocalTime time);
+    
+    // Reservas pagadas cuyo turno aún no termina, de la más próxima a la más lejana (operador)
+    List<OperatorReservationDTO> getActiveReservations();
 }

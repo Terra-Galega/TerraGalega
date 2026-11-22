@@ -179,6 +179,9 @@ public class SecurityConfig {
                                                 .hasAuthority(OPERATOR)
                                                 .requestMatchers(HttpMethod.GET, "/delivery-persons/available")
                                                 .hasAuthority(OPERATOR)
+                                                // Reservas activas: las ve el operador (y el admin)
+                                                .requestMatchers(HttpMethod.GET, "/reservations/active")
+                                                .hasAnyAuthority(OPERATOR, ADMIN)
 
                                                 // ================= PEDIDOS DE MESA =================
                                                 // Cocina (portal web propio, solo la cuenta de cocina): ver pedidos y avanzar platos
