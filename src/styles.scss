@@ -571,6 +571,31 @@ h3 {
 }
 
 // ---------- Accesibilidad ----------
+// Elementos de Angular CDK que solo son para lectores de pantalla: el aviso al cambiar de página
+// (LiveAnnouncer, que decía "Iniciar sesión", "Menú"... al final de la página) y los topes del
+// foco de los modales. El CDK trae esta regla en su CSS, pero el proyecto no lo carga, así que
+// se define aquí: invisible en pantalla, pero el lector de pantalla lo sigue leyendo.
+.cdk-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  outline: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  left: 0;
+}
+
+[dir="rtl"] .cdk-visually-hidden {
+  left: auto;
+  right: 0;
+}
+
 // "Saltar al contenido": fuera de la pantalla hasta que recibe el foco con Tab
 .skip-link {
   position: fixed;
