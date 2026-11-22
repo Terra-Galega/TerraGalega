@@ -100,6 +100,7 @@ export class CheckoutResultComponent implements OnInit {
     if (event.persisted && this.orderId > 0) {
       this.stripeReturn.clear();
       this.busy = false;
+      this.resume = true;
       this.check();
     }
   }
@@ -128,14 +129,6 @@ export class CheckoutResultComponent implements OnInit {
         this.showError(getErrorMessage(error, 'No pudimos consultar tu pago.'));
       },
     });
-  }
-
-  @HostListener('window:pageshow', ['$event'])
-  onPageShow(event: PageTransitionEvent): void {
-    if (event.persisted && this.payment?.state === 'PENDING') {
-      this.resume = true;
-      this.check();
-    }
   }
 
   private apply(payment: Payment): void {

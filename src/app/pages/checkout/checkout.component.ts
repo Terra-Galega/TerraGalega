@@ -1,7 +1,6 @@
 import { TranslatePipe } from '../../services/translate.pipe';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PaymentService } from '../../services/payment.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';

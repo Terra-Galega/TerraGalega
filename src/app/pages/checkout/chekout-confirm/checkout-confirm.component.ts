@@ -88,11 +88,6 @@ export class CheckoutConfirmComponent implements OnInit {
 
   errorTitle = 'No se pudo procesar el pedido';
   errorMessage = '';
-  // Botones del modal de error. Si el pago no se terminó, el principal lo reintenta.
-  errorConfirmLabel = 'Aceptar';
-  errorCancelLabel = '';
-  private retryOnConfirm = false;
-
   ngOnInit(): void {
     const session = this.auth.session;
     if (!session || session.type !== 'client') {
@@ -111,7 +106,7 @@ export class CheckoutConfirmComponent implements OnInit {
       return;
     }
 
-        // Se consulta si es Premium antes de mostrar la página, para no enseñar un
+    // Se consulta si es Premium antes de mostrar la página, para no enseñar un
     // domicilio de $6.000 que luego desaparece
     this.clientService.getMe().subscribe({
       next: (client) => {
@@ -154,76 +149,10 @@ export class CheckoutConfirmComponent implements OnInit {
     }
   }
 
-  // Si se salió hacia Stripe y se volvió sin pasar por /checkout/result, el pago
-  // no se terminó: se desbloquea el botón y se avisa. Antes se consulta el estado
-  // por si sí se alcanzó a pagar (entonces se lleva al resultado).
+  // La página de resultado consulta el estado real antes de ofrecer otro intento.
   private checkStripeReturn(): void {
     const redirect = this.stripeReturn.take('order');
-    if (!redirect) return;
-
-    this.paying = false;
-    this.paymentService.status(redirect.id).subscribe({
-      next: (payment) => {
-        if (payment.state === 'PAID' || payment.state === 'REFUNDED'
-            || payment.state === 'REFUND_PENDING' || payment.state === 'REFUND_FAILED') {
-          // Se pagó (o ya se estaba devolviendo): eso se resuelve en la página de resultado
-          this.router.navigate(['/checkout/result'], {
-            queryParams: { order: payment.orderId },
-          });
-          return;
-        }
-
-        if (payment.state === 'EXPIRED') {
-          // Esa sesión de Stripe ya no sirve: el próximo clic crea un pago nuevo
-          this.paymentService.clearPending();
-          this.draftService.draft = {
-            ...this.draftService.draft,
-            paymentRequestId: '',
-            paymentRequestBody: '',
-          };
-        }
-        this.showPaymentNotCompleted();
-      },
-      // Sin poder consultar, se asume lo seguro: no hubo cobro y puede reintentar
-      error: () => this.showPaymentNotCompleted(),
-    });
-  }
-
-  private showPaymentNotCompleted(): void {
-    this.paying = false;
-    this.errorTitle = 'No se realizó el pago';
-    this.errorMessage =
-      'Volviste de la pasarela sin terminar el pago, así que no se hizo ningún cobro. ' +
-      'Pulsa "Pagar con tarjeta" para volver a intentarlo.';
-    this.serverError = this.errorMessage;
-    this.errorConfirmLabel = 'Volver a intentar';
-    this.errorCancelLabel = 'Ahora no';
-    this.retryOnConfirm = true;
-    this.showErrorModal = true;
-  }
-
-  // "Ahora no": se cierra el modal pero el aviso sigue junto al botón de pagar
-  onErrorCancel(): void {
-    const notice = this.retryOnConfirm ? this.serverError : '';
-    this.closeErrorModal();
-    this.serverError = notice;
-  }
-
-  // Botón principal del modal de error: si era un pago sin terminar, vuelve a pagar
-  onErrorConfirm(): void {
-    const retry = this.retryOnConfirm;
-    this.closeErrorModal();
-    if (retry) {
-      this.confirm();
-    }
-
-    const orderId = this.paymentService.pendingOrderId();
-    if (orderId) {
-      this.openPayment(orderId);
-    } else {
-      this.paying = false;
-      this.serverError = 'Volviste de la pasarela. Puedes consultar de nuevo el mismo intento de pago.';
-    }
+    if (redirect) this.openPayment(redirect.id);
   }
 
   private openPayment(orderId: number): void {
@@ -519,9 +448,6 @@ export class CheckoutConfirmComponent implements OnInit {
     this.showErrorModal = false;
     this.errorMessage = '';
     this.serverError = '';
-    this.errorConfirmLabel = 'Aceptar';
-    this.errorCancelLabel = '';
-    this.retryOnConfirm = false;
   }
 
   goToMenu(): void {
