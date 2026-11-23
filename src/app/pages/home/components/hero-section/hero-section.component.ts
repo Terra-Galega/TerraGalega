@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { HeroLogoService } from '../../../../services/hero-logo.service';
 import { CelebrationSceneComponent } from '../../../../components/celebration/celebration-scene/celebration-scene.component';
-import { CelebrationSwitcherComponent } from '../../../../components/celebration/celebration-switcher/celebration-switcher.component';
+// import { CelebrationSwitcherComponent } from '../../../../components/celebration/celebration-switcher/celebration-switcher.component';
 
 // Caja de cada palabra dentro del dibujo del logo, en fracciones del viewBox de
 // logo-hero-text.svg (left, top, right, bottom).
@@ -36,7 +36,7 @@ const phase = (p: number, from: number, to: number) => ease(clamp01((p - from) /
 //   3. las dos palabras suben y se encogen hasta coincidir con las del logo de la barra.
 // El avance sigue al scroll con un pequeño suavizado, para que la rueda del ratón no dé saltos.
 @Component({
-  imports: [TranslatePipe, CelebrationSceneComponent, CelebrationSwitcherComponent],
+  imports: [TranslatePipe, CelebrationSceneComponent /*, CelebrationSwitcherComponent */],
   selector: 'app-hero-section',
   templateUrl: './hero-section.component.html',
   styleUrl: './hero-section.component.scss',

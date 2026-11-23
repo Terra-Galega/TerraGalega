@@ -5,7 +5,10 @@
   <main class="relative z-10 pt-32 pb-28 max-w-5xl mx-auto px-6 md:px-8">
     <app-page-header id="profile-title" eyebrow="Mi cuenta" title="{{ 'account.account.tu_perfil' | t }}"></app-page-header>
     <app-celebration-banner />
+    <!-- Selector de festividades oculto (no borrado). Para volver a mostrarlo, descomenta esta
+         línea y el import y la entrada de "imports" en account.component.ts:
     <app-celebration-switcher />
+    -->
     <!--Revisa si es un cliente-->
     @if (client) {
     <div class="space-y-6">
