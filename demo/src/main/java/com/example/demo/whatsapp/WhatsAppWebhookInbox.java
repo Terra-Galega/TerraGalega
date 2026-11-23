@@ -20,11 +20,13 @@ public class WhatsAppWebhookInbox {
     private static final Logger log = LoggerFactory.getLogger(WhatsAppWebhookInbox.class);
     private final EntityManager entityManager;
     private final TransactionTemplate transaction;
+    private final WhatsAppReplyService replies;
 
     public WhatsAppWebhookInbox(@Qualifier("entityManagerFactory") EntityManagerFactory factory,
-            @Qualifier("transactionManager") PlatformTransactionManager manager) {
+            @Qualifier("transactionManager") PlatformTransactionManager manager, WhatsAppReplyService replies) {
         this.entityManager = SharedEntityManagerCreator.createSharedEntityManager(factory);
         this.transaction = new TransactionTemplate(manager);
+        this.replies = replies;
     }
 
     public void receive(byte[] body) {
@@ -33,6 +35,7 @@ public class WhatsAppWebhookInbox {
             transaction.executeWithoutResult(status -> {
                 if (entityManager.find(WhatsAppWebhookEvent.class, id) == null) {
                     entityManager.persist(new WhatsAppWebhookEvent(id, new String(body, StandardCharsets.UTF_8)));
+                    replies.enqueue(entityManager, body);
                     entityManager.flush();
                 }
             });
