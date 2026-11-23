@@ -53,7 +53,7 @@ public class H2DataSourceConfig {
             @Value("${spring.jpa.hibernate.ddl-auto:create-drop}") String ddlAuto) {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource);
-        emf.setPackagesToScan("com.example.demo.entities");
+        emf.setPackagesToScan("com.example.demo.entities", "com.example.demo.whatsapp");
         emf.setPersistenceUnitName("h2");
         emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         Map<String, Object> props = new HashMap<>();
