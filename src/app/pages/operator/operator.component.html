@@ -7,7 +7,9 @@
     [operatorName]="operatorName"
     [operatorUsername]="operatorUsername"
     (logoutClicked)="logout()"
-  ></app-operator-topbar>
+  >
+    <app-operator-contact-requests></app-operator-contact-requests>
+  </app-operator-topbar>
 
   <!-- Navegación vertical a la izquierda (en móvil queda arriba, en horizontal) y contenido a la derecha -->
   <div class="max-w-[90rem] mx-auto flex flex-col md:flex-row">
@@ -34,7 +36,6 @@
 
     <!-- Margen lateral: 16 px en móvil, 32 px desde tablet -->
     <main class="flex-1 min-w-0 px-4 md:px-8 pt-8 md:pt-10 pb-16">
-      <app-operator-contact-requests></app-operator-contact-requests>
       @if (view === "orders") {
         <app-operator-tracking></app-operator-tracking>
         <header class="mb-8">

@@ -1,25 +1,47 @@
-@if (requests().length || error()) {
-  <section class="mb-8 rounded-xl border border-charcoal/15 bg-white/60 p-4 md:p-5" aria-label="Solicitudes de contacto">
-    <button type="button" class="flex min-h-[44px] w-full items-center justify-between gap-3 text-left"
-      [attr.aria-expanded]="expanded()" aria-controls="operator-contact-requests-list" (click)="expanded.set(!expanded())">
-      <span class="font-semibold text-charcoal">Solicitudes de atención</span>
-      <span class="rounded-full bg-[#556141] px-3 py-1 text-sm text-white" aria-live="polite">{{ requests().length }} pendientes</span>
-    </button>
+<button #bell type="button" class="operator-bell" aria-controls="operator-notification-panel"
+  [attr.aria-expanded]="expanded()" [attr.aria-label]="'Notificaciones' + (unread() ? ': ' + unread() + ' sin leer' : '')"
+  [class.active]="expanded()" (click)="expanded.set(!expanded())">
+  <svg aria-hidden="true" focusable="false" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+      d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9" />
+  </svg>
+  @if (unread()) { <span class="notification-badge" aria-hidden="true">{{ unread() > 9 ? '9+' : unread() }}</span> }
+</button>
+@if (expanded()) {
+  <section id="operator-notification-panel" class="operator-notification-panel" aria-labelledby="operator-notifications-title">
+    <header class="flex items-center justify-between gap-3 px-4 py-3 border-b border-charcoal/10">
+      <h2 id="operator-notifications-title" class="text-sm font-semibold">Notificaciones</h2>
+      @if (unread()) {
+        <button type="button" class="text-xs font-medium text-[#b2571f] cursor-pointer disabled:opacity-50"
+          [disabled]="readingAll()" (click)="markAllRead()">Marcar todas como leídas</button>
+      }
+    </header>
     @if (error()) {
-      <p role="status" class="mt-2 text-sm text-[#9b3d26]">No se pudieron actualizar las solicitudes. Se volverá a intentar automáticamente.</p>
+      <p role="status" class="px-4 py-2 text-xs text-[#9b3d26]">No se pudo actualizar. Se volverá a intentar automáticamente.</p>
     }
-    <div id="operator-contact-requests-list" [hidden]="!expanded()">
-      @for (request of requests(); track request.phone + request.requestedAt) {
-        <article class="mt-3 border-t border-charcoal/10 pt-3">
-          <p class="text-sm">Un cliente solicita atención. Comunícate al <strong class="select-all">+{{ request.phone }}</strong>.</p>
-          <p class="mt-1 text-xs text-charcoal/60">{{ request.requestedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
-          <div class="mt-2 flex flex-wrap items-center gap-3 text-sm">
-            <a class="inline-flex min-h-[44px] items-center font-medium underline underline-offset-4" [href]="'tel:+' + request.phone">Llamar</a>
-            <button type="button" class="min-h-[44px] cursor-pointer underline underline-offset-4" (click)="copy(request.phone)">Copiar número</button>
-            <button type="button" class="min-h-[44px] cursor-pointer rounded-lg border border-charcoal/20 px-3 disabled:opacity-50"
-              [disabled]="busy().has(request.phone)" (click)="handled(request)">{{ busy().has(request.phone) ? 'Guardando…' : 'Marcar como atendida' }}</button>
+    <div class="notification-list">
+      @for (request of requests(); track request.id) {
+        <article class="notification-item" [class.unread]="!request.read">
+          <button type="button" class="notification-summary" (click)="markRead(request)">
+            <span class="read-dot" [class.is-read]="request.read" aria-hidden="true"></span>
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-semibold">Solicitud de atención</span>
+              <span class="block text-[13px] mt-0.5 text-charcoal/70">Un cliente solicita atención. Comunícate al <strong class="select-all">+{{ request.phone }}</strong>.</span>
+              <span class="block text-[11px] mt-1 text-charcoal/50">{{ request.requestedAt | date: 'dd/MM/yyyy HH:mm' }} · {{ request.handled ? 'Atendida' : 'Pendiente de atención' }}</span>
+              @if (!request.read) { <span class="sr-only">Marcar como leída</span> }
+            </span>
+          </button>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 pb-3 pl-9 pr-4 text-xs">
+            <a class="inline-flex min-h-[36px] items-center font-medium underline underline-offset-4" [href]="'tel:+' + request.phone" (click)="markRead(request)">Llamar</a>
+            <button type="button" class="min-h-[36px] cursor-pointer underline underline-offset-4" (click)="copy(request.phone); markRead(request)">Copiar número</button>
+            @if (!request.handled) {
+              <button type="button" class="min-h-[36px] cursor-pointer font-medium text-[#b2571f] disabled:opacity-50"
+                [disabled]="busy().has(request.id)" (click)="handled(request)">{{ busy().has(request.id) ? 'Guardando…' : 'Marcar como atendida' }}</button>
+            }
           </div>
         </article>
+      } @empty {
+        <p class="px-4 py-8 text-sm text-center text-charcoal/55">No tienes notificaciones.</p>
       }
     </div>
   </section>

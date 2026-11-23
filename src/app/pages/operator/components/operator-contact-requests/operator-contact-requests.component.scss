@@ -1,0 +1,78 @@
+:host { display: block; position: relative; }
+
+.operator-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: rgba(245, 242, 235, 0.8);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+  &:hover, &.active { color: #f5f2eb; background-color: rgba(245, 242, 235, 0.08); }
+  &:focus-visible { outline: 2px solid #e58e57; outline-offset: 2px; }
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 3px;
+  border-radius: 50%;
+  background: #b2571f;
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.operator-notification-panel {
+  position: fixed;
+  top: 4.5rem;
+  left: 12px;
+  right: 12px;
+  z-index: 50;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgba(44, 44, 44, 0.08);
+  background: #fff;
+  color: #2c2c2c;
+  text-align: left;
+  box-shadow: 0 12px 40px rgba(44, 44, 44, 0.18);
+  @media (min-width: 768px) {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: auto;
+    right: 0;
+    width: 24rem;
+  }
+}
+
+.notification-list { max-height: min(65vh, 24rem); overflow-y: auto; overscroll-behavior: contain; }
+.notification-item {
+  border-bottom: 1px solid rgba(44, 44, 44, 0.06);
+  &.unread { background: rgba(178, 87, 31, 0.06); }
+}
+.notification-summary {
+  display: flex;
+  width: 100%;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 0.25rem;
+  text-align: left;
+  cursor: pointer;
+  &:hover { background: rgba(44, 44, 44, 0.03); }
+}
+.read-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  background: #b2571f;
+  &.is-read { background: transparent; }
+}
