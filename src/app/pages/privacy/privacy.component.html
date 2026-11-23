@@ -1,0 +1,64 @@
+<app-navbar />
+<main class="min-h-screen bg-cream text-charcoal pt-36 pb-24 px-6">
+  <article class="glass-card rounded-3xl p-7 md:p-10 max-w-3xl mx-auto leading-relaxed" aria-labelledby="privacy-title">
+    <p class="text-sm uppercase tracking-widest text-forest mb-3">Terra Galega</p>
+    <h1 id="privacy-title" class="font-serif text-3xl md:text-4xl font-semibold mb-2">Política de privacidad</h1>
+    <p class="text-sm text-charcoal/60 mb-8">Última actualización: {{ updated }}</p>
+
+    <section class="mb-8">
+      <h2 class="font-serif text-xl font-semibold mb-2">Quién trata tus datos</h2>
+      <p>Terra Galega, Ak 15 # 92-81, Chapinero, Bogotá. Para cualquier consulta sobre tus datos escríbenos a
+        <a class="text-forest underline underline-offset-4" [href]="'mailto:' + email">{{ email }}</a>.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="font-serif text-xl font-semibold mb-2">Qué datos usamos y para qué</h2>
+      <ul class="list-disc pl-6 space-y-2">
+        <li><strong>Cuenta:</strong> nombre, correo, teléfono y dirección, para identificarte y entregar tus pedidos.</li>
+        <li><strong>Pedidos, reservas y suscripción:</strong> lo que compras o reservas, su estado y tus puntos, para prestarte el servicio y emitir facturas.</li>
+        <li><strong>Pagos:</strong> se procesan en Stripe. No guardamos los datos de tu tarjeta.</li>
+        <li><strong>Seguimiento de domicilios:</strong> la ubicación del repartidor durante la entrega de tu pedido.</li>
+        <li><strong>WhatsApp (Galleguito):</strong> tu número, tu nombre de perfil y los mensajes que nos envías, para responderte. Si vinculas tu cuenta, también los usamos para mostrarte tu carrito, tus pedidos y tu reserva.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="font-serif text-xl font-semibold mb-2">Con quién los compartimos</h2>
+      <p class="mb-2">Solo con los proveedores que necesitamos para funcionar, que los tratan por cuenta nuestra:</p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li><strong>Meta (WhatsApp Business Platform):</strong> entrega los mensajes entre tú y Galleguito.</li>
+        <li><strong>Google (Gemini):</strong> genera las respuestas del asistente a partir de tu mensaje y de los mensajes recientes de la conversación.</li>
+        <li><strong>Stripe:</strong> procesa los pagos.</li>
+        <li><strong>Google y Microsoft:</strong> solo si eliges iniciar sesión con ellos.</li>
+        <li><strong>Railway y Vercel:</strong> alojan nuestro servidor y la web. <strong>Gmail:</strong> envía nuestros correos.</li>
+      </ul>
+      <p class="mt-2">No vendemos tus datos ni los usamos para publicidad de terceros.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="font-serif text-xl font-semibold mb-2">Cuánto tiempo los conservamos</h2>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>Mensajes de WhatsApp y respuestas del asistente: <strong>30 días</strong>.</li>
+        <li>Propuestas de cambio de carrito o reserva por WhatsApp: <strong>7 días</strong> después de vencer.</li>
+        <li>Solicitudes de contacto con un operador ya atendidas: <strong>90 días</strong>.</li>
+        <li>Datos de tu cuenta, pedidos y reservas: mientras tengas la cuenta, y lo que la ley exija conservar por facturación.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="font-serif text-xl font-semibold mb-2">Tus derechos</h2>
+      <p class="mb-2">Conforme a la Ley 1581 de 2012 de Colombia, puedes conocer, actualizar, rectificar y pedir la eliminación de tus datos, y revocar tu autorización. Para hacerlo:</p>
+      <ul class="list-disc pl-6 space-y-2">
+        <li>Edita tus datos desde <a routerLink="/account" class="text-forest underline underline-offset-4">Mi cuenta</a>.</li>
+        <li>Desvincula tu WhatsApp desde Mi cuenta. Galleguito dejará de acceder a tu carrito, pedidos y reservas.</li>
+        <li>Para eliminar tu cuenta o tus mensajes de WhatsApp, escribe a <a class="text-forest underline underline-offset-4" [href]="'mailto:' + email">{{ email }}</a> desde el correo de tu cuenta o indicando el número de WhatsApp.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="font-serif text-xl font-semibold mb-2">Cambios</h2>
+      <p>Si cambiamos esta política, actualizaremos la fecha de esta página.</p>
+    </section>
+  </article>
+</main>
+<app-footer />

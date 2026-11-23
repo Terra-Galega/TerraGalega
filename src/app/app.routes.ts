@@ -24,6 +24,11 @@ const recoverOrderPayment: CanActivateFn = () => {
 // así nadie puede cambiar un número en la URL para ver la cuenta de otra persona.
 export const routes: Routes = [
   {
+    path: 'privacy',
+    title: 'Política de privacidad',
+    loadComponent: () => import('./pages/privacy/privacy.component').then(m => m.PrivacyComponent),
+  },
+  {
     path: 'whatsapp/link',
     title: 'Vincular WhatsApp',
     loadComponent: () => import('./pages/whatsapp-link/whatsapp-link.component').then(m => m.WhatsAppLinkComponent),
