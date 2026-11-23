@@ -1,0 +1,25 @@
+<section class="glass-card rounded-3xl p-6 md:p-8" aria-labelledby="whatsapp-account-title" [attr.aria-busy]="busy()">
+  <p class="text-xs uppercase tracking-widest text-sage mb-1">Galleguito</p>
+  <h3 id="whatsapp-account-title" class="font-serif text-2xl font-semibold">{{ 'whatsappLink.profileTitle' | t }}</h3>
+  @if (error()) {
+    <p role="alert" class="text-red-800 mt-3">{{ error() }}</p>
+    <button type="button" [disabled]="busy()" (click)="load()" class="min-h-11 text-sage underline">{{ 'whatsappLink.retry' | t }}</button>
+  }
+  @if (status(); as connection) {
+    @if (connection.linked) {
+      <p class="mt-3"><span class="font-semibold">+{{ connection.phone }}</span> · {{ 'whatsappLink.verified' | t }}</p>
+      @if (confirming()) {
+        <p class="text-sm mt-3">{{ 'whatsappLink.unlinkDescription' | t }}</p>
+        <div class="flex flex-wrap gap-3 mt-4">
+          <button type="button" [disabled]="busy()" (click)="unlink()" class="rounded-full bg-sage text-cream min-h-11 px-5 font-semibold disabled:opacity-50">{{ 'whatsappLink.unlinkConfirm' | t }}</button>
+          <button type="button" [disabled]="busy()" (click)="confirming.set(false)" class="rounded-full border border-sage min-h-11 px-5 disabled:opacity-50">{{ 'whatsappLink.cancel' | t }}</button>
+        </div>
+      } @else {
+        <button type="button" (click)="confirming.set(true)" class="min-h-11 mt-3 text-sage underline">{{ 'whatsappLink.unlink' | t }}</button>
+      }
+    } @else {
+      <p class="mt-3 text-sm leading-relaxed">{{ 'whatsappLink.notLinked' | t }}</p>
+      <a href="https://wa.me/573105563040?text=Vincular%20mi%20cuenta" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center mt-3 text-sage font-semibold underline">{{ 'whatsappLink.request' | t }}</a>
+    }
+  } @else if (busy()) { <p role="status" class="mt-3">{{ 'whatsappLink.loading' | t }}</p> }
+</section>

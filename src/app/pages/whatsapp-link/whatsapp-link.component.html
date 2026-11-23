@@ -1,0 +1,48 @@
+<app-navbar />
+<main class="min-h-screen bg-cream text-charcoal pt-36 pb-24 px-6">
+  <section class="glass-card rounded-3xl p-7 md:p-10 max-w-xl mx-auto" aria-labelledby="whatsapp-title">
+    <p class="text-sm uppercase tracking-widest text-sage mb-3">Galleguito · WhatsApp</p>
+    <h1 id="whatsapp-title" class="font-serif text-3xl font-semibold mb-4">{{ 'whatsappLink.title' | t }}</h1>
+    @if (done()) {
+      <p role="status">{{ 'whatsappLink.success' | t }}</p>
+      <a routerLink="/account" class="inline-flex items-center mt-6 min-h-11 font-semibold text-sage underline">{{ 'whatsappLink.account' | t }}</a>
+    } @else if (!token) {
+      <p>{{ 'whatsappLink.missing' | t }}</p>
+      <a href="https://wa.me/573105563040?text=Vincular%20mi%20cuenta" class="inline-flex items-center mt-6 min-h-11 text-sage font-semibold underline">{{ 'whatsappLink.request' | t }}</a>
+    } @else if (!auth.isLoggedIn) {
+      <p>{{ 'whatsappLink.signInDescription' | t }}</p>
+      <a routerLink="/login" [queryParams]="{redirect: 'whatsapp'}" class="inline-flex items-center justify-center rounded-full bg-sage text-cream px-6 min-h-11 mt-6 font-semibold">{{ 'whatsappLink.signIn' | t }}</a>
+    } @else if (auth.session?.type !== 'client') {
+      <p>{{ 'whatsappLink.clientOnly' | t }}</p>
+    } @else if (auth.needsProfile) {
+      <p>{{ 'whatsappLink.completeDescription' | t }}</p>
+      <a routerLink="/complete-profile" [queryParams]="{redirect: 'whatsapp'}" class="inline-flex items-center min-h-11 mt-6 text-sage underline">{{ 'whatsappLink.complete' | t }}</a>
+    } @else {
+      @if (loading()) { <p role="status">{{ 'whatsappLink.loading' | t }}</p> }
+      @if (error()) {
+        <p class="text-red-800 my-4" role="alert">{{ error() }}</p>
+        <a href="https://wa.me/573105563040?text=Vincular%20mi%20cuenta" class="inline-flex items-center min-h-11 text-sage underline">{{ 'whatsappLink.request' | t }}</a>
+      }
+      @if (preview(); as number) {
+        <p class="leading-relaxed">{{ 'whatsappLink.confirmDescription' | t }}</p>
+        <dl class="rounded-2xl bg-white/60 p-5 mt-5 space-y-2">
+          <dt class="text-sm opacity-70">{{ 'whatsappLink.accountLabel' | t }}</dt>
+          <dd class="font-semibold">{{ auth.session?.name }} {{ auth.session?.lastName }}</dd>
+          <dt class="text-sm opacity-70">WhatsApp</dt>
+          <dd class="font-semibold">{{ number.maskedPhone }}</dd>
+          <dt class="text-sm opacity-70">{{ 'whatsappLink.expires' | t }}</dt>
+          <dd>{{ number.expiresAt | date:'shortTime' }}</dd>
+        </dl>
+        <p class="text-sm opacity-75 mt-4">{{ 'whatsappLink.scope' | t }}</p>
+        <div class="flex flex-wrap gap-3 mt-6">
+          <button type="button" [disabled]="saving()" (click)="confirm()" class="rounded-full bg-sage text-cream px-6 min-h-11 font-semibold disabled:opacity-50">{{ (saving() ? 'whatsappLink.saving' : 'whatsappLink.confirm') | t }}</button>
+          <button type="button" [disabled]="saving()" (click)="cancel()" class="rounded-full border border-sage px-6 min-h-11 disabled:opacity-50">{{ 'whatsappLink.cancel' | t }}</button>
+        </div>
+      } @else if (!loading()) {
+        <button type="button" (click)="load()" class="min-h-11 text-sage underline">{{ 'whatsappLink.retry' | t }}</button>
+      }
+      <a routerLink="/account" class="inline-flex items-center min-h-11 mt-5 text-sage underline">{{ 'whatsappLink.account' | t }}</a>
+    }
+  </section>
+</main>
+<app-footer />
