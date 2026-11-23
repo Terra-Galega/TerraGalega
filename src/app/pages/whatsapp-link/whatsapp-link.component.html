@@ -34,14 +34,13 @@
           <dd>{{ number.expiresAt | date:'shortTime' }}</dd>
         </dl>
         <p class="text-sm opacity-75 mt-4">{{ 'whatsappLink.scope' | t }}</p>
-        <div class="flex flex-wrap gap-3 mt-6">
-          <button type="button" [disabled]="saving()" (click)="confirm()" class="rounded-full bg-forest text-white px-6 py-3 min-h-11 font-semibold cursor-pointer transition-colors enabled:hover:bg-forest/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:cursor-not-allowed">{{ (saving() ? 'whatsappLink.saving' : 'whatsappLink.confirm') | t }}</button>
-          <button type="button" [disabled]="saving()" (click)="cancel()" class="rounded-full border border-forest text-forest px-6 py-3 min-h-11 font-semibold cursor-pointer transition-colors enabled:hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:cursor-not-allowed">{{ 'whatsappLink.cancel' | t }}</button>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+          <button type="button" [disabled]="saving()" (click)="confirm()" class="w-full rounded-full bg-forest text-white px-6 py-3 min-h-11 font-semibold cursor-pointer transition-colors enabled:hover:bg-forest/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:cursor-not-allowed">{{ (saving() ? 'whatsappLink.saving' : 'whatsappLink.confirm') | t }}</button>
+          <button type="button" [disabled]="saving()" (click)="cancel()" class="w-full rounded-full border border-forest text-forest px-6 py-3 min-h-11 font-semibold cursor-pointer transition-colors enabled:hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:cursor-not-allowed">{{ 'whatsappLink.cancel' | t }}</button>
         </div>
       } @else if (!loading()) {
-        <button type="button" (click)="load()" class="min-h-11 rounded-full border border-forest text-forest px-5 py-2.5 font-semibold cursor-pointer transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">{{ 'whatsappLink.retry' | t }}</button>
+        <button type="button" (click)="load()" class="mt-6 min-h-11 rounded-full border border-forest text-forest px-5 py-2.5 font-semibold cursor-pointer transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">{{ 'whatsappLink.retry' | t }}</button>
       }
-      <a routerLink="/account" class="inline-flex items-center min-h-11 mt-5 text-forest underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">{{ 'whatsappLink.account' | t }}</a>
     }
   </section>
 </main>
