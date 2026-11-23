@@ -28,16 +28,18 @@ public class WhatsAppReplyService {
     private final EntityManager em;
     private final TransactionTemplate tx;
     private final WhatsAppAssistant assistant;
+    private final WhatsAppMenu menu;
 
     public WhatsAppReplyService(WhatsAppReplySettings settings, WhatsAppMessageClient client, ObjectMapper mapper,
             @Qualifier("entityManagerFactory") EntityManagerFactory factory,
-            @Qualifier("transactionManager") PlatformTransactionManager manager, WhatsAppAssistant assistant) {
+            @Qualifier("transactionManager") PlatformTransactionManager manager, WhatsAppAssistant assistant, WhatsAppMenu menu) {
         this.settings = settings;
         this.client = client;
         this.mapper = mapper;
         this.em = SharedEntityManagerCreator.createSharedEntityManager(factory);
         this.tx = new TransactionTemplate(manager);
         this.assistant = assistant;
+        this.menu = menu;
     }
 
     // Participa en la misma transacción que guarda el webhook: no pierde trabajos
@@ -54,8 +56,8 @@ public class WhatsAppReplyService {
                 for (var message : value.path("messages")) {
                     String id = message.path("id").asText();
                     String from = message.path("from").asText();
-                    if (!"text".equals(message.path("type").asText()) || message.path("text").path("body").asText().isBlank()
-                            || id.isBlank() || id.length() > 255 || !from.matches("[0-9]{5,25}")) continue;
+                    var selection = menu.selection(message);
+                    if (selection == null || id.isBlank() || id.length() > 255 || !from.matches("[0-9]{5,25}")) continue;
                     Instant sentAt;
                     try { sentAt = Instant.ofEpochSecond(Long.parseLong(message.path("timestamp").asText())); }
                     catch (RuntimeException invalidTimestamp) { continue; }
@@ -65,11 +67,20 @@ public class WhatsAppReplyService {
                     if (!expires.isAfter(now) || sentAt.isAfter(now.plusSeconds(300))) continue;
                     if (entityManager.find(WhatsAppReply.class, id) == null) {
                         var job = new WhatsAppReply(id, from, expires);
-                        String text = message.path("text").path("body").asText().trim();
+                        String text = selection.text();
+                        job.responseKind = selection.kind();
                         // Conserva longitud suficiente para contestar que excede el límite,
                         // sin duplicar un cuerpo arbitrariamente grande en la cola.
                         job.incomingText = text.substring(0, Math.min(text.length(), WhatsAppAssistant.MAX_INPUT + 1));
                         entityManager.persist(job);
+                        if ("OPERATOR".equals(job.responseKind)) {
+                            var request = entityManager.find(WhatsAppContactRequest.class, from, LockModeType.PESSIMISTIC_WRITE);
+                            if (request == null) entityManager.persist(new WhatsAppContactRequest(from));
+                            else if (!request.pending) {
+                                request.pending = true;
+                                request.requestedAt = Instant.now();
+                            }
+                        }
                     }
                 }
             }
@@ -89,7 +100,8 @@ public class WhatsAppReplyService {
             try {
                 if (job.replyText == null) {
                     List<WhatsAppAssistant.Turn> history = tx.execute(status -> history(job));
-                    String generated = assistant.answer(job.incomingText, history);
+                    String fixed = menu.fixedAnswer(job.responseKind == null ? "AI" : job.responseKind);
+                    String generated = fixed != null ? fixed : assistant.answer(job.incomingText, history);
                     tx.executeWithoutResult(status -> em.find(WhatsAppReply.class, job.id).replyText = generated);
                     job.replyText = generated;
                 }
@@ -98,7 +110,8 @@ public class WhatsAppReplyService {
                     tx.executeWithoutResult(status -> em.find(WhatsAppReply.class, job.id).state = "EXPIRED");
                     continue;
                 }
-                outbound = client.send(job.recipient, job.replyText);
+                outbound = "MENU".equals(job.responseKind) ? client.sendMenu(job.recipient, job.replyText)
+                        : client.send(job.recipient, job.replyText);
                 state = "ACCEPTED";
             } catch (RestClientResponseException failure) {
                 int code = failure.getStatusCode().value();

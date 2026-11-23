@@ -17,6 +17,7 @@ public class WhatsAppReply {
     // Nullable para las tareas que ya existían antes de conectar Gemini.
     @Column(name = "incoming_text", columnDefinition = "text") String incomingText;
     @Column(name = "reply_text", columnDefinition = "text") String replyText;
+    @Column(name = "response_kind", length = 20) String responseKind;
 
     protected WhatsAppReply() { }
     WhatsAppReply(String id, String recipient, Instant expiresAt) {
