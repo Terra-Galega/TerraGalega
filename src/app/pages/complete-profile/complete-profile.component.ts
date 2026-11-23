@@ -19,6 +19,7 @@ const ADDRESS_MAX = 120;
 
 // A dónde se vuelve según el parámetro "redirect" (sin él, a la cuenta)
 const REDIRECTS: Record<string, string> = {
+  whatsapp: '/whatsapp/link',
   checkout: '/checkout',
   reservations: '/reservations',
 };

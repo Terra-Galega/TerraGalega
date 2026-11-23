@@ -27,6 +27,7 @@ const EMAIL_NOT_VERIFIED_CODE = 'EMAIL_NOT_VERIFIED';
 
 // A dónde vuelve el cliente según el parámetro ?redirect=
 const REDIRECTS: Record<string, string> = {
+  whatsapp: '/whatsapp/link',
   checkout: '/checkout',
   reservations: '/reservations',
   home: '/aboutUs',
@@ -125,6 +126,7 @@ export class LoginComponent implements OnDestroy {
   // 2. Si la URL trae ?redirect=, a esa página.
   // 3. Si no, a su cuenta.
   private afterAuthRoute(): string {
+    if (this.route.snapshot.queryParamMap.get('redirect') === 'whatsapp') return '/whatsapp/link';
     const flow = this.tutorial.currentFlow();
     if (flow) return TOUR_REDIRECTS[flow];
 
@@ -258,7 +260,7 @@ export class LoginComponent implements OnDestroy {
     if (user.profileComplete === false) {
       // Se pasa a dónde volver: el del tutorial o el de la URL
       const flow = this.tutorial.currentFlow();
-      const redirect = flow
+      const redirect = this.route.snapshot.queryParamMap.get('redirect') === 'whatsapp' ? 'whatsapp' : flow
         ? (flow === 'order' ? 'checkout' : 'reservations')
         : this.route.snapshot.queryParamMap.get('redirect');
       this.router.navigate(['/complete-profile'], {

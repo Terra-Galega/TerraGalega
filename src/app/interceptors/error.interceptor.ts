@@ -22,7 +22,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
             if (!ignored && error.status === 401) {
                 auth.logout();
-                router.navigate(['/login'], { replaceUrl: true });
+                const linking = router.url.split(/[?#]/)[0] === '/whatsapp/link';
+                router.navigate(['/login'], { replaceUrl: true, queryParams: linking ? { redirect: 'whatsapp' } : {} });
             }
 
             if (!ignored && error.status === 403) {

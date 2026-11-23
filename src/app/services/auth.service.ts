@@ -306,7 +306,8 @@ export class AuthService {
 
   private endSession() {
     this.logout();
-    this.router.navigate(['/login'], { replaceUrl: true });
+    const linking = this.router.url.split(/[?#]/)[0] === '/whatsapp/link';
+    this.router.navigate(['/login'], { replaceUrl: true, queryParams: linking ? { redirect: 'whatsapp' } : {} });
   }
 
   private updateSession(session: Session | null) {

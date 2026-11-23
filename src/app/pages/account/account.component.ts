@@ -1,4 +1,5 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { WhatsAppAccountComponent } from './components/whatsapp-account/whatsapp-account.component';
 import { PointsMovement } from '../../models/checkout';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
@@ -39,6 +40,7 @@ const MAX_POLLS = 15;
 @Component({
   selector: 'app-account',
   imports: [
+    WhatsAppAccountComponent,
     NavbarComponent,
     FooterComponent,
     PageHeaderComponent,
