@@ -30,11 +30,13 @@ public class WhatsAppReplyService {
     private final WhatsAppAssistant assistant;
     private final WhatsAppMenu menu;
     private final WhatsAppAccountService accounts;
+    private final WhatsAppCartService cart;
+    private final WhatsAppCartAssistant cartAssistant;
 
     public WhatsAppReplyService(WhatsAppReplySettings settings, WhatsAppMessageClient client, ObjectMapper mapper,
             @Qualifier("entityManagerFactory") EntityManagerFactory factory,
             @Qualifier("transactionManager") PlatformTransactionManager manager, WhatsAppAssistant assistant, WhatsAppMenu menu,
-            WhatsAppAccountService accounts) {
+            WhatsAppAccountService accounts, WhatsAppCartService cart, WhatsAppCartAssistant cartAssistant) {
         this.settings = settings;
         this.client = client;
         this.mapper = mapper;
@@ -43,6 +45,8 @@ public class WhatsAppReplyService {
         this.assistant = assistant;
         this.menu = menu;
         this.accounts = accounts;
+        this.cart = cart;
+        this.cartAssistant = cartAssistant;
     }
 
     // Participa en la misma transacción que guarda el webhook: no pierde trabajos
@@ -70,6 +74,11 @@ public class WhatsAppReplyService {
                     if (!expires.isAfter(now) || sentAt.isAfter(now.plusSeconds(300))) continue;
                     if (entityManager.find(WhatsAppReply.class, id) == null) {
                         var job = new WhatsAppReply(id, from, expires);
+                        var account = accounts.snapshot(entityManager, from);
+                        if (account != null) {
+                            job.accountClientId = account.clientId();
+                            job.accountLinkedAt = account.linkedAt();
+                        }
                         String text = selection.text();
                         job.responseKind = selection.kind();
                         // Conserva longitud suficiente para contestar que excede el límite,
@@ -114,6 +123,30 @@ public class WhatsAppReplyService {
                             em.find(WhatsAppReply.class, job.id).replyText = reply;
                             return reply;
                         });
+                    } else if ((job.responseKind != null && job.responseKind.startsWith("CART")) || ("AI".equals(job.responseKind) && job.account() != null)) {
+                        WhatsAppCartService.Reply reply;
+                        try {
+                            var context = new WhatsAppCartService.Context(job.id, job.recipient, job.account());
+                            if (!accounts.matches(job.recipient, job.account())) {
+                                reply = WhatsAppCartService.Reply.text(WhatsAppAccountService.LINK_REQUIRED);
+                            } else {
+                                reply = switch (job.responseKind) {
+                                    case "CART" -> WhatsAppCartService.Reply.text(cart.summary(context));
+                                    case "CART_CONFIRM" -> cart.decide(context, job.incomingText, true);
+                                    case "CART_CANCEL" -> cart.decide(context, job.incomingText, false);
+                                    default -> cartAssistant.answer(context, job.incomingText, tx.execute(status -> history(job)));
+                                };
+                            }
+                        } catch (com.example.demo.errors.ApiException denied) {
+                            reply = WhatsAppCartService.Reply.text(denied.getMessage());
+                        }
+                        var result = reply;
+                        generated = result.text();
+                        tx.executeWithoutResult(status -> {
+                            var stored = em.find(WhatsAppReply.class, job.id);
+                            stored.replyText = result.text(); stored.cartActionId = result.actionId();
+                        });
+                        job.cartActionId = result.actionId();
                     } else {
                         List<WhatsAppAssistant.Turn> history = tx.execute(status -> history(job));
                         String fixed = menu.fixedAnswer(job.responseKind == null ? "AI" : job.responseKind);
@@ -122,6 +155,15 @@ public class WhatsAppReplyService {
                         tx.executeWithoutResult(status -> em.find(WhatsAppReply.class, job.id).replyText = answer);
                     }
                     job.replyText = generated;
+                }
+                // También se revisa al reintentar un 429: nunca enviar datos de un vínculo revocado.
+                if (job.account() != null && !accounts.matches(job.recipient, job.account())) {
+                    job.replyText = WhatsAppAccountService.LINK_REQUIRED;
+                    job.cartActionId = null;
+                    tx.executeWithoutResult(status -> {
+                        var stored = em.find(WhatsAppReply.class, job.id);
+                        stored.replyText = WhatsAppAccountService.LINK_REQUIRED; stored.cartActionId = null;
+                    });
                 }
                 // Gemini puede tardar; comprobar de nuevo la ventana antes del envío.
                 if (!job.expiresAt.isAfter(Instant.now())) {
@@ -132,7 +174,8 @@ public class WhatsAppReplyService {
                     });
                     continue;
                 }
-                outbound = "MENU".equals(job.responseKind) ? client.sendMenu(job.recipient, job.replyText)
+                outbound = job.cartActionId != null ? client.sendCartConfirmation(job.recipient, job.replyText, job.cartActionId)
+                        : "MENU".equals(job.responseKind) ? client.sendMenu(job.recipient, job.replyText)
                         : client.send(job.recipient, job.replyText);
                 state = "ACCEPTED";
             } catch (RestClientResponseException failure) {
@@ -161,11 +204,19 @@ public class WhatsAppReplyService {
     }
 
     private List<WhatsAppAssistant.Turn> history(WhatsAppReply job) {
-        var previous = em.createQuery("select r from WhatsAppReply r where r.recipient = :recipient and r.state = 'ACCEPTED' and (r.responseKind is null or r.responseKind <> 'LINK') and r.expiresAt > :now and r.expiresAt <= :current and r.id <> :id and r.incomingText is not null and r.replyText is not null order by r.expiresAt desc, r.id desc", WhatsAppReply.class)
+        String owner = job.account() == null ? "r.accountClientId is null"
+                : "r.accountClientId = :owner and r.accountLinkedAt = :linked";
+        var query = em.createQuery("select r from WhatsAppReply r where r.recipient = :recipient and r.state = 'ACCEPTED' and (r.responseKind is null or r.responseKind <> 'LINK') and (" + owner + ") and r.expiresAt > :now and r.expiresAt <= :current and r.id <> :id and r.incomingText is not null and r.replyText is not null order by r.expiresAt desc, r.id desc", WhatsAppReply.class)
                 .setParameter("recipient", job.recipient).setParameter("now", Instant.now())
-                .setParameter("current", job.expiresAt).setParameter("id", job.id).setMaxResults(6).getResultList();
+                .setParameter("current", job.expiresAt).setParameter("id", job.id).setMaxResults(6);
+        if (job.account() != null) query.setParameter("owner", job.accountClientId).setParameter("linked", job.accountLinkedAt);
+        var previous = query.getResultList();
         var turns = new ArrayList<WhatsAppAssistant.Turn>();
-        for (var item : previous) turns.add(new WhatsAppAssistant.Turn(item.incomingText, item.replyText));
+        for (var item : previous) {
+            String text = "CART_CONFIRM".equals(item.responseKind) ? "Confirmar cambio del carrito"
+                    : "CART_CANCEL".equals(item.responseKind) ? "Cancelar cambio del carrito" : item.incomingText;
+            turns.add(new WhatsAppAssistant.Turn(text, item.replyText));
+        }
         Collections.reverse(turns);
         return turns;
     }

@@ -24,6 +24,12 @@ public class WhatsAppMenu {
     Selection selection(JsonNode message) {
         if ("interactive".equals(message.path("type").asText())) {
             var interactive = message.path("interactive");
+            if ("button_reply".equals(interactive.path("type").asText())) {
+                String button = interactive.path("button_reply").path("id").asText();
+                if (button.matches("tg_cart_confirm:[a-f0-9]{64}")) return new Selection("CART_CONFIRM", button.substring("tg_cart_confirm:".length()));
+                if (button.matches("tg_cart_cancel:[a-f0-9]{64}")) return new Selection("CART_CANCEL", button.substring("tg_cart_cancel:".length()));
+                return null;
+            }
             String id = "list_reply".equals(interactive.path("type").asText())
                     ? interactive.path("list_reply").path("id").asText() : "";
             return switch (id) {
@@ -33,6 +39,7 @@ public class WhatsAppMenu {
                 case "tg_reservations" -> new Selection("RESERVATIONS", "Información de reservas");
                 case "tg_operator" -> new Selection("OPERATOR", "Solicitar contacto de un operador");
                 case "tg_link" -> new Selection("LINK", "Vincular mi cuenta");
+                case "tg_cart" -> new Selection("CART", "Ver mi carrito");
                 default -> null;
             };
         }
@@ -44,6 +51,9 @@ public class WhatsAppMenu {
         if (List.of("hola", "buenas", "buenos dias", "buenas tardes", "buenas noches", "menu", "opciones", "inicio",
                 "hola quiero conocer el menu de terragalega").contains(normalized)) return new Selection("MENU", text);
         // Solo peticiones explícitas; mencionar un operador en cualquier frase no basta.
+        if (List.of("carrito", "mi carrito", "ver carrito", "ver mi carrito").contains(normalized)) return new Selection("CART", text);
+        if ("confirmar carrito".equals(normalized)) return new Selection("CART_CONFIRM", "");
+        if ("cancelar cambio".equals(normalized)) return new Selection("CART_CANCEL", "");
         if (List.of("vincular", "vincular mi cuenta", "vincular cuenta", "quiero vincular mi cuenta").contains(normalized)) {
             return new Selection("LINK", text);
         }
@@ -73,7 +83,8 @@ public class WhatsAppMenu {
                 "action", Map.of("button", "Ver opciones", "sections", List.of(Map.of("title", "TerraGalega", "rows", List.of(
                         row("tg_catalog", "🍽️ Ver menú"), row("tg_recommend", "⭐ Recomendaciones"),
                         row("tg_information", "🕒 Horarios y ubicación"), row("tg_reservations", "📅 Reservas"),
-                        row("tg_operator", "👤 Contactar operador"), row("tg_link", "🔗 Vincular mi cuenta"))))));
+                        row("tg_operator", "👤 Contactar operador"), row("tg_link", "🔗 Vincular mi cuenta"),
+                        row("tg_cart", "🛒 Mi carrito"))))));
     }
 
     private static Map<String, String> row(String id, String title) { return Map.of("id", id, "title", title); }

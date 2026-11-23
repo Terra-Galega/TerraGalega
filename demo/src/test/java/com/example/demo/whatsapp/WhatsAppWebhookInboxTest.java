@@ -50,13 +50,15 @@ class WhatsAppWebhookInboxTest {
         @Bean WhatsAppReplySettings settings() { return new WhatsAppReplySettings(true, "fake-token", "123456", "v25.0"); }
         @Bean WhatsAppAssistant assistant() { return mock(WhatsAppAssistant.class); }
         @Bean WhatsAppMessageClient sender() { return mock(WhatsAppMessageClient.class); }
+        @Bean WhatsAppCartService cart() { return mock(WhatsAppCartService.class); }
+        @Bean WhatsAppCartAssistant cartAssistant() { return mock(WhatsAppCartAssistant.class); }
         @Bean WhatsAppAccountService accounts(EntityManagerFactory factory, PlatformTransactionManager manager) {
             return new WhatsAppAccountService(factory, manager, "https://terra.example");
         }
         @Bean WhatsAppReplyService replies(EntityManagerFactory factory, PlatformTransactionManager manager,
                 WhatsAppReplySettings settings, WhatsAppMessageClient sender, WhatsAppAssistant assistant, WhatsAppMenu menu,
-                WhatsAppAccountService accounts) {
-            return new WhatsAppReplyService(settings, sender, new ObjectMapper(), factory, manager, assistant, menu, accounts);
+                WhatsAppAccountService accounts, WhatsAppCartService cart, WhatsAppCartAssistant cartAssistant) {
+            return new WhatsAppReplyService(settings, sender, new ObjectMapper(), factory, manager, assistant, menu, accounts, cart, cartAssistant);
         }
         @Bean WhatsAppWebhookInbox inbox(EntityManagerFactory factory, PlatformTransactionManager manager, WhatsAppReplyService replies) {
             return new WhatsAppWebhookInbox(factory, manager, replies);
@@ -67,11 +69,13 @@ class WhatsAppWebhookInboxTest {
     @Autowired WhatsAppReplyService replies;
     @Autowired WhatsAppMessageClient sender;
     @Autowired WhatsAppAssistant assistant;
+    @Autowired WhatsAppCartService cart;
+    @Autowired WhatsAppCartAssistant cartAssistant;
     @Autowired PlatformTransactionManager manager;
 
     @BeforeEach
     void clean() {
-        reset(sender, assistant);
+        reset(sender, assistant, cart, cartAssistant);
         when(assistant.answer(any(), anyList())).thenReturn("Respuesta de prueba IA");
         var em = org.springframework.orm.jpa.SharedEntityManagerCreator.createSharedEntityManager(factory);
         new TransactionTemplate(manager).executeWithoutResult(tx -> {
@@ -143,6 +147,72 @@ class WhatsAppWebhookInboxTest {
         inbox.receive(event("ask-after-link", Instant.now().getEpochSecond(), "123456"));
         replies.dispatch();
         verify(assistant).answer(eq("Recomiéndame un plato"), eq(List.of()));
+    }
+
+    @Test
+    void cartRequiresVerifiedLinkAndIgnoresPhoneNumbersWrittenInMessages() {
+        when(sender.send(anyString(), anyString())).thenReturn("wamid.no-link");
+        inbox.receive(choice("cart-no-link", "tg_cart")); replies.dispatch();
+        verify(sender).send(eq("573001234567"), contains("primero elige"));
+        verifyNoInteractions(cart, cartAssistant);
+    }
+
+    void bindForQueueTest(Integer clientId, Instant linkedAt) {
+        var em = org.springframework.orm.jpa.SharedEntityManagerCreator.createSharedEntityManager(factory);
+        new TransactionTemplate(manager).executeWithoutResult(tx -> {
+            var link = em.find(WhatsAppAccountLink.class, "573001234567");
+            if (link == null) { link = new WhatsAppAccountLink("573001234567"); em.persist(link); }
+            link.clientId = clientId; link.linkedAt = linkedAt;
+        });
+    }
+
+    @Test
+    void accountChangesBeforeDispatchCannotModifyCartOrExposeOldHistory() {
+        bindForQueueTest(1, Instant.parse("2026-11-23T00:00:00Z"));
+        inbox.receive(event("old-owner-cart", Instant.now().getEpochSecond(), "123456"));
+        bindForQueueTest(2, Instant.parse("2026-11-23T01:00:00Z"));
+        when(sender.send(anyString(), anyString())).thenReturn("wamid.changed");
+        replies.dispatch();
+        verifyNoInteractions(cart, cartAssistant);
+        verify(sender).send(eq("573001234567"), eq(WhatsAppAccountService.LINK_REQUIRED));
+        when(cartAssistant.answer(any(), anyString(), anyList())).thenReturn(WhatsAppCartService.Reply.text("Respuesta de la cuenta nueva"));
+        inbox.receive(event("new-owner-cart", Instant.now().getEpochSecond(), "123456")); replies.dispatch();
+        verify(cartAssistant).answer(argThat(c -> c.account().clientId().equals(2)), anyString(), eq(List.of()));
+    }
+
+    @Test
+    void repeatedWebhookAndGraphRateLimitDoNotGenerateAnotherProposal() {
+        bindForQueueTest(1, Instant.parse("2026-11-23T00:00:00Z"));
+        when(cartAssistant.answer(any(), anyString(), anyList())).thenReturn(new WhatsAppCartService.Reply("¿Confirmas agregar 2 pulpos?", "a".repeat(64)));
+        when(sender.sendCartConfirmation(anyString(), anyString(), anyString()))
+                .thenThrow(org.springframework.web.client.HttpClientErrorException.create(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, "slow", org.springframework.http.HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8))
+                .thenReturn("wamid.retry");
+        var body = event("cart-proposal-429", Instant.now().getEpochSecond(), "123456");
+        inbox.receive(body); inbox.receive(body); replies.dispatch();
+        var em = org.springframework.orm.jpa.SharedEntityManagerCreator.createSharedEntityManager(factory);
+        new TransactionTemplate(manager).executeWithoutResult(tx -> em.find(WhatsAppReply.class, "cart-proposal-429").nextAttemptAt = Instant.now().minusSeconds(1));
+        replies.dispatch();
+        verify(cartAssistant, times(1)).answer(any(), anyString(), anyList());
+        verify(sender, times(2)).sendCartConfirmation(eq("573001234567"), anyString(), eq("a".repeat(64)));
+        assertThat(state("cart-proposal-429")).isEqualTo("ACCEPTED");
+    }
+
+    @Test
+    void revokingLinkWhileWaitingForRateLimitSuppressesCachedPersonalData() {
+        bindForQueueTest(1, Instant.parse("2026-11-23T00:00:00Z"));
+        when(cart.summary(any())).thenReturn("Carrito privado de la cuenta anterior");
+        when(sender.send(anyString(), anyString()))
+                .thenThrow(org.springframework.web.client.HttpClientErrorException.create(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, "slow", org.springframework.http.HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8))
+                .thenReturn("wamid.safe");
+        inbox.receive(choice("private-429", "tg_cart")); replies.dispatch();
+        bindForQueueTest(null, null);
+        var em = org.springframework.orm.jpa.SharedEntityManagerCreator.createSharedEntityManager(factory);
+        new TransactionTemplate(manager).executeWithoutResult(tx -> em.find(WhatsAppReply.class, "private-429").nextAttemptAt = Instant.now().minusSeconds(1));
+        replies.dispatch();
+        var responses = org.mockito.ArgumentCaptor.forClass(String.class);
+        verify(sender, times(2)).send(eq("573001234567"), responses.capture());
+        assertThat(responses.getAllValues().get(1)).isEqualTo(WhatsAppAccountService.LINK_REQUIRED);
+        verify(cart, times(1)).summary(any());
     }
 
     @Test

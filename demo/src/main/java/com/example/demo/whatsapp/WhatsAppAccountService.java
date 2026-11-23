@@ -33,6 +33,32 @@ public class WhatsAppAccountService {
 
     public record Status(boolean linked, String phone, Instant linkedAt) { }
     public record Preview(String maskedPhone, Instant expiresAt) { }
+    record Account(Integer clientId, Instant linkedAt) { }
+    static final String LINK_REQUIRED = "Para consultar o modificar tu carrito, primero elige 🔗 Vincular mi cuenta en el menú. Si ya lo vinculaste, solicita de nuevo la acción desde ese WhatsApp.";
+
+    Account snapshot(EntityManager entityManager, String phone) {
+        var link = entityManager.find(WhatsAppAccountLink.class, phone);
+        return link == null || link.clientId == null ? null : new Account(link.clientId, link.linkedAt);
+    }
+
+    boolean matches(String phone, Account account) {
+        return account != null && Boolean.TRUE.equals(tx.execute(status -> account.equals(snapshot(em, phone))));
+    }
+
+    // La asociación se verifica al ejecutar cada herramienta, no la decide Gemini.
+    <T> T withAccount(String phone, Account account, java.util.function.Supplier<T> work) {
+        if (account == null) throw ApiException.forbidden(LINK_REQUIRED);
+        return tx.execute(status -> {
+            if (em.createNativeQuery("select id from clients where id = :client for update", Integer.class)
+                    .setParameter("client", account.clientId()).getResultList().isEmpty()) throw ApiException.forbidden(LINK_REQUIRED);
+            var link = em.find(WhatsAppAccountLink.class, phone, LockModeType.PESSIMISTIC_WRITE);
+            if (link != null) em.refresh(link, LockModeType.PESSIMISTIC_WRITE);
+            if (link == null || !account.clientId().equals(link.clientId) || !account.linkedAt().equals(link.linkedAt)) {
+                throw ApiException.forbidden(LINK_REQUIRED);
+            }
+            return work.get();
+        });
+    }
 
     // Solo lo invoca el consumidor de mensajes entrantes firmados por Meta.
     String createReply(String phone) {

@@ -53,6 +53,8 @@ public class CartService {
     private com.example.demo.service.ClientService clientService;
 
     private final TransactionTemplate pgTx;
+    @jakarta.persistence.PersistenceContext(unitName = "h2")
+    private jakarta.persistence.EntityManager primaryEm;
 
     // Un candado por cliente: si la web y la app tocan el mismo carrito a la vez,
     // se atienden en fila
@@ -70,16 +72,18 @@ public class CartService {
 
     // Suma una línea (si ya existe la misma con los mismos adicionales, suma la
     // cantidad)
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CartItemDTO> addItem(Integer clientId, CheckoutItemDTO item) {
+        lockClient(clientId);
         clientService.getClientById(clientId);
         addLine(clientId, item);
         return buildCart(clientId);
     }
 
     // Une varias líneas de golpe (carrito de invitado de la web al iniciar sesión)
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CartItemDTO> addItems(Integer clientId, List<CheckoutItemDTO> items) {
+        lockClient(clientId);
         clientService.getClientById(clientId);
         if (items != null) {
             for (CheckoutItemDTO item : items) {
@@ -93,8 +97,9 @@ public class CartService {
         return buildCart(clientId);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CartItemDTO> setQuantity(Integer clientId, String lineId, int quantity) {
+        lockClient(clientId);
         clientService.getClientById(clientId);
         if (quantity > MAX_QUANTITY) {
             throw ApiException.badRequest("Máximo " + MAX_QUANTITY + " unidades por producto.");
@@ -116,14 +121,17 @@ public class CartService {
     }
 
     // Si la línea ya no existe no pasa nada (la otra pantalla pudo quitarla antes)
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CartItemDTO> removeItem(Integer clientId, String lineId) {
+        lockClient(clientId);
         clientService.getClientById(clientId);
         deleteLine(clientId, lineId);
         return buildCart(clientId);
     }
 
+    @Transactional
     public void clear(Integer clientId) {
+        lockClient(clientId);
         synchronized (lock(clientId)) {
             pgTx.executeWithoutResult(status -> repository.deleteAll(repository.findByClientIdOrderByIdAsc(clientId)));
         }
@@ -240,5 +248,11 @@ public class CartService {
 
     private Object lock(Integer clientId) {
         return locks.computeIfAbsent(clientId, k -> new Object());
+    }
+
+    // Mismo bloqueo para web/app/WhatsApp y entre réplicas del backend.
+    private void lockClient(Integer clientId) {
+        if (primaryEm.createNativeQuery("select id from clients where id = :client for update", Integer.class)
+                .setParameter("client", clientId).getResultList().isEmpty()) throw ApiException.notFound("No se encontró el cliente solicitado.");
     }
 }
