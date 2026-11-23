@@ -152,6 +152,14 @@ class MainActivity : ComponentActivity() {
             }
             intent.data = null
         }
+        // Aviso de cocina del mesero: abre la mesa y marca el pedido
+        if (intent.hasExtra(NotificationStore.EXTRA_TABLE_ID)) {
+            val orderId = intent.getIntExtra(NotificationStore.EXTRA_ORDER_ID, -1).takeIf { it >= 0 }
+            WaiterUi.focusOrder = orderId
+            WaiterUi.openTable = intent.getIntExtra(NotificationStore.EXTRA_TABLE_ID, -1).takeIf { it >= 0 }
+            intent.removeExtra(NotificationStore.EXTRA_TABLE_ID)
+            intent.removeExtra(NotificationStore.EXTRA_ORDER_ID)
+        }
         if (intent.getBooleanExtra(DeliveryNotifier.EXTRA_OPEN_TRACKING, false)) {
             DeliveryNotifier.openTrackingRequest.value = true
             intent.removeExtra(DeliveryNotifier.EXTRA_OPEN_TRACKING)
@@ -237,6 +245,16 @@ fun AppNav(lifecycle: Lifecycle) {
 
         onDispose {
             NotificationsNav.open = null
+        }
+    }
+
+    // Tocar un aviso de cocina con la bandeja abierta: vuelve al portal para abrir la mesa
+    LaunchedEffect(WaiterUi.openTable) {
+        if (WaiterUi.openTable != null &&
+            session?.role == "WAITER" &&
+            nav.currentDestination?.route != "waiter"
+        ) {
+            nav.popBackStack("waiter", false)
         }
     }
 
@@ -480,6 +498,7 @@ fun AppNav(lifecycle: Lifecycle) {
                         when (n.type) {
                             // Aviso de cocina: abre la mesa en el portal del mesero
                             "DISH_PREPARING", "DISH_READY", "ORDER_READY" -> {
+                                WaiterUi.focusOrder = n.orderId
                                 WaiterUi.openTable = n.tableId
                                 nav.popBackStack("waiter", false)
                             }

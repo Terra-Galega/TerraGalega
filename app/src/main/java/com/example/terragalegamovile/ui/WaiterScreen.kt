@@ -33,6 +33,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyRow
@@ -82,6 +84,8 @@ private fun itemColor(status: String) = when (status) {
 // La bandeja pide abrir una mesa (al tocar un aviso de cocina)
 object WaiterUi {
     var openTable by mutableStateOf<Int?>(null)
+    // Pedido al que se refiere el aviso: la mesa se desplaza hasta él y lo resalta
+    var focusOrder by mutableStateOf<Int?>(null)
 }
 
 // Plato elegido en un pedido nuevo (aún no enviado). El mismo plato con
@@ -127,7 +131,10 @@ fun WaiterScreen(user: LoginResponse, onLogout: () -> Unit) {
             onLogout = onLogout,
             tableId = table,
             initialInfo = tables.firstOrNull { it.id == table },
-            onBack = { selectedTable = null }
+            onBack = {
+                selectedTable = null
+                WaiterUi.focusOrder = null
+            }
         )
     }
 }
@@ -635,7 +642,20 @@ private fun TableView(
                     fontSize = 15.sp
                 )
                 else -> orders.forEachIndexed { index, order ->
+                    // Si el aviso era de este pedido: se desplaza hasta él y se resalta unos segundos
+                    val requester = remember(order.id) { BringIntoViewRequester() }
+                    val focused = WaiterUi.focusOrder == order.id
+                    if (focused) {
+                        LaunchedEffect(order.id) {
+                            delay(300)
+                            requester.bringIntoView()
+                            delay(4_000)
+                            if (WaiterUi.focusOrder == order.id) WaiterUi.focusOrder = null
+                        }
+                    }
                     OrderCard(
+                        modifier = Modifier.bringIntoViewRequester(requester),
+                        highlight = focused,
                         order = order,
                         round = if (orders.size > 1) index + 1 else null,
                         busy = busy,
@@ -745,9 +765,16 @@ private fun OrderCard(
     busy: Boolean,
     onDeliver: () -> Unit,
     onCancel: () -> Unit,
-    onPay: (String) -> Unit
+    onPay: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    highlight: Boolean = false
 ) {
-    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 18.dp) {
+    GlassCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(if (highlight) Modifier.border(2.dp, Terra, RoundedCornerShape(24.dp)) else Modifier),
+        contentPadding = 18.dp
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(

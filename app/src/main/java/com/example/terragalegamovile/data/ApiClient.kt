@@ -12,8 +12,8 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 
 object ApiClient {
 
-    // Emulador de Android: 10.0.2.2 donde corre el backend.
-    const val BASE_URL = "http://10.195.68.11:8080/"
+    // Backend desplegado en Railway.
+    const val BASE_URL = "https://backend-production-211649e7.up.railway.app/"
     private val backendUrl = BASE_URL.toHttpUrl()
     private val okHttp = OkHttpClient.Builder()
         //Agrega el JWT a cada peticion si hay sesion

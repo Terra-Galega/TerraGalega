@@ -43,6 +43,10 @@ object NotificationStore {
     private const val CHANNEL = "general"
     private const val CHANNEL_KITCHEN = "kitchen"
 
+    // Extras del Intent de un aviso de cocina: mesa y pedido que se abren al tocarlo
+    const val EXTRA_TABLE_ID = "open_table_id"
+    const val EXTRA_ORDER_ID = "open_order_id"
+
     // Vibración: corta para un plato, más larga cuando todo el pedido está listo
     private val VIBRATION_DISH = longArrayOf(0, 200, 120, 200)
     private val VIBRATION_ORDER_READY = longArrayOf(0, 400, 150, 400, 150, 400)
@@ -166,6 +170,11 @@ object NotificationStore {
 
         val open = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            // Aviso de cocina: al tocarlo se abre la mesa y el pedido al que se refiere
+            if (kitchen && n.tableId != null) {
+                putExtra(EXTRA_TABLE_ID, n.tableId)
+                n.orderId?.let { putExtra(EXTRA_ORDER_ID, it) }
+            }
         }
         val pending = PendingIntent.getActivity(
             context,

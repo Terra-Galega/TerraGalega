@@ -390,11 +390,14 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
         name = "${user.name} ${user.lastName}",
         onLogout = onLogout
     ) { padding ->
+        // Sin pedido no hay nada que desplazar: el aviso se centra en la pantalla
+        val noJob = !loading && loadError == null && job == null
+        val scroll = rememberScrollState()
         Column(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .verticalScroll(rememberScrollState())
+                    .then(if (noJob) Modifier else Modifier.verticalScroll(scroll))
                 .imePadding()
                     .padding(
                         start = 16.dp,
@@ -422,21 +425,62 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
                     }
 
                     job == null -> {
-                        Text(
-                            t("No tienes pedidos en camino"),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            t("Cuando el operador te asigne un pedido, aparecerá aquí."),
-                            color = TextSoft
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        TerraButton(
-                            t("Actualizar"),
-                            onClick = { loadJob() },
-                            style = ButtonStyle.Outline
-                        )
+                        // Sin pedidos: tarjeta centrada en el espacio libre de la pantalla
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 28.dp) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(84.dp)
+                                            .clip(CircleShape)
+                                            .background(Terra.copy(alpha = 0.12f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        androidx.compose.foundation.Image(
+                                            painter = androidx.compose.ui.res.painterResource(
+                                                com.example.terragalegamovile.R.drawable.ic_stat_delivery
+                                            ),
+                                            contentDescription = null,
+                                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Terra),
+                                            modifier = Modifier.size(40.dp)
+                                        )
+                                    }
+                                    Spacer(Modifier.height(20.dp))
+                                    Text(
+                                        t("No tienes pedidos en camino"),
+                                        fontFamily = com.example.terragalegamovile.ui.theme.Playfair,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                        fontSize = 24.sp,
+                                        textAlign = TextAlign.Center,
+                                        color = com.example.terragalegamovile.ui.theme.Charcoal
+                                    )
+                                    Spacer(Modifier.height(8.dp))
+                                    Text(
+                                        t("Cuando el operador te asigne un pedido, aparecerá aquí."),
+                                        fontSize = 15.sp,
+                                        textAlign = TextAlign.Center,
+                                        color = TextSoft
+                                    )
+                                    Spacer(Modifier.height(24.dp))
+                                    ButtonStack {
+                                        TerraButton(
+                                            t("Actualizar"),
+                                            onClick = { loadJob() },
+                                            style = ButtonStyle.Outline,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     else -> {
