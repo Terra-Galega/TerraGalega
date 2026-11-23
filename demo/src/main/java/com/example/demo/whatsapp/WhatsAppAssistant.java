@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.demo.chat.ChatTools;
 import com.example.demo.chat.GeminiClient;
+import com.example.demo.chat.RestaurantInformation;
 import com.example.demo.service.ReservationRules;
 import com.google.genai.types.Content;
 import com.google.genai.types.Part;
@@ -26,15 +27,17 @@ public class WhatsAppAssistant {
     private final ChatTools catalog;
     private final boolean enabled;
     private final String website;
+    private final RestaurantInformation restaurantInformation;
 
     public record Turn(String user, String assistant) { }
 
     public WhatsAppAssistant(GeminiClient gemini, ChatTools catalog,
             @Value("${WHATSAPP_AI_ENABLED:true}") boolean enabled,
-            @Value("${terra.frontend-url:}") String website) {
+            @Value("${terra.frontend-url:}") String website, RestaurantInformation restaurantInformation) {
         this.gemini = gemini;
         this.catalog = catalog;
         this.enabled = enabled;
+        this.restaurantInformation = restaurantInformation;
         // No enviar enlaces de desarrollo al cliente.
         this.website = website != null && website.startsWith("https://") ? website : "la web de TerraGalega";
     }
@@ -88,7 +91,8 @@ public class WhatsAppAssistant {
                 %s
                 """.formatted(website, LocalDate.now(ZoneId.of("America/Bogota")),
                         ReservationRules.MIN_SEATS, ReservationRules.MAX_SEATS, ReservationRules.SLOTS,
-                        ReservationRules.DEPOSIT_AMOUNT, catalog.menuText());
+                        ReservationRules.DEPOSIT_AMOUNT, catalog.menuText())
+                + "\n" + restaurantInformation.assistantContext();
     }
 
     private String limit(String value, int size) {

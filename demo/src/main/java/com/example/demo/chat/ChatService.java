@@ -42,6 +42,9 @@ public class ChatService {
     @Autowired
     private ChatTools chatTools;
 
+    @Autowired
+    private RestaurantInformation restaurantInformation;
+
     public ChatResponseDTO chat(Integer clientId, ChatRequestDTO request) {
         String message = request.getMessage() == null ? "" : request.getMessage().trim();
         if (message.isEmpty()) {
@@ -170,6 +173,7 @@ public class ChatService {
 
                 MENÚ (id | plato | precio | categoría | etiquetas | descripción):
                 %s
-                """.formatted(slots, deposit, dayName, today, chatTools.menuText());
+                """.formatted(slots, deposit, dayName, today, chatTools.menuText())
+                + "\n" + restaurantInformation.assistantContext();
     }
 }
