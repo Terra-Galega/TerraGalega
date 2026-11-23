@@ -20,7 +20,9 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
             // La web abierta por la IP del PC (p. ej. desde el enlace del correo en el celular)
-            @Value("${terra.email-link-url:}") String lanFrontendUrl) {
+            @Value("${terra.email-link-url:}") String lanFrontendUrl,
+            // URL pública del front en producción (FRONTEND_URL)
+            @Value("${terra.frontend-url:}") String frontendUrl) {
 
         CorsConfiguration config = new CorsConfiguration();
 
@@ -32,6 +34,9 @@ public class CorsConfig {
         ));
         if (!lanFrontendUrl.isBlank() && !origins.contains(lanFrontendUrl.trim())) {
             origins.add(lanFrontendUrl.trim());
+        }
+        if (!frontendUrl.isBlank() && !origins.contains(frontendUrl.trim())) {
+            origins.add(frontendUrl.trim());
         }
         config.setAllowedOrigins(origins);
 
