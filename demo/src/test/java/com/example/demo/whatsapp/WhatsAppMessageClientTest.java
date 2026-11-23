@@ -11,6 +11,20 @@ import org.springframework.web.client.RestClient;
 
 class WhatsAppMessageClientTest {
     @Test
+    void sendsNativeListWithStableOptionIds() {
+        var builder = RestClient.builder().baseUrl("https://graph.facebook.com");
+        var server = MockRestServiceServer.bindTo(builder).build();
+        var client = new WhatsAppMessageClient(new WhatsAppReplySettings(true, "fake", "123456", "v25.0"), builder.build());
+        server.expect(requestTo("https://graph.facebook.com/v25.0/123456/messages"))
+                .andExpect(jsonPath("$.type").value("interactive"))
+                .andExpect(jsonPath("$.interactive.type").value("list"))
+                .andExpect(jsonPath("$.interactive.action.sections[0].rows.length()").value(5))
+                .andExpect(jsonPath("$.interactive.action.sections[0].rows[4].id").value("tg_operator"))
+                .andRespond(withSuccess("{\"messages\":[{\"id\":\"wamid.menu\"}]}", MediaType.APPLICATION_JSON));
+        assertThat(client.sendMenu("573001234567", WhatsAppMenu.MENU_BODY)).isEqualTo("wamid.menu");
+        server.verify();
+    }
+    @Test
     void sendsExpectedRequestWithBearerTokenAndParsesAcceptance() {
         var builder = RestClient.builder().baseUrl("https://graph.facebook.com");
         var server = MockRestServiceServer.bindTo(builder).build();
