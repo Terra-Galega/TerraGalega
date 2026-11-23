@@ -35,7 +35,7 @@ export class ContactInfoComponent {
     },
     {
       title: 'Reservas',
-      value: '+57 601 456 7890',
+      value: '+57 310 556 3040',
       icon: 'phone',
     },
   ];
