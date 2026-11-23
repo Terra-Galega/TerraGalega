@@ -18,6 +18,11 @@
           <p class="mt-0.5 text-sm" style="color: rgba(44, 44, 44, 0.55)">
             {{ order.createdAt | date: "dd MMM yyyy, HH:mm" }}
           </p>
+          @if (order.operatorId) {
+            <p class="mt-0.5 text-sm" style="color: rgba(44, 44, 44, 0.55)">
+              Operador #{{ order.operatorId }}
+            </p>
+          }
         </div>
         <div class="text-right">
           <p class="text-xs" style="color: rgba(44, 44, 44, 0.5)">
