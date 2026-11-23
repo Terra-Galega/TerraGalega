@@ -3,6 +3,12 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Los .mjs (worker de MapLibre) deben servirse como JavaScript
+    types {
+        include /etc/nginx/mime.types;
+        application/javascript mjs;
+    }
+
     gzip on;
     gzip_types text/css application/javascript application/json image/svg+xml;
 
