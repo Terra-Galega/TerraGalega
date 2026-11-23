@@ -36,6 +36,10 @@ public class EmailService {
     @Autowired
     private TemplateEngine templateEngine;
 
+    // Dirección pública del front: de ahí se carga el logo de los correos (/images/email-logo.png)
+    @Value("${terra.frontend-url:}")
+    private String frontendUrl;
+
     // Dirección que aparece como remitente
     @Value("${terra.mail.from}")
     private String from;
@@ -46,7 +50,7 @@ public class EmailService {
 
     // Correo para recuperar la contraseña: plantilla templates/email/reset-password.html
     public void sendPasswordResetEmail(String to, String name, String link) throws MessagingException {
-        Context context = new Context();
+        Context context = newContext();
         context.setVariable("name", name);
         context.setVariable("link", link);
         String html = templateEngine.process("email/reset-password", context);
@@ -62,7 +66,7 @@ public class EmailService {
     // Correo para confirmar la cuenta: plantilla templates/email/verify-email.html
     public void sendVerificationEmail(String to, String name, String link) throws MessagingException {
         // Thymeleaf escapa el nombre automáticamente al llenar la plantilla
-        Context context = new Context();
+        Context context = newContext();
         context.setVariable("name", name);
         context.setVariable("link", link);
         String html = templateEngine.process("email/verify-email", context);
@@ -89,7 +93,7 @@ public class EmailService {
     // Factura electrónica del pedido, adjunta en PDF: plantilla
     // templates/email/invoice-email.html
     public void sendInvoiceEmail(InvoiceService.InvoiceData d, byte[] pdf) throws MessagingException {
-        Context context = new Context();
+        Context context = newContext();
         context.setVariable("name", d.clientName());
         context.setVariable("number", d.number());
         context.setVariable("total", InvoiceService.money(d.total()));
@@ -107,12 +111,20 @@ public class EmailService {
     // templates/email/report-email.html
     public void sendReportEmail(String to, String subject, String filename, byte[] data, String contentType)
             throws MessagingException {
-        Context context = new Context();
+        Context context = newContext();
         context.setVariable("filename", filename);
         String html = templateEngine.process("email/report-email", context);
 
         deliver(to, subject, "Adjuntamos el informe de ventas de Terra Galega: " + filename, html,
                 filename, data, contentType);
+    }
+
+    // Contexto de Thymeleaf con lo común a todas las plantillas (la URL base para el logo)
+    private Context newContext() {
+        Context context = new Context();
+        String base = frontendUrl == null ? "" : frontendUrl.trim();
+        context.setVariable("baseUrl", base.endsWith("/") ? base.substring(0, base.length() - 1) : base);
+        return context;
     }
 
     // Correo sin adjunto

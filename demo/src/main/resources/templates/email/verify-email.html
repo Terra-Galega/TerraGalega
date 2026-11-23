@@ -2,49 +2,82 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Fuentes de la marca (Playfair Display y Source Sans 3). Las cargan Apple Mail, iOS, Outlook para Mac
+         y similares; Gmail las ignora y usa la siguiente de la lista (Georgia / Arial). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Source+Sans+3:wght@400;600;700&amp;display=swap" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap");
+    </style>
     <title>Confirma tu cuenta en Terra Galega</title>
   </head>
-  <body
-    style="font-family: Arial, sans-serif; background: #f5f3ef; padding: 24px"
-  >
-    <div
-      style="
-        max-width: 520px;
-        margin: auto;
-        background: white;
-        padding: 32px;
-        border-radius: 12px;
-        color: #2b2b2b;
-      "
-    >
-      <h2 style="color: #314b36">Bienvenido a Terra Galega</h2>
-
-      <p>Hola, <strong th:text="${name}">cliente</strong>.</p>
-      <p>Confirma tu correo electrónico para activar tu cuenta:</p>
-
-      <p style="margin: 28px 0">
-        <a
-          th:href="${link}"
-          style="
-            display: inline-block;
-            background: #314b36;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-          "
-        >
-          Confirmar mi cuenta
-        </a>
-      </p>
-
-      <p>Si el botón no funciona, abre este enlace:</p>
-      <p style="word-break: break-all">
-        <a th:href="${link}" th:text="${link}">Enlace</a>
-      </p>
-
-      <p>El enlace vence en 24 horas.</p>
-      <p>Si no creaste esta cuenta, ignora este correo.</p>
+  <body style="margin: 0; padding: 0; background-color: #e9e4d8">
+    <!-- Texto de vista previa (lo que se ve junto al asunto en la bandeja) -->
+    <div style="display: none; max-height: 0; overflow: hidden; opacity: 0; color: #e9e4d8">
+      Un último paso para activar tu cuenta en Terra Galega.
     </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #e9e4d8">
+      <tr>
+        <td align="center" style="padding: 28px 12px">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+            style="width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 8px 28px rgba(31, 51, 38, 0.18)">
+            <!-- Cabecera con el logo -->
+            <tr>
+              <td style="background-color: #314b36; line-height: 0; font-size: 0">
+                <img th:src="${baseUrl} + '/images/email-logo.png'" src="/images/email-logo.png" alt="Terra Galega"
+                  width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0" />
+              </td>
+            </tr>
+            <!-- Franja de color -->
+            <tr>
+              <td style="background-color: #b2571f; height: 6px; line-height: 6px; font-size: 6px">&nbsp;</td>
+            </tr>
+            <!-- Contenido -->
+            <tr>
+              <td style="padding: 36px 40px 12px; font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.6; color: #2c2c2c">
+<h1 style="margin: 0 0 18px; font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-size: 28px; line-height: 1.25; color: #314b36">¡Bienvenido a Terra Galega!</h1>
+                <p style="margin: 0 0 12px">Hola, <strong th:text="${name}" style="color: #314b36">cliente</strong>.</p>
+                <p style="margin: 0">Estás a un paso de disfrutar de la mejor cocina gallega. Confirma tu correo electrónico para activar tu cuenta:</p>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 28px 0">
+                  <tr>
+                    <td align="center" style="background-color: #b2571f; border-radius: 10px; box-shadow: 0 4px 12px rgba(178, 87, 31, 0.35)">
+                      <a th:href="${link}" href="#"
+                        style="display: inline-block; padding: 16px 34px; font-family: 'Source Sans 3', Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; letter-spacing: 0.3px">
+                        Confirmar mi cuenta
+                      </a>
+                    </td>
+                  </tr>
+                </table>                <p style="margin: 0 0 6px; font-size: 13px; color: #6b6b6b">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+                <p style="margin: 0 0 22px; font-size: 13px; word-break: break-all">
+                  <a th:href="${link}" th:text="${link}" href="#" style="color: #b2571f">Enlace</a>
+                </p>                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 8px 0 24px">
+                  <tr>
+                    <td style="background-color: #f5f2eb; border-left: 4px solid #d99a21; border-radius: 6px; padding: 14px 18px; font-size: 14px; line-height: 1.55; color: #4a4a4a">
+                      El enlace vence en <strong>24 horas</strong>.
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin: 0 0 24px; font-size: 13px; color: #6b6b6b">Si no creaste esta cuenta, ignora este correo.</p>
+              </td>
+            </tr>
+            <!-- Pie -->
+            <tr>
+              <td style="background-color: #1f3326; padding: 26px 40px; text-align: center; font-family: 'Source Sans 3', Arial, Helvetica, sans-serif">
+                <p style="margin: 0 0 6px; font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-size: 18px; color: #f5f2eb; letter-spacing: 1px">
+                  Terra Galega
+                </p>
+                <p style="margin: 0; font-size: 12px; line-height: 1.6; color: #b9c4b3">
+                  Cocina gallega en Bogotá, Colombia - desde 2018
+                </p>
+                <p style="margin: 14px 0 0; font-size: 11px; line-height: 1.5; color: #8fa08a">
+                  Recibes este correo porque alguien registró esta dirección en Terra Galega.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
