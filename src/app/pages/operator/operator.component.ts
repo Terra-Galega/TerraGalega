@@ -10,6 +10,7 @@ import { OperatorDeliveryModalComponent } from './components/operator-delivery-m
 import { OperatorService } from '../../services/operator.service';
 import { getErrorMessage } from '../../utils/http-error';
 import { OperatorTrackingComponent } from './components/operator-tracking/operator-tracking.component';
+import { OperatorContactRequestsComponent } from './components/operator-contact-requests/operator-contact-requests.component';
 @Component({
   selector: 'app-operator',
   imports: [
@@ -19,6 +20,7 @@ import { OperatorTrackingComponent } from './components/operator-tracking/operat
     OperatorOrderDetailModalComponent,
     OperatorTrackingComponent,
     OperatorReservationsComponent,
+    OperatorContactRequestsComponent,
   ],
   templateUrl: './operator.component.html',
 })

@@ -1,0 +1,26 @@
+@if (requests().length || error()) {
+  <section class="mb-8 rounded-xl border border-charcoal/15 bg-white/60 p-4 md:p-5" aria-label="Solicitudes de contacto">
+    <button type="button" class="flex min-h-[44px] w-full items-center justify-between gap-3 text-left"
+      [attr.aria-expanded]="expanded()" aria-controls="operator-contact-requests-list" (click)="expanded.set(!expanded())">
+      <span class="font-semibold text-charcoal">Solicitudes de atención</span>
+      <span class="rounded-full bg-[#556141] px-3 py-1 text-sm text-white" aria-live="polite">{{ requests().length }} pendientes</span>
+    </button>
+    @if (error()) {
+      <p role="status" class="mt-2 text-sm text-[#9b3d26]">No se pudieron actualizar las solicitudes. Se volverá a intentar automáticamente.</p>
+    }
+    <div id="operator-contact-requests-list" [hidden]="!expanded()">
+      @for (request of requests(); track request.phone + request.requestedAt) {
+        <article class="mt-3 border-t border-charcoal/10 pt-3">
+          <p class="text-sm">Un cliente solicita atención. Comunícate al <strong class="select-all">+{{ request.phone }}</strong>.</p>
+          <p class="mt-1 text-xs text-charcoal/60">{{ request.requestedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+          <div class="mt-2 flex flex-wrap items-center gap-3 text-sm">
+            <a class="inline-flex min-h-[44px] items-center font-medium underline underline-offset-4" [href]="'tel:+' + request.phone">Llamar</a>
+            <button type="button" class="min-h-[44px] cursor-pointer underline underline-offset-4" (click)="copy(request.phone)">Copiar número</button>
+            <button type="button" class="min-h-[44px] cursor-pointer rounded-lg border border-charcoal/20 px-3 disabled:opacity-50"
+              [disabled]="busy().has(request.phone)" (click)="handled(request)">{{ busy().has(request.phone) ? 'Guardando…' : 'Marcar como atendida' }}</button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+}
