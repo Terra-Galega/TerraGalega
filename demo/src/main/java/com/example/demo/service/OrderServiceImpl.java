@@ -106,10 +106,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public List<OrderSummaryDTO> getActiveOrders() {
+    public List<OrderSummaryDTO> getActiveOrders(Integer operatorId) {
         return repository.findByStatusNotInOrderByCreatedAtAsc(FINISHED_STATUSES)
                 .stream()
                 .filter(Order::isProcessable)
+                // Los de este operador y los que aún nadie ha tomado (nuevos o confirmados);
+                // los que maneja otro operador no se cargan
+                .filter(o -> o.getOperator() == null || o.getOperator().getId().equals(operatorId))
                 .map(this::toSummary)
                 .toList();
     }
@@ -582,6 +585,7 @@ public class OrderServiceImpl implements OrderService {
         OrderDTO dto = new OrderDTO();
 
         dto.setId(order.getId());
+        dto.setOperatorId(order.getOperator() != null ? order.getOperator().getId() : null);
         dto.setStatus(order.getStatus());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setDeliveredAt(order.getDeliveredAt());

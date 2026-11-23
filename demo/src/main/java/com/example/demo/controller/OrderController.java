@@ -58,11 +58,12 @@ public class OrderController {
         return orderService.toDTOWithContact(orderService.getOrderById(id));
     }
 
-    // GET /orders/active: pedidos sin terminar (ni entregados ni cancelados)
-    @Operation(summary = "Get active orders for operator UI")
+    // GET /orders/active: pedidos sin terminar (ni entregados ni cancelados) del operador
+    // con sesión iniciada, más los que aún no tienen operador
+    @Operation(summary = "Get active orders for the logged-in operator")
     @GetMapping("/active")
     public Collection<OrderSummaryDTO> getActiveOrders() {
-        return orderService.getActiveOrders();
+        return orderService.getActiveOrders(authenticatedUser.operator().getId());
     }
 
     // PUT /orders/{id}/confirm: PENDING pasa a CONFIRMED
