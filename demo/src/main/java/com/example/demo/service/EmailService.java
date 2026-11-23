@@ -1,5 +1,13 @@
 package com.example.demo.service;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Base64;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -31,6 +39,10 @@ public class EmailService {
     // Dirección que aparece como remitente
     @Value("${terra.mail.from}")
     private String from;
+
+    // Clave de la API de Brevo (BREVO_API_KEY). Si está vacía se envía por SMTP.
+    @Value("${brevo.api-key:}")
+    private String brevoApiKey;
 
     // Correo para recuperar la contraseña: plantilla templates/email/reset-password.html
     public void sendPasswordResetEmail(String to, String name, String link) throws MessagingException {
@@ -87,14 +99,8 @@ public class EmailService {
                 + "Gracias por tu compra. Adjuntamos la factura electrónica " + d.number()
                 + " por " + InvoiceService.money(d.total()) + ".";
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setFrom(from);
-        helper.setTo(d.clientEmail());
-        helper.setSubject("Tu factura electrónica " + d.number() + " - Terra Galega");
-        helper.setText(plain, html);
-        helper.addAttachment("factura-" + d.number() + ".pdf", new ByteArrayResource(pdf), "application/pdf");
-        mailSender.send(message);
+        deliver(d.clientEmail(), "Tu factura electrónica " + d.number() + " - Terra Galega", plain, html,
+                "factura-" + d.number() + ".pdf", pdf, "application/pdf");
     }
 
     // Informe de ventas que el admin manda a cualquier correo:
@@ -105,24 +111,93 @@ public class EmailService {
         context.setVariable("filename", filename);
         String html = templateEngine.process("email/report-email", context);
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setFrom(from);
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText("Adjuntamos el informe de ventas de Terra Galega: " + filename, html);
-        helper.addAttachment(filename, new ByteArrayResource(data), contentType);
-        mailSender.send(message);
+        deliver(to, subject, "Adjuntamos el informe de ventas de Terra Galega: " + filename, html,
+                filename, data, contentType);
     }
 
-    // Arma el mensaje (UTF-8, para las tildes) y lo envía
+    // Correo sin adjunto
     private void send(String to, String subject, String plain, String html) throws MessagingException {
+        deliver(to, subject, plain, html, null, null, null);
+    }
+
+    // Punto único de envío. Si hay BREVO_API_KEY se manda por la API web de Brevo (HTTPS):
+    // Railway bloquea el SMTP (puertos 25/465/587) en los planes sin Pro. Sin esa clave se
+    // usa el SMTP configurado en spring.mail.* (Mailpit/Gmail en el PC).
+    private void deliver(String to, String subject, String plain, String html,
+            String filename, byte[] data, String contentType) throws MessagingException {
+        if (brevoApiKey != null && !brevoApiKey.isBlank()) {
+            sendViaBrevo(to, subject, plain, html, filename, data);
+            return;
+        }
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         helper.setFrom(from);
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(plain, html);
+        if (filename != null) {
+            helper.addAttachment(filename, new ByteArrayResource(data), contentType);
+        }
         mailSender.send(message);
+    }
+
+    // POST https://api.brevo.com/v3/smtp/email (responde 201 si lo acepta).
+    // El remitente (terra.mail.from) debe estar verificado como "Sender" en Brevo.
+    private void sendViaBrevo(String to, String subject, String plain, String html,
+            String filename, byte[] data) throws MessagingException {
+        StringBuilder json = new StringBuilder();
+        json.append("{\"sender\":{\"name\":\"Terra Galega\",\"email\":").append(jsonString(from)).append("},")
+                .append("\"to\":[{\"email\":").append(jsonString(to)).append("}],")
+                .append("\"subject\":").append(jsonString(subject)).append(',')
+                .append("\"htmlContent\":").append(jsonString(html)).append(',')
+                .append("\"textContent\":").append(jsonString(plain));
+        if (filename != null) {
+            json.append(",\"attachment\":[{\"name\":").append(jsonString(filename))
+                    .append(",\"content\":\"").append(Base64.getEncoder().encodeToString(data)).append("\"}]");
+        }
+        json.append('}');
+
+        try {
+            HttpRequest request = HttpRequest.newBuilder(URI.create("https://api.brevo.com/v3/smtp/email"))
+                    .timeout(Duration.ofSeconds(30))
+                    .header("api-key", brevoApiKey.trim())
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json.toString(), StandardCharsets.UTF_8))
+                    .build();
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() / 100 != 2) {
+                throw new MessagingException("Brevo rechazó el correo (" + response.statusCode() + "): "
+                        + response.body());
+            }
+        } catch (java.io.IOException e) {
+            throw new MessagingException("No se pudo contactar con Brevo: " + e.getMessage(), e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new MessagingException("Envío a Brevo interrumpido", e);
+        }
+    }
+
+    // Convierte un texto a literal JSON (con comillas y escapes)
+    private static String jsonString(String s) {
+        StringBuilder sb = new StringBuilder("\"");
+        for (char c : s.toCharArray()) {
+            switch (c) {
+                case '"' -> sb.append("\\\"");
+                case '\\' -> sb.append("\\\\");
+                case '\n' -> sb.append("\\n");
+                case '\r' -> sb.append("\\r");
+                case '\t' -> sb.append("\\t");
+                default -> {
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+                }
+            }
+        }
+        return sb.append('"').toString();
     }
 }
