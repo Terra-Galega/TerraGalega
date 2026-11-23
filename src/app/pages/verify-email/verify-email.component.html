@@ -1,11 +1,21 @@
+<!-- Columna a pantalla completa: el contenido ocupa el espacio libre y el pie queda abajo
+     sin obligar a hacer scroll para ver la tarjeta -->
+<div class="min-h-screen flex flex-col">
 <app-navbar></app-navbar>
 
-<main class="min-h-screen flex items-center justify-center px-6 py-32">
+<main class="flex-1 flex items-center justify-center px-6 pt-28 pb-16">
   <div class="w-full max-w-md mx-auto text-center">
-    <div class="glass-card rounded-3xl p-6 md:p-10">
+    <!-- Altura mínima común: la tarjeta no salta al pasar de "confirmando" a "listo" -->
+    <div class="glass-card rounded-3xl p-6 md:p-10 min-h-[22rem] flex flex-col justify-center">
       @switch (state) {
         <!-- Confirmando -->
         @case ("loading") {
+          <div
+            class="w-12 h-12 mx-auto mb-6 rounded-full animate-spin"
+            role="status"
+            aria-hidden="true"
+            style="border: 3px solid rgba(178, 87, 31, 0.2); border-top-color: #b2571f"
+          ></div>
           <p
             class="text-[12px] tracking-widest uppercase mb-3"
             style="color: rgba(44, 44, 44, 0.38)"
@@ -117,3 +127,4 @@
 </main>
 
 <app-footer></app-footer>
+</div>

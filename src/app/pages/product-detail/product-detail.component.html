@@ -26,6 +26,12 @@
   <!-- PRODUCTO (solo se dibuja cuando ya llegó del servidor) -->
   @if (product) {
     <app-product-info-card [product]="product" />
+  } @else {
+    <!-- Cargando el plato -->
+    <div class="flex justify-center py-32">
+      <div class="w-10 h-10 rounded-full animate-spin" role="status" aria-label="Cargando"
+        style="border: 3px solid rgba(178, 87, 31, 0.2); border-top-color: #b2571f"></div>
+    </div>
   }
 
   <!-- TAMBIÉN TE PUEDE GUSTAR (solo si hay productos relacionados) -->

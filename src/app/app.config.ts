@@ -1,5 +1,5 @@
 import { ApplicationConfig, inject, provideZoneChangeDetection } from '@angular/core';
-import { Router, TitleStrategy, provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
+import { PreloadAllModules, Router, TitleStrategy, provideRouter, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
 import { PageTitleStrategy } from './strategies/page-title.strategy';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './interceptors/error.interceptor';
@@ -16,6 +16,9 @@ export const appConfig: ApplicationConfig = {
     // Activa el enrutamiento con las rutas definidas y opciones adicionales.
     provideRouter(
       routes,
+      // Descarga en segundo plano las páginas diferidas (menú, checkout, admin...) apenas la
+      // app queda en reposo: al navegar ya están listas y no hay pantalla en blanco.
+      withPreloading(PreloadAllModules),
       // al cambiar de página siempre se empieza desde arriba
       withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
       // Fundido entre páginas (el estilo está en styles.scss). Si solo cambian los parámetros

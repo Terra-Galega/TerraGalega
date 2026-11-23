@@ -33,7 +33,11 @@
 
     <!-- Estados de la lista: cargando → sin pedidos → con pedidos -->
     @if (loading) {
-    <p class="text-center py-10">{{ 'orders.orders.cargando_tus_pedidos' | t }}</p>
+    <div class="flex flex-col items-center py-16" role="status">
+      <div class="w-10 h-10 mb-4 rounded-full animate-spin"
+        style="border: 3px solid rgba(178, 87, 31, 0.2); border-top-color: #b2571f"></div>
+      <p class="text-sm" style="color: rgba(44, 44, 44, 0.55)">{{ 'orders.orders.cargando_tus_pedidos' | t }}</p>
+    </div>
     } @else if (orders.length === 0) {
     <app-empty-orders></app-empty-orders>
     } @else {

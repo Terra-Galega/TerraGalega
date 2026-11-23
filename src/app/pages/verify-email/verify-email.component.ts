@@ -1,4 +1,5 @@
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { Location } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
@@ -21,6 +22,7 @@ export class VerifyEmailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private auth = inject(AuthService);
+  private location = inject(Location);
 
   state: VerifyState = 'loading';
   message = '';
@@ -28,8 +30,10 @@ export class VerifyEmailComponent implements OnInit {
   ngOnInit() {
     const token = this.route.snapshot.queryParamMap.get('token');
 
-    // Quita el token de la URL para que no quede en el historial del navegador
-    this.router.navigate([], { queryParams: {}, replaceUrl: true });
+    // Quita el token de la URL para que no quede en el historial del navegador.
+    // Se hace sin pasar por el router: otra navegación repetiría el fundido, el scroll
+    // y el foco de la página justo mientras se confirma.
+    this.location.replaceState('/verify-email');
 
     if (!token) {
       this.state = 'error';

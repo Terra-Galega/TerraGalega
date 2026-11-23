@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription, catchError, map, of, switchMap, timer } from 'rxjs';
+import { Subscription, catchError, forkJoin, map, of, switchMap, timer } from 'rxjs';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
@@ -132,7 +132,9 @@ export class AccountComponent implements OnInit {
       });
     }
 
-    this.load();
+    // Al volver de Stripe el estado se asienta primero (en orden); en una visita normal
+    // las dos peticiones salen a la vez y el perfil aparece antes
+    this.load(fromStripe);
 
     if (fromStripe && canceled) {
       this.toast.error(
@@ -144,36 +146,40 @@ export class AccountComponent implements OnInit {
     }
   }
 
-  // Trae el estado de la suscripción y DESPUÉS el cliente. El orden importa:
-  // /subscriptions/status asienta primero cualquier pago pendiente, así el perfil
-  // (Freemium/Premium) llega ya actualizado.
-  private load(): void {
-    this.subscriptionService
-      .status()
-      .pipe(
-        // Si falla (p. ej. Stripe no responde) el perfil se muestra igual, solo sin datos de Premium
-        catchError((error) => {
-          console.error('Error cargando la suscripción:', error);
-          return of(null);
-        }),
-        //traer el cliente (el back lo identifica por el token)
-        switchMap((subscription) =>
-          this.clientService
-            .getMe()
-            .pipe(map((client) => ({ subscription, client }))),
-        ),
-      )
-      .subscribe({
-        next: ({ subscription, client }) => {
-          this.subscription = subscription;
-          this.client = client;
-        },
-        error: (error) => {
-          console.error('Error cargando cliente:', error);
-          this.auth.logout();
-          this.router.navigate(['/login']);
-        },
-      });
+  // Trae el estado de la suscripción y el cliente.
+  // - Visita normal: las dos peticiones salen a la vez (el perfil aparece antes).
+  // - Al volver de Stripe (inOrder): primero /subscriptions/status, que asienta cualquier pago
+  //   pendiente, y DESPUÉS el perfil, para que llegue ya como Freemium/Premium correcto.
+  private load(inOrder = false): void {
+    // Si falla (p. ej. Stripe no responde) el perfil se muestra igual, solo sin datos de Premium
+    const status$ = this.subscriptionService.status().pipe(
+      catchError((error) => {
+        console.error('Error cargando la suscripción:', error);
+        return of(null);
+      }),
+    );
+    // El back identifica al cliente por el token
+    const me$ = this.clientService.getMe();
+
+    const request$ = inOrder
+      ? status$.pipe(
+          switchMap((subscription) =>
+            me$.pipe(map((client) => ({ subscription, client }))),
+          ),
+        )
+      : forkJoin({ subscription: status$, client: me$ });
+
+    request$.subscribe({
+      next: ({ subscription, client }) => {
+        this.subscription = subscription;
+        this.client = client;
+      },
+      error: (error) => {
+        console.error('Error cargando cliente:', error);
+        this.auth.logout();
+        this.router.navigate(['/login']);
+      },
+    });
   }
 
   // ---- Volver de Stripe con el pago hecho ----

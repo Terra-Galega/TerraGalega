@@ -1,9 +1,35 @@
 .auth-tab {
   color: rgba(44, 44, 44, 0.68);
+  position: relative;
+  z-index: 1;
+  background: transparent;
 }
 
 .auth-tab.active {
-  background-color: #fff;
   color: #2c2c2c;
+}
+
+// Switch: la pastilla blanca se desliza de una opción a la otra
+.auth-thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / 2);
+  border-radius: 9999px;
+  background-color: #fff;
   box-shadow: 0 2px 12px rgba(44, 44, 44, 0.1);
+  transition: transform 0.35s cubic-bezier(0.3, 0.9, 0.3, 1);
+  will-change: transform;
+  pointer-events: none;
+}
+
+.auth-thumb.signup {
+  transform: translateX(100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-thumb {
+    transition: none;
+  }
 }

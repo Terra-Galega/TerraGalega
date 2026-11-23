@@ -12,16 +12,18 @@
   }
 </div>
 
-<div id="auth-tabs" class="flex w-full rounded-full p-1 mb-8" style="background-color: rgba(44, 44, 44, 0.06)">
+<div id="auth-tabs" class="relative flex w-full rounded-full p-1 mb-8" style="background-color: rgba(44, 44, 44, 0.06)">
+  <!--Pastilla deslizante: hace que las dos opciones se vean como un switch-->
+  <span class="auth-thumb" [class.signup]="activeTab === 'signup'" aria-hidden="true"></span>
   <!--Botones de opción-->
   <button [attr.aria-pressed]="activeTab === 'login'" type="button" id="tab-login-btn" (click)="selectTab('login')"
-    class="auth-tab flex-1 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-300"
+    class="auth-tab flex-1 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-colors duration-300"
     [class.active]="activeTab === 'login'">
     {{ 'login.login_header.login_header.iniciar_sesion' | t }}
   </button>
 
   <button [attr.aria-pressed]="activeTab === 'signup'" type="button" id="tab-signup-btn" (click)="selectTab('signup')"
-    class="auth-tab flex-1 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-300"
+    class="auth-tab flex-1 py-2.5 rounded-full whitespace-nowrap text-sm font-medium transition-colors duration-300"
     [class.active]="activeTab === 'signup'">
     {{ 'login.login_header.login_header.registrarse' | t }}
   </button>

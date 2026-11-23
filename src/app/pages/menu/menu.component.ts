@@ -68,6 +68,8 @@ export class MenuComponent {
   }
   private categoryService = inject(CategoryService);
 
+  // false hasta que llega la primera respuesta (evita mostrar "sin resultados" mientras carga)
+  loaded = false;
   // Todos los productos activos que llegaron del servidor
   products: Product[] = [];
   // Los productos que se ven en pantalla, después de aplicar los filtros
@@ -99,6 +101,7 @@ export class MenuComponent {
           this.productService.getActiveProducts().pipe(
             catchError((error) => {
               console.error('Error cargando productos:', error);
+              this.loaded = true;
               return EMPTY; // si falla, se queda el menú que ya se veía
             }),
           ),
@@ -108,6 +111,7 @@ export class MenuComponent {
       )
       .subscribe((products) => {
         this.products = products;
+        this.loaded = true;
         // Se vuelven a aplicar los filtros sobre la lista recién cargada
         this.filterMenuItems();
       });

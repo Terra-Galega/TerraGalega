@@ -1,14 +1,13 @@
 @use "sass:list";
 
-// fuentes de Google Fonts
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Droid+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Pinyon+Script&display=swap");
+// Las fuentes de Google se cargan desde index.html (con preconnect), no con @import:
+// un @import dentro del CSS bloquea el pintado hasta descargarse.
 
 
-
-// Scroll suave
+// El scroll es inmediato: al cambiar de página no debe verse "bajar" o "subir" animado.
+// Los desplazamientos que sí deben ser suaves piden behavior: 'smooth' por código.
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 // Color de la página y del texto
@@ -1127,8 +1126,12 @@ html[data-theme="dark"] {
   }
 
   .auth-tab.active {
-    background-color: #f5f2eb;
     color: #2c2c2c;
+  }
+
+  // La "bolita" del switch (la que se desliza bajo la pestaña activa)
+  .auth-thumb {
+    background-color: #f5f2eb;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
   }
 
@@ -1796,8 +1799,11 @@ html[data-contrast="high"][data-theme="dark"] {
   }
 
   .auth-tab.active {
-    background-color: #000000;
     color: #ffffff;
+  }
+
+  .auth-thumb {
+    background-color: #000000;
   }
 }
 

@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService, SessionType } from '../services/auth.service';
+import { ToastService } from '../services/toast.service';
 
 // Los guards deciden si se puede entrar a una ruta o a dónde redirigir.
 // Solo controlan lo que se muestra en el front; los permisos reales los valida
@@ -61,12 +62,15 @@ function requireRole(type: SessionType): CanActivateFn {
   return () => {
     const auth = inject(AuthService);
     const router = inject(Router);
+    const toast = inject(ToastService);
 
     if (!auth.isLoggedIn) {
       return router.createUrlTree(['/login']);
     }
 
     if (auth.session!.type !== type) {
+      // Con otro rol no se entra: se avisa para que no parezca que no pasó nada
+      toast.show('Acceso restringido', 'No tienes permiso para entrar a esta página.', 4000, 'error');
       return router.createUrlTree([auth.homeRoute()]);
     }
 
