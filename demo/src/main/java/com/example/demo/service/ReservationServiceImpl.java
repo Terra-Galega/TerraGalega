@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import com.example.demo.dto.OperatorReservationDTO;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +68,45 @@ public class ReservationServiceImpl implements ReservationService {
     // Stripe devuelve al cliente a esta app de Angular al pagar o al cancelar
     @Value("${terra.frontend-url}")
     private String frontendUrl;
+
+    // Minutos de espera antes de considerar que el cliente no llegó (el mismo valor de los pedidos de mesa)
+    @Value("${terra.table-orders.no-show-minutes:20}")
+    private int noShowMinutes;
+
+    // Reservas con anticipo pagado cuyo turno no ha terminado (turno = SLOT_MINUTES desde la hora).
+    // Las que esperan el pago (PENDING) no cuentan: todavía no están confirmadas.
+    @Override
+    @Transactional(readOnly = true)
+    public List<OperatorReservationDTO> getActiveReservations() {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        return reservationRepository
+                .findByPaymentStateAndDateGreaterThanEqualOrderByDateAscTimeAsc(Reservation.PAID, now.toLocalDate())
+                .stream()
+                .filter(r -> java.time.LocalDateTime.of(r.getDate(), r.getTime())
+                        .plusMinutes(ReservationRules.SLOT_MINUTES).isAfter(now))
+                .map(r -> toOperatorDTO(r, now))
+                .toList();
+    }
+
+    private OperatorReservationDTO toOperatorDTO(Reservation r, java.time.LocalDateTime now) {
+        java.time.LocalDateTime start = java.time.LocalDateTime.of(r.getDate(), r.getTime());
+        String status;
+        if (r.getSeatedAt() != null) {
+            status = "SEATED";
+        } else if (now.isBefore(start)) {
+            status = "UPCOMING";
+        } else if (now.isBefore(start.plusMinutes(noShowMinutes))) {
+            status = "WAITING";
+        } else {
+            status = "NO_SHOW";
+        }
+        Client c = r.getClient();
+        String clientName = ((c.getName() == null ? "" : c.getName()) + " "
+                + (c.getLastName() == null ? "" : c.getLastName())).trim();
+        return new OperatorReservationDTO(r.getId(), r.getName(), clientName, c.getPhone(),
+                r.getTable().getId(), r.getTable().getFloor(), r.getDate(), r.getTime(), r.getSeats(),
+                r.getTheme(), status);
+    }
 
     @Override
     @Transactional

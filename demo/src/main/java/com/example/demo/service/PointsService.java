@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PointsService {
-    public static final int COP_PER_POINT = 100;
+    public static final int COP_PER_POINT = 300;
     private static final int COP_TO_EARN = 1000;
     @jakarta.persistence.PersistenceContext(unitName = "h2")
     private EntityManager em;

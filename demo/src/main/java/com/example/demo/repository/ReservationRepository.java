@@ -26,6 +26,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
 
     List<Reservation> findByPaymentState(String paymentState);
 
+    // Reservas pagadas desde una fecha en adelante, en orden cronológico (panel del operador)
+    List<Reservation> findByPaymentStateAndDateGreaterThanEqualOrderByDateAscTimeAsc(String paymentState,
+            LocalDate from);
+
     // Lista y no Optional: si alguna vez hubiera dos, no explota con un 500
     List<Reservation> findByTableIdAndDateAndTime(Integer tableId, LocalDate date, LocalTime time);
 

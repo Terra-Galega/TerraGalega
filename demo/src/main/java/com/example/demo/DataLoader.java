@@ -198,7 +198,7 @@ public class DataLoader implements CommandLineRunner {
         // Crea un producto con UN solo nivel de picante (mild o hot, nunca ambos).
         // flags admitidos: popular vegetarian mild hot nuts seafood gluten inactive
         private void saveProduct(String name, String description, double price, String category,
-                        String imageOf, String flags) {
+                        String imageUrl, String flags) {
                 Set<String> f = new HashSet<>(Arrays.asList(flags.split(" ")));
                 if (f.contains("mild") && f.contains("hot")) {
                         throw new IllegalStateException(
@@ -206,7 +206,7 @@ public class DataLoader implements CommandLineRunner {
                 }
                 productRepository.save(Product.builder().name(name).description(description).price(price)
                                 .category(categoryRepository.findByName(category))
-                                .imageUrl(findProductByName(imageOf).getImageUrl())
+                                .imageUrl(imageUrl)
                                 .active(!f.contains("inactive")).popular(f.contains("popular"))
                                 .vegetarian(f.contains("vegetarian")).spicyMild(f.contains("mild"))
                                 .spicyHot(f.contains("hot")).containsNuts(f.contains("nuts"))
@@ -404,7 +404,8 @@ public class DataLoader implements CommandLineRunner {
                 return waiterRepository.save(waiter);
         }
 
-        // Pedido de mesa de ejemplo. Cada plato: {nombre, cantidad, nota (o null), estado}
+        // Pedido de mesa de ejemplo. Cada plato: {nombre, cantidad, nota (o null),
+        // estado}
         private void saveTableOrder(int tableId, Waiter waiter, int minutesAgo, Object[]... dishes) {
                 DiningTable table = diningTableRepository.findById(tableId).orElseThrow();
                 TableOrder order = TableOrder.builder()
@@ -1300,63 +1301,72 @@ public class DataLoader implements CommandLineRunner {
                                                 .spicyHot(false).containsNuts(false).containsSeafood(false)
                                                 .containsGluten(false).build());
 
-                // Más carta: platos que ya nombran las opiniones de los clientes (pulpo a
-                // feira,
-                // croquetas, empanada, lacón con grelos, etc.). Cada uno tiene UN solo nivel de
-                // picante (mild = ligero, hot = fuerte). La imagen se toma de un plato
-                // parecido:
-                // cámbiala por la foto real cuando la tengas.
+                // Más carta: platos que ya nombran las opiniones de los clientes. Cada uno
+                // tiene UN solo nivel de picante (mild = ligero, hot = fuerte) y su propia imagen.
                 saveProduct("Croquetas de Jamón Ibérico",
                                 "Croquetas cremosas de bechamel y jamón ibérico, fritas al momento con alioli suave.",
-                                36000.0, "Entradas", "Calamares a la Romana", "popular gluten");
+                                36000.0, "Entradas", "https://img-global.cpcdn.com/recipes/2cd09d8ec6bdbf99/680x781cq80/croquetas-de-jamon-iberico-foto-principal.jpg", "popular gluten");
                 saveProduct("Pimientos de Padrón",
                                 "Pimientos verdes fritos con sal gruesa y aceite de oliva: unos pican y otros no.",
-                                30000.0, "Entradas", "Patatas Bravas", "vegetarian mild");
+                                30000.0, "Entradas", "https://imag.bonviveur.com/servir-los-pimientos-de-padron-fritos.jpg", "vegetarian mild");
                 saveProduct("Empanada Gallega",
                                 "Empanada de masa fina rellena de atún, cebolla y pimiento, horneada cada día.",
-                                38000.0, "Entradas", "Tortilla Española", "seafood gluten");
+                                38000.0, "Entradas", "https://media.lmneuquen.com/p/a6aa973744c951e0bc87da941d037e5c/adjuntos/195/imagenes/007/876/0007876898/770x0/smart/empanada-de-atunjpg.jpg", "seafood gluten");
                 saveProduct("Zorza con Patatas",
                                 "Lomo de cerdo adobado con pimentón picante, salteado y servido sobre patatas caseras.",
-                                42000.0, "Entradas", "Chorizo a la Sidra", "hot");
+                                42000.0, "Entradas", "https://monix.es/cdn/shop/articles/ZORZA-MONIX-scaled.jpg?v=1705669890&width=1200", "hot");
                 saveProduct("Caldo Gallego",
                                 "Caldo de grelos, patata y alubias blancas con unto y chorizo, como en las aldeas gallegas.",
-                                34000.0, "Entradas", "Fabada Asturiana", "popular");
+                                34000.0, "Entradas", "https://cloudfront-eu-central-1.images.arcpublishing.com/prisa/I5JK5HY4SZHDHJTBCEICSUEWAQ.jpg", "popular");
                 saveProduct("Pulpo a Feira",
                                 "Pulpo cocido al estilo gallego sobre cachelos, con aceite de oliva y pimentón ligeramente picante.",
-                                78000.0, "Mariscos", "Pulpo a la Brasa", "popular seafood mild");
+                                78000.0, "Mariscos", "https://venamicocina.com/wp-content/uploads/2023/08/Pulpo-a-Feira.jpg", "popular seafood mild");
                 saveProduct("Vieiras Gratinadas",
                                 "Vieiras al horno con cebolla pochada y pan rallado, gratinadas en su concha.",
-                                88000.0, "Mariscos", "Gambas al Ajillo", "seafood gluten");
+                                88000.0, "Mariscos", "https://img.welt.de/img/reise/mobile235084452/1477935027-ci3x2l-w1200/Scallops-and-bread-Vieres-de-Santiago-Santiago-de-Compostela.jpg", "seafood gluten");
                 saveProduct("Chipirones en su Tinta",
                                 "Chipirones guisados en su propia tinta con cebolla y vino blanco, con arroz blanco.",
-                                72000.0, "Mariscos", "Calamares a la Romana", "seafood");
+                                72000.0, "Mariscos", "https://recetagallega.es/wp-content/uploads/2024/06/chipirones-en-su-tinta-1.webp", "seafood");
                 saveProduct("Parrillada de Mariscos para Compartir",
                                 "Gambas, mejillones, almejas, calamares y cigalas a la plancha, pensada para cuatro personas.",
-                                165000.0, "Mariscos", "Arroz Negro", "popular seafood");
+                                165000.0, "Mariscos", "https://i0.wp.com/ruralea.com/wp-content/uploads/2021/08/parrillada-de-marisco.jpg?resize=1024%2C682&ssl=1", "popular seafood");
                 saveProduct("Lacón con Grelos",
                                 "Lacón cocido con grelos, cachelos y chorizo, el plato de carnaval gallego todo el año.",
-                                69000.0, "Carnes", "Carrilleras de Cerdo", "");
+                                69000.0, "Carnes", "https://lacocinadefrabisa.lavozdegalicia.es/wp-content/uploads/2021/02/lacon-con-grelos-4.jpg", "");
                 saveProduct("Chuletón a la Piedra",
                                 "Chuletón de res madurado, servido a punto sobre piedra caliente con sal en escamas.",
-                                135000.0, "Carnes", "Secreto Ibérico", "popular");
+                                135000.0, "Carnes", "https://restauranteelcaserio.com/gales/49/el-caserio-108.jpg", "popular");
                 saveProduct("Cordero Lechal de Temporada",
                                 "Paletilla de cordero lechal asada a baja temperatura. Solo en temporada: hoy fuera de carta.",
-                                118000.0, "Carnes", "Cordero Asado", "inactive");
+                                118000.0, "Carnes", "https://paradores.es/sites/default/files/users/user238/Paletilla%20redi.jpg", "inactive");
                 saveProduct("Tarta de Santiago",
                                 "Tarta tradicional de almendra con la cruz de Santiago en azúcar glas.",
-                                33000.0, "Postres", "Tarta de Queso Vasca", "popular vegetarian nuts");
+                                33000.0, "Postres", "https://static.bainet.es/clip/b30006c7-5e24-4d87-8848-925bed9be39f_source-aspect-ratio_1600w_0_x398y541.jpg", "popular vegetarian nuts");
                 saveProduct("Albariño Rías Baixas (copa)",
                                 "Copa de Albariño fresco y salino, ideal con mariscos y pescados.",
-                                36000.0, "Bebidas", "Sangría Española", "");
+                                36000.0, "Bebidas", "https://experienciasdecalidade.gal/sites/default/files/2021-12/foto-rias-baixas.png", "");
                 saveProduct("Cerveza Estrella Galicia",
                                 "Cerveza gallega bien fría, servida en botella de 330 ml.",
-                                18000.0, "Bebidas", "Tinto de Verano", "gluten");
+                                18000.0, "Bebidas", "https://thebeercompany.com.mx/wp-content/uploads/2024/12/estrella-de-galicia.png", "gluten");
                 saveProduct("Café de Pota",
                                 "Café servido en jarra de barro, con el toque tradicional de las casas gallegas.",
-                                18000.0, "Bebidas", "Café Cortado", "");
+                                18000.0, "Bebidas", "https://lacolonialdeultramar.com/stupload/stblog/1/33/54/3354medium.jpg", "");
                 saveProduct("Agua Mineral",
                                 "Agua mineral natural, botella de 500 ml.",
-                                9000.0, "Bebidas", "Horchata de Chufa", "vegetarian");
+                                9000.0, "Bebidas", "https://feromo.com/cdn/shop/files/Fuensanta_09.png?v=1712605046&width=1946", "vegetarian");
+
+                saveProduct("Sidra Natural Gallega",
+                                "Sidra de manzana gallega, fresca y ligeramente ácida. Botella de 750 ml.",
+                                42000.0, "Bebidas", "https://corporacionhijosderivera.com/inc/uploads/2022/10/PRODUCTOS-FICHA-sidra-05.jpg", "vegetarian");
+                saveProduct("Vermú Rojo",
+                                "Vermú rojo servido con hielo y una rodaja de naranja.",
+                                22000.0, "Bebidas", "https://vinosmagerit.com/3608/vermouth-valdespino.jpg", "vegetarian");
+                saveProduct("Limonada Casera",
+                                "Limonada de limón natural servida fría con hielo.",
+                                15000.0, "Bebidas", "https://www.cocinadelirante.com/sites/default/files/images/2018/06/limonada-casera-en-licuadora.jpg", "vegetarian");
+                saveProduct("Agua con Gas",
+                                "Agua mineral con gas, botella de 500 ml.",
+                                10000.0, "Bebidas", "https://www.salemmaonline.com.py/products/7840058002105.png?v=5", "vegetarian");
 
                 // DeliveryPersons
                 // available=false solo si llevan un pedido en camino (Luisa); un repartidor
@@ -1750,7 +1760,8 @@ public class DataLoader implements CommandLineRunner {
                                 .build());
                 announcementRepository.save(Announcement.builder()
                                 .title("Hazte Premium y recibe cupones")
-                                .description("Ser cliente Premium es una forma de seguir disfrutando de Terra Galega con beneficios pensados para volver. Recibe descuentos exclusivos y envios gratis por un mes, y encuentra nuevas ocasiones para compartir nuestros sabores alrededor de la mesa.")                                .imageUrl("https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80")
+                                .description("Ser cliente Premium es una forma de seguir disfrutando de Terra Galega con beneficios pensados para volver. Recibe descuentos exclusivos y envios gratis por un mes, y encuentra nuevas ocasiones para compartir nuestros sabores alrededor de la mesa.")
+                                .imageUrl("https://images.unsplash.com/photo-1452195100486-9cc805987862?w=800&q=80")
                                 .build());
 
                 // Reseñas de demostración: una por cliente (relación 1 a 1). Las opiniones
@@ -1858,9 +1869,12 @@ public class DataLoader implements CommandLineRunner {
                 };
                 // Hace cuántos días escribió cada reseña (en el mismo orden que la lista).
                 // Hay del mes actual, de meses anteriores y de 2025.
-                int[] reviewDaysAgo = { 5, 380, 12, 41, 505, 63, 220, 8, 148, 331, 27, 460, 95, 17, 270, 410, 52, 185,
-                                24, 355, 120, 440, 70, 300, 38, 430, 2, 160, 240, 85, 400, 33, 100, 90, 84, 76, 70, 64,
-                                58, 51, 46, 39, 33, 29, 22, 18, 13, 9 };
+                int[] reviewDaysAgo = new int[reviews.length];
+                for (int i = 0; i < reviews.length; i++) {
+                        reviewDaysAgo[i] = i < 32
+                                        ? 5 + (int) ((i * 211L) % 505) // antiguos: repartidos en 18 meses
+                                        : 115 - (i - 32) * 6; // nuevos: de 115 días hasta 7
+                }
                 if (reviewDaysAgo.length != reviews.length) {
                         throw new IllegalStateException("reviewDaysAgo y reviews deben tener la misma cantidad");
                 }
