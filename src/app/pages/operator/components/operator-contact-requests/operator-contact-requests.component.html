@@ -32,7 +32,7 @@
             </span>
           </button>
           <div class="flex flex-wrap items-center gap-x-4 gap-y-1 pb-3 pl-9 pr-4 text-xs">
-            <a class="inline-flex min-h-[36px] items-center font-medium underline underline-offset-4" [href]="'tel:+' + request.phone" (click)="markRead(request)">Llamar</a>
+            <a class="call-button" [href]="'tel:+' + request.phone" (click)="markRead(request)">Llamar</a>
             <button type="button" class="min-h-[36px] cursor-pointer underline underline-offset-4" (click)="copy(request.phone); markRead(request)">Copiar número</button>
             @if (!request.handled) {
               <button type="button" class="min-h-[36px] cursor-pointer font-medium text-[#b2571f] disabled:opacity-50"
