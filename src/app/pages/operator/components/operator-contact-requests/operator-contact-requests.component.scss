@@ -57,7 +57,9 @@
 .notification-list { max-height: min(65vh, 24rem); overflow-y: auto; overscroll-behavior: contain; }
 .notification-item {
   border-bottom: 1px solid rgba(44, 44, 44, 0.06);
+  transition: background-color 0.2s;
   &.unread { background: rgba(178, 87, 31, 0.06); }
+  &:hover { background: #f0f0f0; }
 }
 .notification-summary {
   display: flex;
@@ -66,13 +68,30 @@
   padding: 0.75rem 1rem 0.25rem;
   text-align: left;
   cursor: pointer;
-  &:hover { background: rgba(44, 44, 44, 0.03); }
 }
 .read-dot {
   flex-shrink: 0;
   width: 8px;
   height: 8px;
+  border-radius: 50%;
   margin-top: 6px;
   background: #b2571f;
   &.is-read { background: transparent; }
+}
+
+.call-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  background: #556141;
+  color: #f5f2eb;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.2s;
+
+  &:hover { background: #465135; }
+  &:focus-visible { outline: 2px solid #556141; outline-offset: 2px; }
 }
