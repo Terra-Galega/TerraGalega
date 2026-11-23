@@ -38,7 +38,8 @@ public class H2DataSourceConfig {
             @Value("${spring.datasource.username}") String username,
             @Value("${spring.datasource.password:}") String password) {
         HikariDataSource ds = new HikariDataSource();
-        ds.setDriverClassName("org.h2.Driver");
+        // H2 en el PC; PostgreSQL si DATASOURCE_URL apunta a Postgres (Railway)
+        ds.setDriverClassName(url.startsWith("jdbc:postgresql") ? "org.postgresql.Driver" : "org.h2.Driver");
         ds.setJdbcUrl(url);
         ds.setUsername(username);
         ds.setPassword(password);
