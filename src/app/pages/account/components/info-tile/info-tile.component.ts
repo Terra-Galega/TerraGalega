@@ -5,7 +5,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-info-tile',
   templateUrl: './info-tile.component.html',
-  host: { class: 'block' },
+  host: { class: 'block h-full' },
 })
 export class InfoTileComponent {
   @Input() label = '';

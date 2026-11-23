@@ -1,4 +1,4 @@
-<section class="glass-card rounded-3xl p-6 md:p-8 h-full">
+<section class="glass-card rounded-3xl p-6 md:p-8 h-full flex flex-col">
   <div class="flex items-center justify-between mb-6">
     <div>
       <!--Info del cliente-->
@@ -21,7 +21,9 @@
     </button>
   </div>
   <!--Mostrar bonito la info del cliente, nombre correo...-->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <!-- flex-1 + auto-rows-fr: las filas se reparten todo el alto de la tarjeta (que iguala a la de
+       Acciones), así no queda un hueco vacío debajo de los datos -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 auto-rows-fr">
     <app-info-tile label="Nombre" [value]="client.name" tone="terra">
       <svg aria-hidden="true" focusable="false" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
