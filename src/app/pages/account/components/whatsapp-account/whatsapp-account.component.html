@@ -1,9 +1,9 @@
 <section class="glass-card rounded-3xl p-6 md:p-8" aria-labelledby="whatsapp-account-title" [attr.aria-busy]="busy()">
-  <p class="text-xs uppercase tracking-widest text-sage mb-1">Galleguito</p>
+  <p class="text-xs uppercase tracking-widest text-forest mb-1">Galleguito</p>
   <h3 id="whatsapp-account-title" class="font-serif text-2xl font-semibold">{{ 'whatsappLink.profileTitle' | t }}</h3>
   @if (error()) {
     <p role="alert" class="text-red-800 mt-3">{{ error() }}</p>
-    <button type="button" [disabled]="busy()" (click)="load()" class="min-h-11 text-sage underline">{{ 'whatsappLink.retry' | t }}</button>
+    <button type="button" [disabled]="busy()" (click)="load()" class="min-h-11 mt-3 rounded-full border border-forest text-forest px-5 py-2.5 font-semibold cursor-pointer transition-colors enabled:hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:cursor-not-allowed">{{ 'whatsappLink.retry' | t }}</button>
   }
   @if (status(); as connection) {
     @if (connection.linked) {
@@ -11,15 +11,15 @@
       @if (confirming()) {
         <p class="text-sm mt-3">{{ 'whatsappLink.unlinkDescription' | t }}</p>
         <div class="flex flex-wrap gap-3 mt-4">
-          <button type="button" [disabled]="busy()" (click)="unlink()" class="rounded-full bg-sage text-cream min-h-11 px-5 font-semibold disabled:opacity-50">{{ 'whatsappLink.unlinkConfirm' | t }}</button>
-          <button type="button" [disabled]="busy()" (click)="confirming.set(false)" class="rounded-full border border-sage min-h-11 px-5 disabled:opacity-50">{{ 'whatsappLink.cancel' | t }}</button>
+          <button type="button" [disabled]="busy()" (click)="unlink()" class="rounded-full bg-forest text-white min-h-11 px-5 py-2.5 font-semibold cursor-pointer transition-colors enabled:hover:bg-forest/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:cursor-not-allowed">{{ 'whatsappLink.unlinkConfirm' | t }}</button>
+          <button type="button" [disabled]="busy()" (click)="confirming.set(false)" class="rounded-full border border-forest text-forest min-h-11 px-5 py-2.5 font-semibold cursor-pointer transition-colors enabled:hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest disabled:opacity-50 disabled:cursor-not-allowed">{{ 'whatsappLink.cancel' | t }}</button>
         </div>
       } @else {
-        <button type="button" (click)="confirming.set(true)" class="min-h-11 mt-3 text-sage underline">{{ 'whatsappLink.unlink' | t }}</button>
+        <button type="button" (click)="confirming.set(true)" class="min-h-11 mt-3 rounded-full border border-forest text-forest px-5 py-2.5 font-semibold cursor-pointer transition-colors hover:bg-forest/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">{{ 'whatsappLink.unlink' | t }}</button>
       }
     } @else {
       <p class="mt-3 text-sm leading-relaxed">{{ 'whatsappLink.notLinked' | t }}</p>
-      <a href="https://wa.me/573105563040?text=Vincular%20mi%20cuenta" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center mt-3 text-sage font-semibold underline">{{ 'whatsappLink.request' | t }}</a>
+      <a href="https://wa.me/573105563040?text=Vincular%20mi%20cuenta" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center justify-center mt-3 rounded-full bg-forest text-white px-6 py-3 font-semibold transition-colors hover:bg-forest/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">{{ 'whatsappLink.request' | t }}</a>
     }
   } @else if (busy()) { <p role="status" class="mt-3">{{ 'whatsappLink.loading' | t }}</p> }
 </section>
