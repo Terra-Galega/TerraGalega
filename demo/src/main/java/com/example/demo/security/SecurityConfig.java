@@ -81,6 +81,9 @@ public class SecurityConfig {
                                                 // Stripe llama al webhook sin JWT: se protege con la firma
                                                 // Stripe-Signature, que se valida en PaymentService.
                                                 .requestMatchers(HttpMethod.POST, "/payments/webhook").permitAll()
+                                                // Meta verifica por token (GET) y firma HMAC (POST).
+                                                .requestMatchers(HttpMethod.GET, "/webhooks/whatsapp").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/webhooks/whatsapp").permitAll()
                                                 // Página puente: el navegador del celular vuelve de Stripe
                                                 // sin token y esta página reabre la app
                                                 .requestMatchers(HttpMethod.GET, "/payments/app-return").permitAll()
