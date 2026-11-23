@@ -130,7 +130,7 @@ export class OrderTrackingComponent implements AfterViewInit {
 
   get complaintLink(): string {
     const subject = `Quejas, Reclamos o Comentarios del pedido #${this.delivery?.orderId ?? ''}`;
-    return `mailto:contacto@terragalega.co?subject=${encodeURIComponent(subject)}`;
+    return `mailto:terragalega0@gmail.com?subject=${encodeURIComponent(subject)}`;
   }
 
   enableNotifications(): void {

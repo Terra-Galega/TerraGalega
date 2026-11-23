@@ -5,6 +5,7 @@ import { OrderSummary } from '../../models/order';
 import { OperatorOrderDetailModalComponent } from './components/operator-order-detail-modal/operator-order-detail-modal.component';
 import { OperatorTopbarComponent } from './components/operator-topbar/operator-topbar.component';
 import { OperatorOrdersComponent } from './components/operator-orders/operator-orders.component';
+import { OperatorReservationsComponent } from './components/operator-reservations/operator-reservations.component';
 import { OperatorDeliveryModalComponent } from './components/operator-delivery-modal/operator-delivery-modal.component';
 import { OperatorService } from '../../services/operator.service';
 import { getErrorMessage } from '../../utils/http-error';
@@ -17,10 +18,13 @@ import { OperatorTrackingComponent } from './components/operator-tracking/operat
     OperatorDeliveryModalComponent,
     OperatorOrderDetailModalComponent,
     OperatorTrackingComponent,
+    OperatorReservationsComponent,
   ],
   templateUrl: './operator.component.html',
 })
 export class OperatorComponent {
+  // Sección visible del panel
+  view: 'orders' | 'reservations' = 'orders';
   operatorId = 0;
   operatorName = '';
   operatorUsername = '';
@@ -72,6 +76,15 @@ export class OperatorComponent {
     });
   }
 
+  setView(view: 'orders' | 'reservations') {
+    this.view = view;
+  }
+
+  // Opciones de la barra lateral
+  readonly navItems: { id: 'orders' | 'reservations'; label: string; icon: string }[] = [
+    { id: 'orders', label: 'Domicilios', icon: 'M3 7h11v9H3zM14 10h4l3 3v3h-7zM7 19.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17 19.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z' },
+    { id: 'reservations', label: 'Reservas', icon: 'M4 5h16v15H4zM4 10h16M9 3v4M15 3v4' },
+  ];
   // Abre el modal de envío y guarda el pedido seleccionado para utilizar su información.
   openSendModal(order: OrderSummary) {
     this.orderToSend = order;

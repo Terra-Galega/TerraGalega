@@ -59,3 +59,25 @@ export interface ReservationInput {
   // Solo al crear: el cliente acepta pagar el anticipo
   depositAccepted?: boolean;
 }
+
+// Estado de una reserva activa vista por el operador:
+// UPCOMING: aún no es la hora. WAITING: ya es la hora y se espera al cliente.
+// SEATED: el cliente ya llegó y está en la mesa. NO_SHOW: pasó el margen de espera sin llegar.
+export type OperatorReservationStatus = 'UPCOMING' | 'WAITING' | 'SEATED' | 'NO_SHOW';
+
+// Reserva activa en el panel del operador (llega de GET /reservations/active).
+export interface OperatorReservation {
+  id: number;
+  name: string;
+  clientName: string;
+  clientPhone: string | null;
+  tableId: number;
+  floor: number;
+  // AAAA-MM-DD
+  date: string;
+  // HH:mm:ss
+  time: string;
+  seats: number;
+  theme: ReservationTheme;
+  status: OperatorReservationStatus;
+}

@@ -1225,6 +1225,7 @@ html[data-theme="dark"] {
   // ---------- 5. Reservas ----------
   // La página define sus colores como variables en :host; se redefinen aquí para el tema oscuro.
   app-reservations,
+  app-reservation-map,
   app-reservation-guest {
     --ink: #f5f2eb;
     --surface: #262320;
@@ -1785,6 +1786,7 @@ html[data-contrast="high"][data-theme="dark"] {
   }
 
   app-reservations,
+  app-reservation-map,
   app-reservation-guest {
     --ink: #ffffff;
     --surface: #000000;
