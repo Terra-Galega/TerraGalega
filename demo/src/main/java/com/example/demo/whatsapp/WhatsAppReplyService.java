@@ -2,6 +2,9 @@ package com.example.demo.whatsapp;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.LockModeType;
@@ -24,15 +27,17 @@ public class WhatsAppReplyService {
     private final ObjectMapper mapper;
     private final EntityManager em;
     private final TransactionTemplate tx;
+    private final WhatsAppAssistant assistant;
 
     public WhatsAppReplyService(WhatsAppReplySettings settings, WhatsAppMessageClient client, ObjectMapper mapper,
             @Qualifier("entityManagerFactory") EntityManagerFactory factory,
-            @Qualifier("transactionManager") PlatformTransactionManager manager) {
+            @Qualifier("transactionManager") PlatformTransactionManager manager, WhatsAppAssistant assistant) {
         this.settings = settings;
         this.client = client;
         this.mapper = mapper;
         this.em = SharedEntityManagerCreator.createSharedEntityManager(factory);
         this.tx = new TransactionTemplate(manager);
+        this.assistant = assistant;
     }
 
     // Participa en la misma transacción que guarda el webhook: no pierde trabajos
@@ -59,14 +64,19 @@ public class WhatsAppReplyService {
                     Instant expires = sentAt.plus(Duration.ofHours(23));
                     if (!expires.isAfter(now) || sentAt.isAfter(now.plusSeconds(300))) continue;
                     if (entityManager.find(WhatsAppReply.class, id) == null) {
-                        entityManager.persist(new WhatsAppReply(id, from, expires));
+                        var job = new WhatsAppReply(id, from, expires);
+                        String text = message.path("text").path("body").asText().trim();
+                        // Conserva longitud suficiente para contestar que excede el límite,
+                        // sin duplicar un cuerpo arbitrariamente grande en la cola.
+                        job.incomingText = text.substring(0, Math.min(text.length(), WhatsAppAssistant.MAX_INPUT + 1));
+                        entityManager.persist(job);
                     }
                 }
             }
         }
     }
 
-    @Scheduled(fixedDelay = 3000, initialDelay = 10000)
+    @Scheduled(fixedDelay = 3000, initialDelay = 10000, scheduler = "whatsappReplyScheduler")
     public void dispatch() {
         if (!settings.enabled()) return;
         // Lotes pequeños: el webhook nunca espera una llamada a Graph API.
@@ -77,7 +87,18 @@ public class WhatsAppReplyService {
             String error = null;
             String outbound = null;
             try {
-                outbound = client.send(job.recipient);
+                if (job.replyText == null) {
+                    List<WhatsAppAssistant.Turn> history = tx.execute(status -> history(job));
+                    String generated = assistant.answer(job.incomingText, history);
+                    tx.executeWithoutResult(status -> em.find(WhatsAppReply.class, job.id).replyText = generated);
+                    job.replyText = generated;
+                }
+                // Gemini puede tardar; comprobar de nuevo la ventana antes del envío.
+                if (!job.expiresAt.isAfter(Instant.now())) {
+                    tx.executeWithoutResult(status -> em.find(WhatsAppReply.class, job.id).state = "EXPIRED");
+                    continue;
+                }
+                outbound = client.send(job.recipient, job.replyText);
                 state = "ACCEPTED";
             } catch (RestClientResponseException failure) {
                 int code = failure.getStatusCode().value();
@@ -100,6 +121,16 @@ public class WhatsAppReplyService {
             });
             log.info("Respuesta de WhatsApp: estado={}, error={}", state, error);
         }
+    }
+
+    private List<WhatsAppAssistant.Turn> history(WhatsAppReply job) {
+        var previous = em.createQuery("select r from WhatsAppReply r where r.recipient = :recipient and r.state = 'ACCEPTED' and r.expiresAt > :now and r.expiresAt <= :current and r.id <> :id and r.incomingText is not null and r.replyText is not null order by r.expiresAt desc, r.id desc", WhatsAppReply.class)
+                .setParameter("recipient", job.recipient).setParameter("now", Instant.now())
+                .setParameter("current", job.expiresAt).setParameter("id", job.id).setMaxResults(6).getResultList();
+        var turns = new ArrayList<WhatsAppAssistant.Turn>();
+        for (var item : previous) turns.add(new WhatsAppAssistant.Turn(item.incomingText, item.replyText));
+        Collections.reverse(turns);
+        return turns;
     }
 
     private WhatsAppReply claim() {

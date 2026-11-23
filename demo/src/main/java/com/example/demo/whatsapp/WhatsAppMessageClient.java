@@ -30,12 +30,15 @@ public class WhatsAppMessageClient {
         this.http = http;
     }
 
-    public String send(String recipient) {
+    public String send(String recipient, String text) {
+        if (text == null || text.isBlank() || text.length() > 4096) {
+            throw new IllegalArgumentException("Texto de WhatsApp invalido");
+        }
         JsonNode response = http.post().uri("/{version}/{phone}/messages", settings.apiVersion(), settings.phoneNumberId())
                 .headers(headers -> headers.setBearerAuth(settings.accessToken()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of("messaging_product", "whatsapp", "recipient_type", "individual", "to", recipient,
-                        "type", "text", "text", Map.of("body", TEST_REPLY, "preview_url", false)))
+                        "type", "text", "text", Map.of("body", text, "preview_url", false)))
                 .retrieve().body(JsonNode.class);
         String id = response == null ? "" : response.path("messages").path(0).path("id").asText();
         if (id.isBlank() || id.length() > 255) throw new IllegalStateException("Respuesta de Meta sin identificador valido");

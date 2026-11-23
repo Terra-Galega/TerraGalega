@@ -14,6 +14,9 @@ public class WhatsAppReply {
     @Column(name = "expires_at", nullable = false) Instant expiresAt;
     @Column(name = "outbound_message_id", length = 255) String outboundMessageId;
     @Column(name = "last_error", length = 80) String lastError;
+    // Nullable para las tareas que ya existían antes de conectar Gemini.
+    @Column(name = "incoming_text", columnDefinition = "text") String incomingText;
+    @Column(name = "reply_text", columnDefinition = "text") String replyText;
 
     protected WhatsAppReply() { }
     WhatsAppReply(String id, String recipient, Instant expiresAt) {

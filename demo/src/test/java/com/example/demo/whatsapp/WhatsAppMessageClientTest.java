@@ -21,9 +21,9 @@ class WhatsAppMessageClientTest {
                 .andExpect(jsonPath("$.messaging_product").value("whatsapp"))
                 .andExpect(jsonPath("$.to").value("573001234567"))
                 .andExpect(jsonPath("$.type").value("text"))
-                .andExpect(jsonPath("$.text.body").value(WhatsAppMessageClient.TEST_REPLY))
+                .andExpect(jsonPath("$.text.body").value("Respuesta generada por Gemini"))
                 .andRespond(withSuccess("{\"messages\":[{\"id\":\"wamid.response\"}]}", MediaType.APPLICATION_JSON));
-        assertThat(client.send("573001234567")).isEqualTo("wamid.response");
+        assertThat(client.send("573001234567", "Respuesta generada por Gemini")).isEqualTo("wamid.response");
         server.verify();
     }
 
