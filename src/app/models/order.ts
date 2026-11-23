@@ -58,6 +58,8 @@ export interface Order {
     lastName: string;
     phone: string;
   } | null;
+  // Operador que maneja el pedido; no viene hasta que empieza a prepararse
+  operatorId?: number | null;
   status: OrderStatus;
   createdAt: string;
   deliveredAt: string | null;
