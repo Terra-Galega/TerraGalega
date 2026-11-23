@@ -17,6 +17,7 @@ import java.util.List;
  */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
+  java.util.Optional<Order> findByIdAndClientId(Integer id, Integer clientId);
 
   // Historial de un cliente, del pedido más reciente al más antiguo
   List<Order> findByClientIdOrderByCreatedAtDesc(Integer clientId);

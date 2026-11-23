@@ -10,7 +10,7 @@ import tools.jackson.databind.JsonNode;
 
 @Component
 public class WhatsAppMenu {
-    static final String MENU_BODY = "¡Hola! Soy Galleguito, el asistente de TerraGalega. Elige una opción o escríbeme tu consulta. Puedes escribir menú cuando quieras volver aquí.";
+    static final String MENU_BODY = "¡Hola! Soy Galleguito, el asistente de TerraGalega. Elige una opción o escribe «finalizar pedido», «mis pedidos» o «mi reserva». Escribe «menú» para volver aquí.";
     private final RestaurantInformation information;
     private final String website;
 
@@ -26,6 +26,8 @@ public class WhatsAppMenu {
             var interactive = message.path("interactive");
             if ("button_reply".equals(interactive.path("type").asText())) {
                 String button = interactive.path("button_reply").path("id").asText();
+                if (button.matches("book_yes:[a-f0-9]{16}")) return new Selection("BOOKING_CONFIRM", button.substring(9));
+                if (button.matches("book_no:[a-f0-9]{16}")) return new Selection("BOOKING_DISCARD", button.substring(8));
                 if (button.matches("tg_cart_confirm:[a-f0-9]{64}")) return new Selection("CART_CONFIRM", button.substring("tg_cart_confirm:".length()));
                 if (button.matches("tg_cart_cancel:[a-f0-9]{64}")) return new Selection("CART_CANCEL", button.substring("tg_cart_cancel:".length()));
                 return null;
@@ -40,6 +42,8 @@ public class WhatsAppMenu {
                 case "tg_operator" -> new Selection("OPERATOR", "Solicitar contacto de un operador");
                 case "tg_link" -> new Selection("LINK", "Vincular mi cuenta");
                 case "tg_cart" -> new Selection("CART", "Ver mi carrito");
+                case "tg_checkout" -> new Selection("CHECKOUT", "Finalizar pedido");
+                case "tg_orders" -> new Selection("ORDERS", "Mis pedidos");
                 default -> null;
             };
         }
@@ -51,6 +55,10 @@ public class WhatsAppMenu {
         if (List.of("hola", "buenas", "buenos dias", "buenas tardes", "buenas noches", "menu", "opciones", "inicio",
                 "hola quiero conocer el menu de terragalega").contains(normalized)) return new Selection("MENU", text);
         // Solo peticiones explícitas; mencionar un operador en cualquier frase no basta.
+        if (List.of("finalizar pedido", "pagar mi pedido", "ir al checkout").contains(normalized)) return new Selection("CHECKOUT", text);
+        if (List.of("mis pedidos", "mi pedido", "seguir mi pedido", "estado de mi pedido").contains(normalized)) return new Selection("ORDERS", text);
+        if ("mi reserva".equals(normalized)) return new Selection("BOOKING", text);
+        if (normalized.matches("confirmar reserva [a-f0-9]{16}")) return new Selection("BOOKING_CONFIRM", normalized.substring("confirmar reserva ".length()));
         if (List.of("carrito", "mi carrito", "ver carrito", "ver mi carrito").contains(normalized)) return new Selection("CART", text);
         if ("confirmar carrito".equals(normalized)) return new Selection("CART_CONFIRM", "");
         if ("cancelar cambio".equals(normalized)) return new Selection("CART_CANCEL", "");
@@ -84,7 +92,8 @@ public class WhatsAppMenu {
                         row("tg_catalog", "🍽️ Ver menú"), row("tg_recommend", "⭐ Recomendaciones"),
                         row("tg_information", "🕒 Horarios y ubicación"), row("tg_reservations", "📅 Reservas"),
                         row("tg_operator", "👤 Contactar operador"), row("tg_link", "🔗 Vincular mi cuenta"),
-                        row("tg_cart", "🛒 Mi carrito"))))));
+                        row("tg_cart", "🛒 Mi carrito"), row("tg_checkout", "💳 Finalizar pedido"),
+                        row("tg_orders", "📦 Mis pedidos"))))));
     }
 
     private static Map<String, String> row(String id, String title) { return Map.of("id", id, "title", title); }

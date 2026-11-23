@@ -41,7 +41,7 @@ class WhatsAppMenuTest {
         assertThat(menu.selection(mapper.readTree("{\"type\":\"text\",\"text\":{\"body\":\"Vincular mi cuenta\"}}" )).kind()).isEqualTo("LINK");
         assertThat(menu.selection(mapper.readTree("{\"type\":\"text\",\"text\":{\"body\":\"No quiero vincular mi cuenta\"}}" )).kind()).isEqualTo("AI");
         var rows = mapper.valueToTree(WhatsAppMenu.interactive("Hola")).path("action").path("sections").path(0).path("rows");
-        assertThat(rows.size()).isEqualTo(7);
+        assertThat(rows.size()).isEqualTo(9);
         for (var row : rows) {
             String title = row.path("title").asText();
             assertThat(title.length()).isLessThanOrEqualTo(24);

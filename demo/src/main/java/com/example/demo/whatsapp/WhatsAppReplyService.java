@@ -123,7 +123,9 @@ public class WhatsAppReplyService {
                             em.find(WhatsAppReply.class, job.id).replyText = reply;
                             return reply;
                         });
-                    } else if ((job.responseKind != null && job.responseKind.startsWith("CART")) || ("AI".equals(job.responseKind) && job.account() != null)) {
+                    } else if (job.responseKind != null && (job.responseKind.startsWith("CART")
+                            || List.of("CHECKOUT", "ORDERS", "BOOKING", "BOOKING_CONFIRM", "BOOKING_DISCARD").contains(job.responseKind)
+                            || (job.account() != null && List.of("AI", "RESERVATIONS").contains(job.responseKind)))) {
                         WhatsAppCartService.Reply reply;
                         try {
                             var context = new WhatsAppCartService.Context(job.id, job.recipient, job.account());
@@ -131,6 +133,8 @@ public class WhatsAppReplyService {
                                 reply = WhatsAppCartService.Reply.text(WhatsAppAccountService.LINK_REQUIRED);
                             } else {
                                 reply = switch (job.responseKind) {
+                                    case "CHECKOUT", "ORDERS", "RESERVATIONS", "BOOKING", "BOOKING_CONFIRM", "BOOKING_DISCARD" ->
+                                            cartAssistant.customerCommand(context, job.responseKind, job.incomingText);
                                     case "CART" -> WhatsAppCartService.Reply.text(cart.summary(context));
                                     case "CART_CONFIRM" -> cart.decide(context, job.incomingText, true);
                                     case "CART_CANCEL" -> cart.decide(context, job.incomingText, false);
@@ -174,7 +178,8 @@ public class WhatsAppReplyService {
                     });
                     continue;
                 }
-                outbound = job.cartActionId != null ? client.sendCartConfirmation(job.recipient, job.replyText, job.cartActionId)
+                outbound = job.cartActionId != null && job.cartActionId.startsWith("booking:") ? client.sendBookingConfirmation(job.recipient, job.replyText, job.cartActionId.substring(8))
+                        : job.cartActionId != null ? client.sendCartConfirmation(job.recipient, job.replyText, job.cartActionId)
                         : "MENU".equals(job.responseKind) ? client.sendMenu(job.recipient, job.replyText)
                         : client.send(job.recipient, job.replyText);
                 state = "ACCEPTED";

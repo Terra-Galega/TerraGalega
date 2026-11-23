@@ -14,6 +14,7 @@ public class WhatsAppCartAssistant {
     private final WhatsAppAssistant publicAssistant;
     private final WhatsAppCartService cart;
     private final boolean enabled;
+    @org.springframework.beans.factory.annotation.Autowired private WhatsAppCustomerService customer;
 
     public WhatsAppCartAssistant(GeminiClient gemini, WhatsAppAssistant publicAssistant, WhatsAppCartService cart,
             @Value("${WHATSAPP_AI_ENABLED:true}") boolean enabled) {
@@ -33,7 +34,7 @@ public class WhatsAppCartAssistant {
             }
             contents.add(GeminiClient.content("user", message));
             var config = GenerateContentConfig.builder().systemInstruction(Content.fromParts(Part.fromText(publicAssistant.cartPrompt())))
-                    .tools(tools()).temperature(0.2f).maxOutputTokens(900).build();
+                    .tools(tools(), customerTools()).temperature(0.2f).maxOutputTokens(900).build();
             String lastCart = null;
             for (int round = 0; round < 3; round++) {
                 var response = gemini.generate(contents, config);
@@ -44,8 +45,21 @@ public class WhatsAppCartAssistant {
                     return WhatsAppCartService.Reply.text(text == null || text.isBlank() ? WhatsAppAssistant.UNAVAILABLE : limit(text));
                 }
                 // Un pedido compuesto se aclara antes de guardar propuestas, sin efectos parciales.
+                var personal = calls.stream().filter(c -> List.of("finalizar_pedido", "mis_pedidos", "mi_reserva", "gestionar_reserva")
+                        .contains(c.name().orElse(""))).findFirst();
+                if (personal.isPresent()) {
+                    if (calls.size() != 1) return WhatsAppCartService.Reply.text("¿Qué gestión quieres hacer primero?");
+                    var call = personal.get();
+                    var args = call.args().orElse(Map.of());
+                    String name = call.name().orElseThrow();
+                    if ("gestionar_reserva".equals(name)) {
+                        name = String.valueOf(args.get("accion"));
+                        if (!List.of("disponibilidad", "crear", "cambiar", "cancelar").contains(name)) return WhatsAppCartService.Reply.text(WhatsAppCustomerService.RESERVATION_HELP);
+                    }
+                    return customer.run(context, name, args);
+                }
                 if (calls.size() > 4 || calls.stream().anyMatch(c -> !List.of("ver_carrito", "preparar_cambio_carrito").contains(c.name().orElse("")))) {
-                    return WhatsAppCartService.Reply.text("Por WhatsApp puedo ayudarte con el carrito; las reservas, pedidos y pagos se gestionan en la web.");
+                    return WhatsAppCartService.Reply.text("Esa acción no está disponible por WhatsApp. Puedes continuar en la web.");
                 }
                 if (calls.stream().filter(c -> "preparar_cambio_carrito".equals(c.name().orElse(""))).count() > 1) {
                     return WhatsAppCartService.Reply.text("Hagamos un cambio de carrito a la vez. ¿Qué plato quieres agregar, cambiar o quitar primero?");
@@ -71,6 +85,30 @@ public class WhatsAppCartAssistant {
         } catch (RuntimeException failure) {
             return WhatsAppCartService.Reply.text(WhatsAppAssistant.UNAVAILABLE);
         }
+    }
+
+    WhatsAppCartService.Reply customerCommand(WhatsAppCartService.Context context, String kind, String input) {
+        return switch (kind) {
+            case "CHECKOUT" -> customer.run(context, "finalizar_pedido", Map.of());
+            case "ORDERS" -> customer.run(context, "mis_pedidos", Map.of());
+            case "BOOKING_CONFIRM", "BOOKING_DISCARD" -> WhatsAppCartService.Reply.text(customer.decide(context, input, kind.equals("BOOKING_CONFIRM")));
+            default -> customer.run(context, "mi_reserva", Map.of());
+        };
+    }
+
+    private static Tool customerTools() {
+        var integer = Schema.builder().type(Type.Known.INTEGER).build();
+        var string = Schema.builder().type(Type.Known.STRING).build();
+        return Tool.builder().functionDeclarations(
+                FunctionDeclaration.builder().name("finalizar_pedido").description("Devuelve el resumen vigente y el enlace para pagar en el checkout web.").build(),
+                FunctionDeclaration.builder().name("mis_pedidos").description("Estado de los últimos pedidos o del pedido solicitado y seguimiento del domicilio.")
+                        .parameters(Schema.builder().type(Type.Known.OBJECT).properties(Map.of("pedido", integer)).build()).build(),
+                FunctionDeclaration.builder().name("mi_reserva").description("Muestra la reserva actual de la cuenta vinculada.").build(),
+                FunctionDeclaration.builder().name("gestionar_reserva")
+                        .description("Consulta mesas o prepara una propuesta. Para disponibilidad, crear o cambiar se requieren fecha AAAA-MM-DD, hora HH:mm y personas. Para cancelar basta la acción.")
+                        .parameters(Schema.builder().type(Type.Known.OBJECT).properties(Map.of(
+                                "accion", Schema.builder().type(Type.Known.STRING).enum_(List.of("disponibilidad", "crear", "cambiar", "cancelar")).build(),
+                                "fecha", string, "hora", string, "personas", integer)).required(List.of("accion")).build()).build()).build();
     }
 
     static Tool tools() {

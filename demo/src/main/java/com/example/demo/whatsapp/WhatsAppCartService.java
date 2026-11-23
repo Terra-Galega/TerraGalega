@@ -43,14 +43,14 @@ public class WhatsAppCartService {
     }
 
     String summary(Context context) {
-        return accounts.withAccount(context.phone(), context.account(), () -> summary(cart.getCart(context.account().clientId())));
+        return accounts.withAccount(context.phone(), context.account(), () -> formatSummary(cart.getCart(context.account().clientId())));
     }
 
     Map<String, Object> inspect(Context context) {
         return accounts.withAccount(context.phone(), context.account(), () -> {
             var lines = cart.getCart(context.account().clientId());
             return Map.of("lineas", lines.stream().map(line -> Map.of("lineaId", line.id(), "productoId", line.product().id(),
-                    "plato", line.product().name(), "cantidad", line.quantity(), "adicionales", line.addOns())).toList(), "resumen", summary(lines));
+                    "plato", line.product().name(), "cantidad", line.quantity(), "adicionales", line.addOns())).toList(), "resumen", formatSummary(lines));
         });
     }
 
@@ -130,7 +130,7 @@ public class WhatsAppCartService {
                 after = cart.removeItem(context.account().clientId(), action.getLineId());
             }
             // CartService se une a esta transacción PG: cambio y comprobante son atómicos.
-            action.setState("APPLIED"); action.setResult("✅ Cambio confirmado.\n" + summary(after));
+            action.setState("APPLIED"); action.setResult("✅ Cambio confirmado.\n" + formatSummary(after));
             pg.flush();
             return Reply.text(action.getResult());
         }));
@@ -180,7 +180,7 @@ public class WhatsAppCartService {
         return shortName(line.product().name() + extras);
     }
 
-    private static String summary(List<CartItemDTO> lines) {
+    static String formatSummary(List<CartItemDTO> lines) {
         if (lines.isEmpty()) return "🛒 Tu carrito está vacío. Dime qué plato del menú quieres agregar.";
         var text = new StringBuilder("🛒 Tu carrito:\n"); double total = 0; int count = 0;
         for (var line : lines) {

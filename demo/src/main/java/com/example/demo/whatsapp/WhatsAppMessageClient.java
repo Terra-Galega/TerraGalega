@@ -47,11 +47,19 @@ public class WhatsAppMessageClient {
         if (text == null || text.isBlank() || text.length() > 1024 || actionId == null || !actionId.matches("[a-f0-9]{64}")) {
             throw new IllegalArgumentException("Confirmación de carrito inválida");
         }
+        return sendDecision(recipient, text, "tg_cart_confirm:" + actionId, "tg_cart_cancel:" + actionId);
+    }
+
+    public String sendBookingConfirmation(String recipient, String text, String proposal) {
+        return sendDecision(recipient, text, "book_yes:" + proposal, "book_no:" + proposal);
+    }
+
+    private String sendDecision(String recipient, String text, String confirmId, String cancelId) {
         return sendPayload(Map.of("messaging_product", "whatsapp", "recipient_type", "individual", "to", recipient,
                 "type", "interactive", "interactive", Map.of("type", "button", "body", Map.of("text", text),
                         "action", Map.of("buttons", java.util.List.of(
-                                Map.of("type", "reply", "reply", Map.of("id", "tg_cart_confirm:" + actionId, "title", "✅ Confirmar")),
-                                Map.of("type", "reply", "reply", Map.of("id", "tg_cart_cancel:" + actionId, "title", "Cancelar")))))));
+                                Map.of("type", "reply", "reply", Map.of("id", confirmId, "title", "✅ Confirmar")),
+                                Map.of("type", "reply", "reply", Map.of("id", cancelId, "title", "Cancelar")))))));
     }
 
     private String sendPayload(Map<String, Object> payload) {

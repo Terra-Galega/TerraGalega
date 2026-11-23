@@ -31,7 +31,7 @@ class WhatsAppMessageClientTest {
         server.expect(requestTo("https://graph.facebook.com/v25.0/123456/messages"))
                 .andExpect(jsonPath("$.type").value("interactive"))
                 .andExpect(jsonPath("$.interactive.type").value("list"))
-                .andExpect(jsonPath("$.interactive.action.sections[0].rows.length()").value(7))
+                .andExpect(jsonPath("$.interactive.action.sections[0].rows.length()").value(9))
                 .andExpect(jsonPath("$.interactive.action.sections[0].rows[4].id").value("tg_operator"))
                 .andRespond(withSuccess("{\"messages\":[{\"id\":\"wamid.menu\"}]}", MediaType.APPLICATION_JSON));
         assertThat(client.sendMenu("573001234567", WhatsAppMenu.MENU_BODY)).isEqualTo("wamid.menu");

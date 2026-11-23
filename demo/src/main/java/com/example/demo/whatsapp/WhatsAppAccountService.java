@@ -34,7 +34,7 @@ public class WhatsAppAccountService {
     public record Status(boolean linked, String phone, Instant linkedAt) { }
     public record Preview(String maskedPhone, Instant expiresAt) { }
     record Account(Integer clientId, Instant linkedAt) { }
-    static final String LINK_REQUIRED = "Para consultar o modificar tu carrito, primero elige 🔗 Vincular mi cuenta en el menú. Si ya lo vinculaste, solicita de nuevo la acción desde ese WhatsApp.";
+    static final String LINK_REQUIRED = "Para gestionar tu carrito, pedidos o reservas, primero elige 🔗 Vincular mi cuenta en el menú. Si ya lo vinculaste, solicita de nuevo la acción desde ese WhatsApp.";
 
     Account snapshot(EntityManager entityManager, String phone) {
         var link = entityManager.find(WhatsAppAccountLink.class, phone);

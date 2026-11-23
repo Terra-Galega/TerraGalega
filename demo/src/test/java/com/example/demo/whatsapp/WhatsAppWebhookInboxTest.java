@@ -38,6 +38,7 @@ class WhatsAppWebhookInboxTest {
         @Bean LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
             var factory = new LocalContainerEntityManagerFactoryBean();
             factory.setDataSource(dataSource);
+            factory.setPersistenceUnitName("h2");
             factory.setPackagesToScan("com.example.demo.whatsapp");
             factory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
             factory.setJpaPropertyMap(Map.of("hibernate.hbm2ddl.auto", "create-drop"));
@@ -52,6 +53,7 @@ class WhatsAppWebhookInboxTest {
         @Bean WhatsAppMessageClient sender() { return mock(WhatsAppMessageClient.class); }
         @Bean WhatsAppCartService cart() { return mock(WhatsAppCartService.class); }
         @Bean WhatsAppCartAssistant cartAssistant() { return mock(WhatsAppCartAssistant.class); }
+        @Bean WhatsAppCustomerService customer() { return mock(WhatsAppCustomerService.class); }
         @Bean WhatsAppAccountService accounts(EntityManagerFactory factory, PlatformTransactionManager manager) {
             return new WhatsAppAccountService(factory, manager, "https://terra.example");
         }
