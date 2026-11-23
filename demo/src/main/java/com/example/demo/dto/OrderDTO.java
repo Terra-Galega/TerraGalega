@@ -25,6 +25,10 @@ public class OrderDTO {
     // ya tiene un domiciliario asignado
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private DeliveryPersonOrderDTO deliveryPerson;
+    // Operador que maneja el pedido (se asigna al empezar a prepararlo). Sin él,
+    // el campo ni aparece en el JSON
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer operatorId;
     private OrderStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime deliveredAt;

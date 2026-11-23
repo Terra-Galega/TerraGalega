@@ -37,7 +37,7 @@ public interface OrderService {
 
     Order checkout(Client client, CheckoutRequestDTO request);
 
-    List<OrderSummaryDTO> getActiveOrders();
+    List<OrderSummaryDTO> getActiveOrders(Integer operatorId);
 
     List<OrderSummaryDTO> getAllOrderSummaries();
 
