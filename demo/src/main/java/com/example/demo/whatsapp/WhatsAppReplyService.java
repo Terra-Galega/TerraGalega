@@ -75,10 +75,14 @@ public class WhatsAppReplyService {
                         entityManager.persist(job);
                         if ("OPERATOR".equals(job.responseKind)) {
                             var request = entityManager.find(WhatsAppContactRequest.class, from, LockModeType.PESSIMISTIC_WRITE);
-                            if (request == null) entityManager.persist(new WhatsAppContactRequest(from));
-                            else if (!request.pending) {
+                            if (request == null) {
+                                request = new WhatsAppContactRequest(from);
+                                entityManager.persist(request);
+                                entityManager.persist(new WhatsAppContactNotice(request, job.id));
+                            } else if (!request.pending) {
                                 request.pending = true;
                                 request.requestedAt = Instant.now();
+                                entityManager.persist(new WhatsAppContactNotice(request, job.id));
                             }
                         }
                     }

@@ -71,6 +71,7 @@ class WhatsAppWebhookInboxTest {
         when(assistant.answer(any(), anyList())).thenReturn("Respuesta de prueba IA");
         var em = org.springframework.orm.jpa.SharedEntityManagerCreator.createSharedEntityManager(factory);
         new TransactionTemplate(manager).executeWithoutResult(tx -> {
+            em.createQuery("delete from WhatsAppContactNotice").executeUpdate();
             em.createQuery("delete from WhatsAppContactRequest").executeUpdate();
             em.createQuery("delete from WhatsAppReply").executeUpdate();
             em.createQuery("delete from WhatsAppWebhookEvent").executeUpdate();
@@ -129,6 +130,40 @@ class WhatsAppWebhookInboxTest {
         replies.dispatch();
         verifyNoInteractions(assistant, sender);
         assertThat(new WhatsAppContactController(factory, manager).pending()).isEmpty();
+    }
+
+    @Test
+    void notificationsRemainAfterReadingHandlingAndRequestingAgain() {
+        inbox.receive(choice("notice-first", "tg_operator"));
+        var controller = new WhatsAppContactController(factory, manager);
+        var first = controller.notifications().getFirst();
+        assertThat(first.read()).isFalse();
+        assertThat(first.handled()).isFalse();
+        assertThat(controller.markRead(first.id()).getStatusCode().value()).isEqualTo(204);
+        assertThat(controller.notifications()).hasSize(1);
+        assertThat(controller.notifications().getFirst().read()).isTrue();
+        assertThat(controller.pending()).hasSize(1);
+        controller.handled(first.phone(), first.requestedAt());
+        assertThat(controller.notifications()).hasSize(1);
+        assertThat(controller.notifications().getFirst().handled()).isTrue();
+        inbox.receive(choice("notice-second", "tg_operator"));
+        var list = controller.notifications();
+        assertThat(list).hasSize(2);
+        assertThat(list.stream().filter(n -> !n.read()).count()).isEqualTo(1);
+        assertThat(list.stream().filter(n -> n.handled()).count()).isEqualTo(1);
+        controller.markAllRead();
+        assertThat(controller.notifications()).allMatch(n -> n.read());
+        assertThat(controller.pending()).hasSize(1);
+    }
+
+    @Test
+    void existingRequestsAreRecoveredWithoutRepeatedNotifications() {
+        var em = org.springframework.orm.jpa.SharedEntityManagerCreator.createSharedEntityManager(factory);
+        new TransactionTemplate(manager).executeWithoutResult(tx -> em.persist(new WhatsAppContactRequest("573008887766")));
+        var controller = new WhatsAppContactController(factory, manager);
+        assertThat(controller.notifications()).hasSize(1);
+        assertThat(controller.notifications()).hasSize(1);
+        assertThat(controller.notifications().getFirst().phone()).isEqualTo("573008887766");
     }
 
     @Test
