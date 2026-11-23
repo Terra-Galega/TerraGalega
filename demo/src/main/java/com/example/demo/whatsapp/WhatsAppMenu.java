@@ -32,6 +32,7 @@ public class WhatsAppMenu {
                 case "tg_information" -> new Selection("INFO", "Horarios y ubicación");
                 case "tg_reservations" -> new Selection("RESERVATIONS", "Información de reservas");
                 case "tg_operator" -> new Selection("OPERATOR", "Solicitar contacto de un operador");
+                case "tg_link" -> new Selection("LINK", "Vincular mi cuenta");
                 default -> null;
             };
         }
@@ -43,6 +44,9 @@ public class WhatsAppMenu {
         if (List.of("hola", "buenas", "buenos dias", "buenas tardes", "buenas noches", "menu", "opciones", "inicio",
                 "hola quiero conocer el menu de terragalega").contains(normalized)) return new Selection("MENU", text);
         // Solo peticiones explícitas; mencionar un operador en cualquier frase no basta.
+        if (List.of("vincular", "vincular mi cuenta", "vincular cuenta", "quiero vincular mi cuenta").contains(normalized)) {
+            return new Selection("LINK", text);
+        }
         if (normalized.matches("(?:(?:quiero|necesito|deseo) )?(?:hablar|comunicarme|contactar)(?: con)? (?:un |una |el |la )?(?:operador|operario|asesor|persona|humano)(?: por favor)?")
                 || List.of("operador", "operario", "asesor", "atencion humana").contains(normalized)) {
             return new Selection("OPERATOR", text);
@@ -67,9 +71,9 @@ public class WhatsAppMenu {
     static Map<String, Object> interactive(String body) {
         return Map.of("type", "list", "body", Map.of("text", body),
                 "action", Map.of("button", "Ver opciones", "sections", List.of(Map.of("title", "TerraGalega", "rows", List.of(
-                        row("tg_catalog", "Ver menú"), row("tg_recommend", "Recomendaciones"),
-                        row("tg_information", "Horarios y ubicación"), row("tg_reservations", "Reservas"),
-                        row("tg_operator", "Contactar operador"))))));
+                        row("tg_catalog", "🍽️ Ver menú"), row("tg_recommend", "⭐ Recomendaciones"),
+                        row("tg_information", "🕒 Horarios y ubicación"), row("tg_reservations", "📅 Reservas"),
+                        row("tg_operator", "👤 Contactar operador"), row("tg_link", "🔗 Vincular mi cuenta"))))));
     }
 
     private static Map<String, String> row(String id, String title) { return Map.of("id", id, "title", title); }

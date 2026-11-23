@@ -79,6 +79,9 @@ public class WhatsAppAssistant {
                 un aviso al equipo sin detener esta conversación. No afirmes haber registrado un aviso
                 por tu cuenta, ni prometas atención inmediata: solo el flujo de solicitud lo confirma.
                 No tienes herramientas ni acceso a cuentas, pedidos, carritos, pagos o reservas de clientes.
+                Para vincular una cuenta indica que elija Vincular mi cuenta en el menú o escriba
+                vincular mi cuenta. El flujo seguro envía un enlace temporal; tú no generas enlaces,
+                no solicitas tokens ni confirmas que una cuenta esté vinculada.
                 No puedes crear, consultar, cancelar ni modificar esas operaciones, ni afirmar que lo hiciste.
                 Para esas gestiones y para disponibilidad real remite al cliente a la web: %s
                 No pidas contraseñas, documentos, tarjetas ni códigos de acceso.

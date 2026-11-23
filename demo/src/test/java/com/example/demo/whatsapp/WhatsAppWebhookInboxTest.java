@@ -50,9 +50,13 @@ class WhatsAppWebhookInboxTest {
         @Bean WhatsAppReplySettings settings() { return new WhatsAppReplySettings(true, "fake-token", "123456", "v25.0"); }
         @Bean WhatsAppAssistant assistant() { return mock(WhatsAppAssistant.class); }
         @Bean WhatsAppMessageClient sender() { return mock(WhatsAppMessageClient.class); }
+        @Bean WhatsAppAccountService accounts(EntityManagerFactory factory, PlatformTransactionManager manager) {
+            return new WhatsAppAccountService(factory, manager, "https://terra.example");
+        }
         @Bean WhatsAppReplyService replies(EntityManagerFactory factory, PlatformTransactionManager manager,
-                WhatsAppReplySettings settings, WhatsAppMessageClient sender, WhatsAppAssistant assistant, WhatsAppMenu menu) {
-            return new WhatsAppReplyService(settings, sender, new ObjectMapper(), factory, manager, assistant, menu);
+                WhatsAppReplySettings settings, WhatsAppMessageClient sender, WhatsAppAssistant assistant, WhatsAppMenu menu,
+                WhatsAppAccountService accounts) {
+            return new WhatsAppReplyService(settings, sender, new ObjectMapper(), factory, manager, assistant, menu, accounts);
         }
         @Bean WhatsAppWebhookInbox inbox(EntityManagerFactory factory, PlatformTransactionManager manager, WhatsAppReplyService replies) {
             return new WhatsAppWebhookInbox(factory, manager, replies);
@@ -75,6 +79,7 @@ class WhatsAppWebhookInboxTest {
             em.createQuery("delete from WhatsAppContactRequest").executeUpdate();
             em.createQuery("delete from WhatsAppReply").executeUpdate();
             em.createQuery("delete from WhatsAppWebhookEvent").executeUpdate();
+            em.createQuery("delete from WhatsAppAccountLink").executeUpdate();
         });
     }
 
@@ -122,6 +127,22 @@ class WhatsAppWebhookInboxTest {
         replies.dispatch();
         verify(assistant).answer(eq("Recomiéndame un plato"), anyList());
         assertThat(state("continue-with-ai")).isEqualTo("ACCEPTED");
+    }
+
+    @Test
+    void linkingBypassesGeminiAndDoesNotExposeSecretInConversationHistory() {
+        when(sender.send(anyString(), anyString())).thenReturn("wamid.link");
+        inbox.receive(choice("link-account", "tg_link"));
+        replies.dispatch();
+        var text = org.mockito.ArgumentCaptor.forClass(String.class);
+        verify(sender).send(eq("573001234567"), text.capture());
+        String token = text.getValue().split("#token=")[1].split("\\s")[0];
+        assertThat(new WhatsAppAccountService(factory, manager, "https://terra.example").preview(token).maskedPhone()).contains("4567");
+        verifyNoInteractions(assistant);
+        try (var em = factory.createEntityManager()) { assertThat(em.find(WhatsAppReply.class, "link-account").replyText).isNull(); }
+        inbox.receive(event("ask-after-link", Instant.now().getEpochSecond(), "123456"));
+        replies.dispatch();
+        verify(assistant).answer(eq("Recomiéndame un plato"), eq(List.of()));
     }
 
     @Test

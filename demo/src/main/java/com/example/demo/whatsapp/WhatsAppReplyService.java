@@ -29,10 +29,12 @@ public class WhatsAppReplyService {
     private final TransactionTemplate tx;
     private final WhatsAppAssistant assistant;
     private final WhatsAppMenu menu;
+    private final WhatsAppAccountService accounts;
 
     public WhatsAppReplyService(WhatsAppReplySettings settings, WhatsAppMessageClient client, ObjectMapper mapper,
             @Qualifier("entityManagerFactory") EntityManagerFactory factory,
-            @Qualifier("transactionManager") PlatformTransactionManager manager, WhatsAppAssistant assistant, WhatsAppMenu menu) {
+            @Qualifier("transactionManager") PlatformTransactionManager manager, WhatsAppAssistant assistant, WhatsAppMenu menu,
+            WhatsAppAccountService accounts) {
         this.settings = settings;
         this.client = client;
         this.mapper = mapper;
@@ -40,6 +42,7 @@ public class WhatsAppReplyService {
         this.tx = new TransactionTemplate(manager);
         this.assistant = assistant;
         this.menu = menu;
+        this.accounts = accounts;
     }
 
     // Participa en la misma transacción que guarda el webhook: no pierde trabajos
@@ -103,15 +106,30 @@ public class WhatsAppReplyService {
             String outbound = null;
             try {
                 if (job.replyText == null) {
-                    List<WhatsAppAssistant.Turn> history = tx.execute(status -> history(job));
-                    String fixed = menu.fixedAnswer(job.responseKind == null ? "AI" : job.responseKind);
-                    String generated = fixed != null ? fixed : assistant.answer(job.incomingText, history);
-                    tx.executeWithoutResult(status -> em.find(WhatsAppReply.class, job.id).replyText = generated);
+                    String generated;
+                    if ("LINK".equals(job.responseKind)) {
+                        // Token y respuesta se guardan juntos; un 429 reutiliza el mismo enlace.
+                        generated = tx.execute(status -> {
+                            String reply = accounts.createReply(job.recipient);
+                            em.find(WhatsAppReply.class, job.id).replyText = reply;
+                            return reply;
+                        });
+                    } else {
+                        List<WhatsAppAssistant.Turn> history = tx.execute(status -> history(job));
+                        String fixed = menu.fixedAnswer(job.responseKind == null ? "AI" : job.responseKind);
+                        generated = fixed != null ? fixed : assistant.answer(job.incomingText, history);
+                        String answer = generated;
+                        tx.executeWithoutResult(status -> em.find(WhatsAppReply.class, job.id).replyText = answer);
+                    }
                     job.replyText = generated;
                 }
                 // Gemini puede tardar; comprobar de nuevo la ventana antes del envío.
                 if (!job.expiresAt.isAfter(Instant.now())) {
-                    tx.executeWithoutResult(status -> em.find(WhatsAppReply.class, job.id).state = "EXPIRED");
+                    tx.executeWithoutResult(status -> {
+                        var expired = em.find(WhatsAppReply.class, job.id);
+                        expired.state = "EXPIRED";
+                        if ("LINK".equals(expired.responseKind)) expired.replyText = null;
+                    });
                     continue;
                 }
                 outbound = "MENU".equals(job.responseKind) ? client.sendMenu(job.recipient, job.replyText)
@@ -134,6 +152,8 @@ public class WhatsAppReplyService {
                 stored.state = resultState;
                 stored.lastError = resultError;
                 stored.outboundMessageId = resultOutbound;
+                // El secreto solo permanece en la cola mientras hace falta para reintentar.
+                if ("LINK".equals(stored.responseKind) && !"PENDING".equals(resultState)) stored.replyText = null;
                 stored.nextAttemptAt = Instant.now().plusSeconds(60L * stored.attempts);
             });
             log.info("Respuesta de WhatsApp: estado={}, error={}", state, error);
@@ -141,7 +161,7 @@ public class WhatsAppReplyService {
     }
 
     private List<WhatsAppAssistant.Turn> history(WhatsAppReply job) {
-        var previous = em.createQuery("select r from WhatsAppReply r where r.recipient = :recipient and r.state = 'ACCEPTED' and r.expiresAt > :now and r.expiresAt <= :current and r.id <> :id and r.incomingText is not null and r.replyText is not null order by r.expiresAt desc, r.id desc", WhatsAppReply.class)
+        var previous = em.createQuery("select r from WhatsAppReply r where r.recipient = :recipient and r.state = 'ACCEPTED' and (r.responseKind is null or r.responseKind <> 'LINK') and r.expiresAt > :now and r.expiresAt <= :current and r.id <> :id and r.incomingText is not null and r.replyText is not null order by r.expiresAt desc, r.id desc", WhatsAppReply.class)
                 .setParameter("recipient", job.recipient).setParameter("now", Instant.now())
                 .setParameter("current", job.expiresAt).setParameter("id", job.id).setMaxResults(6).getResultList();
         var turns = new ArrayList<WhatsAppAssistant.Turn>();
@@ -157,7 +177,11 @@ public class WhatsAppReplyService {
         var job = em.find(WhatsAppReply.class, candidates.getFirst().id, LockModeType.PESSIMISTIC_WRITE);
         em.refresh(job);
         if (!"PENDING".equals(job.state) || job.nextAttemptAt.isAfter(Instant.now())) return null;
-        if (!job.expiresAt.isAfter(Instant.now())) { job.state = "EXPIRED"; return null; }
+        if (!job.expiresAt.isAfter(Instant.now())) {
+            job.state = "EXPIRED";
+            if ("LINK".equals(job.responseKind)) job.replyText = null;
+            return null;
+        }
         job.state = "SENDING";
         job.attempts++;
         return job;

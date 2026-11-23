@@ -289,7 +289,8 @@ public class ClientServiceImpl implements ClientService {
     @Transactional
     public void deleteClient(Integer id) {
         // Verifica que el cliente exista antes de intentar eliminarlo.
-        if (!repository.existsById(id)) {
+        if (entityManager.createNativeQuery("select id from clients where id = :client for update", Integer.class)
+                .setParameter("client", id).getResultList().isEmpty()) {
             throw ApiException.notFound("No se encontró el cliente que se desea eliminar.");
         }
 
@@ -313,6 +314,9 @@ public class ClientServiceImpl implements ClientService {
 
         // Sus notificaciones se borran con la cuenta
         notificationService.deleteAll(id);
+        // El número queda libre al borrar su cuenta, sin conservar su asociación.
+        entityManager.createQuery("delete from WhatsAppAccountLink l where l.clientId = :client")
+                .setParameter("client", id).executeUpdate();
         repository.deleteById(id);
     }
 

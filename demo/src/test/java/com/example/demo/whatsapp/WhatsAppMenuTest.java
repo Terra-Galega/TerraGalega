@@ -23,6 +23,21 @@ class WhatsAppMenuTest {
     }
 
     @Test
+    void linkingIsExplicitAndEveryNativeMenuOptionHasAnEmojiWithinMetaLimits() {
+        var selected = menu.selection(mapper.readTree("{\"type\":\"interactive\",\"interactive\":{\"type\":\"list_reply\",\"list_reply\":{\"id\":\"tg_link\"}}}"));
+        assertThat(selected.kind()).isEqualTo("LINK");
+        assertThat(menu.selection(mapper.readTree("{\"type\":\"text\",\"text\":{\"body\":\"Vincular mi cuenta\"}}" )).kind()).isEqualTo("LINK");
+        assertThat(menu.selection(mapper.readTree("{\"type\":\"text\",\"text\":{\"body\":\"No quiero vincular mi cuenta\"}}" )).kind()).isEqualTo("AI");
+        var rows = mapper.valueToTree(WhatsAppMenu.interactive("Hola")).path("action").path("sections").path(0).path("rows");
+        assertThat(rows.size()).isEqualTo(6);
+        for (var row : rows) {
+            String title = row.path("title").asText();
+            assertThat(title.length()).isLessThanOrEqualTo(24);
+            assertThat(Character.isLetterOrDigit(title.codePointAt(0))).isFalse();
+        }
+    }
+
+    @Test
     void fixedChoicesUsePublicDataAndWebsiteWithoutBusinessActions() {
         assertThat(menu.fixedAnswer("INFO")).contains("Bogotá", "Domingo 12:00 a 20:00");
         assertThat(menu.fixedAnswer("CATALOG")).contains("https://terra.example/menu");
