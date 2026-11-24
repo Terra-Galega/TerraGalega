@@ -291,6 +291,10 @@ public class DataLoader implements CommandLineRunner {
         private Client pickClient(Random rnd, int daysAgo) {
                 List<Client> eligible = new ArrayList<>();
                 for (int i = 0; i < createdClients.size(); i++) {
+                        // Marta Souto no tiene historial: solo su pedido en camino
+                        if ("marta.souto@outlook.com".equals(createdClients.get(i).getEmail())) {
+                                continue;
+                        }
                         if (clientSinceDaysAgo(i) >= daysAgo) {
                                 eligible.add(createdClients.get(i));
                         }
@@ -1514,8 +1518,9 @@ public class DataLoader implements CommandLineRunner {
                                 .client(client2)
                                 .status(OrderStatus.ON_THE_WAY)
                                 .createdAt(now.minusMinutes(35))
-                                .operator(operator2)
-                                .deliveryPerson(deliveryPerson2)
+                                // Único pedido de Marta: lo maneja Valentina Cruz y lo lleva Pedro Sánchez
+                                .operator(operator3)
+                                .deliveryPerson(deliveryPerson1)
                                 .address(client2.getAddresses().get(0).getLabel())
                                 .build();
                 OrderDetail order2Detail1 = OrderDetail.builder()
@@ -1605,9 +1610,9 @@ public class DataLoader implements CommandLineRunner {
                 // ------------------------------------------------------------------
                 initMenuPools();
 
-                // Pedido 6 - SEGUNDO pedido en camino de Marta Souto (el pedido 2 es el
-                // primero).
-                // Marta tiene así 2 pedidos en camino a la vez, con 2 domiciliarios distintos.
+                // Pedido 6 - SEGUNDO pedido en camino de Marta Souto: desactivado. Marta solo
+                // conserva el pedido 2 (Pedro Sánchez + Valentina Cruz).
+                /*
                 Order order6 = newOrder(client2, OrderStatus.ON_THE_WAY, now.minusMinutes(48), operator1,
                                 deliveryPerson7);
                 addLine(order6, findProductByName("Fideuá Valenciana"), 1);
@@ -1615,6 +1620,7 @@ public class DataLoader implements CommandLineRunner {
                 addLine(order6, findProductByName("Tarta de Queso Vasca"), 1, findAddOnByName("Nata montada"));
                 addLine(order6, findProductByName("Tinto de Verano"), 2);
                 orderRepository.save(order6);
+                */
 
                 // Pedido 7 - en camino (Santiago Ospina, con Camilo)
                 Order order7 = newOrder(clientRepository.findByEmail("santiago.ospina@gmail.com"),
