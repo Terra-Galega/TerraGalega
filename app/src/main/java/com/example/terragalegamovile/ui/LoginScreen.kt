@@ -56,13 +56,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.terragalegamovile.data.ApiClient
@@ -448,28 +445,6 @@ fun LoginScreen(onLoggedIn: (LoginResponse) -> Unit) {
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-
-                Spacer(Modifier.height(20.dp))
-
-                // Cuentas de prueba (igual que en la web)
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Charcoal.copy(alpha = 0.04f))
-                        .border(1.dp, Charcoal.copy(alpha = 0.07f), RoundedCornerShape(12.dp))
-                        .padding(8.dp)
-                ) {
-                    DemoUser(t("Cliente de prueba: "), "marta.souto@outlook.com") {
-                        email = "marta.souto@outlook.com"; password = "marta123"
-                    }
-                    DemoUser(t("Repartidor de prueba: "), "luisa.fernandez@terra.com") {
-                        email = "luisa.fernandez@terra.com"; password = "luisa123"
-                    }
-                    DemoUser(t("Mesero de prueba: "), "andres.gomez@terra.com") {
-                        email = "andres.gomez@terra.com"; password = "andres123"
-                    }
-                }
             }
         }
     }
@@ -574,21 +549,4 @@ private fun AuthTabs(signup: Boolean, onChange: (Boolean) -> Unit) {
             }
         }
     }
-}
-
-@Composable
-private fun DemoUser(title: String, email: String, onClick: () -> Unit) {
-    Text(
-        text = buildAnnotatedString {
-            withStyle(SpanStyle(fontWeight = FontWeight.SemiBold, color = Charcoal)) { append(title) }
-            append(email)
-        },
-        fontSize = 12.sp,
-        color = Charcoal.copy(alpha = 0.6f),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 10.dp)
-    )
 }

@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.terragalegamovile.data.*
@@ -302,6 +303,9 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
     // - ocupada y la atiendo yo: naranja
     // - ocupada por otro mesero: gris y deshabilitada (no se puede entrar)
     val takenByOther = t.occupied && !t.mine
+    // Reserva en curso sin pedido todavía: la mesa no está libre, falta que
+    // lleguen los de la reserva y el mesero lo confirme al tomar el pedido
+    val pendingConfirm = !t.occupied && t.currentReservation != null
     val main = when {
         takenByOther -> Charcoal.copy(alpha = 0.4f)
         t.occupied -> Terra
@@ -315,6 +319,15 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
         t.awaitingPayment > 0 -> t("Por cobrar")
         else -> t("Sin pedidos")
     }
+    // Reserva (sin hora: la hora se ve al abrir la mesa). Pinta el recuadro:
+    // - en curso: rojo (el mismo del texto)
+    // - pronta (en 2 horas o menos): amarillo de la paleta
+    val reservation: Pair<String, Color>? = when {
+        t.currentReservation != null -> t("Reserva en curso") to ErrorText
+        t.upcomingReservation != null -> t("Pronta reserva") to Gold
+        else -> null
+    }
+    val boxColor = reservation?.second?.takeUnless { takenByOther }
     val shape = RoundedCornerShape(18.dp)
     Column(
         modifier = modifier
@@ -322,11 +335,20 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
             .background(
                 when {
                     takenByOther -> Charcoal.copy(alpha = 0.06f)
+                    boxColor != null -> boxColor.copy(alpha = 0.10f)
                     t.occupied -> Terra.copy(alpha = if (t.readyToServe) 0.16f else 0.07f)
                     else -> Forest.copy(alpha = 0.07f)
                 }
             )
-            .border(1.5.dp, if (takenByOther) Charcoal.copy(alpha = 0.15f) else main, shape)
+            .border(
+                1.5.dp,
+                when {
+                    takenByOther -> Charcoal.copy(alpha = 0.15f)
+                    boxColor != null -> boxColor
+                    else -> main
+                },
+                shape
+            )
             .clickable(enabled = !takenByOther, onClick = onClick)
             .semantics {
                 if (takenByOther) stateDescription = t("Deshabilitada, la atiende otro mesero")
@@ -347,14 +369,18 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(10.dp)
                     .clip(RoundedCornerShape(50))
-                    .background(main)
+                    .background(if (pendingConfirm) ErrorText else main)
             )
         }
         Text(
-            if (t.occupied) t("Ocupada") else t("Libre"),
+            when {
+                t.occupied -> t("Ocupada")
+                pendingConfirm -> t("Por confirmar")
+                else -> t("Libre")
+            },
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
-            color = main
+            color = if (pendingConfirm) ErrorText else main
         )
         Text(
             "${t.seats} sillas",
@@ -362,35 +388,21 @@ private fun TableCard(t: WaiterTable, modifier: Modifier, onClick: () -> Unit) {
             color = if (takenByOther) Charcoal.copy(alpha = 0.4f) else TextSoft
         )
         Spacer(Modifier.height(6.dp))
-        Text(label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = main)
-        // Aviso: reserva en 2 horas o menos
-        // Reserva en curso ahora mismo: la mesa es de quien reservó
-        t.currentReservation?.let {
-            Spacer(Modifier.height(6.dp))
-            Text(
-                t("Reservada · {}", hhmm(it)),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(Burgundy)
-                    .padding(horizontal = 8.dp, vertical = 3.dp)
-            )
-        }
-        t.upcomingReservation?.let {
-            Spacer(Modifier.height(6.dp))
-            Text(
-                t("⚠ Reserva {}", hhmm(it)),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = ErrorText,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(Gold.copy(alpha = 0.18f))
-                    .padding(horizontal = 8.dp, vertical = 3.dp)
-            )
-        }
+        Text(
+            label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = main,
+            maxLines = 1, overflow = TextOverflow.Ellipsis
+        )
+        // Mismo estilo que "Sin pedidos". Ocupa siempre dos líneas (vacías si no hay
+        // reserva) para que todas las tarjetas midan lo mismo.
+        Text(
+            reservation?.first ?: "",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (takenByOther) Charcoal.copy(alpha = 0.4f) else reservation?.second ?: main,
+            minLines = 2,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
