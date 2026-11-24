@@ -175,6 +175,11 @@ public class SecurityConfig {
 
                                                 // ================= OPERADOR =================
                                                 .requestMatchers(HttpMethod.GET, "/operators/me").hasAuthority(OPERATOR)
+                                                .requestMatchers(HttpMethod.GET, "/operators/whatsapp-requests").hasAuthority(OPERATOR)
+                                                .requestMatchers(HttpMethod.GET, "/operators/whatsapp-requests/notifications").hasAuthority(OPERATOR)
+                                                .requestMatchers(HttpMethod.PUT, "/operators/whatsapp-requests/notifications/*/read",
+                                                                "/operators/whatsapp-requests/notifications/read-all").hasAuthority(OPERATOR)
+                                                .requestMatchers(HttpMethod.PUT, "/operators/whatsapp-requests/*/handled").hasAuthority(OPERATOR)
                                                 .requestMatchers(HttpMethod.GET, "/orders/active")
                                                 .hasAuthority(OPERATOR)
                                                 .requestMatchers(HttpMethod.PUT, "/orders/*/confirm", "/orders/*/cook",

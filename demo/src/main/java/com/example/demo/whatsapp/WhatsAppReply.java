@@ -17,6 +17,14 @@ public class WhatsAppReply {
     // Nullable para las tareas que ya existían antes de conectar Gemini.
     @Column(name = "incoming_text", columnDefinition = "text") String incomingText;
     @Column(name = "reply_text", columnDefinition = "text") String replyText;
+    @Column(name = "response_kind", length = 20) String responseKind;
+    @Column(name = "account_client_id") Integer accountClientId;
+    @Column(name = "account_linked_at") Instant accountLinkedAt;
+    @Column(name = "cart_action_id", length = 64) String cartActionId;
+
+    WhatsAppAccountService.Account account() {
+        return accountClientId == null || accountLinkedAt == null ? null : new WhatsAppAccountService.Account(accountClientId, accountLinkedAt);
+    }
 
     protected WhatsAppReply() { }
     WhatsAppReply(String id, String recipient, Instant expiresAt) {
