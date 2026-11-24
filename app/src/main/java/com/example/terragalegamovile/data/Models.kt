@@ -278,7 +278,9 @@ data class Order(
     val deliveredAt: String?,
     val address: String?,
     val details: List<OrderLine>,
-    val total: Double
+    val total: Double,
+    // Operador que maneja el pedido (llega al empezar a prepararlo)
+    val operatorId: Int? = null
 )
 
 // Perfil del cliente (GET/PUT /clients/{id})

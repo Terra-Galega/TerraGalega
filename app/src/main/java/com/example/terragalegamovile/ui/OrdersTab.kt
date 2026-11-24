@@ -304,6 +304,9 @@ private fun OrderCard(order: Order, onCancel: (() -> Unit)?, onTrack: () -> Unit
             Column {
                 Text(t("Pedido #{}", order.id), fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = Charcoal)
                 Text(Format.dateTime(order.createdAt), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.55f))
+                order.operatorId?.let {
+                    Text(t("Operador #{}", it), fontSize = 14.sp, color = Charcoal.copy(alpha = 0.55f))
+                }
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(t("Total"), fontSize = 12.sp, color = Charcoal.copy(alpha = 0.5f))
