@@ -314,35 +314,60 @@ fun CourierScreen(user: LoginResponse, onLogout: () -> Unit) {
         val to = destination ?: return@LaunchedEffect
 
         val path = RoutePath(shownRoute.ifEmpty { listOf(Restaurant.location, to) })
-        var traveled = AppStorage.getTraveled(current.orderId)
+        val startMeters = AppStorage.getTraveled(current.orderId).coerceIn(0.0, path.totalMeters)
+        // Duración que falta: Simulation.TRIP_SECONDS exactos si sale del restaurante; si se
+        // retoma a mitad de camino, solo lo que falta a la misma velocidad
+        val fractionLeft = if (path.totalMeters == 0.0) 0.0 else 1.0 - startMeters / path.totalMeters
+        val durationMs = (Simulation.TRIP_SECONDS * 1000.0 * fractionLeft).toLong()
 
+        // La ubicación se manda aparte: esperar a la red en cada paso alargaba el recorrido
+        // (cada envío a Railway suma su demora). El avance depende solo del reloj.
+        var latest: LatLon? = null
+        var lastSent: LatLon? = null
+        val sender = launch {
+            while (true) {
+                val p = latest
+                if (p != null && p != lastSent) {
+                    lastSent = p
+                    try {
+                        ApiClient.api.sendLocation(user.id, current.orderId, LocationRequest(p.lat, p.lon))
+                        locationError = null
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        locationError = e.toUserMessage()
+                    }
+                } else {
+                    delay(100)
+                }
+            }
+        }
+
+        val startedAt = System.nanoTime()
         while (true) {
+            val elapsedMs = (System.nanoTime() - startedAt) / 1_000_000
+            val done = durationMs <= 0 || elapsedMs >= durationMs
+            val traveled = if (done) path.totalMeters
+            else startMeters + (path.totalMeters - startMeters) * elapsedMs / durationMs
+
             val pos = path.pointAt(traveled)
             myPos = pos.lat to pos.lon
             progress = if (path.totalMeters == 0.0) 100
             else (traveled / path.totalMeters * 100).toInt().coerceAtMost(100)
             AppStorage.saveTraveled(current.orderId, traveled)
+            latest = pos
 
-            try {
-                ApiClient.api.sendLocation(
-                    user.id,
-                    current.orderId,
-                    LocationRequest(pos.lat, pos.lon)
-                )
-                locationError = null
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                locationError = e.toUserMessage()
-            }
-
-            if (traveled >= path.totalMeters) {
+            if (done) {
                 arrived = true
                 break
             }
             delay(Simulation.TICK_MILLIS)
-            traveled += Simulation.SPEED_METERS_PER_SECOND * Simulation.TICK_MILLIS / 1000.0
         }
+        // Se da un momento para que salga la posición final antes de cerrar el envío
+        kotlinx.coroutines.withTimeoutOrNull(3_000) {
+            while (lastSent != latest) delay(50)
+        }
+        sender.cancel()
     }
 
     // GPS REAL: solo si Simulation.USE_REAL_GPS = true

@@ -16,8 +16,9 @@ object Restaurant {
 
 // Qué tan rápido y con qué frecuencia se mueve la repartidora simulada
 object Simulation {
-    const val SPEED_METERS_PER_SECOND = 60.0 // velocidad del recorrido simulado
-    const val TICK_MILLIS = 1000L // cada cuánto se manda una posición
+    // Duración total del recorrido simulado, sea cual sea la distancia ni la red
+    const val TRIP_SECONDS = 10.0
+    const val TICK_MILLIS = 100L // cada cuánto se mueve el punto en el mapa
 
     // false = el botón "Iniciar entrega" simula el recorrido solo.
     // true = usa el GPS real del teléfono.

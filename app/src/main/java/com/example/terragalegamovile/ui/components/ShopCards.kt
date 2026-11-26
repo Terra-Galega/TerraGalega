@@ -669,7 +669,8 @@ fun SelectCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(if (selected) Terra.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.85f))
+            // Sin seleccionar: blanco en claro y gris oscuro en el modo oscuro (Paper cambia con el modo)
+            .background(if (selected) Terra.copy(alpha = 0.06f) else Paper.copy(alpha = 0.85f))
             .border(if (selected) 1.5.dp else 1.dp, if (selected) Terra else BorderSoft, shape)
             .clickable(onClick = onClick)
     ) {
